@@ -361,16 +361,15 @@ export default async function FixedAssetDetailPage({
           <ZoruCardTitle>Maintenance log</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
-          {/* TODO 1D.2: maintenance log table needs a child collection + endpoint */}
-          <p className="text-[13px] text-zoru-ink-muted">
-            No maintenance entries yet.{' '}
-            <Link
-              href={`/dashboard/crm/fixed-assets/${id}/maintenance`}
-              className="text-zoru-primary hover:underline"
-            >
-              Open log →
-            </Link>
-          </p>
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/50 p-6 text-center">
+            <p className="text-[14px] font-medium text-foreground">Coming Soon</p>
+            <p className="mt-1 text-[13px] text-muted-foreground">
+              The maintenance tracking module is currently under development.
+            </p>
+            <Button variant="outline" size="sm" className="mt-4" disabled>
+              Add maintenance entry
+            </Button>
+          </div>
         </ZoruCardContent>
       </Card>
 

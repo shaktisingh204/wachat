@@ -1,0 +1,1241 @@
+{
+  "src/app/dashboard/hrm/payroll/salary-structure/[id]/edit/page.tsx": {
+    "imports": [
+      "import {",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';",
+      "import { getSession } from '@/app/actions/user.actions';",
+      "import { getSalaryStructureDoc } from '@/app/actions/crm-salary-structures.actions';",
+      "import { SalaryStructureForm } from '../../_components/salary-structure-form';"
+    ],
+    "components": [
+      "EditSalaryStructurePage"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "EntityListShell",
+      "SalaryStructureForm"
+    ],
+    "size": 1163
+  },
+  "src/app/dashboard/hrm/payroll/salary-structure/[id]/page.tsx": {
+    "imports": [
+      "import { Card } from '@/components/zoruui';",
+      "import {",
+      "import { Pencil } from 'lucide-react';",
+      "import Link from 'next/link';",
+      "import { EntityDetailShell } from '@/components/crm/entity-detail-shell';"
+    ],
+    "components": [
+      "SalaryStructureDetailPage"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "Card",
+      "EntityDetailShell",
+      "Link",
+      "CrmSalaryStructureStatus",
+      "Pencil"
+    ],
+    "size": 9461
+  },
+  "src/app/dashboard/hrm/payroll/salary-structure/new/page.tsx": {
+    "imports": [
+      "import { redirect } from 'next/navigation';",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';",
+      "import { getSession } from '@/app/actions/user.actions';",
+      "import { SalaryStructureForm } from '../_components/salary-structure-form';"
+    ],
+    "components": [
+      "NewSalaryStructurePage"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "EntityListShell",
+      "SalaryStructureForm"
+    ],
+    "size": 778
+  },
+  "src/app/dashboard/hrm/payroll/salary-structure/page.tsx": {
+    "imports": [
+      "import {",
+      "import {",
+      "import { useFormStatus } from 'react-dom';",
+      "import { LoaderCircle,",
+      "import { getSalaryStructures,"
+    ],
+    "components": [
+      "SubmitButton",
+      "SalaryStructurePage",
+      "StructureFormDialog"
+    ],
+    "state": [
+      "structures",
+      "editingStructure",
+      "components",
+      "isFormOpen"
+    ],
+    "hooks": [
+      "useState",
+      "useActionState",
+      "useFormStatus",
+      "useZoruToast",
+      "useTransition",
+      "useEffect"
+    ],
+    "ui": [
+      "ZoruAlertDialog",
+      "ZoruDialogFooter",
+      "ZoruAlertDialogHeader",
+      "LoaderCircle",
+      "ZoruRadioGroupItem",
+      "Button",
+      "Card",
+      "Dialog",
+      "Edit",
+      "ComponentRow"
+    ],
+    "size": 19123
+  },
+  "src/app/dashboard/hrm/payroll/settings/page.tsx": {
+    "imports": [
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';",
+      "import { getPayrollSettings } from '@/app/actions/crm-payroll-settings.actions';",
+      "import { PayrollSettingsForm } from './payroll-settings-form';"
+    ],
+    "components": [
+      "PayrollSettingsPage"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "EntityListShell",
+      "PayrollSettingsForm"
+    ],
+    "size": 617
+  },
+  "src/app/dashboard/hrm/payroll/shift-change-requests/page.tsx": {
+    "imports": [
+      "import {",
+      "import {",
+      "import { Check,",
+      "import { format } from 'date-fns';",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';"
+    ],
+    "components": [
+      "ShiftChangeRequestsPage",
+      "ShiftCell"
+    ],
+    "state": [
+      "newCurrentShiftId",
+      "newDate",
+      "requests",
+      "formError",
+      "dialogOpen",
+      "employees",
+      "newRequestedShiftId",
+      "shifts",
+      "newUserId",
+      "newReason"
+    ],
+    "hooks": [
+      "useTransition",
+      "useState",
+      "useMemo",
+      "useEffect"
+    ],
+    "ui": [
+      "ZoruDialogFooter",
+      "Check",
+      "HTMLFormElement",
+      "Button",
+      "ZoruSelectTrigger",
+      "Card",
+      "ShiftCell",
+      "Dialog",
+      "CrmEmployee",
+      "X"
+    ],
+    "size": 13762
+  },
+  "src/app/dashboard/hrm/payroll/shift-rotations/[id]/edit/page.tsx": {
+    "imports": [
+      "import {",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';",
+      "import { getSession } from '@/app/actions/user.actions';",
+      "import { getShiftRotationById } from '@/app/actions/crm-shift-rotations.actions';",
+      "import { getShifts } from '@/app/actions/crm-shifts.actions';"
+    ],
+    "components": [
+      "EditShiftRotationPage"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "RotationForm",
+      "EntityListShell"
+    ],
+    "size": 1474
+  },
+  "src/app/dashboard/hrm/payroll/shift-rotations/[id]/page.tsx": {
+    "imports": [
+      "import {",
+      "import {",
+      "import { useParams } from 'next/navigation';",
+      "import { Plus,",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';"
+    ],
+    "components": [
+      "ShiftRotationDetailPage"
+    ],
+    "state": [
+      "newDuration",
+      "newShiftId",
+      "sequences",
+      "rotation",
+      "shifts"
+    ],
+    "hooks": [
+      "useState",
+      "useCallback",
+      "useParams",
+      "useTransition",
+      "useEffect"
+    ],
+    "ui": [
+      "Card",
+      "ZoruSelectValue",
+      "ZoruSelectContent",
+      "WsShiftRotationSequence",
+      "WsShiftRotation",
+      "WsEmployeeShift",
+      "Select",
+      "EntityListShell",
+      "Trash2",
+      "Input"
+    ],
+    "size": 8374
+  },
+  "src/app/dashboard/hrm/payroll/shift-rotations/automate/page.tsx": {
+    "imports": [
+      "import {",
+      "import {",
+      "import { Play,",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';",
+      "import { getCrmEmployees } from '@/app/actions/crm-employees.actions';"
+    ],
+    "components": [
+      "AutomateShiftPage"
+    ],
+    "state": [
+      "rotations",
+      "startDate",
+      "rotationId",
+      "runs",
+      "employees",
+      "endDate",
+      "selectedEmps",
+      "error",
+      "result"
+    ],
+    "hooks": [
+      "useTransition",
+      "useState",
+      "useEffect"
+    ],
+    "ui": [
+      "HTMLFormElement",
+      "Button",
+      "ZoruSelectTrigger",
+      "Card",
+      "ZoruSelectValue",
+      "WsShiftRotation",
+      "WsAutomateShift",
+      "ZoruSelectItem",
+      "Badge",
+      "Play"
+    ],
+    "size": 8419
+  },
+  "src/app/dashboard/hrm/payroll/shift-rotations/new/page.tsx": {
+    "imports": [
+      "import { redirect } from 'next/navigation';",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';",
+      "import { getSession } from '@/app/actions/user.actions';",
+      "import { getShifts } from '@/app/actions/crm-shifts.actions';",
+      "import { RotationForm } from '../_components/rotation-form';"
+    ],
+    "components": [
+      "NewShiftRotationPage"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "RotationForm",
+      "EntityListShell"
+    ],
+    "size": 1101
+  },
+  "src/app/dashboard/hrm/payroll/shift-rotations/page.tsx": {
+    "imports": [
+      "import { Badge, Button, Card, Input, Label } from '@/components/zoruui';",
+      "import {",
+      "import Link from 'next/link';",
+      "import { Edit,",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';"
+    ],
+    "components": [
+      "ShiftRotationsPage"
+    ],
+    "state": [
+      "rotations",
+      "description",
+      "name"
+    ],
+    "hooks": [
+      "useTransition",
+      "useState",
+      "useEffect"
+    ],
+    "ui": [
+      "Card",
+      "Link",
+      "WsShiftRotation",
+      "Edit",
+      "EntityListShell",
+      "Trash2",
+      "Input",
+      "Badge",
+      "Label",
+      "HTMLFormElement"
+    ],
+    "size": 6139
+  },
+  "src/app/dashboard/hrm/payroll/shifts/[id]/edit/page.tsx": {
+    "imports": [
+      "import { redirect } from 'next/navigation';"
+    ],
+    "components": [
+      "EditShiftLegacyRedirect"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [],
+    "size": 369
+  },
+  "src/app/dashboard/hrm/payroll/shifts/[id]/page.tsx": {
+    "imports": [
+      "import { redirect } from 'next/navigation';"
+    ],
+    "components": [
+      "ShiftDetailLegacyRedirect"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [],
+    "size": 509
+  },
+  "src/app/dashboard/hrm/payroll/shifts/new/page.tsx": {
+    "imports": [
+      "import { redirect } from 'next/navigation';"
+    ],
+    "components": [
+      "NewShiftLegacyRedirect"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [],
+    "size": 338
+  },
+  "src/app/dashboard/hrm/payroll/shifts/page.tsx": {
+    "imports": [
+      "import {",
+      "import {",
+      "import { useFormStatus } from 'react-dom';",
+      "import { Edit,",
+      "import * as React from 'react';"
+    ],
+    "components": [
+      "SubmitButton",
+      "ShiftsListPage",
+      "ShiftDialog"
+    ],
+    "state": [],
+    "hooks": [
+      "useState",
+      "useActionState",
+      "useCallback",
+      "useFormStatus",
+      "useZoruToast",
+      "useTransition",
+      "useEffect"
+    ],
+    "ui": [
+      "ZoruAlertDialog",
+      "ZoruDialogFooter",
+      "CrmShiftDoc",
+      "ZoruTableRow",
+      "LoaderCircle",
+      "ZoruAlertDialogFooter",
+      "Button",
+      "Dialog",
+      "StatusPill",
+      "Edit"
+    ],
+    "size": 26468
+  },
+  "src/app/dashboard/hrm/payroll/shifts/schedule/page.tsx": {
+    "imports": [
+      "import { Button, Card, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';",
+      "import {",
+      "import {",
+      "import { format,",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';"
+    ],
+    "components": [
+      "ShiftSchedulePage",
+      "Row"
+    ],
+    "state": [
+      "schedules",
+      "employees",
+      "selectedShiftId",
+      "shifts",
+      "weekStart"
+    ],
+    "hooks": [
+      "useMemo",
+      "useState",
+      "useCallback",
+      "useTransition",
+      "useEffect"
+    ],
+    "ui": [
+      "Card",
+      "ZoruSelectValue",
+      "ZoruSelectContent",
+      "CrmEmployee",
+      "WsEmployeeShift",
+      "EntityListShell",
+      "WsEmployeeShiftSchedule",
+      "Users",
+      "Date",
+      "ZoruSelectItem"
+    ],
+    "size": 9617
+  },
+  "src/app/dashboard/hrm/payroll/tds/[id]/edit/page.tsx": {
+    "imports": [
+      "import {",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';",
+      "import { getSession } from '@/app/actions/user.actions';",
+      "import { getTdsRecordById } from '@/app/actions/crm-tds.actions';",
+      "import { TdsForm } from '../../_components/tds-form';"
+    ],
+    "components": [
+      "EditTdsPage"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "TdsForm",
+      "EntityListShell"
+    ],
+    "size": 1263
+  },
+  "src/app/dashboard/hrm/payroll/tds/[id]/page.tsx": {
+    "imports": [
+      "import { Button, Card } from '@/components/zoruui';",
+      "import {",
+      "import { Pencil } from 'lucide-react';",
+      "import Link from 'next/link';",
+      "import { EntityDetailShell } from '@/components/crm/entity-detail-shell';"
+    ],
+    "components": [
+      "TdsDetailPage"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "Card",
+      "StatusPill",
+      "EntityDetailShell",
+      "Link",
+      "CrmTdsStatus",
+      "Pencil"
+    ],
+    "size": 9121
+  },
+  "src/app/dashboard/hrm/payroll/tds/new/page.tsx": {
+    "imports": [
+      "import { redirect } from 'next/navigation';",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';",
+      "import { getSession } from '@/app/actions/user.actions';",
+      "import { TdsForm } from '../_components/tds-form';"
+    ],
+    "components": [
+      "NewTdsPage"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "TdsForm",
+      "EntityListShell"
+    ],
+    "size": 689
+  },
+  "src/app/dashboard/hrm/payroll/tds/page.tsx": {
+    "imports": [
+      "import { Badge, Card, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';",
+      "import {",
+      "import { LoaderCircle } from 'lucide-react';",
+      "import { startOfMonth,",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';"
+    ],
+    "components": [
+      "TdsPage"
+    ],
+    "state": [
+      "month",
+      "year",
+      "rows"
+    ],
+    "hooks": [
+      "useTransition",
+      "useCallback",
+      "useEffect",
+      "useState"
+    ],
+    "ui": [
+      "ZoruSelectContent",
+      "ZoruSelectValue",
+      "Card",
+      "EntityListShell",
+      "ZoruSelectItem",
+      "Badge",
+      "LoaderCircle",
+      "Select",
+      "ZoruSelectTrigger"
+    ],
+    "size": 10216
+  },
+  "src/app/dashboard/hrm/payroll/time-logs/page.tsx": {
+    "imports": [
+      "import {",
+      "import {",
+      "import { format } from 'date-fns';",
+      "import {",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';"
+    ],
+    "components": [
+      "TimeLogsPage"
+    ],
+    "state": [
+      "toDate",
+      "manualStart",
+      "manualOpen",
+      "logs",
+      "fromDate",
+      "manualMemo",
+      "memo",
+      "manualEnd"
+    ],
+    "hooks": [
+      "useMemo",
+      "useState",
+      "useZoruToast",
+      "useTransition",
+      "useRef",
+      "useEffect"
+    ],
+    "ui": [
+      "ZoruDialogFooter",
+      "Check",
+      "ZoruTableRow",
+      "Timer",
+      "Filter",
+      "Button",
+      "Card",
+      "Dialog",
+      "X",
+      "Table"
+    ],
+    "size": 19493
+  },
+  "src/app/dashboard/hrm/payroll/weekly-timesheets/[id]/edit/page.tsx": {
+    "imports": [
+      "import {",
+      "import { useEffect, useState, useTransition } from 'react';",
+      "import { useParams, useRouter } from 'next/navigation';",
+      "import { LoaderCircle } from 'lucide-react';",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';"
+    ],
+    "components": [
+      "EditWeeklyTimesheetPage"
+    ],
+    "state": [
+      "loaded",
+      "userId",
+      "loadFailed",
+      "status",
+      "employees",
+      "weekStart"
+    ],
+    "hooks": [
+      "useRouter",
+      "useState",
+      "useParams",
+      "useZoruToast",
+      "useTransition",
+      "useEffect"
+    ],
+    "ui": [
+      "Card",
+      "ZoruSelectValue",
+      "ZoruSelectContent",
+      "EntityListShell",
+      "ZoruSelectItem",
+      "EmployeeLite",
+      "Input",
+      "LoaderCircle",
+      "Label",
+      "Select"
+    ],
+    "size": 7039
+  },
+  "src/app/dashboard/hrm/payroll/weekly-timesheets/[id]/page.tsx": {
+    "imports": [
+      "import { Badge, Button, Card, useZoruToast } from '@/components/zoruui';",
+      "import {",
+      "import { useParams,",
+      "import { format,",
+      "import {"
+    ],
+    "components": [
+      "WeeklyTimesheetDetailPage"
+    ],
+    "state": [
+      "cellValues",
+      "entries",
+      "sheet"
+    ],
+    "hooks": [
+      "useRouter",
+      "useMemo",
+      "useState",
+      "useCallback",
+      "useParams",
+      "useZoruToast",
+      "useTransition",
+      "useEffect"
+    ],
+    "ui": [
+      "Card",
+      "EntityDetailShell",
+      "Send",
+      "X",
+      "WsWeeklyTimesheetEntry",
+      "Check",
+      "WsWeeklyTimesheetStatus",
+      "Date",
+      "LoaderCircle",
+      "Record"
+    ],
+    "size": 10561
+  },
+  "src/app/dashboard/hrm/payroll/weekly-timesheets/new/page.tsx": {
+    "imports": [
+      "import {",
+      "import {",
+      "import { useRouter } from 'next/navigation';",
+      "import { LoaderCircle } from 'lucide-react';",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';"
+    ],
+    "components": [
+      "NewWeeklyTimesheetPage"
+    ],
+    "state": [
+      "weekStart",
+      "userId",
+      "employees"
+    ],
+    "hooks": [
+      "useRouter",
+      "useState",
+      "useZoruToast",
+      "useTransition",
+      "useEffect"
+    ],
+    "ui": [
+      "Card",
+      "ZoruSelectValue",
+      "ZoruSelectContent",
+      "EntityListShell",
+      "ZoruSelectItem",
+      "EmployeeLite",
+      "Input",
+      "LoaderCircle",
+      "Label",
+      "Select"
+    ],
+    "size": 5710
+  },
+  "src/app/dashboard/hrm/payroll/weekly-timesheets/page.tsx": {
+    "imports": [
+      "import {",
+      "import { EnumFilterField } from '@/components/crm/enum-filter-field';",
+      "import {",
+      "import Link from 'next/link';",
+      "import { format } from 'date-fns';"
+    ],
+    "components": [
+      "WeeklyTimesheetsPage"
+    ],
+    "state": [
+      "statusFilter",
+      "employees",
+      "sheets"
+    ],
+    "hooks": [
+      "useMemo",
+      "useState",
+      "useZoruToast",
+      "useTransition",
+      "useEffect"
+    ],
+    "ui": [
+      "Card",
+      "Link",
+      "Send",
+      "EnumFilterField",
+      "X",
+      "Eye",
+      "EntityListShell",
+      "Check",
+      "WsWeeklyTimesheetStatus",
+      "Badge"
+    ],
+    "size": 8014
+  },
+  "src/app/dashboard/hrm/permission-groups/[id]/page.tsx": {
+    "imports": [
+      "import * as React from 'react';",
+      "import { useParams, useRouter } from 'next/navigation';",
+      "import { ArrowLeft, LoaderCircle, ShieldCheck, UserMinus } from 'lucide-react';",
+      "import {",
+      "import {"
+    ],
+    "components": [
+      "PermissionGroupEditPage"
+    ],
+    "state": [],
+    "hooks": [
+      "useRouter",
+      "useState",
+      "useCallback",
+      "useParams",
+      "useZoruToast",
+      "useTransition",
+      "useEffect"
+    ],
+    "ui": [
+      "ZoruTableRow",
+      "LoaderCircle",
+      "Button",
+      "PermissionMatrix",
+      "Card",
+      "ZoruTableBody",
+      "Badge",
+      "ZoruTableHead",
+      "ShieldCheck",
+      "ArrowLeft"
+    ],
+    "size": 12279
+  },
+  "src/app/dashboard/hrm/permission-groups/page.tsx": {
+    "imports": [
+      "import * as React from 'react';",
+      "import Link from 'next/link';",
+      "import {",
+      "import {",
+      "import { downloadCsv, dateStamp } from '@/lib/crm-list-export';"
+    ],
+    "components": [
+      "PermissionGroupsPage"
+    ],
+    "state": [],
+    "hooks": [
+      "useMemo",
+      "useState",
+      "useCallback",
+      "useZoruToast",
+      "useTransition",
+      "useEffect"
+    ],
+    "ui": [
+      "ZoruAlertDialog",
+      "NewGroupSheet",
+      "ZoruAlertDialogHeader",
+      "ZoruTableRow",
+      "Employee",
+      "LoaderCircle",
+      "ZoruAlertDialogFooter",
+      "StatCard",
+      "Button",
+      "Kpi"
+    ],
+    "size": 16896
+  },
+  "src/app/dashboard/hrm/portal/page.tsx": {
+    "imports": [
+      "import { getSession } from '@/app/actions/user.actions';",
+      "import {",
+      "import { PortalShell } from './_components/portal-shell';"
+    ],
+    "components": [
+      "HrmPortalPage"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "PortalShell"
+    ],
+    "size": 1365
+  },
+  "src/app/dashboard/hrm/portal/reports/page.tsx": {
+    "imports": [
+      "import * as React from 'react';",
+      "import {",
+      "import {",
+      "import {",
+      "import { getMyDirectReports } from '@/app/actions/hrm-portal.actions';"
+    ],
+    "components": [
+      "TaskReportsPage"
+    ],
+    "state": [],
+    "hooks": [
+      "useMemo",
+      "useState",
+      "useCallback",
+      "useZoruToast",
+      "useEffect"
+    ],
+    "ui": [
+      "ReportsKpiStrip",
+      "Download",
+      "Inbox",
+      "CheckCheck",
+      "ReportsInboxTable",
+      "History",
+      "Input",
+      "HistoryTable",
+      "HrmTaskReport",
+      "StatusFilter"
+    ],
+    "size": 14511
+  },
+  "src/app/dashboard/hrm/portal/roadmaps/[id]/edit/page.tsx": {
+    "imports": [
+      "import * as React from 'react';",
+      "import { useEffect, useState, useTransition } from 'react';",
+      "import { useParams, useRouter } from 'next/navigation';",
+      "import { Plus, Trash2, ArrowLeft, LoaderCircle } from 'lucide-react';",
+      "import {"
+    ],
+    "components": [
+      "EditRoadmapPage"
+    ],
+    "state": [
+      "title",
+      "loaded",
+      "startDate",
+      "status",
+      "loadFailed",
+      "error",
+      "endDate",
+      "phases",
+      "description"
+    ],
+    "hooks": [
+      "useRouter",
+      "useState",
+      "useParams",
+      "useTransition",
+      "useEffect"
+    ],
+    "ui": [
+      "Card",
+      "ZoruSelectValue",
+      "ZoruSelectContent",
+      "ArrowLeft",
+      "RoadmapStatus",
+      "Textarea",
+      "PhaseDraft",
+      "Trash2",
+      "ZoruCardContent",
+      "Input"
+    ],
+    "size": 9783
+  },
+  "src/app/dashboard/hrm/portal/roadmaps/[id]/page.tsx": {
+    "imports": [
+      "import { notFound } from 'next/navigation';",
+      "import { getRoadmapById } from '@/app/actions/hrm-roadmaps.actions';",
+      "import { getSession } from '@/app/actions/user.actions';",
+      "import { getMyDirectReports } from '@/app/actions/hrm-portal.actions';",
+      "import { RoadmapEditor } from './_components/roadmap-editor';"
+    ],
+    "components": [
+      "RoadmapEditorPage"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "RoadmapEditor"
+    ],
+    "size": 1296
+  },
+  "src/app/dashboard/hrm/portal/roadmaps/new/page.tsx": {
+    "imports": [
+      "import * as React from 'react';",
+      "import { useState, useTransition } from 'react';",
+      "import { useRouter } from 'next/navigation';",
+      "import { Plus, Trash2, ArrowLeft } from 'lucide-react';",
+      "import { createRoadmap, type RoadmapPhase } from '@/app/actions/hrm-roadmaps.actions';"
+    ],
+    "components": [
+      "NewRoadmapPage"
+    ],
+    "state": [
+      "title",
+      "startDate",
+      "status",
+      "endDate",
+      "error",
+      "phases",
+      "description"
+    ],
+    "hooks": [
+      "useTransition",
+      "useRouter",
+      "useState"
+    ],
+    "ui": [
+      "Card",
+      "ZoruSelectValue",
+      "ZoruSelectContent",
+      "Array",
+      "ArrowLeft",
+      "Textarea",
+      "Trash2",
+      "ZoruCardContent",
+      "Input",
+      "ZoruSelectItem"
+    ],
+    "size": 7093
+  },
+  "src/app/dashboard/hrm/portal/roadmaps/page.tsx": {
+    "imports": [
+      "import * as React from 'react';",
+      "import { useCallback, useEffect, useState, useTransition } from 'react';",
+      "import { useRouter } from 'next/navigation';",
+      "import { Plus, Trash2, Archive, Download, Map } from 'lucide-react';",
+      "import {"
+    ],
+    "components": [
+      "RoadmapsPage"
+    ],
+    "state": [
+      "kpis",
+      "selected",
+      "rows"
+    ],
+    "hooks": [
+      "useRouter",
+      "useState",
+      "useCallback",
+      "useTransition",
+      "useEffect"
+    ],
+    "ui": [
+      "Card",
+      "Download",
+      "Trash2",
+      "Map",
+      "Progress",
+      "HrmRoadmap",
+      "ZoruCardContent",
+      "Badge",
+      "Archive",
+      "StatCard"
+    ],
+    "size": 10426
+  },
+  "src/app/dashboard/hrm-advanced/ats-recruitment/page.tsx": {
+    "imports": [
+      "import React from 'react';",
+      "import { EntityCrudPage } from '@/components/crm/entity-crud-page';",
+      "import { getATSApplications, saveATSApplication, deleteATSApplication } from '@/app/actions/hrm-advanced/ats-recruitment';",
+      "import { ATSApplication } from '@/lib/hrm-advanced-types';"
+    ],
+    "components": [
+      "Page"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "EntityCrudPage"
+    ],
+    "size": 1250
+  },
+  "src/app/dashboard/hrm-advanced/benefits-portal/page.tsx": {
+    "imports": [
+      "import React from 'react';",
+      "import { EntityCrudPage } from '@/components/crm/entity-crud-page';",
+      "import { getBenefitPlans, saveBenefitPlan, deleteBenefitPlan } from '@/app/actions/hrm-advanced/benefits-portal';",
+      "import { BenefitPlan } from '@/lib/hrm-advanced-types';"
+    ],
+    "components": [
+      "Page"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "EntityCrudPage"
+    ],
+    "size": 1130
+  },
+  "src/app/dashboard/hrm-advanced/employee-onboarding/page.tsx": {
+    "imports": [
+      "import React from 'react';",
+      "import { EntityCrudPage } from '@/components/crm/entity-crud-page';",
+      "import { getOnboardingTasks, saveOnboardingTask, deleteOnboardingTask } from '@/app/actions/hrm-advanced/employee-onboarding';",
+      "import { OnboardingTask } from '@/lib/hrm-advanced-types';"
+    ],
+    "components": [
+      "Page"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "EntityCrudPage"
+    ],
+    "size": 1229
+  },
+  "src/app/dashboard/hrm-advanced/expense-policy/page.tsx": {
+    "imports": [
+      "import React from 'react';",
+      "import { EntityCrudPage } from '@/components/crm/entity-crud-page';",
+      "import { getExpenseClaims, saveExpenseClaim, deleteExpenseClaim } from '@/app/actions/hrm-advanced/expense-policy';",
+      "import { ExpenseClaim } from '@/lib/hrm-advanced-types';"
+    ],
+    "components": [
+      "Page"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "EntityCrudPage"
+    ],
+    "size": 1304
+  },
+  "src/app/dashboard/hrm-advanced/geofenced-attendance/page.tsx": {
+    "imports": [
+      "import React from 'react';",
+      "import { EntityCrudPage } from '@/components/crm/entity-crud-page';",
+      "import { getAttendanceRecords, saveAttendanceRecord, deleteAttendanceRecord } from '@/app/actions/hrm-advanced/geofenced-attendance';",
+      "import { AttendanceRecord } from '@/lib/hrm-advanced-types';"
+    ],
+    "components": [
+      "Page"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "EntityCrudPage"
+    ],
+    "size": 1426
+  },
+  "src/app/dashboard/hrm-advanced/lms-training/page.tsx": {
+    "imports": [
+      "import React from 'react';",
+      "import { EntityCrudPage } from '@/components/crm/entity-crud-page';",
+      "import { getTrainingCourses, saveTrainingCourse, deleteTrainingCourse } from '@/app/actions/hrm-advanced/lms-training';",
+      "import { TrainingCourse } from '@/lib/hrm-advanced-types';"
+    ],
+    "components": [
+      "Page"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "EntityCrudPage"
+    ],
+    "size": 1216
+  },
+  "src/app/dashboard/hrm-advanced/offboarding/page.tsx": {
+    "imports": [
+      "import React from 'react';",
+      "import { EntityCrudPage } from '@/components/crm/entity-crud-page';",
+      "import { getOffboardingTasks, saveOffboardingTask, deleteOffboardingTask } from '@/app/actions/hrm-advanced/offboarding';",
+      "import { OffboardingTask } from '@/lib/hrm-advanced-types';"
+    ],
+    "components": [
+      "Page"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "EntityCrudPage"
+    ],
+    "size": 1228
+  },
+  "src/app/dashboard/hrm-advanced/okr-tracking/page.tsx": {
+    "imports": [
+      "import React from 'react';",
+      "import { EntityCrudPage } from '@/components/crm/entity-crud-page';",
+      "import { getOKRs, saveOKR, deleteOKR } from '@/app/actions/hrm-advanced/okr-tracking';",
+      "import { OKR } from '@/lib/hrm-advanced-types';"
+    ],
+    "components": [
+      "Page"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "EntityCrudPage"
+    ],
+    "size": 1155
+  },
+  "src/app/dashboard/hrm-advanced/org-chart/page.tsx": {
+    "imports": [
+      "import React, { useEffect, useState } from 'react';",
+      "import { EntityListShell } from '@/components/crm/entity-list-shell';",
+      "import { getOrgChartNodes, saveOrgChartNode, deleteOrgChartNode } from '@/app/actions/hrm-advanced/org-chart';",
+      "import { OrgChartNode } from '@/lib/hrm-advanced-types';",
+      "import { Button, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Input, EmptyState } from '@/components/zoruui';"
+    ],
+    "components": [
+      "OrgChartPage"
+    ],
+    "state": [
+      "search",
+      "data",
+      "isDialogOpen",
+      "editingItem",
+      "view",
+      "isLoading"
+    ],
+    "hooks": [
+      "useState",
+      "useEffect",
+      "useZoruToast"
+    ],
+    "ui": [
+      "OrgChartNode",
+      "Dialog",
+      "ZoruDialogFooter",
+      "Partial",
+      "EntityListShell",
+      "Input",
+      "ZoruDialogContent",
+      "ZoruDialogHeader",
+      "EmptyState",
+      "Button"
+    ],
+    "size": 7706
+  },
+  "src/app/dashboard/hrm-advanced/performance-reviews/page.tsx": {
+    "imports": [
+      "import React from 'react';",
+      "import { EntityCrudPage } from '@/components/crm/entity-crud-page';",
+      "import { getPerformanceReviews, savePerformanceReview, deletePerformanceReview } from '@/app/actions/hrm-advanced/performance-reviews';",
+      "import { PerformanceReview } from '@/lib/hrm-advanced-types';"
+    ],
+    "components": [
+      "Page"
+    ],
+    "state": [],
+    "hooks": [],
+    "ui": [
+      "EntityCrudPage"
+    ],
+    "size": 1270
+  },
+  "src/app/dashboard/information/page.tsx": {
+    "imports": [
+      "import {",
+      "import {",
+      "import type { WithId } from 'mongodb';",
+      "import type { Project,",
+      "import { AlertCircle, Banknote, Briefcase } from 'lucide-react';"
+    ],
+    "components": [
+      "ProjectInformationPage",
+      "InfoRow",
+      "LoadingSkeleton"
+    ],
+    "state": [
+      "project",
+      "loading",
+      "isClient"
+    ],
+    "hooks": [
+      "useTransition",
+      "useState",
+      "useEffect"
+    ],
+    "ui": [
+      "Card",
+      "ZoruAlertDescription",
+      "LoadingSkeleton",
+      "ZoruAlertTitle",
+      "Banknote",
+      "Skeleton",
+      "ZoruCardDescription",
+      "ZoruCardContent",
+      "AlertCircle",
+      "ZoruCardTitle"
+    ],
+    "size": 8578
+  },
+  "src/app/dashboard/instagram/connections/page.tsx": {
+    "imports": [
+      "import {",
+      "import {",
+      "import { useRouter } from 'next/navigation';",
+      "import { getProjects } from '@/app/actions/project.actions';",
+      "import { getInstagramAccountForPage } from '@/app/actions/instagram.actions';"
+    ],
+    "components": [
+      "PageSkeleton",
+      "InstagramAccountCard",
+      "InstagramConnectionsPage"
+    ],
+    "state": [
+      "projects"
+    ],
+    "hooks": [
+      "useTransition",
+      "useEffect",
+      "useRouter",
+      "useState"
+    ],
+    "ui": [
+      "ZoruAvatarFallback",
+      "ZoruCardDescription",
+      "Wrench",
+      "InstagramAccountCard",
+      "Button",
+      "ArrowRight",
+      "Card",
+      "ZoruPageHeading",
+      "ZoruCardFooter",
+      "ZoruCardContent"
+    ],
+    "size": 5271
+  }
+}

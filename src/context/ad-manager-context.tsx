@@ -2,11 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-interface AdAccount {
-    id: string;
-    name: string;
-    account_id: string;
-}
+import type { AdAccount } from '@/lib/definitions';
 
 interface AdManagerContextType {
     activeAccount: AdAccount | null;
@@ -36,12 +32,15 @@ export function AdManagerProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const selectAccount = (account: AdAccount | null) => {
-        setActiveAccount(account);
         if (account) {
-            localStorage.setItem('activeAdAccountId', account.id);
-            localStorage.setItem('activeAdAccountName', account.name);
-            localStorage.setItem('activeAdAccountAccountId', account.account_id);
+            const standardizedAccountId = account.account_id.startsWith('act_') ? account.account_id : `act_${account.account_id}`;
+            const stdAccount = { ...account, account_id: standardizedAccountId };
+            setActiveAccount(stdAccount);
+            localStorage.setItem('activeAdAccountId', stdAccount.id);
+            localStorage.setItem('activeAdAccountName', stdAccount.name);
+            localStorage.setItem('activeAdAccountAccountId', stdAccount.account_id);
         } else {
+            setActiveAccount(null);
             localStorage.removeItem('activeAdAccountId');
             localStorage.removeItem('activeAdAccountName');
             localStorage.removeItem('activeAdAccountAccountId');

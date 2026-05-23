@@ -238,6 +238,11 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
                 accountId: accountId && ObjectId.isValid(accountId) ? accountId : undefined,
             });
             revalidatePath('/dashboard/crm/contacts');
+            if (id) {
+                revalidatePath(`/dashboard/crm/contacts/${id}`);
+                revalidatePath(`/dashboard/crm/sales/contacts/${id}`);
+            }
+            revalidatePath('/dashboard/crm/sales/contacts');
             void recordFlowAction('crm.contact.created', {
                 userId: String(session.user._id),
                 metadata: { name, email, company },
@@ -285,6 +290,11 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
         const inserted = await db.collection('crm_contacts').insertOne(newContact as CrmContact);
 
         revalidatePath('/dashboard/crm/contacts');
+        if (inserted.insertedId) {
+            revalidatePath(`/dashboard/crm/contacts/${inserted.insertedId}`);
+            revalidatePath(`/dashboard/crm/sales/contacts/${inserted.insertedId}`);
+        }
+        revalidatePath('/dashboard/crm/sales/contacts');
         void recordFlowAction('crm.contact.created', {
             userId: String(session.user._id),
             target: inserted.insertedId?.toString?.(),
@@ -355,6 +365,7 @@ export async function updateCrmContact(
             });
             revalidatePath('/dashboard/crm/contacts');
             revalidatePath('/dashboard/crm/sales/contacts');
+            revalidatePath(`/dashboard/crm/contacts/${contactId}`);
             revalidatePath(`/dashboard/crm/sales/contacts/${contactId}`);
             void recordFlowAction('crm.contact.updated', {
                 userId: String(session.user._id),
@@ -414,6 +425,7 @@ export async function updateCrmContact(
 
         revalidatePath('/dashboard/crm/contacts');
         revalidatePath('/dashboard/crm/sales/contacts');
+        revalidatePath(`/dashboard/crm/contacts/${contactId}`);
         revalidatePath(`/dashboard/crm/sales/contacts/${contactId}`);
         void recordFlowAction('crm.contact.updated', {
             userId: String(session.user._id),
@@ -527,9 +539,50 @@ export async function addCrmClient(prevState: any, formData: FormData): Promise<
     }
 }
 
+import Papa from 'papaparse';
+
 export async function importCrmContacts(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    // This action remains as it's more about data import than role management.
-    return { error: 'Not yet implemented.' }
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
+
+    const file = formData.get('file') as File;
+    if (!file) return { error: 'No file provided' };
+
+    try {
+        const text = await file.text();
+        const { data, errors } = Papa.parse(text, { header: true, skipEmptyLines: true });
+        
+        if (errors.length) {
+            console.error('CSV Parse errors:', errors);
+        }
+
+        const { db } = await connectToDatabase();
+        const contactsToInsert = (data as any[]).map(row => {
+            return {
+                userId: new ObjectId(session.user._id),
+                name: row.Name || row.name || 'Unknown',
+                email: row.Email || row.email || '',
+                phone: row.Phone || row.phone,
+                company: row.Company || row.company,
+                jobTitle: row.JobTitle || row.jobTitle,
+                status: (row.Status || row.status || 'new_lead') as CrmContact['status'],
+                leadScore: Number(row.LeadScore || row.leadScore) || 0,
+                createdAt: new Date(),
+            };
+        }).filter(c => c.name && c.email);
+
+        if (contactsToInsert.length === 0) {
+            return { error: 'No valid contacts found to import (name and email required).' };
+        }
+
+        await db.collection('crm_contacts').insertMany(contactsToInsert as CrmContact[]);
+        
+        revalidatePath('/dashboard/crm/contacts');
+        revalidatePath('/dashboard/crm/sales/contacts');
+        return { message: `Successfully imported ${contactsToInsert.length} contacts.` };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
 }
 
 export async function addCrmNote(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, note?: { content: string; author: string; createdAt: string } }> {

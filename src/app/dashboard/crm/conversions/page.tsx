@@ -28,6 +28,7 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listSupportedConversions } from '@/app/actions/crm/conversions.actions';
 import type { CrmConversionEdge } from '@/lib/rust-client/crm-conversions';
 import { HubKpiGrid, type HubKpi } from '../_components/hub-kpi-grid';
+import { AnalyticsDashboard } from './_components/analytics-dashboard';
 
 export const dynamic = 'force-dynamic';
 
@@ -200,6 +201,8 @@ export default async function ConversionsPage() {
                     ).
                 </p>
             </Card>
+
+            <AnalyticsDashboard />
 
             <ConversionSection meta={SECTION_META.sales} edges={salesEdges} />
             <ConversionSection meta={SECTION_META.purchases} edges={purchasesEdges} />

@@ -39,6 +39,7 @@ export interface AccountDetailActionsProps {
     archived: boolean;
     onComposeEmail: () => void;
     onArchive: () => void;
+    onEnrich: () => void;
 }
 
 export function AccountDetailActions({
@@ -55,6 +56,7 @@ export function AccountDetailActions({
     archived,
     onComposeEmail,
     onArchive,
+    onEnrich,
 }: AccountDetailActionsProps) {
     const printHref = `/dashboard/crm/accounts/${accountId}?print=1`;
     const duplicateHref =
@@ -74,6 +76,9 @@ export function AccountDetailActions({
         ).toString();
     return (
         <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" size="sm" onClick={onEnrich} disabled={!website}>
+                <Activity className="h-3.5 w-3.5" /> Enrich
+            </Button>
             <Button asChild variant="outline" size="sm">
                 <Link href={`/dashboard/crm/accounts/${accountId}/edit`}>
                     <Edit className="h-3.5 w-3.5" /> Edit

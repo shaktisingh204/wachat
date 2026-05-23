@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ApplyForm } from './apply-form';
 
 // Developer-First OpenAPI Layout Style
 // Zero Color (Strict Monochrome)
@@ -130,9 +131,7 @@ ${job.requirements.map(req => `    "${req}"`).join(',\n')}
                     </div>
 
                     <div className="pt-4 mt-4 border-t border-white">
-                      <button className="w-full sm:w-auto bg-white text-black hover:bg-black hover:text-white hover:border-white border border-transparent transition-colors px-6 py-2 text-sm font-bold uppercase tracking-wider">
-                        Execute / Apply
-                      </button>
+                      <ApplyForm jobId={job.id} jobTitle={job.title} />
                     </div>
                   </div>
                 </div>

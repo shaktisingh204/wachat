@@ -568,6 +568,24 @@ export async function updateCrmDealStage(dealId: string, newStage: string): Prom
                 diff: { stage: { after: newStage } },
             });
 
+            // Automated task generation
+            try {
+                const { crmTasksApi } = await import('@/lib/rust-client/crm-tasks');
+                await crmTasksApi.create({
+                    title: `Review deal moved to ${newStage}`,
+                    description: `Deal was moved to ${newStage}. Ensure all related requirements are met.`,
+                    type: 'Follow-up',
+                    priority: 'Medium',
+                    status: 'To-Do',
+                    dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                    linkedKind: 'deal',
+                    linkedId: dealId,
+                    assignedTo: String(session.user._id),
+                });
+            } catch (taskErr) {
+                console.warn('[updateCrmDealStage] Failed to auto-generate task (Rust):', taskErr);
+            }
+
             revalidateDealSurfaces(dealId);
             void maybeNotifySlackDealWon(dealId, newStage);
             return { success: true };
@@ -588,10 +606,34 @@ export async function updateCrmDealStage(dealId: string, newStage: string): Prom
             return { success: false, error: 'Deal not found or you do not have permission.' };
         }
 
+        const oldStage = (deal as any).stage;
+
         await db.collection('crm_deals').updateOne(
             { _id: new ObjectId(dealId) },
             { $set: { stage: newStage, updatedAt: new Date() } }
         );
+
+        if (oldStage !== newStage) {
+            try {
+                await db.collection('crm_tasks').insertOne({
+                    userId: new ObjectId(session.user._id),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    title: `Review deal moved to ${newStage}`,
+                    description: `Deal "${(deal as any).name || 'Untitled'}" was moved from ${oldStage || 'unknown'} to ${newStage}.`,
+                    type: 'Follow-up',
+                    priority: 'Medium',
+                    status: 'To-Do',
+                    dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                    linkedKind: 'deal',
+                    linkedId: new ObjectId(dealId),
+                    createdBy: new ObjectId(session.user._id),
+                    assignedTo: new ObjectId(session.user._id),
+                } as any);
+            } catch (taskErr) {
+                console.warn('[updateCrmDealStage] Failed to auto-generate task:', taskErr);
+            }
+        }
 
         await writeAuditEntry({
             tenantUserId: String(session.user._id),
@@ -599,7 +641,7 @@ export async function updateCrmDealStage(dealId: string, newStage: string): Prom
             action: 'status_change',
             entityKind: 'deal',
             entityId: dealId,
-            diff: { stage: { before: (deal as any).stage, after: newStage } },
+            diff: { stage: { before: oldStage, after: newStage } },
         });
 
         revalidateDealSurfaces(dealId);

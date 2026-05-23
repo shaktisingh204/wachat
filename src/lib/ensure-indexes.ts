@@ -22,6 +22,10 @@ export async function ensureIndexes(db: Db): Promise<void> {
 
   // Fire-and-forget — never block the request
   Promise.allSettled([
+    db.collection('crm_audit_log').createIndex(
+      { userId: 1, createdAt: -1 },
+      { background: true },
+    ),
     db.collection('crm_employees').createIndex(
       { userId: 1, reportingManagerId: 1 },
       { background: true },

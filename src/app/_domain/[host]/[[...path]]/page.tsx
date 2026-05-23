@@ -17,17 +17,47 @@ import { getDomainByName } from '@/lib/sabflow/domains/db';
 import { getSabFlowById, getSabFlowsByUserId } from '@/lib/sabflow/db';
 import { ChatWindow } from '@/components/sabflow/chat/ChatWindow';
 import '@/styles/sabflow.css';
+import { unstable_cache } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 type Props = {
-  params: Promise<{ host: string }>;
+  params: Promise<{ host: string; path?: string[] }>;
 };
 
-async function resolveFlowIdForHost(host: string): Promise<string | null> {
-  const domain = await getDomainByName(decodeURIComponent(host));
+// Edge cache the domain resolution to avoid DB trips on every request
+const getCachedDomain = unstable_cache(
+  async (decodedHost: string) => {
+    return await getDomainByName(decodedHost);
+  },
+  ['custom-domain-resolution'],
+  { revalidate: 60 } // Cache for 60 seconds
+);
+
+async function resolveFlowIdForHost(host: string, pathSegments: string[] = []): Promise<string | null> {
+  let decodedHost = '';
+  try {
+    decodedHost = decodeURIComponent(host);
+  } catch (e) {
+    return null;
+  }
+
+  const domain = await getCachedDomain(decodedHost);
   if (!domain || domain.status !== 'verified') return null;
+
+  const currentPath = '/' + pathSegments.join('/');
+
+  // Multi-flow routing: Check if the current path matches any pathMappings
+  if (domain.pathMappings && domain.pathMappings.length > 0) {
+    // Sort mappings by length descending so more specific paths match first
+    const sortedMappings = [...domain.pathMappings].sort((a, b) => b.path.length - a.path.length);
+    for (const mapping of sortedMappings) {
+      if (currentPath.startsWith(mapping.path)) {
+        return mapping.flowId;
+      }
+    }
+  }
 
   if (domain.flowId) return domain.flowId;
 
@@ -39,8 +69,8 @@ async function resolveFlowIdForHost(host: string): Promise<string | null> {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { host } = await params;
-  const flowId = await resolveFlowIdForHost(host);
+  const { host, path = [] } = await params;
+  const flowId = await resolveFlowIdForHost(host, path);
   if (!flowId) return { title: 'Not found' };
 
   const flow = await getSabFlowById(flowId);
@@ -53,8 +83,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CustomDomainPage({ params }: Props) {
-  const { host } = await params;
-  const flowId = await resolveFlowIdForHost(host);
+  const { host, path = [] } = await params;
+  const flowId = await resolveFlowIdForHost(host, path);
   if (!flowId) notFound();
 
   const flow = await getSabFlowById(flowId);

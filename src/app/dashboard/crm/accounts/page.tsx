@@ -117,50 +117,20 @@ export default function CrmAccountsPage() {
                     ACCOUNTS_PER_PAGE,
                     search || undefined,
                     apiStatus,
+                    {
+                        category: categoryFilter,
+                        industry: industryFilter,
+                        country: countryFilter,
+                        currency: currencyFilter,
+                        fromDate: dateRange?.from,
+                        toDate: dateRange?.to,
+                    }
                 ),
                 getCrmAccountKpis(),
             ]);
 
-            let filtered = pageRes.accounts;
-            if (categoryFilter !== 'all') {
-                filtered = filtered.filter((a) => a.category === categoryFilter);
-            }
-            if (industryFilter) {
-                filtered = filtered.filter(
-                    (a) => (a.industry ?? '') === industryFilter,
-                );
-            }
-            if (countryFilter) {
-                filtered = filtered.filter(
-                    (a) => (a.country ?? '') === countryFilter,
-                );
-            }
-            if (currencyFilter) {
-                filtered = filtered.filter(
-                    (a) => (a.currency ?? '') === currencyFilter,
-                );
-            }
-            if (dateRange?.from) {
-                const fromMs = dateRange.from.getTime();
-                filtered = filtered.filter(
-                    (a) =>
-                        !!a.createdAt &&
-                        new Date(a.createdAt as unknown as string).getTime() >=
-                            fromMs,
-                );
-            }
-            if (dateRange?.to) {
-                const toMs = dateRange.to.getTime() + 86_400_000 - 1;
-                filtered = filtered.filter(
-                    (a) =>
-                        !!a.createdAt &&
-                        new Date(a.createdAt as unknown as string).getTime() <=
-                            toMs,
-                );
-            }
-
-            setAccounts(filtered);
-            setTotal(hasActiveFilters ? filtered.length : pageRes.total);
+            setAccounts(pageRes.accounts);
+            setTotal(pageRes.total);
 
             setKpis({
                 total: kpiRes.total,
@@ -256,9 +226,11 @@ export default function CrmAccountsPage() {
     /* ─── Bulk actions ──────────────────────────────────────── */
     const runBulkArchive = React.useCallback(async () => {
         if (selected.size === 0) return;
+        const targets = Array.from(selected);
+        setSelected(new Set());
         let ok = 0;
         let fail = 0;
-        for (const id of Array.from(selected)) {
+        for (const id of targets) {
             const res = await archiveCrmAccount(id);
             if (res.success) ok++;
             else fail++;
@@ -269,14 +241,15 @@ export default function CrmAccountsPage() {
                 : t('crm.accounts.list.toast.bulkArchived', { ok }),
             variant: fail ? 'destructive' : 'default',
         });
-        setSelected(new Set());
         fetchData();
     }, [selected, fetchData, toast, t]);
 
     const runBulkCategory = React.useCallback(
         async (next: 'new' | 'strategic' | 'key' | 'regular') => {
             if (selected.size === 0) return;
-            const res = await setCrmAccountCategory(Array.from(selected), next);
+            const targets = Array.from(selected);
+            setSelected(new Set());
+            const res = await setCrmAccountCategory(targets, next);
             if (res.success) {
                 const count = res.modifiedCount ?? selected.size;
                 toast({

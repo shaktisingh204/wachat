@@ -21,6 +21,7 @@ import {
     archiveCrmAccount,
     unarchiveCrmAccount,
 } from '@/app/actions/crm-accounts.actions';
+import { enrichAccountData } from '../actions';
 
 import { AccountDetailActions } from './accounts-detail-actions';
 
@@ -78,6 +79,19 @@ export function AccountDetailInteractions({
         setArchiveOpen(false);
     }, [accountId, archived, router, toast]);
 
+    const handleEnrich = React.useCallback(async () => {
+        if (!website) return;
+        const domain = website.replace(/^https?:\/\//, '').split('/')[0];
+        toast({ title: 'Enriching account data...' });
+        const res = await enrichAccountData(accountId, domain);
+        if (res.success) {
+            toast({ title: 'Account enriched successfully', variant: 'success' });
+            router.refresh();
+        } else {
+            toast({ title: 'Enrichment failed', description: res.error, variant: 'destructive' });
+        }
+    }, [accountId, website, router, toast]);
+
     return (
         <>
             <AccountDetailActions
@@ -94,6 +108,7 @@ export function AccountDetailInteractions({
                 archived={archived}
                 onComposeEmail={() => setComposeOpen(true)}
                 onArchive={() => setArchiveOpen(true)}
+                onEnrich={handleEnrich}
             />
 
             <ComposeEmailDialog

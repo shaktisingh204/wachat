@@ -218,7 +218,7 @@ export default function BillingSettingsPage() {
           {/* OVERVIEW TAB */}
           <TabsContent value="overview" className="space-y-6">
             <div>
-              <h2 className="mb-3 text-lg font-semibold text-slate-900">Credit Balances</h2>
+              <h2 className="mb-3 text-lg font-semibold text-zoru-ink">Credit Balances</h2>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <ZoruStatCard 
                   label="Domestic SMS" 
@@ -263,31 +263,31 @@ export default function BillingSettingsPage() {
                 <ZoruCardContent className="space-y-6">
                   <div>
                     <div className="flex justify-between mb-2 text-sm">
-                      <span className="font-medium text-slate-700">US Domestic SMS</span>
-                      <span className="text-slate-500">12,450 / 20,000 credits</span>
+                      <span className="font-medium text-zoru-ink">US Domestic SMS</span>
+                      <span className="text-zoru-ink-muted">12,450 / 20,000 credits</span>
                     </div>
-                    <Progress value={62.25} indicatorClassName="bg-blue-500" />
+                    <Progress value={62.25} indicatorClassName="bg-zoru-info" />
                   </div>
                   <div>
                     <div className="flex justify-between mb-2 text-sm">
-                      <span className="font-medium text-slate-700">UK International SMS</span>
-                      <span className="text-slate-500">4,200 / 5,000 credits</span>
+                      <span className="font-medium text-zoru-ink">UK International SMS</span>
+                      <span className="text-zoru-ink-muted">4,200 / 5,000 credits</span>
                     </div>
-                    <Progress value={84} indicatorClassName="bg-orange-500" />
+                    <Progress value={84} indicatorClassName="bg-zoru-warning" />
                   </div>
                   <div>
                     <div className="flex justify-between mb-2 text-sm">
-                      <span className="font-medium text-slate-700">MMS / Media</span>
-                      <span className="text-slate-500">850 / 1,000 credits</span>
+                      <span className="font-medium text-zoru-ink">MMS / Media</span>
+                      <span className="text-zoru-ink-muted">850 / 1,000 credits</span>
                     </div>
-                    <Progress value={85} indicatorClassName="bg-purple-500" />
+                    <Progress value={85} indicatorClassName="bg-zoru-primary" />
                   </div>
                   <div>
                     <div className="flex justify-between mb-2 text-sm">
-                      <span className="font-medium text-slate-700">Network Lookups</span>
-                      <span className="text-slate-500">5,000 / 10,000 credits</span>
+                      <span className="font-medium text-zoru-ink">Network Lookups</span>
+                      <span className="text-zoru-ink-muted">5,000 / 10,000 credits</span>
                     </div>
-                    <Progress value={50} indicatorClassName="bg-emerald-500" />
+                    <Progress value={50} indicatorClassName="bg-zoru-success" />
                   </div>
                 </ZoruCardContent>
               </Card>
@@ -296,16 +296,16 @@ export default function BillingSettingsPage() {
                 <Card>
                   <ZoruCardHeader>
                     <ZoruCardTitle className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-blue-500" />
+                      <TrendingUp className="h-5 w-5 text-zoru-info" />
                       Burn-Rate Forecast
                     </ZoruCardTitle>
                     <ZoruCardDescription>Estimated run-time for current credits</ZoruCardDescription>
                   </ZoruCardHeader>
                   <ZoruCardContent>
-                    <div className="text-3xl font-bold">14 Days</div>
-                    <p className="mt-1 text-sm text-slate-500">Based on an average usage of 1,200 credits/day.</p>
+                    <div className="text-3xl font-bold text-zoru-ink">14 Days</div>
+                    <p className="mt-1 text-sm text-zoru-ink-muted">Based on an average usage of 1,200 credits/day.</p>
                     <div className="mt-4">
-                      <div className="mb-1 flex justify-between text-xs text-slate-500">
+                      <div className="mb-1 flex justify-between text-xs text-zoru-ink-muted">
                         <span>Low</span>
                         <span>Empty</span>
                       </div>
@@ -317,23 +317,23 @@ export default function BillingSettingsPage() {
                 <Card>
                   <ZoruCardHeader>
                     <ZoruCardTitle className="flex items-center gap-2">
-                      <Zap className="h-5 w-5 text-yellow-500" />
+                      <Zap className="h-5 w-5 text-zoru-warning" />
                       Active Features
                     </ZoruCardTitle>
                     <ZoruCardDescription>Current routing capabilities</ZoruCardDescription>
                   </ZoruCardHeader>
                   <ZoruCardContent className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">MMS Routing</span>
+                      <span className="text-sm font-medium text-zoru-ink">MMS Routing</span>
                       <Badge variant="success">Enabled</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">RCS Capabilities</span>
+                      <span className="text-sm font-medium text-zoru-ink">RCS Capabilities</span>
                       <Badge variant="success">Enabled</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Alpha Sender ID</span>
-                      <Badge variant="outline" className="text-slate-500">Pending Review</Badge>
+                      <span className="text-sm font-medium text-zoru-ink">Alpha Sender ID</span>
+                      <Badge variant="outline" className="text-zoru-ink-muted border-zoru-line">Pending Review</Badge>
                     </div>
                   </ZoruCardContent>
                 </Card>
@@ -344,8 +344,8 @@ export default function BillingSettingsPage() {
           {/* PLANS & SUBSCRIPTIONS TAB */}
           <TabsContent value="plans" className="space-y-6">
             <div className="mb-6">
-              <h2 className="text-lg font-semibold text-slate-900">Choose Your Plan</h2>
-              <p className="text-sm text-slate-500">Select the plan that best fits your messaging needs.</p>
+              <h2 className="text-lg font-semibold text-zoru-ink">Choose Your Plan</h2>
+              <p className="text-sm text-zoru-ink-muted">Select the plan that best fits your messaging needs.</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-8 items-center max-w-6xl mx-auto">
@@ -406,7 +406,7 @@ export default function BillingSettingsPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium">Visa ending in 4242</p>
-                    <p className="text-xs text-slate-500">Expires 12/2028</p>
+                    <p className="text-xs text-zoru-ink-muted">Expires 12/2028</p>
                   </div>
                   <Badge className="ml-auto" variant="info">Default</Badge>
                 </ZoruCardContent>
@@ -421,8 +421,8 @@ export default function BillingSettingsPage() {
                   <ZoruCardDescription>Accrued usage outside of prepaid credits</ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                  <div className="text-4xl font-bold text-slate-900">$14.50</div>
-                  <p className="mt-2 text-sm text-slate-500">
+                  <div className="text-4xl font-bold text-zoru-ink">$14.50</div>
+                  <p className="mt-2 text-sm text-zoru-ink-muted">
                     Will be aggregated and charged at the end of the month alongside your platform subscription.
                   </p>
                 </ZoruCardContent>
@@ -451,7 +451,7 @@ export default function BillingSettingsPage() {
               <Card>
                 <ZoruCardHeader>
                   <ZoruCardTitle className="flex items-center gap-2">
-                    <RefreshCw className="h-5 w-5 text-indigo-500" />
+                    <RefreshCw className="h-5 w-5 text-zoru-primary" />
                     Auto Top-Up Settings
                   </ZoruCardTitle>
                   <ZoruCardDescription>Automatically purchase credits when running low</ZoruCardDescription>
@@ -459,8 +459,8 @@ export default function BillingSettingsPage() {
                 <ZoruCardContent className="space-y-4">
                   <div className="flex items-center justify-between rounded-lg border border-zoru-line p-4 shadow-[var(--zoru-shadow-sm)]">
                     <div>
-                      <h4 className="font-medium text-slate-900">Enable Auto Top-Up</h4>
-                      <p className="text-sm text-slate-500">Prevent message failures due to empty balance</p>
+                      <h4 className="font-medium text-zoru-ink">Enable Auto Top-Up</h4>
+                      <p className="text-sm text-zoru-ink-muted">Prevent message failures due to empty balance</p>
                     </div>
                     <Switch defaultChecked />
                   </div>
@@ -492,7 +492,7 @@ export default function BillingSettingsPage() {
               <Card>
                 <ZoruCardHeader>
                   <ZoruCardTitle className="flex items-center gap-2">
-                    <ShieldAlert className="h-5 w-5 text-orange-500" />
+                    <ShieldAlert className="h-5 w-5 text-zoru-warning" />
                     Spend Caps
                   </ZoruCardTitle>
                   <ZoruCardDescription>Limit maximum monthly expenditure</ZoruCardDescription>
@@ -501,10 +501,10 @@ export default function BillingSettingsPage() {
                   <div className="space-y-2">
                     <Label>Monthly hard cap ($)</Label>
                     <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-slate-400" />
+                      <DollarSign className="h-4 w-4 text-zoru-ink-muted" />
                       <Input type="number" defaultValue="500" />
                     </div>
-                    <p className="text-xs text-slate-500">SabSMS will suspend sending if this threshold is reached.</p>
+                    <p className="text-xs text-zoru-ink-muted">SabSMS will suspend sending if this threshold is reached.</p>
                   </div>
                 </ZoruCardContent>
                 <ZoruCardFooter>
@@ -551,7 +551,7 @@ export default function BillingSettingsPage() {
                     <CheckCircle2 className="mt-0.5 h-4 w-4 text-zoru-success" />
                     <div>
                       <p className="text-sm font-medium">A2P 10DLC Registered</p>
-                      <p className="text-xs text-slate-500">Your US sending brand is approved.</p>
+                      <p className="text-xs text-zoru-ink-muted">Your US sending brand is approved.</p>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -571,9 +571,9 @@ export default function BillingSettingsPage() {
           {/* ADMIN TAB */}
           <TabsContent value="admin" className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <Card className="border-indigo-100 bg-indigo-50/30">
+              <Card className="border-zoru-primary/20 bg-zoru-primary/5">
                 <ZoruCardHeader>
-                  <ZoruCardTitle className="flex items-center gap-2 text-indigo-900">
+                  <ZoruCardTitle className="flex items-center gap-2 text-zoru-primary">
                     <Lock className="h-4 w-4" /> Admin: Margin Report
                   </ZoruCardTitle>
                   <ZoruCardDescription>Internal visibility of platform margins</ZoruCardDescription>
@@ -581,14 +581,14 @@ export default function BillingSettingsPage() {
                 <ZoruCardContent>
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-600">Total Carrier Costs (MTD)</span>
+                      <span className="text-zoru-ink-muted">Total Carrier Costs (MTD)</span>
                       <span className="font-medium">$1,240.50</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-600">Total Billed to Clients</span>
+                      <span className="text-zoru-ink-muted">Total Billed to Clients</span>
                       <span className="font-medium">$1,850.00</span>
                     </div>
-                    <div className="mt-2 border-t border-indigo-200 pt-2 text-sm font-semibold text-indigo-900">
+                    <div className="mt-2 border-t border-zoru-primary/20 pt-2 text-sm font-semibold text-zoru-primary">
                       <div className="flex justify-between">
                         <span>Gross Margin</span>
                         <span>32.9%</span>
@@ -601,7 +601,7 @@ export default function BillingSettingsPage() {
               <Card>
                 <ZoruCardHeader>
                   <ZoruCardTitle className="flex items-center gap-2">
-                    <Globe className="h-5 w-5 text-indigo-500" />
+                    <Globe className="h-5 w-5 text-zoru-primary" />
                     Route Costs
                   </ZoruCardTitle>
                   <ZoruCardDescription>Base SMS costs per region</ZoruCardDescription>
@@ -690,18 +690,18 @@ export default function BillingSettingsPage() {
                 </ZoruSelectContent>
               </Select>
             </div>
-            <div className="rounded border bg-slate-50 p-3">
+            <div className="rounded border border-zoru-line bg-zoru-surface-2 p-3">
               <p className="text-sm font-medium">Payment Summary</p>
-              <div className="mt-2 flex justify-between text-sm text-slate-600">
+              <div className="mt-2 flex justify-between text-sm text-zoru-ink-muted">
                 <span>Subtotal</span>
                 <span>${topUpAmount === "100" ? "10.00" : topUpAmount === "500" ? "45.00" : "80.00"}</span>
               </div>
-              <div className="mt-1 flex justify-between text-sm font-semibold text-slate-900 border-t pt-1">
+              <div className="mt-1 flex justify-between text-sm font-semibold text-zoru-ink border-t border-zoru-line pt-1">
                 <span>Total Charge</span>
                 <span>${topUpAmount === "100" ? "10.00" : topUpAmount === "500" ? "45.00" : "80.00"}</span>
               </div>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-zoru-ink-muted">
               This will charge your default payment method (Visa ending in 4242).
             </p>
           </div>

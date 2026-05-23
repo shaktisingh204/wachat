@@ -1,6 +1,20 @@
 import type { ObjectId, WithId } from 'mongodb';
 export type { WithId };
 
+export type BioProfile = {
+    _id: ObjectId;
+    userId: ObjectId;
+    slug: string;
+    displayName: string;
+    bio?: string;
+    avatarUrl?: string;
+    links: { id: string; title: string; url: string; icon?: string; active: boolean }[];
+    socials: { platform: string; url: string }[];
+    theme?: { backgroundColor?: string; textColor?: string; buttonColor?: string; buttonTextColor?: string };
+    createdAt: Date;
+    updatedAt: Date;
+};
+
 // --- Cross-feature data lineage (see crm_function_plan.md §13.5) ---
 //
 // Every CRM document in the canonical chain (Lead → Deal → Quotation →
@@ -1911,6 +1925,16 @@ export type EcommFlow = {
     createdAt: Date;
     updatedAt: Date;
 };
+export interface AdAccount {
+  id: string;
+  name: string;
+  account_id: string;
+  currency?: string;
+  account_status?: number;
+  last_used_time?: string;
+  created_time?: string;
+}
+
 
 export type AdCampaign = {
     projectId: ObjectId;
@@ -2981,6 +3005,8 @@ export type ShortUrl = {
     passwordHash?: string;
     utmParams?: UtmParams;
     splitTargets?: SplitTarget[];
+    geoTargets?: { country: string; url: string }[];
+    deviceTargets?: { device: 'mobile' | 'desktop' | 'tablet' | 'ios' | 'android'; url: string }[];
     activateAt?: Date | null;
     pixelIds?: PixelIds;
     healthStatus?: 'ok' | 'dead' | 'unknown';

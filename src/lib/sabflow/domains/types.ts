@@ -20,6 +20,8 @@ export type CustomDomain = {
   workspaceId: string;
   /** Optional scope: when set, requests to this domain serve the specified flow. */
   flowId?: string;
+  /** Multi-flow routing: map specific paths to specific flows. */
+  pathMappings?: { path: string; flowId: string }[];
   /** Hostname, e.g. `chat.mysite.com` (lowercased, no protocol, no path). */
   domain: string;
   /** Verification state of the DNS TXT challenge. */

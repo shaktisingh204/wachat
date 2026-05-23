@@ -31,3 +31,4 @@
 2026-05-23 01:33:34: [cron-worker] Scheduled imap-tickets on "*/5 * * * *" to path "/api/cron/imap-tickets"
 2026-05-23 01:33:34: [cron-worker] Scheduled database-backup-retention on "0 3 * * *" to path "/api/cron/database-backup-retention"
 2026-05-23 01:33:34: [cron-worker] Master Cron Worker initialized. Base URL: http://localhost:3000. Total registered jobs: 32
+2026-05-23 05:13:33: [cron-worker] SIGTERM received. Shutting down gracefully.

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge, Skeleton } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Badge, Skeleton, Dialog, ZoruDialogContent, ZoruDialogTrigger } from '@/components/zoruui';
 import {
   Image as ImageIcon,
   CircleAlert,
@@ -38,7 +38,7 @@ export default function AdPreviewsPage() {
     const fetchData = React.useCallback(async () => {
         if (!activeAccount) return;
         setLoading(true);
-        const actId = `act_${activeAccount.account_id.replace(/^act_/, '')}`;
+        const actId = activeAccount.account_id;
         const res = await getAdPreviews(actId);
         if (res.error) {
             toast({ title: 'Error', description: res.error, variant: 'destructive' });
@@ -101,10 +101,17 @@ export default function AdPreviewsPage() {
                         return (
                             <Card key={ad.id} className="overflow-hidden">
                                 {img ? (
-                                    <div className="h-40 bg-muted overflow-hidden">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={img} alt={ad.name} className="w-full h-full object-cover" />
-                                    </div>
+                                    <Dialog>
+                                        <ZoruDialogTrigger asChild>
+                                            <div className="h-40 bg-muted overflow-hidden cursor-pointer hover:opacity-90 transition-opacity">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src={img} alt={ad.name} className="w-full h-full object-cover" />
+                                            </div>
+                                        </ZoruDialogTrigger>
+                                        <ZoruDialogContent className="max-w-4xl p-0 overflow-hidden bg-black border-none shadow-2xl">
+                                            <img src={img} alt={ad.name} className="w-full h-auto max-h-[85vh] object-contain" />
+                                        </ZoruDialogContent>
+                                    </Dialog>
                                 ) : (
                                     <div className="h-40 bg-muted flex items-center justify-center text-muted-foreground">
                                         <ImageIcon className="h-10 w-10" />
@@ -124,7 +131,7 @@ export default function AdPreviewsPage() {
                                         <p className="text-muted-foreground text-xs line-clamp-3">{ad.creative.body}</p>
                                     )}
                                     <a
-                                        href={`https://www.facebook.com/ads/manager/creation/edit/?act=${activeAccount.account_id}&selected_adset_id=&selected_campaign_id=&selected_ad_id=${ad.id}`}
+                                        href={`https://www.facebook.com/ads/manager/creation/edit/?act=${activeAccount.account_id.replace(/^act_/, '')}&selected_adset_id=&selected_campaign_id=&selected_ad_id=${ad.id}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline mt-2"

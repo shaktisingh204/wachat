@@ -292,12 +292,15 @@ export function EntityPickerChip({
   className?: string;
 }) {
   const [item, setItem] = React.useState<LookupItem | null>(null);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     if (!id) {
       setItem(null);
+      setLoading(false);
       return;
     }
+    setLoading(true);
     let cancelled = false;
     fetchLookup(entity, { ids: [id] })
       .then((res) => {
@@ -306,6 +309,9 @@ export function EntityPickerChip({
       })
       .catch(() => {
         /* network/auth failures fall through to fallback */
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
@@ -320,7 +326,7 @@ export function EntityPickerChip({
     );
   }
 
-  if (!item) {
+  if (loading) {
     return (
       <span
         className={cn(
@@ -330,6 +336,20 @@ export function EntityPickerChip({
       >
         <Loader2 className="h-3 w-3 animate-spin" />
         {fallback ?? '…'}
+      </span>
+    );
+  }
+
+  if (!item) {
+    return (
+      <span
+        className={cn(
+          'inline-flex max-w-full items-center gap-2 rounded-md border border-red-500/30 bg-red-500/10 px-2 py-1 text-xs text-red-500',
+          className,
+        )}
+        title={`ID not found: ${id}`}
+      >
+        Unknown/Deleted
       </span>
     );
   }

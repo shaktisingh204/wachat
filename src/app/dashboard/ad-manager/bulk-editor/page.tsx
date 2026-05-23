@@ -23,14 +23,17 @@ import {
   Download,
   Save,
   AlertCircle,
+  Settings,
   RotateCcw } from 'lucide-react';
 
 import * as React from 'react';
+import Papa from 'papaparse';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
 import { useAdManager } from '@/context/ad-manager-context';
-import { listCampaigns, batchUpdateStatus, updateCampaign } from '@/app/actions/ad-manager.actions';
+import { listCampaigns, listAdSets, updateCampaign, updateAdSet, updateAd } from '@/app/actions/ad-manager.actions';
+import { getAdPreviews } from '@/app/actions/ad-manager-features.actions';
 
 type EditableRow = {
     id: string;
@@ -50,23 +53,38 @@ export default function BulkEditorPage() {
     const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
     const csvRef = React.useRef<HTMLInputElement>(null);
 
-    React.useEffect(() => {
+    const [entityType, setEntityType] = React.useState<'campaigns' | 'adsets' | 'ads'>('campaigns');
+
+    const loadData = React.useCallback(async () => {
         if (!activeAccount) return;
-        (async () => {
-            setLoading(true);
+        setLoading(true);
+        let resData: any[] = [];
+        if (entityType === 'campaigns') {
             const res = await listCampaigns(activeAccount.account_id);
-            const mapped = (res.data || []).map((c: any) => ({
-                id: c.id,
-                name: c.name,
-                status: c.status,
-                daily_budget: c.daily_budget ? Number(c.daily_budget) / 100 : 0,
-            }));
-            setRows(mapped);
-            setOriginalRows(mapped.map((r) => ({ ...r })));
-            setSelectedIds(new Set());
-            setLoading(false);
-        })();
-    }, [activeAccount]);
+            resData = res.data || [];
+        } else if (entityType === 'adsets') {
+            const res = await listAdSets(activeAccount.account_id, 'account');
+            resData = res.data || [];
+        } else if (entityType === 'ads') {
+            const res = await getAdPreviews(activeAccount.account_id);
+            resData = res.ads || [];
+        }
+        
+        const mapped = resData.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            status: c.status,
+            daily_budget: c.daily_budget ? Number(c.daily_budget) / 100 : 0,
+        }));
+        setRows(mapped);
+        setOriginalRows(mapped.map((r) => ({ ...r })));
+        setSelectedIds(new Set());
+        setLoading(false);
+    }, [activeAccount, entityType]);
+
+    React.useEffect(() => {
+        loadData();
+    }, [loadData]);
 
     const allSelected = rows.length > 0 && selectedIds.size === rows.length;
     const toggleSelectAll = () => {
@@ -99,10 +117,14 @@ export default function BulkEditorPage() {
         let success = 0;
         let fail = 0;
         for (const r of dirty) {
-            const res = await updateCampaign(r.id, {
-                name: r.name,
-                daily_budget: Math.round(r.daily_budget * 100),
-            });
+            let res;
+            if (entityType === 'campaigns') {
+                res = await updateCampaign(r.id, { name: r.name, daily_budget: Math.round(r.daily_budget * 100) });
+            } else if (entityType === 'adsets') {
+                res = await updateAdSet(r.id, { name: r.name, daily_budget: Math.round(r.daily_budget * 100) });
+            } else {
+                res = await updateAd(r.id, { name: r.name });
+            }
             if (res.error) fail++;
             else success++;
         }
@@ -116,11 +138,12 @@ export default function BulkEditorPage() {
     };
 
     const exportCsv = () => {
-        const headers = ['id', 'name', 'status', 'daily_budget'];
-        const csv = [
-            headers.join(','),
-            ...rows.map((r) => headers.map((h) => String((r as any)[h]).replace(/"/g, '""')).join(',')),
-        ].join('\n');
+        const csv = Papa.unparse(rows.map(r => ({
+            id: r.id,
+            name: r.name,
+            status: r.status,
+            daily_budget: r.daily_budget
+        })));
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -150,9 +173,18 @@ export default function BulkEditorPage() {
             <AmBreadcrumb page="Bulk Editor" />
             <AmHeader
                 title="Bulk editor"
-                description="Spreadsheet-style editing. Change names and budgets for multiple campaigns at once."
+                description={`Spreadsheet-style editing. Change names and budgets for multiple ${entityType} at once.`}
                 actions={
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 items-center">
+                        <select 
+                            value={entityType} 
+                            onChange={(e) => setEntityType(e.target.value as any)}
+                            className="h-9 px-3 rounded-md border border-input bg-background text-sm mr-2"
+                        >
+                            <option value="campaigns">Campaigns</option>
+                            <option value="adsets">Ad Sets</option>
+                            <option value="ads">Ads</option>
+                        </select>
                         <Button variant="outline" onClick={exportCsv}>
                             <Download className="h-4 w-4 mr-1" /> Export CSV
                         </Button>
@@ -164,34 +196,33 @@ export default function BulkEditorPage() {
                             onChange={(e) => {
                                 const file = e.target.files?.[0];
                                 if (!file) return;
-                                const reader = new FileReader();
-                                reader.onload = (ev) => {
-                                    const text = ev.target?.result as string;
-                                    if (!text) return;
-                                    const lines = text.split('\n').filter(l => l.trim());
-                                    if (lines.length < 2) { toast({ title: 'Empty CSV' }); return; }
-                                    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-                                    const imported: EditableRow[] = [];
-                                    for (let i = 1; i < lines.length; i++) {
-                                        const vals = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-                                        const row: any = {};
-                                        headers.forEach((h, idx) => { row[h] = vals[idx] || ''; });
-                                        if (row.id) {
-                                            imported.push({
-                                                id: row.id,
-                                                name: row.name || '',
-                                                status: row.status || 'PAUSED',
-                                                daily_budget: Number(row.daily_budget) || 0,
-                                                dirty: true,
-                                            });
+                                Papa.parse(file, {
+                                    header: true,
+                                    skipEmptyLines: true,
+                                    complete: (results) => {
+                                        const imported: EditableRow[] = [];
+                                        for (const row of results.data as any[]) {
+                                            if (row.id) {
+                                                imported.push({
+                                                    id: row.id,
+                                                    name: row.name || '',
+                                                    status: row.status || 'PAUSED',
+                                                    daily_budget: Number(row.daily_budget) || 0,
+                                                    dirty: true,
+                                                });
+                                            }
                                         }
+                                        if (imported.length > 0) {
+                                            setRows(imported);
+                                            toast({ title: `Imported ${imported.length} items from CSV` });
+                                        } else {
+                                            toast({ title: 'No valid items found in CSV' });
+                                        }
+                                    },
+                                    error: (error: Error) => {
+                                        toast({ title: 'Error parsing CSV', description: error.message, variant: 'destructive' });
                                     }
-                                    if (imported.length > 0) {
-                                        setRows(imported);
-                                        toast({ title: `Imported ${imported.length} campaigns from CSV` });
-                                    }
-                                };
-                                reader.readAsText(file);
+                                });
                                 e.target.value = '';
                             }}
                         />
@@ -248,7 +279,7 @@ export default function BulkEditorPage() {
                                     <ZoruTableHead>ID</ZoruTableHead>
                                     <ZoruTableHead>Name</ZoruTableHead>
                                     <ZoruTableHead>Status</ZoruTableHead>
-                                    <ZoruTableHead>Daily budget</ZoruTableHead>
+                                    {entityType !== 'ads' && <ZoruTableHead>Daily budget</ZoruTableHead>}
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
@@ -270,14 +301,16 @@ export default function BulkEditorPage() {
                                             />
                                         </ZoruTableCell>
                                         <ZoruTableCell>{r.status}</ZoruTableCell>
-                                        <ZoruTableCell>
-                                            <Input
-                                                type="number"
-                                                value={r.daily_budget}
-                                                onChange={(e) => updateRow(r.id, { daily_budget: Number(e.target.value) })}
-                                                className="h-8 w-28"
-                                            />
-                                        </ZoruTableCell>
+                                        {entityType !== 'ads' && (
+                                            <ZoruTableCell>
+                                                <Input
+                                                    type="number"
+                                                    value={r.daily_budget}
+                                                    onChange={(e) => updateRow(r.id, { daily_budget: Number(e.target.value) })}
+                                                    className="h-8 w-28"
+                                                />
+                                            </ZoruTableCell>
+                                        )}
                                     </ZoruTableRow>
                                 ))}
                             </ZoruTableBody>

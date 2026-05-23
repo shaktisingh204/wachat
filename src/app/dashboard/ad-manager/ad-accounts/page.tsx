@@ -49,6 +49,8 @@ import {
 } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
 
+import type { AdAccount } from '@/lib/definitions';
+
 /* ── loading skeleton ──────────────────────────────────────────── */
 
 function PageSkeleton() {
@@ -82,7 +84,7 @@ function DisconnectDialog({
   account,
   onDisconnect,
 }: {
-  account: any;
+  account: AdAccount;
   onDisconnect: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -162,7 +164,7 @@ function AccountCard({
   onSelect,
   onDisconnect,
 }: {
-  account: any;
+  account: AdAccount;
   isActive: boolean;
   onSelect: () => void;
   onDisconnect: () => void;
@@ -337,7 +339,7 @@ function InfoCard() {
 /* ── page ───────────────────────────────────────────────────────── */
 
 export default function AdAccountsPage() {
-  const [accounts, setAccounts] = useState<any[]>([]);
+  const [accounts, setAccounts] = useState<AdAccount[]>([]);
   const [isPageLoading, startPageLoad] = useTransition();
   const { activeAccount, selectAccount } = useAdManager();
   const { toast } = useToast();
@@ -363,7 +365,7 @@ export default function AdAccountsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSelect = (account: any) => {
+  const handleSelect = (account: AdAccount) => {
     selectAccount({
       id: account.id,
       name: account.name,
@@ -409,12 +411,18 @@ export default function AdAccountsPage() {
         title="Ad Accounts"
         description="Connect and manage your Meta ad accounts to run campaigns."
         actions={
-          <Link href="/api/auth/ad-manager/login" className="shrink-0">
-            <Button variant="default" size="md">
-              <Plus className="h-3.5 w-3.5" />
-              Connect account
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="md" onClick={() => fetchAccounts()} disabled={isPageLoading}>
+              <LoaderCircle className={cn("h-3.5 w-3.5", isPageLoading && "animate-spin")} />
+              Sync Accounts
             </Button>
-          </Link>
+            <Link href="/api/auth/ad-manager/login" className="shrink-0">
+              <Button variant="default" size="md">
+                <Plus className="h-3.5 w-3.5" />
+                Connect account
+              </Button>
+            </Link>
+          </div>
         }
       />
 

@@ -308,6 +308,71 @@ export async function replayFlowLog(logId: string): Promise<Result> {
     }
 }
 
+import type { FlowLog } from '@/lib/definitions';
+import type { WithId } from 'mongodb';
+
+export async function getFlowLogsForAdmin(
+    page: number = 1,
+    limit: number = 20,
+    query?: string,
+): Promise<{ logs: Omit<WithId<FlowLog>, 'entries'>[]; total: number }> {
+    const auth = await requireAdmin();
+    if (auth) return { logs: [], total: 0 };
+
+    try {
+        const { db } = await connectToDatabase();
+        const filter: any = {};
+        if (query) {
+            filter.$or = [
+                { flowName: { $regex: query, $options: 'i' } },
+            ];
+            // If it looks like a Mongo ID, let's also search contactId or projectId
+            if (ObjectId.isValid(query)) {
+                filter.$or.push(
+                    { contactId: new ObjectId(query) },
+                    { projectId: new ObjectId(query) }
+                );
+            }
+        }
+
+        const skip = (page - 1) * limit;
+        const [logs, total] = await Promise.all([
+            db.collection<FlowLog>('flow_logs')
+                .find(filter, { projection: { entries: 0 } })
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .toArray(),
+            db.collection('flow_logs').countDocuments(filter),
+        ]);
+
+        return {
+            logs: JSON.parse(JSON.stringify(logs)),
+            total,
+        };
+    } catch (e) {
+        console.error('Failed to get flow logs:', getErrorMessage(e));
+        return { logs: [], total: 0 };
+    }
+}
+
+export async function getFlowLogPayloadForAdmin(logId: string): Promise<WithId<FlowLog> | null> {
+    const auth = await requireAdmin();
+    if (auth) return null;
+    const oid = objectIdOrError(logId);
+    if ('success' in oid) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const log = await db.collection<FlowLog>('flow_logs').findOne({ _id: oid.id });
+        if (!log) return null;
+        return JSON.parse(JSON.stringify(log));
+    } catch (e) {
+        console.error('Failed to get flow log payload:', getErrorMessage(e));
+        return null;
+    }
+}
+
 /* ============================================================ */
 /*  WHATSAPP PROJECTS — archive / restore                       */
 /* ============================================================ */

@@ -46,6 +46,7 @@ import {
     getCrmAccountById,
 } from '@/app/actions/crm-accounts.actions';
 import { getCrmContacts } from '@/app/actions/crm.actions';
+import { getAccountScore, getAccountOrgChart } from '../actions';
 
 import { AccountDetailInteractions } from '../_components/accounts-detail-interactions';
 
@@ -82,9 +83,11 @@ export default async function AccountDetailPage({ params }: PageProps) {
     const account = await getCrmAccountById(accountId);
     if (!account) notFound();
 
-    const [contactsRes, counts] = await Promise.all([
+    const [contactsRes, counts, scoreData, orgChart] = await Promise.all([
         getCrmContacts(1, 5, undefined, accountId),
         getAccountRelatedCounts(accountId),
+        getAccountScore(accountId),
+        getAccountOrgChart(accountId)
     ]);
 
     const archived = account.status === 'archived';
@@ -163,6 +166,24 @@ export default async function AccountDetailPage({ params }: PageProps) {
             }
             rightRail={
                 <>
+                    {/* ─── Health & Scoring ─── */}
+                    <Card>
+                        <ZoruCardHeader>
+                            <ZoruCardTitle>Account Score</ZoruCardTitle>
+                        </ZoruCardHeader>
+                        <ZoruCardContent className="space-y-3">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-xl font-bold text-primary">
+                                    {scoreData.score}
+                                </div>
+                                <div className="flex flex-col text-[12px] text-zoru-ink-muted">
+                                    <span>{scoreData.interactionsCount} interactions</span>
+                                    <span>${scoreData.totalDealValue.toLocaleString()} in open deals</span>
+                                </div>
+                            </div>
+                        </ZoruCardContent>
+                    </Card>
+
                     {/* ─── Quick stats ─── */}
                     <Card>
                         <ZoruCardHeader>
@@ -477,6 +498,29 @@ export default async function AccountDetailPage({ params }: PageProps) {
                     ) : null}
                 </ZoruCardContent>
             </Card>
+
+            {/* ─── Org Chart ─── */}
+            {orgChart && orgChart.length > 0 ? (
+                <Card>
+                    <ZoruCardHeader>
+                        <ZoruCardTitle>Organization Chart</ZoruCardTitle>
+                    </ZoruCardHeader>
+                    <ZoruCardContent>
+                        <div className="flex flex-wrap gap-4 pt-2">
+                            {orgChart.map((c: any) => (
+                                <div key={String(c._id)} className="rounded-lg border border-zoru-line p-3 min-w-[200px] flex flex-col items-center text-center shadow-sm">
+                                    <div className="h-10 w-10 rounded-full bg-zoru-surface-2 flex items-center justify-center text-zoru-ink font-bold mb-2">
+                                        {c.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <span className="text-[13px] font-medium text-zoru-ink">{c.name}</span>
+                                    {c.jobTitle && <span className="text-[11px] text-zoru-ink-muted">{c.jobTitle}</span>}
+                                    {c.email && <span className="text-[11px] text-zoru-ink-muted mt-1">{c.email}</span>}
+                                </div>
+                            ))}
+                        </div>
+                    </ZoruCardContent>
+                </Card>
+            ) : null}
 
             {/* ─── Notes ─── */}
             <CrmNotes

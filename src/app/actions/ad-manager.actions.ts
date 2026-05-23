@@ -24,7 +24,10 @@ import type { ActionResult } from '@/lib/ad-manager/validators';
 import { AD_PREVIEW_FORMATS } from '@/components/wabasimplify/ad-manager/constants';
 import { getSession } from '@/app/actions/user.actions';
 import { rustClient, RustApiError } from '@/lib/rust-client';
-import type { AdCampaign, CustomAudience, FacebookPage } from '@/lib/definitions';
+import NodeCache from 'node-cache';
+import type { AdCampaign, CustomAudience, FacebookPage, AdAccount } from '@/lib/definitions';
+
+const cache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
 
 // -----------------------------------------------------------------
 //  Helpers
@@ -67,7 +70,7 @@ async function graph<T = any>(path: string, opts: GraphOpts = {}): Promise<Actio
 // =================================================================
 //  AD ACCOUNTS
 // =================================================================
-export async function getAdAccounts(): Promise<{ accounts: any[]; error?: string }> {
+export async function getAdAccounts(): Promise<{ accounts: AdAccount[]; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { accounts: [], error: 'Authentication required.' };
     try {
@@ -121,13 +124,26 @@ const CAMPAIGN_FIELDS = [
 export async function listCampaigns(adAccountId: string, opts?: { limit?: number; effective_status?: string[] }): Promise<ActionResult<any[]>> {
     const params: any = { fields: CAMPAIGN_FIELDS, limit: opts?.limit ?? 100 };
     if (opts?.effective_status) params.effective_status = JSON.stringify(opts.effective_status);
+    
+    const cacheKey = `campaigns_${adAccountId}_${JSON.stringify(params)}`;
+    const cached = cache.get<any[]>(cacheKey);
+    if (cached) return { data: cached };
+
     const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/campaigns`, { params });
     if (res.error) return { error: res.error };
+    
+    cache.set(cacheKey, res.data?.data || []);
     return { data: res.data?.data || [] };
 }
 
 export async function getCampaign(campaignId: string): Promise<ActionResult> {
-    return graph(campaignId, { params: { fields: CAMPAIGN_FIELDS } });
+    const cacheKey = `campaign_${campaignId}`;
+    const cached = cache.get<any>(cacheKey);
+    if (cached) return { data: cached };
+
+    const res = await graph(campaignId, { params: { fields: CAMPAIGN_FIELDS } });
+    if (!res.error && res.data) cache.set(cacheKey, res.data);
+    return res;
 }
 
 export async function createCampaign(
@@ -206,7 +222,7 @@ export async function duplicateCampaign(
 // =================================================================
 
 const ADSET_FIELDS = [
-    'id', 'name', 'campaign_id', 'status', 'effective_status', 'configured_status',
+    'id', 'account_id', 'name', 'campaign_id', 'status', 'effective_status', 'configured_status',
     'daily_budget', 'lifetime_budget', 'budget_remaining',
     'bid_amount', 'bid_strategy', 'billing_event', 'optimization_goal',
     'start_time', 'end_time', 'pacing_type', 'attribution_spec',

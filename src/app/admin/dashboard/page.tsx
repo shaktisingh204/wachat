@@ -173,49 +173,12 @@ const statusVariant: Record<string, string> = {
     Failed: 'bg-red-500/15 text-red-600 border-red-500/30',
 };
 
-export default async function AdminDashboardPage({
-    searchParams,
-}: {
-    searchParams?: Promise<{ query?: string; page?: string }>;
-}) {
-    const { isAdmin } = await getAdminSession();
-    if (!isAdmin) redirect('/admin-login');
+import { Suspense } from 'react';
 
-    const sp = await searchParams;
-    const query = sp?.query || '';
-    const currentPage = Number(sp?.page) || 1;
-
-    const [projectData, broadcastData, allPlans, stats]: [
-        { projects: WithId<Project>[]; total: number },
-        { broadcasts: any[] },
-        any[],
-        AdminStats,
-    ] = await Promise.all([
-        getProjectsForAdmin(currentPage, PROJECTS_PER_PAGE, query).catch(() => ({ projects: [], total: 0 })),
-        rustClient.admin.stats.listBroadcasts({ page: 1, limit: 6 }).catch(() => ({ broadcasts: [], total: 0 })),
-        getPlans().catch(() => []),
-        getAdminDashboardStats(),
-    ]);
-
-    const { projects, total: totalProjects } = projectData;
-    const recentBroadcasts = broadcastData.broadcasts;
-    const totalPages = Math.ceil(totalProjects / PROJECTS_PER_PAGE);
-
+async function StatsGridWrapper() {
+    const stats = await getAdminDashboardStats();
     return (
         <div className="space-y-8">
-            {/* Page header */}
-            <div className="flex items-end justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-                    <p className="text-sm text-slate-500 mt-1">Platform-wide overview — all users, all modules.</p>
-                </div>
-                <div className="text-right hidden sm:block">
-                    <div className="text-xs text-slate-500">Total data points</div>
-                    <div className="text-sm font-semibold text-amber-600">Live</div>
-                </div>
-            </div>
-
-            {/* Hero stats */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <HeroStat title="Total Users" value={fmt(stats.core.totalUsers)} icon={Users} sub={`${fmt(stats.core.approvedUsers)} approved · ${fmt(stats.core.pendingUsers)} pending`} />
                 <HeroStat title="Total Projects" value={fmt(stats.core.totalProjects)} icon={Briefcase} sub="All project types" />
@@ -223,7 +186,6 @@ export default async function AdminDashboardPage({
                 <HeroStat title="System Uptime" value="99.98%" icon={Activity} sub="Last 30 days" accent />
             </div>
 
-            {/* Core platform row */}
             <StatSection
                 title="Core Platform"
                 description="Users, projects and monetization"
@@ -240,7 +202,6 @@ export default async function AdminDashboardPage({
                 ]}
             />
 
-            {/* WhatsApp / Wachat */}
             <StatSection
                 title="WhatsApp (Wachat)"
                 description="Messaging, broadcasts, templates and flows"
@@ -260,7 +221,6 @@ export default async function AdminDashboardPage({
                 ]}
             />
 
-            {/* CRM */}
             <StatSection
                 title="CRM Suite"
                 description="Sales, accounting, inventory and HR"
@@ -286,7 +246,6 @@ export default async function AdminDashboardPage({
                 ]}
             />
 
-            {/* Ads */}
             <StatSection
                 title="Ad Manager & Social"
                 description="Facebook, Instagram and Meta Ads"
@@ -301,7 +260,6 @@ export default async function AdminDashboardPage({
                 ]}
             />
 
-            {/* Email & SMS marketing */}
             <StatSection
                 title="Email & SMS Marketing"
                 description="Outbound marketing channels"
@@ -316,7 +274,6 @@ export default async function AdminDashboardPage({
                 ]}
             />
 
-            {/* Platform (SEO, SabFlow, SabChat, Notifications) */}
             <StatSection
                 title="Platform Modules"
                 description="SEO suite, SabFlow, SabChat and notifications"
@@ -336,7 +293,6 @@ export default async function AdminDashboardPage({
                 ]}
             />
 
-            {/* Tools & Builder */}
             <StatSection
                 title="Tools & Builder"
                 description="URL shortener, QR codes and e-commerce"
@@ -351,109 +307,165 @@ export default async function AdminDashboardPage({
                     { label: 'Website Pages', value: stats.tools.websitePages, icon: Globe },
                 ]}
             />
+        </div>
+    );
+}
 
-            {/* Projects table + Recent broadcasts */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                {/* Projects (3/5) */}
-                <div className="lg:col-span-3 rounded-2xl border border-slate-200 bg-white overflow-hidden">
-                    <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-4">
-                        <div>
-                            <h2 className="font-semibold text-slate-900">All Projects</h2>
-                            <p className="text-xs text-slate-500 mt-0.5">{fmt(totalProjects)} total</p>
-                        </div>
-                        <div className="w-56">
-                            <ProjectSearch placeholder="Search projects…" />
-                        </div>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead>
-                                <tr className="border-b border-slate-200">
-                                    <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Project</th>
-                                    <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Plan</th>
-                                    <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Credits</th>
-                                    <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">MPS</th>
-                                    <th className="px-4 py-3" />
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-200">
-                                {projects.length > 0 ? projects.map((project) => (
-                                    <tr key={project._id.toString()} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-3 font-medium text-slate-900">{project.name}</td>
-                                        <td className="px-4 py-3">
-                                            <span className="inline-flex items-center rounded-full border border-slate-300 bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">
-                                                {(project as any).plan?.name || 'N/A'}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-3 text-slate-700 tabular-nums">{project.credits?.toLocaleString() ?? 0}</td>
-                                        <td className="px-4 py-3 text-slate-700 tabular-nums">{project.messagesPerSecond ?? '—'}</td>
-                                        <td className="px-4 py-3">
-                                            <div className="flex items-center justify-end gap-1">
-                                                <AdminUpdateCreditsButton projectId={project._id.toString()} currentCredits={project.credits || 0} />
-                                                <AdminUpdateMpsButton projectId={project._id.toString()} currentMps={project.messagesPerSecond || 80} />
-                                                <AdminAssignPlanDialog
-                                                    projectId={project._id.toString()}
-                                                    projectName={project.name}
-                                                    currentPlanId={project.planId?.toString()}
-                                                    allPlans={allPlans}
-                                                />
-                                                <AdminDeleteProjectButton projectId={project._id.toString()} projectName={project.name} />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )) : (
-                                    <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center text-slate-500">No projects found.</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div className="px-6 py-3 border-t border-slate-200 flex items-center justify-between">
-                        <span className="text-xs text-slate-500">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="sm" asChild disabled={currentPage <= 1}
-                                className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
-                                <Link href={`/admin/dashboard?page=${currentPage - 1}${query ? `&query=${query}` : ''}`}>Previous</Link>
-                            </Button>
-                            <Button variant="outline" size="sm" asChild disabled={currentPage >= totalPages}
-                                className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
-                                <Link href={`/admin/dashboard?page=${currentPage + 1}${query ? `&query=${query}` : ''}`}>Next</Link>
-                            </Button>
-                        </div>
-                    </div>
+async function ProjectsTableWrapper({ currentPage, query }: { currentPage: number, query: string }) {
+    const [projectData, allPlans] = await Promise.all([
+        getProjectsForAdmin(currentPage, PROJECTS_PER_PAGE, query).catch(() => ({ projects: [], total: 0 })),
+        getPlans().catch(() => []),
+    ]);
+    const { projects, total: totalProjects } = projectData;
+    const totalPages = Math.ceil(totalProjects / PROJECTS_PER_PAGE);
+
+    return (
+        <div className="lg:col-span-3 rounded-2xl border border-slate-200 bg-white overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-4">
+                <div>
+                    <h2 className="font-semibold text-slate-900">All Projects</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">{fmt(totalProjects)} total</p>
                 </div>
-
-                {/* Recent broadcasts (2/5) */}
-                <div className="lg:col-span-2 rounded-2xl border border-slate-200 bg-white overflow-hidden">
-                    <div className="px-6 py-4 border-b border-slate-200">
-                        <h2 className="font-semibold text-slate-900">Recent Broadcasts</h2>
-                        <p className="text-xs text-slate-500 mt-0.5">Latest campaigns across the platform</p>
-                    </div>
-                    <div className="divide-y divide-slate-200">
-                        {recentBroadcasts.length > 0 ? recentBroadcasts.map((b: any) => {
-                            const statusClass = statusVariant[b.status] ?? statusVariant['Queued'];
-                            return (
-                                <div key={b._id.toString()} className="px-6 py-3 flex items-center gap-3 hover:bg-slate-50 transition-colors">
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium text-slate-900 truncate">{b.templateName || 'Unknown template'}</p>
-                                        <p className="text-xs text-slate-500">{new Date(b.createdAt).toLocaleString()}</p>
-                                    </div>
-                                    <span className={`shrink-0 inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium capitalize ${statusClass}`}>
-                                        {b.status?.toLowerCase() || 'unknown'}
+                <div className="w-56">
+                    <ProjectSearch placeholder="Search projects…" />
+                </div>
+            </div>
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                    <thead>
+                        <tr className="border-b border-slate-200">
+                            <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Project</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Plan</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Credits</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">MPS</th>
+                            <th className="px-4 py-3" />
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                        {projects.length > 0 ? projects.map((project) => (
+                            <tr key={project._id.toString()} className="hover:bg-slate-50 transition-colors">
+                                <td className="px-6 py-3 font-medium text-slate-900">{project.name}</td>
+                                <td className="px-4 py-3">
+                                    <span className="inline-flex items-center rounded-full border border-slate-300 bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">
+                                        {(project as any).plan?.name || 'N/A'}
                                     </span>
-                                </div>
-                            );
-                        }) : (
-                            <div className="px-6 py-12 text-center text-slate-500 text-sm">No broadcasts yet.</div>
+                                </td>
+                                <td className="px-4 py-3 text-slate-700 tabular-nums">{project.credits?.toLocaleString() ?? 0}</td>
+                                <td className="px-4 py-3 text-slate-700 tabular-nums">{project.messagesPerSecond ?? '—'}</td>
+                                <td className="px-4 py-3">
+                                    <div className="flex items-center justify-end gap-1">
+                                        <AdminUpdateCreditsButton projectId={project._id.toString()} currentCredits={project.credits || 0} />
+                                        <AdminUpdateMpsButton projectId={project._id.toString()} currentMps={project.messagesPerSecond || 80} />
+                                        <AdminAssignPlanDialog
+                                            projectId={project._id.toString()}
+                                            projectName={project.name}
+                                            currentPlanId={project.planId?.toString()}
+                                            allPlans={allPlans}
+                                        />
+                                        <AdminDeleteProjectButton projectId={project._id.toString()} projectName={project.name} />
+                                    </div>
+                                </td>
+                            </tr>
+                        )) : (
+                            <tr>
+                                <td colSpan={5} className="px-6 py-12 text-center text-slate-500">No projects found.</td>
+                            </tr>
                         )}
-                    </div>
-                    <div className="px-6 py-3 border-t border-slate-200">
-                        <Link href="/admin/dashboard/broadcast-log" className="text-xs text-amber-600 hover:text-amber-300 font-medium transition-colors">
-                            View all broadcasts →
-                        </Link>
-                    </div>
+                    </tbody>
+                </table>
+            </div>
+            <div className="px-6 py-3 border-t border-slate-200 flex items-center justify-between">
+                <span className="text-xs text-slate-500">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
+                <div className="flex gap-2">
+                    <Button variant="outline" size="sm" asChild disabled={currentPage <= 1}
+                        className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
+                        <Link href={`/admin/dashboard?page=${currentPage - 1}${query ? `&query=${query}` : ''}`}>Previous</Link>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild disabled={currentPage >= totalPages}
+                        className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
+                        <Link href={`/admin/dashboard?page=${currentPage + 1}${query ? `&query=${query}` : ''}`}>Next</Link>
+                    </Button>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+async function RecentBroadcastsWrapper() {
+    const broadcastData = await rustClient.admin.stats.listBroadcasts({ page: 1, limit: 6 }).catch(() => ({ broadcasts: [], total: 0 }));
+    const recentBroadcasts = broadcastData.broadcasts;
+    
+    return (
+        <div className="lg:col-span-2 rounded-2xl border border-slate-200 bg-white overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200">
+                <h2 className="font-semibold text-slate-900">Recent Broadcasts</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Latest campaigns across the platform</p>
+            </div>
+            <div className="divide-y divide-slate-200">
+                {recentBroadcasts.length > 0 ? recentBroadcasts.map((b: any) => {
+                    const statusClass = statusVariant[b.status] ?? statusVariant['Queued'];
+                    return (
+                        <div key={b._id.toString()} className="px-6 py-3 flex items-center gap-3 hover:bg-slate-50 transition-colors">
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-slate-900 truncate">{b.templateName || 'Unknown template'}</p>
+                                <p className="text-xs text-slate-500">{new Date(b.createdAt).toLocaleString()}</p>
+                            </div>
+                            <span className={`shrink-0 inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium capitalize ${statusClass}`}>
+                                {b.status?.toLowerCase() || 'unknown'}
+                            </span>
+                        </div>
+                    );
+                }) : (
+                    <div className="px-6 py-12 text-center text-slate-500 text-sm">No broadcasts yet.</div>
+                )}
+            </div>
+            <div className="px-6 py-3 border-t border-slate-200">
+                <Link href="/admin/dashboard/broadcast-log" className="text-xs text-amber-600 hover:text-amber-300 font-medium transition-colors">
+                    View all broadcasts →
+                </Link>
+            </div>
+        </div>
+    );
+}
+
+export default async function AdminDashboardPage({
+    searchParams,
+}: {
+    searchParams?: Promise<{ query?: string; page?: string }>;
+}) {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) redirect('/admin-login');
+
+    const sp = await searchParams;
+    const query = sp?.query || '';
+    const currentPage = Number(sp?.page) || 1;
+
+    return (
+        <div className="space-y-8">
+            {/* Page header */}
+            <div className="flex items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+                    <p className="text-sm text-slate-500 mt-1">Platform-wide overview — all users, all modules.</p>
+                </div>
+                <div className="text-right hidden sm:block">
+                    <div className="text-xs text-slate-500">Total data points</div>
+                    <div className="text-sm font-semibold text-amber-600">Live</div>
+                </div>
+            </div>
+
+            <Suspense fallback={<div className="h-48 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center animate-pulse text-sm text-slate-500">Loading comprehensive stats...</div>}>
+                <StatsGridWrapper />
+            </Suspense>
+
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <Suspense fallback={<div className="lg:col-span-3 h-96 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center animate-pulse text-sm text-slate-500">Loading projects...</div>}>
+                    <ProjectsTableWrapper currentPage={currentPage} query={query} />
+                </Suspense>
+
+                <Suspense fallback={<div className="lg:col-span-2 h-96 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center animate-pulse text-sm text-slate-500">Loading broadcasts...</div>}>
+                    <RecentBroadcastsWrapper />
+                </Suspense>
             </div>
         </div>
     );

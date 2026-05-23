@@ -6,8 +6,7 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import { getWebhookLogs,
-  getWebhookLogPayload } from '@/app/actions/index.ts';
+import { getFlowLogsForAdmin, getFlowLogPayloadForAdmin } from '@/app/actions/admin-hardening.actions';
 import type { FlowLog } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
@@ -18,7 +17,7 @@ export const dynamic = 'force-dynamic';
 const LOGS_PER_PAGE = 20;
 
 export default function FlowLogsPage() {
-    const [logs, setLogs] = useState<any[]>([]);
+    const [logs, setLogs] = useState<Omit<WithId<FlowLog>, 'entries'>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
@@ -30,8 +29,7 @@ export default function FlowLogsPage() {
     const fetchLogs = useCallback((page: number, query: string) => {
         startTransition(async () => {
             try {
-                // @ts-ignore
-                const { logs: newLogs, total } = await getWebhookLogs(page, LOGS_PER_PAGE, query);
+                const { logs: newLogs, total } = await getFlowLogsForAdmin(page, LOGS_PER_PAGE, query);
                 setLogs(newLogs);
                 setTotalPages(Math.ceil(total / LOGS_PER_PAGE));
             } catch {
@@ -50,8 +48,7 @@ export default function FlowLogsPage() {
     const handleViewLog = async (log: Omit<WithId<FlowLog>, 'entries'>) => {
         setSelectedLog(null);
         setLoadingPayload(true);
-        // @ts-ignore
-        const full = await getWebhookLogPayload(log._id.toString());
+        const full = await getFlowLogPayloadForAdmin(log._id.toString());
         setSelectedLog(full);
         setLoadingPayload(false);
     };

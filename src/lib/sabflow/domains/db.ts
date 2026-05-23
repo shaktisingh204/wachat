@@ -27,6 +27,7 @@ interface CustomDomainDoc {
   _id: string;
   workspaceId: string;
   flowId?: string;
+  pathMappings?: { path: string; flowId: string }[];
   domain: string;
   status: DomainStatus;
   verificationToken: string;
@@ -58,6 +59,7 @@ function docToDomain(doc: CustomDomainDoc): CustomDomain {
     createdAt: doc.createdAt,
   };
   if (doc.flowId) out.flowId = doc.flowId;
+  if (doc.pathMappings) out.pathMappings = doc.pathMappings;
   if (doc.lastCheckedAt) out.lastCheckedAt = doc.lastCheckedAt;
   return out;
 }

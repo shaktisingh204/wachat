@@ -32,15 +32,19 @@ interface KeyRow {
   requestCount: number;
   createdAt: string;
   lastUsedAt?: string;
+  scopes?: string[];
 }
 
 interface Props {
   initialKeys: KeyRow[];
+  usageData?: any[];
+  logsData?: any[];
 }
 
-export function KeysClient({ initialKeys }: Props): JSX.Element {
+export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props): JSX.Element {
   const [keys, setKeys] = useState<KeyRow[]>(initialKeys);
   const [name, setName] = useState('');
+  const [scopes, setScopes] = useState('me:read');
   const [busy, startBusy] = useTransition();
   const [revealed, setRevealed] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +53,8 @@ export function KeysClient({ initialKeys }: Props): JSX.Element {
     if (!name.trim()) return;
     setError(null);
     startBusy(async () => {
-      const res = await createDeveloperKey(name.trim());
+      const parsedScopes = scopes.split(/[\s,]+/).filter(Boolean);
+      const res = await createDeveloperKey(name.trim(), parsedScopes);
       if (!res.success) {
         setError(res.error);
         return;
@@ -62,12 +67,14 @@ export function KeysClient({ initialKeys }: Props): JSX.Element {
             name: name.trim(),
             revoked: false,
             requestCount: 0,
+            scopes: parsedScopes,
             createdAt: new Date().toISOString(),
           },
           ...prev,
         ]);
       }
       setName('');
+      setScopes('me:read');
     });
   };
 
@@ -122,6 +129,13 @@ export function KeysClient({ initialKeys }: Props): JSX.Element {
               className="flex-1 min-w-[200px]"
               disabled={busy}
             />
+            <Input
+              value={scopes}
+              onChange={(e) => setScopes(e.target.value)}
+              placeholder="Scopes (e.g. me:read data:write)"
+              className="flex-1 min-w-[200px] font-mono text-sm"
+              disabled={busy}
+            />
             <Button
               onClick={handleCreate}
               disabled={busy || !name.trim()}
@@ -144,6 +158,7 @@ export function KeysClient({ initialKeys }: Props): JSX.Element {
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead>Name</ZoruTableHead>
+              <ZoruTableHead>Scopes</ZoruTableHead>
               <ZoruTableHead>Requests</ZoruTableHead>
               <ZoruTableHead>Created</ZoruTableHead>
               <ZoruTableHead>Last used</ZoruTableHead>
@@ -166,10 +181,21 @@ export function KeysClient({ initialKeys }: Props): JSX.Element {
             {keys.map((k) => (
               <ZoruTableRow key={k._id}>
                 <ZoruTableCell>{k.name}</ZoruTableCell>
-                <ZoruTableCell className="text-zoru-ink-muted">{k.requestCount.toLocaleString()}</ZoruTableCell>
+                <ZoruTableCell>
+                    {k.scopes && k.scopes.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                            {k.scopes.map(s => <Badge variant="outline" key={s} className="text-[10px] font-mono">{s}</Badge>)}
+                        </div>
+                    ) : <span className="text-zoru-ink-muted text-xs">All</span>}
+                </ZoruTableCell>
+                <ZoruTableCell className="text-zoru-ink-muted">
+                    {usageData.find(u => u.keyId === k._id)?.count || k.requestCount || 0}
+                </ZoruTableCell>
                 <ZoruTableCell className="text-zoru-ink-muted text-xs">{formatDate(k.createdAt)}</ZoruTableCell>
                 <ZoruTableCell className="text-zoru-ink-muted text-xs">
-                  {k.lastUsedAt ? formatDate(k.lastUsedAt) : '—'}
+                  {usageData.find(u => u.keyId === k._id)?.lastUsedAt 
+                    ? formatDate(usageData.find(u => u.keyId === k._id)?.lastUsedAt as string) 
+                    : (k.lastUsedAt ? formatDate(k.lastUsedAt) : '—')}
                 </ZoruTableCell>
                 <ZoruTableCell>
                   {k.revoked ? (
@@ -191,6 +217,50 @@ export function KeysClient({ initialKeys }: Props): JSX.Element {
                     </Button>
                   ) : null}
                 </ZoruTableCell>
+              </ZoruTableRow>
+            ))}
+          </ZoruTableBody>
+        </Table>
+      </Card>
+
+      <Card>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Audit Logs</ZoruCardTitle>
+        </ZoruCardHeader>
+        <Table>
+          <ZoruTableHeader>
+            <ZoruTableRow>
+              <ZoruTableHead>Time</ZoruTableHead>
+              <ZoruTableHead>Key ID</ZoruTableHead>
+              <ZoruTableHead>Method</ZoruTableHead>
+              <ZoruTableHead>Path</ZoruTableHead>
+              <ZoruTableHead>Status</ZoruTableHead>
+              <ZoruTableHead>Latency</ZoruTableHead>
+            </ZoruTableRow>
+          </ZoruTableHeader>
+          <ZoruTableBody>
+            {logsData.length === 0 ? (
+              <ZoruTableRow>
+                <ZoruTableCell colSpan={6} className="text-center text-zinc-500 py-8">
+                  No logs available.
+                </ZoruTableCell>
+              </ZoruTableRow>
+            ) : logsData.map((log) => (
+              <ZoruTableRow key={log._id}>
+                <ZoruTableCell className="text-zoru-ink-muted text-xs">{formatDate(log.ts)}</ZoruTableCell>
+                <ZoruTableCell className="font-mono text-xs">{log.keyId}</ZoruTableCell>
+                <ZoruTableCell>
+                  <Badge variant="outline">{log.method}</Badge>
+                </ZoruTableCell>
+                <ZoruTableCell className="font-mono text-xs max-w-[200px] truncate" title={log.path}>
+                  {log.path}
+                </ZoruTableCell>
+                <ZoruTableCell>
+                  <span className={log.status >= 400 ? 'text-red-500' : 'text-green-500'}>
+                    {log.status}
+                  </span>
+                </ZoruTableCell>
+                <ZoruTableCell className="text-zoru-ink-muted text-xs">{log.latencyMs} ms</ZoruTableCell>
               </ZoruTableRow>
             ))}
           </ZoruTableBody>

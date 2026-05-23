@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, ZoruAlertDescription, ZoruAlertTitle, Button, Card, ZoruCardContent, Skeleton } from '@/components/zoruui';
+import { Alert, ZoruAlertDescription, ZoruAlertTitle, Button, Card, ZoruCardContent, Skeleton, ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Popover, ZoruPopoverTrigger, ZoruPopoverContent, Input, Label } from '@/components/zoruui';
 import {
   CalendarDays,
   ChevronLeft,
@@ -44,6 +44,8 @@ export default function CampaignCalendarPage() {
     const [loading, setLoading] = React.useState(true);
     const [campaigns, setCampaigns] = React.useState<Campaign[]>([]);
     const [currentDate, setCurrentDate] = React.useState(new Date());
+    const [scheduleDate, setScheduleDate] = React.useState<string | null>(null);
+    const [newCampaignName, setNewCampaignName] = React.useState('');
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -138,22 +140,53 @@ export default function CampaignCalendarPage() {
                                 return (
                                     <div
                                         key={idx}
-                                        className={`min-h-[80px] border rounded-sm p-1 text-xs ${isToday ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-400' : 'border-border'} ${!day ? 'bg-muted/30' : ''}`}
-                                    >
-                                        {day && <div className={`font-medium mb-1 ${isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : ''}`}>{day}</div>}
-                                        {dayC.slice(0, 3).map((c) => (
-                                            <a
-                                                key={c.id}
-                                                href={`/dashboard/ad-manager/campaigns/${c.id}`}
-                                                className="block truncate rounded px-1 py-0.5 mb-0.5 text-white text-[10px] leading-tight hover:opacity-80"
-                                                style={{ maxWidth: '100%' }}
-                                            >
-                                                <span className={`inline-block w-full truncate rounded px-1 ${statusColor(c.effective_status || c.status)}`}>
-                                                    {c.name}
-                                                </span>
-                                            </a>
-                                        ))}
-                                        {dayC.length > 3 && <div className="text-muted-foreground text-[10px]">+{dayC.length - 3} more</div>}
+                                        <div
+                                            className="absolute top-1 left-1 bottom-1 right-1 cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 rounded-sm z-0"
+                                            onClick={() => {
+                                                if (day) {
+                                                    setScheduleDate(dateStr);
+                                                    setNewCampaignName('');
+                                                }
+                                            }}
+                                        />
+                                        {day && <div className={`font-medium mb-1 relative z-10 pointer-events-none ${isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : ''}`}>{day}</div>}
+                                        <div className="relative z-10 flex flex-col gap-0.5">
+                                            {dayC.slice(0, 3).map((c) => (
+                                                <a
+                                                    key={c.id}
+                                                    href={`/dashboard/ad-manager/campaigns/${c.id}`}
+                                                    className="block truncate rounded px-1 py-0.5 text-white text-[10px] leading-tight hover:opacity-80"
+                                                    style={{ maxWidth: '100%' }}
+                                                >
+                                                    <span className={`inline-block w-full truncate rounded px-1 ${statusColor(c.effective_status || c.status)}`}>
+                                                        {c.name}
+                                                    </span>
+                                                </a>
+                                            ))}
+                                            {dayC.length > 3 && (
+                                                <Popover>
+                                                    <ZoruPopoverTrigger asChild>
+                                                        <button className="text-muted-foreground text-[10px] text-left hover:text-foreground w-full py-0.5">+{dayC.length - 3} more</button>
+                                                    </ZoruPopoverTrigger>
+                                                    <ZoruPopoverContent className="w-64 p-2 z-50">
+                                                        <div className="text-sm font-medium mb-2 border-b pb-1">Campaigns on {dateStr}</div>
+                                                        <div className="space-y-1 max-h-60 overflow-y-auto">
+                                                            {dayC.map(c => (
+                                                                <a
+                                                                    key={c.id}
+                                                                    href={`/dashboard/ad-manager/campaigns/${c.id}`}
+                                                                    className="block truncate rounded px-2 py-1 text-white text-xs leading-tight hover:opacity-80"
+                                                                >
+                                                                    <span className={`inline-block w-full truncate rounded px-1 ${statusColor(c.effective_status || c.status)}`}>
+                                                                        {c.name}
+                                                                    </span>
+                                                                </a>
+                                                            ))}
+                                                        </div>
+                                                    </ZoruPopoverContent>
+                                                </Popover>
+                                            )}
+                                        </div>
                                     </div>
                                 );
                             })}
@@ -161,6 +194,36 @@ export default function CampaignCalendarPage() {
                     </ZoruCardContent>
                 </Card>
             )}
+
+            <ZoruDialog open={!!scheduleDate} onOpenChange={(o) => !o && setScheduleDate(null)}>
+                <ZoruDialogContent>
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>Schedule Campaign for {scheduleDate}</ZoruDialogTitle>
+                    </ZoruDialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label>Campaign Name</Label>
+                            <Input 
+                                placeholder="e.g. Summer Sale 2024" 
+                                value={newCampaignName} 
+                                onChange={(e) => setNewCampaignName(e.target.value)} 
+                            />
+                        </div>
+                    </div>
+                    <ZoruDialogFooter>
+                        <Button variant="outline" onClick={() => setScheduleDate(null)}>Cancel</Button>
+                        <Button 
+                            className="bg-[#1877F2] hover:bg-[#1877F2]/90"
+                            onClick={() => {
+                                toast({ title: 'Scheduled', description: `Scheduled ${newCampaignName} for ${scheduleDate}` });
+                                setScheduleDate(null);
+                            }}
+                        >
+                            Schedule
+                        </Button>
+                    </ZoruDialogFooter>
+                </ZoruDialogContent>
+            </ZoruDialog>
         </div>
     );
 }

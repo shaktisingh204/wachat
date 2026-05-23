@@ -23,6 +23,7 @@ import {
   ZoruDialogTitle,
   ZoruDialogDescription,
   ZoruDialogFooter,
+  Input,
 } from '@/components/zoruui';
 import {
   useState,
@@ -41,8 +42,12 @@ import { ArrowLeft,
   Trash2 } from 'lucide-react';
 import { getAds,
   updateEntityStatus,
+  updateAd,
   duplicateAd,
-  deleteAd } from '@/app/actions/ad-manager.actions';
+  deleteAd,
+  getAdSet } from '@/app/actions/ad-manager.actions';
+import { useAdManager } from '@/context/ad-manager-context';
+import { Plus } from 'lucide-react';
 
 import { useToast } from '@/hooks/use-toast';
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
@@ -67,8 +72,25 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
     const [error, setError] = useState<string | null>(null);
     const [deleteId, setDeleteId] = useState<string | null>(null);
 
+    const { activeAccount } = useAdManager();
+    const [editingAdId, setEditingAdId] = useState<string | null>(null);
+    const [editingName, setEditingName] = useState('');
+
     const fetchAds = () => {
+        if (!activeAccount) {
+            router.push('/dashboard/ad-manager/ad-accounts');
+            return;
+        }
         startLoadingTransition(async () => {
+            const adSetRes = await getAdSet(adSetId);
+            if (adSetRes.error) {
+                setError(adSetRes.error);
+                return;
+            }
+            if (adSetRes.data?.account_id && activeAccount.account_id && adSetRes.data.account_id !== activeAccount.account_id.replace(/^act_/, '')) {
+                setError('Ad Set does not belong to active account.');
+                return;
+            }
             const result = await getAds(adSetId);
             if (result.error) setError(result.error);
             else setError(null);
@@ -76,7 +98,7 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
         });
     };
 
-    useEffect(() => { fetchAds(); }, [adSetId]);
+    useEffect(() => { fetchAds(); }, [adSetId, activeAccount, router]);
 
     const handleStatusToggle = async (id: string, currentStatus: string) => {
         const newStatus = currentStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
@@ -117,6 +139,23 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
         setDeleteId(null);
     };
 
+    const handleSaveName = async (id: string) => {
+        if (!editingName.trim()) {
+            setEditingAdId(null);
+            return;
+        }
+        const originalAds = [...ads];
+        setAds(prev => prev.map(a => a.id === id ? { ...a, name: editingName.trim() } : a));
+        const res = await updateAd(id, { name: editingName.trim() });
+        if (res.error) {
+            toast({ title: 'Failed to update name', description: res.error, variant: 'destructive' });
+            setAds(originalAds);
+        } else {
+            toast({ title: 'Name updated successfully' });
+        }
+        setEditingAdId(null);
+    };
+
     if (isLoading) return <PageSkeleton />;
 
     return (
@@ -133,6 +172,10 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                         </Button>
                         <Button variant="outline" size="icon" onClick={fetchAds} disabled={isLoading} aria-label="Refresh">
                             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                        </Button>
+                        <Button variant="default" size="sm" onClick={() => toast({ title: 'Coming soon' })}>
+                            <Plus className="h-4 w-4 mr-1" />
+                            Create Ad
                         </Button>
                     </div>
                 }
@@ -174,8 +217,33 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                             </div>
                             <ZoruCardHeader className="p-4">
                                 <div className="flex justify-between items-start gap-2">
-                                    <ZoruCardTitle className="text-base truncate" title={ad.name}>{ad.name}</ZoruCardTitle>
-                                    <div className="flex items-center gap-1">
+                                    {editingAdId === ad.id ? (
+                                        <div className="flex-1 flex items-center gap-2">
+                                            <Input
+                                                value={editingName}
+                                                onChange={(e) => setEditingName(e.target.value)}
+                                                className="h-7 text-sm"
+                                                autoFocus
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') handleSaveName(ad.id);
+                                                    if (e.key === 'Escape') setEditingAdId(null);
+                                                }}
+                                            />
+                                            <Button size="sm" className="h-7" onClick={() => handleSaveName(ad.id)}>Save</Button>
+                                        </div>
+                                    ) : (
+                                        <ZoruCardTitle 
+                                            className="text-base truncate cursor-pointer hover:underline" 
+                                            title={ad.name}
+                                            onClick={() => {
+                                                setEditingName(ad.name);
+                                                setEditingAdId(ad.id);
+                                            }}
+                                        >
+                                            {ad.name}
+                                        </ZoruCardTitle>
+                                    )}
+                                    <div className="flex items-center gap-1 shrink-0">
                                         <Switch
                                             className="scale-75"
                                             checked={ad.status === 'ACTIVE'}

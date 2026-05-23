@@ -21,6 +21,17 @@ interface IndexOp {
 function buildOps(db: Db): IndexOp[] {
   return [
     // ------------------------------------------------------------------ //
+    // crm_audit_log
+    // ------------------------------------------------------------------ //
+    {
+      label: 'crm_audit_log: (userId, createdAt desc)',
+      promise: db.collection('crm_audit_log').createIndex(
+        { userId: 1, createdAt: -1 },
+        { background: true },
+      ),
+    },
+
+    // ------------------------------------------------------------------ //
     // crm_employees
     // ------------------------------------------------------------------ //
     {

@@ -60,9 +60,9 @@ export default function AutomatedRulesPage() {
     const [name, setName] = React.useState('');
     const [entityType, setEntityType] = React.useState<string>('CAMPAIGN');
     const [actionType, setActionType] = React.useState<string>('PAUSE');
-    const [metricField, setMetricField] = React.useState<string>('spend');
-    const [operator, setOperator] = React.useState<string>('GREATER_THAN');
-    const [value, setValue] = React.useState('');
+    const [conditions, setConditions] = React.useState<Array<{ metricField: string; operator: string; value: string }>>([
+        { metricField: 'spend', operator: 'GREATER_THAN', value: '' }
+    ]);
 
     const fetchRules = React.useCallback(async () => {
         if (!activeAccount) return;
@@ -76,12 +76,12 @@ export default function AutomatedRulesPage() {
 
     const resetForm = () => {
         setName(''); setEntityType('CAMPAIGN'); setActionType('PAUSE');
-        setMetricField('spend'); setOperator('GREATER_THAN'); setValue('');
+        setConditions([{ metricField: 'spend', operator: 'GREATER_THAN', value: '' }]);
     };
 
     const handleCreate = async () => {
-        if (!activeAccount || !name || !value) {
-            toast({ title: 'Validation', description: 'Name and threshold value are required.', variant: 'destructive' });
+        if (!activeAccount || !name || conditions.some(c => !c.value)) {
+            toast({ title: 'Validation', description: 'Name and all threshold values are required.', variant: 'destructive' });
             return;
         }
         setSubmitting(true);
@@ -90,9 +90,11 @@ export default function AutomatedRulesPage() {
         fd.set('name', name);
         fd.set('entityType', entityType);
         fd.set('actionType', actionType);
-        fd.set('metricField', metricField);
-        fd.set('operator', operator);
-        fd.set('value', value);
+        fd.set('conditions', JSON.stringify(conditions));
+        // Fallback for older rust implementations
+        fd.set('metricField', conditions[0].metricField);
+        fd.set('operator', conditions[0].operator);
+        fd.set('value', conditions[0].value);
 
         const res = await createAutomatedRule(null, fd);
         setSubmitting(false);
@@ -121,8 +123,10 @@ export default function AutomatedRulesPage() {
         try {
             const filters = rule.evaluation_spec?.filters;
             if (filters && filters.length > 0) {
-                const f = filters[0];
-                return `${f.field} ${(f.operator || '').replace(/_/g, ' ').toLowerCase()} ${f.value}`;
+                return filters
+                    .filter((f: any) => f.field !== 'entity_type' && f.field !== 'time_preset')
+                    .map((f: any) => `${f.field} ${(f.operator || '').replace(/_/g, ' ').toLowerCase()} ${f.value}`)
+                    .join(' AND ');
             }
         } catch { /* ignore */ }
         return '—';
@@ -256,29 +260,78 @@ export default function AutomatedRulesPage() {
                                 </Select>
                             </div>
                         </div>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                                <Label>Metric</Label>
-                                <Select value={metricField} onValueChange={setMetricField}>
-                                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {METRIC_FIELDS.map(m => <ZoruSelectItem key={m} value={m}>{m.toUpperCase()}</ZoruSelectItem>)}
-                                    </ZoruSelectContent>
-                                </Select>
+                        <div className="space-y-3 border p-4 rounded-lg bg-secondary/30">
+                            <div className="flex items-center justify-between">
+                                <Label className="text-base font-medium">Conditions (AND logic)</Label>
+                                <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => setConditions([...conditions, { metricField: 'spend', operator: 'GREATER_THAN', value: '' }])}
+                                >
+                                    <Plus className="h-4 w-4 mr-1" /> Add
+                                </Button>
                             </div>
-                            <div className="space-y-2">
-                                <Label>Operator</Label>
-                                <Select value={operator} onValueChange={setOperator}>
-                                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {OPERATORS.map(o => <ZoruSelectItem key={o} value={o}>{o.replace(/_/g, ' ')}</ZoruSelectItem>)}
-                                    </ZoruSelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Value *</Label>
-                                <Input type="number" placeholder="0" value={value} onChange={e => setValue(e.target.value)} />
-                            </div>
+                            
+                            {conditions.map((cond, idx) => (
+                                <div key={idx} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-3 items-end">
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs">Metric</Label>
+                                        <Select 
+                                            value={cond.metricField} 
+                                            onValueChange={(v) => {
+                                                const newC = [...conditions];
+                                                newC[idx].metricField = v;
+                                                setConditions(newC);
+                                            }}
+                                        >
+                                            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                                            <ZoruSelectContent>
+                                                {METRIC_FIELDS.map(m => <ZoruSelectItem key={m} value={m}>{m.toUpperCase()}</ZoruSelectItem>)}
+                                            </ZoruSelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs">Operator</Label>
+                                        <Select 
+                                            value={cond.operator} 
+                                            onValueChange={(v) => {
+                                                const newC = [...conditions];
+                                                newC[idx].operator = v;
+                                                setConditions(newC);
+                                            }}
+                                        >
+                                            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                                            <ZoruSelectContent>
+                                                {OPERATORS.map(o => <ZoruSelectItem key={o} value={o}>{o.replace(/_/g, ' ')}</ZoruSelectItem>)}
+                                            </ZoruSelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs">Value *</Label>
+                                        <Input 
+                                            type="number" 
+                                            placeholder="0" 
+                                            value={cond.value} 
+                                            onChange={(e) => {
+                                                const newC = [...conditions];
+                                                newC[idx].value = e.target.value;
+                                                setConditions(newC);
+                                            }} 
+                                        />
+                                    </div>
+                                    <div className="pb-1">
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            className="h-9 w-9 text-muted-foreground hover:text-destructive"
+                                            onClick={() => setConditions(conditions.filter((_, i) => i !== idx))}
+                                            disabled={conditions.length === 1}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                     <ZoruDialogFooter>

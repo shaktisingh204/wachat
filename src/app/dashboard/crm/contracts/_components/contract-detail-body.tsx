@@ -59,9 +59,17 @@ interface ContractDetailBodyProps {
   contract: Contract;
 }
 
+import { ContractStatusTimeline } from './contract-status-timeline';
+
 export function ContractDetailBody({ contract }: ContractDetailBodyProps) {
   return (
     <>
+      <ContractStatusTimeline 
+        status={contract.status || 'draft'} 
+        sentAt={contract.sentAt} 
+        signedAt={contract.signedAt} 
+        voidedAt={contract.voidedAt} 
+      />
       <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Overview</ZoruCardTitle>

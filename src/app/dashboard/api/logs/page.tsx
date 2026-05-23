@@ -17,12 +17,7 @@ import {
   ZoruCardContent,
   Button,
   Input,
-  Table,
-  ZoruTableHeader,
-  ZoruTableHead,
-  ZoruTableBody,
-  ZoruTableRow,
-  ZoruTableCell,
+  Badge,
 } from '@/components/zoruui';
 import { AlertCircle, Filter } from 'lucide-react';
 
@@ -126,53 +121,53 @@ export default async function LogsPage({
       ) : (
         <>
           <Card>
-            <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>When</ZoruTableHead>
-                  <ZoruTableHead>Method</ZoruTableHead>
-                  <ZoruTableHead>Path</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead>Latency</ZoruTableHead>
-                  <ZoruTableHead>Key</ZoruTableHead>
-                  <ZoruTableHead>Error</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+            <ZoruCardContent className="pt-6">
                 {res.rows.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell colSpan={7} className="text-center text-zoru-ink-muted py-8 text-sm">
-                      No requests match the current filter.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                ) : null}
-                {res.rows.map((r) => (
-                  <ZoruTableRow key={r._id}>
-                    <ZoruTableCell className="text-xs text-zoru-ink-muted">{new Date(r.ts).toLocaleString()}</ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-xs text-zoru-ink">{r.method}</ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-xs text-zoru-ink">{r.path}</ZoruTableCell>
-                    <ZoruTableCell>
-                      <span
-                        className={
-                          r.status >= 500
-                            ? 'text-zoru-danger text-xs font-medium'
-                            : r.status >= 400
-                              ? 'text-zoru-warning text-xs font-medium'
-                              : r.status >= 300
-                                ? 'text-blue-400 text-xs font-medium'
-                                : 'text-zoru-success text-xs font-medium'
-                        }
-                      >
-                        {r.status}
-                      </span>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-zoru-ink-muted">{r.latencyMs} ms</ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-xs text-zoru-ink-subtle">{r.keyId.slice(0, 10)}…</ZoruTableCell>
-                    <ZoruTableCell className="text-xs text-zoru-ink-muted">{r.errorType ?? ''}</ZoruTableCell>
-                  </ZoruTableRow>
-                ))}
-              </ZoruTableBody>
-            </Table>
+                  <div className="text-center text-zoru-ink-muted py-8 text-sm">
+                    No requests match the current filter.
+                  </div>
+                ) : (
+                  <ol className="relative space-y-6 border-l border-zinc-200 pl-6 dark:border-zinc-800">
+                    {res.rows.map((r) => (
+                        <li key={r._id} className="relative">
+                            <span
+                                className="absolute -left-[29px] top-1.5 inline-block size-3 rounded-full border border-white dark:border-zinc-950 bg-zinc-300 dark:bg-zinc-700"
+                                aria-hidden
+                            />
+                            <div className="flex flex-wrap items-baseline gap-2 text-sm mb-1">
+                                <Badge variant="outline" className="font-mono text-[10px] uppercase">
+                                    {r.method}
+                                </Badge>
+                                <span className="font-mono text-zoru-ink">{r.path}</span>
+                                <span
+                                    className={
+                                      r.status >= 500
+                                        ? 'text-zoru-danger text-xs font-semibold px-1.5 py-0.5 rounded bg-red-500/10'
+                                        : r.status >= 400
+                                          ? 'text-zoru-warning text-xs font-semibold px-1.5 py-0.5 rounded bg-amber-500/10'
+                                          : r.status >= 300
+                                            ? 'text-blue-500 text-xs font-semibold px-1.5 py-0.5 rounded bg-blue-500/10'
+                                            : 'text-zoru-success text-xs font-semibold px-1.5 py-0.5 rounded bg-green-500/10'
+                                    }
+                                >
+                                    {r.status}
+                                </span>
+                                <span className="ml-auto text-xs text-zoru-ink-muted">
+                                    {new Date(r.ts).toLocaleString()}
+                                </span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-4 text-xs text-zoru-ink-muted">
+                                <span>Latency: <span className="font-mono">{r.latencyMs} ms</span></span>
+                                <span>Key ID: <span className="font-mono text-zoru-ink-subtle">{r.keyId.slice(0, 10)}…</span></span>
+                                {r.errorType && (
+                                    <span className="text-zoru-danger">Error: {r.errorType}</span>
+                                )}
+                            </div>
+                        </li>
+                    ))}
+                  </ol>
+                )}
+            </ZoruCardContent>
           </Card>
 
           {nextUrl ? (

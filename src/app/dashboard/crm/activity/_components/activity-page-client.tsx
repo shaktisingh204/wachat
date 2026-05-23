@@ -169,6 +169,7 @@ export function ActivityPageClient({
   const [feedRows, setFeedRows] = React.useState<CrmActivityRow[]>(initialFeed.items);
   const [cursor, setCursor] = React.useState<string | null>(initialFeed.nextCursor);
   const [loadingMore, setLoadingMore] = React.useState(false);
+  const observerTarget = React.useRef<HTMLDivElement>(null);
 
   /* ── table state ──────────────────────────────────────────────────────── */
   const [typeFilter, setTypeFilter] = React.useState<string>('all');
@@ -190,8 +191,6 @@ export function ActivityPageClient({
     setCursor(initialFeed.nextCursor);
   }, [initialFeed]);
 
-  /* ── feed: load more ─────────────────────────────────────────────────── */
-
   const handleLoadMore = React.useCallback(async () => {
     if (!cursor || loadingMore) return;
     setLoadingMore(true);
@@ -212,6 +211,26 @@ export function ActivityPageClient({
       setLoadingMore(false);
     }
   }, [cursor, loadingMore, filters]);
+
+  React.useEffect(() => {
+    const target = observerTarget.current;
+    if (!target || !cursor || loadingMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          void handleLoadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(target);
+
+    return () => {
+      observer.unobserve(target);
+    };
+  }, [handleLoadMore, loadingMore, cursor]);
 
   /* ── feed: apply URL filters ──────────────────────────────────────────── */
 
@@ -442,7 +461,7 @@ export function ActivityPageClient({
                 ),
               )}
               {cursor ? (
-                <div className="flex justify-center py-3">
+                <div ref={observerTarget} className="flex justify-center py-3">
                   <Button
                     variant="ghost"
                     size="sm"

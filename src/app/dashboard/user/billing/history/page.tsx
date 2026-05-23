@@ -1,22 +1,18 @@
 'use client';
 
 import {
-  Card,
+  ZoruCard,
   ZoruCardContent,
-  ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  Button,
-  Table,
+  ZoruButton,
+  ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  Badge,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
+  ZoruBadge,
 } from '@/components/zoruui';
 import { ChevronLeft, Receipt } from 'lucide-react';
 
@@ -54,27 +50,27 @@ export default function BillingHistoryPage() {
     return (
         <div className="flex flex-col gap-8">
             <div>
-                <Button variant="ghost" asChild className="mb-4 -ml-4">
+                <ZoruButton variant="ghost" asChild className="mb-4 -ml-4">
                     <Link href="/dashboard/user/billing"><ChevronLeft className="mr-2 h-4 w-4" />Back to Billing</Link>
-                </Button>
-                <h1 className="text-3xl font-bold font-headline">Billing History</h1>
-                <p className="text-muted-foreground">A record of all your plan upgrades and credit purchases.</p>
+                </ZoruButton>
+                <h1 className="text-3xl font-bold font-headline text-zoru-ink">Billing History</h1>
+                <p className="text-zoru-ink-muted">A record of all your plan upgrades and credit purchases.</p>
             </div>
 
-            <Card>
+            <ZoruCard className="border border-zoru-line bg-zoru-surface/50 shadow-[var(--zoru-shadow-sm)]">
                 <ZoruCardHeader>
-                    <ZoruCardTitle>Your Transactions</ZoruCardTitle>
+                    <ZoruCardTitle className="text-zoru-ink">Your Transactions</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <div className="border rounded-md">
-                        <Table>
+                    <div className="border border-zoru-line rounded-md bg-zoru-surface/50 overflow-hidden shadow-[var(--zoru-shadow-sm)]">
+                        <ZoruTable>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
-                                    <ZoruTableHead>Date</ZoruTableHead>
-                                    <ZoruTableHead>Description</ZoruTableHead>
-                                    <ZoruTableHead>Amount</ZoruTableHead>
-                                    <ZoruTableHead>Type</ZoruTableHead>
-                                    <ZoruTableHead>Status</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Description</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Amount</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Type</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
@@ -82,39 +78,39 @@ export default function BillingHistoryPage() {
                                     <ZoruTableRow>
                                         <ZoruTableCell colSpan={5} className="h-48 text-center">
                                             <div className="flex justify-center items-center">
-                                                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                                                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
                                             </div>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : transactions.length > 0 ? (
                                     transactions.map(t => (
                                         <ZoruTableRow key={t._id.toString()}>
-                                            <ZoruTableCell>{format(new Date(t.createdAt), 'PPpp')}</ZoruTableCell>
-                                            <ZoruTableCell>{t.reason}</ZoruTableCell>
-                                            <ZoruTableCell>₹{(t.amount / 100).toFixed(2)}</ZoruTableCell>
+                                            <ZoruTableCell className="text-zoru-ink">{format(new Date(t.createdAt), 'PPpp')}</ZoruTableCell>
+                                            <ZoruTableCell className="text-zoru-ink">{t.reason}</ZoruTableCell>
+                                            <ZoruTableCell className="text-zoru-ink font-semibold">₹{(t.amount / 100).toFixed(2)}</ZoruTableCell>
                                             <ZoruTableCell>
-                                                <Badge variant={t.type === 'CREDIT' ? 'default' : 'secondary'}>
+                                                <ZoruBadge variant={t.type === 'CREDIT' ? 'default' : 'secondary'}>
                                                     {t.type}
-                                                </Badge>
+                                                </ZoruBadge>
                                             </ZoruTableCell>
-                                            <ZoruTableCell><Badge variant={getStatusVariant(t.status)}>{t.status}</Badge></ZoruTableCell>
+                                            <ZoruTableCell><ZoruBadge variant={getStatusVariant(t.status)}>{t.status}</ZoruBadge></ZoruTableCell>
                                         </ZoruTableRow>
                                     ))
                                 ) : (
                                     <ZoruTableRow>
                                         <ZoruTableCell colSpan={5} className="h-48 text-center">
                                             <div className="flex flex-col items-center gap-4">
-                                                <Receipt className="h-12 w-12 text-muted-foreground" />
-                                                <p className="text-muted-foreground">You don't have any transactions yet.</p>
+                                                <Receipt className="h-12 w-12 text-zoru-ink-muted" />
+                                                <p className="text-zoru-ink-muted">You don't have any transactions yet.</p>
                                             </div>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 )}
                             </ZoruTableBody>
-                        </Table>
+                        </ZoruTable>
                     </div>
                 </ZoruCardContent>
-            </Card>
+            </ZoruCard>
         </div>
     );
 }

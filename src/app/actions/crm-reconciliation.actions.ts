@@ -16,33 +16,51 @@ function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
 }
 
-export async function importBankStatement(file: File): Promise<{ statementEntries?: any[], error?: string }> {
+export interface CsvMapping {
+    dateCol: string;
+    descCol: string;
+    debitCol: string;
+    creditCol: string;
+}
+
+export async function importBankStatement(file: File, mapping?: CsvMapping): Promise<{ statementEntries?: any[], error?: string, columns?: string[] }> {
     try {
         const text = await file.text();
         const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+        
+        if (!parsed.data || parsed.data.length === 0) {
+            return { error: 'Empty CSV' };
+        }
+        
+        const columns = parsed.meta.fields || Object.keys(parsed.data[0] as object);
 
-        // This is a naive parser. In a real app, you'd have mappers for different bank formats.
+        if (!mapping) {
+            return { columns };
+        }
+
         const transactions = parsed.data.map((row: any, index) => {
-            const date = new Date(row['Date'] || row['Transaction Date']);
-            const description = row['Description'] || row['Narration'];
-            const debit = parseFloat(row['Debit'] || row['Withdrawal'] || '0');
-            const credit = parseFloat(row['Credit'] || row['Deposit'] || '0');
+            const dateStr = row[mapping.dateCol];
+            const date = new Date(dateStr);
+            const description = row[mapping.descCol];
+            const debitStr = row[mapping.debitCol]?.toString().replace(/,/g, '');
+            const creditStr = row[mapping.creditCol]?.toString().replace(/,/g, '');
+            const debit = parseFloat(debitStr || '0');
+            const credit = parseFloat(creditStr || '0');
             const amount = credit > 0 ? credit : -debit;
 
             if (isNaN(date.getTime()) || !description || isNaN(amount)) {
-                console.warn(`Skipping invalid row ${index + 2}:`, row);
                 return null;
             }
 
             return {
-                _id: `stmt-${date.toISOString()}-${index}`, // Temporary unique ID
+                _id: `stmt-${date.toISOString()}-${index}`,
                 date,
                 description,
                 amount,
             };
         }).filter(Boolean);
 
-        return { statementEntries: transactions };
+        return { statementEntries: transactions, columns };
     } catch (e) {
         return { error: getErrorMessage(e) };
     }
@@ -112,7 +130,13 @@ export async function saveReconciliation(
 
         await db.collection('crm_reconciliations').insertOne(reconciliationRecord);
 
-        // 2. Mark Book Entries as Reconciled (Optional but good for production)
+        // 2. Clear draft if it exists
+        await db.collection('crm_reconciliation_drafts').deleteOne({
+             userId: new ObjectId(session.user._id),
+             accountId: new ObjectId(accountId)
+        });
+
+        // 3. Mark Book Entries as Reconciled (Optional but good for production)
         // This prevents them from appearing in future reconciliations if we filter them out
         // For now, we won't modify the voucher entries directly to avoid complex side effects, 
         // but we'll store the reconciliation record which is sufficient for audit.
@@ -121,6 +145,51 @@ export async function saveReconciliation(
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function saveReconciliationDraft(
+    accountId: string,
+    matchedBookEntries: string[],
+    matchedStatementEntries: string[],
+    statementEntries: any[]
+): Promise<{ success: boolean, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: "Access denied" };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('crm_reconciliation_drafts').updateOne(
+            { userId: new ObjectId(session.user._id), accountId: new ObjectId(accountId) },
+            { 
+                $set: { 
+                    matchedBookEntries, 
+                    matchedStatementEntries,
+                    statementEntries,
+                    updatedAt: new Date()
+                } 
+            },
+            { upsert: true }
+        );
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function loadReconciliationDraft(accountId: string): Promise<{ data?: any, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
+
+    try {
+        const { db } = await connectToDatabase();
+        const draft = await db.collection('crm_reconciliation_drafts').findOne({
+             userId: new ObjectId(session.user._id),
+             accountId: new ObjectId(accountId)
+        });
+        return { data: draft };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
     }
 }
 

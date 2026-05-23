@@ -8,8 +8,10 @@ import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import Link from 'next/link';
 
+import { Suspense } from 'react';
 import { BudgetsListClient } from './_components/budgets-list-client';
 import type { BudgetRow } from './_components/budgets-types';
+import { LoaderCircle } from 'lucide-react';
 
 type AnyBudget = {
   _id?: { toString(): string } | string;
@@ -39,7 +41,7 @@ function toId(v: AnyBudget['_id'], fallback: string): string {
   return fallback;
 }
 
-export default async function BudgetsPage() {
+async function BudgetsListAsync() {
   const session = await getSession();
   let budgets: BudgetRow[] = [];
   let loadError = false;
@@ -76,6 +78,18 @@ export default async function BudgetsPage() {
     }
   }
 
+  if (loadError) {
+    return (
+      <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
+        Could not load budgets.
+      </div>
+    );
+  }
+
+  return <BudgetsListClient budgets={budgets} />;
+}
+
+export default function BudgetsPage() {
   return (
     <EntityListShell
       title="Budgets & Forecasting"
@@ -88,13 +102,15 @@ export default async function BudgetsPage() {
         </Link>
       }
     >
-      {loadError ? (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
-          Could not load budgets.
-        </div>
-      ) : null}
-
-      <BudgetsListClient budgets={budgets} />
+      <Suspense
+        fallback={
+          <div className="flex h-32 w-full items-center justify-center rounded-lg border border-border">
+            <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        }
+      >
+        <BudgetsListAsync />
+      </Suspense>
     </EntityListShell>
   );
 }

@@ -212,14 +212,24 @@ export default function TrialBalancePage(): React.JSX.Element {
     const onXlsx = () =>
         downloadXlsx(`trial-balance-${dateStamp()}.xlsx`, HEADERS, exportRows, 'Trial Balance');
 
-    const chartData = filteredEntries
+    const chartDataRaw = filteredEntries
         .slice()
-        .sort((a, b) => b.closingBalance - a.closingBalance)
-        .slice(0, 12)
+        .sort((a, b) => Math.abs(b.closingBalance) - Math.abs(a.closingBalance));
+
+    const chartData = chartDataRaw
+        .slice(0, 11)
         .map((e) => ({
             name: e.accountName.length > 18 ? `${e.accountName.slice(0, 16)}…` : e.accountName,
             value: e.closingBalance * (e.closingBalanceType === 'Dr' ? 1 : -1),
         }));
+
+    if (chartDataRaw.length > 11) {
+        const othersValue = chartDataRaw.slice(11).reduce((sum, e) => sum + (e.closingBalance * (e.closingBalanceType === 'Dr' ? 1 : -1)), 0);
+        chartData.push({
+            name: 'Others',
+            value: othersValue
+        });
+    }
 
     const filters = (
         <div className="flex flex-wrap items-center gap-2">
@@ -358,6 +368,7 @@ export default function TrialBalancePage(): React.JSX.Element {
                     limit={limit}
                     hasMore={hasMore}
                     total={filteredEntries.length}
+                    pageSizes={[10, 20, 50, 100, 250]}
                     controlled={{
                         onChange: (next) => {
                             setPage(next.page);

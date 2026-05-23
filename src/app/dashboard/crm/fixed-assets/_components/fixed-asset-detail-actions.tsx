@@ -129,11 +129,8 @@ export function FixedAssetDetailActions({
         <Printer className="h-3.5 w-3.5" /> Print label
       </Button>
 
-      <Button size="sm" variant="outline" asChild>
-        {/* TODO 1D.2: Maintenance log needs server-side endpoint and child table */}
-        <Link href={`/dashboard/crm/fixed-assets/${assetId}/maintenance`}>
-          <Wrench className="h-3.5 w-3.5" /> Maintenance log
-        </Link>
+      <Button size="sm" variant="outline" disabled title="Coming Soon">
+        <Wrench className="h-3.5 w-3.5" /> Maintenance log
       </Button>
 
       <Button

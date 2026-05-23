@@ -1,0 +1,123 @@
+'use client';
+
+import React, { useState, useEffect, Suspense } from 'react';
+import { Card } from '@/components/zoruui';
+import { getConversionsAnalytics } from './analytics-actions';
+import { FunnelChart } from './funnel-chart';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Loader2 } from 'lucide-react';
+
+export function AnalyticsDashboard() {
+    const [dateRange, setDateRange] = useState('7d');
+    const [data, setData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        let mounted = true;
+        setLoading(true);
+        getConversionsAnalytics(dateRange).then((res) => {
+            if (mounted) {
+                setData(res);
+                setLoading(false);
+            }
+        });
+        return () => { mounted = false; };
+    }, [dateRange]);
+
+    return (
+        <div className="space-y-6 mt-6">
+            <div className="flex items-center justify-between">
+                <h2 className="text-lg font-medium text-zoru-ink">Conversion Analytics</h2>
+                <div className="flex items-center gap-2">
+                    <span className="text-sm text-zoru-ink-muted">Date Range:</span>
+                    <select 
+                        className="bg-zoru-surface border border-zoru-line rounded-md text-sm px-2 py-1 text-zoru-ink focus:outline-none focus:ring-2 focus:ring-zoru-brand"
+                        value={dateRange}
+                        onChange={(e) => setDateRange(e.target.value)}
+                    >
+                        <option value="7d">Last 7 Days</option>
+                        <option value="30d">Last 30 Days</option>
+                        <option value="90d">Last 90 Days</option>
+                    </select>
+                </div>
+            </div>
+
+            {loading || !data ? (
+                <Card variant="default" className="flex items-center justify-center p-12 min-h-[300px]">
+                    <Loader2 className="w-8 h-8 animate-spin text-zoru-brand" />
+                    <span className="ml-3 text-sm text-zoru-ink-muted">Aggregating complex data...</span>
+                </Card>
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Funnel Chart */}
+                    <Card variant="default" className="p-5 flex flex-col">
+                        <h3 className="text-md font-medium text-zoru-ink mb-4">Sales Funnel</h3>
+                        <div className="flex-1 flex items-center justify-center min-h-[300px]">
+                            <FunnelChart data={data.funnel} />
+                        </div>
+                    </Card>
+
+                    {/* Source / Channel Pie Chart */}
+                    <Card variant="default" className="p-5 flex flex-col">
+                        <h3 className="text-md font-medium text-zoru-ink mb-4">Conversion by Source</h3>
+                        <div className="flex-1 min-h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={data.channels}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={60}
+                                        outerRadius={100}
+                                        paddingAngle={2}
+                                    >
+                                        {data.channels.map((entry: any, index: number) => (
+                                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip 
+                                        contentStyle={{ borderRadius: '8px', border: '1px solid var(--zoru-line)' }}
+                                    />
+                                    <Legend verticalAlign="bottom" height={36}/>
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </Card>
+
+                    {/* A/B Testing Insights */}
+                    <Card variant="default" className="p-5 lg:col-span-2">
+                        <h3 className="text-md font-medium text-zoru-ink mb-4">A/B Testing Insights</h3>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm text-zoru-ink-muted">
+                                <thead className="border-b border-zoru-line text-xs uppercase bg-zoru-surface-2 text-zoru-ink">
+                                    <tr>
+                                        <th className="px-4 py-3 rounded-tl-md">Variant</th>
+                                        <th className="px-4 py-3">Conversion Rate</th>
+                                        <th className="px-4 py-3 rounded-tr-md">Lift</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {data.abTesting.map((row: any, i: number) => (
+                                        <tr key={i} className="border-b border-zoru-line hover:bg-zoru-surface-2 transition">
+                                            <td className="px-4 py-3 font-medium text-zoru-ink">{row.variant}</td>
+                                            <td className="px-4 py-3">{row.conversionRate}%</td>
+                                            <td className="px-4 py-3">
+                                                {row.lift > 0 ? (
+                                                    <span className="text-green-500 font-medium">+{row.lift}%</span>
+                                                ) : (
+                                                    <span className="text-zoru-ink-muted">Baseline</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </Card>
+                </div>
+            )}
+        </div>
+    );
+}

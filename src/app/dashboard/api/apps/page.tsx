@@ -1,4 +1,4 @@
-import { listOAuthApps } from '@/app/actions/developer-platform.actions';
+import { listOAuthApps, getUsageByKey } from '@/app/actions/developer-platform.actions';
 import {
   PageHeader,
   ZoruPageHeading,
@@ -16,13 +16,11 @@ import {
 import { AlertCircle } from 'lucide-react';
 import { AppsClient } from './_AppsClient';
 
+import { Suspense } from 'react';
+
 export const dynamic = 'force-dynamic';
 
 export default async function OAuthAppsPage(): Promise<JSX.Element> {
-  const res = await listOAuthApps();
-  const initial = res.success ? res.apps : [];
-  const loadError = res.success ? null : res.error;
-
   return (
     <div className="flex min-h-full flex-col gap-6">
       <Breadcrumb>
@@ -47,14 +45,40 @@ export default async function OAuthAppsPage(): Promise<JSX.Element> {
         </ZoruPageHeading>
       </PageHeader>
 
-      {loadError ? (
+      <Suspense fallback={<AppsSkeleton />}>
+        <AppsLoader />
+      </Suspense>
+    </div>
+  );
+}
+
+function AppsSkeleton() {
+    return (
+        <div className="space-y-4 animate-pulse">
+            <div className="h-64 bg-zinc-800/50 rounded-lg"></div>
+            <div className="h-32 bg-zinc-800/50 rounded-lg"></div>
+            <div className="h-32 bg-zinc-800/50 rounded-lg"></div>
+        </div>
+    );
+}
+
+async function AppsLoader() {
+  const [res, usageRes] = await Promise.all([
+    listOAuthApps(),
+    getUsageByKey()
+  ]);
+  const initial = res.success ? res.apps : [];
+  const loadError = res.success ? null : res.error;
+  const usageData = usageRes.success ? usageRes.rows : [];
+  
+  if (loadError) {
+      return (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <ZoruAlertDescription>Failed to load apps: {loadError}</ZoruAlertDescription>
         </Alert>
-      ) : null}
-
-      <AppsClient initialApps={initial} />
-    </div>
-  );
+      );
+  }
+  
+  return <AppsClient initialApps={initial} usageData={usageData} />;
 }

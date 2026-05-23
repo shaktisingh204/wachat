@@ -22,6 +22,7 @@ import { Plus } from 'lucide-react';
 import * as React from 'react';
 import Link from 'next/link';
 import Papa from 'papaparse';
+import { format } from 'date-fns';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
@@ -189,7 +190,7 @@ export function VoucherBooksListClient(): React.JSX.Element {
                 'Approval required': r.approvalRequired ? 'yes' : 'no',
                 Active: r.isActive === false ? 'no' : 'yes',
                 Entries: r.entryCount ?? 0,
-                'Last entry': r.lastEntryDate ? new Date(r.lastEntryDate).toLocaleDateString() : '',
+                'Last entry': r.lastEntryDate ? format(new Date(r.lastEntryDate), 'dd MMM yyyy') : '',
             })),
         );
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

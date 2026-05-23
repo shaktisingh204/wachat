@@ -11,6 +11,7 @@ import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill } from '@/components/crm/status-pill';
+import { format } from 'date-fns';
 
 import {
     getVoucherBookById,
@@ -140,7 +141,7 @@ export default async function VoucherBookDetailPage(props: {
                         <SummaryCell label="Total entries" value={(book.entryCount ?? entries.length).toLocaleString()} />
                         <SummaryCell
                             label="Last entry"
-                            value={book.lastEntryDate ? new Date(book.lastEntryDate).toLocaleDateString() : '—'}
+                            value={book.lastEntryDate ? format(new Date(book.lastEntryDate), 'dd MMM yyyy') : '—'}
                         />
                         <SummaryCell label="Type" value={book.type} />
                     </div>
@@ -174,7 +175,7 @@ export default async function VoucherBookDetailPage(props: {
                                     entries.map((entry) => (
                                         <ZoruTableRow key={entry._id.toString()} className="border-border">
                                             <ZoruTableCell className="text-foreground">
-                                                {new Date(entry.date).toLocaleDateString()}
+                                                {format(new Date(entry.date), 'dd MMM yyyy')}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="font-mono text-[12px] text-foreground">
                                                 {entry.voucherNumber}

@@ -58,17 +58,33 @@ export async function getCrmAccounts(
     limit: number = 20,
     query?: string,
     status: 'active' | 'archived' | 'all' = 'active',
+    filters?: {
+        category?: string;
+        industry?: string;
+        country?: string;
+        currency?: string;
+        fromDate?: Date;
+        toDate?: Date;
+    },
 ): Promise<{ accounts: WithId<CrmAccount>[]; total: number }> {
     const session = await getSession();
     if (!session?.user) return { accounts: [], total: 0 };
 
     if (useRustCrm()) {
         try {
+            const rustFilter: Record<string, unknown> = status === 'all' ? {} : { status };
+            if (filters?.category && filters.category !== 'all') rustFilter.category = filters.category;
+            if (filters?.industry) rustFilter.industry = filters.industry;
+            if (filters?.country) rustFilter.country = filters.country;
+            if (filters?.currency) rustFilter.currency = filters.currency;
+            if (filters?.fromDate) rustFilter.fromDate = filters.fromDate.toISOString();
+            if (filters?.toDate) rustFilter.toDate = filters.toDate.toISOString();
+            
             const result = await accountApi.list({
                 q: query,
                 page: Math.max(0, page - 1),
                 limit,
-                filter: status === 'all' ? undefined : { status },
+                filter: Object.keys(rustFilter).length > 0 ? rustFilter : undefined,
             });
             return {
                 accounts: result.items.map(rustDocToLegacy),
@@ -90,6 +106,18 @@ export async function getCrmAccounts(
             filter.status = { $ne: 'archived' };
         } else if (status === 'archived') {
             filter.status = 'archived';
+        }
+        
+        if (filters?.category && filters.category !== 'all') filter.category = filters.category;
+        if (filters?.industry) filter.industry = filters.industry;
+        if (filters?.country) filter.country = filters.country;
+        if (filters?.currency) filter.currency = filters.currency;
+        
+        if (filters?.fromDate || filters?.toDate) {
+            filter.createdAt = {};
+            if (filters.fromDate) filter.createdAt.$gte = new Date(filters.fromDate);
+            if (filters.toDate) filter.createdAt.$lte = new Date(filters.toDate);
+            if (Object.keys(filter.createdAt).length === 0) delete filter.createdAt;
         }
 
         if (query) {

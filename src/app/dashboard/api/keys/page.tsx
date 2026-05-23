@@ -1,4 +1,4 @@
-import { listDeveloperKeys } from '@/app/actions/developer-platform.actions';
+import { listDeveloperKeys, getUsageByKey, getUsageLogs } from '@/app/actions/developer-platform.actions';
 import {
   PageHeader,
   ZoruPageHeading,
@@ -19,8 +19,14 @@ import { KeysClient } from './_KeysClient';
 export const dynamic = 'force-dynamic';
 
 export default async function ApiKeysPage(): Promise<JSX.Element> {
-  const res = await listDeveloperKeys();
+  const [res, usageRes, logsRes] = await Promise.all([
+    listDeveloperKeys(),
+    getUsageByKey(),
+    getUsageLogs({ limit: 10 })
+  ]);
   const initialKeys = res.success ? (res.keys as Parameters<typeof KeysClient>[0]['initialKeys']) : [];
+  const usageData = usageRes.success ? usageRes.rows : [];
+  const logsData = logsRes.success ? logsRes.rows : [];
   const loadError = res.success ? null : res.error;
 
   return (
@@ -54,7 +60,7 @@ export default async function ApiKeysPage(): Promise<JSX.Element> {
         </Alert>
       ) : null}
 
-      <KeysClient initialKeys={initialKeys} />
+      <KeysClient initialKeys={initialKeys} usageData={usageData} logsData={logsData} />
     </div>
   );
 }

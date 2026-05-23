@@ -30,6 +30,8 @@ import {
   Copy,
   Search,
   Target,
+  RefreshCw,
+  LoaderCircle,
   Globe } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -137,6 +139,8 @@ function AudienceRow({
     }
   })();
 
+  const isPopulating = audience.operation_status?.code === 400 || audience.delivery_status?.code === 400;
+
   return (
     <>
       <div className="group flex items-center gap-4 px-5 py-3.5 border-b border-border last:border-b-0 hover:bg-secondary/50 transition-colors">
@@ -160,11 +164,19 @@ function AudienceRow({
         </div>
 
         {/* badge */}
-        <Badge variant={badgeVariant}>{subtype}</Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant={badgeVariant}>{subtype}</Badge>
+          {isPopulating && (
+            <Badge variant="warning" className="animate-pulse bg-warning/20 text-warning-foreground border-warning/50">
+              <LoaderCircle className="h-3 w-3 animate-spin mr-1 inline" />
+              Populating
+            </Badge>
+          )}
+        </div>
 
         {/* approximate count */}
         <span className="text-[13px] text-foreground tabular-nums min-w-[72px] text-right">
-          {audience.approximate_count_lower_bound
+          {audience.approximate_count_lower_bound === -1 ? 'Under 1000' : audience.approximate_count_lower_bound
             ? formatNumber(audience.approximate_count_lower_bound)
             : '--'}
         </span>
@@ -531,13 +543,19 @@ export default function AudiencesPage() {
             <span className="tabular-nums">{audiences.length}</span>
           </Badge>
         </div>
-        <Button
-          variant="default"
-          onClick={() => setSheetOpen(true)}
-        >
-          <Plus className="h-4 w-4" />
-          Create audience
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => toast({ title: 'Syncing CRM...' })}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Sync CRM
+          </Button>
+          <Button
+            variant="default"
+            onClick={() => setSheetOpen(true)}
+          >
+            <Plus className="h-4 w-4" />
+            Create audience
+          </Button>
+        </div>
       </div>
 
       {/* tab pills + search */}

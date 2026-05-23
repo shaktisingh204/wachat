@@ -11,11 +11,13 @@ import {
   Trash2,
   Copy,
   Filter,
-  RefreshCw,
   Plus,
-  } from 'lucide-react';
+  Edit2,
+  Check,
+  X } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/zoruui';
 
 import * as React from 'react';
 
@@ -245,8 +247,12 @@ export default function CampaignsPage() {
   const [campaigns, setCampaigns] = React.useState<Campaign[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('ALL');
+  const [maxCpaFilter, setMaxCpaFilter] = React.useState<string>('');
   const [refreshKey, setRefreshKey] = React.useState(0);
   const [actionLoading, setActionLoading] = React.useState<string | null>(null);
+  
+  const [editingBudgetId, setEditingBudgetId] = React.useState<string | null>(null);
+  const [editingBudgetValue, setEditingBudgetValue] = React.useState<string>('');
 
   /* Fetch campaigns */
   React.useEffect(() => {
@@ -279,8 +285,14 @@ export default function CampaignsPage() {
       const q = search.toLowerCase();
       list = list.filter((c) => c.name?.toLowerCase().includes(q));
     }
+    if (maxCpaFilter) {
+      const maxCpa = Number(maxCpaFilter);
+      if (!isNaN(maxCpa)) {
+        list = list.filter(c => (c.cost_per_result != null ? c.cost_per_result <= maxCpa : false));
+      }
+    }
     return list;
-  }, [campaigns, statusFilter, search]);
+  }, [campaigns, statusFilter, search, maxCpaFilter]);
 
   /* Actions */
   const handleToggleStatus = async (c: Campaign) => {
@@ -303,6 +315,17 @@ export default function CampaignsPage() {
     await deleteCampaign(c.id);
     setActionLoading(null);
     setRefreshKey((k) => k + 1);
+  };
+
+  const handleSaveBudget = async (c: Campaign) => {
+    setActionLoading(c.id);
+    const newVal = Math.round(Number(editingBudgetValue) * 100);
+    const res = await updateCampaign(c.id, { daily_budget: newVal });
+    if (!res.error) {
+      setCampaigns(prev => prev.map(camp => camp.id === c.id ? { ...camp, daily_budget: newVal.toString() } : camp));
+    }
+    setEditingBudgetId(null);
+    setActionLoading(null);
   };
 
   /* No account */
@@ -389,6 +412,14 @@ export default function CampaignsPage() {
             </Button>
           ))}
         </div>
+        <div className="flex items-center gap-2">
+            <Input 
+                placeholder="Max CPA ($)" 
+                value={maxCpaFilter} 
+                onChange={(e) => setMaxCpaFilter(e.target.value)} 
+                className="w-32 h-8 text-sm" 
+            />
+        </div>
         <Button
           variant="ghost"
           size="icon-sm"
@@ -421,11 +452,11 @@ export default function CampaignsPage() {
               <span className="w-[140px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Objective
               </span>
-              <span className="w-[120px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide text-right">
+              <span className="w-[120px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Budget
               </span>
               <span className="w-[80px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide text-right">
-                Results
+                CPA
               </span>
               <span className="w-[44px]" />
             </div>
@@ -464,13 +495,33 @@ export default function CampaignsPage() {
                   </span>
 
                   {/* Budget */}
-                  <span className="w-[120px] text-[13px] text-foreground tabular-nums text-right">
-                    {budgetDisplay(c)}
-                  </span>
+                  <div className="w-[120px] text-[13px] text-foreground tabular-nums flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                    {editingBudgetId === c.id ? (
+                        <div className="flex items-center gap-1">
+                            <Input 
+                                type="number" 
+                                value={editingBudgetValue} 
+                                onChange={(e) => setEditingBudgetValue(e.target.value)}
+                                className="w-16 h-7 text-xs px-1"
+                            />
+                            <Button variant="ghost" size="icon" className="h-6 w-6 text-green-600" onClick={() => handleSaveBudget(c)}><Check className="h-3 w-3" /></Button>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 text-red-600" onClick={() => setEditingBudgetId(null)}><X className="h-3 w-3" /></Button>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2 group/budget">
+                            <span>{budgetDisplay(c)}</span>
+                            {c.daily_budget && (
+                                <button className="opacity-0 group-hover/budget:opacity-100 text-muted-foreground hover:text-foreground transition-opacity" onClick={() => { setEditingBudgetId(c.id); setEditingBudgetValue((Number(c.daily_budget)/100).toString()); }}>
+                                    <Edit2 className="h-3 w-3" />
+                                </button>
+                            )}
+                        </div>
+                    )}
+                  </div>
 
-                  {/* Results */}
+                  {/* CPA */}
                   <span className="w-[80px] text-[13px] text-foreground tabular-nums text-right">
-                    {c.results != null ? formatNumber(c.results) : '-'}
+                    {c.cost_per_result != null ? `$${c.cost_per_result.toFixed(2)}` : '-'}
                   </span>
 
                   {/* Actions */}

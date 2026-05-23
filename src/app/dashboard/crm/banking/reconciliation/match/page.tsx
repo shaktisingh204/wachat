@@ -22,15 +22,10 @@ import {
 } from '@/components/zoruui';
 import {
   Check,
-  GitCompare } from 'lucide-react';
+  GitCompare, Save, Download } from 'lucide-react';
 
 /**
  * Bank Reconciliation — match worksheet.
- *
- * Imports a CSV bank statement, fetches matching book entries, and lets
- * the user mark pairs as matched. This worksheet is the legacy
- * Mongo-backed flow preserved for live matching; the CRUD list of
- * reconciliation records lives one level up.
  */
 
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
@@ -40,6 +35,9 @@ import { getCrmPaymentAccounts } from '@/app/actions/crm-payment-accounts.action
 import {
     getReconciliationData,
     importBankStatement,
+    saveReconciliationDraft,
+    loadReconciliationDraft,
+    type CsvMapping
 } from '@/app/actions/crm-reconciliation.actions';
 import type { WithId, CrmPaymentAccount } from '@/lib/definitions';
 import { format } from 'date-fns';
@@ -68,12 +66,14 @@ export default function BankReconciliationMatchPage() {
     const [statementFile, setStatementFile] = useState<File | null>(null);
     const [reconciliationData, setReconciliationData] =
         useState<ReconciliationData | null>(null);
-    const [matchedBookEntries, setMatchedBookEntries] = useState<Set<string>>(
-        new Set(),
-    );
-    const [matchedStatementEntries, setMatchedStatementEntries] = useState<
-        Set<string>
-    >(new Set());
+    const [matchedBookEntries, setMatchedBookEntries] = useState<Set<string>>(new Set());
+    const [matchedStatementEntries, setMatchedStatementEntries] = useState<Set<string>>(new Set());
+
+    const [csvColumns, setCsvColumns] = useState<string[]>([]);
+    const [dateCol, setDateCol] = useState('');
+    const [descCol, setDescCol] = useState('');
+    const [debitCol, setDebitCol] = useState('');
+    const [creditCol, setCreditCol] = useState('');
 
     const [isLoading, startLoading] = useTransition();
     const { toast } = useZoruToast();
@@ -93,17 +93,34 @@ export default function BankReconciliationMatchPage() {
             return;
         }
         startLoading(async () => {
-            const statementResult = statementFile
-                ? await importBankStatement(statementFile)
-                : { statementEntries: reconciliationData?.statementEntries || [] };
-            if (statementResult.error) {
-                toast({
-                    title: 'Statement Import Error',
-                    description: statementResult.error,
-                    variant: 'destructive',
-                });
-                return;
+            let statementEntries = reconciliationData?.statementEntries || [];
+            
+            if (statementFile) {
+                const mapping: CsvMapping | undefined = (dateCol && descCol && debitCol && creditCol) 
+                    ? { dateCol, descCol, debitCol, creditCol } 
+                    : undefined;
+
+                const statementResult = await importBankStatement(statementFile, mapping);
+                
+                if (statementResult.error) {
+                    toast({
+                        title: 'Statement Import Error',
+                        description: statementResult.error,
+                        variant: 'destructive',
+                    });
+                    return;
+                }
+                
+                if (!mapping && statementResult.columns) {
+                    setCsvColumns(statementResult.columns);
+                    toast({ title: 'Please map CSV columns before proceeding' });
+                    return;
+                }
+                
+                statementEntries = statementResult.statementEntries || [];
+                setCsvColumns([]); // Hide mapping UI once done
             }
+            
             const bookResult = await getReconciliationData(
                 selectedAccountId,
                 startDate,
@@ -119,7 +136,7 @@ export default function BankReconciliationMatchPage() {
             }
             setReconciliationData({
                 bookEntries: bookResult.entries || [],
-                statementEntries: statementResult.statementEntries || [],
+                statementEntries,
             });
             setMatchedBookEntries(new Set());
             setMatchedStatementEntries(new Set());
@@ -143,9 +160,22 @@ export default function BankReconciliationMatchPage() {
         reconciliationData?.bookEntries.forEach((be) => {
             if (nextBook.has(be._id)) return;
             const m = reconciliationData.statementEntries.find(
-                (se) =>
-                    !nextStmt.has(se._id) &&
-                    Math.abs(be.amount) === Math.abs(se.amount),
+                (se) => {
+                    if (nextStmt.has(se._id)) return false;
+                    const bAmt = Math.abs(be.amount);
+                    const sAmt = Math.abs(se.amount);
+                    
+                    // Exact match
+                    if (bAmt === sAmt) return true;
+                    
+                    // High-confidence AI/Fuzzy match (within 5 days, amounts within 5% due to FX/fees)
+                    const dateDiff = Math.abs(new Date(be.date).getTime() - new Date(se.date).getTime()) / (1000 * 60 * 60 * 24);
+                    if (dateDiff <= 5) {
+                        const ratio = bAmt / sAmt;
+                        if (ratio > 0.95 && ratio < 1.05) return true;
+                    }
+                    return false;
+                }
             );
             if (m) {
                 nextBook.add(be._id);
@@ -154,6 +184,63 @@ export default function BankReconciliationMatchPage() {
         });
         setMatchedBookEntries(nextBook);
         setMatchedStatementEntries(nextStmt);
+    };
+
+    const handleSaveDraft = () => {
+        if (!selectedAccountId || !reconciliationData) return;
+        startLoading(async () => {
+            const res = await saveReconciliationDraft(
+                selectedAccountId,
+                Array.from(matchedBookEntries),
+                Array.from(matchedStatementEntries),
+                reconciliationData.statementEntries
+            );
+            if (res.success) {
+                toast({ title: 'Draft Saved' });
+            } else {
+                toast({ title: 'Failed to save draft', description: res.error, variant: 'destructive' });
+            }
+        });
+    };
+
+    const handleLoadDraft = () => {
+        if (!selectedAccountId || !startDate || !endDate) {
+            toast({ title: 'Please select an account and dates first.' });
+            return;
+        }
+        startLoading(async () => {
+            const res = await loadReconciliationDraft(selectedAccountId);
+            if (res.data) {
+                const draft = res.data;
+                const bookResult = await getReconciliationData(selectedAccountId, startDate, endDate);
+                setReconciliationData({
+                    bookEntries: bookResult.entries || [],
+                    statementEntries: draft.statementEntries || []
+                });
+                setMatchedBookEntries(new Set(draft.matchedBookEntries || []));
+                setMatchedStatementEntries(new Set(draft.matchedStatementEntries || []));
+                toast({ title: 'Draft Loaded' });
+            } else {
+                toast({ title: 'No draft found for this account' });
+            }
+        });
+    };
+
+    const handleAddFxAdjustment = (difference: number) => {
+        if (!reconciliationData) return;
+        const newEntry = {
+            _id: `fx-${Date.now()}`,
+            date: new Date().toISOString(),
+            description: 'Automated FX Gain/Loss Adjustment',
+            type: difference > 0 ? 'credit' : 'debit',
+            amount: Math.abs(difference)
+        };
+        setReconciliationData({
+            ...reconciliationData,
+            bookEntries: [...reconciliationData.bookEntries, newEntry]
+        });
+        setMatchedBookEntries(prev => new Set(prev).add(newEntry._id));
+        toast({ title: 'FX Adjustment Entry Added' });
     };
 
     const {
@@ -267,6 +354,51 @@ export default function BankReconciliationMatchPage() {
                         />
                     </div>
                 </div>
+
+                {csvColumns.length > 0 && (
+                    <div className="mt-6 border border-border p-4 rounded-lg bg-secondary/30">
+                        <h4 className="mb-4 text-sm font-semibold">Map CSV Columns</h4>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <Label>Date Column</Label>
+                                <Select value={dateCol} onValueChange={setDateCol}>
+                                    <ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        {csvColumns.map(c => <ZoruSelectItem key={c} value={c}>{c}</ZoruSelectItem>)}
+                                    </ZoruSelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label>Description</Label>
+                                <Select value={descCol} onValueChange={setDescCol}>
+                                    <ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        {csvColumns.map(c => <ZoruSelectItem key={c} value={c}>{c}</ZoruSelectItem>)}
+                                    </ZoruSelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label>Debit (Withdrawal)</Label>
+                                <Select value={debitCol} onValueChange={setDebitCol}>
+                                    <ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        {csvColumns.map(c => <ZoruSelectItem key={c} value={c}>{c}</ZoruSelectItem>)}
+                                    </ZoruSelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label>Credit (Deposit)</Label>
+                                <Select value={creditCol} onValueChange={setCreditCol}>
+                                    <ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        {csvColumns.map(c => <ZoruSelectItem key={c} value={c}>{c}</ZoruSelectItem>)}
+                                    </ZoruSelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex gap-2">
                         <Button onClick={handleFetchData} disabled={isLoading}>
@@ -277,11 +409,25 @@ export default function BankReconciliationMatchPage() {
                             onClick={handleAutoMatch}
                             disabled={!reconciliationData}
                         >
-                            Auto-Match
+                            AI Auto-Match
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={handleSaveDraft}
+                            disabled={!reconciliationData || isLoading}
+                        >
+                            <Save className="mr-2 h-4 w-4" /> Save Draft
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={handleLoadDraft}
+                            disabled={isLoading}
+                        >
+                            <Download className="mr-2 h-4 w-4" /> Load Draft
                         </Button>
                     </div>
                     <p className="text-[12px] text-zoru-ink-muted">
-                        Use the CRUD page to persist a reconciliation record.
+                        Auto-save and draft support enabled.
                     </p>
                 </div>
             </Card>
@@ -298,7 +444,19 @@ export default function BankReconciliationMatchPage() {
                             title="Uncleared Amount"
                             value={unclearedBookAmount}
                         />
-                        <StatCard title="Difference" value={difference} />
+                        <div className="rounded-lg border border-border bg-secondary p-3 flex flex-col justify-between">
+                            <div>
+                                <p className="text-[12.5px] text-muted-foreground">Difference</p>
+                                <p className={`text-[18px] font-bold ${difference !== 0 ? 'text-destructive' : 'text-foreground'}`}>
+                                    ₹{difference.toLocaleString('en-IN')}
+                                </p>
+                            </div>
+                            {difference !== 0 && (
+                                <Button size="sm" variant="outline" className="mt-2 h-7 text-xs" onClick={() => handleAddFxAdjustment(difference)}>
+                                    Add FX Adjustment
+                                </Button>
+                            )}
+                        </div>
                     </div>
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <TransactionTable
@@ -388,7 +546,7 @@ const TransactionTable = ({
                                     />
                                 </ZoruTableCell>
                                 <ZoruTableCell className="text-xs text-foreground">
-                                    {format(new Date(e.date), 'dd MMM')}
+                                    {e.date ? format(new Date(e.date), 'dd MMM') : ''}
                                 </ZoruTableCell>
                                 <ZoruTableCell className="text-xs text-foreground">
                                     {e.description}

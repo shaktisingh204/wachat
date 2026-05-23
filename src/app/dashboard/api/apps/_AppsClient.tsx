@@ -20,13 +20,14 @@ import {
   EmptyState,
   Separator,
 } from '@/components/zoruui';
-import { AlertCircle, TriangleAlert, Copy, Boxes, Trash2 } from 'lucide-react';
+import { AlertCircle, TriangleAlert, Copy, Boxes, Trash2, Activity } from 'lucide-react';
 
 interface Props {
   initialApps: OAuthAppRow[];
+  usageData?: any[];
 }
 
-export function AppsClient({ initialApps }: Props): JSX.Element {
+export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element {
   const [apps, setApps] = useState<OAuthAppRow[]>(initialApps);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -199,6 +200,41 @@ export function AppsClient({ initialApps }: Props): JSX.Element {
                   <div className="sm:col-span-2">
                     <p className="text-zoru-ink-subtle mb-0.5">Allowed scopes</p>
                     <code className="font-mono text-zoru-ink">{a.scopes.join(' ')}</code>
+                  </div>
+                </div>
+                
+                <Separator className="my-3" />
+                
+                <div className="bg-zinc-50/50 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2 text-sm font-medium text-zoru-ink">
+                    <Activity className="h-4 w-4 text-amber-500" />
+                    Usage & Limits
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <p className="text-zoru-ink-subtle mb-0.5">Rate limit</p>
+                      <p className="text-zoru-ink font-medium">10,000 req / day</p>
+                    </div>
+                    <div>
+                      <p className="text-zoru-ink-subtle mb-0.5">Requests (30d)</p>
+                      <p className="text-zoru-ink font-medium">
+                        {usageData.find(u => u.keyId === a.clientId)?.count || 0}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-zoru-ink-subtle mb-0.5">Errors (30d)</p>
+                      <p className="text-zoru-ink font-medium text-red-600">
+                        {usageData.find(u => u.keyId === a.clientId)?.errorCount || 0}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-zoru-ink-subtle mb-0.5">Last used</p>
+                      <p className="text-zoru-ink font-medium">
+                        {usageData.find(u => u.keyId === a.clientId)?.lastUsedAt 
+                          ? new Date(usageData.find(u => u.keyId === a.clientId)?.lastUsedAt as string).toLocaleString() 
+                          : 'Never'}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </ZoruCardContent>

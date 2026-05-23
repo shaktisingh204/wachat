@@ -1,0 +1,78 @@
+'use client';
+
+import React, { useMemo, useState } from 'react';
+
+interface FunnelStep {
+    id: string;
+    label: string;
+    value: number;
+    color: string;
+}
+
+export function FunnelChart({ data }: { data: FunnelStep[] }) {
+    const [hovered, setHovered] = useState<string | null>(null);
+
+    const maxVal = Math.max(...data.map(d => d.value));
+    
+    // Calculate polygons for funnel
+    const width = 500;
+    const height = 300;
+    const rowHeight = height / data.length;
+    const gap = 4;
+
+    const polygons = useMemo(() => {
+        return data.map((step, i) => {
+            const isLast = i === data.length - 1;
+            
+            const currentWidth = (step.value / maxVal) * width;
+            const nextWidth = isLast ? currentWidth * 0.7 : (data[i + 1].value / maxVal) * width;
+
+            const topY = i * rowHeight + gap;
+            const bottomY = topY + rowHeight - gap * 2;
+
+            const topLeftX = (width - currentWidth) / 2;
+            const topRightX = width - topLeftX;
+            const bottomLeftX = (width - nextWidth) / 2;
+            const bottomRightX = width - bottomLeftX;
+
+            return {
+                ...step,
+                points: `${topLeftX},${topY} ${topRightX},${topY} ${bottomRightX},${bottomY} ${bottomLeftX},${bottomY}`,
+                midY: topY + (rowHeight - gap * 2) / 2,
+            };
+        });
+    }, [data, maxVal, width, rowHeight]);
+
+    return (
+        <div className="flex flex-col items-center w-full">
+            <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible font-sans drop-shadow-sm">
+                {polygons.map((p) => (
+                    <g key={p.id} 
+                        onMouseEnter={() => setHovered(p.id)}
+                        onMouseLeave={() => setHovered(null)}
+                        className="cursor-pointer transition-opacity duration-200"
+                        style={{ opacity: hovered && hovered !== p.id ? 0.4 : 1 }}
+                    >
+                        <polygon 
+                            points={p.points} 
+                            fill={p.color} 
+                            className="transition-all duration-300 hover:brightness-110"
+                        />
+                        <text 
+                            x={width / 2} 
+                            y={p.midY} 
+                            textAnchor="middle" 
+                            alignmentBaseline="middle"
+                            fill="white"
+                            fontSize="14"
+                            fontWeight="600"
+                            className="pointer-events-none drop-shadow-md"
+                        >
+                            {p.label} - {p.value}
+                        </text>
+                    </g>
+                ))}
+            </svg>
+        </div>
+    );
+}

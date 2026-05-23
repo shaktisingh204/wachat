@@ -69,6 +69,25 @@ export default async function ChartOfAccountDetailPage(props: {
     const accountIdStr = account._id.toString();
     const recent = entries.slice(-50).reverse();
 
+    const flattenedRecent = recent.map(entry => {
+        let debit = 0;
+        let credit = 0;
+        for (const d of entry.debitEntries) {
+            if (d.accountId.toString() === accountIdStr) debit += d.amount;
+        }
+        for (const c of entry.creditEntries) {
+            if (c.accountId.toString() === accountIdStr) credit += c.amount;
+        }
+        return {
+            _id: entry._id.toString(),
+            date: new Date(entry.date).toLocaleDateString(),
+            voucherNumber: entry.voucherNumber,
+            note: entry.note,
+            debit,
+            credit
+        };
+    });
+
     return (
         <EntityDetailShell
             back={{ href: '/dashboard/crm/accounting/charts', label: 'Back to Chart of Accounts' }}
@@ -91,7 +110,7 @@ export default async function ChartOfAccountDetailPage(props: {
                         </Link>
                     </Button>
                     <Button asChild variant="outline" size="sm">
-                        <Link href={`/dashboard/crm/accounting/charts/${accountIdStr}?print=1`}>
+                        <Link href={`/api/pdf/account-ledger/${accountIdStr}`} target="_blank">
                             <Printer className="mr-1.5 h-3.5 w-3.5" /> Print
                         </Link>
                     </Button>
@@ -228,26 +247,18 @@ export default async function ChartOfAccountDetailPage(props: {
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
-                                {recent.length === 0 ? (
+                                {flattenedRecent.length === 0 ? (
                                     <ZoruTableRow className="border-border">
                                         <ZoruTableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                                             No transactions posted yet.
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : (
-                                    recent.map((entry) => {
-                                        const debit = entry.debitEntries.find(
-                                            (d: { accountId: { toString: () => string }; amount: number }) =>
-                                                d.accountId.toString() === accountIdStr,
-                                        )?.amount ?? 0;
-                                        const credit = entry.creditEntries.find(
-                                            (c: { accountId: { toString: () => string }; amount: number }) =>
-                                                c.accountId.toString() === accountIdStr,
-                                        )?.amount ?? 0;
+                                    flattenedRecent.map((entry) => {
                                         return (
-                                            <ZoruTableRow key={entry._id.toString()} className="border-border">
+                                            <ZoruTableRow key={entry._id} className="border-border">
                                                 <ZoruTableCell className="text-foreground">
-                                                    {new Date(entry.date).toLocaleDateString()}
+                                                    {entry.date}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="font-mono text-[12px] text-foreground">
                                                     {entry.voucherNumber}
@@ -256,10 +267,10 @@ export default async function ChartOfAccountDetailPage(props: {
                                                     {entry.note}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right font-mono text-foreground">
-                                                    {debit > 0 ? fmtMoney(debit, account.currency) : '—'}
+                                                    {entry.debit > 0 ? fmtMoney(entry.debit, account.currency) : '—'}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-right font-mono text-foreground">
-                                                    {credit > 0 ? fmtMoney(credit, account.currency) : '—'}
+                                                    {entry.credit > 0 ? fmtMoney(entry.credit, account.currency) : '—'}
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );

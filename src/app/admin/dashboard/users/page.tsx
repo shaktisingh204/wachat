@@ -48,7 +48,12 @@ export default async function AdminUsersPage({
     }
 
     const totalPages = Math.ceil(total / USERS_PER_PAGE);
-    const plainUsers = JSON.parse(JSON.stringify(users)) as (WithId<User> & { plan?: WithId<Plan>; isApproved?: boolean; isSuspended?: boolean; customPermissions?: any })[];
+    const plainUsers = users.map(user => ({
+        ...user,
+        _id: user._id.toString(),
+        planId: user.planId?.toString(),
+        plan: user.plan ? { ...user.plan, _id: user.plan._id.toString() } : undefined
+    })) as unknown as (WithId<User> & { plan?: WithId<Plan>; isApproved?: boolean; isSuspended?: boolean; customPermissions?: any })[];
 
     const approved = plainUsers.filter(u => u.isApproved && !u.isSuspended).length;
     const pending = plainUsers.filter(u => !u.isApproved).length;

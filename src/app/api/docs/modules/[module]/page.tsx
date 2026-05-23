@@ -106,7 +106,6 @@ export default async function Page({ params }: { params: Promise<{ module: strin
                   <ZoruTableRow
                     key={r.slug}
                     className="cursor-pointer hover:bg-zoru-surface-2 transition-colors"
-                    onClick={undefined}
                   >
                     <ZoruTableCell>
                       <a

@@ -113,6 +113,7 @@ export default function CrmContactsPage() {
   /* ─── Bulky state manager hook ─────────────────────────────── */
   const {
     data: contacts,
+    setData,
     total,
     page,
     setPage,
@@ -235,6 +236,11 @@ export default function CrmContactsPage() {
     if (!original) return;
     
     const merged = { ...original, ...updatedData };
+    
+    // OPTIMISTIC UI
+    setData(prev => prev.map(c => c._id.toString() === id ? { ...c, ...updatedData } as WithId<CrmContact> : c));
+    cancelInlineEdit();
+
     const fd = new FormData();
     fd.set('contactId', id);
     fd.set('name', merged.name || '');
@@ -248,10 +254,10 @@ export default function CrmContactsPage() {
     const res = await updateCrmContact({}, fd);
     if (res.error) {
       toast({ title: 'Inline Edit Failed', description: res.error, variant: 'destructive' });
+      // Revert optimistic change
+      setData(prev => prev.map(c => c._id.toString() === id ? original : c));
     } else {
       toast({ title: 'Contact saved inline' });
-      cancelInlineEdit();
-      triggerFetch();
     }
   };
 

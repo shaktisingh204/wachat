@@ -74,69 +74,83 @@ const candidatesRound2 = [
 ];
 
 export default function ClayShowcasePage() {
+  const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
   return (
-    <ClayShell className="flex flex-col">
-      {/* ═══════════════ TOPBAR ═══════════════ */}
-      <ClayTopbar
-        className="h-[72px] px-6"
-        left={
-          <>
-            <BrandGlyph />
-            <div className="ml-3 flex items-center gap-2">
+    <div className={`${theme} min-h-screen bg-background`}>
+      <ClayShell className="flex flex-col h-screen">
+        {/* ═══════════════ TOPBAR ═══════════════ */}
+        <ClayTopbar
+          className="h-[72px] px-6"
+          left={
+            <>
+              <BrandGlyph />
+              <div className="ml-3 flex items-center gap-2">
+                <ClayButton
+                  variant="pill"
+                  size="sm"
+                  leading={<LuSearch className="h-3.5 w-3.5" strokeWidth={2} />}
+                >
+                  Search
+                </ClayButton>
+                <ClayButton
+                  variant="pill"
+                  size="sm"
+                  leading={<LuUserPlus className="h-3.5 w-3.5" strokeWidth={2} />}
+                >
+                  Add person
+                </ClayButton>
+                <ClayButton
+                  variant="pill"
+                  size="sm"
+                  leading={<LuBell className="h-3.5 w-3.5" strokeWidth={2} />}
+                >
+                  Notifications
+                </ClayButton>
+                <ClayButton variant="pill" size="icon" aria-label="More">
+                  <LuEllipsis className="h-4 w-4" />
+                </ClayButton>
+              </div>
+            </>
+          }
+          right={
+            <>
               <ClayButton
                 variant="pill"
                 size="sm"
-                leading={<LuSearch className="h-3.5 w-3.5" strokeWidth={2} />}
+                onClick={toggleTheme}
               >
-                Search
+                {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
               </ClayButton>
               <ClayButton
                 variant="pill"
                 size="sm"
-                leading={<LuUserPlus className="h-3.5 w-3.5" strokeWidth={2} />}
+                trailing={<LuChevronDown className="h-3 w-3 opacity-60" />}
               >
-                Add person
+                En
               </ClayButton>
               <ClayButton
                 variant="pill"
                 size="sm"
-                leading={<LuBell className="h-3.5 w-3.5" strokeWidth={2} />}
+                leading={<LuCalendar className="h-3.5 w-3.5" strokeWidth={2} />}
               >
-                Notifications
+                November 17, 2025
               </ClayButton>
-              <ClayButton variant="pill" size="icon" aria-label="More">
-                <LuEllipsis className="h-4 w-4" />
+              <ClayButton
+                variant="obsidian"
+                size="md"
+                trailing={<LuChevronDown className="h-3.5 w-3.5 opacity-70" />}
+                className="px-5"
+              >
+                Create
               </ClayButton>
-            </div>
-          </>
-        }
-        right={
-          <>
-            <ClayButton
-              variant="pill"
-              size="sm"
-              trailing={<LuChevronDown className="h-3 w-3 opacity-60" />}
-            >
-              En
-            </ClayButton>
-            <ClayButton
-              variant="pill"
-              size="sm"
-              leading={<LuCalendar className="h-3.5 w-3.5" strokeWidth={2} />}
-            >
-              November 17, 2025
-            </ClayButton>
-            <ClayButton
-              variant="obsidian"
-              size="md"
-              trailing={<LuChevronDown className="h-3.5 w-3.5 opacity-70" />}
-              className="px-5"
-            >
-              Create
-            </ClayButton>
-          </>
-        }
-      />
+            </>
+          }
+        />
 
       {/* ═══════════════ BODY ═══════════════ */}
       <div className="flex min-h-0 flex-1">
@@ -511,6 +525,7 @@ export default function ClayShowcasePage() {
         </main>
       </div>
     </ClayShell>
+    </div>
   );
 }
 

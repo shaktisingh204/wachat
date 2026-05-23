@@ -1,14 +1,5 @@
-import {
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Button,
-  Input,
-  Textarea,
-  Label,
-} from '@/components/zoruui';
 import Link from 'next/link';
+import { ContactForm } from './contact-form';
 
 export default function ContactPage() {
   return (
@@ -82,28 +73,7 @@ export default function ContactPage() {
         </div>
 
         <div className="flex-1">
-          <Card className="bg-black border-white/20 text-white rounded-none shadow-none">
-            <ZoruCardHeader className="border-b border-white/20 pb-4">
-              <ZoruCardTitle className="text-lg font-bold">Try it out</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="pt-6 space-y-5">
-              <div className="space-y-2">
-                  <Label htmlFor="name" className="text-white">name <span className="text-white/50">*</span></Label>
-                  <Input id="name" placeholder="string" className="bg-zinc-900 border-white/20 text-white placeholder:text-white/30 rounded-none focus-visible:ring-1 focus-visible:ring-white" />
-              </div>
-               <div className="space-y-2">
-                  <Label htmlFor="email" className="text-white">email <span className="text-white/50">*</span></Label>
-                  <Input id="email" type="email" placeholder="string ($email)" className="bg-zinc-900 border-white/20 text-white placeholder:text-white/30 rounded-none focus-visible:ring-1 focus-visible:ring-white" />
-              </div>
-               <div className="space-y-2">
-                  <Label htmlFor="message" className="text-white">message <span className="text-white/50">*</span></Label>
-                  <Textarea id="message" placeholder="string" className="bg-zinc-900 border-white/20 text-white placeholder:text-white/30 rounded-none min-h-[120px] focus-visible:ring-1 focus-visible:ring-white" />
-              </div>
-              <Button className="w-full bg-white text-black hover:bg-zinc-200 rounded-none font-bold uppercase tracking-widest mt-4">
-                Execute
-              </Button>
-            </ZoruCardContent>
-          </Card>
+          <ContactForm />
         </div>
       </div>
     </div>

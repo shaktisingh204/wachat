@@ -17,6 +17,7 @@ import {
     AmHeader,
 } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
+import { generateAdVariants } from '@/app/actions/ai-lab.actions';
 
 const TOOLS = [
     { id: 'copy', icon: Type, label: 'Ad copy generator', desc: 'Generate primary text, headlines, and descriptions from a brief.' },
@@ -95,12 +96,12 @@ export default function AiLabPage() {
                                 onClick={async () => {
                                     if (!brief.trim()) return;
                                     setGenerating(true);
-                                    const variants = Array.from({ length: 10 }, (_, i) => {
-                                        const prefixes = ['\u{1F525}', '⚡', '✨', '\u{1F4AA}', '\u{1F3AF}', '\u{1F680}', '\u{1F4A1}', '⭐', '\u{1F3C6}', '\u{1F4A5}'];
-                                        const ctas = ['Shop now', 'Learn more', 'Get started', 'Try free', 'Save today', 'Join now', 'Grab yours', 'Act fast', 'Don\'t miss out', 'Limited time'];
-                                        return `${prefixes[i]} ${brief.trim()} — ${ctas[i]}!`;
-                                    });
-                                    setResults(variants);
+                                    const res = await generateAdVariants(brief.trim());
+                                    if (res.error) {
+                                        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                                    } else if (res.variants) {
+                                        setResults(res.variants);
+                                    }
                                     setGenerating(false);
                                 }}
                             >
