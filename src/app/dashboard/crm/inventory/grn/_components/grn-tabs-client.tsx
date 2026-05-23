@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/zoruui';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 interface GrnTabsClientProps {
     defaultTab?: string;

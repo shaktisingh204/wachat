@@ -1,7 +1,42 @@
 'use client';
 
-import React from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  FallbackComponent: React.ComponentType<{ error: Error; resetErrorBoundary: () => void }>;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+  }
+
+  resetErrorBoundary = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
+  render() {
+    if (this.state.hasError && this.state.error) {
+      const Fallback = this.props.FallbackComponent;
+      return <Fallback error={this.state.error} resetErrorBoundary={this.resetErrorBoundary} />;
+    }
+
+    return this.props.children;
+  }
+}
 
 function Fallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   return (

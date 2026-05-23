@@ -26,10 +26,6 @@ interface ItemPrintViewProps {
 // 3-column × 8-row standard label sheet (24 labels per A4).
 const LABELS_PER_SHEET = 24;
 
-`;
-  }
-}
-
 export function ItemPrintView({
   variant,
   productId,

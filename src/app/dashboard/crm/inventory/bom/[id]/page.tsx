@@ -43,11 +43,6 @@ function statusTone(status: string | undefined): EntityStatusTone {
   return 'amber';
 }
 
-  } catch {
-    return `INR ${value}`;
-  }
-}
-
 export default async function BomDetailPage({ params }: PageProps) {
   const { id } = await params;
   const bom = await withTimeout(getCrmBomById(id), 10000);

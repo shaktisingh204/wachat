@@ -47,7 +47,7 @@ export default async function GrnPage({
     const dateFrom = (sp.dateFrom ?? '').trim();
     const dateTo = (sp.dateTo ?? '').trim();
 
-    const withTimeout = <T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> => {
+    const withTimeout = <T extends unknown>(promise: Promise<T>, ms: number, fallback: T): Promise<T> => {
         return Promise.race([
             promise,
             new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms))

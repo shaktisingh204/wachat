@@ -38,10 +38,6 @@ interface ItemsTableProps {
   density?: ItemDensity;
 }
 
-`;
-  }
-}
-
 export function ItemsTable({
   items,
   selected,

@@ -26,10 +26,6 @@ interface ItemsGridProps {
   filtersActive: boolean;
 }
 
-`;
-  }
-}
-
 export function ItemsGrid({
   items,
   selected,

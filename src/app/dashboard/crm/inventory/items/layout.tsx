@@ -1,9 +1,46 @@
 'use client';
 
 import * as React from 'react';
-import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 
-function ItemsErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  FallbackComponent: React.ComponentType<{ error: Error; resetErrorBoundary: () => void }>;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+  }
+
+  resetErrorBoundary = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
+  render() {
+    if (this.state.hasError && this.state.error) {
+      const Fallback = this.props.FallbackComponent;
+      return <Fallback error={this.state.error} resetErrorBoundary={this.resetErrorBoundary} />;
+    }
+
+    return this.props.children;
+  }
+}
+
+function ItemsErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   return (
     <div className="flex h-[50vh] flex-col items-center justify-center gap-4 text-center">
       <div className="rounded-full bg-red-100 p-3 text-red-600 dark:bg-red-900/20 dark:text-red-400">

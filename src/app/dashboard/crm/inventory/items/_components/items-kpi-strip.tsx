@@ -22,9 +22,6 @@ interface ItemsKpiStripProps {
   onSelect: (preset: ItemPresetKey) => void;
 }
 
-`;
-  }
-}
 
 export function ItemsKpiStrip({ kpi, currency, active, onSelect }: ItemsKpiStripProps) {
   return (
