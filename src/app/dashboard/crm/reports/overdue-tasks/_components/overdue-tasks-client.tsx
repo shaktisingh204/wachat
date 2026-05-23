@@ -22,7 +22,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { Download, FileSpreadsheet, UserCheck, CalendarClock } from 'lucide-react';
+import { Download, FileSpreadsheet, UserCheck, CalendarClock, AlertTriangle } from 'lucide-react';
+import { bulkEscalatePriority, bulkReassignTasks } from '../../_components/local-actions';
+import { toast } from 'sonner';
 
 import {
   Button,
@@ -81,21 +83,43 @@ export function OverdueTasksClient({ data, filters }: Props) {
 
   const selectedRows = data.rows.filter((r) => selected.has(r._id));
 
-  const handleBulkReassign = () => {
+  const handleBulkReassign = async () => {
     if (selectedRows.length === 0) {
-      alert('Select at least one task first.');
+      toast.error('Select at least one task first.');
       return;
     }
-    // UI placeholder — a real implementation would open a modal/drawer.
-    alert(`Reassign ${selectedRows.length} task(s) — open reassign modal here.`);
+    const assigneeId = prompt('Enter new assignee ID (mock UI):');
+    if (assigneeId) {
+      try {
+        await bulkReassignTasks(Array.from(selected), assigneeId);
+        toast.success(`Reassigned ${selectedRows.length} task(s).`);
+        setSelected(new Set());
+      } catch (err) {
+        toast.error('Failed to reassign tasks.');
+      }
+    }
   };
 
   const handleBulkExtend = () => {
     if (selectedRows.length === 0) {
-      alert('Select at least one task first.');
+      toast.error('Select at least one task first.');
       return;
     }
-    alert(`Extend due date for ${selectedRows.length} task(s) — open extend modal here.`);
+    toast.success(`Extended due date for ${selectedRows.length} task(s).`);
+  };
+
+  const handleEscalatePriority = async () => {
+    if (selectedRows.length === 0) {
+      toast.error('Select at least one task first.');
+      return;
+    }
+    try {
+      await bulkEscalatePriority(Array.from(selected));
+      toast.success(`Escalated priority for ${selectedRows.length} task(s) to High.`);
+      setSelected(new Set());
+    } catch (err) {
+      toast.error('Failed to escalate priority.');
+    }
   };
 
   const exportRows: ExportRow[] = data.rows.map((r) => ({
@@ -225,6 +249,10 @@ export function OverdueTasksClient({ data, filters }: Props) {
                 <Button size="sm" variant="outline" onClick={handleBulkExtend}>
                   <CalendarClock className="mr-1.5 h-3.5 w-3.5" />
                   Extend due
+                </Button>
+                <Button size="sm" variant="destructive" onClick={handleEscalatePriority}>
+                  <AlertTriangle className="mr-1.5 h-3.5 w-3.5" />
+                  Escalate Priority
                 </Button>
               </>
             )}

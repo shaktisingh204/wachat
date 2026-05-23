@@ -62,7 +62,6 @@ function toIso(v: string | Date | undefined | null): string | null {
 export default async function LoansPage() {
   const session = await getSession();
   let loans: LoanRow[] = [];
-  let loadError = false;
 
   if (session?.user?._id) {
     try {
@@ -96,7 +95,7 @@ export default async function LoansPage() {
       }));
     } catch (e) {
       console.error('Failed to load crm_loans:', e);
-      loadError = true;
+      throw new Error('Failed to load crm_loans data');
     }
   }
 
@@ -112,12 +111,6 @@ export default async function LoansPage() {
         </Button>
       }
     >
-      {loadError ? (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
-          Could not load loans. Please try again.
-        </div>
-      ) : null}
-
       <LoansListClient loans={loans} />
     </EntityListShell>
   );

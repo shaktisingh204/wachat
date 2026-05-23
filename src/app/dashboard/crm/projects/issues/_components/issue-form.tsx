@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import Link from 'next/link';
+import { MarkdownEditor } from './markdown-editor';
 
 import { saveWsIssue } from '@/app/actions/worksuite/projects.actions';
 import { EntityFormField } from '@/components/crm/entity-form-field';
@@ -161,6 +162,25 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
     Array.isArray(initial?.attachments) ? initial!.attachments! : [],
   );
 
+  const [description, setDescription] = useState(initial?.description ?? '');
+  const [issueType, setIssueType] = useState(initial?.issueType ?? 'bug');
+
+  const applyTemplate = (type: string) => {
+    let tpl = '';
+    if (type === 'bug') {
+      tpl = '### Describe the bug\n\n\n### Steps to reproduce\n1. \n2. \n\n### Expected behavior\n\n\n### Actual behavior\n\n';
+    } else if (type === 'feature') {
+      tpl = '### Problem Statement\n\n\n### Proposed Solution\n\n\n### Acceptance Criteria\n- [ ] \n';
+    } else if (type === 'epic') {
+      tpl = '# Epic Overview\n\n\n## Goals\n- \n\n## Out of Scope\n- \n';
+    }
+    
+    if (tpl && (!description.trim() || confirm('Overwrite current description with template?'))) {
+      setDescription(tpl);
+    }
+    setIssueType(type);
+  };
+
   const subtasksJson = useMemo(
     () =>
       JSON.stringify(
@@ -258,14 +278,14 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea
+            <Label htmlFor="description" className="mb-1.5 block">Description</Label>
+            <MarkdownEditor
               id="description"
               name="description"
-              rows={5}
-              defaultValue={initial?.description ?? ''}
+              rows={8}
+              value={description}
+              onChange={setDescription}
               placeholder="Reproduction steps, expected vs actual, links…"
-              className="mt-1.5"
             />
           </div>
           <div className="grid gap-4 md:grid-cols-2">
@@ -343,7 +363,8 @@ export function IssueForm({ mode, initial }: IssueFormProps) {
               <select
                 id="issueType"
                 name="issueType"
-                defaultValue={initial?.issueType ?? 'bug'}
+                value={issueType}
+                onChange={(e) => applyTemplate(e.target.value)}
                 className="mt-1.5 h-10 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
               >
                 {TYPE_OPTIONS.map((opt) => (

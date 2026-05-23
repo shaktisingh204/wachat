@@ -17,6 +17,7 @@ import { StatCard, fmtMoney } from '../_components/report-toolbar';
 import { FyReportToolbar } from '../_components/fy-report-toolbar';
 import { TaxBar } from '../_components/finance-charts';
 import { getTaxReportDeep } from '@/app/actions/worksuite/reports.actions';
+import { TaxSettlementButton } from './_components/tax-settlement-button';
 import type { TaxMonthlyRow } from '@/lib/worksuite/report-types';
 
 const PAGE_SIZES = [10, 20, 50, 100];
@@ -25,9 +26,7 @@ type TaxType = 'GST' | 'TDS' | 'Income Tax' | '';
 type TaxStatus = 'Filed' | 'Pending' | 'Due' | '';
 
 function labelTaxType(row: TaxMonthlyRow): TaxType {
-  // Heuristic: rows from the invoices collection represent GST/VAT (output).
-  // Without a dedicated crm_tax_filings collection we classify all rows as GST.
-  return 'GST';
+  return (row.taxType as TaxType) || 'GST';
 }
 
 function labelTaxStatus(row: TaxMonthlyRow): TaxStatus {
@@ -62,7 +61,7 @@ export default async function TaxReportPage(props: {
       if (s !== sp.status) return false;
     }
     // taxType filter — currently all rows are GST; keep for future extension
-    if (sp.taxType && sp.taxType !== 'GST') return false;
+    if (sp.taxType && labelTaxType(r) !== sp.taxType) return false;
     return true;
   });
 
@@ -220,13 +219,14 @@ export default async function TaxReportPage(props: {
                 <ZoruTableHead className="text-right text-zoru-ink-muted">Collected</ZoruTableHead>
                 <ZoruTableHead className="text-right text-zoru-ink-muted">Paid</ZoruTableHead>
                 <ZoruTableHead className="text-right text-zoru-ink-muted">Net</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Action</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
                 <ZoruTableRow className="border-zoru-line">
                   <ZoruTableCell
-                    colSpan={6}
+                    colSpan={7}
                     className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No data for selected filters.
@@ -260,6 +260,9 @@ export default async function TaxReportPage(props: {
                         }`}
                       >
                         {fmtMoney(r.net)}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right">
+                        <TaxSettlementButton period={r.period} taxType={taxType} amount={r.net} />
                       </ZoruTableCell>
                     </ZoruTableRow>
                   );

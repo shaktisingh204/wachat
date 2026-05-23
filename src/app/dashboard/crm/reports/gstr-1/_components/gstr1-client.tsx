@@ -45,7 +45,7 @@ import {
     dateStamp,
     type ExportRow,
 } from '@/lib/crm-list-export';
-import { downloadGstr1Json } from '@/app/actions/crm-india-gst.actions';
+import { downloadGstr1Json, syncWithGstPortal } from '@/app/actions/crm-india-gst.actions';
 
 export interface Gstr1InvoiceRow {
     id: string;
@@ -153,7 +153,10 @@ export function Gstr1Client({
 
     return (
         <>
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+                <Button variant="outline" size="sm" onClick={handleSync} disabled={isSyncing}>
+                    {isSyncing ? 'Syncing...' : 'Sync Portal'}
+                </Button>
                 <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
                         <Button

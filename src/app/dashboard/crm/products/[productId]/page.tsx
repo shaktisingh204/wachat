@@ -20,7 +20,9 @@ import { Button } from '@/components/zoruui';
 import { getCrmProductById } from '@/app/actions/crm-products.actions';
 import type { CrmProduct } from '@/lib/definitions';
 
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/zoruui';
 import { ItemDetailBody } from '../../inventory/items/_components/item-detail-body';
+import { ProductHistoryGraph } from '../_components/product-history-graph';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,8 +41,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const tracking = product.isTrackInventory;
   const totalStock = product.totalStock ?? 0;
   const reorderPoint =
-    (product.reorderPoint as number | undefined) ??
     product.inventory?.[0]?.reorderPoint ??
+    (product.reorderPoint as number | undefined) ??
     0;
   const outOfStock = tracking && totalStock <= 0;
   const lowStock =
@@ -79,6 +81,36 @@ export default async function ProductDetailPage({ params }: PageProps) {
       }
     >
       <ItemDetailBody product={product} productId={productId} />
+      
+      {/* Supplier Information Card */}
+      <Card className="mt-6 border-dashed">
+        <CardHeader>
+          <CardTitle className="text-lg">Supplier Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {product.supplierName ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <p className="text-sm text-zoru-ink-muted">Supplier Name</p>
+                <p className="font-medium">{String(product.supplierName)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-zoru-ink-muted">Contact</p>
+                <p className="font-medium">{product.supplierContact ? String(product.supplierContact) : '—'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-zoru-ink-muted">Lead Time</p>
+                <p className="font-medium">{product.supplierLeadTime ? `${product.supplierLeadTime} Days` : '—'}</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-zoru-ink-muted">No supplier information available for this product.</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* History Graph */}
+      <ProductHistoryGraph />
     </EntityDetailShell>
   );
 }

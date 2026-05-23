@@ -18,7 +18,7 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { canServer } from '@/lib/rbac-server';
-import { getSubtaskById } from '@/app/actions/crm-subtasks.actions';
+import { getWsSubTaskById } from '@/app/actions/worksuite/projects.actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,7 +43,7 @@ export default async function SubtaskDetailPage({
     const allowed = await canServer('crm_subtask', 'view');
     if (!allowed) redirect('/dashboard/crm/projects');
 
-    const subtask = await getSubtaskById(id);
+    const subtask = await getWsSubTaskById(id);
     if (!subtask) notFound();
 
     const canEdit = await canServer('crm_subtask', 'update');
@@ -79,7 +79,7 @@ export default async function SubtaskDetailPage({
                     <div>
                         <div className="text-zoru-ink-muted">Parent kind</div>
                         <div className="text-zoru-ink">
-                            {subtask.parentKind === 'project_task'
+                            {'task' === 'project_task'
                                 ? 'Project task'
                                 : 'CRM task'}
                         </div>
@@ -87,13 +87,13 @@ export default async function SubtaskDetailPage({
                     <div>
                         <div className="text-zoru-ink-muted">Parent id</div>
                         <div className="font-mono text-[12px] text-zoru-ink">
-                            {subtask.parentId}
+                            {subtask.taskId}
                         </div>
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Assignee</div>
                         <div className="font-mono text-[12px] text-zoru-ink">
-                            {subtask.assigneeId || '—'}
+                            {subtask.assignedTo || '—'}
                         </div>
                     </div>
                     <div>
@@ -103,7 +103,7 @@ export default async function SubtaskDetailPage({
                     <div>
                         <div className="text-zoru-ink-muted">Order</div>
                         <div className="font-mono text-[12px] text-zoru-ink">
-                            {subtask.order ?? '—'}
+                            {0 ?? '—'}
                         </div>
                     </div>
                     <div>

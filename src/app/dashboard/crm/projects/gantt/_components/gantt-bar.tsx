@@ -14,6 +14,7 @@ export interface GanttBarTask {
   dueMs: number;
   status?: string;
   priority?: string;
+  isCritical?: boolean;
 }
 
 export interface GanttBarProps {
@@ -58,6 +59,7 @@ export function GanttBar({
   const barTop = top + (rowHeight - GANTT_BAR_HEIGHT) / 2;
   const statusClass = STATUS_BG[task.status ?? ''] ?? STATUS_BG.todo;
   const priorityRing = PRIORITY_RING[task.priority ?? ''] ?? '';
+  const criticalRing = task.isCritical ? 'ring-2 ring-red-500 ring-offset-1 ring-offset-zoru-bg shadow-md z-10' : '';
 
   return (
     <div
@@ -65,6 +67,7 @@ export function GanttBar({
         'absolute flex items-center rounded-md border text-[11.5px] text-white shadow-sm',
         statusClass,
         priorityRing,
+        criticalRing
       )}
       style={{
         left,

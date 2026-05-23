@@ -33,6 +33,7 @@ import {
 } from '@/components/zoruui';
 import { useActionState, useEffect, useMemo } from 'react';
 import { useFormStatus } from 'react-dom';
+import { z } from 'zod';
 import { ImageIcon, LoaderCircle, Save, X } from 'lucide-react';
 import Link from 'next/link';
 
@@ -214,6 +215,25 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
               }
             : null,
     );
+    const [clientError, setClientError] = React.useState('');
+    const schema = z.object({
+      name: z.string().min(2, "Name must be at least 2 characters"),
+      email: z.string().email("Invalid email address"),
+    });
+    
+    const handleClientSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+      const formData = new FormData(e.currentTarget);
+      const result = schema.safeParse({
+          name: formData.get('name'),
+          email: formData.get('email')
+      });
+      if (!result.success) {
+          e.preventDefault();
+          setClientError(result.error.errors[0].message);
+      } else {
+          setClientError('');
+      }
+    };
     const [brandColor, setBrandColor] = React.useState<string>(
         user.brandColor ?? '#2563eb',
     );
@@ -248,7 +268,7 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
     }, []);
 
     return (
-        <form action={action} className="space-y-6">
+        <form action={action} className="space-y-6" onSubmit={handleClientSubmit}>
             <input type="hidden" name="id" value={userId} />
             <input type="hidden" name="portalType" value={portalType} />
             <input type="hidden" name="role" value={role} />
@@ -527,7 +547,9 @@ export function PortalEditForm({ user }: { user: PortalUser }) {
 
             <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
                 <div className="text-sm">
-                    {state?.error ? (
+                    {clientError ? (
+                        <span className="text-zoru-danger-ink">{clientError}</span>
+                    ) : state?.error ? (
                         <span className="text-zoru-danger-ink">{state.error}</span>
                     ) : state?.message ? (
                         <span className="text-zoru-success-ink">{state.message}</span>

@@ -1,7 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { UserCircle2 } from 'lucide-react';
+import { UserCircle2, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { Button, Input, Modal } from '@/components/zoruui';
+import { useRouter } from 'next/navigation';
 
 import { ClayCard, ClayBadge } from '@/components/clay';
 import { cn } from '@/lib/utils';
@@ -33,10 +36,50 @@ function truncate(text: string, n = 60): string {
 }
 
 export function ConversationsPane({ conversations, activePeerId }: ConversationsPaneProps) {
+  const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newPeerId, setNewPeerId] = useState('');
+  
+  const totalUnread = conversations.reduce((acc, c) => acc + c.unread_count, 0);
+
+  const handleStartChat = () => {
+    if (newPeerId.trim()) {
+      setIsModalOpen(false);
+      router.push(`/dashboard/crm/messages/${newPeerId.trim()}`);
+    }
+  };
+
   return (
+    <>
+      <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <div className="p-6">
+          <h2 className="text-lg font-medium mb-4">Start New Conversation</h2>
+          <Input 
+            value={newPeerId} 
+            onChange={(e) => setNewPeerId(e.target.value)} 
+            placeholder="User ID to chat with..." 
+            className="mb-4"
+          />
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleStartChat} disabled={!newPeerId.trim()}>Start Chat</Button>
+          </div>
+        </div>
+      </Modal>
+
     <ClayCard padded={false} className="overflow-hidden">
-      <div className="border-b border-border px-4 py-3">
-        <p className="text-[12.5px] font-medium text-muted-foreground">Conversations</p>
+      <div className="border-b border-border px-4 py-3 flex justify-between items-center">
+        <p className="text-[12.5px] font-medium text-muted-foreground flex items-center gap-2">
+          Conversations
+          {totalUnread > 0 && (
+            <ClayBadge tone="rose" className="h-4 px-1.5 text-[10px] leading-none">
+              {totalUnread}
+            </ClayBadge>
+          )}
+        </p>
+        <Button size="sm" variant="ghost" onClick={() => setIsModalOpen(true)} className="h-6 px-2 text-xs">
+          <Plus className="h-3 w-3 mr-1" /> New
+        </Button>
       </div>
       {conversations.length === 0 ? (
         <div className="flex h-40 items-center justify-center px-4 text-center text-[12.5px] text-muted-foreground">
@@ -83,5 +126,6 @@ export function ConversationsPane({ conversations, activePeerId }: Conversations
         </ul>
       )}
     </ClayCard>
+    </>
   );
 }

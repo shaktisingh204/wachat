@@ -51,6 +51,7 @@ import {
     type PosSessionStatus,
     type PosTransactionDoc,
 } from '@/app/actions/crm-pos.actions';
+import { PosCashCounterDialog } from './pos-cash-counter-dialog';
 
 interface Props {
     sessions: PosSessionDoc[];
@@ -149,11 +150,12 @@ export function PosSessionsListClient({
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
     const [page, setPage] = React.useState(1);
     const [pageSize, setPageSize] = React.useState(20);
+    const [showCounterId, setShowCounterId] = React.useState<string | null>(null);
 
     /* ── KPIs (computed from full set, ignoring filters) ──────────── */
     const kpis = React.useMemo(() => {
-        const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
+        const now = new Date();
+        const startOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
         const today = sessions.filter((s) => {
             if (!s.openedAt) return false;
             return new Date(s.openedAt).getTime() >= startOfDay.getTime();
@@ -260,14 +262,14 @@ export function PosSessionsListClient({
         });
 
     /* ── Inline actions ──────────────────────────────────────────── */
-    const onClose = async (id: string) => {
-        const raw = window.prompt('Closing cash counted (₹)?');
-        if (raw == null) return;
-        const closingCash = Number(raw);
-        if (!Number.isFinite(closingCash) || closingCash < 0) {
-            zoruSonnerToast.error('Closing cash must be a non-negative number.');
-            return;
-        }
+    const onClose = (id: string) => {
+        setShowCounterId(id);
+    };
+
+    const handleConfirmClose = async (closingCash: number) => {
+        if (!showCounterId) return;
+        const id = showCounterId;
+        setShowCounterId(null);
         setPendingId(id);
         try {
             const res = await closePosSession({ id, closingCash });
@@ -672,6 +674,12 @@ export function PosSessionsListClient({
                     </div>
                 ) : null}
             </Card>
+
+            <PosCashCounterDialog 
+                open={!!showCounterId}
+                onOpenChange={(open) => { if (!open) setShowCounterId(null); }}
+                onConfirm={handleConfirmClose}
+            />
         </div>
     );
 }

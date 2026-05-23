@@ -18,11 +18,16 @@ import { PaginationBar } from '@/components/crm/pagination-bar';
 
 import { StatCard, fmtNumber } from '../_components/report-toolbar';
 import { HrReportToolbar } from '../_components/hr-report-toolbar';
-import { StackedBarChart } from '../_components/hr-report-charts';
+import dynamic from 'next/dynamic';
 import {
   getHrReportDepartments,
   getLeaveBalanceDeep,
 } from '@/app/actions/crm-reports.actions';
+
+const StackedBarChart = dynamic(
+  () => import('../_components/hr-report-charts').then((mod) => mod.StackedBarChart),
+  { ssr: false }
+);
 
 interface PageProps {
   searchParams: Promise<{
@@ -162,10 +167,11 @@ export default async function LeaveBalanceReportPage(props: PageProps) {
               ) : (
                 pageRows.map((r, i) => {
                   const low = r.allocated > 0 && r.remaining / r.allocated < 0.2;
+                  const isNegative = r.remaining < 0;
                   return (
                     <ZoruTableRow
                       key={`${r.employeeId}-${r.leaveTypeName}-${i}`}
-                      className="border-border"
+                      className={`border-border ${isNegative ? 'bg-destructive/10 hover:bg-destructive/20' : ''}`}
                     >
                       <ZoruTableCell>
                         <EntityRowLink

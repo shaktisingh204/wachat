@@ -1,9 +1,11 @@
-import { Badge, Card } from '@/components/zoruui';
-import {
-  notFound } from 'next/navigation';
+import { Badge, Card, Button } from '@/components/zoruui';
+import { notFound } from 'next/navigation';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getIssueById } from '@/app/actions/worksuite/meta.actions';
+import { getWsIssueCommentsByIssue } from '@/app/actions/worksuite/projects.actions';
+import { marked } from 'marked';
+import { IssueComments } from './_components/issue-comments';
 
 type RouteParams = { id: string };
 
@@ -20,6 +22,8 @@ export default async function IssueDetailPage({
   const { id } = await params;
   const issue = await getIssueById(id);
   if (!issue) notFound();
+
+  const comments = await getWsIssueCommentsByIssue(id);
 
   const formatDate = (v: unknown) => {
     if (!v) return '—';
@@ -98,22 +102,39 @@ export default async function IssueDetailPage({
 
         {issue.description ? (
           <div className="mt-6">
-            <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+            <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted mb-2">
               Description
             </p>
-            <p className="mt-2 whitespace-pre-wrap text-[13px] text-zoru-ink">
-              {issue.description}
-            </p>
+            <div 
+              className="prose prose-sm dark:prose-invert max-w-none text-[13px] text-zoru-ink"
+              dangerouslySetInnerHTML={{ __html: marked.parse(issue.description) as string }}
+            />
           </div>
         ) : null}
       </Card>
 
-      <Card className="p-6">
-        <h2 className="text-[14px] font-semibold text-zoru-ink">Comments</h2>
-        <p className="mt-2 text-[12.5px] text-zoru-ink-muted">
-          Lightweight comments are not yet wired up — plug in the shared
-          comments subsystem when available.
-        </p>
+      <Card className="p-6 mt-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-[14px] font-semibold text-zoru-ink">Linked Pull Requests</h2>
+          <Button variant="outline" size="sm" className="h-7 text-[12px]">
+            Link PR
+          </Button>
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="rounded-md border border-dashed border-zoru-line p-4 text-center">
+            <p className="text-[12.5px] text-zoru-ink-muted">
+              Connect your GitHub or GitLab workspace to automatically sync pull request status.
+            </p>
+            <Button variant="link" className="mt-2 h-auto p-0 text-[12px]">
+              Configure Integration
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-6 mt-4">
+        <h2 className="text-[14px] font-semibold text-zoru-ink mb-4">Comments</h2>
+        <IssueComments issueId={id} initialComments={comments} />
       </Card>
     </EntityDetailShell>
   );

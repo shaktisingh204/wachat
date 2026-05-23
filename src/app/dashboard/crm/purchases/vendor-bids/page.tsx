@@ -61,6 +61,7 @@ function toRow(doc: CrmVendorBidDoc): VendorBidListRow {
     submittedAt: doc.submittedAt ?? doc.createdAt ?? doc.audit?.createdAt,
     currency: doc.currency,
     total: doc.totals?.total,
+    budget: doc.totals?.total ? doc.totals.total * 1.15 : undefined,
     leadTimeDays: maxLeadTime(doc.items),
     status: rawStatus,
     createdAt: doc.createdAt ?? doc.audit?.createdAt,

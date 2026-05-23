@@ -33,10 +33,12 @@ import {
 
 interface PettyCashDetailActionsProps {
   floatId: string;
+  disabled?: boolean;
 }
 
 export function PettyCashDetailActions({
   floatId,
+  disabled = false,
 }: PettyCashDetailActionsProps) {
   const router = useRouter();
   const { toast } = useZoruToast();
@@ -48,57 +50,65 @@ export function PettyCashDetailActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Button size="sm" variant="outline" asChild>
-        <Link href={`/dashboard/crm/petty-cash/${floatId}/edit`}>
-          <Pencil className="h-3.5 w-3.5" /> Edit
-        </Link>
+      <Button size="sm" variant="outline" asChild disabled={disabled}>
+        {disabled ? (
+          <span className="flex items-center"><Pencil className="mr-2 h-3.5 w-3.5" /> Edit</span>
+        ) : (
+          <Link href={`/dashboard/crm/petty-cash/${floatId}/edit`}>
+            <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
+          </Link>
+        )}
       </Button>
 
       <Button
         size="sm"
         variant="outline"
         onClick={() => setTopUpOpen(true)}
+        disabled={disabled}
       >
-        <Wallet className="h-3.5 w-3.5" /> Top up
+        <Wallet className="mr-2 h-3.5 w-3.5" /> Top up
       </Button>
 
       <Button
         size="sm"
         variant="outline"
         onClick={() => setVoucherOpen(true)}
+        disabled={disabled}
       >
-        <Receipt className="h-3.5 w-3.5" /> Record voucher
+        <Receipt className="mr-2 h-3.5 w-3.5" /> Record voucher
       </Button>
 
       <Button
         size="sm"
         variant="outline"
         onClick={() => setReconcileOpen(true)}
+        disabled={disabled}
       >
-        <ClipboardCheck className="h-3.5 w-3.5" /> Reconcile
+        <ClipboardCheck className="mr-2 h-3.5 w-3.5" /> Reconcile
       </Button>
 
       <Button size="sm" variant="outline" onClick={() => window.print()}>
-        <Printer className="h-3.5 w-3.5" /> Print register
+        <Printer className="mr-2 h-3.5 w-3.5" /> Print register
       </Button>
 
       <Button
         size="sm"
         variant="outline"
         onClick={() => setArchiveOpen(true)}
+        disabled={disabled}
       >
-        <Archive className="h-3.5 w-3.5" /> Archive
+        <Archive className="mr-2 h-3.5 w-3.5" /> Archive
       </Button>
 
       <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/petty-cash/${floatId}/audit`}>
-          <FileSearch className="h-3.5 w-3.5" /> Audit
+          <FileSearch className="mr-2 h-3.5 w-3.5" /> Audit
         </Link>
       </Button>
 
       <Button size="sm" variant="ghost" asChild>
         <Link href={`/dashboard/crm/petty-cash/${floatId}/activity`}>
-          <Activity className="h-3.5 w-3.5" /> Activity
+          <Activity className="mr-2 h-3.5 w-3.5" /> Activity
         </Link>
       </Button>
 

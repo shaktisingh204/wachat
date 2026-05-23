@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ChevronDown, Search } from 'lucide-react';
+import { ChevronDown, Search, Star } from 'lucide-react';
 
 import {
     Card,
@@ -76,10 +76,49 @@ export function ReportsHubClient({
         return init;
     });
 
+    const [favorites, setFavorites] = React.useState<string[]>([]);
+    
+    React.useEffect(() => {
+        try {
+            const stored = localStorage.getItem('crm_favorite_reports');
+            if (stored) setFavorites(JSON.parse(stored));
+        } catch {}
+    }, []);
+
+    const toggleFavorite = React.useCallback((e: React.MouseEvent, href: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setFavorites((prev) => {
+            const next = prev.includes(href) ? prev.filter(x => x !== href) : [...prev, href];
+            try { localStorage.setItem('crm_favorite_reports', JSON.stringify(next)); } catch {}
+            return next;
+        });
+    }, []);
+
     const normalised = query.trim().toLowerCase();
 
+    const displayCategories = React.useMemo(() => {
+        let cats = [...categories];
+        
+        if (favorites.length > 0) {
+            const favItems: ReportLink[] = [];
+            for (const c of categories) {
+                for (const it of c.items) {
+                    if (favorites.includes(it.href)) favItems.push(it);
+                }
+            }
+            if (favItems.length > 0) {
+                cats = [
+                    { id: 'favorites', title: 'Favorites', icon: Star, items: favItems, lastRefreshAt: null, runs: 0 },
+                    ...cats
+                ];
+            }
+        }
+        return cats;
+    }, [categories, favorites]);
+
     const filteredCategories = React.useMemo(() => {
-        return categories
+        return displayCategories
             .filter((cat) => activeCategory === 'all' || cat.id === activeCategory)
             .map((cat) => ({
                 ...cat,
@@ -92,7 +131,7 @@ export function ReportsHubClient({
                 }),
             }))
             .filter((cat) => cat.items.length > 0);
-    }, [categories, activeCategory, normalised]);
+    }, [displayCategories, activeCategory, normalised]);
 
     const toggleCategory = (id: string) => {
         setOpenMap((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -118,7 +157,7 @@ export function ReportsHubClient({
                         onClick={() => setActiveCategory('all')}
                         label="All"
                     />
-                    {categories.map((cat) => (
+                    {displayCategories.map((cat) => (
                         <CategoryChip
                             key={cat.id}
                             active={activeCategory === cat.id}
@@ -131,7 +170,7 @@ export function ReportsHubClient({
 
             {/* Category KPI cards */}
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-                {categories.map((cat) => {
+                {displayCategories.map((cat) => {
                     const Icon = cat.icon;
                     return (
                         <Card key={cat.id} className="p-4">
@@ -205,31 +244,44 @@ export function ReportsHubClient({
                                     </div>
                                     <ZoruCollapsibleContent className="mt-3">
                                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                                            {cat.items.map(({ href, label, description, icon: ItemIcon }) => (
-                                                <Link
-                                                    key={href}
-                                                    href={href}
-                                                    className="group flex h-full flex-col rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4 shadow-sm transition-shadow hover:shadow-[var(--zoru-shadow-md)]"
-                                                >
-                                                    <div className="flex items-start gap-3">
-                                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2">
-                                                            <ItemIcon
-                                                                className="h-[18px] w-[18px] text-zoru-ink"
-                                                                strokeWidth={1.75}
-                                                                aria-hidden="true"
-                                                            />
+                                            {cat.items.map(({ href, label, description, icon: ItemIcon }) => {
+                                                const isFav = favorites.includes(href);
+                                                return (
+                                                    <Link
+                                                        key={href}
+                                                        href={href}
+                                                        className="relative group flex h-full flex-col rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4 shadow-sm transition-shadow hover:shadow-[var(--zoru-shadow-md)]"
+                                                    >
+                                                        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <button 
+                                                                type="button" 
+                                                                onClick={(e) => toggleFavorite(e, href)}
+                                                                className={`text-zoru-ink-muted hover:text-amber-500 transition-colors ${isFav ? 'text-amber-500 opacity-100' : ''}`}
+                                                                aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                                                            >
+                                                                <Star className="h-4 w-4" fill={isFav ? "currentColor" : "none"} />
+                                                            </button>
                                                         </div>
-                                                        <div className="min-w-0 flex-1">
-                                                            <h3 className="text-[14px] font-medium text-zoru-ink">
-                                                                {label}
-                                                            </h3>
-                                                            <p className="mt-1 text-[12.5px] leading-snug text-zoru-ink-muted">
-                                                                {description}
-                                                            </p>
+                                                        <div className="flex items-start gap-3">
+                                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2">
+                                                                <ItemIcon
+                                                                    className="h-[18px] w-[18px] text-zoru-ink"
+                                                                    strokeWidth={1.75}
+                                                                    aria-hidden="true"
+                                                                />
+                                                            </div>
+                                                            <div className="min-w-0 flex-1 pr-6">
+                                                                <h3 className="text-[14px] font-medium text-zoru-ink">
+                                                                    {label}
+                                                                </h3>
+                                                                <p className="mt-1 text-[12.5px] leading-snug text-zoru-ink-muted">
+                                                                    {description}
+                                                                </p>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </Link>
-                                            ))}
+                                                    </Link>
+                                                );
+                                            })}
                                         </div>
                                     </ZoruCollapsibleContent>
                                 </ZoruCollapsible>

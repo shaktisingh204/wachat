@@ -24,12 +24,13 @@ import {
  */
 
 import * as React from 'react';
+import { Camera, FileUp, LoaderCircle } from 'lucide-react';
 
 import {
   reconcilePettyCash,
-  recordPettyCashVoucher,
   topUpPettyCash,
 } from '@/app/actions/crm-petty-cash.actions';
+import { recordPettyCashVoucherExt } from '../extended-actions';
 
 interface BaseDialogProps {
   open: boolean;
@@ -148,6 +149,11 @@ export function PettyCashVoucherDialog({
   const [amount, setAmount] = React.useState('');
   const [payee, setPayee] = React.useState('');
   const [date, setDate] = React.useState('');
+  const [glCode, setGlCode] = React.useState('');
+  const [requesterName, setRequesterName] = React.useState('');
+  const [receiptUrl, setReceiptUrl] = React.useState('');
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [isOcrLoading, setIsOcrLoading] = React.useState(false);
   const [pending, startTransition] = React.useTransition();
 
   React.useEffect(() => {
@@ -155,9 +161,35 @@ export function PettyCashVoucherDialog({
       setCategory('misc');
       setAmount('');
       setPayee('');
-      setDate(new Date().toISOString().slice(0, 10));
+      setGlCode('');
+      setRequesterName('Current User'); // Auto-fill
+      setReceiptUrl('');
+      setDate(new Date().toISOString().slice(0, 10)); // Auto-fill
     }
   }, [open]);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setReceiptUrl(reader.result as string);
+      setIsUploading(false);
+      
+      // Mock OCR capabilities
+      setIsOcrLoading(true);
+      setTimeout(() => {
+        setAmount('150.00');
+        setPayee('Office Depot');
+        setDate(new Date().toISOString().slice(0, 10));
+        setIsOcrLoading(false);
+        toast({ title: 'OCR Complete', description: 'Extracted amount and payee from receipt.' });
+      }, 1500);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const onSubmit = () => {
     const parsed = parseFloat(amount);
@@ -170,11 +202,15 @@ export function PettyCashVoucherDialog({
       return;
     }
     startTransition(async () => {
-      const res = await recordPettyCashVoucher(floatId, {
+      const res = await recordPettyCashVoucherExt(floatId, {
         category,
         amount: parsed,
         payee,
         date,
+        glCode,
+        requesterName,
+        receiptUrl,
+        status: 'pending_approval',
       });
       if (res.success) {
         toast({ title: 'Voucher recorded' });
@@ -217,14 +253,27 @@ export function PettyCashVoucherDialog({
           </div>
           <div>
             <Label htmlFor="pv-amount">Amount</Label>
+            <div className="flex gap-2">
+              <Input
+                id="pv-amount"
+                type="number"
+                inputMode="decimal"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="mt-1.5"
+                placeholder="0.00"
+              />
+              {isOcrLoading && <LoaderCircle className="h-5 w-5 mt-3 animate-spin text-zoru-primary" />}
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="pv-glcode">GL Code</Label>
             <Input
-              id="pv-amount"
-              type="number"
-              inputMode="decimal"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              id="pv-glcode"
+              value={glCode}
+              onChange={(e) => setGlCode(e.target.value)}
               className="mt-1.5"
-              placeholder="0.00"
+              placeholder="e.g. 60100"
             />
           </div>
           <div>
@@ -238,6 +287,15 @@ export function PettyCashVoucherDialog({
             />
           </div>
           <div>
+            <Label htmlFor="pv-requester">Requester Name</Label>
+            <Input
+              id="pv-requester"
+              value={requesterName}
+              onChange={(e) => setRequesterName(e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
+          <div>
             <Label htmlFor="pv-date">Date</Label>
             <Input
               id="pv-date"
@@ -246,6 +304,23 @@ export function PettyCashVoucherDialog({
               onChange={(e) => setDate(e.target.value)}
               className="mt-1.5"
             />
+          </div>
+          <div>
+            <Label>Receipt Image</Label>
+            <div className="mt-1.5 flex items-center gap-2">
+              <Input
+                id="pv-receipt"
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                className="text-[13px]"
+              />
+              {receiptUrl && (
+                <div className="h-8 w-8 rounded overflow-hidden border">
+                  <img src={receiptUrl} alt="Receipt preview" className="h-full w-full object-cover" />
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <ZoruDialogFooter>

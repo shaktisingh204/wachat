@@ -1,8 +1,23 @@
 export const dynamic = 'force-dynamic';
 
 import * as React from 'react';
-import { Cake, Gift } from 'lucide-react';
+import { Cake, Gift, Mail } from 'lucide-react';
 import { format } from 'date-fns';
+import { Button } from '@/components/zoruui';
+
+function safeFormatDate(isoString: string) {
+  if (!isoString) return '—';
+  const [y, m, d] = isoString.split('T')[0].split('-').map(Number);
+  const currentYear = new Date().getFullYear();
+  const isLeapYear = (year: number) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  
+  let displayDay = d;
+  if (m === 2 && d === 29 && !isLeapYear(currentYear)) {
+    displayDay = 28;
+  }
+  
+  return format(new Date(y, m - 1, displayDay), 'PP');
+}
 
 import {
   Badge,
@@ -174,9 +189,14 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
                     label={r.employeeName}
                     subtitle={r.department}
                   />
-                  <Badge variant="info">
-                    {format(new Date(r.date), 'PP')}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="info">
+                      {safeFormatDate(r.date)}
+                    </Badge>
+                    <Button variant="ghost" size="icon" className="h-6 w-6" title="Send Email Greeting">
+                      <Mail className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -207,9 +227,14 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
                     label={r.employeeName}
                     subtitle={`${r.department} · ${r.years ?? '—'} ${r.years === 1 ? 'year' : 'years'}`}
                   />
-                  <Badge variant="success">
-                    {format(new Date(r.date), 'PP')}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="success">
+                      {safeFormatDate(r.date)}
+                    </Badge>
+                    <Button variant="ghost" size="icon" className="h-6 w-6" title="Send Email Greeting">
+                      <Mail className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -260,7 +285,12 @@ export default async function BirthdayAnniversaryPage(props: PageProps) {
                       </Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right text-[13px] text-foreground">
-                      {format(new Date(r.date), 'PP')}
+                      <div className="flex items-center justify-end gap-2">
+                        <span>{safeFormatDate(r.date)}</span>
+                        <Button variant="ghost" size="icon" className="h-6 w-6" title="Send Email Greeting">
+                          <Mail className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right text-[13px] text-muted-foreground">
                       {r.years ?? '—'}

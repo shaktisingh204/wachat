@@ -8,7 +8,9 @@
  */
 
 import * as React from 'react';
-import { CheckCircle2, Archive, Tags } from 'lucide-react';
+import { CheckCircle2, Archive, Tags, ArrowDownUp } from 'lucide-react';
+import { Button } from '@/components/zoruui';
+import { CategoryOrderDialog } from './category-order-dialog';
 
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
@@ -26,13 +28,46 @@ const STATUS_TONE: Record<string, StatusTone> = {
 };
 
 export function VendorTypesPageClient() {
+    const [rows, setRows] = React.useState<any[]>([]);
+    const [orderOpen, setOrderOpen] = React.useState(false);
+
+    const refresh = React.useCallback(() => {
+        getCrmVendorTypeRows().then(r => setRows(r));
+    }, []);
+
+    React.useEffect(() => {
+        refresh();
+    }, [refresh]);
+
+    // Format rows to show hierarchy
+    const formattedRows = React.useMemo(() => {
+        const map = new Map(rows.map(r => [r._id, r]));
+        return rows.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)).map(r => {
+            const parent = r.parentId ? map.get(r.parentId) : null;
+            return {
+                ...r,
+                displayName: parent ? `— ${r.name}` : r.name,
+                parentName: parent?.name,
+            };
+        });
+    }, [rows]);
+
+    const parentOptions = React.useMemo(() => {
+        return rows.map(r => ({ value: r._id, label: r.name }));
+    }, [rows]);
+
     return (
-        <SettingsEntityShell<CrmVendorTypeRow>
+        <>
+        <SettingsEntityShell<any>
             title="Vendor Types"
             subtitle="Classification master for CRM vendors."
             singular="Vendor type"
             csvFilename="vendor-types"
-            getAllAction={getCrmVendorTypeRows}
+            getAllAction={async () => {
+                const r = await getCrmVendorTypeRows();
+                setRows(r);
+                return r;
+            }}
             saveAction={saveCrmVendorTypeRow}
             deleteAction={deleteCrmVendorTypeRow}
             kpis={(_rows, all) => [
@@ -52,8 +87,14 @@ export function VendorTypesPageClient() {
                     icon: <Archive className="h-4 w-4" />,
                 },
             ]}
+            extraHeaderActions={
+                <Button variant="outline" onClick={() => setOrderOpen(true)}>
+                    <ArrowDownUp className="mr-2 h-4 w-4" />
+                    Reorder Categories
+                </Button>
+            }
             columns={[
-                { key: 'name', label: 'Name' },
+                { key: 'displayName', label: 'Name' },
                 { key: 'code', label: 'Code' },
                 {
                     key: 'status',
@@ -97,7 +138,15 @@ export function VendorTypesPageClient() {
                     ],
                     defaultValue: 'active',
                 },
+                {
+                    name: 'parentId',
+                    label: 'Parent Category',
+                    type: 'select',
+                    options: parentOptions,
+                },
             ]}
         />
+        <CategoryOrderDialog items={formattedRows} open={orderOpen} onOpenChange={setOrderOpen} onSaved={refresh} />
+        </>
     );
 }

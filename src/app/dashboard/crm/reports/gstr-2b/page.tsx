@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic';
 
-import { ObjectId } from 'mongodb';
 
-import { connectToDatabase } from '@/lib/mongodb';
+import { getVendorNamesByIds } from '@/app/actions/crm-vendors.actions';
+import { getGstr2bTrend } from '@/app/actions/crm-india-gst.actions';
 import { getSession } from '@/app/actions/user.actions';
 import { getPurchaseOrders } from '@/app/actions/crm-purchase-orders.actions';
 import { getGstr2bImport } from '@/app/actions/crm-india-gst.actions';
@@ -77,41 +77,8 @@ export default async function Gstr2bPage(props: {
                 .filter((s): s is string => typeof s === 'string' && s.length > 0),
         ),
     );
-    const vendorNameById = new Map<string, string>();
-    const session = await getSession();
-    const tenantId = session?.user
-        ? new ObjectId(String(session.user._id))
-        : null;
-
-    if (tenantId && vendorIds.length > 0) {
-        try {
-            const { db } = await connectToDatabase();
-            const docs = (await db
-                .collection('crm_vendors')
-                .find({
-                    userId: tenantId,
-                    _id: {
-                        $in: vendorIds
-                            .filter((s) => ObjectId.isValid(s))
-                            .map((s) => new ObjectId(s)),
-                    },
-                })
-                .project({ name: 1, displayName: 1 })
-                .toArray()) as Array<{
-                _id: ObjectId;
-                name?: string;
-                displayName?: string;
-            }>;
-            for (const v of docs) {
-                vendorNameById.set(
-                    String(v._id),
-                    v.displayName || v.name || 'Vendor',
-                );
-            }
-        } catch {
-            // best-effort
-        }
-    }
+    const vendorNameMap = await getVendorNamesByIds(vendorIds);
+    const vendorNameById = new Map<string, string>(Object.entries(vendorNameMap));
 
     const rows: Gstr2bPurchaseRow[] = orders.map((po) => ({
         id: String(po._id),
@@ -141,50 +108,7 @@ export default async function Gstr2bPage(props: {
 
     // Build a 6-month trend by reading `crm_gstr2b_imports` directly so
     // the line chart works even when only some months have been imported.
-    let trend: Gstr2bTrendDatum[] = [];
-    if (tenantId) {
-        try {
-            const { db } = await connectToDatabase();
-            const trendDocs = (await db
-                .collection('crm_gstr2b_imports')
-                .find({ userId: tenantId })
-                .project({
-                    period: 1,
-                    periodMonth: 1,
-                    periodYear: 1,
-                    totalItcAvailable: 1,
-                    totalItcIneligible: 1,
-                })
-                .sort({ periodYear: -1, periodMonth: -1 })
-                .limit(6)
-                .toArray()) as Array<{
-                period?: string;
-                periodMonth?: number;
-                periodYear?: number;
-                totalItcAvailable?: {
-                    igst: number;
-                    cgst: number;
-                    sgst: number;
-                    cess: number;
-                };
-                totalItcIneligible?: {
-                    igst: number;
-                    cgst: number;
-                    sgst: number;
-                    cess: number;
-                };
-            }>;
-            trend = trendDocs
-                .map((d) => ({
-                    period: d.period ?? '',
-                    itcAvailable: Math.round(sumItc(d.totalItcAvailable)),
-                    itcReversed: Math.round(sumItc(d.totalItcIneligible)),
-                }))
-                .reverse(); // oldest first for the chart
-        } catch {
-            // best-effort
-        }
-    }
+    let trend: Gstr2bTrendDatum[] = await getGstr2bTrend(6);
 
     const totalInward = parsed
         ? parsed.suppliers.reduce((s, sup) => s + sup.taxableValue, 0)

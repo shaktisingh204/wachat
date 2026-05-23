@@ -19,6 +19,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   zoruSonnerToast,
+  Checkbox,
 } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
@@ -84,6 +85,7 @@ export function PosRefundForm({ original }: Props) {
             ? 'cash'
             : original.paymentMethod,
     );
+    const [restockInventory, setRestockInventory] = React.useState(true);
     const [submitting, setSubmitting] = React.useState(false);
 
     const updateLine = (idx: number, patch: Partial<RefundLineState>) => {
@@ -130,9 +132,11 @@ export function PosRefundForm({ original }: Props) {
                 reason: reason.trim(),
                 refundedLineItems,
                 refundMethod: method,
+                restockInventory,
+                requestApproval: total > 10000,
             });
             if (res.success) {
-                zoruSonnerToast.success('Refund recorded.');
+                zoruSonnerToast.success(total > 10000 ? 'Refund approval requested.' : 'Refund recorded.');
                 router.push('/dashboard/crm/pos/refunds');
             } else {
                 zoruSonnerToast.error(res.error ?? 'Refund failed.');
@@ -264,6 +268,16 @@ export function PosRefundForm({ original }: Props) {
                             placeholder="e.g. Customer returned damaged item."
                             required
                         />
+                        <div className="flex items-center gap-2 mt-1">
+                            <Checkbox 
+                                id="restock" 
+                                checked={restockInventory}
+                                onCheckedChange={(c) => setRestockInventory(Boolean(c))}
+                            />
+                            <Label htmlFor="restock" className="text-[13px] font-normal cursor-pointer">
+                                Restock returned items to inventory
+                            </Label>
+                        </div>
                     </div>
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="refundMethod">
@@ -309,7 +323,7 @@ export function PosRefundForm({ original }: Props) {
                         disabled={submitting || total <= 0}
                         onClick={onSubmit}
                     >
-                        {submitting ? 'Processing…' : 'Issue refund'}
+                        {submitting ? 'Processing…' : total > 10000 ? 'Request Approval' : 'Issue refund'}
                     </Button>
                 </div>
             </ZoruCardContent>

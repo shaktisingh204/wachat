@@ -54,6 +54,23 @@ export default function NewLoanPage() {
   const [state, formAction] = useActionState(saveLoan, initialState);
   const [loanType, setLoanType] = useState<string>('customer_loan');
 
+  const [principal, setPrincipal] = useState<number | ''>('');
+  const [interestRate, setInterestRate] = useState<number | ''>(0);
+  const [tenureMonths, setTenureMonths] = useState<number | ''>(12);
+
+  const calculateEmi = () => {
+    if (!principal || !tenureMonths) return 0;
+    const p = Number(principal);
+    const r = Number(interestRate) / 12 / 100;
+    const n = Number(tenureMonths);
+
+    if (r === 0) return p / n;
+    return (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+  };
+
+  const previewEmi = calculateEmi();
+  const totalPayment = previewEmi * Number(tenureMonths || 0);
+
   useEffect(() => {
     if (state.message) {
       toast({ title: 'Loan created', description: state.message });
@@ -111,6 +128,8 @@ export default function NewLoanPage() {
               placeholder="e.g. 50000"
               required
               className="max-w-xs"
+              value={principal}
+              onChange={(e) => setPrincipal(e.target.value === '' ? '' : Number(e.target.value))}
             />
           </div>
 
@@ -124,8 +143,9 @@ export default function NewLoanPage() {
               min="0"
               step="0.01"
               placeholder="e.g. 12"
-              defaultValue="0"
               className="max-w-xs"
+              value={interestRate}
+              onChange={(e) => setInterestRate(e.target.value === '' ? '' : Number(e.target.value))}
             />
           </div>
 
@@ -139,10 +159,38 @@ export default function NewLoanPage() {
               min="1"
               step="1"
               placeholder="e.g. 12"
-              defaultValue="12"
               className="max-w-xs"
+              value={tenureMonths}
+              onChange={(e) => setTenureMonths(e.target.value === '' ? '' : Number(e.target.value))}
             />
           </div>
+
+          {/* Calculator Preview */}
+          {principal && tenureMonths ? (
+            <div className="max-w-xs rounded-md border border-zoru-line bg-zoru-surface/50 p-4">
+              <h4 className="mb-2 text-[13px] font-medium text-zoru-ink">Repayment Preview</h4>
+              <div className="flex flex-col gap-1 text-[12.5px]">
+                <div className="flex justify-between">
+                  <span className="text-zoru-ink-muted">Monthly EMI:</span>
+                  <span className="font-mono font-medium">
+                    {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(previewEmi)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zoru-ink-muted">Total Payment:</span>
+                  <span className="font-mono">
+                    {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(totalPayment)}
+                  </span>
+                </div>
+                <div className="flex justify-between border-t border-zoru-line pt-1 mt-1">
+                  <span className="text-zoru-ink-muted">Total Interest:</span>
+                  <span className="font-mono text-zoru-danger-ink">
+                    {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(totalPayment - Number(principal))}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           {/* Start Date */}
           <div className="flex flex-col gap-1.5">

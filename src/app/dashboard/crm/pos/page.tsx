@@ -47,6 +47,7 @@ import {
     type PosRefundStatus,
     type PosTransactionStatus,
 } from '@/app/actions/crm-pos.actions';
+import { PosSalesGraph } from './_components/pos-sales-graph';
 
 export const dynamic = 'force-dynamic';
 
@@ -170,11 +171,10 @@ export default async function PosHomePage() {
         getPosSessions({ status: 'open' }),
     ]);
 
-    // Today's window
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    // Today's window using UTC to avoid server local time discrepancy
+    const now = new Date();
+    const startOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
+    const endOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
     const inToday = (iso: string | null | undefined) => {
         if (!iso) return false;
         const t = new Date(iso).getTime();
@@ -216,9 +216,7 @@ export default async function PosHomePage() {
     )[0];
 
     // Refunds today + this month
-    const monthStart = new Date();
-    monthStart.setDate(1);
-    monthStart.setHours(0, 0, 0, 0);
+    const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
     const refundsThisMonth = refunds.filter((r) => {
         if (!r.createdAt) return false;
         return new Date(r.createdAt).getTime() >= monthStart.getTime();
@@ -340,6 +338,11 @@ export default async function PosHomePage() {
                     description="Audit and follow up on refunds processed."
                     icon={ScrollText}
                 />
+            </section>
+
+            {/* Sales Graph */}
+            <section className="mb-3">
+                <PosSalesGraph transactions={todaysTxns} />
             </section>
 
             {/* Today's activity — two columns */}

@@ -163,6 +163,7 @@ export function RfqForm({ initial }: RfqFormProps) {
   useEffect(() => {
     if (state?.message) {
       toast({ title: 'Saved', description: state.message });
+      localStorage.removeItem('rfq-draft');
       router.push(
         state.id
           ? `/dashboard/crm/purchases/rfqs/${state.id}`
@@ -177,6 +178,35 @@ export function RfqForm({ initial }: RfqFormProps) {
       });
     }
   }, [state, toast, router]);
+
+  // Auto-save drafts to localStorage
+  useEffect(() => {
+    if (!editing && status === 'draft') {
+      const draft = {
+        status,
+        vendorIds,
+        lines,
+        attachments,
+      };
+      localStorage.setItem('rfq-draft', JSON.stringify(draft));
+    }
+  }, [status, vendorIds, lines, attachments, editing]);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    if (!editing) {
+      const draftStr = localStorage.getItem('rfq-draft');
+      if (draftStr) {
+        try {
+          const draft = JSON.parse(draftStr);
+          if (draft.status) setStatus(draft.status);
+          if (draft.vendorIds) setVendorIds(draft.vendorIds);
+          if (draft.lines) setLines(draft.lines);
+          if (draft.attachments) setAttachments(draft.attachments);
+        } catch {}
+      }
+    }
+  }, [editing]);
 
   const addLine = () => setLines((prev) => [...prev, newLine()]);
   const removeLine = (key: string) =>

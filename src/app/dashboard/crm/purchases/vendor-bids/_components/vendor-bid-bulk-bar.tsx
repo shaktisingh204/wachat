@@ -32,6 +32,8 @@ interface VendorBidBulkBarProps {
   onArchive: () => void;
   onDelete: () => void;
   onChangeStatus: (status: CrmVendorBidStatus) => void;
+  onApprove: () => void;
+  onReject: () => void;
 }
 
 export function VendorBidBulkBar({
@@ -41,6 +43,8 @@ export function VendorBidBulkBar({
   onArchive,
   onDelete,
   onChangeStatus,
+  onApprove,
+  onReject,
 }: VendorBidBulkBarProps) {
   if (count === 0) return null;
 
@@ -56,6 +60,12 @@ export function VendorBidBulkBar({
         </Button>
         <Button size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
+        </Button>
+        <Button size="sm" variant="outline" onClick={onApprove} className="text-zoru-success-ink">
+          Approve
+        </Button>
+        <Button size="sm" variant="outline" onClick={onReject} className="text-zoru-danger-ink">
+          Reject
         </Button>
         <DropdownMenu>
           <ZoruDropdownMenuTrigger asChild>

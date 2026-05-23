@@ -16,6 +16,7 @@ import { getPettyCashFloatById } from '@/app/actions/crm-petty-cash.actions';
 
 import { PettyCashDetailActions } from '../_components/petty-cash-detail-actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { VoucherTable } from '../_components/voucher-table';
 
 type PettyCashDoc = {
   _id: string;
@@ -41,6 +42,10 @@ type PettyCashDoc = {
     amount?: number;
     payee?: string;
     date?: string;
+    glCode?: string;
+    requesterName?: string;
+    receiptUrl?: string;
+    status?: string;
   }>;
   topUps?: Array<{
     _id?: string;
@@ -117,6 +122,7 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
   if (!float) notFound();
 
   const status = float.status ?? 'active';
+  const isReconciledOrClosed = status === 'closed' || status === 'archived';
   const currentBalance = float.balance ?? float.currentBalance ?? 0;
   const vouchers = float.vouchers ?? [];
   const topUps = float.topUps ?? [];
@@ -127,7 +133,7 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
       eyebrow="PETTY CASH"
       status={{ label: status, tone: statusTone(status) }}
       back={{ href: '/dashboard/crm/petty-cash', label: 'All floats' }}
-      actions={<PettyCashDetailActions floatId={id} />}
+      actions={<PettyCashDetailActions floatId={id} disabled={isReconciledOrClosed} />}
       audit={<EntityAuditTimeline entityKind="petty_cash" entityId={id} />}
       rightRail={
         <>
@@ -260,88 +266,16 @@ export default async function PettyCashDetailPage({ params }: PageProps) {
           <ZoruCardTitle>Recent vouchers</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
-          {vouchers.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
-              No vouchers recorded yet.
-            </p>
-          ) : (
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted">
-                  <th className="py-2">Date</th>
-                  <th className="py-2">Category</th>
-                  <th className="py-2">Payee</th>
-                  <th className="py-2 text-right">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {vouchers
-                  .slice()
-                  .reverse()
-                  .slice(0, 50)
-                  .map((v, idx) => (
-                    <tr
-                      key={v._id ?? `${v.date}-${idx}`}
-                      className="border-b border-zoru-line/40 last:border-0"
-                    >
-                      <td className="py-2">{fmtDate(v.date)}</td>
-                      <td className="py-2">
-                        <Badge variant="outline">
-                          {(v.category || 'misc').replace(/_/g, ' ')}
-                        </Badge>
-                      </td>
-                      <td className="py-2">{v.payee || '—'}</td>
-                      <td className="py-2 text-right font-mono tabular-nums">
-                        {fmtMoney(v.amount, float.currency)}
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          )}
+          <VoucherTable floatId={id} currency={float.currency} vouchers={vouchers} />
         </ZoruCardContent>
       </Card>
 
       <Card>
         <ZoruCardHeader>
-          <ZoruCardTitle>Top-up history</ZoruCardTitle>
+          <ZoruCardTitle>Timeline</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
-          {topUps.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
-              No top-ups yet.
-            </p>
-          ) : (
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted">
-                  <th className="py-2">Posted at</th>
-                  <th className="py-2 text-right">Amount</th>
-                  <th className="py-2">Notes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topUps
-                  .slice()
-                  .reverse()
-                  .slice(0, 50)
-                  .map((t, idx) => (
-                    <tr
-                      key={t._id ?? `${t.postedAt}-${idx}`}
-                      className="border-b border-zoru-line/40 last:border-0"
-                    >
-                      <td className="py-2">{fmtDate(t.postedAt)}</td>
-                      <td className="py-2 text-right font-mono tabular-nums">
-                        {fmtMoney(t.amount, float.currency)}
-                      </td>
-                      <td className="py-2 text-zoru-ink-muted">
-                        {t.notes || '—'}
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          )}
+          <EntityAuditTimeline entityKind="petty_cash" entityId={id} />
         </ZoruCardContent>
       </Card>
 

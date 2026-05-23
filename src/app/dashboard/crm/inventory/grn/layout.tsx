@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { Button } from '@/components/zoruui';
+
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
     constructor(props: { children: React.ReactNode }) {
         super(props);
@@ -21,12 +23,11 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
                         <p className="mb-4 text-sm text-zoru-ink-muted">
                             {this.state.error?.message || 'An unexpected error occurred while loading this page.'}
                         </p>
-                        <button
+                        <Button
                             onClick={() => this.setState({ hasError: false, error: null })}
-                            className="rounded-md bg-zoru-primary px-4 py-2 text-sm font-medium text-white hover:bg-zoru-primary/90"
                         >
                             Try again
-                        </button>
+                        </Button>
                     </div>
                 </div>
             );

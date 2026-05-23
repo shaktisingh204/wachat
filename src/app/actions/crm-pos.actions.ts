@@ -40,6 +40,17 @@ function useRustCrm(): boolean {
 
 export type PosSessionStatus = 'open' | 'closed' | 'reconciled' | 'archived';
 
+export interface PosTerminalDoc {
+    _id?: string;
+    userId: string;
+    terminalId: string;
+    status: 'online' | 'offline';
+    lastHeartbeat: string | null;
+    openSessionId: string | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface PosSessionDoc {
     _id: string;
     userId: string;
@@ -262,8 +273,57 @@ export async function getPosSessions(filters?: {
             .toArray();
         return serialize<PosSessionDoc[]>(docs);
     } catch (e) {
-        console.error('[getPosSessions] failed:', e);
+        console.error(e);
         return [];
+    }
+}
+
+export async function registerPosTerminal(terminalId: string, openSessionId: string | null = null): Promise<void> {
+    const session = await getSession();
+    if (!session?.user?._id) return;
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(String(session.user._id));
+        const now = new Date();
+        await db.collection('crm_pos_terminals').updateOne(
+            { userId: userObjectId, terminalId },
+            {
+                $set: {
+                    status: 'online',
+                    lastHeartbeat: now,
+                    openSessionId: openSessionId ?? null,
+                    updatedAt: now,
+                },
+                $setOnInsert: {
+                    userId: userObjectId,
+                    terminalId,
+                    createdAt: now,
+                }
+            },
+            { upsert: true }
+        );
+    } catch (e) {
+        console.error('[registerPosTerminal] Failed:', e);
+    }
+}
+
+export async function heartbeatPosTerminal(terminalId: string): Promise<void> {
+    const session = await getSession();
+    if (!session?.user?._id) return;
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(String(session.user._id));
+        await db.collection('crm_pos_terminals').updateOne(
+            { userId: userObjectId, terminalId },
+            {
+                $set: {
+                    status: 'online',
+                    lastHeartbeat: new Date(),
+                }
+            }
+        );
+    } catch (e) {
+        console.error('[heartbeatPosTerminal] Failed:', e);
     }
 }
 
@@ -930,6 +990,8 @@ export interface RefundPosTransactionInput {
     reason: string;
     refundedLineItems: Array<Partial<PosLineItem>>;
     refundMethod: PosPaymentMethod;
+    restockInventory?: boolean;
+    requestApproval?: boolean;
 }
 
 export async function refundPosTransaction(
@@ -962,6 +1024,7 @@ export async function refundPosTransaction(
                 })),
                 refundTotal: totals.total,
                 refundMethod: input.refundMethod as any,
+                restockInventory: input.restockInventory,
             });
             revalidatePath('/dashboard/crm/pos/refunds');
             revalidatePath('/dashboard/crm/pos');
@@ -1002,12 +1065,29 @@ export async function refundPosTransaction(
             refundedLineItems: items,
             refundTotal: totals.total,
             refundMethod: input.refundMethod,
-            status: 'completed',
-            processedAt: now,
-            processedBy: String(session.user._id),
+            status: input.requestApproval ? 'pending' : 'completed',
+            processedAt: input.requestApproval ? null : now,
+            processedBy: input.requestApproval ? null : String(session.user._id),
             createdAt: now,
             updatedAt: now,
         });
+
+        if (input.requestApproval) {
+            revalidatePath('/dashboard/crm/pos/refunds');
+            return { success: true, id: insertResult.insertedId.toString() };
+        }
+
+        // Restock logic (pseudo/db update for stock if restockInventory=true)
+        if (input.restockInventory) {
+            for (const item of items) {
+                if (item.itemId) {
+                    await db.collection('crm_products').updateOne(
+                        { _id: new ObjectId(item.itemId) },
+                        { $inc: { stock: item.qty } }
+                    );
+                }
+            }
+        }
 
         // Flip the original transaction status. Full refund if the
         // refund total equals the transaction total to 2 dp; else
@@ -1171,6 +1251,13 @@ export async function getPosHolds(filters?: {
             // Default to currently-held tickets only on the recall view.
             filter.status = 'held';
         }
+
+        // Auto-purge policy: discard tickets held longer than 24 hours
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        await db.collection('crm_pos_holds').updateMany(
+            { userId: userObjectId, status: 'held', heldAt: { $lt: twentyFourHoursAgo } },
+            { $set: { status: 'discarded', updatedAt: new Date() } }
+        );
 
         const docs = await db
             .collection('crm_pos_holds')
@@ -1488,6 +1575,72 @@ export async function bulkDiscardPosHolds(holdIds: string[]): Promise<{
     }
 }
 
+export async function mergePosHolds(holdIds: string[]): Promise<{
+    success: boolean;
+    error?: string;
+    id?: string;
+}> {
+    const session = await getSession();
+    if (!session?.user?._id) return { success: false, error: 'Access denied.' };
+    const guard = await requirePermission('crm_pos', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    const validIds = holdIds.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+    if (validIds.length < 2) return { success: false, error: 'Select at least two tickets to merge.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(String(session.user._id));
+        
+        const holds = await db.collection('crm_pos_holds').find({
+            _id: { $in: validIds },
+            userId: userObjectId,
+            status: 'held'
+        }).toArray() as PosHoldDoc[];
+
+        if (holds.length < 2) {
+            return { success: false, error: 'Some tickets could not be merged or are no longer held.' };
+        }
+
+        const mergedItems: PosLineItem[] = [];
+        let totalSubtotal = 0;
+        let customerName = holds[0].customerName;
+
+        for (const hold of holds) {
+            mergedItems.push(...hold.lineItems);
+            totalSubtotal += hold.subtotal;
+        }
+
+        const now = new Date();
+        const insertResult = await db.collection('crm_pos_holds').insertOne({
+            userId: userObjectId,
+            sessionId: new ObjectId(holds[0].sessionId),
+            customerId: null,
+            customerName: customerName ? `${customerName} (Merged)` : 'Merged Ticket',
+            lineItems: mergedItems,
+            subtotal: totalSubtotal,
+            holdReason: 'Merged from multiple tickets',
+            heldBy: String(session.user._id),
+            heldByName: session.user.name ?? null,
+            heldAt: now,
+            status: 'held',
+            createdAt: now,
+            updatedAt: now,
+        });
+
+        await db.collection('crm_pos_holds').updateMany(
+            { _id: { $in: validIds } },
+            { $set: { status: 'discarded', updatedAt: now } }
+        );
+
+        revalidatePath('/dashboard/crm/pos');
+        revalidatePath('/dashboard/crm/pos/hold-recall');
+        return { success: true, id: insertResult.insertedId.toString() };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
 /* ─── KPI summary (used by the POS home/overview page) ───────────────── */
 
 export interface PosOverviewKpis {
@@ -1512,10 +1665,9 @@ export async function getPosOverviewKpis(): Promise<PosOverviewKpis> {
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(String(session.user._id));
-        const start = new Date();
-        start.setHours(0, 0, 0, 0);
-        const end = new Date();
-        end.setHours(23, 59, 59, 999);
+        const now = new Date();
+        const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
+        const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
 
         const [openSessions, todaysTxns, heldTickets] = await Promise.all([
             db

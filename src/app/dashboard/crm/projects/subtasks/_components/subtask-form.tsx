@@ -24,12 +24,8 @@ import { ArrowLeft,
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
-import { saveSubtask } from '@/app/actions/crm-subtasks.actions';
-import type {
-    CrmSubtaskDoc,
-    CrmSubtaskParentKind,
-    CrmSubtaskStatus,
-} from '@/lib/rust-client/crm-subtasks';
+import { saveWsSubTask } from '@/app/actions/worksuite/projects.actions';
+import type { WsSubTask } from '@/lib/worksuite/project-types';
 
 const BASE = '/dashboard/crm/projects/subtasks';
 
@@ -55,7 +51,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 }
 
 export interface SubtaskFormProps {
-    initialData?: CrmSubtaskDoc | null;
+    initialData?: WsSubTask & { _id?: string } | null;
 }
 
 export function SubtaskForm({ initialData }: SubtaskFormProps) {
@@ -63,13 +59,11 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
     const { toast } = useZoruToast();
     const isEditing = !!initialData?._id;
 
-    const [state, formAction] = useActionState(saveSubtask, {});
+    const [state, formAction] = useActionState(saveWsSubTask, {} as any);
 
-    const [parentKind, setParentKind] = useState<CrmSubtaskParentKind>(
-        initialData?.parentKind ?? 'task',
-    );
-    const [status, setStatus] = useState<CrmSubtaskStatus>(
-        initialData?.status ?? 'todo',
+    
+    const [status, setStatus] = useState<string>(
+        initialData?.status ?? 'incomplete',
     );
 
     useEffect(() => {
@@ -94,13 +88,12 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
                 {isEditing ? (
                     <input
                         type="hidden"
-                        name="subtaskId"
+                        name="_id"
                         value={initialData!._id}
                     />
                 ) : null}
                 <input type="hidden" name="status" value={status} />
-                <input type="hidden" name="parentKind" value={parentKind} />
-
+                
                 {/* Title */}
                 <div className="space-y-1.5">
                     <Label htmlFor="title">Title *</Label>
@@ -115,27 +108,24 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
 
                 {/* Parent kind + parent picker */}
                 <div className="grid gap-4 sm:grid-cols-2">
+                    
                     <div className="space-y-1.5">
-                        <Label>Parent kind *</Label>
-                        <EnumFormField
-                            enumName="subtaskParentKindRust"
-                            name="parentKindPicker"
-                            initialId={parentKind}
-                            allowInlineCreate={false}
-                            placeholder="Pick parent kind"
-                            onChange={(next) =>
-                                setParentKind(
-                                    (next ?? 'task') as CrmSubtaskParentKind,
-                                )
-                            }
+                        <Label>Project</Label>
+                        <EntityFormField
+                            entity="project"
+                            name="projectId"
+                            dualWriteName="projectName"
+                            initialId={initialData?.projectId ? String(initialData.projectId) : undefined}
+                            placeholder="Pick a project"
                         />
                     </div>
                     <div className="space-y-1.5">
                         <Label>Parent task *</Label>
                         <EntityFormField
                             entity="task"
-                            name="parentId"
-                            initialId={initialData?.parentId}
+                            name="taskId"
+                            initialId={initialData?.taskId ? String(initialData.taskId) : undefined}
+                            allowCreate
                             placeholder="Pick a parent task"
                             required
                         />
@@ -148,8 +138,9 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
                         <Label>Assignee</Label>
                         <EntityFormField
                             entity="employee"
-                            name="assigneeId"
-                            initialId={initialData?.assigneeId}
+                            name="assignedTo"
+                            initialId={initialData?.assignedTo ? String(initialData.assignedTo) : undefined}
+                            dualWriteName="assignedToName"
                             placeholder="Pick an assignee"
                         />
                     </div>
@@ -163,36 +154,45 @@ export function SubtaskForm({ initialData }: SubtaskFormProps) {
                         />
                     </div>
                 </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                        <Label>Dependency</Label>
+                        <EntityFormField
+                            entity="subtask"
+                            name="dependencyId"
+                            initialId={initialData?.dependencyId ? String(initialData.dependencyId) : undefined}
+                            placeholder="Pick predecessor subtask"
+                        />
+                    </div>
+                </div>
 
                 {/* Order + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <Label htmlFor="order">Order</Label>
+                        <Label htmlFor="startDate">Start date</Label>
                         <Input
-                            id="order"
-                            name="order"
-                            type="number"
-                            min={0}
-                            step={1}
-                            placeholder="0"
-                            defaultValue={
-                                initialData?.order != null
-                                    ? String(initialData.order)
-                                    : ''
-                            }
+                            id="startDate"
+                            name="startDate"
+                            type="date"
+                            defaultValue={toDateInput(initialData?.startDate)}
                         />
                     </div>
                     <div className="space-y-1.5">
                         <Label>Status</Label>
-                        <EnumFormField
-                            enumName="subtaskStatus"
-                            name="statusPicker"
-                            initialId={status}
-                            placeholder="Status"
-                            onChange={(next) =>
-                                setStatus((next ?? 'todo') as CrmSubtaskStatus)
-                            }
-                        />
+                        
+                        <select
+                            name="status"
+                            id="status"
+                            className="flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                        >
+                            <option value="incomplete">Incomplete</option>
+                            <option value="todo">To Do</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="review">Review</option>
+                            <option value="completed">Completed</option>
+                        </select>
                     </div>
                 </div>
 

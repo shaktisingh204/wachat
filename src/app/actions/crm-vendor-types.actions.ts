@@ -165,6 +165,7 @@ export async function saveCrmVendorTypeRow(
 
     const code = asString(formData.get('code'));
     const description = asString(formData.get('description'));
+    const parentId = asString(formData.get('parentId')) || null;
     const isActive = asBool(formData.get('isActive')) ?? true;
     const status = (asString(formData.get('status')) as CrmVendorTypeStatus | undefined)
         ?? (isActive ? 'active' : 'archived');
@@ -212,6 +213,7 @@ export async function saveCrmVendorTypeRow(
             name,
             ...(code ? { code } : { code: '' }),
             ...(description ? { description } : { description: '' }),
+            parentId,
             isActive,
             status,
             updatedAt: now,
@@ -327,5 +329,25 @@ export async function getCrmVendorTypeRowById(
     } catch (e) {
         console.error('Failed to fetch vendor type:', e);
         return null;
+    }
+}
+
+export async function updateVendorTypeOrder(orders: { id: string; parentId: string | null; sortOrder: number }[]) {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        for (const item of orders) {
+            await db.collection('crm_vendor_types').updateOne(
+                { _id: new ObjectId(item.id), userId: new ObjectId(session.user._id as string) },
+                { $set: { parentId: item.parentId, sortOrder: item.sortOrder } }
+            );
+        }
+        revalidateSurfaces();
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }

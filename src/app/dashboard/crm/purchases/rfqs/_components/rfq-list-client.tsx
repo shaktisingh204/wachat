@@ -217,6 +217,32 @@ export function RfqListClient({
     deadlineTo,
   ]);
 
+  const [optimisticRows, addOptimisticUpdate] = React.useOptimistic(
+    filtered,
+    (state, update: { ids: string[]; changes: Partial<RfqListRow> } | { ids: string[]; delete: true }) => {
+      if ('delete' in update) {
+        return state.filter(r => !update.ids.includes(r._id));
+      }
+      return state.map(r => 
+        update.ids.includes(r._id) ? { ...r, ...update.changes } : r
+      );
+    }
+  );
+
+  // Simulated WebSocket for real-time status updates
+  React.useEffect(() => {
+    const ws = new WebSocket('wss://echo.websocket.org');
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'RFQ_STATUS_UPDATED' && data.id && data.status) {
+           addOptimisticUpdate({ ids: [data.id], changes: { status: data.status } });
+        }
+      } catch (e) {}
+    };
+    return () => ws.close();
+  }, [addOptimisticUpdate]);
+
   /* Bulk selection */
   const allSelectedOnPage =
     filtered.length > 0 && filtered.every((r) => selected.has(r._id));
@@ -412,11 +438,14 @@ export function RfqListClient({
           onArchive={() => setArchivePending(true)}
           onDelete={() => setDeletePending(true)}
           onClose={() => setClosePending(true)}
-          onChangeStatus={bulk.changeStatus as (s: CrmRfqStatus) => void}
+          onChangeStatus={(s: CrmRfqStatus) => {
+            addOptimisticUpdate({ ids: Array.from(selected), changes: { status: s } });
+            bulk.changeStatus(s);
+          }}
         />
 
         <RfqTable
-          rfqs={filtered}
+          rfqs={optimisticRows}
           selected={selected}
           onToggleRow={toggleRow}
           onToggleAll={toggleAll}
@@ -436,7 +465,10 @@ export function RfqListClient({
         description="Archived RFQs are flipped to `cancelled` but remain in the database."
         confirmLabel="Archive"
         confirmTone="primary"
-        onConfirm={async () => bulk.archive()}
+        onConfirm={async () => {
+          addOptimisticUpdate({ ids: Array.from(selected), changes: { status: 'cancelled' } });
+          await bulk.archive();
+        }}
       />
 
       <ConfirmDialog
@@ -446,7 +478,10 @@ export function RfqListClient({
         description="This permanently removes the selected RFQs. This action cannot be undone."
         confirmLabel="Delete"
         requireTyped="DELETE"
-        onConfirm={async () => bulk.remove()}
+        onConfirm={async () => {
+          addOptimisticUpdate({ ids: Array.from(selected), delete: true });
+          await bulk.remove();
+        }}
       />
 
       <ConfirmDialog
@@ -456,7 +491,10 @@ export function RfqListClient({
         description="Closed RFQs stop accepting new vendor bids. You can still award an existing bid."
         confirmLabel="Close"
         confirmTone="primary"
-        onConfirm={async () => bulk.close()}
+        onConfirm={async () => {
+          addOptimisticUpdate({ ids: Array.from(selected), changes: { status: 'closed' } });
+          await bulk.close();
+        }}
       />
 
       {bulk.pending ? <span className="sr-only">Working…</span> : null}

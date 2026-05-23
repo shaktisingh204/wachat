@@ -39,6 +39,8 @@ import {
     ZoruTableRow,
 } from '@/components/zoruui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { syncWithGstPortal, reconcileGstr2bVsLocal } from '@/app/actions/crm-india-gst.actions';
+import { useZoruToast } from '@/components/zoruui';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import {
     downloadCsv,
@@ -86,6 +88,7 @@ export interface Gstr2bClientProps {
 }
 
 export function Gstr2bClient({
+
     month,
     year,
     vendorChart,
@@ -97,6 +100,34 @@ export function Gstr2bClient({
     gstr2bJson,
     gstr2bJsonFilename,
 }: Gstr2bClientProps) {
+    const { toast } = useZoruToast();
+    const [isSyncing, setIsSyncing] = React.useState(false);
+    const [isReconciling, setIsReconciling] = React.useState(false);
+
+    const handleSync = async () => {
+        setIsSyncing(true);
+        try {
+            const res = await syncWithGstPortal({ month, year }, 'GSTR2B');
+            toast({ description: res.message });
+        } catch (e) {
+            toast({ variant: 'destructive', description: 'Failed to sync with GST portal.' });
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
+    const handleReconcile = async () => {
+        setIsReconciling(true);
+        try {
+            const res = await reconcileGstr2bVsLocal({ month, year });
+            toast({ description: `Reconciliation complete: ${res.totalMatched} matched, ${res.discrepancies} discrepancies.` });
+        } catch (e) {
+            toast({ variant: 'destructive', description: 'Failed to run reconciliation.' });
+        } finally {
+            setIsReconciling(false);
+        }
+    };
+
     const exportHeaders = [
         'Order No.',
         'Date',
@@ -155,7 +186,13 @@ export function Gstr2bClient({
 
     return (
         <>
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+                <Button variant="outline" size="sm" onClick={handleReconcile} disabled={isReconciling}>
+                    {isReconciling ? 'Running...' : 'Reconcile'}
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleSync} disabled={isSyncing}>
+                    {isSyncing ? 'Syncing...' : 'Sync Portal'}
+                </Button>
                 <DropdownMenu>
                     <ZoruDropdownMenuTrigger asChild>
                         <Button variant="outline" size="sm">

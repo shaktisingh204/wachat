@@ -56,10 +56,13 @@ export default async function BomDetailPage({ params }: PageProps) {
       ? bom.finishedGoodId.toString?.()
       : bom.finishedGoodId;
 
-  const [versions, productionOrders] = await withTimeout(Promise.all([
-    getBomVersionsForFinishedGood(finishedGoodId, id),
-    getProductionOrdersForBom(id),
-  ]);
+  const [versions, productionOrders] = await withTimeout(
+    Promise.all([
+      getBomVersionsForFinishedGood(finishedGoodId, id),
+      getProductionOrdersForBom(id),
+    ]),
+    10000
+  );
 
   const materialCost = components.reduce((sum: number, c: CrmBomComponent) => {
     const qty = Number.isFinite(c.qty) ? c.qty : 0;

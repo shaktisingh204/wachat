@@ -43,6 +43,7 @@ import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 import {
     discardPosHold,
     bulkDiscardPosHolds,
+    mergePosHolds,
     type PosHoldDoc,
 } from '@/app/actions/crm-pos.actions';
 
@@ -94,6 +95,7 @@ export function PosHoldRecallClient({ holds }: Props) {
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
     const [voiding, startVoid] = React.useTransition();
     const [bulkVoiding, startBulkVoid] = React.useTransition();
+    const [merging, startMerge] = React.useTransition();
 
     /* ─── Derived options ────────────────────────────────────── */
     const cashierOptions = React.useMemo(() => {
@@ -208,6 +210,27 @@ export function PosHoldRecallClient({ holds }: Props) {
             } else {
                 toast({
                     title: 'Bulk void failed',
+                    description: res.error,
+                    variant: 'destructive',
+                });
+            }
+        });
+    };
+
+    const mergeBulk = () => {
+        const ids = Array.from(selected);
+        if (ids.length < 2) {
+            toast({ title: 'Select at least 2 tickets to merge', variant: 'destructive' });
+            return;
+        }
+        startMerge(async () => {
+            const res = await mergePosHolds(ids);
+            if (res.success) {
+                toast({ title: `Tickets merged successfully` });
+                setSelected(new Set());
+            } else {
+                toast({
+                    title: 'Merge failed',
                     description: res.error,
                     variant: 'destructive',
                 });
@@ -348,6 +371,14 @@ export function PosHoldRecallClient({ holds }: Props) {
                     <div className="flex items-center gap-1">
                         <Button size="sm" variant="outline" onClick={exportCsv}>
                             <Download className="h-3.5 w-3.5" /> Export CSV
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={mergeBulk}
+                            disabled={merging || selected.size < 2}
+                        >
+                            Merge
                         </Button>
                         <Button
                             size="sm"

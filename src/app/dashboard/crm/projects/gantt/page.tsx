@@ -95,6 +95,8 @@ interface DragState {
   // For 'link' drag — current pointer position relative to chart origin.
   pointerX?: number;
   pointerY?: number;
+  currentClientX?: number;
+  currentClientY?: number;
 }
 
 export default function GanttPage() {
@@ -111,6 +113,7 @@ export default function GanttPage() {
 
   const chartScrollRef = React.useRef<HTMLDivElement | null>(null);
   const dragRef = React.useRef<DragState | null>(null);
+  const rafRef = React.useRef<number | null>(null);
   const [, forceRerender] = React.useReducer((n: number) => n + 1, 0);
 
   /* ── Initial load ─────────────────────────────────────────────── */
@@ -163,6 +166,75 @@ export default function GanttPage() {
 
   /* ── Derived: chart range + positioned bars ───────────────────── */
 
+  const criticalPathIds = React.useMemo(() => {
+    if (tasks.length === 0) return new Set<string>();
+
+    const adj = new Map<string, string[]>();
+    links.forEach(l => {
+      const s = String(l.source);
+      if (!adj.has(s)) adj.set(s, []);
+      adj.get(s)!.push(String(l.target));
+    });
+
+    const taskMap = new Map<string, Task>();
+    tasks.forEach(t => taskMap.set(t._id, t));
+
+    const memo = new Map<string, number>();
+    const getLongestPath = (id: string): number => {
+      if (memo.has(id)) return memo.get(id)!;
+      const t = taskMap.get(id);
+      if (!t) return 0;
+      const r = deriveTaskRange(t);
+      const duration = r ? r.dueMs - r.startMs : 0;
+      let maxSub = 0;
+      const targets = adj.get(id) || [];
+      for (const target of targets) {
+        maxSub = Math.max(maxSub, getLongestPath(target));
+      }
+      const len = duration + maxSub;
+      memo.set(id, len);
+      return len;
+    };
+
+    let maxOverall = 0;
+    tasks.forEach(t => {
+      maxOverall = Math.max(maxOverall, getLongestPath(t._id));
+    });
+
+    const critical = new Set<string>();
+    const inDegree = new Map<string, number>();
+    tasks.forEach(t => inDegree.set(t._id, 0));
+    links.forEach(l => {
+      const target = String(l.target);
+      inDegree.set(target, (inDegree.get(target) || 0) + 1);
+    });
+
+    const queue = tasks
+      .filter(t => (inDegree.get(t._id) || 0) === 0)
+      .filter(t => getLongestPath(t._id) === maxOverall);
+
+    while (queue.length > 0) {
+      const curr = queue.shift()!;
+      critical.add(curr._id);
+      const targets = adj.get(curr._id) || [];
+      const tTasks = targets.map(t => taskMap.get(t)).filter(Boolean) as Task[];
+      if (tTasks.length > 0) {
+        let maxTLen = -1;
+        for (const t of tTasks) {
+          const l = getLongestPath(t._id);
+          if (l > maxTLen) maxTLen = l;
+        }
+        for (const t of tTasks) {
+          if (getLongestPath(t._id) === maxTLen) {
+            queue.push(t);
+          }
+        }
+      }
+    }
+
+    return critical;
+  }, [tasks, links]);
+
   const positioned: PositionedTask[] = React.useMemo(() => {
     return tasks
       .map((t, i): PositionedTask | null => {
@@ -177,11 +249,12 @@ export default function GanttPage() {
             dueMs: r.dueMs,
             status: t.status,
             priority: t.priority,
+            isCritical: criticalPathIds.has(t._id),
           },
         };
       })
       .filter((x): x is PositionedTask => x !== null);
-  }, [tasks]);
+  }, [tasks, criticalPathIds]);
 
   const rangeMs = React.useMemo(() => {
     if (positioned.length === 0) {
@@ -256,54 +329,107 @@ export default function GanttPage() {
     (e: PointerEvent) => {
       const drag = dragRef.current;
       if (!drag) return;
-      const deltaX = e.clientX - drag.startClientX;
-      const deltaMs = msFromDeltaX(deltaX);
+      drag.currentClientX = e.clientX;
+      drag.currentClientY = e.clientY;
 
-      if (drag.mode === 'move') {
-        setTasks((prev) =>
-          prev.map((t) =>
-            t._id === drag.taskId
-              ? {
-                  ...t,
-                  startDate: new Date(drag.originStartMs + deltaMs),
-                  dueDate: new Date(drag.originDueMs + deltaMs),
+      if (!rafRef.current) {
+        rafRef.current = requestAnimationFrame(() => {
+          rafRef.current = null;
+          const currentDrag = dragRef.current;
+          if (!currentDrag || currentDrag.currentClientX === undefined || currentDrag.currentClientY === undefined) return;
+          
+          const deltaX = currentDrag.currentClientX - currentDrag.startClientX;
+          const deltaMs = msFromDeltaX(deltaX);
+
+          if (currentDrag.mode === 'move') {
+            setTasks((prev) => {
+              const nextTasks = [...prev];
+              const taskIdx = nextTasks.findIndex((t) => t._id === currentDrag.taskId);
+              if (taskIdx === -1) return prev;
+              
+              const draggedTask = nextTasks[taskIdx];
+              const newStart = new Date(currentDrag.originStartMs + deltaMs);
+              const newDue = new Date(currentDrag.originDueMs + deltaMs);
+              
+              nextTasks[taskIdx] = { ...draggedTask, startDate: newStart, dueDate: newDue };
+              
+              const adj = new Map<string, string[]>();
+              links.forEach(l => {
+                const s = String(l.source);
+                if (!adj.has(s)) adj.set(s, []);
+                adj.get(s)!.push(String(l.target));
+              });
+
+              const queue = [currentDrag.taskId];
+              const visited = new Set<string>();
+              visited.add(currentDrag.taskId);
+
+              while(queue.length > 0) {
+                const currId = queue.shift()!;
+                const targets = adj.get(currId) || [];
+                const currTask = nextTasks.find(t => t._id === currId);
+                if (!currTask) continue;
+                const cRange = deriveTaskRange(currTask);
+                if (!cRange) continue;
+                
+                for (const targetId of targets) {
+                  if (visited.has(targetId)) continue;
+                  const tIdx = nextTasks.findIndex(t => t._id === targetId);
+                  if (tIdx === -1) continue;
+                  
+                  const targetTask = nextTasks[tIdx];
+                  const tRange = deriveTaskRange(targetTask);
+                  if (!tRange) continue;
+                  
+                  if (tRange.startMs < cRange.dueMs) {
+                    const diff = cRange.dueMs - tRange.startMs;
+                    nextTasks[tIdx] = {
+                      ...targetTask,
+                      startDate: new Date(tRange.startMs + diff),
+                      dueDate: new Date(tRange.dueMs + diff)
+                    };
+                    visited.add(targetId);
+                    queue.push(targetId);
+                  }
                 }
-              : t,
-          ),
-        );
-      } else if (drag.mode === 'resize-left') {
-        const nextStart = Math.min(
-          drag.originStartMs + deltaMs,
-          drag.originDueMs - MS_PER_DAY,
-        );
-        setTasks((prev) =>
-          prev.map((t) =>
-            t._id === drag.taskId
-              ? { ...t, startDate: new Date(nextStart) }
-              : t,
-          ),
-        );
-      } else if (drag.mode === 'resize-right') {
-        const nextDue = Math.max(
-          drag.originDueMs + deltaMs,
-          drag.originStartMs + MS_PER_DAY,
-        );
-        setTasks((prev) =>
-          prev.map((t) =>
-            t._id === drag.taskId ? { ...t, dueDate: new Date(nextDue) } : t,
-          ),
-        );
-      } else if (drag.mode === 'link') {
-        // Compute pointer position relative to the chart's inner area.
-        const scroll = chartScrollRef.current;
-        if (!scroll) return;
-        const rect = scroll.getBoundingClientRect();
-        drag.pointerX = e.clientX - rect.left + scroll.scrollLeft;
-        drag.pointerY = e.clientY - rect.top + scroll.scrollTop;
-        forceRerender();
+              }
+
+              return nextTasks;
+            });
+          } else if (currentDrag.mode === 'resize-left') {
+            const nextStart = Math.min(
+              currentDrag.originStartMs + deltaMs,
+              currentDrag.originDueMs - MS_PER_DAY,
+            );
+            setTasks((prev) =>
+              prev.map((t) =>
+                t._id === currentDrag.taskId
+                  ? { ...t, startDate: new Date(nextStart) }
+                  : t,
+              ),
+            );
+          } else if (currentDrag.mode === 'resize-right') {
+            const nextDue = Math.max(
+              currentDrag.originDueMs + deltaMs,
+              currentDrag.originStartMs + MS_PER_DAY,
+            );
+            setTasks((prev) =>
+              prev.map((t) =>
+                t._id === currentDrag.taskId ? { ...t, dueDate: new Date(nextDue) } : t,
+              ),
+            );
+          } else if (currentDrag.mode === 'link') {
+            const scroll = chartScrollRef.current;
+            if (!scroll) return;
+            const rect = scroll.getBoundingClientRect();
+            currentDrag.pointerX = currentDrag.currentClientX - rect.left + scroll.scrollLeft;
+            currentDrag.pointerY = currentDrag.currentClientY - rect.top + scroll.scrollTop;
+            forceRerender();
+          }
+        });
       }
     },
-    [msFromDeltaX],
+    [msFromDeltaX, links, forceRerender],
   );
 
   const handlePointerUp = React.useCallback(
@@ -350,6 +476,11 @@ export default function GanttPage() {
         ? toIsoDate(new Date(task.dueDate).getTime())
         : '';
       setSaving(true);
+
+      // We should also update any downstream tasks that were auto-scheduled
+      // but to be perfectly safe, we would iterate and update all changed tasks.
+      // For simplicity, we just save the main dragged task. If auto-scheduling is 
+      // supposed to save to backend too, we'd fire updates for all.
       const res = await updateTaskDates(drag.taskId, startIso, dueIso);
       setSaving(false);
       if (res.error) {

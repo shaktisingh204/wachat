@@ -22,6 +22,8 @@ import {
   RagBarChart,
   VelocityLineChart,
 } from '../_components/tp-report-charts';
+import { GanttChartPreview } from '../_components/gantt-chart-preview';
+import { ResourceUtilizationOverlay } from '../_components/resource-utilization-overlay';
 import {
   getProjectStatusDeep,
   getTpReportProjects,
@@ -138,7 +140,7 @@ export default async function ProjectStatusReportPage(props: PageProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
         <Card className="p-6">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[16px] font-semibold text-foreground">
@@ -162,6 +164,12 @@ export default async function ProjectStatusReportPage(props: PageProps) {
           </div>
           <VelocityLineChart data={velocity} />
         </Card>
+        
+        <ResourceUtilizationOverlay rows={rows} />
+      </div>
+
+      <div className="mb-4">
+        <GanttChartPreview rows={rows} />
       </div>
 
       <Card className="p-0">

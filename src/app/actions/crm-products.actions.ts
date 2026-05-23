@@ -120,16 +120,24 @@ export async function getCrmProducts(
     page: number = 1,
     limit: number = 20,
     query?: string,
+    filters?: { stock?: string; category?: string; itemType?: string }
 ): Promise<{ products: WithId<CrmProduct>[]; total: number }> {
     const session = await getSession();
     if (!session?.user) return { products: [], total: 0 };
 
     if (useRustCrm()) {
         try {
+            const rustFilters: Record<string, unknown> = {};
+            if (filters?.stock === 'in_stock') rustFilters.inStock = true;
+            else if (filters?.stock === 'out_of_stock') rustFilters.outOfStock = true;
+            if (filters?.category) rustFilters.categoryId = filters.category;
+            if (filters?.itemType && filters.itemType !== 'all') rustFilters.itemType = filters.itemType;
+
             const result = await itemApi.list({
                 q: query,
                 page: Math.max(0, page - 1),
                 limit,
+                filter: Object.keys(rustFilters).length > 0 ? rustFilters : undefined,
             });
             return {
                 products: result.items.map(rustDocToLegacy),
@@ -152,6 +160,21 @@ export async function getCrmProducts(
                 { name: { $regex: query, $options: 'i' } },
                 { sku: { $regex: query, $options: 'i' } },
             ];
+        }
+
+        if (filters?.stock === 'in_stock') {
+            filter.$or = filter.$or ? [ { $and: [ ...filter.$or ] }, { $or: [{ isTrackInventory: false }, { totalStock: { $gt: 0 } }] } ] : [{ isTrackInventory: false }, { totalStock: { $gt: 0 } }];
+        } else if (filters?.stock === 'out_of_stock') {
+            filter.isTrackInventory = true;
+            filter.$or = filter.$or ? [ { $and: [ ...filter.$or ] }, { $or: [{ totalStock: { $lte: 0 } }, { totalStock: null }] } ] : [{ totalStock: { $lte: 0 } }, { totalStock: null }];
+        }
+
+        if (filters?.category) {
+            filter.categoryId = new ObjectId(filters.category);
+        }
+
+        if (filters?.itemType && filters.itemType !== 'all') {
+            filter.itemType = filters.itemType;
         }
 
         const skip = (page - 1) * limit;
@@ -216,6 +239,10 @@ export async function saveCrmProduct(
     const itemTypeRaw = formData.get('itemType') as string | null;
     const itemType = itemTypeRaw === 'service' ? 'service' : 'goods';
     const batchTracking = formData.get('batchTracking') === 'on';
+
+    const supplierName = (formData.get('supplierName') as string) || undefined;
+    const supplierContact = (formData.get('supplierContact') as string) || undefined;
+    const supplierLeadTime = parseInt(formData.get('supplierLeadTime') as string, 10) || undefined;
 
     const categoryIdRaw = formData.get('categoryId') as string | null;
     const brandIdRaw = formData.get('brandId') as string | null;
@@ -329,7 +356,7 @@ export async function saveCrmProduct(
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
 
-        const productData: Partial<CrmProduct> = {
+        const productData: Partial<CrmProduct> & Record<string, unknown> = {
             userId: userObjectId,
             name,
             sku,
@@ -345,6 +372,9 @@ export async function saveCrmProduct(
             dimensions: { length, breadth, height, volume },
             weight: { gross: grossWeight, net: netWeight },
             batchTracking,
+            supplierName,
+            supplierContact,
+            supplierLeadTime,
         };
 
         if (categoryId) productData.categoryId = new ObjectId(categoryId);

@@ -27,12 +27,12 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  useZoruToast,
+  Checkbox, useZoruToast,
 } from '@/components/zoruui';
 import {
   useDebouncedCallback } from 'use-debounce';
-import {
-  AlertTriangle,
+import { X, 
+AlertTriangle,
   CheckCircle2,
   Edit,
   ListChecks,
@@ -64,8 +64,10 @@ import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
   getWsSubTasks,
-  saveWsSubTask,
   deleteWsSubTask,
+  bulkCompleteWsSubTasks,
+  bulkDeleteWsSubTasks,
+  bulkAssignWsSubTasks,
 } from '@/app/actions/worksuite/projects.actions';
 import type { WsSubTask } from '@/lib/worksuite/project-types';
 
@@ -105,8 +107,10 @@ export default function SubTasksPage() {
   const [statusFilter, setStatusFilter] = React.useState<string>('all');
   const [parentTaskFilter, setParentTaskFilter] = React.useState<string>('');
   const [createOpen, setCreateOpen] = React.useState(false);
-  const [editTarget, setEditTarget] = React.useState<Row | null>(null);
   const [deleteTargetId, setDeleteTargetId] = React.useState<string | null>(null);
+  const [selection, setSelection] = React.useState<Set<string>>(new Set());
+  const [bulkPending, startBulkTransition] = React.useTransition();
+  const [confirmBulk, setConfirmBulk] = React.useState<'complete' | 'delete' | 'assign' | null>(null);
 
   const refresh = React.useCallback(() => {
     startLoading(async () => {
@@ -177,6 +181,70 @@ export default function SubTasksPage() {
     setDeleteTargetId(null);
   }, [deleteTargetId, refresh, toast]);
 
+  
+  /* ── Selection helpers ───────────────────────────────────────── */
+  const handleToggle = React.useCallback((id: string) => {
+    setSelection((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleToggleAll = React.useCallback((checked: boolean) => {
+    setSelection(checked ? new Set(filtered.map((r) => r._id)) : new Set());
+  }, [filtered]);
+
+  /* ── Bulk complete ───────────────────────────────────────────── */
+  const handleBulkComplete = React.useCallback(() => {
+    const ids = Array.from(selection);
+    startBulkTransition(async () => {
+      const res = await bulkCompleteWsSubTasks(ids);
+      if (res.updated > 0 || res.failed === 0) {
+        toast({ title: `Completed ${res.updated} subtask${res.updated === 1 ? '' : 's'}` });
+        setSelection(new Set());
+        setConfirmBulk(null);
+        refresh();
+      } else {
+        toast({ title: 'Bulk complete failed', description: res.error, variant: 'destructive' });
+      }
+    });
+  }, [selection, refresh, toast]);
+
+  /* ── Bulk delete ─────────────────────────────────────────────── */
+  const handleBulkDelete = React.useCallback(() => {
+    const ids = Array.from(selection);
+    startBulkTransition(async () => {
+      const res = await bulkDeleteWsSubTasks(ids);
+      if (res.deleted > 0 || res.failed === 0) {
+        toast({ title: `Deleted ${res.deleted} subtask${res.deleted === 1 ? '' : 's'}` });
+        setSelection(new Set());
+        setConfirmBulk(null);
+        refresh();
+      } else {
+        toast({ title: 'Bulk delete failed', description: res.error, variant: 'destructive' });
+      }
+    });
+  }, [selection, refresh, toast]);
+
+  const [bulkAssignState, bulkAssignAction] = useActionState(async (_prev: any, formData: FormData) => {
+    const assignedTo = formData.get('assignedTo') as string;
+    const assignedToName = formData.get('assignedToName') as string;
+    if (!assignedTo) return { error: 'Please select an assignee.' };
+    
+    const ids = Array.from(selection);
+    const res = await bulkAssignWsSubTasks(ids, assignedTo, assignedToName);
+    if (res.updated > 0 || res.failed === 0) {
+      toast({ title: `Assigned ${res.updated} subtask${res.updated === 1 ? '' : 's'}` });
+      setSelection(new Set());
+      setConfirmBulk(null);
+      refresh();
+      return { success: true };
+    }
+    return { error: res.error };
+  }, null);
+
   return (
     <>
       <EntityListShell
@@ -188,9 +256,31 @@ export default function SubTasksPage() {
           placeholder: 'Search title, description, assignee…',
         }}
         primaryAction={
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4" /> New subtask
+          <Button asChild>
+            <Link href="/dashboard/crm/projects/subtasks/new">
+              <Plus className="h-4 w-4" /> New subtask
+            </Link>
           </Button>
+        }
+
+        bulkBar={
+          selection.size > 0 ? (
+            <div className="flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-[13px]">
+              <span className="font-medium text-zoru-ink">{selection.size} selected</span>
+              <Button variant="outline" size="sm" onClick={() => setConfirmBulk('complete')} disabled={bulkPending}>
+                <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Complete
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setConfirmBulk('assign')} disabled={bulkPending}>
+                <Edit className="mr-1 h-3.5 w-3.5" /> Assign
+              </Button>
+              <Button variant="outline" size="sm" className="text-zoru-danger" onClick={() => setConfirmBulk('delete')} disabled={bulkPending}>
+                <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setSelection(new Set())}>
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ) : null
         }
         filters={
           <>
@@ -236,9 +326,11 @@ export default function SubTasksPage() {
                 Break a task down into smaller actionable items so the team can
                 pick them up independently.
               </p>
-              <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="h-4 w-4" /> New subtask
-              </Button>
+              <Button asChild>
+            <Link href="/dashboard/crm/projects/subtasks/new">
+              <Plus className="h-4 w-4" /> New subtask
+            </Link>
+          </Button>
             </div>
           ) : null
         }
@@ -283,8 +375,22 @@ export default function SubTasksPage() {
               <Table>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableHead className="w-10">
+                      {(() => {
+                        const allCk = filtered.length > 0 && filtered.every((r) => selection.has(r._id));
+                        const someCk = !allCk && filtered.some((r) => selection.has(r._id));
+                        return (
+                          <Checkbox
+                            checked={allCk || (someCk ? 'indeterminate' : false)}
+                            onCheckedChange={(v) => handleToggleAll(!!v)}
+                            aria-label="Select all"
+                          />
+                        );
+                      })()}
+                    </ZoruTableHead>
                     <ZoruTableHead>Title</ZoruTableHead>
                     <ZoruTableHead>Parent task</ZoruTableHead>
+                    <ZoruTableHead>Dependency</ZoruTableHead>
                     <ZoruTableHead>Assignee</ZoruTableHead>
                     <ZoruTableHead>Due</ZoruTableHead>
                     <ZoruTableHead>Status</ZoruTableHead>
@@ -304,6 +410,13 @@ export default function SubTasksPage() {
                         ].join(' ')}
                       >
                         <ZoruTableCell>
+                          <Checkbox
+                            checked={selection.has(r._id)}
+                            onCheckedChange={() => handleToggle(r._id)}
+                            aria-label={`Select ${r.title ?? 'subtask'}`}
+                          />
+                        </ZoruTableCell>
+                        <ZoruTableCell>
                           <EntityRowLink
                             href={`/dashboard/crm/projects/subtasks/${r._id}`}
                             label={r.title || 'Untitled'}
@@ -315,6 +428,13 @@ export default function SubTasksPage() {
                             <span className="font-mono text-[11.5px] text-zoru-ink-muted">
                               {String(r.taskId).slice(-8)}
                             </span>
+                          ) : (
+                            '—'
+                          )}
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-[12.5px]">
+                          {r.dependencyId ? (
+                            <EntityPickerChip entity="subtask" id={String(r.dependencyId)} fallback="View Subtask" />
                           ) : (
                             '—'
                           )}
@@ -358,8 +478,11 @@ export default function SubTasksPage() {
                               </button>
                             </ZoruDropdownMenuTrigger>
                             <ZoruDropdownMenuContent align="end">
-                              <ZoruDropdownMenuItem onClick={() => setEditTarget(r)}>
+                              <ZoruDropdownMenuItem asChild>
+                                <Link href={`/dashboard/crm/projects/subtasks/${r._id}/edit`}>
+
                                 <Eye className="mr-1.5 h-3.5 w-3.5" /> View / Edit
+                              </Link>
                               </ZoruDropdownMenuItem>
                               <ZoruDropdownMenuItem asChild>
                                 <Link
@@ -387,23 +510,6 @@ export default function SubTasksPage() {
         </div>
       </EntityListShell>
 
-      {/* Create / Edit dialog */}
-      <SubTaskDialog
-        open={createOpen || !!editTarget}
-        initial={editTarget ?? undefined}
-        onOpenChange={(o) => {
-          if (!o) {
-            setCreateOpen(false);
-            setEditTarget(null);
-          }
-        }}
-        onSaved={() => {
-          setCreateOpen(false);
-          setEditTarget(null);
-          refresh();
-        }}
-      />
-
       <ConfirmDialog
         open={!!deleteTargetId}
         onOpenChange={(o) => !o && setDeleteTargetId(null)}
@@ -413,173 +519,54 @@ export default function SubTasksPage() {
         confirmLabel="Delete"
         onConfirm={handleConfirmDelete}
       />
+    
+      {/* Bulk complete confirm */}
+      <ConfirmDialog
+        open={confirmBulk === 'complete'}
+        onOpenChange={(o) => !o && setConfirmBulk(null)}
+        title={`Mark ${selection.size} subtask${selection.size === 1 ? '' : 's'} complete?`}
+        description="The selected subtasks will be marked as complete."
+        confirmLabel="Mark complete"
+        onConfirm={handleBulkComplete}
+      />
+
+      {/* Bulk delete confirm */}
+      <ConfirmDialog
+        open={confirmBulk === 'delete'}
+        onOpenChange={(o) => !o && setConfirmBulk(null)}
+        title={`Delete ${selection.size} subtask${selection.size === 1 ? '' : 's'}?`}
+        description="This permanently removes the selected subtasks. This action cannot be undone."
+        requireTyped="DELETE"
+        confirmLabel="Delete"
+        onConfirm={handleBulkDelete}
+      />
+
+      {/* Bulk assign dialog */}
+      <Dialog open={confirmBulk === 'assign'} onOpenChange={(o) => !o && setConfirmBulk(null)}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Assign ${selection.size} subtask${selection.size === 1 ? '' : 's'}</ZoruDialogTitle>
+          </ZoruDialogHeader>
+          <form action={bulkAssignAction} className="space-y-4 pt-4">
+            <div>
+              <Label>Assignee</Label>
+              <EntityFormField
+                entity="employee"
+                name="assignedTo"
+                dualWriteName="assignedToName"
+                placeholder="Pick an assignee"
+              />
+            </div>
+            {bulkAssignState?.error && <p className="text-sm text-zoru-danger-ink">{bulkAssignState.error}</p>}
+            <ZoruDialogFooter>
+              <Button type="button" variant="outline" onClick={() => setConfirmBulk(null)}>Cancel</Button>
+              <Button type="submit">Assign</Button>
+            </ZoruDialogFooter>
+          </form>
+        </ZoruDialogContent>
+      </Dialog>
     </>
   );
 }
 
-/* ───── Create / Edit dialog ───── */
-interface SubTaskDialogProps {
-  open: boolean;
-  initial?: Row;
-  onOpenChange: (o: boolean) => void;
-  onSaved: () => void;
-}
 
-function SubTaskDialog({ open, initial, onOpenChange, onSaved }: SubTaskDialogProps) {
-  const { toast } = useZoruToast();
-  const [state, action] = useActionState(
-    async (
-      _prev: { message?: string; error?: string; id?: string } | null,
-      formData: FormData,
-    ) => {
-      const res = await saveWsSubTask(_prev, formData);
-      if (res.error) {
-        toast({
-          title: 'Save failed',
-          description: res.error,
-          variant: 'destructive',
-        });
-        return res;
-      }
-      toast({ title: initial?._id ? 'Subtask updated' : 'Subtask created' });
-      onSaved();
-      return res;
-    },
-    null,
-  );
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-lg">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>
-            {initial?._id ? 'Edit subtask' : 'New subtask'}
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
-            Subtasks live under a parent task — pick the parent and assign the work.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
-        <form action={action} className="space-y-3">
-          {initial?._id ? (
-            <input type="hidden" name="_id" defaultValue={initial._id} />
-          ) : null}
-          <div>
-            <Label htmlFor="title">
-              Title <span className="text-zoru-danger-ink">*</span>
-            </Label>
-            <Input
-              id="title"
-              name="title"
-              defaultValue={initial?.title ?? ''}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="taskId">
-              Parent task <span className="text-zoru-danger-ink">*</span>
-            </Label>
-            <EntityFormField
-              entity="task"
-              name="taskId"
-              initialId={initial?.taskId ? String(initial.taskId) : undefined}
-              placeholder="Select a parent task"
-              allowCreate
-              required
-            />
-          </div>
-          <div>
-            <Label>Project</Label>
-            <EntityFormField
-              entity="project"
-              name="projectId"
-              dualWriteName="projectName"
-              initialId={initial?.projectId ? String(initial.projectId) : undefined}
-              placeholder="Pick a project"
-            />
-          </div>
-          <div>
-            <Label>Assignee</Label>
-            <EntityFormField
-              entity="employee"
-              name="assignedTo"
-              dualWriteName="assignedToName"
-              initialId={initial?.assignedTo ? String(initial.assignedTo) : undefined}
-              placeholder="Pick an assignee"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="startDate">Start</Label>
-              <Input
-                id="startDate"
-                name="startDate"
-                type="date"
-                defaultValue={
-                  initial?.startDate
-                    ? new Date(initial.startDate as string | Date)
-                        .toISOString()
-                        .slice(0, 10)
-                    : ''
-                }
-              />
-            </div>
-            <div>
-              <Label htmlFor="dueDate">Due</Label>
-              <Input
-                id="dueDate"
-                name="dueDate"
-                type="date"
-                defaultValue={
-                  initial?.dueDate
-                    ? new Date(initial.dueDate as string | Date)
-                        .toISOString()
-                        .slice(0, 10)
-                    : ''
-                }
-              />
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="status">Status</Label>
-            <Select name="status" defaultValue={initial?.status ?? 'incomplete'}>
-              <ZoruSelectTrigger id="status">
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {STATUS_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              name="description"
-              defaultValue={initial?.description ?? ''}
-              rows={3}
-            />
-          </div>
-          {state?.error ? (
-            <p className="text-sm text-zoru-danger-ink">{state.error}</p>
-          ) : null}
-          <ZoruDialogFooter className="gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit">
-              {initial?._id ? 'Save changes' : 'Create subtask'}
-            </Button>
-          </ZoruDialogFooter>
-        </form>
-      </ZoruDialogContent>
-    </Dialog>
-  );
-}

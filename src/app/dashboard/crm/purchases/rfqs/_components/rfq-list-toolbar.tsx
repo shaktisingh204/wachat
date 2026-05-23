@@ -202,20 +202,50 @@ export function RfqListToolbar({
         />
       </div>
 
-      <div className="flex items-center gap-1.5">
-        <Select value={preset} onValueChange={(v) => onPresetChange(v as PresetKey)}>
-          <ZoruSelectTrigger className="h-9 w-[200px]" aria-label="Saved view">
-            <ZoruSelectValue placeholder="Saved view" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            {PRESET_OPTIONS.map((p) => (
-              <ZoruSelectItem key={p.key} value={p.key}>
-                {p.label}
-              </ZoruSelectItem>
-            ))}
-          </ZoruSelectContent>
-        </Select>
+      <div className="flex w-full items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:pb-0">
+        <Button
+          variant={preset === 'all' ? 'default' : 'outline'}
+          size="sm"
+          className="rounded-full px-3 text-xs"
+          onClick={() => onPresetChange('all')}
+        >
+          All
+        </Button>
+        <Button
+          variant={preset === 'my-drafts' ? 'default' : 'outline'}
+          size="sm"
+          className="rounded-full px-3 text-xs"
+          onClick={() => onPresetChange('my-drafts')}
+        >
+          My Drafts
+        </Button>
+        <Button
+          variant={preset === 'all-open' ? 'default' : 'outline'}
+          size="sm"
+          className="rounded-full px-3 text-xs"
+          onClick={() => onPresetChange('all-open')}
+        >
+          Open
+        </Button>
+        <Button
+          variant={preset === 'closing-week' ? 'default' : 'outline'}
+          size="sm"
+          className="rounded-full px-3 text-xs"
+          onClick={() => onPresetChange('closing-week')}
+        >
+          Closing Soon
+        </Button>
+        <Button
+          variant={preset === 'awarded-30d' ? 'default' : 'outline'}
+          size="sm"
+          className="rounded-full px-3 text-xs"
+          onClick={() => onPresetChange('awarded-30d')}
+        >
+          Awarded
+        </Button>
+      </div>
 
+      <div className="flex items-center gap-1.5 ml-auto">
         <Select value={density} onValueChange={(v) => onDensityChange(v as Density)}>
           <ZoruSelectTrigger className="h-9 w-[140px]" aria-label="Row density">
             <ZoruSelectValue />

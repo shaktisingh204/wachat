@@ -94,7 +94,42 @@ export default function KanbanPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [columns, setColumns] = useState<Column[]>([]);
   const [projectFilter, setProjectFilter] = useState<string>('all');
+  const [swimlaneBy, setSwimlaneBy] = useState<'none' | 'assignee' | 'project'>('none');
   const [isLoading, startLoading] = useTransition();
+
+  useEffect(() => {
+    // Real-time Kanban board updates via WebSockets
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/api/realtime/kanban`;
+    const ws = new WebSocket(wsUrl);
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'TASK_MOVED') {
+          setTasks((curr) =>
+            curr.map((t) =>
+              t._id === data.taskId
+                ? {
+                    ...t,
+                    boardColumnId: data.boardColumnId,
+                    status: data.status || t.status,
+                  }
+                : t
+            )
+          );
+        }
+      } catch (e) {
+        console.error('Failed to parse websocket message', e);
+      }
+    };
+
+    return () => {
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        ws.close();
+      }
+    };
+  }, []);
 
   const refresh = useCallback(() => {
     startLoading(async () => {
@@ -142,21 +177,25 @@ export default function KanbanPage() {
   );
 
   const moveTask = async (taskId: string, newCol: Column) => {
-    const prev = tasks;
-    setTasks((curr) =>
-      curr.map((t) =>
+    let prevTask: Task | undefined;
+    setTasks((curr) => {
+      prevTask = curr.find((t) => t._id === taskId);
+      return curr.map((t) =>
         t._id === taskId
           ? {
               ...t,
               boardColumnId: newCol._id,
               status: (newCol.slug as Task['status']) || t.status,
             }
-          : t,
-      ),
-    );
+          : t
+      );
+    });
+    
     const res = await updateWsTaskColumn(taskId, newCol._id);
     if (!res.success) {
-      setTasks(prev);
+      setTasks((curr) =>
+        curr.map((t) => (t._id === taskId && prevTask ? prevTask : t))
+      );
       toast({
         title: 'Error',
         description: res.error || 'Failed to move task.',
@@ -164,6 +203,29 @@ export default function KanbanPage() {
       });
     }
   };
+
+  const swimlanes = useMemo(() => {
+    if (swimlaneBy === 'none') {
+      return [{ id: 'all', label: null, tasks: filteredTasks }];
+    }
+    const map = new Map<string, { id: string; label: string; tasks: Task[] }>();
+    filteredTasks.forEach((t) => {
+      let key = 'unassigned';
+      let label = 'Unassigned';
+      if (swimlaneBy === 'assignee') {
+        key = t.assigneeName || 'unassigned';
+        label = t.assigneeName || 'Unassigned';
+      } else if (swimlaneBy === 'project') {
+        key = String(t.projectId) || 'unassigned';
+        label = projectNameMap.get(key) || 'No Project';
+      }
+      if (!map.has(key)) {
+        map.set(key, { id: key, label, tasks: [] });
+      }
+      map.get(key)!.tasks.push(t);
+    });
+    return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label));
+  }, [filteredTasks, swimlaneBy, projectNameMap]);
 
   if (isLoading && tasks.length === 0) {
     return (
@@ -199,6 +261,18 @@ export default function KanbanPage() {
               </ZoruSelectContent>
             </Select>
           </div>
+          <div className="w-[180px]">
+            <Select value={swimlaneBy} onValueChange={(val) => setSwimlaneBy(val as any)}>
+              <ZoruSelectTrigger className="h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                <ZoruSelectValue placeholder="Swimlanes" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="none">No Swimlanes</ZoruSelectItem>
+                <ZoruSelectItem value="assignee">By Assignee</ZoruSelectItem>
+                <ZoruSelectItem value="project">By Project</ZoruSelectItem>
+              </ZoruSelectContent>
+            </Select>
+          </div>
           <Link href="/dashboard/crm/projects/taskboard-columns">
             <Button variant="outline" size="sm">
               <Columns3 className="h-4 w-4" />
@@ -209,99 +283,114 @@ export default function KanbanPage() {
       }
     >
 
-      <div
-        className="grid gap-4"
-        style={{
-          gridTemplateColumns: `repeat(${Math.max(1, Math.min(effectiveColumns.length, 6))}, minmax(240px, 1fr))`,
-        }}
-      >
-        {effectiveColumns.map((col, idx) => {
-          const colTasks = tasksForColumn(col);
-          const prevCol = idx > 0 ? effectiveColumns[idx - 1] : null;
-          const nextCol =
-            idx < effectiveColumns.length - 1
-              ? effectiveColumns[idx + 1]
-              : null;
-          return (
-            <Card key={col._id} className="flex flex-col p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="inline-block h-2 w-2 rounded-full"
-                    style={{ backgroundColor: col.labelColor }}
-                    aria-hidden
-                  />
-                  <p className="text-[13px] font-semibold text-zoru-ink">
-                    {col.columnName}
-                  </p>
-                </div>
-                <span className="text-[11.5px] text-zoru-ink-muted">
-                  {colTasks.length}
-                </span>
-              </div>
-              <div className="flex flex-col gap-2">
-                {colTasks.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-zoru-line p-4 text-center text-[12px] text-zoru-ink-muted">
-                    No tasks
-                  </div>
-                ) : (
-                  colTasks.map((task) => (
-                    <Card key={task._id} className="p-3">
-                      <p className="text-[13px] font-medium text-zoru-ink">
-                        {task.heading}
-                      </p>
-                      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-zoru-ink-muted">
-                        {task.assigneeName ? (
-                          <span>{task.assigneeName}</span>
-                        ) : null}
-                        {task.priority ? (
-                          <Badge
-                            variant={
-                              PRIORITY_VARIANTS[task.priority] || 'ghost'
-                            }
-                          >
-                            {task.priority}
-                          </Badge>
-                        ) : null}
-                        {projectFilter === 'all' ? (
-                          <span className="truncate">
-                            {projectNameMap.get(String(task.projectId)) || ''}
-                          </span>
-                        ) : null}
+      <div className="flex flex-col gap-8 overflow-x-auto pb-4">
+        {swimlanes.map((swimlane) => (
+          <div key={swimlane.id} className="flex flex-col gap-4">
+            {swimlane.label && (
+              <h3 className="text-[14px] font-semibold text-zoru-ink border-b border-zoru-line pb-2 sticky left-0">
+                {swimlane.label}
+              </h3>
+            )}
+            <div
+              className="grid gap-4"
+              style={{
+                gridTemplateColumns: `repeat(${Math.max(1, Math.min(effectiveColumns.length, 6))}, minmax(240px, 1fr))`,
+              }}
+            >
+              {effectiveColumns.map((col, idx) => {
+                const colTasks = swimlane.tasks.filter((t) => {
+                  if (t.boardColumnId && String(t.boardColumnId) === String(col._id)) return true;
+                  if (!t.boardColumnId && col.slug && t.status === col.slug) return true;
+                  return false;
+                });
+                const prevCol = idx > 0 ? effectiveColumns[idx - 1] : null;
+                const nextCol =
+                  idx < effectiveColumns.length - 1
+                    ? effectiveColumns[idx + 1]
+                    : null;
+                return (
+                  <Card key={col._id} className="flex flex-col p-4 bg-zoru-bg border-zoru-line">
+                    <div className="mb-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="inline-block h-2 w-2 rounded-full"
+                          style={{ backgroundColor: col.labelColor }}
+                          aria-hidden
+                        />
+                        <p className="text-[13px] font-semibold text-zoru-ink">
+                          {col.columnName}
+                        </p>
                       </div>
-                      <div className="mt-2 flex items-center justify-end gap-1">
-                        {prevCol ? (
-                          <button
-                            type="button"
-                            onClick={() => moveTask(task._id, prevCol)}
-                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
-                            aria-label="Move left"
-                          >
-                            <ArrowLeft className="h-3.5 w-3.5" />
-                          </button>
-                        ) : (
-                          <span className="h-7 w-7" />
-                        )}
-                        {nextCol ? (
-                          <button
-                            type="button"
-                            onClick={() => moveTask(task._id, nextCol)}
-                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
-                            aria-label="Move right"
-                          >
-                            <ArrowRight className="h-3.5 w-3.5" />
-                          </button>
-                        ) : (
-                          <span className="h-7 w-7" />
-                        )}
-                      </div>
-                    </Card>
-                  ))
-                )}
-              </div>
-            </Card>
-          );
-        })}
+                      <span className="text-[11.5px] text-zoru-ink-muted">
+                        {colTasks.length}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {colTasks.length === 0 ? (
+                        <div className="rounded-lg border border-dashed border-zoru-line p-4 text-center text-[12px] text-zoru-ink-muted">
+                          No tasks
+                        </div>
+                      ) : (
+                        colTasks.map((task) => (
+                          <Card key={task._id} className="p-3 shadow-sm hover:shadow-md transition-shadow">
+                            <p className="text-[13px] font-medium text-zoru-ink">
+                              {task.heading}
+                            </p>
+                            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-zoru-ink-muted">
+                              {task.assigneeName ? (
+                                <span>{task.assigneeName}</span>
+                              ) : null}
+                              {task.priority ? (
+                                <Badge
+                                  variant={
+                                    PRIORITY_VARIANTS[task.priority] || 'ghost'
+                                  }
+                                >
+                                  {task.priority}
+                                </Badge>
+                              ) : null}
+                              {projectFilter === 'all' && swimlaneBy !== 'project' ? (
+                                <span className="truncate">
+                                  {projectNameMap.get(String(task.projectId)) || ''}
+                                </span>
+                              ) : null}
+                            </div>
+                            <div className="mt-2 flex items-center justify-end gap-1">
+                              {prevCol ? (
+                                <button
+                                  type="button"
+                                  onClick={() => moveTask(task._id, prevCol)}
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-full text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                  aria-label="Move left"
+                                >
+                                  <ArrowLeft className="h-3.5 w-3.5" />
+                                </button>
+                              ) : (
+                                <span className="h-7 w-7" />
+                              )}
+                              {nextCol ? (
+                                <button
+                                  type="button"
+                                  onClick={() => moveTask(task._id, nextCol)}
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-full text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                                  aria-label="Move right"
+                                >
+                                  <ArrowRight className="h-3.5 w-3.5" />
+                                </button>
+                              ) : (
+                                <span className="h-7 w-7" />
+                              )}
+                            </div>
+                          </Card>
+                        ))
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
     </EntityListShell>
   );

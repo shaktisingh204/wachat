@@ -25,6 +25,9 @@ import {
   getTpReportOwners,
   type LateEntityKind,
 } from '@/app/actions/crm-reports.actions';
+import { getOverdueTasksDeep } from '@/app/actions/worksuite/reports.actions';
+import { OverdueTasksClient } from '../overdue-tasks/_components/overdue-tasks-client';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 interface PageProps {
   searchParams: Promise<{
@@ -34,6 +37,10 @@ interface PageProps {
     ownerId?: string;
     page?: string;
     limit?: string;
+    view?: string;
+    priority?: string;
+    minDays?: string;
+    maxDays?: string;
   }>;
 }
 
@@ -63,10 +70,15 @@ export default async function LateReportPage(props: PageProps) {
     Math.max(5, sp.limit ? parseInt(sp.limit, 10) : 20),
   );
 
-  const [projects, owners, report] = await Promise.all([
+  const [projects, owners, report, overdueTasksData] = await Promise.all([
     getTpReportProjects(),
     getTpReportOwners(),
     getLateReportDeep(sp.from, sp.to, sp.projectId, sp.ownerId),
+    getOverdueTasksDeep({
+      priority: sp.priority,
+      minDaysOverdue: sp.minDays ? Number(sp.minDays) : undefined,
+      maxDaysOverdue: sp.maxDays ? Number(sp.maxDays) : undefined,
+    }),
   ]);
 
   const { rows, byKind, stacked, totals } = report;
@@ -126,120 +138,147 @@ export default async function LateReportPage(props: PageProps) {
         />
       }
     >
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          label="Total late items"
-          value={fmtNumber(totals.totalLate)}
-          tone="red"
-        />
-        <StatCard
-          label="Late tasks"
-          value={fmtNumber(taskBreakdown?.count ?? 0)}
-          hint={`avg ${taskBreakdown?.avgDays ?? 0}d`}
-          tone="amber"
-        />
-        <StatCard
-          label="Late projects"
-          value={fmtNumber(projectBreakdown?.count ?? 0)}
-          hint={`avg ${projectBreakdown?.avgDays ?? 0}d`}
-          tone="amber"
-        />
-        <StatCard
-          label="Avg lateness"
-          value={
-            totals.avgLatenessDays
-              ? `${fmtNumber(totals.avgLatenessDays)} days`
-              : '—'
-          }
-          hint={`worst ${totals.worstLatenessDays}d · ${fmtNumber(
-            invoiceBreakdown?.count ?? 0,
-          )} late invoices`}
-          tone="red"
-        />
-      </div>
+      <Tabs defaultValue={sp.view === 'tasks' ? 'tasks' : 'all'} className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="all">All Late Items</TabsTrigger>
+          <TabsTrigger value="tasks">Overdue Tasks Details</TabsTrigger>
+        </TabsList>
+        <TabsContent value="all" className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+              label="Total late items"
+              value={fmtNumber(totals.totalLate)}
+              tone="red"
+            />
+            <StatCard
+              label="Late tasks"
+              value={fmtNumber(taskBreakdown?.count ?? 0)}
+              hint={`avg ${taskBreakdown?.avgDays ?? 0}d`}
+              tone="amber"
+            />
+            <StatCard
+              label="Late projects"
+              value={fmtNumber(projectBreakdown?.count ?? 0)}
+              hint={`avg ${projectBreakdown?.avgDays ?? 0}d`}
+              tone="amber"
+            />
+            <StatCard
+              label="Avg lateness"
+              value={
+                totals.avgLatenessDays
+                  ? `${fmtNumber(totals.avgLatenessDays)} days`
+                  : '—'
+              }
+              hint={`worst ${totals.worstLatenessDays}d · ${fmtNumber(
+                invoiceBreakdown?.count ?? 0,
+              )} late invoices`}
+              tone="red"
+            />
+          </div>
 
-      <Card className="p-6">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[16px] font-semibold text-foreground">
-            Late items by month — stacked by kind
-          </h2>
-          <span className="text-[12px] text-muted-foreground">
-            {totals.kindCount} kind{totals.kindCount === 1 ? '' : 's'}
-          </span>
-        </div>
-        <LateStackedChart data={stacked} />
-      </Card>
+          <Card className="p-6">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-[16px] font-semibold text-foreground">
+                Late items by month — stacked by kind
+              </h2>
+              <span className="text-[12px] text-muted-foreground">
+                {totals.kindCount} kind{totals.kindCount === 1 ? '' : 's'}
+              </span>
+            </div>
+            <LateStackedChart data={stacked} />
+          </Card>
 
-      <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-border hover:bg-transparent">
-                <ZoruTableHead className="text-muted-foreground">Kind</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Title</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Project</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Owner</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Due</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Late</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
-              {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-border">
-                  <ZoruTableCell
-                    colSpan={7}
-                    className="h-20 text-center text-[13px] text-muted-foreground"
-                  >
-                    No late items in this range.
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              ) : (
-                pageRows.map((r) => (
-                  <ZoruTableRow
-                    key={`${r.kind}-${r._id}`}
-                    className="border-border"
-                  >
-                    <ZoruTableCell>
-                      <Badge variant={kindVariant(r.kind)}>
-                        {KIND_LABEL[r.kind]}
-                      </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
-                      <EntityRowLink
-                        href={kindHref(r.kind, r._id)}
-                        label={r.title}
-                      />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-foreground">
-                      {r.projectId ? (
-                        <EntityRowLink
-                          href={`/dashboard/crm/projects/${r.projectId}`}
-                          label={r.projectName}
-                        />
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-foreground">
-                      {r.ownerName}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-destructive">
-                      {r.dueDate ? r.dueDate.slice(0, 10) : '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-destructive">
-                      {r.lateDays}d
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-foreground">
-                      {r.status}
-                    </ZoruTableCell>
+          <Card className="p-0">
+            <div className="overflow-x-auto rounded-lg border border-border">
+              <Table>
+                <ZoruTableHeader>
+                  <ZoruTableRow className="border-border hover:bg-transparent">
+                    <ZoruTableHead className="text-muted-foreground">Kind</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground">Title</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground">Project</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground">Owner</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-muted-foreground">Due</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-muted-foreground">Late</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-muted-foreground">Action</ZoruTableHead>
                   </ZoruTableRow>
-                ))
-              )}
-            </ZoruTableBody>
-          </Table>
-        </div>
-      </Card>
+                </ZoruTableHeader>
+                <ZoruTableBody>
+                  {pageRows.length === 0 ? (
+                    <ZoruTableRow className="border-border">
+                      <ZoruTableCell
+                        colSpan={8}
+                        className="h-20 text-center text-[13px] text-muted-foreground"
+                      >
+                        No late items in this range.
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ) : (
+                    pageRows.map((r) => (
+                      <ZoruTableRow
+                        key={`${r.kind}-${r._id}`}
+                        className="border-border"
+                      >
+                        <ZoruTableCell>
+                          <Badge variant={kindVariant(r.kind)}>
+                            {KIND_LABEL[r.kind]}
+                          </Badge>
+                        </ZoruTableCell>
+                        <ZoruTableCell>
+                          <EntityRowLink
+                            href={kindHref(r.kind, r._id)}
+                            label={r.title}
+                          />
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-[13px] text-foreground">
+                          {r.projectId ? (
+                            <EntityRowLink
+                              href={`/dashboard/crm/projects/${r.projectId}`}
+                              label={r.projectName}
+                            />
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-[13px] text-foreground">
+                          {r.ownerName}
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-right text-[13px] text-destructive">
+                          {r.dueDate ? r.dueDate.slice(0, 10) : '—'}
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-right text-[13px] font-medium text-destructive">
+                          {r.lateDays}d
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-[13px] text-foreground">
+                          {r.status}
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-right">
+                          <a
+                            href={kindHref(r.kind, r._id)}
+                            className="text-[13px] text-primary hover:underline font-medium"
+                          >
+                            Resolve
+                          </a>
+                        </ZoruTableCell>
+                      </ZoruTableRow>
+                    ))
+                  )}
+                </ZoruTableBody>
+              </Table>
+            </div>
+          </Card>
+        </TabsContent>
+        <TabsContent value="tasks" className="space-y-4">
+          <OverdueTasksClient
+            data={overdueTasksData}
+            filters={{
+              priority: sp.priority,
+              minDays: sp.minDays,
+              maxDays: sp.maxDays,
+            }}
+          />
+        </TabsContent>
+      </Tabs>
     </EntityListShell>
   );
 }

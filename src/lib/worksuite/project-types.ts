@@ -292,6 +292,7 @@ export interface WsSubTask extends WsBase {
   status: WsTaskStatus;
   assignedTo?: ObjectId | string;
   assignedToName?: string;
+  dependencyId?: ObjectId | string;
 }
 
 export interface WsTaskCategory extends WsBase {
@@ -451,4 +452,11 @@ export interface WsPinned extends WsBase {
   projectId?: ObjectId | string;
   taskId?: ObjectId | string;
   pinnedByUserId: ObjectId | string;
+}
+
+export interface WsIssueComment extends WsBase {
+  issueId: ObjectId | string;
+  comment: string;
+  commentByUserId?: ObjectId | string;
+  commentByName?: string;
 }

@@ -33,6 +33,9 @@ import Link from 'next/link';
 
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+import { bulkRevokePortalUsers } from '@/app/actions/crm-portal.actions';
+import { useRouter } from 'next/navigation';
+import { useZoruToast } from '@/components/zoruui';
 
 import {
   PortalKpiStrip,
@@ -60,6 +63,23 @@ export function PortalListClient({ users }: PortalListClientProps) {
   );
   const [kpiKey, setKpiKey] = React.useState<PortalKpiKey>('all');
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const router = useRouter();
+  const { toast } = useZoruToast();
+  const [isRevoking, setIsRevoking] = React.useState(false);
+
+  const runBulkRevoke = async () => {
+    setIsRevoking(true);
+    const res = await bulkRevokePortalUsers(Array.from(selected));
+    setIsRevoking(false);
+    if (res.success) {
+      toast({ title: 'Access revoked for selected users.' });
+      setSelected(new Set());
+      router.refresh();
+    } else {
+      toast({ title: 'Bulk revoke failed', description: res.error, variant: 'destructive' });
+    }
+  };
+
 
   const typeOptions = React.useMemo(() => {
     const s = new Set<string>();
@@ -255,6 +275,9 @@ export function PortalListClient({ users }: PortalListClientProps) {
             <Button size="sm" variant="outline" onClick={exportCsv}>
               Export CSV
             </Button>
+            <Button size="sm" variant="destructive" onClick={runBulkRevoke} disabled={isRevoking}>
+              Revoke Access
+            </Button>
             <Button
               size="sm"
               variant="ghost"
@@ -285,7 +308,7 @@ export function PortalListClient({ users }: PortalListClientProps) {
                 <ZoruTableHead>Capabilities</ZoruTableHead>
                 <ZoruTableHead>Linked entity</ZoruTableHead>
                 <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead>Last login</ZoruTableHead>
+                <ZoruTableHead>Last Active</ZoruTableHead>
                 <ZoruTableHead className="text-right">Actions</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>

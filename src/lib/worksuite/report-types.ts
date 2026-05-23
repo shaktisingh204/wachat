@@ -251,6 +251,7 @@ export interface TaxReportKpis {
 
 export interface TaxMonthlyRow {
   period: string;
+  taxType: string;
   collected: number;
   paid: number;
   net: number;
@@ -286,6 +287,7 @@ export interface InvoiceAgingDetailRow {
   daysOverdue: number;
   outstanding: number;
   bucket: '0-30' | '31-60' | '61-90' | '90+';
+  isDisputed?: boolean;
 }
 
 export interface PaymentReportKpis {
@@ -317,6 +319,7 @@ export interface PaymentReceiptRow {
   method: string;
   invoiceNumber: string;
   invoiceId: string;
+  isChargeback?: boolean;
 }
 
 /* ─── Top Clients / Products deepened ───────────────────────────── */

@@ -2,27 +2,22 @@ export const dynamic = 'force-dynamic';
 
 import * as React from 'react';
 
-import {
-  Badge,
-  Card,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/zoruui';
+import { Card } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { EntityRowLink } from '@/components/crm/entity-row-link';
-import { PaginationBar } from '@/components/crm/pagination-bar';
 
 import { StatCard, fmtNumber } from '../_components/report-toolbar';
 import { HrReportToolbar } from '../_components/hr-report-toolbar';
-import { DailyAttendanceChart } from '../_components/hr-report-charts';
+import dynamic from 'next/dynamic';
+import { AttendanceView } from './attendance-view';
 import {
   getHrReportDepartments,
   getAttendanceReportData,
 } from '@/app/actions/crm-reports.actions';
+
+const DailyAttendanceChart = dynamic(
+  () => import('../_components/hr-report-charts').then((mod) => mod.DailyAttendanceChart),
+  { ssr: false }
+);
 
 interface PageProps {
   searchParams: Promise<{
@@ -88,14 +83,7 @@ export default async function AttendanceReportPage(props: PageProps) {
           }}
         />
       }
-      pagination={
-        <PaginationBar
-          page={page}
-          limit={limit}
-          hasMore={hasMore}
-          total={rows.length}
-        />
-      }
+
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -119,7 +107,7 @@ export default async function AttendanceReportPage(props: PageProps) {
         />
       </div>
 
-      <Card className="p-6">
+      <Card className="p-6 mb-4">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-[16px] font-semibold text-foreground">
             Daily attendance
@@ -131,66 +119,15 @@ export default async function AttendanceReportPage(props: PageProps) {
         <DailyAttendanceChart data={daily} />
       </Card>
 
-      <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-border hover:bg-transparent">
-                <ZoruTableHead className="text-muted-foreground">Employee</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Department</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Present</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Absent</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Late</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Leave</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Attendance %</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
-              {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-border">
-                  <ZoruTableCell
-                    colSpan={7}
-                    className="h-20 text-center text-[13px] text-muted-foreground"
-                  >
-                    No attendance data.
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              ) : (
-                pageRows.map((r) => (
-                  <ZoruTableRow key={r.employeeId} className="border-border">
-                    <ZoruTableCell>
-                      <EntityRowLink
-                        href={`/dashboard/crm/hr-payroll/employees/${r.employeeId}`}
-                        label={r.employeeName}
-                      />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-foreground">
-                      <Badge variant="outline">{r.department}</Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-emerald-500">
-                      {r.present}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-destructive">
-                      {r.absent}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-amber-500">
-                      {r.late}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-sky-500">
-                      {r.leave}
-                    </ZoruTableCell>
-                    <ZoruTableCell
-                      className={`text-right text-[13px] font-medium ${r.attendancePct >= 90 ? 'text-emerald-500' : r.attendancePct >= 75 ? 'text-amber-500' : 'text-destructive'}`}
-                    >
-                      {r.attendancePct.toFixed(1)}%
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                ))
-              )}
-            </ZoruTableBody>
-          </Table>
-        </div>
-      </Card>
+      <AttendanceView
+        pageRows={pageRows}
+        daily={daily}
+        page={page}
+        limit={limit}
+        total={rows.length}
+        month={month}
+        year={year}
+      />
     </EntityListShell>
   );
 }

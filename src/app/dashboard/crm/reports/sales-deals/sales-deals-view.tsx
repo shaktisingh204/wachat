@@ -2,19 +2,16 @@
 
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
-  Legend,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts';
+import dynamic from 'next/dynamic';
+
+const SalesLineChart = dynamic(
+  () => import('./sales-deals-charts').then((mod) => mod.SalesLineChart),
+  { ssr: false }
+);
+const SalesPieChart = dynamic(
+  () => import('./sales-deals-charts').then((mod) => mod.SalesPieChart),
+  { ssr: false }
+);
 import {
   Card,
   Table,
@@ -47,15 +44,7 @@ interface Props {
 
 const HEADERS = ['Deal', 'Stage', 'Value', 'Owner', 'Pipeline', 'Account ID', 'Created'];
 
-const PIE_COLORS = [
-  'hsl(var(--primary))',
-  'hsl(var(--muted-foreground))',
-  '#10b981',
-  '#f59e0b',
-  '#ef4444',
-  '#3b82f6',
-  '#8b5cf6',
-];
+
 
 function isWonStage(s: string) {
   const v = s.toLowerCase();
@@ -86,6 +75,7 @@ export function SalesDealsView({
 
   const [stageInput, setStageInput] = React.useState(stage || '');
   const [pipelineInput, setPipelineInput] = React.useState(pipeline || '');
+  const [isDragOver, setIsDragOver] = React.useState(false);
 
   const totalDeals = funnel.reduce((s, r) => s + r.count, 0);
   const totalValue = funnel.reduce((s, r) => s + r.value, 0);
@@ -151,6 +141,25 @@ export function SalesDealsView({
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Draggable Stages for Interactive Filtering */}
+      <div className="flex flex-wrap gap-2 items-center rounded-lg border border-border bg-card p-3">
+        <span className="text-[12px] font-medium text-muted-foreground mr-2">
+          Drag stage to filter:
+        </span>
+        {funnel.map((f) => (
+          <Badge
+            key={f.stage}
+            draggable
+            onDragStart={(e) => e.dataTransfer.setData('stage', f.stage)}
+            className="cursor-grab active:cursor-grabbing"
+            variant={stageInput === f.stage ? 'default' : 'secondary'}
+            onClick={() => setStageInput(f.stage)}
+          >
+            {f.stage} ({f.count})
+          </Badge>
+        ))}
+      </div>
+
       {/* Filter row */}
       <form
         onSubmit={pushFilters}
@@ -178,7 +187,17 @@ export function SalesDealsView({
             className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
           />
         </label>
-        <label className="flex flex-col gap-1">
+        <label 
+          className={`flex flex-col gap-1 rounded-lg p-1 transition-colors ${isDragOver ? 'bg-primary/20 ring-1 ring-primary' : ''}`}
+          onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+          onDragLeave={() => setIsDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsDragOver(false);
+            const dropped = e.dataTransfer.getData('stage');
+            if (dropped) setStageInput(dropped);
+          }}
+        >
           <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
             Stage
           </span>
@@ -186,8 +205,8 @@ export function SalesDealsView({
             type="text"
             value={stageInput}
             onChange={(e) => setStageInput(e.target.value)}
-            placeholder="Any"
-            className="h-9 w-28 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+            placeholder="Drop here or type"
+            className="h-9 w-32 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
           />
         </label>
         <label className="flex flex-col gap-1">
@@ -250,54 +269,7 @@ export function SalesDealsView({
               Won vs lost by month
             </h2>
           </div>
-          {lineData.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-muted-foreground">
-              No closed deals in this range.
-            </div>
-          ) : (
-            <div style={{ width: '100%', height: 280 }}>
-              <ResponsiveContainer>
-                <LineChart
-                  data={lineData}
-                  margin={{ left: 8, right: 16, top: 8, bottom: 8 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
-                  />
-                  <XAxis
-                    dataKey="period"
-                    stroke="hsl(var(--muted-foreground))"
-                    fontSize={11}
-                  />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                  <Tooltip
-                    contentStyle={{
-                      background: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Line
-                    type="monotone"
-                    dataKey="Won"
-                    stroke="#10b981"
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Lost"
-                    stroke="hsl(var(--destructive))"
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+          <SalesLineChart lineData={lineData} />
         </Card>
 
         <Card>
@@ -306,40 +278,7 @@ export function SalesDealsView({
               Stage distribution
             </h2>
           </div>
-          {pieData.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-muted-foreground">
-              No deals.
-            </div>
-          ) : (
-            <div style={{ width: '100%', height: 280 }}>
-              <ResponsiveContainer>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    dataKey="value"
-                    nameKey="name"
-                    outerRadius={80}
-                    label={(d: { name?: string }) => d.name ?? ''}
-                  >
-                    {pieData.map((_, i) => (
-                      <Cell
-                        key={`pie-${i}`}
-                        fill={PIE_COLORS[i % PIE_COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      background: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+          <SalesPieChart pieData={pieData} />
         </Card>
       </div>
 

@@ -27,6 +27,8 @@ import {
   restorePortalUser,
   sendMagicLink,
   suspendPortalUser,
+  forceLogoutPortalUser,
+  sendPasswordReset,
 } from '@/app/actions/crm-portal.actions';
 
 interface PortalDetailActionsProps {
@@ -53,6 +55,38 @@ export function PortalDetailActions({
           title: resend ? 'Invite resent' : 'Magic link sent',
           description: res.magicLink ?? 'Link delivered.',
         });
+        router.refresh();
+      } else {
+        toast({
+          title: 'Send failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+      }
+    });
+  };
+
+  const runForceLogout = () => {
+    startTransition(async () => {
+      const res = await forceLogoutPortalUser(portalUserId);
+      if (res.success) {
+        toast({ title: 'Forced logout' });
+        router.refresh();
+      } else {
+        toast({
+          title: 'Logout failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+      }
+    });
+  };
+
+  const runPasswordReset = () => {
+    startTransition(async () => {
+      const res = await sendPasswordReset(portalUserId);
+      if (res.success) {
+        toast({ title: 'Password reset sent' });
         router.refresh();
       } else {
         toast({
@@ -122,6 +156,22 @@ export function PortalDetailActions({
         disabled={!isSuspended}
       >
         <Power className="h-3.5 w-3.5" /> Restore
+      </Button>
+
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={runPasswordReset}
+      >
+        <Mail className="h-3.5 w-3.5" /> Password reset
+      </Button>
+
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={runForceLogout}
+      >
+        <PowerOff className="h-3.5 w-3.5" /> Force Logout
       </Button>
 
       <Button size="sm" variant="ghost" asChild>

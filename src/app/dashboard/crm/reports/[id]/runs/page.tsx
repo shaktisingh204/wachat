@@ -15,6 +15,7 @@ import {
     getReportDefinitionById,
     getReportRunsForDefinition,
 } from '@/app/actions/crm-reports.actions';
+import { RunsListClient } from '../_components/runs-list-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,72 +55,7 @@ export default async function ReportRunsListPage({ params }: PageProps) {
             subtitle={`Kind: ${def.kind} · Latest 100 runs`}
         >
 
-            <Card>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead className="text-left text-muted-foreground">
-                            <tr>
-                                <th className="px-3 py-2 font-medium">Started</th>
-                                <th className="px-3 py-2 font-medium">Status</th>
-                                <th className="px-3 py-2 font-medium">Trigger</th>
-                                <th className="px-3 py-2 font-medium">Rows</th>
-                                <th className="px-3 py-2 font-medium">Duration</th>
-                                <th className="px-3 py-2 font-medium">Delivery</th>
-                                <th className="px-3 py-2 font-medium" />
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {runs.length === 0 && (
-                                <tr>
-                                    <td colSpan={7} className="px-3 py-6 text-center text-muted-foreground">
-                                        No runs yet. Trigger one from the report page.
-                                    </td>
-                                </tr>
-                            )}
-                            {runs.map((r) => {
-                                const tone: 'green' | 'red' | 'amber' | 'obsidian' =
-                                    r.status === 'succeeded'
-                                        ? 'green'
-                                        : r.status === 'failed'
-                                          ? 'red'
-                                          : 'amber';
-                                const emailOk = r.delivered?.email?.ok ?? null;
-                                const webhookOk = r.delivered?.webhook?.ok ?? null;
-                                return (
-                                    <tr key={r._id} className="border-t border-border/50">
-                                        <td className="px-3 py-2 font-mono text-xs">
-                                            {fmtDate(r.startedAt)}
-                                        </td>
-                                        <td className="px-3 py-2">
-                                            <Badge tone={tone}>{r.status}</Badge>
-                                        </td>
-                                        <td className="px-3 py-2 text-muted-foreground">
-                                            {r.trigger}
-                                        </td>
-                                        <td className="px-3 py-2 font-mono">{r.rowCount ?? 0}</td>
-                                        <td className="px-3 py-2 text-muted-foreground">
-                                            {durationMs(r.startedAt, r.finishedAt)}
-                                        </td>
-                                        <td className="px-3 py-2 text-xs text-muted-foreground">
-                                            {emailOk === null ? '—' : emailOk ? 'email ok' : 'email fail'}
-                                            {' · '}
-                                            {webhookOk === null ? '—' : webhookOk ? 'webhook ok' : 'webhook fail'}
-                                        </td>
-                                        <td className="px-3 py-2">
-                                            <Link
-                                                href={`/dashboard/crm/reports/${id}/runs/${r._id}`}
-                                                className="text-xs font-medium text-primary hover:underline"
-                                            >
-                                                View →
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            </Card>
+            <RunsListClient definitionId={id} runs={runs as any} />
         </EntityListShell>
     );
 }

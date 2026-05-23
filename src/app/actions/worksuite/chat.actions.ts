@@ -3,6 +3,7 @@
 import { ObjectId } from 'mongodb';
 import { randomBytes } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
+import { publishWorksuiteEvent } from '@/lib/worksuite/realtime';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import {
@@ -62,6 +63,16 @@ function parseDate(value: unknown): Date | undefined {
 
 /* ═══════════════════ 1:1 Chat / Messages ═══════════════════ */
 
+export async function pingTyping(toUserId: string) {
+  const user = await requireSession();
+  if (!user) return;
+  await publishWorksuiteEvent({
+    type: 'TYPING',
+    userId: toUserId,
+    payload: { fromUserId: user._id },
+  });
+}
+
 export async function sendMessage(
   toUserId: string,
   message: string,
@@ -104,9 +115,23 @@ export async function sendMessage(
     );
   }
 
+  const finalMsg = {
+    ...chatDoc,
+    _id: chatId,
+    files: fileUrls.length > 0 ? fileUrls.map(f => ({
+      _id: new ObjectId().toString(),
+      chat_id: chatId,
+      ...f,
+    })) : [],
+  };
+  await publishWorksuiteEvent({
+    type: 'NEW_MESSAGE',
+    userId: toUserId,
+    payload: finalMsg,
+  });
   revalidatePath('/dashboard/crm/messages');
   revalidatePath(`/dashboard/crm/messages/${toUserId}`);
-  return { message: 'Message sent', id: chatId };
+  return { message: 'Message sent', id: chatId, finalMsg };
 }
 
 export async function markChatAsRead(chatId: string) {
@@ -139,6 +164,11 @@ export async function markAllChatsRead(fromUserId: string) {
     },
     { $set: { is_read: true, updatedAt: new Date() } },
   );
+  await publishWorksuiteEvent({
+    type: 'MESSAGE_READ',
+    userId: fromUserId,
+    payload: { byUserId: user._id },
+  });
   revalidatePath('/dashboard/crm/messages');
   revalidatePath(`/dashboard/crm/messages/${fromUserId}`);
   return { success: true };
@@ -146,6 +176,8 @@ export async function markAllChatsRead(fromUserId: string) {
 
 export async function getConversationWith(
   peerUserId: string,
+  cursor?: string,
+  limit = 50
 ): Promise<(WsUserChat & { files?: WsUserchatFile[] })[]> {
   const user = await requireSession();
   if (!user) return [];
@@ -154,13 +186,16 @@ export async function getConversationWith(
     .collection(COLS.chat)
     .find({
       userId: toObjectId(user._id),
+      ...(cursor ? { _id: { $lt: toObjectId(cursor) } } : {}),
       $or: [
         { from_user_id: user._id, to_user_id: peerUserId },
         { from_user_id: peerUserId, to_user_id: user._id },
       ],
     })
-    .sort({ createdAt: 1 })
+    .sort({ createdAt: -1 })
+    .limit(limit)
     .toArray();
+  chats.reverse();
 
   if (chats.length === 0) return [];
 
@@ -485,6 +520,11 @@ export async function notify(
     read_at: null,
     createdAt: now,
     updatedAt: now,
+  });
+  await publishWorksuiteEvent({
+    type: 'NEW_NOTIFICATION',
+    userId: recipientUserId,
+    payload: { notification: { _id: res.insertedId.toString(), ...payload, read_at: null, createdAt: now } },
   });
   revalidatePath('/dashboard/crm/notifications');
   return { message: 'Notification sent', id: res.insertedId.toString() };

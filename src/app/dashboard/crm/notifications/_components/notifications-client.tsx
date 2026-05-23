@@ -119,6 +119,7 @@ export function NotificationsClient({
     const [kpis, setKpis] = React.useState<CrmNotificationKpis>(initialKpis);
     const [kindFilter, setKindFilter] = React.useState<KindFilter>('all');
     const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
+    const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
     const [pending, startTransition] = React.useTransition();
 
     const filtered = React.useMemo(() => {
@@ -190,18 +191,50 @@ export function NotificationsClient({
         ) : null;
 
     return (
+        <>
+            <Modal open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+                <div className="p-6">
+                    <h2 className="text-lg font-medium mb-4">Notification Settings</h2>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm">Email Notifications</span>
+                            <input type="checkbox" className="toggle" defaultChecked />
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm">Push Notifications</span>
+                            <input type="checkbox" className="toggle" defaultChecked />
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm">Mentions Only</span>
+                            <input type="checkbox" className="toggle" />
+                        </div>
+                    </div>
+                    <div className="mt-6 flex justify-end">
+                        <Button onClick={() => setIsSettingsOpen(false)}>Save</Button>
+                    </div>
+                </div>
+            </Modal>
         <EntityListShell
             title="Notifications"
             subtitle="Audit-log events that need your attention — assignments, mentions, SLA breaches, status changes."
             primaryAction={
+                <div className="flex gap-2">
+                <Button
+                    variant="ghost"
+                    onClick={() => setIsSettingsOpen(true)}
+                >
+                    <Settings className="h-4 w-4 mr-1" />
+                    Settings
+                </Button>
                 <Button
                     variant="ghost"
                     onClick={handleMarkAll}
                     disabled={pending || kpis.unread === 0}
                 >
-                    <CheckCheck className="h-4 w-4" />
+                    <CheckCheck className="h-4 w-4 mr-1" />
                     Mark all read
                 </Button>
+                </div>
             }
             filters={
                 <div className="flex flex-wrap items-center gap-2">
@@ -244,9 +277,31 @@ export function NotificationsClient({
                 </div>
 
                 {filtered.length > 0 ? (
-                    <Card className="p-0">
-                        <ul className="divide-y divide-zoru-line">
-                            {filtered.map((row) => {
+                    <div className="flex flex-col gap-6">
+                        {(() => {
+                            const today = new Date();
+                            today.setHours(0,0,0,0);
+                            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                            
+                            const groups: Record<string, typeof filtered> = {
+                                'Today': [],
+                                'This Week': [],
+                                'Older': []
+                            };
+                            
+                            filtered.forEach(row => {
+                                const ts = new Date(row.ts);
+                                if (ts >= today) groups['Today'].push(row);
+                                else if (ts >= weekAgo) groups['This Week'].push(row);
+                                else groups['Older'].push(row);
+                            });
+                            
+                            return Object.entries(groups).filter(([_, items]) => items.length > 0).map(([label, items]) => (
+                                <div key={label}>
+                                    <h4 className="text-sm font-medium text-muted-foreground mb-2 px-2">{label}</h4>
+                                    <Card className="p-0">
+                                        <ul className="divide-y divide-zoru-line">
+                                            {items.map((row) => {
                                 const Icon = KIND_ICON[row.kind] ?? Bell;
                                 return (
                                     <li
@@ -309,11 +364,16 @@ export function NotificationsClient({
                                         </div>
                                     </li>
                                 );
-                            })}
-                        </ul>
-                    </Card>
+                                            })}
+                                        </ul>
+                                    </Card>
+                                </div>
+                            ));
+                        })()}
+                    </div>
                 ) : null}
             </div>
         </EntityListShell>
+        </>
     );
 }

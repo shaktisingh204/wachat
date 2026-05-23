@@ -58,17 +58,20 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import SavedViewsBar from '@/components/crm/SavedViewsBar';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
   getWsIssues,
+  getWsIssuesKpis,
   deleteWsIssue,
   bulkDeleteWsIssues,
   bulkUpdateWsIssues,
 } from '@/app/actions/worksuite/projects.actions';
 import type { WsIssue } from '@/lib/worksuite/project-types';
+import { issueSchema } from './schema';
 
 type Row = WsIssue & { _id: string };
 type ViewMode = 'table' | 'kanban';
@@ -119,11 +122,17 @@ export default function ProjectIssuesPage() {
   const [bulkPending, startBulkTransition] = React.useTransition();
   const [confirmBulk, setConfirmBulk] = React.useState<'close' | 'delete' | null>(null);
 
+  const [kpis, setKpis] = React.useState({ open: 0, critical: 0, resolvedThisMonth: 0, avgResolutionDays: 0 });
+
   const refresh = React.useCallback(() => {
     startLoading(async () => {
       try {
-        const list = (await getWsIssues()) as unknown as Row[];
-        setRows(list ?? []);
+        const rawList = await getWsIssues();
+        const list = Array.isArray(rawList) ? rawList.map(r => issueSchema.parse(r) as Row) : [];
+        setRows(list);
+        
+        const kpiData = await getWsIssuesKpis();
+        setKpis(kpiData);
       } catch (e) {
         toast({
           title: 'Failed to load issues',
@@ -162,30 +171,7 @@ export default function ProjectIssuesPage() {
     });
   }, [rows, search, statusFilter, priorityFilter, projectFilter]);
 
-  const kpis = React.useMemo(() => {
-    const open = rows.filter((r) => !isResolved(r.status)).length;
-    const critical = rows.filter(
-      (r) => !isResolved(r.status) && (r.priority ?? '').toLowerCase() === 'urgent',
-    ).length;
-    const monthAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-    const resolved = rows.filter((r) => {
-      if (!isResolved(r.status)) return false;
-      const d = r.updatedAt ? new Date(r.updatedAt as string | Date).getTime() : 0;
-      return d > monthAgo;
-    });
-    // Avg resolution days
-    let avgDays = 0;
-    if (resolved.length > 0) {
-      const total = resolved.reduce((sum, r) => {
-        const a = r.createdAt ? new Date(r.createdAt as string | Date).getTime() : 0;
-        const b = r.updatedAt ? new Date(r.updatedAt as string | Date).getTime() : 0;
-        if (!a || !b || b <= a) return sum;
-        return sum + (b - a) / (24 * 60 * 60 * 1000);
-      }, 0);
-      avgDays = Math.round(total / resolved.length);
-    }
-    return { open, critical, resolvedMonth: resolved.length, avgDays };
-  }, [rows]);
+
 
   const hasActiveFilters =
     statusFilter !== 'all' || priorityFilter !== 'all' || !!projectFilter;
@@ -418,6 +404,16 @@ export default function ProjectIssuesPage() {
         loading={loading && rows.length === 0}
       >
         <div className="flex flex-col gap-4">
+          <SavedViewsBar
+            entityKind="ws_issue"
+            currentFilters={{ status: statusFilter, priority: priorityFilter, project: projectFilter }}
+            currentColumns={[]}
+            onApplyView={(v) => {
+              setStatusFilter((v.filters.status as string) || 'all');
+              setPriorityFilter((v.filters.priority as string) || 'all');
+              setProjectFilter((v.filters.project as string) || '');
+            }}
+          />
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <StatCard
               label="Open"
@@ -430,13 +426,13 @@ export default function ProjectIssuesPage() {
               icon={<AlertTriangle className="h-4 w-4" />}
             />
             <StatCard
-              label="Resolved (30d)"
-              value={kpis.resolvedMonth.toLocaleString()}
+              label="Resolved this month"
+              value={kpis.resolvedThisMonth.toLocaleString()}
               icon={<CheckCircle2 className="h-4 w-4" />}
             />
             <StatCard
               label="Avg resolution"
-              value={`${kpis.avgDays}d`}
+              value={`${kpis.avgResolutionDays}d`}
               icon={<Clock className="h-4 w-4" />}
             />
           </div>

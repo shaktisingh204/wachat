@@ -1,5 +1,8 @@
 'use client';
 
+import * as React from 'react';
+import { Button } from '@/components/zoruui';
+
 interface ErrorBoundaryProps {
   children: React.ReactNode;
   FallbackComponent: React.ComponentType<{ error: Error; resetErrorBoundary: () => void }>;
@@ -40,15 +43,12 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
 function Fallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   return (
-    <div className="p-4 rounded-md bg-red-50 dark:bg-red-950 text-red-900 dark:text-red-200">
-      <h2 className="text-lg font-bold">Something went wrong in the BOM module</h2>
-      <pre className="text-sm mt-2 mb-4">{error.message}</pre>
-      <button
-        onClick={resetErrorBoundary}
-        className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-      >
+    <div className="flex flex-col items-center justify-center p-12 text-center border rounded-lg border-zoru-danger/20 bg-zoru-danger/5">
+      <h2 className="mb-2 text-lg font-bold text-zoru-danger-ink">Something went wrong in the BOM module</h2>
+      <p className="max-w-md mb-4 text-sm text-zoru-ink-muted">{error.message || 'Something went wrong.'}</p>
+      <Button variant="outline" onClick={resetErrorBoundary}>
         Try again
-      </button>
+      </Button>
     </div>
   );
 }

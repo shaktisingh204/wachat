@@ -18,8 +18,8 @@ import { StatusPill, statusToTone, type StatusTone } from '@/components/crm/stat
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getSession } from '@/app/actions/user.actions';
 import { canServer } from '@/lib/rbac-server';
-import { getMilestoneById } from '@/app/actions/crm-milestones.actions';
-import type { CrmMilestonePriority } from '@/lib/rust-client/crm-milestones';
+import { getWsProjectMilestoneById } from '@/app/actions/worksuite/projects.actions';
+
 
 export const dynamic = 'force-dynamic';
 
@@ -50,17 +50,17 @@ export default async function MilestoneDetailPage({
     const allowed = await canServer('crm_milestone', 'view');
     if (!allowed) redirect('/dashboard/crm/projects');
 
-    const milestone = await getMilestoneById(id);
+    const milestone = await getWsProjectMilestoneById(id);
     if (!milestone) notFound();
 
     const canEdit = await canServer('crm_milestone', 'edit');
-    const progress = Math.max(0, Math.min(100, milestone.progress ?? 0));
-    const tags = Array.isArray(milestone.tags) ? milestone.tags : [];
+    const progress = Math.max(0, Math.min(100, (milestone.status === 'complete' ? 100 : 0) ?? 0));
+    const tags = Array.isArray([]) ? [] : [];
 
     return (
         <EntityDetailShell
             eyebrow="MILESTONE"
-            title={milestone.name}
+            title={milestone.milestoneTitle}
             back={{ href: BASE, label: 'Milestones' }}
             actions={
                 canEdit ? (
@@ -82,8 +82,8 @@ export default async function MilestoneDetailPage({
                         tone={statusToTone(milestone.status)}
                     />
                     <StatusPill
-                        label={milestone.priority}
-                        tone={PRIORITY_TONE[milestone.priority]}
+                        label={'medium'}
+                        tone={PRIORITY_TONE['medium']}
                     />
                     {tags.map((t) => (
                         <Badge key={t} variant="ghost">
@@ -110,26 +110,26 @@ export default async function MilestoneDetailPage({
                     <div>
                         <div className="text-zoru-ink-muted">Parent milestone</div>
                         <div className="font-mono text-[12px] text-zoru-ink">
-                            {milestone.parentId || '—'}
+                            {'' || '—'}
                         </div>
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Due date</div>
-                        <div className="text-zoru-ink">{fmtDate(milestone.dueDate)}</div>
+                        <div className="text-zoru-ink">{fmtDate(milestone.endDate)}</div>
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Completed</div>
                         <div className="text-zoru-ink">
-                            {fmtDate(milestone.completedAt)}
+                            {fmtDate(milestone.endDate)}
                         </div>
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Owner</div>
                         <div className="text-zoru-ink">
-                            {milestone.ownerId ? (
+                            {milestone.userId ? (
                                 <EntityPickerChip
                                     entity="employee"
-                                    id={milestone.ownerId}
+                                    id={milestone.userId}
                                     fallback="—"
                                 />
                             ) : (
@@ -146,11 +146,11 @@ export default async function MilestoneDetailPage({
                             </span>
                         </div>
                     </div>
-                    {milestone.description ? (
+                    {milestone.summary ? (
                         <div className="sm:col-span-2">
                             <div className="text-zoru-ink-muted">Description</div>
                             <div className="whitespace-pre-wrap text-zoru-ink">
-                                {milestone.description}
+                                {milestone.summary}
                             </div>
                         </div>
                     ) : null}

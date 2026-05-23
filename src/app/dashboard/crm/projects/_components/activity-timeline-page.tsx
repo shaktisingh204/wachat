@@ -12,6 +12,16 @@ import {
   ZoruSelectValue,
   StatCard,
   useZoruToast,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+  Label,
+  Switch,
 } from '@/components/zoruui';
 import {
   Activity,
@@ -22,6 +32,7 @@ import {
   TrendingUp,
   Trash2,
   User,
+  Settings,
 } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
@@ -222,6 +233,50 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
         search={{ value: q, onChange: setQ, placeholder: 'Search activity…' }}
         primaryAction={
           <div className="flex items-center gap-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Settings className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  Settings
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Activity Notifications</DialogTitle>
+                  <DialogDescription>
+                    Configure where project activity alerts are sent.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="webhook" className="text-right">
+                      Slack Webhook URL
+                    </Label>
+                    <Input id="webhook" placeholder="https://hooks.slack.com/services/..." className="col-span-3" />
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <Label htmlFor="email-digest" className="cursor-pointer">
+                      Daily Email Digest
+                    </Label>
+                    <Switch id="email-digest" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="weekly-digest" className="cursor-pointer">
+                      Weekly Email Digest
+                    </Label>
+                    <Switch id="weekly-digest" />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type="button" variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <DialogClose asChild>
+                    <Button type="submit" onClick={() => toast({ title: 'Settings saved', description: 'Notification settings have been updated.' })}>Save changes</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
             <Button variant="outline" size="sm" onClick={() => onExportCsv(filtered)}>
               <Download className="h-3.5 w-3.5" strokeWidth={1.75} />
               CSV

@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getVendorBidById } from '@/app/actions/crm-vendor-bids.actions';
+import { getVendorBid } from '@/app/actions/crm/vendor-bids.actions';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -10,12 +10,12 @@ interface PageProps {
 
 export default async function VendorBidActivityPage({ params }: PageProps) {
     const { id } = await params;
-    const bid = await getVendorBidById(id);
+    const { bid } = await getVendorBid(id);
     if (!bid) notFound();
 
     return (
         <EntityDetailShell
-            title={(bid as any).bidNumber || (bid as any).title || 'Vendor Bid'}
+            title={bid.vendorName || `VB-${String(bid._id).slice(-6).toUpperCase()}`}
             eyebrow="VENDOR BID ACTIVITY"
             back={{
                 href: `/dashboard/crm/purchases/vendor-bids/${id}`,

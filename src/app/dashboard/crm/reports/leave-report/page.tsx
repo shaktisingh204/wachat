@@ -18,14 +18,21 @@ import { PaginationBar } from '@/components/crm/pagination-bar';
 
 import { StatCard, fmtNumber } from '../_components/report-toolbar';
 import { HrReportToolbar } from '../_components/hr-report-toolbar';
-import {
-  CategoryPieChart,
-  MonthlyTrendChart,
-} from '../_components/hr-report-charts';
+import dynamic from 'next/dynamic';
 import {
   getHrReportDepartments,
   getLeaveReportDeep,
 } from '@/app/actions/crm-reports.actions';
+
+const CategoryPieChart = dynamic(
+  () => import('../_components/hr-report-charts').then((mod) => mod.CategoryPieChart),
+  { ssr: false }
+);
+
+const MonthlyTrendChart = dynamic(
+  () => import('../_components/hr-report-charts').then((mod) => mod.MonthlyTrendChart),
+  { ssr: false }
+);
 
 interface PageProps {
   searchParams: Promise<{

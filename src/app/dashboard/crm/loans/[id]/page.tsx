@@ -16,6 +16,7 @@ import { getLoanById } from '@/app/actions/crm-loans.actions';
 
 import { LoanDetailActions } from '../_components/loan-detail-actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { LoansRepaymentSchedule } from '../_components/loans-repayment-schedule';
 
 type LoanDoc = {
   _id: string;
@@ -265,42 +266,7 @@ export default async function LoanDetailPage({ params }: PageProps) {
           <ZoruCardTitle>EMI schedule</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
-          {schedule.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
-              No schedule generated yet. Use{' '}
-              <strong>Generate EMI schedule</strong> in the header.
-            </p>
-          ) : (
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted">
-                  <th className="py-2">#</th>
-                  <th className="py-2">Due date</th>
-                  <th className="py-2 text-right">Amount</th>
-                  <th className="py-2 text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {schedule.map((row) => (
-                  <tr
-                    key={row.no}
-                    className="border-b border-zoru-line/40 last:border-0"
-                  >
-                    <td className="py-2 text-zoru-ink-muted">{row.no}</td>
-                    <td className="py-2">{fmtDate(row.dueDate)}</td>
-                    <td className="py-2 text-right font-mono tabular-nums">
-                      {fmtMoney(row.amount)}
-                    </td>
-                    <td className="py-2 text-right">
-                      <Badge variant={row.paid ? 'success' : 'outline'}>
-                        {row.paid ? 'Paid' : 'Pending'}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+          <LoansRepaymentSchedule schedule={schedule} />
         </ZoruCardContent>
       </Card>
 

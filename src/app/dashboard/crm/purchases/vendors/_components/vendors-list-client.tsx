@@ -18,6 +18,10 @@ import {
   ZoruSelectValue,
   StatCard,
   useZoruToast,
+  ZoruDropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
 } from '@/components/zoruui';
 import {
   Banknote,
@@ -28,6 +32,11 @@ import {
   Trash2,
   Truck,
   X,
+  Star,
+  StarHalf,
+  FileWarning,
+  MoreHorizontal,
+  ShoppingCart,
 } from 'lucide-react';
 
 /**
@@ -57,11 +66,31 @@ import {
   patchCrmVendor,
 } from '@/app/actions/crm-vendors.actions';
 import type { CrmVendor, WithId } from '@/lib/definitions';
+import { VendorPerformanceDashboard } from './vendor-performance-dashboard';
 
 type VendorRow = WithId<CrmVendor> & {
   bankAccountDetails?: { accountNumber?: string } | null;
   attachments?: string[];
+  complianceScore?: number; // 0 to 5
 };
+
+function StarRating({ score = 0 }: { score?: number }) {
+  const fullStars = Math.floor(score);
+  const halfStar = score % 1 >= 0.5;
+  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+  return (
+    <div className="flex items-center gap-0.5" title={`Score: ${score}/5`}>
+      {Array.from({ length: fullStars }).map((_, i) => (
+        <Star key={`full-${i}`} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+      ))}
+      {halfStar && <StarHalf className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />}
+      {Array.from({ length: emptyStars }).map((_, i) => (
+        <Star key={`empty-${i}`} className="h-3.5 w-3.5 text-zoru-line" />
+      ))}
+    </div>
+  );
+}
 
 function csvCell(v: unknown): string {
   if (v === null || v === undefined) return '';
@@ -254,11 +283,18 @@ export function VendorsListClient() {
       header: 'Vendor name',
       sortable: true,
       render: (row) => (
-        <EntityRowLink
-          href={`/dashboard/crm/purchases/vendors/${row._id}`}
-          label={row.name}
-          subtitle={row.email || row.phone || undefined}
-        />
+        <div className="flex items-center gap-2">
+          <EntityRowLink
+            href={`/dashboard/crm/purchases/vendors/${row._id}`}
+            label={row.name}
+            subtitle={row.email || row.phone || undefined}
+          />
+          {(!row.attachments || row.attachments.length === 0) && (
+            <div title="Missing compliance docs" className="text-zoru-warning-ink">
+              <FileWarning className="h-4 w-4" />
+            </div>
+          )}
+        </div>
       ),
     },
     {
@@ -308,6 +344,12 @@ export function VendorsListClient() {
       render: (row) => <span className="text-[12.5px] font-mono text-zoru-ink">{row.gstin || '—'}</span>,
     },
     {
+      key: 'health',
+      header: 'Health Score',
+      sortable: true,
+      render: (row) => <StarRating score={row.complianceScore ?? 0} />,
+    },
+    {
       key: 'actions',
       header: '',
       render: (row) => (
@@ -327,6 +369,27 @@ export function VendorsListClient() {
           >
             <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
           </Button>
+          <ZoruDropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreHorizontal className="h-4 w-4 text-zoru-ink-muted" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/crm/purchases/orders/new?vendorId=${row._id}`}>
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  Create PO
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/crm/purchases/orders?vendorId=${row._id}`}>
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  View POs
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </ZoruDropdownMenu>
         </div>
       ),
     },
@@ -356,6 +419,8 @@ export function VendorsListClient() {
           icon={<Paperclip className="h-4 w-4" />}
         />
       </div>
+
+      <VendorPerformanceDashboard vendors={vendors} />
 
       <EntityListShell
         title=""

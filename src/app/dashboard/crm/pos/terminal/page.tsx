@@ -28,7 +28,11 @@ import {
     getPosSessions,
     getPosTransactions,
     searchPosItems,
+    PosTerminalDoc,
 } from '@/app/actions/crm-pos.actions';
+import { connectToDatabase } from '@/lib/mongodb';
+import { getSession } from '@/app/actions/user.actions';
+import { ObjectId } from 'mongodb';
 
 import { PosTerminalClient } from '../_components/pos-terminal-client';
 import { PosTerminalManagerClient } from '../_components/pos-terminal-manager-client';
@@ -106,12 +110,21 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
     }
 
     /* ─── Manager mode: device list ────────────────────────────── */
+    const dbSession = await getSession();
+    let registryTerminals: PosTerminalDoc[] = [];
+    if (dbSession?.user?._id) {
+        const { db } = await connectToDatabase();
+        registryTerminals = await db.collection('crm_pos_terminals').find({
+            userId: new ObjectId(String(dbSession.user._id))
+        }).toArray() as any[];
+    }
+
     const [allSessions, allTxns] = await Promise.all([
         getPosSessions({}),
         getPosTransactions({ limit: 500 }),
     ]);
 
-    // Derive distinct terminals from session history.
+    // Derive distinct terminals from session history + lookup registry.
     // For each terminal we compute: most-recent activity, current open
     // session (if any), today's revenue & txn count.
     const startOfDay = new Date();
@@ -156,6 +169,31 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
             cur.openedByName = s.openedByName ?? null;
         }
         byTerminal.set(s.terminalId, cur);
+    }
+    
+    // Override with registry data for explicit heartbeat/status
+    for (const rt of registryTerminals) {
+        const cur = byTerminal.get(rt.terminalId) ?? {
+            terminalId: rt.terminalId,
+            status: rt.status,
+            lastHeartbeat: rt.lastHeartbeat,
+            openSessionId: rt.openSessionId,
+            openedByName: null,
+            sessionsCount: 0,
+            revenueToday: 0,
+            txnsToday: 0,
+        };
+        // Heartbeats from registry shouldn't override if session/txns have more recent activity
+        if (!cur.lastHeartbeat || (rt.lastHeartbeat && new Date(rt.lastHeartbeat).getTime() > new Date(cur.lastHeartbeat).getTime())) {
+            cur.lastHeartbeat = rt.lastHeartbeat;
+        }
+        // If 5 mins passed without heartbeat, mark offline
+        if (rt.lastHeartbeat && (Date.now() - new Date(rt.lastHeartbeat).getTime()) > 5 * 60 * 1000) {
+            cur.status = 'offline';
+        } else {
+            cur.status = rt.status;
+        }
+        byTerminal.set(rt.terminalId, cur);
     }
 
     // Apply today's txn rollups against each session's terminal

@@ -5,11 +5,11 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { VendorEditForm } from './edit-form';
 
 interface PageProps {
-    params: Promise<{ id: string }>;
+    params: Promise<{ vendorId: string }>;
 }
 
 export default async function VendorEditPage({ params }: PageProps) {
-    const { id } = await params;
+    const { vendorId: id } = await params;
     const vendor = await getCrmVendorById(id);
     if (!vendor) notFound();
 

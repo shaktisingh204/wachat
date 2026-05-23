@@ -43,6 +43,7 @@ export default async function NewItemPage({ searchParams }: PageProps) {
         ...rest,
         sku: sourceSku ? `${sourceSku}-COPY` : '',
         name: `${(source.name as string) ?? 'Item'} (copy)`,
+        images: rest.images ? JSON.parse(JSON.stringify(rest.images)) : [],
       } as never;
     }
   }

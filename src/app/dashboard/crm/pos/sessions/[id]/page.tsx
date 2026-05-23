@@ -193,6 +193,16 @@ export default async function PosSessionDetailPage({
         0,
     );
 
+    const liveExpectedCash = typeof session.expectedCash === 'number' 
+        ? session.expectedCash 
+        : (session.openingCash ?? 0) + cashRevenue;
+
+    const liveDiscrepancy = typeof session.discrepancy === 'number'
+        ? session.discrepancy
+        : typeof session.closingCash === 'number' 
+            ? session.closingCash - liveExpectedCash 
+            : null;
+
     const sessionDuration =
         session.openedAt && session.closedAt
             ? new Date(session.closedAt).getTime() -
@@ -366,20 +376,20 @@ export default async function PosSessionDetailPage({
                             />
                             <Field
                                 label="Expected cash"
-                                value={fmtMoney(session.expectedCash ?? null)}
+                                value={fmtMoney(liveExpectedCash)}
                             />
                             <Field
                                 label="Discrepancy"
                                 value={
                                     <span
                                         className={
-                                            typeof session.discrepancy === 'number' &&
-                                            session.discrepancy !== 0
+                                            typeof liveDiscrepancy === 'number' &&
+                                            liveDiscrepancy !== 0
                                                 ? 'text-zoru-accent'
                                                 : undefined
                                         }
                                     >
-                                        {fmtMoney(session.discrepancy ?? null)}
+                                        {fmtMoney(liveDiscrepancy)}
                                     </span>
                                 }
                             />
@@ -488,7 +498,7 @@ export default async function PosSessionDetailPage({
                             />
                             <Field
                                 label="Expected cash"
-                                value={fmtMoney(session.expectedCash ?? null)}
+                                value={fmtMoney(liveExpectedCash)}
                             />
                             <Field
                                 label="Closing cash"
@@ -511,13 +521,13 @@ export default async function PosSessionDetailPage({
                                 value={
                                     <span
                                         className={
-                                            typeof session.discrepancy === 'number' &&
-                                            session.discrepancy !== 0
+                                            typeof liveDiscrepancy === 'number' &&
+                                            liveDiscrepancy !== 0
                                                 ? 'text-zoru-accent'
                                                 : undefined
                                         }
                                     >
-                                        {fmtMoney(session.discrepancy ?? null)}
+                                        {fmtMoney(liveDiscrepancy)}
                                     </span>
                                 }
                             />

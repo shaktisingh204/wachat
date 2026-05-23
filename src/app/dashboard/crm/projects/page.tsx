@@ -57,6 +57,7 @@ import {
   isOverdue,
   type ProjectRow,
 } from './_components/projects-table';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import { ProjectsKanban } from './_components/projects-kanban';
 import { ProjectsGantt } from './_components/projects-gantt';
 
@@ -324,16 +325,19 @@ export default function ProjectsPage() {
                 Clear filters
               </Button>
             ) : null}
-            {/* TODO 1D.1: wire <EntityFormField> chips for client + category filters */}
-            <input
-              type="hidden"
-              value={clientFilter}
-              onChange={() => setClientFilter('')}
+            <EntityFormField
+              entity="client"
+              name="clientFilter"
+              initialId={clientFilter}
+              placeholder="All clients"
+              onChange={(id) => setClientFilter(id || '')}
             />
-            <input
-              type="hidden"
-              value={categoryFilter}
-              onChange={() => setCategoryFilter('')}
+            <EntityFormField
+              entity="project-category"
+              name="categoryFilter"
+              initialId={categoryFilter}
+              placeholder="All categories"
+              onChange={(id) => setCategoryFilter(id || '')}
             />
           </>
         }

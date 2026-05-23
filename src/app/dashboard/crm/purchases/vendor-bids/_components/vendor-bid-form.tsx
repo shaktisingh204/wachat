@@ -200,6 +200,24 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
       prev.map((l) => (l.key === key ? { ...l, ...patch } : l)),
     );
 
+  const isLocked = editing && (initial?.status === 'awarded' || initial?.status === 'rejected');
+
+  if (isLocked) {
+    return (
+      <div className="rounded-md border border-zoru-line bg-zoru-surface-2 p-6 text-center">
+        <h3 className="text-[14px] font-semibold text-zoru-ink">Bid is Locked</h3>
+        <p className="mt-2 text-[13px] text-zoru-ink-muted">
+          This bid is currently <strong>{initial.status}</strong> and cannot be edited. Please withdraw or change its status first.
+        </p>
+        <Button variant="outline" asChild className="mt-4">
+          <Link href={`/dashboard/crm/purchases/vendor-bids/${initial._id}`}>
+            Return to Bid
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <form ref={formRef} action={formAction} className="space-y-6">
       {editing ? (

@@ -19,6 +19,7 @@ export interface VendorBidListRow {
   submittedAt?: string;
   currency?: string;
   total?: number;
+  budget?: number;
   leadTimeDays?: number;
   status: string;
   createdAt?: string;

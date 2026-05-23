@@ -18,6 +18,17 @@ import type { WsProjectLabelList } from '@/lib/worksuite/project-types';
 
 type Row = WsProjectLabelList & { _id: string };
 
+function getContrastYIQ(hexcolor: string) {
+  if (!hexcolor) return 'inherit';
+  const hex = hexcolor.replace('#', '');
+  if (hex.length !== 6 && hex.length !== 3) return 'inherit';
+  const r = parseInt(hex.length === 3 ? hex[0] + hex[0] : hex.substr(0, 2), 16);
+  const g = parseInt(hex.length === 3 ? hex[1] + hex[1] : hex.substr(2, 2), 16);
+  const b = parseInt(hex.length === 3 ? hex[2] + hex[2] : hex.substr(4, 2), 16);
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 128 ? '#000000' : '#ffffff';
+}
+
 export default function ProjectLabelsPage() {
   return (
     <TaxonomyLookupPage<Row>
@@ -33,7 +44,21 @@ export default function ProjectLabelsPage() {
       deleteAction={deleteWsProjectLabel}
       bulkDelete={bulkDeleteWsProjectLabels}
       columns={[
-        { key: 'labelName', label: 'Name' },
+        {
+          key: 'labelName',
+          label: 'Name',
+          render: (r) => (
+            <span
+              className="inline-flex px-2 py-0.5 text-xs font-medium rounded-md border border-zoru-line"
+              style={{
+                backgroundColor: r.color || 'transparent',
+                color: r.color ? getContrastYIQ(r.color) : 'inherit',
+              }}
+            >
+              {r.labelName}
+            </span>
+          )
+        },
         {
           key: 'color',
           label: 'Color',

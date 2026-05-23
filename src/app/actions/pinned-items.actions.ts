@@ -193,8 +193,60 @@ export async function getMyPinnedItems(): Promise<GroupedPinned[]> {
       .sort({ resource_type: 1, position: 1, pinned_at: -1 })
       .toArray();
 
-    const byType = new Map<PinnableEntityType, PinnedItem[]>();
+    const typeToCol: Record<string, string> = {
+      task: 'crm_tasks',
+      project: 'crm_projects',
+      lead: 'crm_leads',
+      deal: 'crm_deals',
+      ticket: 'crm_tickets',
+      invoice: 'crm_invoices',
+      contact: 'crm_contacts',
+      kb: 'crm_kb_articles',
+      note: 'crm_notes',
+    };
+
+    const validRows: any[] = [];
+    const orphans: ObjectId[] = [];
+
+    const rowsByType = new Map<string, any[]>();
     for (const r of rows) {
+      const type = r.resource_type as string;
+      const arr = rowsByType.get(type) ?? [];
+      arr.push(r);
+      rowsByType.set(type, arr);
+    }
+
+    for (const [type, typeRows] of rowsByType.entries()) {
+      const targetCol = typeToCol[type];
+      if (!targetCol) {
+        validRows.push(...typeRows);
+        continue;
+      }
+      
+      const resourceIds = typeRows.map((r) => r.resource_id).filter((id) => ObjectId.isValid(String(id))).map((id) => new ObjectId(String(id)));
+      if (resourceIds.length === 0) {
+        validRows.push(...typeRows);
+        continue;
+      }
+      
+      const found = await db.collection(targetCol).find({ _id: { $in: resourceIds } }, { projection: { _id: 1 } }).toArray();
+      const foundSet = new Set(found.map((f) => String(f._id)));
+
+      for (const r of typeRows) {
+        if (ObjectId.isValid(String(r.resource_id)) && !foundSet.has(String(r.resource_id))) {
+          orphans.push(r._id);
+        } else {
+          validRows.push(r);
+        }
+      }
+    }
+
+    if (orphans.length > 0) {
+      await db.collection(COL).deleteMany({ _id: { $in: orphans } });
+    }
+
+    const byType = new Map<PinnableEntityType, PinnedItem[]>();
+    for (const r of validRows) {
       const item = rowToItem(r as Record<string, unknown>);
       const arr = byType.get(item.entityType) ?? [];
       arr.push(item);

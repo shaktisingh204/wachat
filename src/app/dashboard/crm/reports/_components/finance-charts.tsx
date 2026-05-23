@@ -55,6 +55,7 @@ export function MonthlyTrendLine({
         <Tooltip contentStyle={tooltipStyle} formatter={((v: number) => fmtINR(v)) as never} />
         <Legend wrapperStyle={{ fontSize: 12 }} />
         <Line type="monotone" dataKey="total" name={label} stroke={color} strokeWidth={2} dot={{ r: 3 }} />
+        <Line type="monotone" dataKey="forecast" name="Forecast" stroke={color} strokeDasharray="5 5" strokeWidth={2} dot={{ r: 3 }} />
       </LineChart>
     </ResponsiveContainer>
   );

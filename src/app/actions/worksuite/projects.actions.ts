@@ -452,7 +452,7 @@ export async function deleteWsProjectLabel(id: string) {
  * ══════════════════════════════════════════════════════════════════ */
 
 export async function getWsProjectCategories() {
-  return hrList<WsProjectCategory>('crm_project_categories');
+  return hrList<WsProjectCategory>('crm_project_categories', { extraFilter: { deletedAt: { $exists: false } } });
 }
 export async function saveWsProjectCategory(_prev: any, formData: FormData) {
   return genericSave(
@@ -462,13 +462,19 @@ export async function saveWsProjectCategory(_prev: any, formData: FormData) {
   );
 }
 export async function deleteWsProjectCategory(id: string) {
-  const r = await hrDelete('crm_project_categories', id);
+  const user = await requireSession();
+  if (!user) return { success: false };
+  const { db } = await connectToDatabase();
+  await db.collection('crm_project_categories').updateOne(
+    { _id: new ObjectId(id), userId: new ObjectId(user._id) },
+    { $set: { deletedAt: new Date() } }
+  );
   revalidatePath('/dashboard/crm/projects/categories');
-  return r;
+  return { success: true };
 }
 
 export async function getWsProjectSubCategories() {
-  return hrList<WsProjectSubCategory>('crm_project_sub_categories');
+  return hrList<WsProjectSubCategory>('crm_project_sub_categories', { extraFilter: { deletedAt: { $exists: false } } });
 }
 export async function saveWsProjectSubCategory(_prev: any, formData: FormData) {
   return genericSave(
@@ -479,9 +485,15 @@ export async function saveWsProjectSubCategory(_prev: any, formData: FormData) {
   );
 }
 export async function deleteWsProjectSubCategory(id: string) {
-  const r = await hrDelete('crm_project_sub_categories', id);
+  const user = await requireSession();
+  if (!user) return { success: false };
+  const { db } = await connectToDatabase();
+  await db.collection('crm_project_sub_categories').updateOne(
+    { _id: new ObjectId(id), userId: new ObjectId(user._id) },
+    { $set: { deletedAt: new Date() } }
+  );
   revalidatePath('/dashboard/crm/projects/categories');
-  return r;
+  return { success: true };
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -564,7 +576,7 @@ export async function getWsSubTasksByTask(taskId: string) {
 }
 export async function saveWsSubTask(_prev: any, formData: FormData) {
   return genericSave('crm_sub_tasks', '/dashboard/crm/projects/subtasks', formData, {
-    idFields: ['taskId', 'projectId', 'assignedTo'],
+    idFields: ['taskId', 'projectId', 'assignedTo', 'dependencyId'],
     dateFields: ['startDate', 'dueDate'],
   });
 }
@@ -848,6 +860,18 @@ export async function saveWsIssue(_prev: any, formData: FormData) {
   if (!fd.get('assigneeUserId') && fd.get('assigneeId')) {
     fd.set('assigneeUserId', String(fd.get('assigneeId') ?? ''));
   }
+  
+  // Enhancement: Automatically assign issue to project lead if unassigned
+  if (!fd.get('assigneeUserId') && fd.get('projectId')) {
+    const proj = await getWsProjectById(String(fd.get('projectId')));
+    if (proj && proj.projectAdmin) {
+      fd.set('assigneeUserId', String(proj.projectAdmin));
+      if (proj.managerName) {
+        fd.set('assigneeName', proj.managerName);
+      }
+    }
+  }
+
   return genericSave('crm_issues', '/dashboard/crm/projects/issues', fd, {
     idFields: ['projectId', 'reporterUserId', 'assigneeUserId'],
     dateFields: ['dueDate'],
@@ -1259,10 +1283,30 @@ export async function bulkDeleteWsProjectLabels(ids: string[]) {
   return tenantBulkDelete('crm_project_labels', '/dashboard/crm/projects/labels', ids);
 }
 export async function bulkDeleteWsProjectCategories(ids: string[]) {
-  return tenantBulkDelete('crm_project_categories', '/dashboard/crm/projects/categories', ids);
+  const user = await requireSession();
+  if (!user) return { deleted: 0, failed: ids.length, error: 'Access denied' };
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { deleted: 0, failed: 0 };
+  const { db } = await connectToDatabase();
+  const res = await db.collection('crm_project_categories').updateMany(
+    { _id: { $in: oids }, userId: new ObjectId(user._id) },
+    { $set: { deletedAt: new Date() } }
+  );
+  revalidatePath('/dashboard/crm/projects/categories');
+  return { deleted: res.modifiedCount, failed: Math.max(0, ids.length - res.modifiedCount) };
 }
 export async function bulkDeleteWsProjectSubCategories(ids: string[]) {
-  return tenantBulkDelete('crm_project_sub_categories', '/dashboard/crm/projects/categories', ids);
+  const user = await requireSession();
+  if (!user) return { deleted: 0, failed: ids.length, error: 'Access denied' };
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { deleted: 0, failed: 0 };
+  const { db } = await connectToDatabase();
+  const res = await db.collection('crm_project_sub_categories').updateMany(
+    { _id: { $in: oids }, userId: new ObjectId(user._id) },
+    { $set: { deletedAt: new Date() } }
+  );
+  revalidatePath('/dashboard/crm/projects/categories');
+  return { deleted: res.modifiedCount, failed: Math.max(0, ids.length - res.modifiedCount) };
 }
 export async function bulkDeleteWsTaskLabels(ids: string[]) {
   return tenantBulkDelete('crm_task_labels', '/dashboard/crm/projects/task-labels', ids);
@@ -1386,4 +1430,153 @@ export async function bulkCompleteMilestones(
   } catch (e: any) {
     return { updated: 0, failed: ids.length, error: e?.message || 'Bulk complete failed' };
   }
+}
+
+export async function bulkDeleteWsSubTasks(
+  ids: string[],
+): Promise<{ deleted: number; failed: number; error?: string }> {
+  return tenantBulkDelete('crm_sub_tasks', '/dashboard/crm/projects/subtasks', ids);
+}
+
+export async function bulkCompleteWsSubTasks(
+  ids: string[],
+): Promise<{ updated: number; failed: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { updated: 0, failed: ids.length, error: 'Access denied' };
+
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { updated: 0, failed: ids.length, error: 'No valid IDs' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const r = await db.collection('crm_sub_tasks').updateMany(
+      { _id: { $in: oids }, userId: new ObjectId(user._id) },
+      { $set: { status: 'completed', updatedAt: new Date() } },
+    );
+    revalidatePath('/dashboard/crm/projects/subtasks');
+    return {
+      updated: r.modifiedCount,
+      failed: Math.max(0, ids.length - r.modifiedCount),
+    };
+  } catch (e: any) {
+    return { updated: 0, failed: ids.length, error: e?.message || 'Bulk complete failed' };
+  }
+}
+
+export async function bulkAssignWsSubTasks(
+  ids: string[],
+  assignedTo: string,
+  assignedToName: string,
+): Promise<{ updated: number; failed: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { updated: 0, failed: ids.length, error: 'Access denied' };
+
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { updated: 0, failed: ids.length, error: 'No valid IDs' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const r = await db.collection('crm_sub_tasks').updateMany(
+      { _id: { $in: oids }, userId: new ObjectId(user._id) },
+      { $set: { assignedTo: new ObjectId(assignedTo), assignedToName, updatedAt: new Date() } },
+    );
+    revalidatePath('/dashboard/crm/projects/subtasks');
+    return {
+      updated: r.modifiedCount,
+      failed: Math.max(0, ids.length - r.modifiedCount),
+    };
+  } catch (e: any) {
+    return { updated: 0, failed: ids.length, error: e?.message || 'Bulk assign failed' };
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Issue Comments
+ * ══════════════════════════════════════════════════════════════════ */
+
+export async function getWsIssueCommentsByIssue(issueId: string) {
+  return hrList<any>('crm_issue_comments', { extraFilter: { issueId } });
+}
+
+export async function saveWsIssueComment(_prev: any, formData: FormData) {
+  const result = await genericSave('crm_issue_comments', '/dashboard/crm/projects', formData, {
+    idFields: ['issueId', 'commentByUserId'],
+  });
+  if (result.id) {
+    const body = String(formData.get('comment') ?? formData.get('body') ?? '');
+    await processMentionsFromBody('issue_comment', result.id, body);
+  }
+  return result;
+}
+
+export async function deleteWsIssueComment(id: string) {
+  const r = await hrDelete('crm_issue_comments', id);
+  revalidatePath('/dashboard/crm/projects');
+  return r;
+}
+
+export async function getWsSubTaskById(id: string) {
+  return hrGet<WsSubTask>('crm_sub_tasks', id);
+}
+export async function getWsIssuesKpis() {
+  const { db } = await connectToDatabase();
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  
+  const result = await db.collection('crm_issues').aggregate([
+    {
+      $facet: {
+        open: [
+          { $match: { status: { $nin: ['resolved', 'closed'] } } },
+          { $count: 'count' }
+        ],
+        critical: [
+          { $match: { 
+            status: { $nin: ['resolved', 'closed'] }, 
+            priority: 'urgent' 
+          } },
+          { $count: 'count' }
+        ],
+        resolvedThisMonth: [
+          { $match: { 
+            status: { $in: ['resolved', 'closed'] },
+            updatedAt: { $gte: thirtyDaysAgo }
+          } },
+          { $count: 'count' },
+        ],
+        avgResolutionDays: [
+          { $match: { 
+            status: { $in: ['resolved', 'closed'] },
+            createdAt: { $exists: true },
+            updatedAt: { $exists: true }
+          } },
+          {
+            $group: {
+              _id: null,
+              avgDiff: { 
+                $avg: { 
+                  $subtract: [
+                    { $toDate: '$updatedAt' }, 
+                    { $toDate: '$createdAt' }
+                  ] 
+                } 
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]).toArray();
+
+  const r = result[0] || {};
+  const openCount = r.open?.[0]?.count || 0;
+  const criticalCount = r.critical?.[0]?.count || 0;
+  const resolvedCount = r.resolvedThisMonth?.[0]?.count || 0;
+  const avgResolutionMs = r.avgResolutionDays?.[0]?.avgDiff || 0;
+  
+  return {
+    open: openCount,
+    critical: criticalCount,
+    resolvedThisMonth: resolvedCount,
+    avgResolutionDays: avgResolutionMs > 0 ? Math.round(avgResolutionMs / (1000 * 60 * 60 * 24)) : 0
+  };
 }

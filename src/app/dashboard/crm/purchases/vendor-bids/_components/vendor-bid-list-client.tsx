@@ -320,6 +320,8 @@ export function VendorBidListClient({
           onArchive={() => setArchivePending(true)}
           onDelete={() => setDeletePending(true)}
           onChangeStatus={bulk.changeStatus as (s: CrmVendorBidStatus) => void}
+          onApprove={bulk.approve}
+          onReject={bulk.reject}
         />
 
         <VendorBidTable

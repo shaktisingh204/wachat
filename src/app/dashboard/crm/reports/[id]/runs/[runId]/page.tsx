@@ -18,6 +18,7 @@ import {
     getReportRun,
 } from '@/app/actions/crm-reports.actions';
 import { RerunButton } from './rerun-button';
+import { RunResultsTable } from '../../../../_components/run-results-table';
 
 export const dynamic = 'force-dynamic';
 
@@ -101,42 +102,11 @@ export default async function ReportRunViewerPage({ params }: PageProps) {
                 </Card>
             )}
 
-            <Card>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead className="text-left text-muted-foreground">
-                            <tr>
-                                {(result?.columns ?? []).map((c) => (
-                                    <th key={c} className="px-3 py-2 font-medium">
-                                        {c}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {(result?.rows ?? []).length === 0 && (
-                                <tr>
-                                    <td
-                                        colSpan={(result?.columns ?? []).length || 1}
-                                        className="px-3 py-6 text-center text-muted-foreground"
-                                    >
-                                        No rows captured.
-                                    </td>
-                                </tr>
-                            )}
-                            {(result?.rows ?? []).map((row, idx) => (
-                                <tr key={idx} className="border-t border-border/50">
-                                    {row.map((cell, ci) => (
-                                        <td key={ci} className="px-3 py-2 font-mono text-xs">
-                                            {fmtCell(cell)}
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </Card>
+            <RunResultsTable 
+                reportName={def.name}
+                columns={result?.columns ?? []}
+                rows={result?.rows ?? []}
+            />
         </EntityListShell>
     );
 }

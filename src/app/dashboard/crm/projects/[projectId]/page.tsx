@@ -63,7 +63,8 @@ import {
   Bug,
   Clock,
   Paperclip,
-  } from 'lucide-react';
+} from 'lucide-react';
+import { format, isValid } from 'date-fns';
 import {
   getWsProjectById,
   getWsTasksByProject,
@@ -99,7 +100,8 @@ import type {
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
-import { BurndownChart } from '../_components/burndown-chart';
+import dynamic from 'next/dynamic';
+const BurndownChart = dynamic(() => import('../_components/burndown-chart').then(m => m.BurndownChart));
 import { PinButton } from '@/components/crm/pin-button';
 import { ProjectPublicSharePanel } from '../_components/project-public-share-panel';
 
@@ -148,7 +150,7 @@ type TabId =
 function fmtDate(v: unknown): string {
   if (!v) return '—';
   const d = new Date(v as any);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return isValid(d) ? format(d, 'MMM d, yyyy') : '—';
 }
 
 export default function ProjectDetailPage(props: {
@@ -747,8 +749,26 @@ export default function ProjectDetailPage(props: {
         )}
 
         {/* ── Members ── */}
-        {activeTab === 'members' && (
+                {activeTab === 'members' && (
           <div>
+            <div className="mb-6 grid gap-4 md:grid-cols-3">
+              <div className="rounded-lg border border-zoru-line p-4">
+                <p className="text-[11.5px] text-zoru-ink-muted">Total Members</p>
+                <p className="mt-1 text-2xl font-semibold text-zoru-ink">{members.length}</p>
+              </div>
+              <div className="rounded-lg border border-zoru-line p-4">
+                <p className="text-[11.5px] text-zoru-ink-muted">Avg Hourly Rate</p>
+                <p className="mt-1 text-2xl font-semibold text-zoru-ink">
+                  ₹{members.length > 0 ? Math.round(members.reduce((acc, m) => acc + (m.hourlyRate || 0), 0) / members.length) : 0}/hr
+                </p>
+              </div>
+              <div className="rounded-lg border border-zoru-line p-4">
+                <p className="text-[11.5px] text-zoru-ink-muted">Total Hourly Burn</p>
+                <p className="mt-1 text-2xl font-semibold text-zoru-ink">
+                  ₹{members.reduce((acc, m) => acc + (m.hourlyRate || 0), 0)}/hr
+                </p>
+              </div>
+            </div>
             <div className="mb-4 flex justify-end">
               <Button onClick={() => setMemberDialogOpen(true)}>
                 <Users className="h-4 w-4" strokeWidth={1.75} />

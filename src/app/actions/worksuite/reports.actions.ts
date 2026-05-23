@@ -1762,7 +1762,10 @@ export async function getTaxReportDeep(
       },
       {
         $group: {
-          _id: { $dateToString: { format: '%Y-%m', date: '$invoiceDate' } },
+          _id: {
+            period: { $dateToString: { format: '%Y-%m', date: '$invoiceDate' } },
+            taxType: { $ifNull: ['$taxType', 'GST'] },
+          },
           subtotal: { $sum: { $ifNull: ['$subtotal', 0] } },
           total: { $sum: { $ifNull: ['$total', 0] } },
         },
@@ -1777,7 +1780,10 @@ export async function getTaxReportDeep(
       },
       {
         $group: {
-          _id: { $dateToString: { format: '%Y-%m', date: '$expenseDate' } },
+          _id: {
+            period: { $dateToString: { format: '%Y-%m', date: '$expenseDate' } },
+            taxType: { $ifNull: ['$taxType', 'GST'] },
+          },
           taxAmount: { $sum: { $ifNull: ['$taxAmount', 0] } },
         },
       },
@@ -1788,18 +1794,23 @@ export async function getTaxReportDeep(
     }).catch(() => 0),
   ]);
 
-  const byPeriod = new Map<string, TaxMonthlyRow>();
-  for (const r of invRows as Array<{ _id: string; subtotal: number; total: number }>) {
+  const byKey = new Map<string, TaxMonthlyRow>();
+  for (const r of invRows as Array<{ _id: { period: string, taxType: string }; subtotal: number; total: number }>) {
     const collected = Math.max(0, (r.total || 0) - (r.subtotal || 0));
-    byPeriod.set(r._id, { period: r._id, collected, paid: 0, net: collected });
+    const key = `${r._id.period}-${r._id.taxType}`;
+    byKey.set(key, { period: r._id.period, taxType: r._id.taxType, collected, paid: 0, net: collected });
   }
-  for (const r of expRows as Array<{ _id: string; taxAmount: number }>) {
-    const row = byPeriod.get(r._id) || { period: r._id, collected: 0, paid: 0, net: 0 };
+  for (const r of expRows as Array<{ _id: { period: string, taxType: string }; taxAmount: number }>) {
+    const key = `${r._id.period}-${r._id.taxType}`;
+    const row = byKey.get(key) || { period: r._id.period, taxType: r._id.taxType, collected: 0, paid: 0, net: 0 };
     row.paid = r.taxAmount || 0;
     row.net = row.collected - row.paid;
-    byPeriod.set(r._id, row);
+    byKey.set(key, row);
   }
-  const monthly = Array.from(byPeriod.values()).sort((a, b) => a.period.localeCompare(b.period));
+  const monthly = Array.from(byKey.values()).sort((a, b) => {
+    if (a.period === b.period) return a.taxType.localeCompare(b.taxType);
+    return a.period.localeCompare(b.period);
+  });
   const taxCollected = monthly.reduce((s, r) => s + r.collected, 0);
   const taxPaid = monthly.reduce((s, r) => s + r.paid, 0);
 
@@ -1817,7 +1828,11 @@ export async function getTaxReportDeep(
 
 /* ─── Invoice Aging deep ─────────────────────────────────────── */
 
-export async function getInvoiceAgingDeep(): Promise<{
+export async function getInvoiceAgingDeep(filters?: {
+  client?: string;
+  bucket?: string;
+  currency?: string;
+}): Promise<{
   kpis: InvoiceAgingKpis;
   byClient: InvoiceAgingClientRow[];
   rows: InvoiceAgingDetailRow[];
@@ -1832,12 +1847,15 @@ export async function getInvoiceAgingDeep(): Promise<{
   const { db } = await connectToDatabase();
   const today = new Date();
 
+  const match: Record<string, any> = {
+    userId: toOid(user),
+    status: { $in: ['Sent', 'Partially Paid', 'Overdue'] },
+  };
+  if (filters?.currency) match.currency = filters.currency;
+
   const invoices = await db.collection('crm_invoices').aggregate([
     {
-      $match: {
-        userId: toOid(user),
-        status: { $in: ['Sent', 'Partially Paid', 'Overdue'] },
-      },
+      $match: match,
     },
     {
       $lookup: {
@@ -1863,22 +1881,28 @@ export async function getInvoiceAgingDeep(): Promise<{
     let bucket: InvoiceAgingDetailRow['bucket'];
     if (diffDays <= 30) {
       bucket = '0-30';
-      kpis.current += outstanding;
     } else if (diffDays <= 60) {
       bucket = '31-60';
-      kpis.d31to60 += outstanding;
     } else if (diffDays <= 90) {
       bucket = '61-90';
-      kpis.d61to90 += outstanding;
     } else {
       bucket = '90+';
-      kpis.over90 += outstanding;
     }
+
+    if (filters?.bucket && bucket !== filters.bucket) continue;
+
+    if (bucket === '0-30') kpis.current += outstanding;
+    else if (bucket === '31-60') kpis.d31to60 += outstanding;
+    else if (bucket === '61-90') kpis.d61to90 += outstanding;
+    else kpis.over90 += outstanding;
+
     kpis.total += outstanding;
     kpis.openCount += 1;
 
     const accountId = String(inv.accountId || '');
     const clientName = inv.acct?.[0]?.name || inv.clientName || 'Unknown';
+    if (filters?.client && !clientName.toLowerCase().includes(filters.client.toLowerCase())) continue;
+
     let cr = byClientMap.get(accountId);
     if (!cr) {
       cr = { accountId, clientName, current: 0, d31to60: 0, d61to90: 0, over90: 0, total: 0, openCount: 0 };
@@ -1901,6 +1925,7 @@ export async function getInvoiceAgingDeep(): Promise<{
       daysOverdue: Math.max(0, diffDays),
       outstanding,
       bucket,
+      isDisputed: inv.isDisputed || false,
     });
   }
 
@@ -2141,6 +2166,12 @@ export async function getCrmDealsFiltered(
 
 export async function getPaymentReportDeep(
   fyAnchor?: string,
+  filters?: {
+    mode?: string;
+    client?: string;
+    currency?: string;
+    status?: string;
+  }
 ): Promise<{
   kpis: PaymentReportKpis;
   mtdByDay: PaymentMtdRow[];
@@ -2242,6 +2273,9 @@ export async function getPaymentReportDeep(
         $match: {
           userId: toOid(user),
           receiptDate: { $gte: fy.start, $lte: fy.end },
+          ...(filters?.mode ? { $or: [{ mode: { $regex: new RegExp(`^${filters.mode}$`, 'i') } }, { paymentMode: { $regex: new RegExp(`^${filters.mode}$`, 'i') } }] } : {}),
+          ...(filters?.currency ? { currency: filters.currency } : {}),
+          ...(filters?.status ? { status: filters.status } : {}),
         },
       },
       {
@@ -2252,6 +2286,14 @@ export async function getPaymentReportDeep(
           as: 'acct',
         },
       },
+      ...(filters?.client ? [{
+        $match: {
+          $or: [
+            { clientName: { $regex: new RegExp(filters.client, 'i') } },
+            { 'acct.name': { $regex: new RegExp(filters.client, 'i') } }
+          ]
+        }
+      }] : []),
       { $sort: { receiptDate: -1 } },
       { $limit: 500 },
     ]).toArray(),
@@ -2309,6 +2351,7 @@ export async function getPaymentReportDeep(
       method: String(rec.mode || rec.paymentMode || 'cash'),
       invoiceNumber: String(rec.invoiceNumber || ''),
       invoiceId: String(first.invoiceId || ''),
+      isChargeback: rec.isChargeback || rec.status === 'chargeback' || false,
     };
   });
 

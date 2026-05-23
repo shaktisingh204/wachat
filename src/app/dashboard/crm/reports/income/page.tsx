@@ -15,7 +15,7 @@ import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatCard, fmtMoney, fmtPct } from '../_components/report-toolbar';
 import { MonthlyTrendLine, CategoryPie } from '../_components/finance-charts';
-import { getIncomeReportDeep } from '@/app/actions/worksuite/reports.actions';
+import { getIncomeReportDeepDB } from '../_components/finance-data';
 import { IncomeFilterToolbar } from './_components/income-filter-toolbar';
 
 const PAGE_SIZES = [10, 20, 50, 100];
@@ -35,29 +35,18 @@ export default async function IncomeReportPage(props: {
   const page = Math.max(1, Number(sp.page) || 1);
   const limit = PAGE_SIZES.includes(Number(sp.limit)) ? Number(sp.limit) : 20;
 
-  const anchor = sp.from || undefined;
-  const { kpis, monthly, bySource, rows, fyLabel } =
-    await getIncomeReportDeep(anchor);
+  const data = await getIncomeReportDeepDB({
+    fyAnchor: sp.from,
+    source: sp.source,
+    client: sp.client,
+    page,
+    limit,
+  });
 
-  // Apply in-memory filters (source, client, paymentMode) over the 500-row window
-  let filteredRows = rows;
-  if (sp.source) {
-    const s = sp.source.toLowerCase();
-    filteredRows = filteredRows.filter((r) =>
-      r.source.toLowerCase().includes(s),
-    );
-  }
-  if (sp.client) {
-    const c = sp.client.toLowerCase();
-    filteredRows = filteredRows.filter((r) =>
-      r.clientName.toLowerCase().includes(c),
-    );
-  }
-  // paymentMode is not stored in IncomeInvoiceRow so we keep it as a UI-only param
-  // for the toolbar display; it does not yet filter (add a DB field later).
+  if (!data) return null;
+  const { kpis, monthly, bySource, rows: pageRows, totalCount, fyLabel } = data;
 
-  const pageRows = filteredRows.slice((page - 1) * limit, page * limit);
-  const hasMore = page * limit < filteredRows.length;
+  const hasMore = page * limit < totalCount;
 
   const exportHeaders = [
     'Invoice #',
@@ -68,7 +57,7 @@ export default async function IncomeReportPage(props: {
     'Paid',
     'Status',
   ];
-  const exportRows = filteredRows.map((r) => ({
+  const exportRows = pageRows.map((r) => ({
     'Invoice #': r.invoiceNumber,
     Date: r.invoiceDate,
     Client: r.clientName,
@@ -105,7 +94,7 @@ export default async function IncomeReportPage(props: {
           page={page}
           limit={limit}
           hasMore={hasMore}
-          total={filteredRows.length}
+          total={totalCount}
         />
       }
     >
@@ -121,7 +110,7 @@ export default async function IncomeReportPage(props: {
           label="YoY change"
           value={fmtPct(kpis.yoyChangePct)}
           tone={yoyTone}
-          hint="vs. prior FY"
+          hint={`Last YTD: ${fmtMoney((kpis as any).lastYtdTotal || 0)}`}
         />
         <StatCard
           label="Top source"

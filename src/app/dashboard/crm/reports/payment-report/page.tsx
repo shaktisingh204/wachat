@@ -37,15 +37,14 @@ export default async function PaymentReportPage(props: {
   const page = Math.max(1, Number(sp.page) || 1);
   const limit = PAGE_SIZES.includes(Number(sp.limit)) ? Number(sp.limit) : 20;
 
-  const anchor = sp.from || undefined;
-  const { kpis, mtdByDay, byMethod, rows, fyLabel } = await getPaymentReportDeep(anchor);
-
-  // Apply client-side filters on receipt rows
   const clientSearch = sp.client?.trim().toLowerCase() ?? '';
-  const filtered: PaymentReceiptRow[] = rows.filter((r) => {
-    if (sp.mode && r.method.toLowerCase() !== sp.mode.toLowerCase()) return false;
-    if (clientSearch && !r.clientName.toLowerCase().includes(clientSearch)) return false;
-    return true;
+  
+  const anchor = sp.from || undefined;
+  const { kpis, mtdByDay, byMethod, rows: filtered, fyLabel } = await getPaymentReportDeep(anchor, {
+    mode: sp.mode || undefined,
+    client: clientSearch || undefined,
+    currency: sp.currency || undefined,
+    status: sp.status || undefined,
   });
 
   const pageRows = filtered.slice((page - 1) * limit, page * limit);
@@ -53,7 +52,7 @@ export default async function PaymentReportPage(props: {
 
   // Build monthly trend from receipt rows
   const monthlyMap = new Map<string, number>();
-  for (const r of rows) {
+  for (const r of filtered) {
     const month = r.date ? r.date.slice(0, 7) : '';
     if (!month) continue;
     monthlyMap.set(month, (monthlyMap.get(month) || 0) + r.amount);
@@ -62,13 +61,14 @@ export default async function PaymentReportPage(props: {
     .sort((a, b) => a[0].localeCompare(b[0]))
     .map(([period, total]) => ({ period, total, count: 0 }));
 
-  const exportHeaders = ['Receipt #', 'Date', 'Client', 'Invoice', 'Method', 'Amount'];
+  const exportHeaders = ['Receipt #', 'Date', 'Client', 'Invoice', 'Method', 'Status', 'Amount'];
   const exportRows = filtered.map((r) => ({
     'Receipt #': r.receiptNumber,
     Date: r.date,
     Client: r.clientName,
     Invoice: r.invoiceNumber,
     Method: r.method,
+    Status: r.isChargeback ? 'Chargeback' : 'Received',
     Amount: r.amount,
   }));
 
@@ -236,6 +236,7 @@ export default async function PaymentReportPage(props: {
                 <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
                 <ZoruTableHead className="text-zoru-ink-muted">Invoice</ZoruTableHead>
                 <ZoruTableHead className="text-zoru-ink-muted">Method</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
                 <ZoruTableHead className="text-right text-zoru-ink-muted">Amount</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
@@ -243,7 +244,7 @@ export default async function PaymentReportPage(props: {
               {pageRows.length === 0 ? (
                 <ZoruTableRow className="border-zoru-line">
                   <ZoruTableCell
-                    colSpan={6}
+                    colSpan={7}
                     className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No receipts for selected filters.
@@ -272,6 +273,13 @@ export default async function PaymentReportPage(props: {
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <Badge variant="secondary">{r.method}</Badge>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      {r.isChargeback ? (
+                        <Badge variant="destructive">Chargeback</Badge>
+                      ) : (
+                        <Badge variant="success">Received</Badge>
+                      )}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-success-ink">
                       {fmtMoney(r.amount)}

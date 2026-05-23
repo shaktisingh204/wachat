@@ -39,16 +39,13 @@ export default async function InvoiceAgingPage(props: {
   const page = Math.max(1, Number(sp.page) || 1);
   const limit = PAGE_SIZES.includes(Number(sp.limit)) ? Number(sp.limit) : 20;
 
-  const { kpis, byClient, rows } = await getInvoiceAgingDeep();
-
-  // Apply filters
   const clientSearch = sp.client?.trim().toLowerCase() ?? '';
   const bucketFilter = sp.bucket as Bucket | undefined;
 
-  const filtered: InvoiceAgingDetailRow[] = rows.filter((r) => {
-    if (clientSearch && !r.clientName.toLowerCase().includes(clientSearch)) return false;
-    if (bucketFilter && r.bucket !== bucketFilter) return false;
-    return true;
+  const { kpis, byClient, rows: filtered } = await getInvoiceAgingDeep({
+    client: clientSearch || undefined,
+    bucket: bucketFilter,
+    currency: sp.currency || undefined,
   });
 
   const pageRows = filtered.slice((page - 1) * limit, page * limit);
@@ -74,6 +71,7 @@ export default async function InvoiceAgingPage(props: {
     'Due Date',
     'Days Overdue',
     'Bucket',
+    'Status',
     'Outstanding',
   ];
   const exportRows = filtered.map((r) => ({
@@ -83,6 +81,7 @@ export default async function InvoiceAgingPage(props: {
     'Due Date': r.dueDate,
     'Days Overdue': r.daysOverdue,
     Bucket: r.bucket,
+    Status: r.isDisputed ? 'Disputed' : 'Active',
     Outstanding: r.outstanding,
   }));
 
@@ -98,13 +97,27 @@ export default async function InvoiceAgingPage(props: {
       title="Invoice Aging"
       subtitle="Outstanding receivables grouped by days past due."
       primaryAction={
-        <FyReportToolbar
-          from={sp.from}
-          to={sp.to}
-          exportFilename="invoice-aging"
-          exportHeaders={exportHeaders}
-          exportRows={exportRows}
-        />
+        <div className="flex items-center gap-3">
+          <form action={async () => {
+            'use server';
+            // Placeholder for sending bulk dunning emails
+            console.log('Sending bulk dunning emails for 90+ days...');
+          }}>
+            <button
+              type="submit"
+              className="h-9 rounded-lg bg-zoru-danger-surface px-4 text-[13px] font-medium text-zoru-danger-ink border border-zoru-danger-border hover:bg-zoru-danger-border/20"
+            >
+              Send Dunning (90+)
+            </button>
+          </form>
+          <FyReportToolbar
+            from={sp.from}
+            to={sp.to}
+            exportFilename="invoice-aging"
+            exportHeaders={exportHeaders}
+            exportRows={exportRows}
+          />
+        </div>
       }
       pagination={<PaginationBar page={page} limit={limit} hasMore={hasMore} total={filtered.length} />}
     >
@@ -210,6 +223,7 @@ export default async function InvoiceAgingPage(props: {
                 <ZoruTableHead className="text-zoru-ink-muted">Due date</ZoruTableHead>
                 <ZoruTableHead className="text-right text-zoru-ink-muted">Days overdue</ZoruTableHead>
                 <ZoruTableHead className="text-zoru-ink-muted">Bucket</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
                 <ZoruTableHead className="text-right text-zoru-ink-muted">Outstanding</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
@@ -217,7 +231,7 @@ export default async function InvoiceAgingPage(props: {
               {pageRows.length === 0 ? (
                 <ZoruTableRow className="border-zoru-line">
                   <ZoruTableCell
-                    colSpan={7}
+                    colSpan={8}
                     className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No overdue invoices matching filters.
@@ -248,6 +262,13 @@ export default async function InvoiceAgingPage(props: {
                       <ZoruTableCell className="text-right text-[13px] text-zoru-ink">{r.daysOverdue}</ZoruTableCell>
                       <ZoruTableCell>
                         <Badge variant={bucketVariant[r.bucket]}>{r.bucket}</Badge>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        {r.isDisputed ? (
+                          <Badge variant="destructive">Disputed</Badge>
+                        ) : (
+                          <Badge variant="secondary">Active</Badge>
+                        )}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-danger-ink">
                         {fmtMoney(r.outstanding)}

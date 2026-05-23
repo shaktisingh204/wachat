@@ -53,6 +53,8 @@ import {
     createPosHold,
     recallPosHold,
     searchPosItems,
+    registerPosTerminal,
+    heartbeatPosTerminal,
     type PosSessionDoc,
     type PosHoldDoc,
     type PosItemRow,
@@ -132,6 +134,21 @@ export function PosTerminalClient({
         method: PosPaymentMethod;
         lines: PosLineItem[];
     } | null>(null);
+
+    // Terminal Registry & Heartbeat
+    React.useEffect(() => {
+        let interval: NodeJS.Timeout;
+        const initTerminal = async () => {
+            await registerPosTerminal(session.terminalId, session._id);
+            interval = setInterval(() => {
+                heartbeatPosTerminal(session.terminalId);
+            }, 30000); // 30 second heartbeat
+        };
+        initTerminal();
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [session.terminalId, session._id]);
 
     const onSearch = async (raw: string) => {
         setQuery(raw);

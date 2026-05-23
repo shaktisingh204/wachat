@@ -338,3 +338,69 @@ export async function deletePortalUser(
     return { success: false, error: e?.message || 'Delete failed.' };
   }
 }
+
+export async function bulkRevokePortalUsers(ids: string[]): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, error: 'Unauthorized.' };
+  try {
+    const { db } = await connectToDatabase();
+    const objectIds = ids.map(id => new ObjectId(id));
+    await db.collection('crm_portal_users').updateMany(
+      { _id: { $in: objectIds }, userId: new ObjectId(session.user._id as string) },
+      { $set: { status: 'suspended', suspendedAt: new Date(), sessionVersion: Date.now() } }
+    );
+    revalidatePath('/dashboard/crm/portal');
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'Bulk revoke failed.' };
+  }
+}
+
+export async function forceLogoutPortalUser(id: string): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, error: 'Unauthorized.' };
+  try {
+    const { db } = await connectToDatabase();
+    await db.collection('crm_portal_users').updateOne(
+      { _id: new ObjectId(id), userId: new ObjectId(session.user._id as string) },
+      { $set: { sessionVersion: Date.now(), forceLogoutAt: new Date() } }
+    );
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'force_logout',
+        entityKind: 'portal_user',
+        entityId: id,
+      });
+    } catch {}
+    revalidatePath(`/dashboard/crm/portal/${id}`);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'Force logout failed.' };
+  }
+}
+
+export async function sendPasswordReset(id: string): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, error: 'Unauthorized.' };
+  try {
+    const { db } = await connectToDatabase();
+    await db.collection('crm_portal_users').updateOne(
+      { _id: new ObjectId(id), userId: new ObjectId(session.user._id as string) },
+      { $set: { resetToken: randomBytes(24).toString('hex'), resetTokenExpiresAt: new Date(Date.now() + 3600000) } }
+    );
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'send_password_reset',
+        entityKind: 'portal_user',
+        entityId: id,
+      });
+    } catch {}
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'Password reset failed.' };
+  }
+}

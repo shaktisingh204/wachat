@@ -10,7 +10,7 @@ import {
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { canServer } from '@/lib/rbac-server';
-import { getMilestoneById } from '@/app/actions/crm-milestones.actions';
+import { getWsProjectMilestoneById } from '@/app/actions/worksuite/projects.actions';
 
 import { MilestoneForm } from '../../_components/milestone-form';
 
@@ -31,13 +31,13 @@ export default async function EditMilestonePage({
     const allowed = await canServer('crm_milestone', 'edit');
     if (!allowed) redirect(`${BASE}/${id}`);
 
-    const milestone = await getMilestoneById(id);
+    const milestone = await getWsProjectMilestoneById(id);
     if (!milestone) notFound();
 
     return (
         <EntityDetailShell
             eyebrow="MILESTONE"
-            title={`Edit · ${milestone.name}`}
+            title={`Edit · ${milestone.milestoneTitle}`}
             back={{ href: `${BASE}/${id}`, label: 'Back to milestone' }}
         >
             <MilestoneForm initialData={milestone} />

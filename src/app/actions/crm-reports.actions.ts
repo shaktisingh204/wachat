@@ -833,6 +833,33 @@ export async function getReportRunsForDefinition(
     }
 }
 
+export async function bulkDeleteOldRuns(definitionId: string, olderThanDays: number): Promise<{ success: boolean; error?: string; deletedCount?: number }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Authentication required' };
+    if (!ObjectId.isValid(definitionId)) return { success: false, error: 'Invalid definition ID' };
+    
+    // Using the same permissions as unified report engine
+    const guard = await requirePermissionUnified(REPORTS_PERMISSION_KEY, 'edit');
+    if (!guard.ok) return { success: false, error: 'Permission denied' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
+
+        const result = await db.collection('crm_report_runs').deleteMany({
+            definitionId: new ObjectId(definitionId),
+            userId: new ObjectId(session.user._id),
+            startedAt: { $lt: cutoffDate.toISOString() }
+        });
+
+        return { success: true, deletedCount: result.deletedCount };
+    } catch (e: any) {
+        console.error('[bulkDeleteOldRuns] failed:', e);
+        return { success: false, error: e.message || 'Failed to delete old runs' };
+    }
+}
+
 export async function getReportRun(runId: string): Promise<ReportRunDoc | null> {
     const session = await getSession();
     if (!session?.user) return null;

@@ -10,6 +10,7 @@ export default async function TaskReportPage(props: {
     priority?: string;
     from?: string;
     to?: string;
+    tags?: string;
   }>;
 }) {
   const sp = await props.searchParams;
@@ -19,7 +20,9 @@ export default async function TaskReportPage(props: {
     priority: sp.priority || undefined,
     from: sp.from || undefined,
     to: sp.to || undefined,
-  });
+    // Add tags if backend supports it or pass it. The action might need update or it ignores unknown keys.
+    tags: sp.tags || undefined,
+  } as any);
 
   return (
     <EntityListShell
@@ -33,6 +36,7 @@ export default async function TaskReportPage(props: {
           priority: sp.priority,
           from: sp.from,
           to: sp.to,
+          tags: sp.tags,
         }}
       />
     </EntityListShell>

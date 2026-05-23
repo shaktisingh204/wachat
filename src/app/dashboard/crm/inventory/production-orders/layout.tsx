@@ -20,11 +20,11 @@ class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center p-8 text-center bg-red-50/50 dark:bg-red-950/10 rounded-lg border border-red-100 dark:border-red-900/30 m-6">
-          <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
-          <h2 className="text-lg font-semibold text-red-700 dark:text-red-400 mb-2">Something went wrong!</h2>
-          <p className="text-sm text-red-600 dark:text-red-300 mb-4 max-w-md">{this.state.error?.message}</p>
-          <Button onClick={() => this.setState({ hasError: false, error: null })} variant="outline" className="border-red-200 text-red-600 hover:bg-red-100">
+        <div className="flex flex-col items-center justify-center p-8 text-center bg-zoru-danger/5 rounded-lg border border-zoru-danger/20 m-6">
+          <AlertCircle className="w-10 h-10 text-zoru-danger-ink mb-4" />
+          <h2 className="text-lg font-bold text-zoru-danger-ink mb-2">Something went wrong!</h2>
+          <p className="text-sm text-zoru-ink-muted mb-4 max-w-md">{this.state.error?.message}</p>
+          <Button onClick={() => this.setState({ hasError: false, error: null })} variant="outline">
             Try again
           </Button>
         </div>

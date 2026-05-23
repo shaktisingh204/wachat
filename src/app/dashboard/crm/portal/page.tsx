@@ -65,6 +65,7 @@ export default async function CustomerPortalPage() {
   if (session?.user?._id) {
     try {
       const { db } = await connectToDatabase();
+      if (!session.user._id) throw new Error('Unauthorized');
       const userObjectId = new ObjectId(session.user._id);
       const docs = (await db
         .collection('crm_portal_users')

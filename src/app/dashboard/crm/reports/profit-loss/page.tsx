@@ -14,35 +14,13 @@ import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatCard, fmtMoney, fmtPct } from '../_components/report-toolbar';
 import { ProfitLossStackedBar } from '../_components/finance-charts';
-import { getProfitLossDeep } from '@/app/actions/worksuite/reports.actions';
+import { getProfitLossDeepDB } from '../_components/finance-data';
 import { PlFilterToolbar } from './_components/pl-filter-toolbar';
 import type { ProfitLossStackedRow } from '@/lib/worksuite/report-types';
 
 const PAGE_SIZES = [10, 20, 50, 100];
 
-/** Roll monthly rows into quarterly buckets (Q1-Q4). */
-function rollToQuarterly(
-  monthly: ProfitLossStackedRow[],
-): ProfitLossStackedRow[] {
-  const quarters = new Map<string, ProfitLossStackedRow>();
-  for (const r of monthly) {
-    const [year, mm] = r.period.split('-').map(Number);
-    const qNum = Math.ceil(mm / 3);
-    const key = `${year}-Q${qNum}`;
-    const existing = quarters.get(key);
-    if (existing) {
-      existing.revenue += r.revenue;
-      existing.cogs += r.cogs;
-      existing.expense += r.expense;
-      existing.profit += r.profit;
-    } else {
-      quarters.set(key, { ...r, period: key });
-    }
-  }
-  return Array.from(quarters.values()).sort((a, b) =>
-    a.period.localeCompare(b.period),
-  );
-}
+
 
 export default async function ProfitLossPage(props: {
   searchParams: Promise<{
@@ -59,10 +37,14 @@ export default async function ProfitLossPage(props: {
   const limit = PAGE_SIZES.includes(Number(sp.limit)) ? Number(sp.limit) : 20;
   const isQuarterly = (sp.granularity ?? 'monthly') === 'quarterly';
 
-  const anchor = sp.from || undefined;
-  const { kpis, monthly: rawMonthly, fyLabel } = await getProfitLossDeep(anchor);
+  const data = await getProfitLossDeepDB({
+    fyAnchor: sp.from,
+    granularity: sp.granularity ?? 'monthly',
+    department: sp.department,
+  });
 
-  const monthly = isQuarterly ? rollToQuarterly(rawMonthly) : rawMonthly;
+  if (!data) return null;
+  const { kpis, monthly, fyLabel } = data;
 
   const pageRows = monthly.slice((page - 1) * limit, page * limit);
   const hasMore = page * limit < monthly.length;
@@ -196,10 +178,42 @@ export default async function ProfitLossPage(props: {
                         {fmtMoney(r.revenue)}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
-                        {fmtMoney(r.cogs)}
+                        <details className="group">
+                          <summary className="cursor-pointer font-medium hover:text-zoru-ink transition-colors">
+                            {fmtMoney(r.cogs)}
+                          </summary>
+                          <div className="mt-2 text-left text-xs bg-zoru-surface rounded p-2 border border-zoru-line space-y-1">
+                            {Object.keys(r.cogsDetails || {}).length === 0 ? (
+                              <div className="text-zoru-ink-muted">No details</div>
+                            ) : (
+                              Object.entries(r.cogsDetails || {}).map(([k, v]) => (
+                                <div key={k} className="flex justify-between">
+                                  <span className="truncate pr-2">{k}</span>
+                                  <span>{fmtMoney(v as number)}</span>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </details>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right text-[13px] text-zoru-danger-ink">
-                        {fmtMoney(r.expense)}
+                        <details className="group">
+                          <summary className="cursor-pointer font-medium hover:text-zoru-ink transition-colors">
+                            {fmtMoney(r.expense)}
+                          </summary>
+                          <div className="mt-2 text-left text-xs bg-zoru-surface rounded p-2 border border-zoru-line space-y-1 text-zoru-ink-muted">
+                            {Object.keys(r.expenseDetails || {}).length === 0 ? (
+                              <div className="text-zoru-ink-muted">No details</div>
+                            ) : (
+                              Object.entries(r.expenseDetails || {}).map(([k, v]) => (
+                                <div key={k} className="flex justify-between">
+                                  <span className="truncate pr-2">{k}</span>
+                                  <span>{fmtMoney(v as number)}</span>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </details>
                       </ZoruTableCell>
                       <ZoruTableCell
                         className={`text-right text-[13px] font-medium ${

@@ -22,12 +22,8 @@ import { ArrowLeft,
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
-import { saveMilestone } from '@/app/actions/crm-milestones.actions';
-import type {
-    CrmMilestoneDoc,
-    CrmMilestonePriority,
-    CrmMilestoneStatus,
-} from '@/lib/rust-client/crm-milestones';
+import { saveWsProjectMilestone } from '@/app/actions/worksuite/projects.actions';
+import type { WsProjectMilestone } from '@/lib/worksuite/project-types';
 
 const BASE = '/dashboard/crm/projects/milestones';
 
@@ -53,7 +49,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 }
 
 export interface MilestoneFormProps {
-    initialData?: CrmMilestoneDoc | null;
+    initialData?: WsProjectMilestone & { _id?: string } | null;
 }
 
 export function MilestoneForm({ initialData }: MilestoneFormProps) {
@@ -61,14 +57,12 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
     const { toast } = useZoruToast();
     const isEditing = !!initialData?._id;
 
-    const [state, formAction] = useActionState(saveMilestone, {});
+    const [state, formAction] = useActionState(saveWsProjectMilestone, {} as any);
 
-    const [status, setStatus] = useState<CrmMilestoneStatus>(
-        initialData?.status ?? 'planned',
+    const [status, setStatus] = useState<string>(
+        initialData?.status ?? 'incomplete',
     );
-    const [priority, setPriority] = useState<CrmMilestonePriority>(
-        initialData?.priority ?? 'medium',
-    );
+    
 
     useEffect(() => {
         if (state?.message) {
@@ -96,21 +90,20 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
                 {isEditing ? (
                     <input
                         type="hidden"
-                        name="milestoneId"
+                        name="_id"
                         value={initialData!._id}
                     />
                 ) : null}
                 <input type="hidden" name="status" value={status} />
-                <input type="hidden" name="priority" value={priority} />
-
+                
                 {/* Name */}
                 <div className="space-y-1.5">
                     <Label htmlFor="name">Name *</Label>
                     <Input
-                        id="name"
-                        name="name"
+                        id="milestoneTitle"
+                        name="milestoneTitle"
                         required
-                        defaultValue={initialData?.name ?? ''}
+                        defaultValue={initialData?.milestoneTitle ?? ''}
                         placeholder="e.g. Beta launch"
                     />
                 </div>
@@ -119,90 +112,34 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
                 <div className="space-y-1.5">
                     <Label htmlFor="description">Description</Label>
                     <Textarea
-                        id="description"
-                        name="description"
+                        id="summary"
+                        name="summary"
                         rows={3}
-                        defaultValue={initialData?.description ?? ''}
+                        defaultValue={initialData?.summary ?? ''}
                         placeholder="What does reaching this milestone mean?"
                     />
                 </div>
 
                 {/* Project + parent */}
+                
+                {/* Cost + Currency */}
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <Label>Project</Label>
-                        <EntityFormField
-                            entity="project"
-                            name="projectId"
-                            initialId={initialData?.projectId}
-                            placeholder="Pick a project"
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <Label>Parent milestone</Label>
-                        {/* TODO 1E.sweep: no `milestone` entity in lookup-registry — falling
-                            back to free-text id input. Promote once a milestone lookup
-                            adapter exists. */}
+                        <Label htmlFor="cost">Cost / payment</Label>
                         <Input
-                            id="parentId"
-                            name="parentId"
-                            placeholder="Optional — parent milestone id"
-                            defaultValue={initialData?.parentId ?? ''}
-                        />
-                    </div>
-                </div>
-
-                {/* Dates */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                        <Label htmlFor="dueDate">Due date</Label>
-                        <Input
-                            id="dueDate"
-                            name="dueDate"
-                            type="date"
-                            defaultValue={toDateInput(initialData?.dueDate)}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <Label htmlFor="completedAt">Completed on</Label>
-                        <Input
-                            id="completedAt"
-                            name="completedAt"
-                            type="date"
-                            defaultValue={toDateInput(initialData?.completedAt)}
-                        />
-                    </div>
-                </div>
-
-                {/* Progress + Priority */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                        <Label htmlFor="progress">Progress (%)</Label>
-                        <Input
-                            id="progress"
-                            name="progress"
+                            id="cost"
+                            name="cost"
                             type="number"
-                            min={0}
-                            max={100}
-                            step={1}
-                            placeholder="0"
-                            defaultValue={
-                                initialData?.progress != null
-                                    ? String(initialData.progress)
-                                    : ''
-                            }
+                            step="0.01"
+                            defaultValue={initialData?.cost ? String(initialData.cost) : ''}
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label>Priority</Label>
-                        <EnumFormField
-                            enumName="priorityMedium"
-                            name="priorityPicker"
-                            initialId={priority}
-                            placeholder="Priority"
-                            onChange={(next) =>
-                                setPriority((next ?? 'medium') as CrmMilestonePriority)
-                            }
+                        <Label htmlFor="currency">Currency</Label>
+                        <Input
+                            id="currency"
+                            name="currency"
+                            defaultValue={initialData?.currency ?? 'INR'}
                         />
                     </div>
                 </div>
@@ -211,37 +148,25 @@ export function MilestoneForm({ initialData }: MilestoneFormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <Label>Status</Label>
-                        <EnumFormField
-                            enumName="milestoneStatus"
-                            name="statusPicker"
-                            initialId={status}
-                            placeholder="Status"
-                            onChange={(next) =>
-                                setStatus((next ?? 'planned') as CrmMilestoneStatus)
-                            }
-                        />
+                        
+                        <select
+                            name="status"
+                            id="status"
+                            className="flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                        >
+                            <option value="incomplete">Incomplete</option>
+                            <option value="complete">Complete</option>
+                        </select>
                     </div>
                     <div className="space-y-1.5">
-                        <Label>Owner</Label>
-                        <EntityFormField
-                            entity="employee"
-                            name="ownerId"
-                            initialId={initialData?.ownerId}
-                            placeholder="Pick an owner"
-                        />
+                        <Label>Start Date</Label>
+                        <Input id="startDate" name="startDate" type="date" defaultValue={toDateInput(initialData?.startDate)} />
                     </div>
                 </div>
 
-                {/* Tags */}
-                <div className="space-y-1.5">
-                    <Label htmlFor="tags">Tags</Label>
-                    <Input
-                        id="tags"
-                        name="tags"
-                        placeholder="comma, separated, tags"
-                        defaultValue={tagsInitial}
-                    />
-                </div>
+                
 
                 {/* Footer */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">

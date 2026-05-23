@@ -95,5 +95,8 @@ export function useVendorBidBulk({ selected, onCleared }: UseVendorBidBulkArgs) 
     [selected, toast, router, onCleared],
   );
 
-  return { pending, archive, remove, changeStatus };
+  const approve = React.useCallback(() => changeStatus('awarded'), [changeStatus]);
+  const reject = React.useCallback(() => changeStatus('rejected'), [changeStatus]);
+
+  return { pending, archive, remove, changeStatus, approve, reject };
 }

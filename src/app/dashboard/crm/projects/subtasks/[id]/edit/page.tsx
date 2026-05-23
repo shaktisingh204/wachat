@@ -9,7 +9,7 @@ import {
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { canServer } from '@/lib/rbac-server';
-import { getSubtaskById } from '@/app/actions/crm-subtasks.actions';
+import { getWsSubTaskById } from '@/app/actions/worksuite/projects.actions';
 
 import { SubtaskForm } from '../../_components/subtask-form';
 
@@ -30,7 +30,7 @@ export default async function EditSubtaskPage({
     const allowed = await canServer('crm_subtask', 'update');
     if (!allowed) redirect(`${BASE}/${id}`);
 
-    const subtask = await getSubtaskById(id);
+    const subtask = await getWsSubTaskById(id);
     if (!subtask) notFound();
 
     return (

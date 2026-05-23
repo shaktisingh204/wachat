@@ -154,6 +154,26 @@ export function VendorBidTable({
       ),
     },
     {
+      key: 'budget',
+      header: 'Budget vs Price',
+      render: (row) => {
+        if (row.budget == null || row.total == null) return <span className="text-zoru-ink-muted">—</span>;
+        const variance = row.budget - row.total;
+        const variancePct = (variance / row.budget) * 100;
+        const isOver = variance < 0;
+        return (
+          <div className="flex flex-col gap-0.5">
+            <span className="font-mono text-[12px] tabular-nums text-zoru-ink-muted line-through">
+              {fmtMoney(row.budget, row.currency ?? defaultCurrency)}
+            </span>
+            <span className={`text-[10px] font-medium ${isOver ? 'text-zoru-danger-ink' : 'text-zoru-success-ink'}`}>
+              {isOver ? '+' : '-'}{Math.abs(variancePct).toFixed(1)}% {isOver ? 'over' : 'under'}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
       key: 'leadTimeDays',
       header: 'Lead (days)',
       sortable: true,
@@ -226,6 +246,17 @@ export function VendorBidTable({
                     Convert to PO
                   </Link>
                 </ZoruDropdownMenuItem>
+              )}
+              {row.status !== 'awarded' && row.status !== 'rejected' && (
+                <>
+                  <ZoruDropdownMenuSeparator />
+                  <ZoruDropdownMenuItem onSelect={() => handleSaveInlineEdit(id, { status: 'awarded' })}>
+                    Approve (Award)
+                  </ZoruDropdownMenuItem>
+                  <ZoruDropdownMenuItem onSelect={() => handleSaveInlineEdit(id, { status: 'rejected' })}>
+                    Reject
+                  </ZoruDropdownMenuItem>
+                </>
               )}
               {row.rfqId && (
                 <>

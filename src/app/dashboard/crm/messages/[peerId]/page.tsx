@@ -7,6 +7,7 @@ import {
   getConversationWith,
 } from '@/app/actions/worksuite/chat.actions';
 import { getSession } from '@/app/actions/user.actions';
+import { ObjectId } from 'mongodb';
 
 import { ConversationsPane } from '../_components/conversations-pane';
 import { ChatThread } from '../_components/chat-thread';
@@ -24,6 +25,29 @@ export default async function ConversationPage({
 }) {
   const { peerId } = await params;
   const session = await getSession();
+  
+  if (!ObjectId.isValid(peerId)) {
+    return (
+      <div className="flex w-full flex-col gap-6">
+        <PageHeader>
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
+              <MessageSquare className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
+            </div>
+            <ZoruPageHeading>
+              <ZoruPageTitle>Messages</ZoruPageTitle>
+              <ZoruPageDescription>Chat directly with your teammates.</ZoruPageDescription>
+            </ZoruPageHeading>
+          </div>
+        </PageHeader>
+        <div className="flex flex-col items-center justify-center p-12 text-center border border-border rounded-lg bg-card">
+          <MessageSquare className="h-10 w-10 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium">Invalid User ID</h3>
+          <p className="text-sm text-muted-foreground mt-1">The user you are trying to message does not exist or the ID is invalid.</p>
+        </div>
+      </div>
+    );
+  }
   const currentUserId = session?.user ? String(session.user._id) : '';
 
   const [conversations, thread] = await Promise.all([

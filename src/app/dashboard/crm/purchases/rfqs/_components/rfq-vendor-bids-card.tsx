@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { listVendorBids } from '@/app/actions/crm/vendor-bids.actions';
+import { VendorBidsComparison } from './vendor-bids-comparison';
 
 interface RfqVendorBidsCardProps {
   rfqId: string;
@@ -51,13 +52,16 @@ export async function RfqVendorBidsCard({ rfqId }: RfqVendorBidsCardProps) {
         <h2 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Vendor bids received
         </h2>
-        <Button size="sm" variant="outline" asChild>
-          <Link
-            href={`/dashboard/crm/purchases/vendor-bids/new?fromKind=rfq&fromId=${rfqId}`}
-          >
-            Record a bid
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <VendorBidsComparison bids={bids} />
+          <Button size="sm" variant="outline" asChild>
+            <Link
+              href={`/dashboard/crm/purchases/vendor-bids/new?fromKind=rfq&fromId=${rfqId}`}
+            >
+              Record a bid
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {error ? (

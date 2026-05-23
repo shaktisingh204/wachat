@@ -61,6 +61,7 @@ import {
  */
 
 import * as React from 'react';
+import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
@@ -117,8 +118,6 @@ export default function ProjectMilestonesPage() {
   const [search, setSearch] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState<string>('all');
   const [projectFilter, setProjectFilter] = React.useState<string>('');
-  const [createOpen, setCreateOpen] = React.useState(false);
-  const [editTarget, setEditTarget] = React.useState<Row | null>(null);
   const [deleteTargetId, setDeleteTargetId] = React.useState<string | null>(null);
   const [selection, setSelection] = React.useState<Set<string>>(new Set());
   const [bulkPending, startBulkTransition] = React.useTransition();
@@ -279,8 +278,10 @@ export default function ProjectMilestonesPage() {
             <Button variant="outline" onClick={handleExport}>
               <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
             </Button>
-            <Button onClick={() => setCreateOpen(true)}>
-              <Plus className="h-4 w-4" /> New milestone
+            <Button asChild>
+              <Link href="/dashboard/crm/projects/milestones/new">
+                <Plus className="h-4 w-4" /> New milestone
+              </Link>
             </Button>
           </>
         }
@@ -344,8 +345,10 @@ export default function ProjectMilestonesPage() {
                 Milestones break a project into delivery checkpoints — useful
                 for client billing and progress tracking.
               </p>
-              <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="h-4 w-4" /> New milestone
+              <Button asChild>
+                <Link href="/dashboard/crm/projects/milestones/new">
+                  <Plus className="h-4 w-4" /> New milestone
+                </Link>
               </Button>
             </div>
           ) : null
@@ -472,8 +475,10 @@ export default function ProjectMilestonesPage() {
                               </button>
                             </ZoruDropdownMenuTrigger>
                             <ZoruDropdownMenuContent align="end">
-                              <ZoruDropdownMenuItem onClick={() => setEditTarget(r)}>
-                                <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
+                              <ZoruDropdownMenuItem asChild>
+                                <Link href={`/dashboard/crm/projects/milestones/${r._id}/edit`}>
+                                  <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
+                                </Link>
                               </ZoruDropdownMenuItem>
                               <ZoruDropdownMenuItem
                                 onClick={() => setDeleteTargetId(r._id)}
@@ -493,22 +498,6 @@ export default function ProjectMilestonesPage() {
           )}
         </div>
       </EntityListShell>
-
-      <MilestoneDialog
-        open={createOpen || !!editTarget}
-        initial={editTarget ?? undefined}
-        onOpenChange={(o) => {
-          if (!o) {
-            setCreateOpen(false);
-            setEditTarget(null);
-          }
-        }}
-        onSaved={() => {
-          setCreateOpen(false);
-          setEditTarget(null);
-          refresh();
-        }}
-      />
 
       <ConfirmDialog
         open={!!deleteTargetId}
@@ -541,170 +530,6 @@ export default function ProjectMilestonesPage() {
         onConfirm={handleBulkDelete}
       />
     </>
-  );
-}
-
-/* ───── Create / Edit dialog ───── */
-interface MilestoneDialogProps {
-  open: boolean;
-  initial?: Row;
-  onOpenChange: (o: boolean) => void;
-  onSaved: () => void;
-}
-
-function MilestoneDialog({ open, initial, onOpenChange, onSaved }: MilestoneDialogProps) {
-  const { toast } = useZoruToast();
-  const [state, action] = useActionState(
-    async (
-      _prev: { message?: string; error?: string; id?: string } | null,
-      formData: FormData,
-    ) => {
-      const res = await saveWsProjectMilestone(_prev, formData);
-      if (res.error) {
-        toast({
-          title: 'Save failed',
-          description: res.error,
-          variant: 'destructive',
-        });
-        return res;
-      }
-      toast({ title: initial?._id ? 'Milestone updated' : 'Milestone created' });
-      onSaved();
-      return res;
-    },
-    null,
-  );
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-lg">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>
-            {initial?._id ? 'Edit milestone' : 'New milestone'}
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
-            Milestones are checkpoints attached to a project, optionally with a cost and target date.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
-        <form action={action} className="space-y-3">
-          {initial?._id ? (
-            <input type="hidden" name="_id" defaultValue={initial._id} />
-          ) : null}
-          <div>
-            <Label>
-              Project <span className="text-zoru-danger-ink">*</span>
-            </Label>
-            <EntityFormField
-              entity="project"
-              name="projectId"
-              initialId={initial?.projectId ? String(initial.projectId) : undefined}
-              placeholder="Pick a project"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="milestoneTitle">
-              Title <span className="text-zoru-danger-ink">*</span>
-            </Label>
-            <Input
-              id="milestoneTitle"
-              name="milestoneTitle"
-              defaultValue={initial?.milestoneTitle ?? ''}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="summary">Summary / deliverables</Label>
-            <Textarea
-              id="summary"
-              name="summary"
-              defaultValue={initial?.summary ?? ''}
-              rows={3}
-              placeholder="What needs to be delivered for this milestone?"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="startDate">Start</Label>
-              <Input
-                id="startDate"
-                name="startDate"
-                type="date"
-                defaultValue={
-                  initial?.startDate
-                    ? new Date(initial.startDate as string | Date)
-                        .toISOString()
-                        .slice(0, 10)
-                    : ''
-                }
-              />
-            </div>
-            <div>
-              <Label htmlFor="endDate">Target date</Label>
-              <Input
-                id="endDate"
-                name="endDate"
-                type="date"
-                defaultValue={
-                  initial?.endDate
-                    ? new Date(initial.endDate as string | Date)
-                        .toISOString()
-                        .slice(0, 10)
-                    : ''
-                }
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label htmlFor="cost">Cost / payment</Label>
-              <Input
-                id="cost"
-                name="cost"
-                type="number"
-                step="0.01"
-                defaultValue={String(initial?.cost ?? '')}
-              />
-            </div>
-            <div>
-              <Label htmlFor="currency">Currency</Label>
-              <Input
-                id="currency"
-                name="currency"
-                defaultValue={initial?.currency ?? 'INR'}
-              />
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="status">Status</Label>
-            <Select name="status" defaultValue={initial?.status ?? 'incomplete'}>
-              <ZoruSelectTrigger id="status">
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="incomplete">Incomplete</ZoruSelectItem>
-                <ZoruSelectItem value="complete">Complete</ZoruSelectItem>
-              </ZoruSelectContent>
-            </Select>
-          </div>
-          {state?.error ? (
-            <p className="text-sm text-zoru-danger-ink">{state.error}</p>
-          ) : null}
-          <ZoruDialogFooter className="gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit">
-              {initial?._id ? 'Save changes' : 'Create milestone'}
-            </Button>
-          </ZoruDialogFooter>
-        </form>
-      </ZoruDialogContent>
-    </Dialog>
   );
 }
 

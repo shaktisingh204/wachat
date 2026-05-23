@@ -5,11 +5,11 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmVendorById } from '@/app/actions/crm-vendors.actions';
 
 interface PageProps {
-    params: Promise<{ id: string }>;
+    params: Promise<{ vendorId: string }>;
 }
 
 export default async function VendorActivityPage({ params }: PageProps) {
-    const { id } = await params;
+    const { vendorId: id } = await params;
     const vendor = await getCrmVendorById(id);
     if (!vendor) notFound();
 

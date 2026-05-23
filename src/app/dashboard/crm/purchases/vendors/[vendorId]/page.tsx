@@ -15,6 +15,7 @@ import {
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { PortalLinkCopy } from '../_components/portal-link-copy';
 
 /**
  * Vendor detail — `/dashboard/crm/purchases/vendors/[id]`
@@ -36,7 +37,7 @@ import {
 } from '@/app/actions/crm-vendors.actions';
 
 interface PageProps {
-    params: Promise<{ id: string }>;
+    params: Promise<{ vendorId: string }>;
 }
 
 interface VendorShape {
@@ -63,7 +64,7 @@ interface VendorShape {
 }
 
 export default async function VendorDetailPage({ params }: PageProps) {
-    const { id } = await params;
+    const { vendorId: id } = await params;
     // Parallel fan-out — vendor record + related-counts don't share state.
     const [vendor, related] = await Promise.all([
         getCrmVendorById(id),
@@ -254,6 +255,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
                         <Row label="Industry" value={v.industry} />
                         <Row label="Website" value={v.website} />
                     </div>
+                    <PortalLinkCopy vendorId={id} />
                 </ZoruCardContent>
             </Card>
 

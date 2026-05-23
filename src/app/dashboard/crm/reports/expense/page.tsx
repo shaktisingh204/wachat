@@ -15,7 +15,7 @@ import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatCard, fmtMoney, fmtPct } from '../_components/report-toolbar';
 import { MonthlyTrendLine, CategoryPie } from '../_components/finance-charts';
-import { getExpenseReportDeep } from '@/app/actions/worksuite/reports.actions';
+import { getExpenseReportDeepDB } from '../_components/finance-data';
 import { ExpenseFilterToolbar } from './_components/expense-filter-toolbar';
 
 const PAGE_SIZES = [10, 20, 50, 100];
@@ -35,36 +35,19 @@ export default async function ExpenseReportPage(props: {
   const page = Math.max(1, Number(sp.page) || 1);
   const limit = PAGE_SIZES.includes(Number(sp.limit)) ? Number(sp.limit) : 20;
 
-  const anchor = sp.from || undefined;
-  const { kpis, monthly, byCategory, rows, fyLabel } =
-    await getExpenseReportDeep(anchor);
+  const data = await getExpenseReportDeepDB({
+    fyAnchor: sp.from,
+    category: sp.category,
+    vendor: sp.vendor,
+    expenseType: sp.expenseType,
+    page,
+    limit,
+  });
 
-  // In-memory filters over the 500-row window
-  let filteredRows = rows;
-  if (sp.category) {
-    const c = sp.category.toLowerCase();
-    filteredRows = filteredRows.filter((r) =>
-      r.category.toLowerCase().includes(c),
-    );
-  }
-  if (sp.vendor) {
-    const v = sp.vendor.toLowerCase();
-    filteredRows = filteredRows.filter((r) =>
-      r.description.toLowerCase().includes(v) ||
-      r.reference.toLowerCase().includes(v),
-    );
-  }
-  // expenseType: if stored in description heuristic
-  if (sp.expenseType) {
-    const t = sp.expenseType.toLowerCase();
-    filteredRows = filteredRows.filter((r) =>
-      r.category.toLowerCase().includes(t) ||
-      r.description.toLowerCase().includes(t),
-    );
-  }
+  if (!data) return null;
+  const { kpis, monthly, byCategory, rows: pageRows, totalCount, fyLabel } = data;
 
-  const pageRows = filteredRows.slice((page - 1) * limit, page * limit);
-  const hasMore = page * limit < filteredRows.length;
+  const hasMore = page * limit < totalCount;
 
   const exportHeaders = [
     'Date',
@@ -75,7 +58,7 @@ export default async function ExpenseReportPage(props: {
     'Tax',
     'Status',
   ];
-  const exportRows = filteredRows.map((r) => ({
+  const exportRows = pageRows.map((r) => ({
     Date: r.date,
     Category: r.category,
     Description: r.description,
@@ -112,7 +95,7 @@ export default async function ExpenseReportPage(props: {
           page={page}
           limit={limit}
           hasMore={hasMore}
-          total={filteredRows.length}
+          total={totalCount}
         />
       }
     >
@@ -128,7 +111,7 @@ export default async function ExpenseReportPage(props: {
           label="YoY change"
           value={fmtPct(kpis.yoyChangePct)}
           tone={yoyTone}
-          hint="vs. prior FY"
+          hint={`Last YTD: ${fmtMoney((kpis as any).lastYtdTotal || 0)}`}
         />
         <StatCard
           label="Top category"

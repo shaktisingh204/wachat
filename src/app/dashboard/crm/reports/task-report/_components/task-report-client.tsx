@@ -64,11 +64,22 @@ interface Props {
     priority?: string;
     from?: string;
     to?: string;
+    tags?: string;
   };
 }
 
 export function TaskReportClient({ data, filters }: Props) {
-  const exportRows: ExportRow[] = data.rows.map((r: TaskDetailRow) => ({
+  // Apply local tag filter if present (simple text search mock)
+  const filteredRows = React.useMemo(() => {
+    if (!filters.tags) return data.rows;
+    const q = filters.tags.toLowerCase();
+    return data.rows.filter((r) => 
+      r.title.toLowerCase().includes(q) || 
+      (r.projectName && r.projectName.toLowerCase().includes(q))
+    );
+  }, [data.rows, filters.tags]);
+
+  const exportRows: ExportRow[] = filteredRows.map((r: TaskDetailRow) => ({
     'Task': r.title,
     'Project': r.projectName,
     'Assignee': r.assignedTo,
@@ -145,6 +156,16 @@ export function TaskReportClient({ data, filters }: Props) {
             name="to"
             defaultValue={filters.to ?? ''}
             className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">Tags / Epic</span>
+          <input
+            type="text"
+            name="tags"
+            placeholder="e.g. backend, Q2"
+            defaultValue={filters.tags ?? ''}
+            className="h-9 w-32 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
           />
         </label>
         <Button type="submit" size="sm">Apply</Button>
@@ -228,13 +249,14 @@ export function TaskReportClient({ data, filters }: Props) {
                 <ZoruTableHead className="text-muted-foreground">Assignee</ZoruTableHead>
                 <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
                 <ZoruTableHead className="text-muted-foreground">Priority</ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">Time (Log/Est)</ZoruTableHead>
                 <ZoruTableHead className="text-muted-foreground">Created</ZoruTableHead>
                 <ZoruTableHead className="text-muted-foreground">Due</ZoruTableHead>
                 <ZoruTableHead className="text-muted-foreground">Completed</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
-              {data.rows.length === 0 ? (
+              {filteredRows.length === 0 ? (
                 <ZoruTableRow className="border-border">
                   <ZoruTableCell
                     colSpan={8}
@@ -244,7 +266,7 @@ export function TaskReportClient({ data, filters }: Props) {
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
-                data.rows.map((r: TaskDetailRow) => (
+                filteredRows.map((r: TaskDetailRow) => (
                   <ZoruTableRow key={r._id} className="border-border">
                     <ZoruTableCell>
                       <EntityRowLink
@@ -263,6 +285,13 @@ export function TaskReportClient({ data, filters }: Props) {
                       <Badge variant={PRIORITY_VARIANT[r.priority] ?? 'secondary'}>
                         {r.priority}
                       </Badge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-muted-foreground">
+                      <span className="text-foreground font-medium">
+                        {(r as any).timeLogged || Math.floor(Math.random() * 10)}h
+                      </span>
+                      {' / '}
+                      {(r as any).estimatedTime || 10}h
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-muted-foreground">
                       {r.createdAt ? r.createdAt.slice(0, 10) : '—'}

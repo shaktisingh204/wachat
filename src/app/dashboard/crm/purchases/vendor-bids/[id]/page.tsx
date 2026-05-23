@@ -303,7 +303,18 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
                       >
                         <td className="p-2">
                           {it.itemId ? (
-                            <EntityPickerChip entity="item" id={it.itemId} />
+                            <div className="flex items-center gap-1.5">
+                              <EntityPickerChip entity="item" id={it.itemId} />
+                              {bid.rfqId && (
+                                <Link
+                                  href={`/dashboard/crm/purchases/rfqs/${bid.rfqId}#item-${it.itemId}`}
+                                  className="text-[10px] text-zoru-primary hover:underline whitespace-nowrap"
+                                  title="View original RFQ item"
+                                >
+                                  (RFQ item)
+                                </Link>
+                              )}
+                            </div>
                           ) : (
                             <span className="text-zoru-ink-muted">—</span>
                           )}

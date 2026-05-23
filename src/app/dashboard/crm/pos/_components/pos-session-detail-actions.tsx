@@ -2,6 +2,7 @@
 
 import { Button, zoruSonnerToast } from '@/components/zoruui';
 import { useRouter } from 'next/navigation';
+import { Printer } from 'lucide-react';
 
 /**
  * Client island for the POS session detail page — Close / Reconcile /
@@ -17,6 +18,7 @@ import {
     archivePosSession,
     type PosSessionStatus,
 } from '@/app/actions/crm-pos.actions';
+import { PosCashCounterDialog } from './pos-cash-counter-dialog';
 
 interface Props {
     sessionId: string;
@@ -33,16 +35,14 @@ export function PosSessionDetailActions({ sessionId, status }: Props) {
     const router = useRouter();
     const [pending, setPending] = React.useState(false);
 
-    const onClose = async () => {
-        const raw = window.prompt('Closing cash counted (₹)?');
-        if (raw == null) return;
-        const closingCash = Number(raw);
-        if (!Number.isFinite(closingCash) || closingCash < 0) {
-            zoruSonnerToast.error(
-                'Closing cash must be a non-negative number.',
-            );
-            return;
-        }
+    const [showCounter, setShowCounter] = React.useState(false);
+
+    const onClose = () => {
+        setShowCounter(true);
+    };
+
+    const handleConfirmClose = async (closingCash: number) => {
+        setShowCounter(false);
         setPending(true);
         try {
             const res = await closePosSession({ id: sessionId, closingCash });
@@ -110,6 +110,11 @@ export function PosSessionDetailActions({ sessionId, status }: Props) {
                 </Button>
             ) : null}
             {(status === 'closed' || status === 'reconciled') ? (
+                <Button size="sm" variant="outline" onClick={() => window.print()}>
+                    <Printer className="mr-1 h-3.5 w-3.5" /> Z-Report
+                </Button>
+            ) : null}
+            {(status === 'closed' || status === 'reconciled') ? (
                 <Button
                     size="sm"
                     variant="ghost"
@@ -119,6 +124,12 @@ export function PosSessionDetailActions({ sessionId, status }: Props) {
                     Archive
                 </Button>
             ) : null}
+            
+            <PosCashCounterDialog 
+                open={showCounter} 
+                onOpenChange={setShowCounter} 
+                onConfirm={handleConfirmClose} 
+            />
         </div>
     );
 }

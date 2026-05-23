@@ -78,6 +78,12 @@ export default async function PortalEditPage({ params }: PageProps) {
                                     </div>
                                 </div>
                                 <div className="border-t border-zoru-line pt-2">
+                                    <div className="text-zoru-ink-muted">Last IP address</div>
+                                    <div className="text-zoru-ink">
+                                        {user.lastIp || 'Unknown'}
+                                    </div>
+                                </div>
+                                <div className="border-t border-zoru-line pt-2">
                                     <div className="text-zoru-ink-muted">Capabilities</div>
                                     <div className="text-zoru-ink">
                                         {Array.isArray(user.capabilities)
