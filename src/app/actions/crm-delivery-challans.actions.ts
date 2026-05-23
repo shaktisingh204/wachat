@@ -51,10 +51,41 @@ export async function getDeliveryChallanById(
     }
 }
 
+export async function getDeliveryChallansByIds(
+    challanIds: string[]
+): Promise<WithId<CrmDeliveryChallan>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    if (!challanIds || challanIds.length === 0) return [];
+
+    const validIds = challanIds.filter(id => ObjectId.isValid(id)).map(id => new ObjectId(id));
+    if (validIds.length === 0) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const challans = await db.collection('crm_delivery_challans').find({
+            _id: { $in: validIds },
+            userId: new ObjectId(session.user._id),
+        }).toArray();
+        return JSON.parse(JSON.stringify(challans));
+    } catch (e) {
+        console.error('Failed to fetch delivery challans by ids:', e);
+        return [];
+    }
+}
+
 export async function getDeliveryChallans(
     page: number = 1,
     limit: number = 20,
-    query?: string
+    query?: string,
+    filters?: {
+        status?: string;
+        clientId?: string;
+        transporterId?: string;
+        dateFrom?: string;
+        dateTo?: string;
+        warehouseId?: string;
+    }
 ): Promise<{ challans: WithId<CrmDeliveryChallan>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { challans: [], total: 0 };
@@ -64,6 +95,37 @@ export async function getDeliveryChallans(
         const userObjectId = new ObjectId(session.user._id);
         
         const filter: any = { userId: userObjectId };
+        
+        if (query) {
+            filter.challanNumber = { $regex: query, $options: 'i' };
+        }
+        
+        if (filters?.status) {
+            filter.status = filters.status;
+        }
+        
+        if (filters?.clientId && ObjectId.isValid(filters.clientId)) {
+            filter.accountId = new ObjectId(filters.clientId);
+        }
+        
+        if (filters?.dateFrom || filters?.dateTo) {
+            filter.challanDate = {};
+            if (filters.dateFrom) {
+                const df = new Date(filters.dateFrom);
+                if (!isNaN(df.getTime())) {
+                    filter.challanDate.$gte = df;
+                }
+            }
+            if (filters.dateTo) {
+                const dt = new Date(filters.dateTo);
+                if (!isNaN(dt.getTime())) {
+                    filter.challanDate.$lte = dt;
+                }
+            }
+            if (Object.keys(filter.challanDate).length === 0) {
+                delete filter.challanDate;
+            }
+        }
         
         const skip = (page - 1) * limit;
 
@@ -279,6 +341,8 @@ export interface DeliveryChallanKpis {
     inTransit: number;
     deliveredToday: number;
     returned: number;
+    draft: number;
+    delivered: number;
 }
 
 export async function getDeliveryChallanKpis(): Promise<DeliveryChallanKpis> {
@@ -287,6 +351,8 @@ export async function getDeliveryChallanKpis(): Promise<DeliveryChallanKpis> {
         inTransit: 0,
         deliveredToday: 0,
         returned: 0,
+        draft: 0,
+        delivered: 0,
     };
     const session = await getSession();
     if (!session?.user) return empty;
@@ -297,7 +363,7 @@ export async function getDeliveryChallanKpis(): Promise<DeliveryChallanKpis> {
         dayStart.setHours(0, 0, 0, 0);
         const dayEnd = new Date(dayStart);
         dayEnd.setDate(dayEnd.getDate() + 1);
-        const [totalChallans, inTransit, deliveredToday, returned] =
+        const [totalChallans, inTransit, deliveredToday, returned, draft, delivered] =
             await Promise.all([
                 db.collection('crm_delivery_challans').countDocuments({
                     userId: userObjectId,
@@ -315,8 +381,16 @@ export async function getDeliveryChallanKpis(): Promise<DeliveryChallanKpis> {
                     userId: userObjectId,
                     status: 'Returned',
                 }),
+                db.collection('crm_delivery_challans').countDocuments({
+                    userId: userObjectId,
+                    status: 'Draft',
+                }),
+                db.collection('crm_delivery_challans').countDocuments({
+                    userId: userObjectId,
+                    status: 'Delivered',
+                }),
             ]);
-        return { totalChallans, inTransit, deliveredToday, returned };
+        return { totalChallans, inTransit, deliveredToday, returned, draft, delivered };
     } catch (e) {
         console.error('[getDeliveryChallanKpis] failed:', e);
         return empty;

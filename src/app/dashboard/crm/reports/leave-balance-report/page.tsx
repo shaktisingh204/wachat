@@ -18,16 +18,11 @@ import { PaginationBar } from '@/components/crm/pagination-bar';
 
 import { StatCard, fmtNumber } from '../_components/report-toolbar';
 import { HrReportToolbar } from '../_components/hr-report-toolbar';
-import dynamic from 'next/dynamic';
+import { StackedBarChart } from '../_components/hr-report-charts';
 import {
   getHrReportDepartments,
   getLeaveBalanceDeep,
 } from '@/app/actions/crm-reports.actions';
-
-const StackedBarChart = dynamic(
-  () => import('../_components/hr-report-charts').then((mod) => mod.StackedBarChart),
-  { ssr: false }
-);
 
 interface PageProps {
   searchParams: Promise<{

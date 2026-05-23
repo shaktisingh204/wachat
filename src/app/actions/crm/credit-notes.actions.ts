@@ -246,6 +246,7 @@ export async function saveCreditNoteAction(
         taxRecalc: pickBool(formData, 'taxRecalc'),
         refundMode,
         refundTxnId: pickString(formData, 'refundTxnId'),
+        autoApply: pickBool(formData, 'autoApply'),
         notes: pickString(formData, 'notes'),
         status: pickStatus(formData),
       };
@@ -264,6 +265,7 @@ export async function saveCreditNoteAction(
         taxRecalc: pickBool(formData, 'taxRecalc'),
         refundMode: refundMode!,
         refundTxnId: pickString(formData, 'refundTxnId'),
+        autoApply: pickBool(formData, 'autoApply'),
         notes: pickString(formData, 'notes'),
       };
       result = await crmCreditNotesApi.create(draft);

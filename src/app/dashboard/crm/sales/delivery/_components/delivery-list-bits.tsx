@@ -299,6 +299,8 @@ export function DcBulkBar({
   onStatus?: (s: DcStatus) => void;
   onConvertToInvoice: () => void;
   onDelete: () => void;
+  onPrintBulk?: () => void;
+  onDispatchManifest?: () => void;
 }) {
   if (count === 0) return null;
   return (
@@ -332,6 +334,16 @@ export function DcBulkBar({
       <Button variant="outline" size="sm" onClick={onConvertToInvoice}>
         <ArrowRightCircle className="h-3.5 w-3.5" /> To invoice
       </Button>
+      {onPrintBulk ? (
+        <Button variant="outline" size="sm" onClick={onPrintBulk}>
+          Print Bulk
+        </Button>
+      ) : null}
+      {onDispatchManifest ? (
+        <Button variant="outline" size="sm" onClick={onDispatchManifest}>
+          Dispatch Manifest
+        </Button>
+      ) : null}
       <Button
         variant="outline"
         size="sm"

@@ -59,7 +59,7 @@ const PARENT_KIND_INVOICE: &str = "invoice";
 
 /// Allow-list of legal `status` filter values. Kept as a `&[&str]` so a
 /// new variant only needs editing here + the `CreditNoteStatus` enum.
-const STATUS_FILTER_VALUES: &[&str] = &["draft", "issued", "refunded", "cancelled"];
+const STATUS_FILTER_VALUES: &[&str] = &["draft", "issued", "refunded", "cancelled", "pending"];
 
 // =========================================================================
 // Helpers
@@ -198,7 +198,11 @@ pub async fn list_credit_notes(
                 STATUS_FILTER_VALUES.join(", "),
             )));
         }
-        filter.insert("status", lower);
+        if lower == "pending" {
+            filter.insert("status", doc! { "$nin": ["refunded", "cancelled"] });
+        } else {
+            filter.insert("status", lower);
+        }
     }
 
     let limit = clamp_limit(q.limit);
@@ -373,6 +377,9 @@ pub async fn create_credit_note(
     if let Some(true) = input.tax_recalc {
         new_doc.insert("taxRecalc", true);
     }
+    if let Some(true) = input.auto_apply {
+        new_doc.insert("autoApply", true);
+    }
     if let Some(txn) = input.refund_txn_id.as_deref().filter(|s| !s.is_empty()) {
         new_doc.insert("refundTxnId", txn);
     }
@@ -496,6 +503,9 @@ pub async fn update_credit_note(
     }
     if let Some(rec) = input.tax_recalc {
         set.insert("taxRecalc", rec);
+    }
+    if let Some(auto) = input.auto_apply {
+        set.insert("autoApply", auto);
     }
     if let Some(mode) = input.refund_mode {
         let b = bson::to_bson(&mode).map_err(|e| {
@@ -653,5 +663,6 @@ mod tests {
         assert!(STATUS_FILTER_VALUES.contains(&"issued"));
         assert!(STATUS_FILTER_VALUES.contains(&"refunded"));
         assert!(STATUS_FILTER_VALUES.contains(&"cancelled"));
+        assert!(STATUS_FILTER_VALUES.contains(&"pending"));
     }
 }

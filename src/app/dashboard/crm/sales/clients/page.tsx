@@ -38,7 +38,9 @@ import {
   CircleDollarSign,
   Download,
   Edit,
+  List,
   LoaderCircle,
+  Map,
   Search,
   Trash2,
   X,
@@ -60,6 +62,7 @@ import type { CrmAccount } from '@/lib/definitions';
 import { CrmAddClientDialog } from '@/components/wabasimplify/crm-add-client-dialog';
 import { ClientReportButton } from '@/components/wabasimplify/client-report-button';
 import { dateStamp, downloadCsv, downloadXlsx } from '@/lib/crm-list-export';
+import { ClientsMapView } from './map-view';
 
 const ACCOUNTS_PER_PAGE = 20;
 
@@ -137,6 +140,8 @@ export default function CrmClientsPage() {
   const [activeTab, setActiveTab] = React.useState<'active' | 'archived'>('active');
   const [industryFilter, setIndustryFilter] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState('');
+  const [engagementFilter, setEngagementFilter] = React.useState('');
+  const [viewMode, setViewMode] = React.useState<'list' | 'map'>('list');
 
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [pendingBulkArchive, setPendingBulkArchive] = React.useState(false);
@@ -154,30 +159,35 @@ export default function CrmClientsPage() {
   const fetchData = React.useCallback(() => {
     startTransition(async () => {
       const [{ accounts: data, total }, kpiData] = await Promise.all([
-        getCrmAccounts(currentPage, ACCOUNTS_PER_PAGE, debouncedQuery, activeTab as 'active' | 'archived' | 'all'),
+        getCrmAccounts(
+          currentPage,
+          ACCOUNTS_PER_PAGE,
+          debouncedQuery,
+          activeTab as 'active' | 'archived' | 'all',
+          {
+            industry: industryFilter || undefined,
+            status: statusFilter || undefined,
+            engagementScore: engagementFilter || undefined,
+          }
+        ),
         getCrmAccountKpis(),
       ]);
       setAccounts(data);
       setTotalPages(Math.ceil(total / ACCOUNTS_PER_PAGE));
       setKpis(kpiData);
     });
-  }, [currentPage, debouncedQuery, activeTab]);
+  }, [currentPage, debouncedQuery, activeTab, industryFilter, statusFilter, engagementFilter]);
 
   React.useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  /* Client-side filter on top of server rows */
-  const filtered = React.useMemo(() => {
-    return accounts.filter((a) => {
-      if (industryFilter && a.industry !== industryFilter) return false;
-      if (statusFilter) {
-        const s = (a as WithId<CrmAccount> & { status?: string }).status ?? 'active';
-        if (s !== statusFilter) return false;
-      }
-      return true;
-    });
-  }, [accounts, industryFilter, statusFilter]);
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [industryFilter, statusFilter, engagementFilter]);
+
+  /* Client-side filter removed, now handled by server API */
+  const filtered = accounts;
 
   const allIds = React.useMemo(() => filtered.map((a) => String(a._id)), [filtered]);
   const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id));
@@ -283,7 +293,7 @@ export default function CrmClientsPage() {
     toast({ title: 'Exported', description: `${rows.length} clients saved to XLSX.` });
   }
 
-  const hasFilterActive = Boolean(industryFilter) || Boolean(statusFilter);
+  const hasFilterActive = Boolean(industryFilter) || Boolean(statusFilter) || Boolean(engagementFilter);
 
   return (
     <>
@@ -414,6 +424,20 @@ export default function CrmClientsPage() {
                 ))}
               </ZoruSelectContent>
             </Select>
+            <Select
+              value={engagementFilter || '__all'}
+              onValueChange={(v) => setEngagementFilter(v === '__all' ? '' : v)}
+            >
+              <ZoruSelectTrigger className="h-9 w-[150px] text-[13px]">
+                <ZoruSelectValue placeholder="Engagement" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="__all">All scores</ZoruSelectItem>
+                <ZoruSelectItem value="high">High (&ge; 80)</ZoruSelectItem>
+                <ZoruSelectItem value="medium">Medium (50-79)</ZoruSelectItem>
+                <ZoruSelectItem value="low">Low (&lt; 50)</ZoruSelectItem>
+              </ZoruSelectContent>
+            </Select>
             {hasFilterActive ? (
               <Button
                 variant="ghost"
@@ -421,14 +445,38 @@ export default function CrmClientsPage() {
                 onClick={() => {
                   setIndustryFilter('');
                   setStatusFilter('');
+                  setEngagementFilter('');
                 }}
                 className="text-[12px] text-zoru-ink-muted"
               >
                 <X className="h-3.5 w-3.5" /> Clear filters
               </Button>
             ) : null}
+            <div className="ml-auto flex items-center gap-1 bg-zoru-surface-2 p-1 rounded-md border border-zoru-line">
+              <Button
+                size="sm"
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                className="h-7 px-2"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                size="sm"
+                variant={viewMode === 'map' ? 'default' : 'ghost'}
+                className="h-7 px-2"
+                onClick={() => setViewMode('map')}
+              >
+                <Map className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
 
+          {viewMode === 'map' ? (
+            <div className="border-t border-zoru-line">
+              <ClientsMapView accounts={filtered} />
+            </div>
+          ) : (
           <Table>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
@@ -443,6 +491,8 @@ export default function CrmClientsPage() {
                 <ZoruTableHead className="text-zoru-ink-muted">Industry</ZoruTableHead>
                 <ZoruTableHead className="text-zoru-ink-muted">Phone</ZoruTableHead>
                 <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Engagement</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Last Activity</ZoruTableHead>
                 <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
@@ -450,7 +500,7 @@ export default function CrmClientsPage() {
               {isLoading && accounts.length === 0 ? (
                 [...Array(5)].map((_, i) => (
                   <ZoruTableRow key={i} className="border-zoru-line">
-                    <ZoruTableCell colSpan={6}>
+                    <ZoruTableCell colSpan={8}>
                       <Skeleton className="h-10 w-full" />
                     </ZoruTableCell>
                   </ZoruTableRow>
@@ -461,6 +511,8 @@ export default function CrmClientsPage() {
                   const isSelected = selected.has(id);
                   const status =
                     (account as WithId<CrmAccount> & { status?: string }).status ?? 'active';
+                  const score = account.engagementScore;
+                  const lastAct = account.updatedAt ? new Date(account.updatedAt).toLocaleDateString() : (account.createdAt ? new Date(account.createdAt).toLocaleDateString() : '—');
                   return (
                     <ZoruTableRow
                       key={id}
@@ -499,6 +551,14 @@ export default function CrmClientsPage() {
                           {status}
                         </Badge>
                       </ZoruTableCell>
+                      <ZoruTableCell>
+                        <span className="text-[13px] font-medium text-zoru-ink">
+                          {score !== undefined ? score : '—'}
+                        </span>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                        {lastAct}
+                      </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button
@@ -536,7 +596,7 @@ export default function CrmClientsPage() {
               ) : (
                 <ZoruTableRow className="border-zoru-line">
                   <ZoruTableCell
-                    colSpan={6}
+                    colSpan={8}
                     className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     {hasFilterActive || searchQuery
@@ -547,6 +607,7 @@ export default function CrmClientsPage() {
               )}
             </ZoruTableBody>
           </Table>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 ? (

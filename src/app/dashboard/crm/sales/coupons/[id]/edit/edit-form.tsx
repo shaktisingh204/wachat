@@ -196,7 +196,18 @@ export function EditCouponForm({
                             defaultValue={toDateInputValue(initial.validTo)}
                             className="max-w-xs"
                         />
-                    </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="applicableCategories">Applicable Categories</Label>
+                    <Input
+                        id="applicableCategories"
+                        name="applicableCategories"
+                        type="text"
+                        defaultValue={(initial.applicableCategories as string[])?.join(', ') || ''}
+                        placeholder="e.g. electronics, clothing (comma separated)"
+                        className="max-w-xs"
+                    />
                 </div>
 
                 <div className="flex flex-col gap-1.5">

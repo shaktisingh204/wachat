@@ -21,17 +21,12 @@ import {
   fmtMoney,
   fmtNumber,
 } from '../_components/report-toolbar';
+import { HorizontalBarChart } from '../_components/hr-report-charts';
 import { HrReportToolbar } from '../_components/hr-report-toolbar';
-import dynamic from 'next/dynamic';
 import {
   getHrReportDepartments,
   getSalesAgentPerformance,
 } from '@/app/actions/crm-reports.actions';
-
-const HorizontalBarChart = dynamic(
-  () => import('../_components/hr-report-charts').then((mod) => mod.HorizontalBarChart),
-  { ssr: false }
-);
 
 interface PageProps {
   searchParams: Promise<{

@@ -39,6 +39,8 @@ import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { LineageRail } from '@/components/crm/lineage-rail';
 import { RelatedRail } from '@/components/crm/RelatedRail';
+import { SplitBackorderedButton } from '../_components/split-backordered-button';
+
 // `<StatusPill>` is rendered inside `<SalesOrderInlineStatus>` — no
 // direct import needed here anymore.
 import {
@@ -154,6 +156,7 @@ export default async function SalesOrderDetailPage({
             <Truck className="h-3.5 w-3.5" /> Convert to delivery challan
           </Link>
         </Button>
+        <SplitBackorderedButton salesOrderId={id} />
         <Button variant="default" size="sm" asChild>
           <Link
             href={`/dashboard/crm/sales/invoices/new?fromKind=salesOrder&fromId=${id}`}

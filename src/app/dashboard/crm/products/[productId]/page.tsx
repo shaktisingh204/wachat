@@ -20,7 +20,7 @@ import { Button } from '@/components/zoruui';
 import { getCrmProductById } from '@/app/actions/crm-products.actions';
 import type { CrmProduct } from '@/lib/definitions';
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/zoruui';
 import { ItemDetailBody } from '../../inventory/items/_components/item-detail-body';
 import { ProductHistoryGraph } from '../_components/product-history-graph';
 
@@ -84,10 +84,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
       
       {/* Supplier Information Card */}
       <Card className="mt-6 border-dashed">
-        <CardHeader>
-          <CardTitle className="text-lg">Supplier Information</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <ZoruCardHeader>
+          <ZoruCardTitle className="text-lg">Supplier Information</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent>
           {product.supplierName ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -106,7 +106,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           ) : (
             <p className="text-sm text-zoru-ink-muted">No supplier information available for this product.</p>
           )}
-        </CardContent>
+        </ZoruCardContent>
       </Card>
 
       {/* History Graph */}

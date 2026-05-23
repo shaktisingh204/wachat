@@ -8,8 +8,9 @@
  */
 
 import type { CrmSalesOrderLineItem } from '@/lib/rust-client/crm-sales-orders';
-
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { itemApi } from '@/lib/rust-client/crm-items';
+import { AlertCircle } from 'lucide-react';
 
 interface Props {
   items: CrmSalesOrderLineItem[];
@@ -46,7 +47,24 @@ function ProgressBar({ pct, tone }: { pct: number; tone: 'amber' | 'green' }) {
   );
 }
 
-export function SalesOrdersDetailFulfillment({ items, currency }: Props) {
+export async function SalesOrdersDetailFulfillment({ items, currency }: Props) {
+  const stockMap: Record<string, number> = {};
+
+  if (items.length > 0) {
+    const uniqueItemIds = Array.from(new Set(items.map(li => li.itemId).filter(Boolean))) as string[];
+    
+    if (uniqueItemIds.length > 0) {
+      const promises = uniqueItemIds.map(id => itemApi.getById(id).catch(() => null));
+      const fetchedItems = await Promise.all(promises);
+      
+      fetchedItems.forEach(item => {
+        if (item && item._id) {
+          stockMap[item._id] = item.totalStock || 0;
+        }
+      });
+    }
+  }
+
   return (
     <div className="overflow-x-auto rounded-md border border-zoru-line">
       <table className="w-full text-[13px]">
@@ -81,6 +99,11 @@ export function SalesOrdersDetailFulfillment({ items, currency }: Props) {
                 li.qtyPending != null ? Number(li.qtyPending) : Math.max(0, qty - delivered);
               const delPct = pct(delivered, qty);
               const invPct = pct(invoiced, qty);
+
+              const itemIdStr = li.itemId ? String(li.itemId) : null;
+              const availableStock = itemIdStr ? stockMap[itemIdStr] : undefined;
+              const isOutOfStock = availableStock !== undefined && pending > availableStock;
+
               return (
                 <tr key={idx} className="border-t border-zoru-line align-top">
                   <td className="p-2.5 text-zoru-ink-muted">{idx + 1}</td>
@@ -95,6 +118,12 @@ export function SalesOrdersDetailFulfillment({ items, currency }: Props) {
                     {li.hsnSac ? (
                       <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
                         HSN/SAC: {li.hsnSac}
+                      </div>
+                    ) : null}
+                    {isOutOfStock ? (
+                      <div className="mt-1.5 flex items-center text-[11px] text-amber-700 font-medium bg-amber-50 px-1.5 py-0.5 rounded-sm w-fit border border-amber-200">
+                        <AlertCircle className="w-3 h-3 mr-1" />
+                        Out of stock ({availableStock} available)
                       </div>
                     ) : null}
                   </td>

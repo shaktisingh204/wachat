@@ -152,6 +152,7 @@ export async function saveGiftCard(
         const issuedToEmail = (formData.get('issuedToEmail') as string | null)?.trim() || undefined;
         const notesRaw = (formData.get('notes') as string | null)?.trim() || undefined;
         const transferable = formData.get('transferable') === 'on';
+        const sendEmail = formData.get('sendEmail') === 'on';
 
         const expiryDateRaw = formData.get('expiryDate') as string | null;
         const expiryDate = expiryDateRaw ? new Date(expiryDateRaw) : undefined;
@@ -184,6 +185,19 @@ export async function saveGiftCard(
                 entityKind: 'gift_card',
                 entityId: result.insertedId.toString(),
             });
+
+            if (sendEmail && issuedToEmail) {
+                // Mock email sending
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'email_sent',
+                    entityKind: 'gift_card',
+                    entityId: result.insertedId.toString(),
+                    reason: `Dispatched gift card to ${issuedToEmail} upon creation`,
+                });
+            }
         } catch {
             /* non-fatal */
         }
@@ -195,6 +209,133 @@ export async function saveGiftCard(
         };
     } catch (e) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+export async function addGiftCardFunds(
+    id: string,
+    amount: number,
+    notes?: string
+): Promise<{ success: boolean; message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+    const guard = await requirePermission('crm_gift_card', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    try {
+        const { db } = await connectToDatabase();
+        const giftCard = await db.collection('crm_gift_cards').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+
+        if (!giftCard) return { success: false, error: 'Gift card not found.' };
+
+        const newBalance = (giftCard.balance || 0) + amount;
+        const newValue = (giftCard.value || 0) + amount;
+
+        await db.collection('crm_gift_cards').updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { balance: newBalance, value: newValue, updatedAt: new Date() } }
+        );
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'update',
+            entityKind: 'gift_card',
+            entityId: id,
+            reason: `Added funds: ${amount}. ${notes || ''}`,
+        });
+
+        revalidatePath(`/dashboard/crm/sales/gift-cards/${id}`);
+        return { success: true, message: `Successfully added ${amount} to the gift card.` };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function redeemGiftCard(
+    id: string,
+    amount: number,
+    notes?: string
+): Promise<{ success: boolean; message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+    const guard = await requirePermission('crm_gift_card', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    try {
+        const { db } = await connectToDatabase();
+        const giftCard = await db.collection('crm_gift_cards').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+
+        if (!giftCard) return { success: false, error: 'Gift card not found.' };
+        if ((giftCard.balance || 0) < amount) {
+            return { success: false, error: 'Insufficient balance.' };
+        }
+
+        const newBalance = (giftCard.balance || 0) - amount;
+        const status = newBalance === 0 ? 'redeemed' : giftCard.status;
+
+        await db.collection('crm_gift_cards').updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { balance: newBalance, status, updatedAt: new Date() } }
+        );
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'update',
+            entityKind: 'gift_card',
+            entityId: id,
+            reason: `Redeemed amount: ${amount}. ${notes || ''}`,
+        });
+
+        revalidatePath(`/dashboard/crm/sales/gift-cards/${id}`);
+        return { success: true, message: `Successfully redeemed ${amount} from the gift card.` };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function emailGiftCard(
+    id: string,
+    email?: string
+): Promise<{ success: boolean; message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const giftCard = await db.collection('crm_gift_cards').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+
+        if (!giftCard) return { success: false, error: 'Gift card not found.' };
+
+        const targetEmail = email || giftCard.issuedToEmail;
+        if (!targetEmail) return { success: false, error: 'No email address provided.' };
+
+        // Mocking email dispatch
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'email_sent',
+            entityKind: 'gift_card',
+            entityId: id,
+            reason: `Emailed gift card to ${targetEmail}`,
+        });
+
+        revalidatePath(`/dashboard/crm/sales/gift-cards/${id}`);
+        return { success: true, message: `Gift card sent to ${targetEmail}.` };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 

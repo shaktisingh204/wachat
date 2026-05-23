@@ -286,9 +286,10 @@ export default function CartPage() {
                         type="number"
                         step="0.01"
                         value={row.tax_rate || 0}
-                        onChange={(e) =>
-                          updateRow(row.id, { tax_rate: Number(e.target.value) })
-                        }
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value);
+                          updateRow(row.id, { tax_rate: isNaN(val) ? 0 : Math.max(0, val) })
+                        }}
                         className="w-20 text-right"
                       />
                     </td>
@@ -336,7 +337,10 @@ export default function CartPage() {
                       type="number"
                       step="0.01"
                       value={discount}
-                      onChange={(e) => setDiscount(Number(e.target.value))}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setDiscount(isNaN(val) ? 0 : Math.max(0, val));
+                      }}
                       className="w-28 text-right"
                     />
                   </td>

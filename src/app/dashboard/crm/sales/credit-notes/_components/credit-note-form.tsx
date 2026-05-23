@@ -583,7 +583,7 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
               />
             </div>
           </div>
-          <div className="flex items-end gap-2">
+          <div className="flex flex-col justify-end gap-2">
             <label className="flex items-center gap-2 text-[13px] text-zoru-ink-muted">
               <input
                 type="checkbox"
@@ -594,6 +594,18 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
               />
               Recompute taxes from line items
             </label>
+            {refundMode === 'credit' && (
+              <label className="flex items-center gap-2 text-[13px] text-zoru-ink-muted">
+                <input
+                  type="checkbox"
+                  name="autoApply"
+                  value="true"
+                  defaultChecked={!!initial?.autoApply}
+                  className="h-4 w-4 rounded border-zoru-line"
+                />
+                Auto-apply to future invoices
+              </label>
+            )}
           </div>
         </div>
 

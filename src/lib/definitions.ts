@@ -614,6 +614,7 @@ export type CrmAccount = {
     currency?: string;
     paymentTerms?: 'Net 15' | 'Net 30' | 'Net 45' | 'Net 60' | 'Immediate';
     category?: 'new' | 'strategic' | 'key' | 'regular';
+    engagementScore?: number;
     logoUrl?: string;
     attachments?: string[]; // SabFiles URLs
     createdAt: Date;

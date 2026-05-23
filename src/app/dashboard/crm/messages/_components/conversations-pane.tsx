@@ -3,12 +3,22 @@
 import Link from 'next/link';
 import { UserCircle2, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { Button, Input, Modal } from '@/components/zoruui';
+import { Button, Input, Dialog, ZoruDialogContent } from '@/components/zoruui';
 import { useRouter } from 'next/navigation';
 
 import { ClayCard, ClayBadge } from '@/components/clay';
 import { cn } from '@/lib/utils';
 import type { WsConversationSummary } from '@/lib/worksuite/chat-types';
+
+function Modal({ open, onOpenChange, children }: { open: boolean; onOpenChange: (open: boolean) => void; children: React.ReactNode }) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent hideClose className="p-0">
+        {children}
+      </ZoruDialogContent>
+    </Dialog>
+  );
+}
 
 export interface ConversationsPaneProps {
   conversations: WsConversationSummary[];

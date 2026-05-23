@@ -45,49 +45,35 @@ export default async function DeliveryChallansPage({
   const dateTo = (sp.dateTo ?? '').trim();
   const warehouseId = (sp.warehouseId ?? '').trim();
 
-  // Fetch a wider window for client-side filter + KPI bucketing. The
-  // Mongo action returns up to `limit` rows, so we ask for the largest
-  // sensible page (200) and slice down. This is a temporary
-  // approximation — a Rust crate + dedicated /counts endpoint is the
-  // future state (see CRM_REBUILD_PLAN.md Phase 2 W4).
+  // The Mongo action now accepts filters and limit/offset directly.
   const [wide, kpiSnapshot] = await Promise.all([
-    getDeliveryChallans(1, 200, q || undefined),
+    getDeliveryChallans(page, limit, q || undefined, {
+      status,
+      clientId,
+      transporterId,
+      dateFrom,
+      dateTo,
+      warehouseId,
+    }),
     getDeliveryChallanKpis(),
   ]);
-  const all = wide.challans;
+  const pageSlice = wide.challans;
+  const total = wide.total;
+
+  const skip = (page - 1) * limit;
+  const hasMore = skip + limit < total;
 
   // KPI counts. Headline numbers (`totalChallans` + `deliveredToday`)
   // come from a dedicated tenant-scoped aggregate so we don't undercount
-  // when the loaded window is < total. The window-derived buckets are
-  // kept as a useful "in this view" hint.
+  // when the loaded window is < total.
   const kpis = {
-    draft: all.filter((c) => c.status === 'Draft').length,
+    draft: kpiSnapshot.draft,
     inTransit: kpiSnapshot.inTransit,
-    delivered: all.filter((c) => c.status === 'Delivered').length,
+    delivered: kpiSnapshot.delivered,
     returned: kpiSnapshot.returned,
     totalChallans: kpiSnapshot.totalChallans,
     deliveredToday: kpiSnapshot.deliveredToday,
   };
-
-  // Server-side filter (Mongo action doesn't yet expose these filters).
-  const filtered = all.filter((c) => {
-    if (status && c.status !== status) return false;
-    if (clientId && String(c.accountId) !== clientId) return false;
-    if (dateFrom) {
-      const d = new Date(c.challanDate);
-      if (isNaN(d.getTime()) || d.toISOString().slice(0, 10) < dateFrom) return false;
-    }
-    if (dateTo) {
-      const d = new Date(c.challanDate);
-      if (isNaN(d.getTime()) || d.toISOString().slice(0, 10) > dateTo) return false;
-    }
-    return true;
-  });
-
-  // Pagination over the filtered set.
-  const skip = (page - 1) * limit;
-  const pageSlice = filtered.slice(skip, skip + limit);
-  const hasMore = filtered.length > skip + limit;
 
   // Project rows to the lean shape the client expects.
   const rows = pageSlice.map((c) => {

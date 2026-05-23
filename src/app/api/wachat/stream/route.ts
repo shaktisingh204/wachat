@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
 import IORedis from 'ioredis';
-import { getServerSession } from '@/lib/auth/session'; // assuming a session getter, will use generic approach if missing
 import { getProjectForUser } from '@/lib/auth/project-auth'; // assuming project auth
 
 export const dynamic = 'force-dynamic';

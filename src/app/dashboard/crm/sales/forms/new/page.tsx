@@ -1,5 +1,0 @@
-import { permanentRedirect } from 'next/navigation';
-
-export default function Page() {
-    permanentRedirect('/dashboard/crm/sales-crm/forms/new');
-}

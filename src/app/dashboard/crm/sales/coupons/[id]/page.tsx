@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getCouponById } from '@/app/actions/crm-coupons.actions';
+import { PerformanceChart } from './performance-chart';
 
 export const dynamic = 'force-dynamic';
 
@@ -135,6 +136,17 @@ export default async function CouponDetailPage({
                         {coupon.stackable === true ? 'Yes' : 'No'}
                     </Field>
                     <Field label="Used count">{coupon.usedCount ?? 0}</Field>
+                    {coupon.applicableCategories && coupon.applicableCategories.length > 0 ? (
+                        <Field label="Applicable Categories" fullWidth>
+                            <div className="flex flex-wrap gap-2">
+                                {coupon.applicableCategories.map((cat: string) => (
+                                    <span key={cat} className="inline-flex items-center rounded-full bg-zoru-surface px-2 py-0.5 text-[12px] font-medium text-zoru-ink border border-zoru-line">
+                                        {cat}
+                                    </span>
+                                ))}
+                            </div>
+                        </Field>
+                    ) : null}
                     {coupon.notes ? (
                         <Field label="Notes" fullWidth>
                             <p className="whitespace-pre-wrap">{String(coupon.notes)}</p>
@@ -142,6 +154,11 @@ export default async function CouponDetailPage({
                     ) : null}
                 </div>
             </Card>
+
+            <PerformanceChart 
+                usedCount={coupon.usedCount ?? 0} 
+                createdAt={coupon.createdAt || new Date()} 
+            />
         </EntityDetailShell>
     );
 }

@@ -89,6 +89,8 @@ pub struct CreditNote {
     /// Bank/UPI txn id when `refund_mode == Cash`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub refund_txn_id: Option<String>,
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub auto_apply: bool,
 
     /* ----- doc body ---------------------------------------------- */
     #[serde(default, skip_serializing_if = "Option::is_none")]

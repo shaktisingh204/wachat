@@ -179,14 +179,26 @@ export function ContractListClient({
   const [query, setQuery] = React.useState(initialQuery);
 
   /* Filters */
-  const [statusFilter, setStatusFilter] = React.useState<string>(ALL);
-  const [partySearch, setPartySearch] = React.useState('');
-  const [effectiveFrom, setEffectiveFrom] = React.useState('');
-  const [effectiveTo, setEffectiveTo] = React.useState('');
-  const [expiryFrom, setExpiryFrom] = React.useState('');
-  const [expiryTo, setExpiryTo] = React.useState('');
-  const [valueMin, setValueMin] = React.useState('');
-  const [valueMax, setValueMax] = React.useState('');
+  const statusFilter = sp?.get('status') ?? ALL;
+  const partySearch = sp?.get('party') ?? '';
+  const effectiveFrom = sp?.get('eff_from') ?? '';
+  const effectiveTo = sp?.get('eff_to') ?? '';
+  const expiryFrom = sp?.get('exp_from') ?? '';
+  const expiryTo = sp?.get('exp_to') ?? '';
+  const valueMin = sp?.get('val_min') ?? '';
+  const valueMax = sp?.get('val_max') ?? '';
+
+  const updateFilter = React.useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(sp?.toString() ?? '');
+      if (value && value !== ALL) params.set(key, value);
+      else params.delete(key);
+      params.set('page', '1');
+      const qs = params.toString();
+      router.push(qs ? `${pathname}?${qs}` : pathname);
+    },
+    [sp, pathname, router],
+  );
 
   /* Selection */
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -258,15 +270,19 @@ export function ContractListClient({
     Boolean(valueMax);
 
   const clearFilters = React.useCallback(() => {
-    setStatusFilter(ALL);
-    setPartySearch('');
-    setEffectiveFrom('');
-    setEffectiveTo('');
-    setExpiryFrom('');
-    setExpiryTo('');
-    setValueMin('');
-    setValueMax('');
-  }, []);
+    const params = new URLSearchParams(sp?.toString() ?? '');
+    params.delete('status');
+    params.delete('party');
+    params.delete('eff_from');
+    params.delete('eff_to');
+    params.delete('exp_from');
+    params.delete('exp_to');
+    params.delete('val_min');
+    params.delete('val_max');
+    params.set('page', '1');
+    const qs = params.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname);
+  }, [sp, pathname, router]);
 
   /* Selection helpers */
   const allIds = React.useMemo(() => filtered.map((c) => String(c._id)), [filtered]);
@@ -472,12 +488,12 @@ export function ContractListClient({
             <EnumFilterField
               enumName="contractStatus"
               value={statusFilter === ALL ? null : statusFilter}
-              onChange={(v) => setStatusFilter(v ?? ALL)}
+              onChange={(v) => updateFilter('status', v ?? ALL)}
               placeholder="All statuses"
             />
             <Input
               value={partySearch}
-              onChange={(e) => setPartySearch(e.target.value)}
+              onChange={(e) => updateFilter('party', e.target.value)}
               placeholder="Counter-party…"
               className="h-9 w-[180px] text-[13px]"
               aria-label="Filter by counter-party name"
@@ -493,14 +509,14 @@ export function ContractListClient({
                 <Input
                   type="date"
                   value={effectiveFrom}
-                  onChange={(e) => setEffectiveFrom(e.target.value)}
+                  onChange={(e) => updateFilter('eff_from', e.target.value)}
                   className="h-8 text-[12.5px]"
                 />
                 <label className="text-[11px] text-zoru-ink-muted">To</label>
                 <Input
                   type="date"
                   value={effectiveTo}
-                  onChange={(e) => setEffectiveTo(e.target.value)}
+                  onChange={(e) => updateFilter('eff_to', e.target.value)}
                   className="h-8 text-[12.5px]"
                 />
               </div>
@@ -516,14 +532,14 @@ export function ContractListClient({
                 <Input
                   type="date"
                   value={expiryFrom}
-                  onChange={(e) => setExpiryFrom(e.target.value)}
+                  onChange={(e) => updateFilter('exp_from', e.target.value)}
                   className="h-8 text-[12.5px]"
                 />
                 <label className="text-[11px] text-zoru-ink-muted">To</label>
                 <Input
                   type="date"
                   value={expiryTo}
-                  onChange={(e) => setExpiryTo(e.target.value)}
+                  onChange={(e) => updateFilter('exp_to', e.target.value)}
                   className="h-8 text-[12.5px]"
                 />
               </div>
@@ -541,7 +557,7 @@ export function ContractListClient({
                   min="0"
                   step="1"
                   value={valueMin}
-                  onChange={(e) => setValueMin(e.target.value)}
+                  onChange={(e) => updateFilter('val_min', e.target.value)}
                   placeholder="0"
                   className="h-8 text-[12.5px]"
                 />
@@ -551,7 +567,7 @@ export function ContractListClient({
                   min="0"
                   step="1"
                   value={valueMax}
-                  onChange={(e) => setValueMax(e.target.value)}
+                  onChange={(e) => updateFilter('val_max', e.target.value)}
                   placeholder="No limit"
                   className="h-8 text-[12.5px]"
                 />
@@ -639,9 +655,7 @@ export function ContractListClient({
                 tone={card.tone}
                 active={statusFilter === card.key}
                 onClick={() =>
-                  setStatusFilter((prev) =>
-                    prev === card.key ? ALL : card.key,
-                  )
+                  updateFilter('status', statusFilter === card.key ? ALL : card.key)
                 }
               />
             ))}

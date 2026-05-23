@@ -49,6 +49,8 @@ import { InvoiceDetailBody } from '../_components/invoice-detail-body';
 import { InvoicePrintView } from '../_components/invoice-print-view';
 import { InvoiceQuickEdits } from '../_components/invoice-quick-edits';
 import { InvoiceRelatedRail } from '../_components/invoice-related-rail';
+import { PaymentLinkGenerator } from '../_components/payment-link-generator';
+import { InvoiceFollowUp } from '../_components/invoice-follow-up';
 
 import { CrmLineageChart, LineageNode } from '@/components/crm/crm-lineage-chart';
 import { Crm360Timeline } from '@/components/crm/crm-360-timeline';
@@ -521,6 +523,16 @@ export default async function InvoiceDetailPage({
           )}
         </ZoruCardContent>
       </Card>
+
+      {/* Payment Link Placeholder */}
+      <PaymentLinkGenerator 
+         invoiceId={invoiceId} 
+         amount={invoice.balance ?? totals.total} 
+         currency={currency} 
+      />
+
+      {/* Automated follow-up/reminder scheduling */}
+      <InvoiceFollowUp invoiceId={invoiceId} />
 
       {/* E-invoice */}
       {invoice.eInvoice ? (

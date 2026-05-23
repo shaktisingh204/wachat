@@ -109,6 +109,8 @@ pub struct CreateCreditNoteInput {
     /// other modes.
     #[serde(default)]
     pub refund_txn_id: Option<String>,
+    #[serde(default)]
+    pub auto_apply: Option<bool>,
 
     /* ----- doc body ----- */
     #[serde(default)]
@@ -160,6 +162,8 @@ pub struct UpdateCreditNoteInput {
     pub refund_mode: Option<RefundMode>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub refund_txn_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub auto_apply: Option<bool>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub notes: Option<String>,
@@ -183,6 +187,7 @@ impl UpdateCreditNoteInput {
             && self.tax_recalc.is_none()
             && self.refund_mode.is_none()
             && self.refund_txn_id.is_none()
+            && self.auto_apply.is_none()
             && self.notes.is_none()
             && self.status.is_none()
     }

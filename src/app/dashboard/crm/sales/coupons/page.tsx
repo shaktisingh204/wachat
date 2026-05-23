@@ -84,34 +84,7 @@ function getId(c: AnyCoupon, idx: number): string {
     : (c._id as { toString(): string } | undefined)?.toString?.() ?? String(idx);
 }
 
-function formatDate(value: string | Date | undefined | null): string {
-  if (!value) return '—';
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString();
-}
-
-function formatNumber(value: number | undefined | null): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  return value.toLocaleString();
-}
-
-function formatValue(type: string | undefined, value: number | undefined): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  const t = (type || '').toLowerCase();
-  if (t === 'percent' || t === 'percentage') return `${value}%`;
-  return value.toLocaleString();
-}
-
-function formatValidity(
-  from: string | Date | undefined,
-  to: string | Date | undefined,
-): string {
-  const f = formatDate(from);
-  const t = formatDate(to);
-  if (f === '—' && t === '—') return '—';
-  return `${f} → ${t}`;
-}
+import { formatValue, formatValidity } from './utils';
 
 function getStatusVariant(
   status?: string,
@@ -278,19 +251,28 @@ export default function SalesCouponsPage(): React.JSX.Element {
         a.click();
         URL.revokeObjectURL(url);
       } else {
-        const ExcelJS = (await import('exceljs')).default;
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Coupons');
-        worksheet.columns = header.map(h => ({ header: h, key: h, width: 15 }));
-        records.forEach(r => worksheet.addRow(r));
-        const out = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `coupons-${stamp}.xlsx`;
-        a.click();
-        URL.revokeObjectURL(url);
+        try {
+          const ExcelJS = (await import('exceljs')).default;
+          const workbook = new ExcelJS.Workbook();
+          const worksheet = workbook.addWorksheet('Coupons');
+          worksheet.columns = header.map(h => ({ header: h, key: h, width: 15 }));
+          records.forEach(r => worksheet.addRow(r));
+          const out = await workbook.xlsx.writeBuffer();
+          const blob = new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `coupons-${stamp}.xlsx`;
+          a.click();
+          URL.revokeObjectURL(url);
+        } catch (error) {
+          console.error('Failed to export to Excel:', error);
+          toast({
+            title: 'Export failed',
+            description: 'Could not load Excel export module.',
+            variant: 'destructive',
+          });
+        }
       }
     },
     [exportRows],
@@ -530,13 +512,13 @@ export default function SalesCouponsPage(): React.JSX.Element {
                             {formatValue(c.type, c.value)}
                           </ZoruTableCell>
                           <ZoruTableCell className="text-zoru-ink">
-                            {formatNumber(c.minCart)}
+                            {c.minCart?.toLocaleString() || '—'}
                           </ZoruTableCell>
                           <ZoruTableCell className="text-zoru-ink">
-                            {formatNumber(c.maxUses)}
+                            {c.maxUses?.toLocaleString() || '—'}
                           </ZoruTableCell>
                           <ZoruTableCell className="text-zoru-ink">
-                            {formatNumber(c.usedCount)}
+                            {c.usedCount?.toLocaleString() || '—'}
                           </ZoruTableCell>
                           <ZoruTableCell className="text-zoru-ink">
                             {formatValidity(c.validFrom, c.validTo)}

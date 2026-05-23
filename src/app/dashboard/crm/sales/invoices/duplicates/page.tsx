@@ -101,6 +101,7 @@ function MergeClusterCard({
         () => group.members[0]?._id ?? '',
     );
     const [confirmOpen, setConfirmOpen] = React.useState(false);
+    const [showDiff, setShowDiff] = React.useState(false);
     const [isPending, startTransition] = React.useTransition();
 
     const survivor = React.useMemo(
@@ -155,19 +156,28 @@ function MergeClusterCard({
                     )}
                     <Badge variant="outline">{group.members.length} invoices</Badge>
                 </h3>
-                <Button
-                    size="sm"
-                    variant="default"
-                    disabled={isPending || losers.length === 0}
-                    onClick={() => setConfirmOpen(true)}
-                >
+                <div className="flex items-center gap-2">
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setShowDiff(!showDiff)}
+                    >
+                        {showDiff ? 'Hide items' : 'Compare line items'}
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant="default"
+                        disabled={isPending || losers.length === 0}
+                        onClick={() => setConfirmOpen(true)}
+                    >
                     {isPending ? (
                         <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
                     ) : (
                         <Sparkles className="mr-1 h-3.5 w-3.5" />
                     )}
                     Merge {losers.length} into survivor
-                </Button>
+                    </Button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 gap-px bg-zoru-line md:grid-cols-2">
@@ -212,6 +222,34 @@ function MergeClusterCard({
                                     )}
                                 </dd>
                             </dl>
+                            {showDiff && (
+                                <div className="mt-3 border-t border-zoru-line pt-3">
+                                    <h4 className="mb-2 text-[11px] font-semibold text-zoru-ink-muted">Line Items</h4>
+                                    {(!m.lineItems || m.lineItems.length === 0) ? (
+                                        <p className="text-[11px] text-zoru-ink-muted">No line items</p>
+                                    ) : (
+                                        <ul className="space-y-1">
+                                            {m.lineItems.map((item: any, i: number) => {
+                                                const desc = item.description?.toLowerCase().trim();
+                                                const survivorDescriptions = new Set(survivor?.lineItems?.map((si: any) => si.description?.toLowerCase().trim()) || []);
+                                                const isDiff = !isSurvivor && !survivorDescriptions.has(desc);
+                                                return (
+                                                    <li key={i} className={`flex flex-col text-[11px] rounded p-1.5 ${isDiff ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-200' : 'bg-zoru-line/50 text-zoru-ink'}`}>
+                                                        <div className="flex justify-between items-start gap-2">
+                                                            <span className="font-medium truncate">{item.description || 'Unnamed item'}</span>
+                                                            <span className="font-mono whitespace-nowrap">{fmtMoney(item.rate * item.quantity, m.currency ?? 'INR')}</span>
+                                                        </div>
+                                                        <div className="text-[10px] opacity-70 flex justify-between mt-0.5">
+                                                            <span>Qty: {item.quantity} × {fmtMoney(item.rate, m.currency ?? 'INR')}</span>
+                                                            {isDiff && <span className="font-semibold text-amber-600 dark:text-amber-400">Not in survivor</span>}
+                                                        </div>
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     );
                 })}

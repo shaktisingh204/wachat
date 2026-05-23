@@ -24,7 +24,11 @@ import {
   Plus,
   Save,
   Trash2,
+  GripVertical,
   } from 'lucide-react';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 /**
  * <EstimateTemplateForm /> — create + edit form for CRM Sales
@@ -108,12 +112,13 @@ export function EstimateTemplateForm({
         (initialData?.status as CrmEstimateTemplateStatus) ?? 'draft',
     );
 
-    const [items, setItems] = useState<CrmEstimateTemplateItem[]>(() => {
+    const [items, setItems] = useState<(CrmEstimateTemplateItem & { id: string })[]>(() => {
         const raw = initialData?.defaultItems;
         if (Array.isArray(raw) && raw.length > 0) {
-            return raw.map((row) => {
+            return raw.map((row, i) => {
                 const r = row as Record<string, unknown>;
                 return {
+                    id: `item-${reactId}-${i}`,
                     description:
                         typeof r?.description === 'string' ? r.description : '',
                     quantity:
@@ -127,7 +132,7 @@ export function EstimateTemplateForm({
                 };
             });
         }
-        return [{ description: '', quantity: 1, rate: 0 }];
+        return [{ id: `item-${reactId}-init`, description: '', quantity: 1, rate: 0 }];
     });
 
     const subtotal = useMemo(
@@ -152,7 +157,7 @@ export function EstimateTemplateForm({
 
     const updateItem = (
         idx: number,
-        patch: Partial<CrmEstimateTemplateItem>,
+        patch: Partial<CrmEstimateTemplateItem & { id: string }>,
     ) => {
         setItems((prev) =>
             prev.map((it, i) => (i === idx ? { ...it, ...patch } : it)),
@@ -162,8 +167,27 @@ export function EstimateTemplateForm({
     const addItem = () => {
         setItems((prev) => [
             ...prev,
-            { description: '', quantity: 1, rate: 0 },
+            { id: `item-${Date.now()}-${Math.random().toString(36).slice(2)}`, description: '', quantity: 1, rate: 0 },
         ]);
+    };
+
+    
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id) {
+            setItems((items) => {
+                const oldIndex = items.findIndex((it) => it.id === active.id);
+                const newIndex = items.findIndex((it) => it.id === over.id);
+                return arrayMove(items, oldIndex, newIndex);
+            });
+        }
     };
 
     const removeItem = (idx: number) => {
@@ -248,6 +272,7 @@ export function EstimateTemplateForm({
                         <table className="w-full text-[13px]">
                             <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
                                 <tr>
+                                    <th className="w-8 px-1 py-2" />
                                     <th className="px-3 py-2 text-left font-medium">
                                         Description
                                     </th>
@@ -336,7 +361,7 @@ export function EstimateTemplateForm({
                                 ))}
                                 <tr className="border-t border-zoru-line bg-zoru-surface-2">
                                     <td
-                                        colSpan={3}
+                                        colSpan={4}
                                         className="px-3 py-2 text-right text-zoru-ink-muted"
                                     >
                                         Subtotal
@@ -404,4 +429,83 @@ export function EstimateTemplateForm({
             </form>
         </Card>
     );
+}
+
+export function SortableRow({ 
+  it, 
+  idx, 
+  updateItem, 
+  removeItem, 
+  canRemove 
+}: { 
+  it: any; 
+  idx: number; 
+  updateItem: (idx: number, updates: any) => void; 
+  removeItem: (idx: number) => void; 
+  canRemove: boolean; 
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: it.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    position: 'relative' as const,
+    zIndex: isDragging ? 1 : 0,
+  };
+
+  return (
+    <tr ref={setNodeRef} style={style} className="border-t border-zoru-line bg-white">
+      <td className="px-1 py-2">
+        <div 
+          className="cursor-grab p-1 text-zoru-ink-muted hover:text-zoru-ink active:cursor-grabbing"
+          {...attributes} 
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4" />
+        </div>
+      </td>
+      <td className="px-3 py-2">
+        <Input
+          placeholder={`Item ${idx + 1}`}
+          value={it.description}
+          onChange={(e) => updateItem(idx, { description: e.target.value })}
+        />
+      </td>
+      <td className="px-3 py-2 text-right">
+        <Input
+          type="number"
+          min={0}
+          step="1"
+          value={String(it.quantity)}
+          onChange={(e) => updateItem(idx, { quantity: parseFloat(e.target.value) || 0 })}
+          className="text-right"
+        />
+      </td>
+      <td className="px-3 py-2 text-right">
+        <Input
+          type="number"
+          min={0}
+          step="0.01"
+          value={String(it.rate)}
+          onChange={(e) => updateItem(idx, { rate: parseFloat(e.target.value) || 0 })}
+          className="text-right"
+        />
+      </td>
+      <td className="px-3 py-2 text-right font-mono text-zoru-ink">
+        {(!Number.isFinite(it.quantity * it.rate) ? '0.00' : (it.quantity * it.rate).toFixed(2))}
+      </td>
+      <td className="px-3 py-2 text-right">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => removeItem(idx)}
+          disabled={!canRemove}
+          title="Remove item"
+        >
+          <Trash2 className="h-4 w-4 text-destructive" />
+        </Button>
+      </td>
+    </tr>
+  );
 }

@@ -72,6 +72,15 @@ export async function saveCoupon(
       }
     }
 
+    const rawApplicableCategories = formData.get('applicableCategories') as string;
+    let applicableCategories: string[] | undefined;
+    if (rawApplicableCategories) {
+      applicableCategories = rawApplicableCategories
+        .split(',')
+        .map((c) => c.trim())
+        .filter(Boolean);
+    }
+
     const stackable = formData.get('stackable') === 'true';
 
     const notes = (formData.get('notes') as string) || '';
@@ -96,6 +105,9 @@ export async function saveCoupon(
     if (validFrom) doc.validFrom = validFrom;
     if (validTo) doc.validTo = validTo;
     if (applicableProducts) doc.applicableProducts = applicableProducts;
+    if (applicableCategories && applicableCategories.length > 0) {
+      doc.applicableCategories = applicableCategories;
+    }
     if (notes) doc.notes = notes;
 
     const { db } = await connectToDatabase();
@@ -225,6 +237,7 @@ export async function updateCoupon(
     const rawValidTo = formData.get('validTo') as string;
     const stackable = formData.get('stackable') === 'true';
     const notes = (formData.get('notes') as string) || '';
+    const rawApplicableCategories = formData.get('applicableCategories') as string;
 
     const $set: Record<string, any> = {
       code,
@@ -240,6 +253,17 @@ export async function updateCoupon(
       $set.perCustomerLimit = parseInt(rawPerCustomerLimit, 10);
     if (rawValidFrom) $set.validFrom = new Date(rawValidFrom);
     if (rawValidTo) $set.validTo = new Date(rawValidTo);
+    
+    if (rawApplicableCategories) {
+      const cats = rawApplicableCategories.split(',').map((c) => c.trim()).filter(Boolean);
+      if (cats.length > 0) {
+        $set.applicableCategories = cats;
+      } else {
+        $set.applicableCategories = [];
+      }
+    } else if (formData.has('applicableCategories')) {
+      $set.applicableCategories = [];
+    }
 
     const { db } = await connectToDatabase();
     const result = await db.collection('crm_coupons').updateOne(

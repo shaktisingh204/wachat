@@ -613,7 +613,7 @@ export async function syncWithGstPortal(period: Period, returnType: 'GSTR1' | 'G
     // This is a placeholder for actual GST portal API integration.
     // In reality, this would require e-Invoicing/GST Suvidha Provider (GSP) credentials
     // and would fetch or push data to the portal securely.
-    return { success: true, message: \`Successfully synced \${returnType} with GST portal for \${periodKey(period)}.\` };
+    return { success: true, message: `Successfully synced ${returnType} with GST portal for ${periodKey(period)}.` };
 }
 
 export async function reconcileGstr2bVsLocal(period: Period): Promise<{ discrepancies: number; totalMatched: number; reportId: string }> {

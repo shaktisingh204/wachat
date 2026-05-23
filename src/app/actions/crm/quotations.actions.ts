@@ -87,60 +87,107 @@ export async function getQuotationKpis(): Promise<QuotationKpiSnapshot> {
     currency: 'INR',
   };
   try {
-    const docs = await crmQuotationsApi.list({ page: 1, limit: 200 });
+    const session = await getSession();
+    const u = (session as { user?: { _id?: unknown; id?: unknown } } | null)?.user;
+    const rawId = u?._id ?? u?.id;
+    if (!rawId) return empty;
+
+    const { db } = await connectToDatabase();
+    const userId = typeof rawId === 'string' ? new ObjectId(rawId) : rawId;
+
     const now = new Date();
     const nowTs = now.getTime();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-    let open = 0;
-    let accepted = 0;
-    let rejected = 0;
-    let expired = 0;
-    let draft = 0;
-    let converted = 0;
-    let totalThisMonth = 0;
-    let totalQuotedValue = 0;
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+    const pipeline = [
+      { $match: { userId } },
+      {
+        $group: {
+          _id: null,
+          totalOpen: {
+            $sum: {
+              $cond: [{ $in: [{ $toLower: '$status' }, ['draft', 'sent']] }, 1, 0],
+            },
+          },
+          accepted: {
+            $sum: {
+              $cond: [{ $eq: [{ $toLower: '$status' }, 'accepted'] }, 1, 0],
+            },
+          },
+          rejected: {
+            $sum: {
+              $cond: [{ $eq: [{ $toLower: '$status' }, 'rejected'] }, 1, 0],
+            },
+          },
+          converted: {
+            $sum: {
+              $cond: [{ $eq: [{ $toLower: '$status' }, 'converted'] }, 1, 0],
+            },
+          },
+          draft: {
+            $sum: {
+              $cond: [{ $eq: [{ $toLower: '$status' }, 'draft'] }, 1, 0],
+            },
+          },
+          expired: {
+            $sum: {
+              $cond: [
+                {
+                  $or: [
+                    { $eq: [{ $toLower: '$status' }, 'expired'] },
+                    {
+                      $lt: [
+                        { $toDate: '$validUntil' },
+                        now,
+                      ],
+                    },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          totalThisMonth: {
+            $sum: {
+              $cond: [{ $gte: ['$date', monthStart] }, 1, 0],
+            },
+          },
+          totalQuotedValue: { $sum: '$totals.total' },
+          totalCount: { $sum: 1 },
+          currencies: { $addToSet: '$currency' },
+        },
+      },
+    ];
+
+    const result = await db.collection('crm_quotations').aggregate(pipeline).toArray();
+    if (!result || result.length === 0) return empty;
+
+    const res = result[0];
+    const totalCount = res.totalCount || 0;
+    const acceptedAndConverted = (res.accepted || 0) + (res.converted || 0);
+    const conversionRatePct = totalCount > 0
+      ? Math.round((acceptedAndConverted / totalCount) * 1000) / 10
+      : null;
+
     let currency = 'INR';
-    for (const d of docs) {
-      const s = (d.status ?? 'draft').toLowerCase();
-      const isExpired =
-        s === 'expired' ||
-        (typeof d.validUntil === 'string' &&
-          new Date(d.validUntil).getTime() < nowTs);
-      if (s === 'draft') draft += 1;
-      if (s === 'draft' || s === 'sent') open += 1;
-      if (s === 'accepted') accepted += 1;
-      if (s === 'rejected') rejected += 1;
-      if (s === 'converted') converted += 1;
-      if (isExpired) expired += 1;
-      if (d.currency) currency = d.currency;
-      if (typeof d.totals?.total === 'number') totalQuotedValue += d.totals.total;
-      if (typeof d.date === 'string') {
-        const t = new Date(d.date).getTime();
-        if (!Number.isNaN(t) && t >= monthStart) totalThisMonth += 1;
-      }
+    if (res.currencies && res.currencies.length > 0) {
+      currency = res.currencies.find((c: any) => c && c !== 'INR') || 'INR';
     }
-    const conversionRatePct =
-      docs.length > 0
-        ? Math.round(((accepted + converted) / docs.length) * 1000) / 10
-        : null;
+
     return {
-      totalOpen: open,
-      accepted,
-      rejected,
-      expired,
-      draft,
+      totalOpen: res.totalOpen || 0,
+      accepted: res.accepted || 0,
+      rejected: res.rejected || 0,
+      expired: res.expired || 0,
+      draft: res.draft || 0,
       conversionRatePct,
-      totalThisMonth,
-      totalQuotedValue: Math.round(totalQuotedValue),
+      totalThisMonth: res.totalThisMonth || 0,
+      totalQuotedValue: Math.round(res.totalQuotedValue || 0),
       currency,
     };
   } catch (e) {
-    recordRustFallback({
-      entity: 'quotation',
-      op: 'list',
-      errorCode: e instanceof RustApiError ? e.code : undefined,
-      status: e instanceof RustApiError ? e.status : undefined,
-    });
+    console.error('[getQuotationKpis] aggregation failed:', e);
     return empty;
   }
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/zoruui';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/zoruui';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const mockHistoryData = [
@@ -16,10 +16,10 @@ const mockHistoryData = [
 export function ProductHistoryGraph() {
   return (
     <Card className="mt-6">
-      <CardHeader>
-        <CardTitle className="text-lg">Price & Stock History</CardTitle>
-      </CardHeader>
-      <CardContent className="h-64">
+      <ZoruCardHeader>
+        <ZoruCardTitle className="text-lg">Price & Stock History</ZoruCardTitle>
+      </ZoruCardHeader>
+      <ZoruCardContent className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={mockHistoryData}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />

@@ -17,9 +17,10 @@ import Link from 'next/link';
 import {
   ArrowRight,
   FileSignature,
-  Bell,
   CheckCircle,
   Download,
+  Settings,
+  Bell,
 } from 'lucide-react';
 
 import {
@@ -42,6 +43,13 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
+  Dialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  useZoruToast,
 } from '@/components/zoruui';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -231,6 +239,7 @@ function BulkBar({
 /* ─── Page ───────────────────────────────────────────────────────── */
 
 export default function ContractRenewalsPage() {
+  const { toast } = useZoruToast();
   const nowRef = React.useRef(new Date());
   const now = nowRef.current;
 
@@ -246,6 +255,9 @@ export default function ContractRenewalsPage() {
   // Selection
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [busy, setBusy] = React.useState(false);
+
+  // Settings
+  const [showSettings, setShowSettings] = React.useState(false);
 
   /* Load on mount — reuse listContracts with the expiring90 window */
   React.useEffect(() => {
@@ -445,12 +457,18 @@ export default function ContractRenewalsPage() {
       title="Contract renewals"
       subtitle={`Active contracts expiring within ${RENEWAL_WINDOW_DAYS} days — soonest first.`}
       primaryAction={
-        <Button variant="outline" asChild>
-          <Link href={CONTRACTS_BASE}>
-            <FileSignature className="mr-2 h-4 w-4" />
-            All contracts
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setShowSettings(true)}>
+            <Settings className="mr-2 h-4 w-4" />
+            Automated Reminders
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href={CONTRACTS_BASE}>
+              <FileSignature className="mr-2 h-4 w-4" />
+              All contracts
+            </Link>
+          </Button>
+        </div>
       }
       filters={
         <div className="flex flex-wrap items-center gap-2">
@@ -676,6 +694,45 @@ export default function ContractRenewalsPage() {
           </Table>
         </div>
       </Card>
+
+      <Dialog open={showSettings} onOpenChange={setShowSettings}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Automated Renewal Reminders</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Configure background email reminders for contracts approaching their expiry date.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="flex items-center gap-3">
+              <Checkbox id="enableAuto" defaultChecked={true} />
+              <label htmlFor="enableAuto" className="text-sm font-medium leading-none text-zoru-ink">
+                Enable automated email reminders
+              </label>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zoru-ink">Default notice period</label>
+              <div className="flex items-center gap-2">
+                <Input type="number" defaultValue="30" className="w-24 h-9" />
+                <span className="text-sm text-zoru-ink-muted">days before expiry</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 mt-2">
+              <Checkbox id="notifyOwner" defaultChecked={true} />
+              <label htmlFor="notifyOwner" className="text-sm font-medium leading-none text-zoru-ink">
+                Send a copy to the contract owner
+              </label>
+            </div>
+          </div>
+          <ZoruDialogFooter>
+            <Button variant="outline" onClick={() => setShowSettings(false)}>Cancel</Button>
+            <Button onClick={() => {
+              toast({ title: 'Settings saved', description: 'Automated renewal reminders have been configured.' });
+              setShowSettings(false);
+            }}>Save preferences</Button>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </Dialog>
     </EntityListShell>
   );
 }

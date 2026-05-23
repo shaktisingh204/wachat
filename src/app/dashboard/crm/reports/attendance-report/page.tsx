@@ -7,17 +7,12 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { StatCard, fmtNumber } from '../_components/report-toolbar';
 import { HrReportToolbar } from '../_components/hr-report-toolbar';
-import dynamic from 'next/dynamic';
+import { DailyAttendanceChart } from '../_components/hr-report-charts';
 import { AttendanceView } from './attendance-view';
 import {
   getHrReportDepartments,
   getAttendanceReportData,
 } from '@/app/actions/crm-reports.actions';
-
-const DailyAttendanceChart = dynamic(
-  () => import('../_components/hr-report-charts').then((mod) => mod.DailyAttendanceChart),
-  { ssr: false }
-);
 
 interface PageProps {
   searchParams: Promise<{

@@ -11,10 +11,12 @@ import { Pencil } from 'lucide-react';
  */
 
 import Link from 'next/link';
+import QRCode from 'react-qr-code';
 
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getGiftCardById } from '@/app/actions/crm-gift-cards.actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { GiftCardActions } from './gift-card-actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -113,6 +115,17 @@ export default async function GiftCardDetailPage({
                             <p className="whitespace-pre-wrap">{String(card.notes)}</p>
                         </Field>
                     ) : null}
+                </div>
+                <GiftCardActions id={id} balance={card.balance || 0} email={card.issuedToEmail || null} />
+            </Card>
+
+            <Card className="p-6 mt-6 print:block">
+                <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                    Gift Card QR Code
+                </h2>
+                <div className="flex flex-col items-center justify-center p-4">
+                    <QRCode value={code} size={150} />
+                    <p className="mt-4 font-mono text-lg tracking-widest">{code}</p>
                 </div>
             </Card>
         </EntityDetailShell>

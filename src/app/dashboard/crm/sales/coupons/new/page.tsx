@@ -200,6 +200,18 @@ export default function NewCouponPage() {
             />
           </div>
 
+          {/* Applicable Categories */}
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="applicableCategories">Applicable Categories</Label>
+            <Input
+              id="applicableCategories"
+              name="applicableCategories"
+              type="text"
+              placeholder="e.g. electronics, clothing (comma separated)"
+              className="max-w-xs"
+            />
+          </div>
+
           {/* Notes */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="notes">Notes</Label>

@@ -5,7 +5,7 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getIssueById } from '@/app/actions/worksuite/meta.actions';
 import { getWsIssueCommentsByIssue } from '@/app/actions/worksuite/projects.actions';
 import { marked } from 'marked';
-import { IssueComments } from './_components/issue-comments';
+import { IssueComments } from '../_components/issue-comments';
 
 type RouteParams = { id: string };
 

@@ -41,6 +41,7 @@ import {
   acceptEstimate,
   convertEstimateRequestToQuote,
   deleteEstimateRequest,
+  getEstimateTemplates,
   getEstimateRequestById,
   updateEstimateRequestStatus,
 } from '@/app/actions/worksuite/proposals.actions';
@@ -87,6 +88,12 @@ export default function EstimateRequestDetailPage(props: {
   const [data, setData] = useState<Loaded | null>(null);
   const [isLoading, startLoading] = useTransition();
   const [isConverting, setIsConverting] = useState(false);
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
+
+  useEffect(() => {
+    getEstimateTemplates().then((res) => setTemplates(res));
+  }, []);
   const [isSigning, setIsSigning] = useState(false);
   const [signerName, setSignerName] = useState('');
   const [signerEmail, setSignerEmail] = useState('');
@@ -226,7 +233,7 @@ export default function EstimateRequestDetailPage(props: {
 
   const handleConvert = async () => {
     setIsConverting(true);
-    const res = await convertEstimateRequestToQuote(requestId);
+    const res = await convertEstimateRequestToQuote(requestId, selectedTemplateId || undefined);
     setIsConverting(false);
     if (res.success) {
       toast({
@@ -302,17 +309,32 @@ export default function EstimateRequestDetailPage(props: {
             resourceType="estimate"
             resourceId={request._id}
           />
-          <Button
-            disabled={isConverting || isQuoted}
-            onClick={handleConvert}
-          >
-            {isConverting ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" />
-            ) : (
-              <ArrowRightCircle className="h-4 w-4" />
-            )}
-            {isQuoted ? 'Already Quoted' : 'Convert to Quote'}
-          </Button>
+          <div className="flex items-center gap-2">
+            {!isQuoted ? (
+              <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
+                <ZoruSelectTrigger className="w-48 bg-white h-9">
+                  <ZoruSelectValue placeholder="Select template..." />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="">None (Empty Quote)</ZoruSelectItem>
+                  {templates.map((t) => (
+                    <ZoruSelectItem key={t._id} value={t._id}>{t.name}</ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </Select>
+            ) : null}
+            <Button
+              disabled={isConverting || isQuoted}
+              onClick={handleConvert}
+            >
+              {isConverting ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <ArrowRightCircle className="h-4 w-4" />
+              )}
+              {isQuoted ? 'Already Quoted' : 'Convert to Quote'}
+            </Button>
+          </div>
         </>
       }
     >

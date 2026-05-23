@@ -78,7 +78,7 @@ export default function CreditNotesPage() {
 
     const statusForApi = React.useMemo(() => {
         if (statusFilter === 'refunded') return 'refunded';
-        if (statusFilter === 'pending') return undefined; // computed client-side
+        if (statusFilter === 'pending') return 'pending';
         return undefined;
     }, [statusFilter]);
 
@@ -95,9 +95,6 @@ export default function CreditNotesPage() {
                 getCreditNoteKpis(),
             ]);
             let next = rows;
-            if (statusFilter === 'pending') {
-                next = next.filter((c) => (c.status || '').toLowerCase() !== 'refunded' && (c.status || '').toLowerCase() !== 'cancelled');
-            }
             if (reasonFilter) next = next.filter((c) => c.reason === reasonFilter);
             if (refundModeFilter) next = next.filter((c) => c.refundMode === refundModeFilter);
             if (dateRange?.from) {

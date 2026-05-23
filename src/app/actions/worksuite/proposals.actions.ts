@@ -221,6 +221,27 @@ export async function saveProposal(
   }
 
   const { db } = await connectToDatabase();
+  let templateItems: any[] = [];
+  let templateTerms: string = '';
+  if (templateId && ObjectId.isValid(templateId)) {
+    const tmpl = await db.collection(COL.estimateTemplates).findOne({ _id: new ObjectId(templateId), userId });
+    if (tmpl) {
+      if (tmpl.defaultItems && Array.isArray(tmpl.defaultItems)) {
+        templateItems = tmpl.defaultItems.map((i: any) => ({
+          name: i.description || '',
+          description: i.description || '',
+          quantity: i.quantity || 1,
+          unit_price: i.rate || 0,
+          tax: 0,
+          total: (i.quantity || 1) * (i.rate || 0),
+        }));
+      }
+      if (tmpl.defaultTerms) {
+        templateTerms = tmpl.defaultTerms;
+      }
+    }
+  }
+
   const now = new Date();
   const totals = computeTotals(input.lines, input.discount || 0, input.tax);
 
@@ -724,8 +745,24 @@ export async function saveEstimateRequest(
 ): Promise<Result<{ id: string }>> {
   const userId = await requireUser();
   if (!userId) return { success: false, error: 'Access denied' };
+  if (!input.requester_name?.trim()) {
+    return { success: false, error: 'Requester name is required' };
+  }
+  if (!input.requester_email?.trim()) {
+    return { success: false, error: 'Requester email is required' };
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(input.requester_email.trim())) {
+    return { success: false, error: 'Invalid email format' };
+  }
   if (!input.description?.trim()) {
     return { success: false, error: 'Description required' };
+  }
+  if (input.desired_date) {
+    const d = new Date(input.desired_date);
+    if (isNaN(d.getTime())) {
+      return { success: false, error: 'Invalid desired date' };
+    }
   }
   const { db } = await connectToDatabase();
   const now = new Date();
@@ -839,6 +876,7 @@ export async function acceptEstimate(
  */
 export async function convertEstimateRequestToQuote(
   requestId: string,
+  templateId?: string,
 ): Promise<Result<{ quoteId: string; collection: string }>> {
   const userId = await requireUser();
   if (!userId) return { success: false, error: 'Access denied' };
@@ -873,11 +911,11 @@ export async function convertEstimateRequestToQuote(
     quotationNumber: `QUO-${Date.now().toString().slice(-6)}`,
     quotationDate: now,
     currency: 'INR',
-    lineItems: [],
-    subtotal: 0,
-    total: 0,
+    lineItems: templateItems,
+    subtotal: templateItems.reduce((acc, i) => acc + i.total, 0),
+    total: templateItems.reduce((acc, i) => acc + i.total, 0),
     notes: req.description,
-    termsAndConditions: [],
+    termsAndConditions: templateTerms,
     additionalInfo: [],
     status: 'Draft',
     createdAt: now,

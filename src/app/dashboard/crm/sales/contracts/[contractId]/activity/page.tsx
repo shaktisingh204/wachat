@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getContractById } from '@/app/actions/crm-contracts.actions';
+import { ESignatureDashboard } from './e-signature-dashboard';
 
 interface PageProps {
     params: Promise<{ contractId: string }>;
@@ -23,7 +24,15 @@ export default async function ContractActivityPage({ params }: PageProps) {
                 label: 'Back to contract',
             }}
         >
-            <EntityAuditTimeline entityKind="contract" entityId={contractId} />
+            <div className="space-y-6">
+                <ESignatureDashboard 
+                    contractId={contractId} 
+                    provider={contract.esignProvider || 'none'}
+                    partyName={contract.partyName || ''}
+                    partyEmail={contract.partyEmail || ''}
+                />
+                <EntityAuditTimeline entityKind="contract" entityId={contractId} />
+            </div>
         </EntityDetailShell>
     );
 }

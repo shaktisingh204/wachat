@@ -14,12 +14,13 @@ import {
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getEInvoiceForInvoice } from '@/app/actions/crm-india-einvoice.actions';
 import { EInvoiceActions } from './_components/e-invoice-actions';
+import QRCode from 'react-qr-code';
 
 export const dynamic = 'force-dynamic';
 
 function decodeQrPayload(b64: string): Record<string, unknown> | null {
     try {
-        return JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
+        return JSON.parse(atob(b64));
     } catch {
         return null;
     }
@@ -101,13 +102,11 @@ export default async function InvoiceEInvoicePage(props: {
                         </ZoruCardHeader>
                         <ZoruCardContent className="flex flex-col gap-3">
                             <p className="text-[12px] text-muted-foreground">
-                                The QR payload from the IRP. Decoded JSON shown for clarity;
-                                a real QR render can be wired in once the page is paired with a
-                                client-side QR component.
+                                The QR payload from the IRP.
                             </p>
-                            <pre className="rounded-md border border-border bg-muted/40 p-3 text-[11px] leading-relaxed overflow-x-auto">
-                                {JSON.stringify(decodeQrPayload(block.qrCodeData) ?? {}, null, 2)}
-                            </pre>
+                            <div className="bg-white p-4 w-fit rounded-md border border-border">
+                                <QRCode value={block.qrCodeData} size={150} />
+                            </div>
                             <details>
                                 <summary className="cursor-pointer text-[12px] text-muted-foreground">
                                     Show raw base64

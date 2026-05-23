@@ -65,6 +65,8 @@ export async function getCrmAccounts(
         currency?: string;
         fromDate?: Date;
         toDate?: Date;
+        status?: string;
+        engagementScore?: string;
     },
 ): Promise<{ accounts: WithId<CrmAccount>[]; total: number }> {
     const session = await getSession();
@@ -75,6 +77,8 @@ export async function getCrmAccounts(
             const rustFilter: Record<string, unknown> = status === 'all' ? {} : { status };
             if (filters?.category && filters.category !== 'all') rustFilter.category = filters.category;
             if (filters?.industry) rustFilter.industry = filters.industry;
+            if (filters?.status) rustFilter.status = filters.status;
+            if (filters?.engagementScore) rustFilter.engagementScore = filters.engagementScore;
             if (filters?.country) rustFilter.country = filters.country;
             if (filters?.currency) rustFilter.currency = filters.currency;
             if (filters?.fromDate) rustFilter.fromDate = filters.fromDate.toISOString();
@@ -102,7 +106,9 @@ export async function getCrmAccounts(
         const userObjectId = new ObjectId(session.user._id);
 
         const filter: any = { userId: userObjectId };
-        if (status === 'active') {
+        if (filters?.status) {
+            filter.status = filters.status;
+        } else if (status === 'active') {
             filter.status = { $ne: 'archived' };
         } else if (status === 'archived') {
             filter.status = 'archived';
@@ -112,6 +118,16 @@ export async function getCrmAccounts(
         if (filters?.industry) filter.industry = filters.industry;
         if (filters?.country) filter.country = filters.country;
         if (filters?.currency) filter.currency = filters.currency;
+        
+        if (filters?.engagementScore) {
+            if (filters.engagementScore === 'high') {
+                filter.engagementScore = { $gte: 80 };
+            } else if (filters.engagementScore === 'medium') {
+                filter.engagementScore = { $gte: 50, $lt: 80 };
+            } else if (filters.engagementScore === 'low') {
+                filter.engagementScore = { $lt: 50 };
+            }
+        }
         
         if (filters?.fromDate || filters?.toDate) {
             filter.createdAt = {};

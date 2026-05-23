@@ -1,13 +1,13 @@
 import { NextRequest } from 'next/server';
 import IORedis from 'ioredis';
-import { getServerSession } from '@/lib/auth/session';
+import { getSession } from '@/app/actions/user.actions';
 
 export const dynamic = 'force-dynamic';
 
 const CHANNEL_PREFIX = 'sabnode:worksuite:realtime:';
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession();
+  const session = await getSession();
   
   if (!session?.user?._id) {
     return new Response('Unauthorized', { status: 401 });

@@ -18,7 +18,7 @@ import {
     getReportRun,
 } from '@/app/actions/crm-reports.actions';
 import { RerunButton } from './rerun-button';
-import { RunResultsTable } from '../../../../_components/run-results-table';
+import { RunResultsTable } from '../../../_components/run-results-table';
 
 export const dynamic = 'force-dynamic';
 

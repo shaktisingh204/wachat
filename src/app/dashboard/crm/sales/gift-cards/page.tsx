@@ -121,9 +121,25 @@ function getStatusVariant(
 
 function resolveIssuedTo(card: AnyGiftCard): string {
   if (card.issuedToName) return card.issuedToName;
-  if (card.issuedTo) return card.issuedTo;
+  
+  if (typeof card.issuedTo === 'string') {
+    return card.issuedTo;
+  }
+  if (card.issuedTo && typeof card.issuedTo === 'object') {
+     if ('name' in card.issuedTo && typeof (card.issuedTo as any).name === 'string') {
+         return (card.issuedTo as any).name;
+     }
+     if (typeof (card.issuedTo as any).toString === 'function') {
+         return (card.issuedTo as any).toString();
+     }
+  }
+
   if (typeof card.issuedToId === 'string') return card.issuedToId;
-  return (card.issuedToId as { toString(): string } | undefined)?.toString?.() ?? '—';
+  if (card.issuedToId && typeof (card.issuedToId as any).toString === 'function') {
+      return (card.issuedToId as any).toString();
+  }
+  
+  return '—';
 }
 
 export default function SalesGiftCardsPage(): React.JSX.Element {
@@ -279,19 +295,25 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
         a.click();
         URL.revokeObjectURL(url);
       } else {
-        const ExcelJS = (await import('exceljs')).default;
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Gift cards');
-        worksheet.columns = header.map(h => ({ header: h, key: h, width: 15 }));
-        records.forEach(r => worksheet.addRow(r));
-        const out = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `gift-cards-${stamp}.xlsx`;
-        a.click();
-        URL.revokeObjectURL(url);
+        try {
+          let ExcelJS: any = await import('exceljs');
+          if (ExcelJS.default) ExcelJS = ExcelJS.default;
+          const workbook = new ExcelJS.Workbook();
+          const worksheet = workbook.addWorksheet('Gift cards');
+          worksheet.columns = header.map(h => ({ header: h, key: h, width: 15 }));
+          records.forEach(r => worksheet.addRow(r));
+          const out = await workbook.xlsx.writeBuffer();
+          const blob = new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `gift-cards-${stamp}.xlsx`;
+          a.click();
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          console.error('Failed to export to XLSX:', err);
+          // Fallback or ignore
+        }
       }
     },
     [exportRows],

@@ -281,6 +281,22 @@ export function DeliveryListClient({
     }
   }
 
+  function bulkPrint() {
+    const ids = Array.from(bulky.selected).join(',');
+    window.open(`/dashboard/crm/sales/delivery/print-bulk?ids=${ids}`, '_blank');
+  }
+
+  function bulkManifest() {
+    const ids = Array.from(bulky.selected).join(',');
+    window.open(`/dashboard/crm/sales/delivery/manifest?ids=${ids}`, '_blank');
+  }
+
+  function generateTracking(row: DcRow) {
+    const url = `${window.location.origin}/track/${row._id}`;
+    navigator.clipboard.writeText(url);
+    toast({ title: 'Tracking URL copied', description: url });
+  }
+
   const hasActive =
     !!initialStatus ||
     !!initialClientId ||
@@ -404,6 +420,17 @@ export function DeliveryListClient({
         );
       },
     },
+    {
+      key: 'tracking',
+      header: 'Tracking',
+      render: (row) => row.status === 'In Transit' || row.status === 'Delivered' ? (
+        <Button variant="ghost" size="sm" className="h-7 text-[11px] px-2 text-zoru-primary" onClick={() => generateTracking(row)}>
+          Track Link
+        </Button>
+      ) : (
+        <span className="text-zoru-ink-muted text-[12.5px]">—</span>
+      ),
+    },
   ], []);
 
   return (
@@ -432,6 +459,8 @@ export function DeliveryListClient({
             onExportXlsx={bulkExportXlsx}
             onStatus={bulkStatus}
             onConvertToInvoice={bulkConvertToInvoice}
+            onPrintBulk={bulkPrint}
+            onDispatchManifest={bulkManifest}
             onDelete={() => setPendingBulkDelete(true)}
           />
         ) : null

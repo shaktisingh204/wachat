@@ -86,6 +86,7 @@ export interface CrmCreditNoteDoc {
   taxRecalc?: boolean;
   refundMode: RefundMode;
   refundTxnId?: string;
+  autoApply?: boolean;
   notes?: string;
   attachments?: unknown[];
   status?: CreditNoteStatus;
@@ -100,7 +101,7 @@ export interface CrmCreditNoteListParams {
   limit?: number;
   q?: string;
   clientId?: string;
-  status?: CreditNoteStatus;
+  status?: CreditNoteStatus | 'pending';
 }
 
 export interface CrmCreditNoteCreateInput {
@@ -115,6 +116,7 @@ export interface CrmCreditNoteCreateInput {
   taxRecalc?: boolean;
   refundMode: RefundMode;
   refundTxnId?: string;
+  autoApply?: boolean;
   notes?: string;
   fromKind?: string;
   fromId?: string;

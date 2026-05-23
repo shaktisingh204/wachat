@@ -573,6 +573,7 @@ export interface InvoiceDuplicateGroup {
     currency?: string;
     date?: string;
     status?: string;
+    lineItems?: any[];
   }>;
 }
 
@@ -599,6 +600,7 @@ export async function findInvoiceDuplicates(): Promise<InvoiceDuplicateGroup[]> 
       currency: d.currency,
       date: d.date,
       status: d.status,
+      lineItems: d.lineItems || [],
     }));
 
     for (let i = 0; i < rows.length; i++) {

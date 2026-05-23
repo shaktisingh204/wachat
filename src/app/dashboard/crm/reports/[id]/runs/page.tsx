@@ -15,7 +15,7 @@ import {
     getReportDefinitionById,
     getReportRunsForDefinition,
 } from '@/app/actions/crm-reports.actions';
-import { RunsListClient } from '../_components/runs-list-client';
+import { RunsListClient } from '../../_components/runs-list-client';
 
 export const dynamic = 'force-dynamic';
 
