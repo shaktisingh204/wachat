@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { cache } from 'react';
 import { ObjectId } from 'mongodb';
 import crypto from 'node:crypto';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -169,7 +170,7 @@ export async function deleteProjectTask(id: string) {
 export async function getContracts() {
   return hrList<HrContract>('crm_contracts');
 }
-export async function getContractById(id: string) {
+export const getContractById = cache(async function getContractById(id: string) {
   return hrGetById<HrContract>('crm_contracts', id);
 }
 export async function saveContract(_prev: any, formData: FormData) {

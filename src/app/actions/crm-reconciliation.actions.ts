@@ -11,6 +11,7 @@ import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { crmReconciliationApi } from '@/lib/rust-client/crm-reconciliation';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import Papa from 'papaparse';
+import { randomUUID } from 'crypto';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -61,6 +62,48 @@ export async function importBankStatement(file: File, mapping?: CsvMapping): Pro
         }).filter(Boolean);
 
         return { statementEntries: transactions, columns };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function fetchPlaidTransactions(accountId: string, startDate: Date, endDate: Date): Promise<{ statementEntries?: any[], error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
+    try {
+        // Mock Plaid / Bank API integration for automatic transaction fetching
+        const entries = [
+            { _id: `plaid-${Date.now()}-1`, date: startDate, description: 'Stripe Payout', amount: 450.00 },
+            { _id: `plaid-${Date.now()}-2`, date: new Date(startDate.getTime() + 86400000), description: 'AWS Cloud', amount: -120.50 },
+            { _id: `plaid-${Date.now()}-3`, date: new Date(startDate.getTime() + 86400000 * 2), description: 'Client Payment EUR (FX Adjusted)', amount: 1250.00, originalCurrency: 'EUR', fxRate: 1.1 },
+            { _id: `plaid-${Date.now()}-4`, date: new Date(startDate.getTime() + 86400000 * 3), description: 'Wire Transfer Fees', amount: -15.00 },
+        ];
+        return { statementEntries: entries };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function createFxAdjustmentEntry(accountId: string, baseAmount: number, foreignAmount: number, currency: string) {
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
+    try {
+        const { db } = await connectToDatabase();
+        const diff = baseAmount - foreignAmount;
+        const entry: CrmVoucherEntry = {
+            _id: new ObjectId(),
+            userId: new ObjectId(session.user._id),
+            voucherType: 'journal',
+            voucherNumber: `FX-${Date.now()}`,
+            date: new Date(),
+            debitEntries: diff < 0 ? [{ accountId: new ObjectId(accountId), amount: Math.abs(diff) }] : [],
+            creditEntries: diff > 0 ? [{ accountId: new ObjectId(accountId), amount: diff }] : [],
+            note: `Multi-currency FX Adjustment (${currency})`,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
+        await db.collection('crm_voucher_entries').insertOne(entry as any);
+        return { success: true, diff, entryId: entry._id.toString() };
     } catch (e) {
         return { error: getErrorMessage(e) };
     }

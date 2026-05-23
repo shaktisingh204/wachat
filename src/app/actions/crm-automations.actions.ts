@@ -32,8 +32,9 @@ export async function getCrmAutomations(): Promise<WithId<CrmAutomation>[]> {
             .sort({ updatedAt: -1 })
             .toArray();
         return JSON.parse(JSON.stringify(automations));
-    } catch (e) {
-        return [];
+    } catch (e: any) {
+        console.error('[getCrmAutomations] failed:', e);
+        throw new Error(e.message || 'Failed to fetch CRM automations');
     }
 }
 
@@ -128,7 +129,8 @@ export async function saveCrmAutomation(data: {
             return { message: 'Automation updated successfully.', flowId };
         }
     } catch (e: any) {
-        return { error: 'Failed to save automation.' };
+        console.error('[saveCrmAutomation] failed:', e);
+        return { error: e.message || 'Failed to save automation.' };
     }
 }
 
@@ -158,8 +160,9 @@ export async function deleteCrmAutomation(automationId: string): Promise<{ messa
         } catch { /* non-fatal */ }
         revalidatePath('/dashboard/crm/automations');
         return { message: 'Automation deleted.' };
-    } catch (e) {
-        return { error: 'Failed to delete automation.' };
+    } catch (e: any) {
+        console.error('[deleteCrmAutomation] failed:', e);
+        return { error: e.message || 'Failed to delete automation.' };
     }
 }
 
@@ -272,9 +275,9 @@ export async function listCrmAutomations(
             items: JSON.parse(JSON.stringify(docs)) as CrmAutomationListItem[],
             total,
         };
-    } catch (e) {
+    } catch (e: any) {
         console.error('Failed to list CRM automations:', e);
-        return { items: [], total: 0 };
+        throw new Error(e.message || 'Failed to list CRM automations');
     }
 }
 
@@ -310,8 +313,9 @@ export async function bulkAutomationAction(
             return { success: true, processed: result.modifiedCount ?? 0 };
         }
         return { success: false, error: 'Unsupported op.' };
-    } catch (e) {
-        return { success: false, error: 'Bulk operation failed.' };
+    } catch (e: any) {
+        console.error('Bulk operation failed:', e);
+        return { success: false, error: e.message || 'Bulk operation failed.' };
     }
 }
 
@@ -352,28 +356,59 @@ export async function saveAutomation(
     const conditions = (formData.get('conditions') as string | null) || '';
 
     let nodes: CrmAutomationNode[] = [];
+    let edges: CrmAutomationEdge[] = [];
     try {
-        const raw = formData.get('nodes') as string | null;
-        if (raw) nodes = JSON.parse(raw) as CrmAutomationNode[];
+        const rawNodes = formData.get('nodes') as string | null;
+        if (rawNodes) nodes = JSON.parse(rawNodes) as CrmAutomationNode[];
+        
+        const rawEdges = formData.get('edges') as string | null;
+        if (rawEdges) edges = JSON.parse(rawEdges) as CrmAutomationEdge[];
     } catch {
-        return { error: 'Invalid nodes payload.' };
+        return { error: 'Invalid nodes/edges payload.' };
     }
 
-    const triggerNode: CrmAutomationNode = {
-        id: 'trigger',
-        type: `trigger_${trigger}`,
-        data: { conditions } as any,
-    } as CrmAutomationNode;
+    const isAdvancedGraph = formData.get('isAdvancedGraph') === 'true';
+    if (!isAdvancedGraph) {
+        const triggerNode: CrmAutomationNode = {
+            id: 'trigger',
+            type: `trigger_${trigger}`,
+            data: { conditions } as any,
+            position: { x: 50, y: 50 }
+        } as CrmAutomationNode;
+        nodes = [triggerNode, ...nodes];
+    }
 
     const result = await saveCrmAutomation({
         flowId,
         name,
-        nodes: [triggerNode, ...nodes],
-        edges: [] as CrmAutomationEdge[],
+        nodes,
+        edges,
     });
     return {
         message: result.message,
         error: result.error,
         id: result.flowId,
     };
+}
+
+export async function getAutomationRuns(automationId: string) {
+    const { getSession } = await import('@/app/actions/user.actions');
+    const { connectToDatabase } = await import('@/lib/mongodb');
+    const { ObjectId } = await import('mongodb');
+    const session = await getSession();
+    if (!session?.user) return [];
+    
+    if (!ObjectId.isValid(automationId)) return [];
+    
+    try {
+        const { db } = await connectToDatabase();
+        const runs = await db.collection('crm_automation_runs').find({
+            automationId: automationId,
+            userId: new ObjectId(session.user._id)
+        }).sort({ startedAt: -1 }).limit(10).toArray();
+        return JSON.parse(JSON.stringify(runs));
+    } catch (e) {
+        console.error('Failed to get automation runs:', e);
+        return [];
+    }
 }

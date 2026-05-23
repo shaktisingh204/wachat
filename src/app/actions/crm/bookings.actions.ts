@@ -195,6 +195,15 @@ export async function saveBookingAction(
     return { error: 'Slot end must be after slot start.' };
   }
 
+  const reminders: import('@/lib/rust-client/crm-bookings').CrmBookingReminder[] = [];
+  for (let i = 0; i < 5; i++) {
+    const at = pickDateTime(formData, `reminderAt_${i}`);
+    const channel = pickString(formData, `reminderChannel_${i}`);
+    if (at && channel) {
+      reminders.push({ at, channel, sent: false });
+    }
+  }
+
   const draft: CrmBookingCreateInput = {
     resourceId,
     customerId,
@@ -206,6 +215,7 @@ export async function saveBookingAction(
     paymentStatus: pickPaymentStatus(formData),
     cancellationPolicy: pickString(formData, 'cancellationPolicy'),
     notes: pickString(formData, 'notes'),
+    reminders: reminders.length > 0 ? reminders : undefined,
   };
 
   try {

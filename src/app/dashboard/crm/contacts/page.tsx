@@ -26,6 +26,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import {
   CalendarClock,
   Download,
@@ -92,6 +93,7 @@ const EMPTY_KPIS: CrmContactKpis = {
 export default function CrmContactsPage() {
   const { toast } = useZoruToast();
   const { t, locale } = useT();
+  const router = useRouter();
 
   /* ─── Shared data states ────────────────────────────────────── */
   const [accounts, setAccounts] = React.useState<WithId<CrmAccount>[]>([]);
@@ -109,6 +111,29 @@ export default function CrmContactsPage() {
   /* ─── Form Drawer state ────────────────────────────────────── */
   const [isFormDrawerOpen, setIsFormDrawerOpen] = React.useState(false);
   const [formContact, setFormContact] = React.useState<Partial<CrmContact>>({});
+
+  /* ─── Import state ────────────────────────────────────── */
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [isImporting, setIsImporting] = React.useState(false);
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsImporting(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    const { importCrmContacts } = await import('@/app/actions/crm.actions');
+    const res = await importCrmContacts({}, fd);
+    setIsImporting(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (res.error) {
+      toast({ title: 'Import Failed', description: res.error, variant: 'destructive' });
+    } else {
+      toast({ title: 'Import Success', description: res.message });
+      triggerFetch();
+      loadReferenceData();
+      router.refresh();
+    }
+  };
 
   /* ─── Bulky state manager hook ─────────────────────────────── */
   const {
@@ -151,9 +176,21 @@ export default function CrmContactsPage() {
         filtered = filtered.filter(c => (c.tags || []).some(t => t.toLowerCase().includes(tag)));
       }
       
+      if (filters.leadScore) {
+        if (filters.leadScore === 'hot') filtered = filtered.filter(c => (c.leadScore || 0) > 75);
+        else if (filters.leadScore === 'warm') filtered = filtered.filter(c => (c.leadScore || 0) >= 50 && (c.leadScore || 0) <= 75);
+        else if (filters.leadScore === 'cold') filtered = filtered.filter(c => (c.leadScore || 0) < 50);
+      }
+      if (filters.lifecycleStage && filters.lifecycleStage !== 'all') {
+        filtered = filtered.filter(c => c.lifecycleStage === filters.lifecycleStage);
+      }
+      if (filters.source && filters.source !== 'all') {
+        filtered = filtered.filter(c => c.source === filters.source);
+      }
+      
       return {
         items: filtered,
-        total: filters.status || filters.owner || filters.tags ? filtered.length : response.total,
+        total: Object.keys(filters).length > 0 ? filtered.length : response.total,
         hasMore: page * limit < response.total
       };
     }
@@ -197,6 +234,7 @@ export default function CrmContactsPage() {
       setDeleteContactId(null);
       triggerFetch();
       loadReferenceData();
+      router.refresh();
     } else {
       toast({
         title: t('crm.contacts.list.toast.error'),
@@ -219,6 +257,7 @@ export default function CrmContactsPage() {
         clearSelection();
         triggerFetch();
         loadReferenceData();
+        router.refresh();
       } else {
         toast({
           title: 'Bulk action failed',
@@ -258,6 +297,7 @@ export default function CrmContactsPage() {
       setData(prev => prev.map(c => c._id.toString() === id ? original : c));
     } else {
       toast({ title: 'Contact saved inline' });
+      router.refresh();
     }
   };
 
@@ -320,6 +360,7 @@ export default function CrmContactsPage() {
       setIsFormDrawerOpen(false);
       triggerFetch();
       loadReferenceData();
+      router.refresh();
     }
   };
 
@@ -469,7 +510,23 @@ export default function CrmContactsPage() {
     { key: 'status', label: 'Status', type: 'select' as const, options: STATUS_OPTIONS.map(s => ({ label: s.replace('_', ' ').toUpperCase(), value: s })) },
     { key: 'owner', label: 'Owner', type: 'text' as const, placeholder: 'Filter by Owner' },
     { key: 'accountId', label: 'Account', type: 'select' as const, options: accounts.map(a => ({ label: a.name, value: a._id.toString() })) },
-    { key: 'tags', label: 'Tags', type: 'tags' as const }
+    { key: 'tags', label: 'Tags', type: 'tags' as const },
+    { key: 'leadScore', label: 'Lead Score', type: 'select' as const, options: [
+      { label: 'Hot (>75)', value: 'hot' },
+      { label: 'Warm (50-75)', value: 'warm' },
+      { label: 'Cold (<50)', value: 'cold' }
+    ]},
+    { key: 'lifecycleStage', label: 'Lifecycle Stage', type: 'select' as const, options: [
+      { label: 'Lead', value: 'lead' },
+      { label: 'MQL', value: 'mql' },
+      { label: 'SQL', value: 'sql' },
+      { label: 'Customer', value: 'customer' }
+    ]},
+    { key: 'source', label: 'Source', type: 'select' as const, options: [
+      { label: 'Website', value: 'website' },
+      { label: 'Referral', value: 'referral' },
+      { label: 'Social', value: 'social' }
+    ]}
   ];
 
   const formSections = [
@@ -709,10 +766,28 @@ export default function CrmContactsPage() {
           placeholder: t('crm.contacts.list.search.placeholder'),
         }}
         primaryAction={
-          <Button onClick={handleOpenNewForm} className="gap-1.5">
-            <Plus className="h-4 w-4" />
-            Add New Contact
-          </Button>
+          <div className="flex gap-2">
+            <input
+              type="file"
+              accept=".csv"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleImport}
+            />
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isImporting}
+              className="gap-1.5"
+            >
+              <Download className="h-4 w-4 rotate-180" />
+              {isImporting ? 'Importing...' : 'Import'}
+            </Button>
+            <Button onClick={handleOpenNewForm} className="gap-1.5">
+              <Plus className="h-4 w-4" />
+              Add New Contact
+            </Button>
+          </div>
         }
         filters={
           <div className="flex flex-wrap items-center justify-between gap-3 w-full bg-zoru-surface-2/15 border border-zoru-line/50 p-2.5 rounded-lg">

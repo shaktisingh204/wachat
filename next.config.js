@@ -210,6 +210,17 @@ const nextConfig = {
           permanent: true,
         },
       ]),
+      // Legacy CRM HR to HRM redirects
+      {
+        source: '/dashboard/crm/hr/:path*',
+        destination: '/dashboard/hrm/hr/:path*',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/crm/hr-payroll/:path*',
+        destination: '/dashboard/hrm/payroll/:path*',
+        permanent: true,
+      },
     ];
   },
 

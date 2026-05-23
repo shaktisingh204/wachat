@@ -89,17 +89,22 @@ async function BudgetsListAsync() {
   return <BudgetsListClient budgets={budgets} />;
 }
 
+import { ImportCsvButton } from './_components/import-csv-button';
+
 export default function BudgetsPage() {
   return (
     <EntityListShell
       title="Budgets & Forecasting"
       subtitle="Track revenue and expense targets against actuals."
       primaryAction={
-        <Link href="/dashboard/crm/budgets/new">
-          <Button variant="outline" size="sm">
-            New budget
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <ImportCsvButton />
+          <Link href="/dashboard/crm/budgets/new">
+            <Button variant="outline" size="sm">
+              New budget
+            </Button>
+          </Link>
+        </div>
       }
     >
       <Suspense

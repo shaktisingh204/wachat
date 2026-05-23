@@ -230,6 +230,29 @@ export function BookingForm({ initial }: BookingFormProps) {
 
       <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+          Reminders
+        </h3>
+        <p className="mb-4 text-[12px] text-zoru-ink-muted">Automated reminder emails/SMS configured for this booking.</p>
+        <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <Label>Reminder Time</Label>
+              <Input type="datetime-local" name="reminderAt_0" defaultValue={initial?.reminders?.[0] ? toLocalDateTimeInput(initial.reminders[0].at) : ''} className="mt-1.5" />
+            </div>
+            <div>
+              <Label>Channel</Label>
+              <select name="reminderChannel_0" defaultValue={initial?.reminders?.[0]?.channel || ''} className="flex h-9 w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-transparent px-3 py-1 text-sm shadow-sm transition-colors mt-1.5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-ring">
+                <option value="">None</option>
+                <option value="email">Email</option>
+                <option value="sms">SMS</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Status
         </h3>
         <div className="grid gap-4 md:grid-cols-2">

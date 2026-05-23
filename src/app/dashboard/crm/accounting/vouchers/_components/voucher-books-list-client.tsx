@@ -21,6 +21,7 @@ import { Plus } from 'lucide-react';
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import Papa from 'papaparse';
 import { format } from 'date-fns';
 
@@ -29,8 +30,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     bulkUpdateVoucherBooks,
     deleteVoucherBook,
-    getVoucherBooks,
 } from '@/app/actions/crm-vouchers.actions';
+import { bulkApproveVouchers } from '../_actions/queries';
 
 import { VoucherBooksKpiStrip, type VoucherBooksKpi } from './voucher-books-kpi-strip';
 import {
@@ -42,61 +43,56 @@ import { VoucherBooksBulkBar } from './voucher-books-bulk-bar';
 import { VoucherBooksTable } from './voucher-books-table';
 import type { VoucherBookRow } from './types';
 
-export function VoucherBooksListClient(): React.JSX.Element {
-    const { toast } = useZoruToast();
+interface VoucherBooksListClientProps {
+    initialRows: VoucherBookRow[];
+    totalCount: number;
+    searchParams: any;
+    pendingVouchers: any[];
+}
 
-    const [rows, setRows] = React.useState<VoucherBookRow[]>([]);
-    const [isLoading, setIsLoading] = React.useState(true);
-    const [filters, setFilters] = React.useState<VoucherBookFilterState>(VOUCHER_BOOK_FILTER_DEFAULT);
-    const [search, setSearch] = React.useState('');
+export function VoucherBooksListClient({ initialRows, totalCount, searchParams, pendingVouchers }: VoucherBooksListClientProps): React.JSX.Element {
+    const { toast } = useZoruToast();
+    const router = useRouter();
+    const pathname = usePathname();
+
     const [selection, setSelection] = React.useState<Set<string>>(new Set());
     const [pendingRow, setPendingRow] = React.useState<VoucherBookRow | null>(null);
     const [confirmBulk, setConfirmBulk] = React.useState<'archive' | 'activate' | 'delete' | null>(null);
     const [isPending, startTransition] = React.useTransition();
 
-    const refresh = React.useCallback(async () => {
-        setIsLoading(true);
-        const books = await getVoucherBooks();
-        const flat: VoucherBookRow[] = books.map((b) => ({
-            _id: b._id.toString(),
-            name: b.name,
-            type: b.type,
-            isDefault: b.isDefault,
-            isActive: (b as { isActive?: boolean }).isActive,
-            approvalRequired: (b as { approvalRequired?: boolean }).approvalRequired,
-            prefix: (b as { prefix?: string }).prefix,
-            suffix: (b as { suffix?: string }).suffix,
-            startingNumber: (b as { startingNumber?: number }).startingNumber,
-            padding: (b as { padding?: number }).padding,
-            resetFrequency: (b as { resetFrequency?: VoucherBookRow['resetFrequency'] }).resetFrequency,
-            entryCount: b.entryCount,
-            lastEntryDate: b.lastEntryDate ? new Date(b.lastEntryDate).toISOString() : undefined,
-            createdAt: b.createdAt ? new Date(b.createdAt).toISOString() : undefined,
-        }));
-        setRows(flat);
-        setIsLoading(false);
-    }, []);
+    const filters: VoucherBookFilterState = {
+        type: searchParams.type || 'all',
+        status: searchParams.status || 'all',
+        defaultOnly: searchParams.defaultOnly || 'all',
+        approval: searchParams.approval || 'all',
+    };
+    const search = searchParams.search || '';
 
-    React.useEffect(() => {
-        void refresh();
-    }, [refresh]);
+    const refresh = React.useCallback(() => {
+        router.refresh();
+    }, [router]);
+
+    const setFilters = (next: VoucherBookFilterState) => {
+        const params = new URLSearchParams(searchParams);
+        if (next.type !== 'all') params.set('type', next.type); else params.delete('type');
+        if (next.status !== 'all') params.set('status', next.status); else params.delete('status');
+        if (next.defaultOnly !== 'all') params.set('defaultOnly', next.defaultOnly); else params.delete('defaultOnly');
+        if (next.approval !== 'all') params.set('approval', next.approval); else params.delete('approval');
+        params.set('page', '1');
+        router.push(`${pathname}?${params.toString()}`);
+    };
+
+    const setSearch = (value: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (value) params.set('search', value); else params.delete('search');
+        params.set('page', '1');
+        router.push(`${pathname}?${params.toString()}`);
+    };
 
     /* ── Derived ─────────────────────────────────────────────────────── */
 
-    const filtered = React.useMemo(() => {
-        const q = search.trim().toLowerCase();
-        return rows.filter((r) => {
-            if (filters.type !== 'all' && r.type !== filters.type) return false;
-            if (filters.status === 'active' && r.isActive === false) return false;
-            if (filters.status === 'inactive' && r.isActive !== false) return false;
-            if (filters.defaultOnly === 'yes' && !r.isDefault) return false;
-            if (filters.defaultOnly === 'no' && r.isDefault) return false;
-            if (filters.approval === 'yes' && !r.approvalRequired) return false;
-            if (filters.approval === 'no' && r.approvalRequired) return false;
-            if (!q) return true;
-            return r.name.toLowerCase().includes(q);
-        });
-    }, [rows, filters, search]);
+    const filtered = initialRows;
+
 
     const kpi = React.useMemo<VoucherBooksKpi>(() => {
         const byType: Record<string, number> = {};
@@ -107,7 +103,7 @@ export function VoucherBooksListClient(): React.JSX.Element {
         const thisMonth = now.getMonth();
         const thisYear = now.getFullYear();
 
-        for (const r of rows) {
+        for (const r of initialRows) {
             byType[r.type] = (byType[r.type] ?? 0) + 1;
             if (r.isActive !== false) active += 1;
             if (r.resetFrequency && r.resetFrequency !== 'none') pendingResets += 1;
@@ -121,12 +117,12 @@ export function VoucherBooksListClient(): React.JSX.Element {
 
         return {
             activeCount: active,
-            totalCount: rows.length,
+            totalCount,
             byType,
             entriesThisMonth,
             pendingResets,
         };
-    }, [rows]);
+    }, [initialRows, totalCount]);
 
     /* ── Handlers ────────────────────────────────────────────────────── */
 
@@ -202,9 +198,35 @@ export function VoucherBooksListClient(): React.JSX.Element {
         document.body.removeChild(link);
     }, [filtered, selection]);
 
+    const handleApprovePending = React.useCallback(() => {
+        if (!pendingVouchers.length) return;
+        startTransition(async () => {
+            const ids = pendingVouchers.map(v => v._id);
+            const result = await bulkApproveVouchers(ids);
+            if (result.success) {
+                toast({ title: 'Vouchers approved successfully' });
+                refresh();
+            } else {
+                toast({ title: 'Error approving vouchers', description: result.error, variant: 'destructive' });
+            }
+        });
+    }, [pendingVouchers, refresh, toast]);
+
     return (
         <>
             <div className="flex w-full flex-col gap-6">
+                {pendingVouchers.length > 0 && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-md p-4 flex items-center justify-between">
+                        <div>
+                            <h3 className="text-amber-800 font-medium">Pending Vouchers</h3>
+                            <p className="text-amber-700 text-sm">{pendingVouchers.length} voucher(s) require your approval.</p>
+                        </div>
+                        <Button onClick={handleApprovePending} disabled={isPending} variant="outline" className="bg-amber-100 text-amber-900 hover:bg-amber-200 border-amber-300">
+                            Approve All
+                        </Button>
+                    </div>
+                )}
+                
                 <VoucherBooksKpiStrip kpi={kpi} />
 
                 <EntityListShell
@@ -237,16 +259,46 @@ export function VoucherBooksListClient(): React.JSX.Element {
                             />
                         ) : null
                     }
-                    loading={isLoading && rows.length === 0}
+                    loading={isPending}
                 >
                     <VoucherBooksTable
                         rows={filtered}
-                        loading={isLoading}
+                        loading={isPending}
                         selection={selection}
                         onToggle={handleToggle}
                         onToggleAll={handleToggleAll}
                         onDelete={setPendingRow}
                     />
+                    {totalCount > filtered.length && (
+                        <div className="py-4 text-center text-sm text-muted-foreground border-t">
+                            Showing {filtered.length} of {totalCount} books.
+                            <div className="mt-2 space-x-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={!searchParams.page || searchParams.page === '1'}
+                                    onClick={() => {
+                                        const p = new URLSearchParams(searchParams);
+                                        p.set('page', String(Math.max(1, parseInt(p.get('page') || '1') - 1)));
+                                        router.push(`${pathname}?${p.toString()}`);
+                                    }}
+                                >
+                                    Previous
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                        const p = new URLSearchParams(searchParams);
+                                        p.set('page', String(parseInt(p.get('page') || '1') + 1));
+                                        router.push(`${pathname}?${p.toString()}`);
+                                    }}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </EntityListShell>
             </div>
 

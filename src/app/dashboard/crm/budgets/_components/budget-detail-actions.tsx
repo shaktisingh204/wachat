@@ -8,6 +8,7 @@ import {
   Archive,
   BarChart3,
   CheckCircle2,
+  Copy,
   Download,
   Lock,
   Pencil,
@@ -27,6 +28,7 @@ import {
   approveBudget,
   deleteBudget,
   lockBudget,
+  cloneBudget,
 } from '@/app/actions/crm-budgets.actions';
 
 import {
@@ -54,6 +56,7 @@ export function BudgetDetailActions({
   const [rejectOpen, setRejectOpen] = React.useState(false);
   const [actualOpen, setActualOpen] = React.useState(false);
   const [archiveOpen, setArchiveOpen] = React.useState(false);
+  const [cloning, setCloning] = React.useState(false);
 
   const runApprove = () => {
     startTransition(async () => {
@@ -87,12 +90,39 @@ export function BudgetDetailActions({
     });
   };
 
+  const runClone = () => {
+    setCloning(true);
+    startTransition(async () => {
+      const res = await cloneBudget(budgetId);
+      setCloning(false);
+      if (res.success && res.newId) {
+        toast({ title: 'Budget cloned successfully' });
+        router.push(`/dashboard/crm/budgets/${res.newId}/edit`);
+      } else {
+        toast({
+          title: 'Clone failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+      }
+    });
+  };
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Button size="sm" variant="outline" asChild>
         <Link href={`/dashboard/crm/budgets/${budgetId}/edit`}>
           <Pencil className="h-3.5 w-3.5" /> Edit
         </Link>
+      </Button>
+
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={runClone}
+        disabled={cloning}
+      >
+        <Copy className="h-3.5 w-3.5" /> Clone
       </Button>
 
       <Button

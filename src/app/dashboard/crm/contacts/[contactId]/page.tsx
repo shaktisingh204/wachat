@@ -47,6 +47,8 @@ import {
   Receipt,
   Paperclip,
   Pencil,
+  Linkedin,
+  Twitter,
   } from 'lucide-react';
 import Link from 'next/link';
 import { RelatedRail } from '@/components/crm/RelatedRail';
@@ -288,6 +290,27 @@ export default function CrmContactDetailPage() {
                       {account.name}
                     </Link>
                   </div>
+                )}
+                {(contact.linkedinUrl || contact.twitterHandle) && (
+                  <>
+                    <Separator className="my-4 bg-zoru-line" />
+                    {contact.linkedinUrl && (
+                      <div className="flex items-center gap-3">
+                        <Linkedin className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+                        <a href={contact.linkedinUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">
+                          LinkedIn Profile
+                        </a>
+                      </div>
+                    )}
+                    {contact.twitterHandle && (
+                      <div className="flex items-center gap-3">
+                        <Twitter className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
+                        <a href={`https://twitter.com/${contact.twitterHandle.replace('@', '')}`} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">
+                          {contact.twitterHandle}
+                        </a>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 

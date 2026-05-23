@@ -13,6 +13,7 @@ import { getBudgetById } from '@/app/actions/crm-budgets.actions';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EditBudgetForm } from './edit-budget-form';
+import { BudgetProgressBar } from '../_components/budget-progress-bar';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -39,7 +40,14 @@ export default async function EditBudgetPage({ params }: PageProps) {
     const plan = typeof budget.planAmount === 'number' ? budget.planAmount : 0;
     const actual = typeof budget.actual === 'number' ? budget.actual : 0;
     const variance = plan - actual;
-    const utilisation = plan > 0 ? Math.min(100, Math.round((actual / plan) * 100)) : 0;
+    
+    // Prevent division by zero if planAmount is 0
+    let utilisation = 0;
+    if (plan !== 0) {
+        utilisation = Math.min(100, Math.round((actual / plan) * 100));
+    } else if (actual > 0) {
+        utilisation = 100; // Fully over-utilised if there's actual spend but no plan
+    }
 
     return (
         <EntityDetailShell
@@ -89,13 +97,8 @@ export default async function EditBudgetPage({ params }: PageProps) {
                                         {fmtMoney(variance)}
                                     </span>
                                 </div>
-                                <div className="mt-2 h-1.5 w-full overflow-hidden rounded bg-zoru-surface-2">
-                                    <div
-                                        className={`h-full ${utilisation >= 100 ? 'bg-zoru-danger-ink' : utilisation >= 80 ? 'bg-zoru-warning-ink' : 'bg-zoru-primary'}`}
-                                        style={{ width: `${utilisation}%` }}
-                                    />
-                                </div>
-                                <div className="text-right text-[11px] text-zoru-ink-muted">
+                                <BudgetProgressBar utilisation={utilisation} />
+                                <div className="text-right text-[11px] text-zoru-ink-muted mt-1">
                                     {utilisation}% utilised
                                 </div>
                             </div>

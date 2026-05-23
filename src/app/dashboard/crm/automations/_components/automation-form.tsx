@@ -21,11 +21,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
 import { ArrowLeft,
-  GripVertical,
   LoaderCircle,
-  Plus,
-  Save,
-  Trash2 } from 'lucide-react';
+  Save } from 'lucide-react';
+import { AutomationFlowEditor } from './automation-flow-editor';
+import { getAutomationRuns } from '@/app/actions/crm-automations.actions';
 
 /**
  * <AutomationForm /> — create + edit form for CRM Automations.
@@ -140,6 +139,32 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
     const { toast } = useZoruToast();
     const isEditing = !!initialData?._id;
 
+    // We can poll or fetch runs for debugging
+    const [runs, setRuns] = useState<any[]>([]);
+    const [testingWebhook, setTestingWebhook] = useState(false);
+
+    useEffect(() => {
+        if (!isEditing) return;
+        const fetchRuns = async () => {
+             const result = await getAutomationRuns(initialData._id as string);
+             setRuns(result);
+        };
+        fetchRuns();
+        const intval = setInterval(fetchRuns, 5000);
+        return () => clearInterval(intval);
+    }, [isEditing, initialData?._id]);
+
+    const handleTestWebhook = async () => {
+        setTestingWebhook(true);
+        try {
+            await fetch('/api/crm/automations/test-webhook', { method: 'POST', body: JSON.stringify({ automationId: initialData?._id }) });
+            toast({ title: 'Webhook test sent!' });
+        } catch (e) {
+            toast({ title: 'Webhook test failed', variant: 'destructive' });
+        }
+        setTestingWebhook(false);
+    };
+
     const [state, formAction] = useActionState(saveAutomation, initialState);
 
     const initialTrig = deriveInitialTrigger(initialData);
@@ -167,61 +192,52 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
         }
     }, [state, toast, router, initialData?._id]);
 
-    const addNode = () =>
-        setNodes((prev) => [
-            ...prev,
-            {
-                id: `node-${Date.now()}-${prev.length}`,
-                type: 'action_send_email',
-                label: 'Send email',
-                config: '',
-            },
-        ]);
+    const [rfNodes, setRfNodes] = useState<any[]>(() => {
+         if (!initialData?.nodes) return [];
+         return initialData.nodes.map((n: any, idx) => ({
+              id: n.id || `node-${idx}`,
+              type: 'custom',
+              position: n.position || { x: 50, y: 50 + idx * 100 },
+              data: { ...n.data, typeLabel: n.type, label: n.data?.label || n.type }
+         }));
+    });
+    
+    const [rfEdges, setRfEdges] = useState<any[]>(() => {
+         if (!initialData?.edges) return [];
+         return initialData.edges.map((e: any, idx) => ({
+              id: e.id || `edge-${idx}`,
+              source: e.source,
+              target: e.target,
+              sourceHandle: e.sourceHandle
+         }));
+    });
 
-    const removeNode = (idx: number) =>
-        setNodes((prev) => prev.filter((_, i) => i !== idx));
+    // Annotate nodes with errors if any run failed on them
+    const annotatedNodes = useMemo(() => {
+         if (!runs.length) return rfNodes;
+         const latestRun = runs[0];
+         return rfNodes.map(n => {
+             let error = undefined;
+             let success = false;
+             if (latestRun.actions) {
+                 const actionRes = latestRun.actions.find((a: any) => a.nodeId === n.id);
+                 if (actionRes?.error) error = actionRes.error;
+                 else if (actionRes) success = true;
+             }
+             if (latestRun.status === 'failed' && n.id === latestRun.failedNodeId) {
+                 error = latestRun.error;
+             }
+             return { ...n, data: { ...n.data, error, success } };
+         });
+    }, [rfNodes, runs]);
 
-    const updateNode = <K extends keyof NodeRow>(
-        idx: number,
-        key: K,
-        value: NodeRow[K],
-    ) =>
-        setNodes((prev) =>
-            prev.map((n, i) => (i === idx ? { ...n, [key]: value } : n)),
-        );
-
-    const moveNode = (idx: number, dir: -1 | 1) =>
-        setNodes((prev) => {
-            const j = idx + dir;
-            if (j < 0 || j >= prev.length) return prev;
-            const copy = [...prev];
-            [copy[idx], copy[j]] = [copy[j], copy[idx]];
-            return copy;
-        });
-
-    const nodesJson = JSON.stringify(
-        nodes.map((n) => {
-            let parsedConfig: Record<string, unknown> = {};
-            if (n.config?.trim()) {
-                try {
-                    const c = JSON.parse(n.config);
-                    if (c && typeof c === 'object' && !Array.isArray(c)) {
-                        parsedConfig = c as Record<string, unknown>;
-                    } else {
-                        parsedConfig = { value: n.config };
-                    }
-                } catch {
-                    parsedConfig = { value: n.config };
-                }
-            }
-            return {
-                id: n.id,
-                type: n.type,
-                label: n.label,
-                data: { ...parsedConfig, label: n.label },
-            };
-        }),
-    );
+    const nodesJson = JSON.stringify(rfNodes.map(n => ({
+        id: n.id,
+        type: n.data.typeLabel || n.type,
+        data: n.data,
+        position: n.position
+    })));
+    const edgesJson = JSON.stringify(rfEdges);
 
     return (
         <Card className="p-6">
@@ -236,6 +252,8 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                 <input type="hidden" name="trigger" value={trigger} />
                 <input type="hidden" name="status" value={status} />
                 <input type="hidden" name="nodes" value={nodesJson} />
+                <input type="hidden" name="edges" value={edgesJson} />
+                <input type="hidden" name="isAdvancedGraph" value="true" />
 
                 {/* Name + Status */}
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -320,92 +338,17 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
                     />
                 </div>
 
-                {/* Nodes table */}
                 <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                        <Label>Nodes (executed in order)</Label>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={addNode}
-                        >
-                            <Plus className="mr-1.5 h-3.5 w-3.5" />
-                            Add node
-                        </Button>
-                    </div>
-                    {nodes.length === 0 ? (
-                        <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
-                            No nodes yet. Add one to start building the automation.
-                        </div>
-                    ) : (
-                        <div className="flex flex-col gap-2">
-                            {nodes.map((n, idx) => (
-                                <div
-                                    key={n.id}
-                                    className="grid grid-cols-1 gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 sm:grid-cols-[auto_180px_1fr_2fr_auto]"
-                                >
-                                    <div className="flex flex-col items-center justify-center gap-1 self-center">
-                                        <button
-                                            type="button"
-                                            onClick={() => moveNode(idx, -1)}
-                                            disabled={idx === 0}
-                                            className="text-zoru-ink-muted hover:text-zoru-ink disabled:opacity-30"
-                                            aria-label="Move up"
-                                        >
-                                            <GripVertical className="h-4 w-4" />
-                                        </button>
-                                        <span className="font-mono text-[10px] text-zoru-ink-muted">
-                                            {idx + 1}
-                                        </span>
-                                    </div>
-                                    <Select
-                                        value={n.type}
-                                        onValueChange={(v) =>
-                                            updateNode(idx, 'type', v)
-                                        }
-                                    >
-                                        <ZoruSelectTrigger>
-                                            <ZoruSelectValue placeholder="Type" />
-                                        </ZoruSelectTrigger>
-                                        <ZoruSelectContent>
-                                            {NODE_TYPE_OPTIONS.map((o) => (
-                                                <ZoruSelectItem
-                                                    key={o.value}
-                                                    value={o.value}
-                                                >
-                                                    {o.label}
-                                                </ZoruSelectItem>
-                                            ))}
-                                        </ZoruSelectContent>
-                                    </Select>
-                                    <Input
-                                        placeholder="Label"
-                                        value={n.label}
-                                        onChange={(e) =>
-                                            updateNode(idx, 'label', e.target.value)
-                                        }
-                                    />
-                                    <Input
-                                        placeholder='Config (JSON, e.g. {"templateId":"X"})'
-                                        value={n.config}
-                                        onChange={(e) =>
-                                            updateNode(idx, 'config', e.target.value)
-                                        }
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => removeNode(idx)}
-                                        aria-label="Remove node"
-                                    >
-                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    <Label>Visual Automation Builder</Label>
+                    <p className="text-xs text-gray-500 mb-2">Drag and drop nodes. If an execution fails, the node will turn red and display the error message.</p>
+                    <AutomationFlowEditor
+                         nodes={annotatedNodes}
+                         edges={rfEdges}
+                         setNodes={setRfNodes}
+                         setEdges={setRfEdges}
+                         testingWebhook={testingWebhook}
+                         onTestWebhook={trigger === 'webhook' ? handleTestWebhook : undefined}
+                    />
                 </div>
 
                 {/* Footer */}

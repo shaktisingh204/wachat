@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listFixedAssets } from '@/app/actions/crm/fixed-assets.actions';
 import { FixedAssetListClient } from './_components/fixed-asset-list-client';
+import { BarcodeScannerDialog } from './_components/barcode-scanner-dialog';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,12 +49,15 @@ export default async function FixedAssetsPage({
       title="Fixed Assets"
       subtitle="Track durable company property — laptops, vehicles, machinery — with depreciation and custody."
       primaryAction={
-        <Button asChild>
-          <Link href="/dashboard/crm/fixed-assets/new">
-            <Plus className="h-4 w-4" />
-            New fixed asset
-          </Link>
-        </Button>
+        <div className="flex gap-2 items-center">
+          <BarcodeScannerDialog />
+          <Button asChild>
+            <Link href="/dashboard/crm/fixed-assets/new">
+              <Plus className="h-4 w-4" />
+              New fixed asset
+            </Link>
+          </Button>
+        </div>
       }
     >
 

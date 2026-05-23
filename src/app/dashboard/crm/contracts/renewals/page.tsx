@@ -17,6 +17,9 @@
 import * as React from 'react';
 
 import {
+  Alert,
+  ZoruAlertTitle,
+  ZoruAlertDescription,
   Badge,
   Button,
   Card,
@@ -34,6 +37,7 @@ import {
 } from '@/components/zoruui';
 import {
   AlertCircle,
+  AlertTriangle,
   Calendar,
   Clock,
   Download,
@@ -51,6 +55,7 @@ import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 import {
   getContractRenewals,
   deleteContractRenewal,
+  sendExpirationReminder,
 } from '@/app/actions/worksuite/contracts-ext.actions';
 import type { WsContractRenew } from '@/lib/worksuite/contracts-ext-types';
 
@@ -359,6 +364,27 @@ export default function ContractRenewalsPage() {
           />
         </div>
 
+        {/* Alerts for overdue or upcoming renewals */}
+        {kpi.expiredCount > 0 && (
+          <Alert variant="destructive" className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <ZoruAlertTitle>Action Required: Overdue Renewals</ZoruAlertTitle>
+            <ZoruAlertDescription>
+              There {kpi.expiredCount === 1 ? 'is' : 'are'} {kpi.expiredCount} expired contract renewal{kpi.expiredCount === 1 ? '' : 's'} that require immediate attention.
+            </ZoruAlertDescription>
+          </Alert>
+        )}
+        
+        {kpi.due30 > 0 && (
+          <Alert className="mt-4 bg-amber-50/50 text-amber-900 border-amber-200 dark:bg-amber-900/10 dark:text-amber-400 dark:border-amber-900/50">
+            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-500" />
+            <ZoruAlertTitle>Upcoming Renewals</ZoruAlertTitle>
+            <ZoruAlertDescription>
+              There {kpi.due30 === 1 ? 'is' : 'are'} {kpi.due30} contract renewal{kpi.due30 === 1 ? '' : 's'} due within the next 30 days.
+            </ZoruAlertDescription>
+          </Alert>
+        )}
+
         {/* Export */}
         <div className="flex items-center justify-end">
           <Button size="sm" variant="outline" onClick={handleExportCsv}>
@@ -435,14 +461,31 @@ export default function ContractRenewalsPage() {
                         <DaysRemaining toDate={r.to_date} />
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDeletingId(r._id)}
-                          aria-label="Delete renewal"
-                        >
-                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </Button>
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              toast({ title: 'Sending reminder...' });
+                              startBulkTransition(async () => {
+                                const res = await sendExpirationReminder(r.contract_id);
+                                if (res.success) toast({ title: 'Sent', description: res.message });
+                                else toast({ title: 'Failed', variant: 'destructive' });
+                              });
+                            }}
+                            aria-label="Send reminder"
+                          >
+                            <Clock className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeletingId(r._id)}
+                            aria-label="Delete renewal"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                          </Button>
+                        </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))

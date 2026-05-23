@@ -44,6 +44,7 @@ import {
     setCrmAccountCategory,
     unarchiveCrmAccount,
 } from '@/app/actions/crm-accounts.actions';
+import { mergeAccounts } from './actions';
 import type { CrmAccount } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
@@ -73,6 +74,7 @@ export default function CrmAccountsPage() {
     const [total, setTotal] = React.useState(0);
     const [page, setPage] = React.useState(1);
     const [isPending, startTransition] = React.useTransition();
+    const [isMutating, setIsMutating] = React.useState(false);
     const [kpis, setKpis] = React.useState<AccountKpis>(EMPTY_ACCOUNT_KPIS);
 
     /* ─── Filters ────────────────────────────────────────────────── */
@@ -152,11 +154,14 @@ export default function CrmAccountsPage() {
         currencyFilter,
         dateRange,
         hasActiveFilters,
+        isMutating,
     ]);
 
     React.useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        if (!isMutating) {
+            fetchData();
+        }
+    }, [fetchData, isMutating]);
 
     const handleSearch = useDebouncedCallback((next: string) => {
         setSearch(next);
@@ -226,29 +231,50 @@ export default function CrmAccountsPage() {
     /* ─── Bulk actions ──────────────────────────────────────── */
     const runBulkArchive = React.useCallback(async () => {
         if (selected.size === 0) return;
+        setIsMutating(true);
         const targets = Array.from(selected);
-        setSelected(new Set());
+        
+        const results = await Promise.all(targets.map(id => archiveCrmAccount(id)));
+        
         let ok = 0;
         let fail = 0;
-        for (const id of targets) {
-            const res = await archiveCrmAccount(id);
+        results.forEach(res => {
             if (res.success) ok++;
             else fail++;
-        }
+        });
+        
+        setSelected(new Set());
         toast({
             title: fail
                 ? t('crm.accounts.list.toast.bulkArchivedWithFails', { ok, fail })
                 : t('crm.accounts.list.toast.bulkArchived', { ok }),
             variant: fail ? 'destructive' : 'default',
         });
-        fetchData();
-    }, [selected, fetchData, toast, t]);
+        setIsMutating(false);
+    }, [selected, toast, t]);
+
+    const runMergeAccounts = React.useCallback(async () => {
+        if (selected.size !== 2) return;
+        setIsMutating(true);
+        const [primaryId, secondaryId] = Array.from(selected);
+        toast({ title: 'Merging accounts...' });
+        
+        const res = await mergeAccounts(primaryId, secondaryId);
+        
+        setSelected(new Set());
+        if (res.success) {
+            toast({ title: 'Accounts merged successfully', variant: 'success' });
+        } else {
+            toast({ title: 'Failed to merge accounts', description: res.error, variant: 'destructive' });
+        }
+        setIsMutating(false);
+    }, [selected, toast]);
 
     const runBulkCategory = React.useCallback(
         async (next: 'new' | 'strategic' | 'key' | 'regular') => {
             if (selected.size === 0) return;
+            setIsMutating(true);
             const targets = Array.from(selected);
-            setSelected(new Set());
             const res = await setCrmAccountCategory(targets, next);
             if (res.success) {
                 const count = res.modifiedCount ?? selected.size;
@@ -262,7 +288,6 @@ export default function CrmAccountsPage() {
                     variant: 'success',
                 });
                 setSelected(new Set());
-                fetchData();
             } else {
                 toast({
                     title: t('crm.accounts.list.toast.bulkCategoryFailed'),
@@ -270,8 +295,9 @@ export default function CrmAccountsPage() {
                     variant: 'destructive',
                 });
             }
+            setIsMutating(false);
         },
-        [selected, toast, fetchData, t],
+        [selected, toast, t],
     );
 
     const exportRows = React.useMemo(() => {
@@ -404,6 +430,7 @@ export default function CrmAccountsPage() {
                             onCategoryChange={(c) => void runBulkCategory(c)}
                             onExport={exportCsv}
                             onExportXlsx={exportXlsx}
+                            onMerge={selected.size === 2 ? () => void runMergeAccounts() : undefined}
                         />
                     ) : null
                 }

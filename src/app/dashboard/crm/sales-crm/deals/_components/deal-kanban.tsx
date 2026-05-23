@@ -1,30 +1,21 @@
 'use client';
 
 import { Badge, Card, Button, useZoruToast } from '@/components/zoruui';
-import {
-  useRouter } from 'next/navigation';
-import { Clock,
-  Trophy } from 'lucide-react';
-
-/**
- * <DealKanban> — drag-between-columns deal pipeline board.
- *
- * Each column is a deal stage. Dragging a card from one column to
- * another calls `updateCrmDealStage` and optimistically reorders local
- * state; if the server rejects the change we revert and toast.
- *
- * Uses the native HTML5 drag-and-drop API to avoid an extra dependency.
- * The drag-target uses the underlying card's id to identify the deal;
- * the column receives the drop event and dispatches the stage update.
- */
+import { useRouter } from 'next/navigation';
+import { Clock, Trophy } from 'lucide-react';
 
 import * as React from 'react';
 import Link from 'next/link';
+import { gsap } from 'gsap';
+import { Flip } from 'gsap/Flip';
+import { useGSAP } from '@gsap/react';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { updateCrmDealStage } from '@/app/actions/crm-deals.actions';
 import { statusToTone, StatusPill } from '@/components/crm/status-pill';
 import type { DealListRow } from './types';
+
+gsap.registerPlugin(Flip, useGSAP);
 
 interface DealKanbanProps {
   deals: DealListRow[];
@@ -49,15 +40,54 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
   const router = useRouter();
   const { toast } = useZoruToast();
 
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const flipStateRef = React.useRef<Flip.FlipState | null>(null);
+
   // Local mirror so we can optimistically move cards before the server confirms.
   const [board, setBoard] = React.useState<DealListRow[]>(deals);
   const [, startTransition] = React.useTransition();
   const [draggingId, setDraggingId] = React.useState<string | null>(null);
 
+  // Track pending updates to prevent "ghost deals" when rapidly moved and
+  // the server re-renders stale data.
+  const pendingRef = React.useRef<Set<string>>(new Set());
+  const [pending, setPending] = React.useState<Set<string>>(new Set());
+
+  const addPending = (id: string) => {
+    pendingRef.current.add(id);
+    setPending(new Set(pendingRef.current));
+  };
+  const removePending = (id: string) => {
+    pendingRef.current.delete(id);
+    setPending(new Set(pendingRef.current));
+  };
+
   // Re-sync when the upstream `deals` prop changes (server refetch).
+  // Preserves optimistic stage if the deal is currently pending a server response.
   React.useEffect(() => {
-    setBoard(deals);
+    setBoard((prevBoard) => {
+      return deals.map((serverDeal) => {
+        if (pendingRef.current.has(serverDeal._id)) {
+          const optimisticDeal = prevBoard.find((p) => p._id === serverDeal._id);
+          if (optimisticDeal) {
+            return { ...serverDeal, stage: optimisticDeal.stage };
+          }
+        }
+        return serverDeal;
+      });
+    });
   }, [deals]);
+
+  useGSAP(() => {
+    if (flipStateRef.current) {
+      Flip.from(flipStateRef.current, {
+        duration: 0.3,
+        ease: 'power2.out',
+        absolute: true,
+      });
+      flipStateRef.current = null;
+    }
+  }, { scope: containerRef, dependencies: [board] });
 
   const grouped = React.useMemo(() => {
     const map = new Map<string, DealListRow[]>();
@@ -74,6 +104,11 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
     rows.reduce((sum, r) => sum + (typeof r.amount === 'number' ? r.amount : 0), 0);
 
   const handleDrop = (newStage: string, dealId: string) => {
+    if (pending.has(dealId)) {
+      setDraggingId(null);
+      return;
+    }
+
     const target = board.find((d) => d._id === dealId);
     if (!target || target.stage === newStage) {
       setDraggingId(null);
@@ -81,16 +116,23 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
     }
     const oldStage = target.stage;
 
+    flipStateRef.current = Flip.getState('.kanban-card');
+
     // Optimistic update
     setBoard((rows) =>
       rows.map((r) => (r._id === dealId ? { ...r, stage: newStage } : r)),
     );
+    addPending(dealId);
     setDraggingId(null);
 
     startTransition(async () => {
       const res = await updateCrmDealStage(dealId, newStage);
+      
+      removePending(dealId);
+
       if (!res.success) {
-        // Revert
+        // Revert on failure
+        flipStateRef.current = Flip.getState('.kanban-card');
         setBoard((rows) =>
           rows.map((r) => (r._id === dealId ? { ...r, stage: oldStage } : r)),
         );
@@ -101,6 +143,7 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
         });
         return;
       }
+      
       toast({
         title: 'Stage updated',
         description: `Moved to ${newStage}.`,
@@ -111,7 +154,7 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
   };
 
   return (
-    <div className="flex w-full gap-3 overflow-x-auto pb-4">
+    <div ref={containerRef} className="flex w-full gap-3 overflow-x-auto pb-4">
       {stages.map((stage) => {
         const rows = grouped.get(stage) ?? [];
         const total = columnTotal(rows);
@@ -146,50 +189,63 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
                   Drop deals here
                 </div>
               ) : (
-                rows.map((deal) => (
-                  <Card
-                    key={deal._id}
-                    draggable
-                    onDragStart={(e) => {
-                      e.dataTransfer.setData('text/plain', deal._id);
-                      e.dataTransfer.effectAllowed = 'move';
-                      setDraggingId(deal._id);
-                    }}
-                    onDragEnd={() => setDraggingId(null)}
-                    className={`cursor-grab p-3 transition-opacity active:cursor-grabbing ${
-                      draggingId === deal._id ? 'opacity-50' : ''
-                    }`}
-                  >
-                    <Link
-                      href={`/dashboard/crm/sales-crm/deals/${deal._id}`}
-                      className="block min-w-0 flex-1 text-[13px] font-medium text-zoru-ink hover:underline"
+                rows.map((deal) => {
+                  const isPending = pending.has(deal._id);
+                  const isDragging = draggingId === deal._id;
+                  
+                  return (
+                    <Card
+                      key={deal._id}
+                      draggable={!isPending}
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData('text/plain', deal._id);
+                        e.dataTransfer.effectAllowed = 'move';
+                        setDraggingId(deal._id);
+                      }}
+                      onDragEnd={() => setDraggingId(null)}
+                      className={`kanban-card cursor-grab p-3 transition-opacity ${
+                        !isPending ? 'active:cursor-grabbing' : ''
+                      } ${isDragging || isPending ? 'opacity-50' : ''}`}
                     >
-                      {deal.name || 'Untitled deal'}
-                    </Link>
-                    <div className="mt-1.5 flex items-center justify-between gap-2 text-[12px] text-zoru-ink-muted">
-                      <span className="truncate">{deal.clientLabel ?? '—'}</span>
-                      <span className="font-mono tabular-nums text-zoru-ink">
-                        {fmtMoney(deal.amount, deal.currency ?? currency)}
-                      </span>
-                    </div>
-                    <div className="mt-1.5 flex items-center justify-between gap-2 text-[11.5px] text-zoru-ink-muted">
-                      <span className="inline-flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {deal.expectedClose
-                          ? new Date(deal.expectedClose).toLocaleDateString()
-                          : '—'}
-                      </span>
-                      {typeof deal.probability === 'number' ? (
-                        <Badge variant="outline">{deal.probability}%</Badge>
-                      ) : null}
-                    </div>
-                    {deal.ownerId ? (
-                      <div className="mt-1.5">
-                        <EntityPickerChip entity="user" id={deal.ownerId} />
+                      <Link
+                        href={`/dashboard/crm/sales-crm/deals/${deal._id}`}
+                        className="block min-w-0 flex-1 text-[13px] font-medium text-zoru-ink hover:underline"
+                        onClick={(e) => isPending && e.preventDefault()}
+                      >
+                        {deal.name || 'Untitled deal'}
+                      </Link>
+                      <div className="mt-1.5 flex items-center justify-between gap-2 text-[12px] text-zoru-ink-muted">
+                        <span className="truncate">{deal.clientLabel ?? '—'}</span>
+                        <div className="text-right">
+                          <span className="block font-mono tabular-nums text-zoru-ink">
+                            {fmtMoney(deal.amount, deal.currency ?? currency)}
+                          </span>
+                          {typeof deal.probability === 'number' && typeof deal.amount === 'number' ? (
+                            <span className="block text-[10px] font-mono tabular-nums text-zoru-ink-muted" title="Expected Value (Amount × Probability)">
+                              EV: {fmtMoney(deal.amount * (deal.probability / 100), deal.currency ?? currency)}
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
-                    ) : null}
-                  </Card>
-                ))
+                      <div className="mt-1.5 flex items-center justify-between gap-2 text-[11.5px] text-zoru-ink-muted">
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {deal.expectedClose
+                            ? new Date(deal.expectedClose).toLocaleDateString()
+                            : '—'}
+                        </span>
+                        {typeof deal.probability === 'number' ? (
+                          <Badge variant="outline">{deal.probability}%</Badge>
+                        ) : null}
+                      </div>
+                      {deal.ownerId ? (
+                        <div className="mt-1.5">
+                          <EntityPickerChip entity="user" id={deal.ownerId} />
+                        </div>
+                      ) : null}
+                    </Card>
+                  );
+                })
               )}
             </div>
 
@@ -212,3 +268,4 @@ export function DealKanban({ deals, stages, currency }: DealKanbanProps) {
     </div>
   );
 }
+

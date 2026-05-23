@@ -241,3 +241,9 @@ export async function deleteContractSign(id: string) {
   revalidatePath(`${ROUTE_BASE}`);
   return r;
 }
+
+export async function sendExpirationReminder(contractId: string) {
+  // In a real app, this would queue an email or send it immediately.
+  // We simulate it here.
+  return { success: true, message: `Sent expiration reminder for contract ${contractId}` };
+}

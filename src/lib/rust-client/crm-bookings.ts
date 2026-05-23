@@ -100,6 +100,7 @@ export interface CrmBookingCreateInput {
   cancellationPolicy?: string;
   notes?: string;
   projectId?: string;
+  reminders?: CrmBookingReminder[];
 }
 
 export type CrmBookingUpdateInput = Partial<

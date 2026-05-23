@@ -344,12 +344,12 @@ export function EntityPickerChip({
     return (
       <span
         className={cn(
-          'inline-flex max-w-full items-center gap-2 rounded-md border border-red-500/30 bg-red-500/10 px-2 py-1 text-xs text-red-500',
+          'inline-flex max-w-full items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 px-2 py-1 text-xs text-zoru-ink-muted',
           className,
         )}
         title={`ID not found: ${id}`}
       >
-        Unknown/Deleted
+        <span className="truncate">Deleted {entity}</span>
       </span>
     );
   }

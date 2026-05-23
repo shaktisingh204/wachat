@@ -122,6 +122,7 @@ export function ActivityFeedClient({
     const [rows, setRows] = React.useState<CrmActivityRow[]>(initialFeed.items);
     const [cursor, setCursor] = React.useState<string | null>(initialFeed.nextCursor);
     const [loadingMore, setLoadingMore] = React.useState(false);
+    const loadMoreRef = React.useRef<HTMLDivElement>(null);
     const [loadMoreError, setLoadMoreError] = React.useState<string | null>(null);
 
     // Re-sync local state when the server-rendered initialFeed changes
@@ -153,6 +154,24 @@ export function ActivityFeedClient({
     const hasFilters = Object.values(filters).some((v) => Boolean(v));
 
     /* ── Cursor pagination ───────────────────────────────────────── */
+
+    
+    React.useEffect(() => {
+        const target = loadMoreRef.current;
+        if (!target) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && cursor && !loadingMore && !loadMoreError) {
+                    handleLoadMore();
+                }
+            },
+            { rootMargin: '200px' }
+        );
+
+        observer.observe(target);
+        return () => observer.disconnect();
+    }, [cursor, loadingMore, loadMoreError, handleLoadMore]);
 
     const handleLoadMore = React.useCallback(async () => {
         if (!cursor || loadingMore) return;
@@ -340,7 +359,7 @@ export function ActivityFeedClient({
                 )}
 
                 {cursor ? (
-                    <div className="flex flex-col items-center gap-2 py-3">
+                    <div ref={loadMoreRef} className="flex flex-col items-center gap-2 py-3">
                         <Button
                             variant="ghost"
                             size="sm"

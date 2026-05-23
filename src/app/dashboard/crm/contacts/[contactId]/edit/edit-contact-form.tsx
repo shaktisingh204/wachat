@@ -15,6 +15,7 @@ import {
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Save } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { updateCrmContact } from '@/app/actions/crm.actions';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
@@ -76,10 +77,13 @@ export function EditContactForm({ initial }: Props) {
   );
   const { toast } = useZoruToast();
 
+  const router = useRouter();
+
   useEffect(() => {
     if (state?.message) {
       toast({ title: 'Saved', description: state.message });
-      window.location.href = `/dashboard/crm/contacts/${state.contactId ?? initial._id}`;
+      router.push(`/dashboard/crm/contacts/${state.contactId ?? initial._id}`);
+      router.refresh();
     }
     if (state?.error) {
       toast({
@@ -429,7 +433,7 @@ export function EditContactForm({ initial }: Props) {
               type="button"
               variant="outline"
               onClick={() => {
-                window.location.href = `/dashboard/crm/contacts/${initial._id}`;
+                router.push(`/dashboard/crm/contacts/${initial._id}`);
               }}
             >
               Cancel

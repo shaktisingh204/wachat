@@ -10,8 +10,10 @@ import {
     resolveWidgetData,
     type DashboardWidget,
 } from '@/app/actions/crm-dashboards.actions';
+import { ShareButton } from '../_components/share-button';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
-import { WidgetRenderer } from '../_components/widget-renderer';
+import dynamic from 'next/dynamic';
+const WidgetRenderer = dynamic(() => import('../_components/widget-renderer').then(m => m.WidgetRenderer), { loading: () => <div className="h-full w-full animate-pulse bg-zoru-surface-2 rounded-md"></div>, ssr: false });
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -59,9 +61,12 @@ export default async function DashboardDetailPage({ params }: PageProps) {
             eyebrow="DASHBOARD"
             back={{ href: '/dashboard/crm/dashboards', label: 'All dashboards' }}
             actions={
+                <div className="flex gap-2">
+                    <ShareButton dashboardId={id} visibility={d.visibility ?? d.sharedWith ?? d.shareScope ?? 'private'} />
                 <Link href={`/dashboard/crm/dashboards/${id}/edit`}>
                     <Button size="sm">Edit dashboard</Button>
                 </Link>
+                </div>
             }
             audit={<EntityAuditTimeline entityKind="dashboard" entityId={id} />}
         >

@@ -174,6 +174,7 @@ export interface AccountsBulkBarProps {
     onCategoryChange: (next: 'new' | 'strategic' | 'key' | 'regular') => void;
     onExport: () => void;
     onExportXlsx?: () => void;
+    onMerge?: () => void;
 }
 
 export function AccountsBulkBar({
@@ -183,6 +184,7 @@ export function AccountsBulkBar({
     onCategoryChange,
     onExport,
     onExportXlsx,
+    onMerge,
 }: AccountsBulkBarProps) {
     return (
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -197,6 +199,11 @@ export function AccountsBulkBar({
                 </button>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+                {onMerge && count === 2 ? (
+                    <Button variant="outline" size="sm" onClick={onMerge}>
+                        <Tag className="h-3.5 w-3.5 mr-1" /> Merge
+                    </Button>
+                ) : null}
                 <Select onValueChange={(v) => onCategoryChange(v as 'new' | 'strategic' | 'key' | 'regular')}>
                     <ZoruSelectTrigger className="h-8 w-[180px] text-[12px]">
                         <Tag className="mr-1.5 h-3.5 w-3.5" />

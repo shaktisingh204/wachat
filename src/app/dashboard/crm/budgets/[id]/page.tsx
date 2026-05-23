@@ -13,9 +13,9 @@ import Link from 'next/link';
 
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getBudgetById } from '@/app/actions/crm-budgets.actions';
-
 import { BudgetDetailActions } from '../_components/budget-detail-actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { BudgetLiveStats } from '../_components/budget-live-stats';
 
 type BudgetDoc = {
   _id: string;
@@ -61,12 +61,6 @@ function fmtMoney(value: unknown): string {
   }).format(value);
 }
 
-function fmtPct(plan?: number, actual?: number): string {
-  if (typeof plan !== 'number' || plan === 0) return '—';
-  const used = ((actual ?? 0) / plan) * 100;
-  return `${used.toFixed(1)}%`;
-}
-
 function fmtDate(value: unknown): string {
   if (!value) return '—';
   const d = new Date(value as string);
@@ -100,13 +94,11 @@ export default async function BudgetDetailPage({ params }: PageProps) {
   if (!budget) notFound();
 
   const status = budget.status ?? 'draft';
-  const variancePct =
-    typeof budget.planAmount === 'number' && budget.planAmount !== 0
-      ? (((budget.variance ?? 0) / budget.planAmount) * 100).toFixed(1)
-      : '—';
-  const overrun =
-    typeof budget.variance === 'number' && budget.variance < 0;
+  const overrun = typeof budget.variance === 'number' && budget.variance < 0;
   const actualLog = budget.actualLog ?? [];
+  const planAmt = typeof budget.planAmount === 'number' ? budget.planAmount : 0;
+  const actualAmt = typeof budget.actual === 'number' ? budget.actual : 0;
+  const alertAtAmt = typeof budget.alertAt === 'number' ? budget.alertAt : 80;
 
   return (
     <EntityDetailShell
@@ -125,35 +117,12 @@ export default async function BudgetDetailPage({ params }: PageProps) {
       audit={<EntityAuditTimeline entityKind="budget" entityId={id} />}
       rightRail={
         <>
-          <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Variance</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent>
-              <div className="space-y-2 text-[12.5px]">
-                <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">% of plan used</span>
-                  <span className="font-mono tabular-nums">
-                    {fmtPct(budget.planAmount, budget.actual)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-zoru-ink-muted">Variance</span>
-                  <span
-                    className={`font-mono tabular-nums ${overrun ? 'text-zoru-danger-ink' : 'text-zoru-ink'}`}
-                  >
-                    {fmtMoney(budget.variance)} ({variancePct}%)
-                  </span>
-                </div>
-                <div className="flex items-center justify-between border-t border-zoru-line pt-2">
-                  <span className="text-zoru-ink-muted">Plan</span>
-                  <span className="font-mono tabular-nums">
-                    {fmtMoney(budget.planAmount)}
-                  </span>
-                </div>
-              </div>
-            </ZoruCardContent>
-          </Card>
+          <BudgetLiveStats 
+            budgetId={id} 
+            planAmount={planAmt} 
+            initialActual={actualAmt} 
+            alertAt={alertAtAmt} 
+          />
 
           <Card>
             <ZoruCardHeader>

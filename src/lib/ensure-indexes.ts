@@ -26,6 +26,14 @@ export async function ensureIndexes(db: Db): Promise<void> {
       { userId: 1, createdAt: -1 },
       { background: true },
     ),
+    db.collection('crm_audit_log').createIndex(
+      { userId: 1, entityKind: 1, createdAt: -1 },
+      { background: true },
+    ),
+    db.collection('crm_audit_log').createIndex(
+      { userId: 1, actorId: 1, createdAt: -1 },
+      { background: true },
+    ),
     db.collection('crm_employees').createIndex(
       { userId: 1, reportingManagerId: 1 },
       { background: true },

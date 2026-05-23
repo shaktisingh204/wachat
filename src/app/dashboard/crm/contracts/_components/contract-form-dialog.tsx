@@ -30,6 +30,7 @@ import * as React from 'react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { HrContract } from '@/lib/hr-types';
+import { getContractTemplates } from '@/app/actions/worksuite/contracts-ext.actions';
 
 type ContractInput = HrContract & { _id?: string };
 
@@ -51,6 +52,25 @@ export function ContractFormDialog({
   isSaving,
   action,
 }: ContractFormDialogProps) {
+  const [templates, setTemplates] = React.useState<any[]>([]);
+  const [bodyText, setBodyText] = React.useState('');
+
+  React.useEffect(() => {
+    if (open) {
+      setBodyText(editing?.body || '');
+      getContractTemplates().then((data) => {
+        setTemplates(data as any[] || []);
+      });
+    }
+  }, [open, editing]);
+
+  const handleTemplateChange = (templateId: string) => {
+    const t = templates.find((x) => x._id === templateId);
+    if (t) {
+      setBodyText(t.body || '');
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-2xl">
@@ -114,6 +134,23 @@ export function ContractFormDialog({
               </Select>
             </div>
             <div>
+              <Label className="text-foreground">E-Signature Provider</Label>
+              <Select
+                name="esignProvider"
+                defaultValue={(editing as any)?.esignProvider || 'internal'}
+              >
+                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="internal">Internal (SabNode)</ZoruSelectItem>
+                  <ZoruSelectItem value="docusign">DocuSign</ZoruSelectItem>
+                  <ZoruSelectItem value="hellosign">HelloSign</ZoruSelectItem>
+                  <ZoruSelectItem value="adobe_sign">Adobe Sign</ZoruSelectItem>
+                </ZoruSelectContent>
+              </Select>
+            </div>
+            <div>
               <Label className="text-foreground">Value</Label>
               <Input
                 type="number"
@@ -164,12 +201,29 @@ export function ContractFormDialog({
               />
             </div>
             <div className="md:col-span-2">
-              <Label className="text-foreground">Body</Label>
+              <div className="flex justify-between items-center mb-1.5">
+                <Label className="text-foreground">Body</Label>
+                {templates.length > 0 && (
+                  <Select onValueChange={handleTemplateChange}>
+                    <ZoruSelectTrigger className="h-8 w-[200px] text-[12px]">
+                      <ZoruSelectValue placeholder="Apply template..." />
+                    </ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                      {templates.map((t) => (
+                        <ZoruSelectItem key={t._id} value={t._id}>
+                          {t.name}
+                        </ZoruSelectItem>
+                      ))}
+                    </ZoruSelectContent>
+                  </Select>
+                )}
+              </div>
               <Textarea
                 name="body"
                 rows={6}
-                defaultValue={editing?.body || ''}
-                className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
+                value={bodyText}
+                onChange={(e) => setBodyText(e.target.value)}
+                className="rounded-lg border-border bg-card text-[13px]"
               />
             </div>
           </div>

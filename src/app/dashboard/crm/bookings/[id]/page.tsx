@@ -41,8 +41,8 @@ function fmtDate(v?: string): string {
 
 function computeDuration(start?: string, end?: string): string {
   if (!start || !end) return '—';
-  const s = new Date(start);
-  const e = new Date(end);
+  const s = new Date(start.endsWith('Z') ? start : start + 'Z');
+  const e = new Date(end.endsWith('Z') ? end : end + 'Z');
   if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime())) return '—';
   const diffMs = e.getTime() - s.getTime();
   if (diffMs <= 0) return '—';
@@ -217,6 +217,12 @@ export default async function BookingDetailPage({
             </ZoruCardHeader>
             <ZoruCardContent>
               <div className="flex flex-col gap-2 text-[12.5px]">
+                <Link
+                  href={`/dashboard/crm/bookings/${id}/portal`}
+                  className="text-zoru-primary hover:underline"
+                >
+                  Self-service portal →
+                </Link>
                 {booking.recurringRule ? (
                   <Link
                     href={`/dashboard/crm/bookings?recurringFrom=${id}`}
@@ -303,6 +309,33 @@ export default async function BookingDetailPage({
           </div>
         </ZoruCardContent>
       </Card>
+
+      {booking.reminders && booking.reminders.length > 0 ? (
+        <Card>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Reminders</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <div className="space-y-2 text-[12.5px] text-zoru-ink">
+              {booking.reminders.map((r, i) => (
+                <div key={i} className="flex items-center justify-between border-b border-zoru-line pb-1 last:border-0 last:pb-0">
+                  <span>{new Date(r.at).toLocaleString()} via <span className="capitalize font-medium">{r.channel}</span></span>
+                  <Badge variant={r.sent ? 'default' : 'outline'}>{r.sent ? 'Sent' : 'Scheduled'}</Badge>
+                </div>
+              ))}
+            </div>
+          </ZoruCardContent>
+        </Card>
+      ) : (
+        <Card>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Reminders</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <p className="text-[12.5px] text-zoru-ink-muted">No automated reminders configured.</p>
+          </ZoruCardContent>
+        </Card>
+      )}
 
       {booking.notes ? (
         <Card>

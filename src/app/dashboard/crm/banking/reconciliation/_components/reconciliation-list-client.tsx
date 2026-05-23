@@ -55,9 +55,13 @@ import {
   importBankStatement,
   getReconciliationData,
   saveReconciliation,
+  fetchPlaidTransactions,
+  saveReconciliationDraft,
+  loadReconciliationDraft,
+  createFxAdjustmentEntry,
 } from '@/app/actions/crm-reconciliation.actions';
 import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
-import type { CrmReconciliationKpis } from '@/app/actions/crm-reconciliation.actions';
+import type { CrmReconciliationKpis, CsvMapping } from '@/app/actions/crm-reconciliation.actions';
 import type { WithId, CrmPaymentAccount } from '@/lib/definitions';
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
@@ -264,6 +268,7 @@ const TransactionTable = ({
   totalDebit: number;
   totalCredit: number;
   isBankStatement?: boolean;
+  onFxAdjust?: (id: string, amount: number, originalCurrency: string) => void;
 }) => (
   <Card className="border border-zoru-line overflow-hidden p-0 shadow-[var(--zoru-shadow-sm)]">
     <div className="flex items-center justify-between px-4 py-3 border-b border-zoru-line bg-zoru-surface-2">
@@ -287,7 +292,7 @@ const TransactionTable = ({
         </ZoruTableHeader>
         <ZoruTableBody>
           {entries.map((entry) => {
-            const e = entry as typeof entry & { type?: string; amount: number };
+            const e = entry as typeof entry & { type?: string; amount: number; originalCurrency?: string; fxRate?: number };
             const debit = isBankStatement
               ? e.amount > 0
                 ? e.amount
@@ -345,6 +350,11 @@ const TransactionTable = ({
                         Matched ±3d Window
                       </span>
                     )}
+                    {e.originalCurrency && onFxAdjust && (
+                      <Button variant="outline" size="sm" className="mt-1 h-6 text-[10px]" onClick={() => onFxAdjust(e._id, Math.abs(e.amount), e.originalCurrency!)}>
+                        Apply FX Adj ({e.originalCurrency})
+                      </Button>
+                    )}
                   </div>
                 </ZoruTableCell>
                 <ZoruTableCell className={[cellClass, "text-right font-mono text-[12px]"].join(' ')}>
@@ -399,7 +409,49 @@ export function ReconciliationListClient({
   const [aiMatchedBookEntries, setAiMatchedBookEntries] = React.useState<Set<string>>(new Set());
   const [aiMatchedStatementEntries, setAiMatchedStatementEntries] = React.useState<Set<string>>(new Set());
 
+  const [csvColumns, setCsvColumns] = React.useState<string[]>([]);
+  const [csvMapping, setCsvMapping] = React.useState<CsvMapping>({ dateCol: '', descCol: '', debitCol: '', creditCol: '' });
+  const [showMappingModal, setShowMappingModal] = React.useState(false);
+  const [isDraftUnsaved, setIsDraftUnsaved] = React.useState(false);
+
   const [isLoading, startLoading] = React.useTransition();
+
+  // Auto-save draft effect
+  React.useEffect(() => {
+    if (!isDraftUnsaved || !selectedAccountId || !reconciliationData) return;
+    const timer = setTimeout(() => {
+      saveReconciliationDraft(
+        selectedAccountId,
+        Array.from(matchedBookEntries),
+        Array.from(matchedStatementEntries),
+        reconciliationData.statementEntries
+      ).then(() => {
+        setIsDraftUnsaved(false);
+        toast({ title: 'Draft auto-saved.' });
+      });
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [matchedBookEntries, matchedStatementEntries, isDraftUnsaved, selectedAccountId, reconciliationData, toast]);
+
+  const handleLoadDraft = async (accountId: string) => {
+    if (!accountId) return;
+    const res = await loadReconciliationDraft(accountId);
+    if (res.data) {
+      setReconciliationData({
+        bookEntries: [], // will fetch next
+        statementEntries: res.data.statementEntries || [],
+      });
+      setMatchedBookEntries(new Set(res.data.matchedBookEntries || []));
+      setMatchedStatementEntries(new Set(res.data.matchedStatementEntries || []));
+      toast({ title: 'Draft loaded for selected account.' });
+    }
+  };
+
+  const handleAccountChange = (id: string) => {
+    setSelectedAccountId(id);
+    handleLoadDraft(id);
+  };
+
 
   React.useEffect(() => {
     getCrmPaymentAccounts().then((data) => {
@@ -407,7 +459,7 @@ export function ReconciliationListClient({
     });
   }, []);
 
-  const handleFetchData = async () => {
+  const handleFetchData = async (mapping?: CsvMapping) => {
     if (!selectedAccountId || !startDate || !endDate) {
       toast({
         title: 'Please select an account and a date range.',
@@ -416,12 +468,16 @@ export function ReconciliationListClient({
       return;
     }
     startLoading(async () => {
-      const statementEntriesResult = statementFile
-        ? await importBankStatement(statementFile)
-        : {
-            statementEntries:
-              reconciliationData?.statementEntries ?? [],
-          };
+      let statementEntriesResult = { statementEntries: reconciliationData?.statementEntries ?? [], columns: undefined as string[] | undefined, error: undefined as string | undefined };
+      if (statementFile) {
+          statementEntriesResult = await importBankStatement(statementFile, mapping);
+          if (statementEntriesResult.columns && !mapping) {
+              setCsvColumns(statementEntriesResult.columns);
+              setShowMappingModal(true);
+              return;
+          }
+      }
+
       if (statementEntriesResult.error) {
         toast({
           title: 'Statement Import Error',
@@ -430,6 +486,9 @@ export function ReconciliationListClient({
         });
         return;
       }
+      
+      if (mapping) setShowMappingModal(false);
+
       const bookEntriesResult = await getReconciliationData(
         selectedAccountId,
         startDate,
@@ -447,14 +506,36 @@ export function ReconciliationListClient({
         bookEntries: (bookEntriesResult.entries ?? []) as ReconciliationData['bookEntries'],
         statementEntries: (statementEntriesResult.statementEntries ?? []) as ReconciliationData['statementEntries'],
       });
+      // Do not clear matched entries if loaded from draft unless it's a completely new fetch without draft
+    });
+  };
+
+  const handlePlaidFetch = async () => {
+    if (!selectedAccountId || !startDate || !endDate) {
+      toast({ title: 'Please select an account and a date range.', variant: 'destructive' });
+      return;
+    }
+    startLoading(async () => {
+      const plaidRes = await fetchPlaidTransactions(selectedAccountId, startDate, endDate);
+      if (plaidRes.error) {
+        toast({ title: 'Bank API Error', description: plaidRes.error, variant: 'destructive' });
+        return;
+      }
+      const bookRes = await getReconciliationData(selectedAccountId, startDate, endDate);
+      setReconciliationData({
+        bookEntries: (bookRes.entries ?? []) as ReconciliationData['bookEntries'],
+        statementEntries: (plaidRes.statementEntries ?? []) as ReconciliationData['statementEntries'],
+      });
       setMatchedBookEntries(new Set());
       setMatchedStatementEntries(new Set());
       setAiMatchedBookEntries(new Set());
       setAiMatchedStatementEntries(new Set());
+      toast({ title: 'Bank API transactions fetched successfully.' });
     });
   };
 
   const handleMatchToggle = (type: 'book' | 'statement', id: string) => {
+    setIsDraftUnsaved(true);
     if (type === 'book') {
       setMatchedBookEntries((prev) => {
         const next = new Set(prev);
@@ -524,6 +605,7 @@ export function ReconciliationListClient({
     setAiMatchedStatementEntries(newAiStatement);
 
     if (matchCount > 0) {
+      setIsDraftUnsaved(true);
       toast({
         title: `AI Matcher Identified ${matchCount} matches`,
         description: `Linked bank statements to book entries within a ±3-day variance and highlighted with emerald borders.`,
@@ -533,6 +615,27 @@ export function ReconciliationListClient({
         title: `AI Auto-Matcher Scan Complete`,
         description: 'No new identical amount matches found within the ±3-day window.',
       });
+    }
+  };
+
+  const handleCreateFxAdjustment = async (stmtEntryId: string, baseAmount: number, foreignAmount: number, currency: string) => {
+    if (!selectedAccountId) return;
+    const res = await createFxAdjustmentEntry(selectedAccountId, baseAmount, foreignAmount, currency);
+    if (res.success && res.entryId) {
+      toast({ title: 'FX Gain/Loss adjustment created successfully.' });
+      // add the new entry to book entries locally
+      setReconciliationData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          bookEntries: [
+            ...prev.bookEntries,
+            { _id: res.entryId!, date: new Date(), description: `FX Adjustment (${currency})`, type: res.diff! < 0 ? 'debit' : 'credit', amount: Math.abs(res.diff!) }
+          ]
+        };
+      });
+    } else {
+      toast({ title: 'Failed to create FX adjustment', description: res.error, variant: 'destructive' });
     }
   };
 
@@ -691,7 +794,7 @@ export function ReconciliationListClient({
             <Label className="text-[11.5px] font-semibold text-zoru-ink-muted uppercase">Bank Account</Label>
             <Select
               value={selectedAccountId}
-              onValueChange={setSelectedAccountId}
+              onValueChange={handleAccountChange}
             >
               <ZoruSelectTrigger>
                 <ZoruSelectValue placeholder="Select account…" />
@@ -736,6 +839,15 @@ export function ReconciliationListClient({
             >
               {isLoading && <LoaderCircle className="h-3.5 w-3.5 animate-spin" />}
               Load Transactions
+            </Button>
+            <Button
+              onClick={() => void handlePlaidFetch()}
+              disabled={isLoading}
+              className="flex items-center gap-1.5"
+              variant="outline"
+            >
+              {isLoading && <LoaderCircle className="h-3.5 w-3.5 animate-spin" />}
+              Fetch from Bank API
             </Button>
           </div>
           <Button
@@ -792,6 +904,7 @@ export function ReconciliationListClient({
               totalDebit={totalStatementDebit}
               totalCredit={totalStatementCredit}
               isBankStatement
+              onFxAdjust={(id, amount, currency) => handleCreateFxAdjustment(id, amount, amount * 0.95, currency)}
             />
 
             {/* Company GL Books on the RIGHT */}
@@ -807,6 +920,35 @@ export function ReconciliationListClient({
           </div>
         </>
       ) : null}
+
+      {/* CSV Mapping Modal */}
+      {showMappingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <Card className="w-full max-w-md p-6 bg-zoru-bg shadow-xl">
+            <h3 className="text-lg font-bold mb-4 text-zoru-ink">Map CSV Columns</h3>
+            <p className="text-sm text-zoru-ink-muted mb-4">Select the corresponding columns from your CSV.</p>
+            <div className="space-y-4">
+              {['dateCol', 'descCol', 'debitCol', 'creditCol'].map((field) => (
+                <div key={field} className="space-y-1">
+                  <Label className="text-sm font-semibold text-zoru-ink capitalize">{field.replace('Col', ' Column')}</Label>
+                  <Select value={csvMapping[field as keyof CsvMapping]} onValueChange={(val) => setCsvMapping(prev => ({ ...prev, [field]: val }))}>
+                    <ZoruSelectTrigger>
+                      <ZoruSelectValue placeholder={`Select ${field}`} />
+                    </ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                      {csvColumns.map(col => <ZoruSelectItem key={col} value={col}>{col}</ZoruSelectItem>)}
+                    </ZoruSelectContent>
+                  </Select>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setShowMappingModal(false)}>Cancel</Button>
+              <Button onClick={() => handleFetchData(csvMapping)}>Import</Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

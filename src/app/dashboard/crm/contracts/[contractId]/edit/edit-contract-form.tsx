@@ -22,6 +22,7 @@ import { updateContractWithDetails } from '@/app/actions/crm-services.actions';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { getContractTemplates } from '@/app/actions/worksuite/contracts-ext.actions';
 
 interface AttachmentRow {
   id: string;
@@ -115,6 +116,21 @@ export function EditContractForm({ initial }: Props) {
       ? initial.signers
       : [{ name: '', email: '', role: '' }],
   );
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [bodyText, setBodyText] = useState(initial.body || '');
+
+  useEffect(() => {
+    getContractTemplates().then((data) => {
+      setTemplates(data as any[] || []);
+    });
+  }, []);
+
+  const handleTemplateChange = (templateId: string) => {
+    const t = templates.find((x) => x._id === templateId);
+    if (t) {
+      setBodyText(t.body || '');
+    }
+  };
 
   const renewalBanner = useMemo(
     () => computeAutoRenewBanner(endDate, autoRenew, renewalNoticeDays),
@@ -410,17 +426,34 @@ export function EditContractForm({ initial }: Props) {
                 </Select>
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label
-                  htmlFor="body"
-                  className="text-[12.5px] text-zoru-ink-muted"
-                >
-                  Contract body
-                </Label>
+                <div className="flex justify-between items-center">
+                  <Label
+                    htmlFor="body"
+                    className="text-[12.5px] text-zoru-ink-muted"
+                  >
+                    Contract body
+                  </Label>
+                  {templates.length > 0 && (
+                    <Select onValueChange={handleTemplateChange}>
+                      <ZoruSelectTrigger className="h-8 w-[200px] text-[12px]">
+                        <ZoruSelectValue placeholder="Apply template..." />
+                      </ZoruSelectTrigger>
+                      <ZoruSelectContent>
+                        {templates.map((t) => (
+                          <ZoruSelectItem key={t._id} value={t._id}>
+                            {t.name}
+                          </ZoruSelectItem>
+                        ))}
+                      </ZoruSelectContent>
+                    </Select>
+                  )}
+                </div>
                 <Textarea
                   id="body"
                   name="body"
                   rows={8}
-                  defaultValue={initial.body}
+                  value={bodyText}
+                  onChange={(e) => setBodyText(e.target.value)}
                   className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>

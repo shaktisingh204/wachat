@@ -24,6 +24,10 @@ import { getFixedAsset } from '@/app/actions/crm/fixed-assets.actions';
 
 import { FixedAssetDetailActions } from '../_components/fixed-asset-detail-actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { MaintenanceLogCard } from './maintenance-log-card';
+import { QrCodeCard } from './qr-code-card';
+import { DepreciationScheduleCard } from './depreciation-schedule-card';
+import { CustodyHistoryCard } from './custody-history-card';
 
 export const dynamic = 'force-dynamic';
 
@@ -138,6 +142,7 @@ export default async function FixedAssetDetailPage({
       audit={<EntityAuditTimeline entityKind="fixed_asset" entityId={id} />}
       rightRail={
         <>
+          <QrCodeCard value={String(asset._id)} code={asset.code || String(asset._id)} />
           <Card>
             <ZoruCardHeader>
               <ZoruCardTitle>Net book value</ZoruCardTitle>
@@ -313,6 +318,8 @@ export default async function FixedAssetDetailPage({
         </ZoruCardContent>
       </Card>
 
+      <DepreciationScheduleCard asset={asset} />
+
       <Card>
         <ZoruCardHeader>
           <ZoruCardTitle>Custodian &amp; vendor</ZoruCardTitle>
@@ -356,22 +363,9 @@ export default async function FixedAssetDetailPage({
         </ZoruCardContent>
       </Card>
 
-      <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Maintenance log</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/50 p-6 text-center">
-            <p className="text-[14px] font-medium text-foreground">Coming Soon</p>
-            <p className="mt-1 text-[13px] text-muted-foreground">
-              The maintenance tracking module is currently under development.
-            </p>
-            <Button variant="outline" size="sm" className="mt-4" disabled>
-              Add maintenance entry
-            </Button>
-          </div>
-        </ZoruCardContent>
-      </Card>
+      <CustodyHistoryCard assetId={id} />
+
+      <MaintenanceLogCard assetId={id} currency={asset.currency} />
 
       <p className="text-[11px] text-zoru-ink-muted">
         Created {fmtDate(asset.createdAt || asset.audit?.createdAt)} · Updated{' '}

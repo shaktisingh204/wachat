@@ -213,6 +213,15 @@ const TEMPLATES: AutomationTemplate[] = [
     tags: ['lead', 'email', 'whatsapp'],
   },
   {
+    id: 'tpl-abandoned-cart',
+    title: 'Abandoned Cart Recovery',
+    description:
+      'Sends a reminder email to customers who left items in their cart.',
+    trigger: 'Status Changed',
+    actionsCount: 2,
+    tags: ['deal', 'email'],
+  },
+  {
     id: 'tpl-deal-won-onboard',
     title: 'Deal Won → Onboarding Task',
     description:

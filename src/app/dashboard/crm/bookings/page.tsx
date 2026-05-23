@@ -48,12 +48,19 @@ export default async function BookingsPage({
       title="Bookings"
       subtitle="Reserve resources, rooms, or staff slots for your customers."
       primaryAction={
-        <Button asChild>
-          <Link href="/dashboard/crm/bookings/new">
-            <Plus className="h-4 w-4" />
-            New booking
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/crm/bookings/sync-settings">
+              Sync Settings
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/dashboard/crm/bookings/new">
+              <Plus className="h-4 w-4" />
+              New booking
+            </Link>
+          </Button>
+        </div>
       }
     >
       <BookingListClient

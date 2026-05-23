@@ -10,15 +10,15 @@ import { Loader2 } from 'lucide-react';
 export function AnalyticsDashboard() {
     const [dateRange, setDateRange] = useState('7d');
     const [data, setData] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+    const [isFetching, setIsFetching] = useState(true);
 
     useEffect(() => {
         let mounted = true;
-        setLoading(true);
+        setIsFetching(true);
         getConversionsAnalytics(dateRange).then((res) => {
             if (mounted) {
                 setData(res);
-                setLoading(false);
+                setIsFetching(false);
             }
         });
         return () => { mounted = false; };
@@ -42,13 +42,18 @@ export function AnalyticsDashboard() {
                 </div>
             </div>
 
-            {loading || !data ? (
+            {!data ? (
                 <Card variant="default" className="flex items-center justify-center p-12 min-h-[300px]">
                     <Loader2 className="w-8 h-8 animate-spin text-zoru-brand" />
                     <span className="ml-3 text-sm text-zoru-ink-muted">Aggregating complex data...</span>
                 </Card>
             ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 transition-opacity duration-300 relative ${isFetching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                    {isFetching && (
+                        <div className="absolute inset-0 flex items-center justify-center z-10">
+                            <Loader2 className="w-8 h-8 animate-spin text-zoru-brand" />
+                        </div>
+                    )}
                     {/* Funnel Chart */}
                     <Card variant="default" className="p-5 flex flex-col">
                         <h3 className="text-md font-medium text-zoru-ink mb-4">Sales Funnel</h3>

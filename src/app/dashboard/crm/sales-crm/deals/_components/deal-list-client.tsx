@@ -440,7 +440,16 @@ export function DealListClient({
       key: 'probability',
       header: 'Probability',
       sortable: true,
-      render: (row) => typeof row.probability === 'number' ? `${row.probability}%` : '—',
+      render: (row) => typeof row.probability === 'number' ? (
+        <div>
+          <span>{row.probability}%</span>
+          {typeof row.amount === 'number' && (
+            <span className="block text-[10px] text-zoru-ink-muted">
+              EV: {fmtMoney(row.amount * (row.probability / 100), row.currency ?? defaultCurrency)}
+            </span>
+          )}
+        </div>
+      ) : '—',
       editRender: (row, value, onChange) => (
         <Input
           type="number"

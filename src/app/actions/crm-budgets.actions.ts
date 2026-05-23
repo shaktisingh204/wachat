@@ -446,11 +446,57 @@ export async function recordBudgetActual(
           actual: { before: budget.actual ?? 0, after: newActual },
         },
       });
-    } catch {
+} catch {
       /* non-fatal */
     }
     revalidatePath(`/dashboard/crm/budgets/${budgetId}`);
     return { success: true };
+  } catch (e) {
+    return { success: false, error: getErrorMessage(e) };
+  }
+}
+
+export async function cloneBudget(id: string): Promise<{ success: boolean; newId?: string; error?: string }> {
+  if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid ID.' };
+
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
+
+  const guard = await requirePermission('crm_budget', 'create');
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  try {
+    const { db } = await connectToDatabase();
+    const original = await db.collection('crm_budgets').findOne({
+      _id: new ObjectId(id),
+      userId: new ObjectId(session.user._id as string),
+    });
+
+    if (!original) {
+      return { success: false, error: 'Budget not found.' };
+    }
+
+    const newDoc = {
+      ...original,
+      _id: new ObjectId(),
+      budgetHead: `${original.budgetHead} (Copy)`,
+      status: 'draft',
+      actual: 0,
+      variance: 0 - (original.planAmount ?? 0),
+      actualLog: [],
+      locked: false,
+      lockedAt: null,
+      approvedAt: null,
+      rejectedAt: null,
+      rejectReason: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const result = await db.collection('crm_budgets').insertOne(newDoc as any);
+    
+    revalidatePath('/dashboard/crm/budgets');
+    return { success: true, newId: result.insertedId.toString() };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
   }
