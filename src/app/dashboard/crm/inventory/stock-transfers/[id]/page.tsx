@@ -34,6 +34,8 @@ import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getStockTransferById } from '@/app/actions/crm-stock-transfers.actions';
 
 import { StockTransferDetailActions } from '../_components/stock-transfer-detail-actions';
+import { StockTransferDetailTabs } from '../_components/stock-transfer-detail-tabs';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,11 +54,6 @@ function statusTone(status: string): EntityStatusTone {
     return 'amber';
 }
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
 
 function fmtSize(bytes?: number): string {
     if (bytes == null) return '';
@@ -201,11 +198,14 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                 />
             }
         >
-            <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Header</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent>
+            <StockTransferDetailTabs>
+                {{
+                    overview: (
+                        <Card>
+                            <ZoruCardHeader>
+                                <ZoruCardTitle>Header</ZoruCardTitle>
+                            </ZoruCardHeader>
+                            <ZoruCardContent>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
                         <div>
                             <dt className="text-xs text-zinc-500">Transfer #</dt>
@@ -242,7 +242,8 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                     </dl>
                 </ZoruCardContent>
             </Card>
-
+                    ),
+                    items: (
             <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle>Line items</ZoruCardTitle>
@@ -300,7 +301,9 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                     </div>
                 </ZoruCardContent>
             </Card>
-
+                    ),
+                    notes: (
+                        <div className="space-y-4">
             {transfer.notes ? (
                 <Card>
                     <ZoruCardHeader>
@@ -343,6 +346,13 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                     </ZoruCardContent>
                 </Card>
             ) : null}
+            {!transfer.notes && attachments.length === 0 && (
+                <div className="text-center text-sm text-zoru-ink-muted py-8 border rounded-lg">No notes or attachments</div>
+            )}
+                        </div>
+                    )
+                }}
+            </StockTransferDetailTabs>
         </EntityDetailShell>
     );
 }

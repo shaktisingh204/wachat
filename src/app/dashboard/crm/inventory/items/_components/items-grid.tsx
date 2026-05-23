@@ -1,6 +1,7 @@
 'use client';
 
 import { Card } from '@/components/zoruui';
+import { fmtINR } from '@/lib/utils';
 import { Package } from 'lucide-react';
 
 /**
@@ -25,16 +26,7 @@ interface ItemsGridProps {
   filtersActive: boolean;
 }
 
-function fmtMoney(value: number | undefined, currency: string): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${currency} ${value}`;
+`;
   }
 }
 
@@ -108,7 +100,7 @@ export function ItemsGrid({
               </div>
               <div className="flex items-baseline justify-between border-t border-zoru-line pt-2">
                 <span className="text-[13px] font-semibold text-zoru-ink">
-                  {fmtMoney(item.sellingPrice, item.currency)}
+                  {fmtINR(item.sellingPrice, item.currency)}
                 </span>
                 <span className={`text-[11.5px] font-mono tabular-nums ${stockClass}`}>
                   {item.isTrackInventory ? `${item.totalStock} on hand` : 'Not tracked'}

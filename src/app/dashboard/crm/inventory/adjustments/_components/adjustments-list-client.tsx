@@ -36,6 +36,7 @@ import {
 } from '@/app/actions/crm-inventory.actions';
 import type { CrmStockAdjustment } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
+import { mapToStockAdjustmentDto, StockAdjustment } from '../types';
 
 import {
     AdjustmentsBulkBar,
@@ -55,9 +56,9 @@ const EMPTY_KPIS: CrmStockAdjustmentKpis = {
     totalImpactValue: 0,
 };
 
-function impactOf(adj: WithId<CrmStockAdjustment>): number {
+function impactOf(adj: StockAdjustment): number {
     const qty = Number(adj.quantity || 0);
-    const cost = Number((adj as any).costPerUnit || 0);
+    const cost = Number(adj.costPerUnit || 0);
     if (!cost) return Math.abs(qty);
     return Math.abs(qty * cost);
 }
@@ -65,7 +66,7 @@ function impactOf(adj: WithId<CrmStockAdjustment>): number {
 export function AdjustmentsListClient() {
     const { toast } = useZoruToast();
 
-    const [rows, setRows] = React.useState<WithId<CrmStockAdjustment>[]>([]);
+    const [rows, setRows] = React.useState<StockAdjustment[]>([]);
     const [total, setTotal] = React.useState(0);
     const [page, setPage] = React.useState(1);
     const [kpis, setKpis] = React.useState<CrmStockAdjustmentKpis>(EMPTY_KPIS);
@@ -103,7 +104,7 @@ export function AdjustmentsListClient() {
                 getCrmStockAdjustmentsPaginated(page, PER_PAGE, search, filters),
                 getCrmStockAdjustmentKpis(),
             ]);
-            setRows(adjustments);
+            setRows(adjustments.map(mapToStockAdjustmentDto));
             setTotal(count);
             setKpis(kpiData);
         });
@@ -233,14 +234,14 @@ export function AdjustmentsListClient() {
                 : rows;
         const csv = adjustmentsToCsv(
             subset.map((r) => ({
-                adjustmentNumber: (r as any).adjustmentNumber,
+                adjustmentNumber: r.adjustmentNumber,
                 date: r.date,
-                warehouseName: (r as any).warehouseName,
+                warehouseName: r.warehouseName,
                 reason: r.reason,
-                linesCount: (r as any).lines?.length ?? 1,
+                linesCount: r.lines?.length ?? 1,
                 impact: impactOf(r),
-                status: (r as any).status,
-                approvedByName: (r as any).approvedByName,
+                status: r.status,
+                approvedByName: r.approvedByName,
             })),
         );
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -377,7 +378,7 @@ export function AdjustmentsListClient() {
                 onOpenChange={(o) => !o && setDeleteTargetId(null)}
                 title="Delete this adjustment?"
                 description={`This permanently removes adjustment "${
-                    (deleteTarget as any)?.adjustmentNumber ??
+                    deleteTarget?.adjustmentNumber ??
                     String(deleteTarget?._id ?? '').slice(-6)
                 }". Stock that was already applied is NOT reverted automatically — create a new adjustment if needed.`}
                 requireTyped="DELETE"

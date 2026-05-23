@@ -22,6 +22,7 @@ import Link from 'next/link';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 
 import { getProductionOrderById } from '@/app/actions/crm-production-orders.actions';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 import { PoDetailActions } from '../_components/po-detail-actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
@@ -32,24 +33,7 @@ interface PageProps {
   params: Promise<{ orderId: string }>;
 }
 
-function fmtDate(v: unknown): string {
-  if (!v) return '—';
-  const d = new Date(v as string);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
-}
 
-function fmtINR(value: unknown): string {
-  if (typeof value !== 'number' || !Number.isFinite(value)) return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 2,
-    }).format(value);
-  } catch {
-    return `INR ${value}`;
-  }
-}
 
 function statusTone(status: string | undefined): EntityStatusTone {
   const s = (status || '').toLowerCase();

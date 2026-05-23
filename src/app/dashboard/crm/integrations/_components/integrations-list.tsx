@@ -73,7 +73,11 @@ const STATUS_TONE: Record<string, StatusTone> = {
 function fmtDateTime(value: unknown): string {
     if (!value) return '—';
     const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
+    if (Number.isNaN(d.getTime())) return '—';
+    return new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+    }).format(d);
 }
 
 export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {

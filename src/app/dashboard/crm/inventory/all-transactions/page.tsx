@@ -1,5 +1,6 @@
 'use client';
 
+import { fmtINR, fmtDate } from "@/lib/utils";
 /**
  * Inventory — All Transactions deep view.
  *
@@ -12,7 +13,7 @@
 
 import {
     Bar,
-    BarChart,
+    BarChart, PieChart, Pie, Cell,
     CartesianGrid,
     Legend,
     ResponsiveContainer,
@@ -82,12 +83,6 @@ type Transaction = {
     warehouseName: string;
 };
 
-const fmtCurrency = (amount: number): string =>
-    new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        maximumFractionDigits: 0,
-    }).format(amount);
 
 const fmtNumber = (n: number): string => n.toLocaleString('en-IN');
 
@@ -159,12 +154,35 @@ export default function AllTransactionsDeepPage(): React.JSX.Element {
 
     useEffect(() => {
         fetchData();
-    }, [fetchData]);
+
+        // Real-time updates using WebSockets for live inventory tracking
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(`${protocol}//${window.location.host}/api/realtime/inventory`);
+        
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'inventory-update') {
+                    toast({
+                        title: 'Live Update',
+                        description: 'New inventory transaction recorded.',
+                    });
+                    fetchData();
+                }
+            } catch (err) {
+                console.error('Failed to parse websocket message', err);
+            }
+        };
+
+        return () => {
+            ws.close();
+        };
+    }, [fetchData, toast]);
 
     const exportRows = useMemo<ExportRow[]>(
         () =>
             reportData.map((d) => ({
-                Date: format(new Date(d.date), 'PPP p'),
+                Date: fmtDate(d.date),
                 Type: d.type,
                 Reference: d.reference,
                 'Item Name': d.itemName,
@@ -210,10 +228,10 @@ export default function AllTransactionsDeepPage(): React.JSX.Element {
         );
     }, [exportRows, toast]);
 
-    const getTypeTone = (type: string): 'rose-soft' | 'red' | 'neutral' => {
-        if (type.includes('Sale') && !type.includes('Return')) return 'rose-soft';
-        if (type.includes('Return')) return 'red';
-        return 'neutral';
+    const getTypeTone = (type: string): 'default' | 'destructive' | 'secondary' => {
+        if (type.includes('Sale') && !type.includes('Return')) return 'default';
+        if (type.includes('Return')) return 'destructive';
+        return 'secondary';
     };
 
     return (
@@ -276,7 +294,7 @@ export default function AllTransactionsDeepPage(): React.JSX.Element {
                 />
                 <KpiTile
                     label="Total value (6 months)"
-                    value={fmtCurrency(kpis.totalValue)}
+                    value={fmtINR(kpis.totalValue)}
                     icon={BadgeIndianRupee}
                 />
                 <KpiTile
@@ -293,31 +311,65 @@ export default function AllTransactionsDeepPage(): React.JSX.Element {
                 />
             </div>
 
-            <Card className="mt-4">
-                <h2 className="text-[16px] font-semibold text-foreground">Monthly volume</h2>
-                <p className="mt-0.5 text-[12.5px] text-muted-foreground">
-                    Transaction count and gross value across the last six months.
-                </p>
-                <div className="mt-4 h-[260px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={kpis.monthlySeries}>
-                            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                            <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                            <YAxis tick={{ fontSize: 11 }} />
-                            <Tooltip
-                                cursor={{ opacity: 0.1 }}
-                                formatter={(value, name) => {
-                                    const n = Number(value);
-                                    return name === 'Value (INR)' ? fmtCurrency(n) : fmtNumber(n);
-                                }}
-                            />
-                            <Legend wrapperStyle={{ fontSize: 12 }} />
-                            <Bar dataKey="count" name="Transactions" fill="hsl(var(--primary))" />
-                            <Bar dataKey="value" name="Value (INR)" fill="hsl(var(--muted-foreground))" />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            </Card>
+            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Card>
+                    <h2 className="text-[16px] font-semibold text-foreground">Monthly volume</h2>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+                        Transaction count and gross value across the last six months.
+                    </p>
+                    <div className="mt-4 h-[260px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={kpis.monthlySeries}>
+                                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                                <YAxis tick={{ fontSize: 11 }} />
+                                <Tooltip
+                                    cursor={{ opacity: 0.1 }}
+                                    formatter={(value, name) => {
+                                        const n = Number(value);
+                                        return name === 'Value (INR)' ? fmtINR(n) : fmtNumber(n);
+                                    }}
+                                />
+                                <Legend wrapperStyle={{ fontSize: 12 }} />
+                                <Bar dataKey="count" name="Transactions" fill="hsl(var(--primary))" />
+                                <Bar dataKey="value" name="Value (INR)" fill="hsl(var(--muted-foreground))" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </Card>
+                
+                <Card>
+                    <h2 className="text-[16px] font-semibold text-foreground">Transaction Breakdown</h2>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+                        Distribution of transaction types over the selected period.
+                    </p>
+                    <div className="mt-4 h-[260px] w-full flex items-center justify-center">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={[
+                                        { name: 'Sales', value: kpis.saleCount },
+                                        { name: 'Returns', value: kpis.returnCount },
+                                        { name: 'Adjustments', value: kpis.adjustmentCount }
+                                    ].filter(d => d.value > 0)}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    <Cell fill="hsl(var(--primary))" />
+                                    <Cell fill="hsl(var(--destructive))" />
+                                    <Cell fill="hsl(var(--secondary))" />
+                                </Pie>
+                                <Tooltip formatter={(value) => fmtNumber(Number(value))} />
+                                <Legend />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </Card>
+            </div>
 
             <Card className="mt-4">
                 <h2 className="text-[16px] font-semibold text-foreground">Transaction log</h2>
@@ -348,13 +400,13 @@ export default function AllTransactionsDeepPage(): React.JSX.Element {
                                         className="border-border"
                                     >
                                         <ZoruTableCell className="text-[11.5px] text-foreground">
-                                            {format(new Date(row.date), 'PP p')}
+                                            {fmtDate(row.date)}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="font-medium text-foreground">
                                             {row.itemName}
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <Badge variant={getTypeTone(row.type) as any}>
+                                            <Badge variant={getTypeTone(row.type)}>
                                                 {row.type}
                                             </Badge>
                                         </ZoruTableCell>

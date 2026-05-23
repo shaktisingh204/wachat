@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { 
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
     Button, Input, Label, Select, ZoruSelectContent, ZoruSelectItem, 
-    ZoruSelectTrigger, ZoruSelectValue 
+    ZoruSelectTrigger, ZoruSelectValue, useZoruToast 
 } from '@/components/zoruui';
 import { CalendarClock, Mail } from 'lucide-react';
-import { toast } from 'react-hot-toast';
 import { scheduleAnalyticsReport } from '@/app/actions/crm-analytics-reports.actions';
 
 export function ScheduleReportDialog() {
+    const { toast } = useZoruToast();
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     
@@ -29,13 +29,13 @@ export function ScheduleReportDialog() {
                 format
             });
         } catch (err) {
-            toast.error('Failed to schedule report');
+            toast({ title: 'Error', description: 'Failed to schedule report', variant: 'destructive' });
             setLoading(false);
             return;
         }
         setLoading(false);
         setOpen(false);
-        toast.success('Report scheduled successfully. You will receive it via email.');
+        toast({ title: 'Success', description: 'Report scheduled successfully. You will receive it via email.' });
     }
 
     return (

@@ -27,24 +27,30 @@ export interface CrmIntegrationDoc {
     updatedAt?: string;
 }
 
+export type IntegrationStatusData = {
+    connected: boolean;
+    lastSyncAt?: string;
+    syncStatus?: string;
+};
+
 export type IntegrationStatus = {
-    shopify: boolean;
-    zapier: boolean;
-    mailchimp: boolean;
-    slack: boolean;
-    gmail: boolean;
-    whatsapp: boolean;
-    facebook: boolean;
+    shopify: IntegrationStatusData;
+    zapier: IntegrationStatusData;
+    mailchimp: IntegrationStatusData;
+    slack: IntegrationStatusData;
+    gmail: IntegrationStatusData;
+    whatsapp: IntegrationStatusData;
+    facebook: IntegrationStatusData;
 };
 
 const EMPTY_STATUS: IntegrationStatus = {
-    shopify: false,
-    zapier: false,
-    mailchimp: false,
-    slack: false,
-    gmail: false,
-    whatsapp: false,
-    facebook: false,
+    shopify: { connected: false },
+    zapier: { connected: false },
+    mailchimp: { connected: false },
+    slack: { connected: false },
+    gmail: { connected: false },
+    whatsapp: { connected: false },
+    facebook: { connected: false },
 };
 
 export async function getIntegrationTypes(): Promise<IntegrationStatus> {
@@ -62,17 +68,47 @@ export async function getIntegrationTypes(): Promise<IntegrationStatus> {
         ]);
 
         return {
-            shopify: false,
-            zapier: false,
-            mailchimp: false,
-            slack: false,
-            gmail: !!emailAccount,
-            whatsapp: !!whatsappAccount,
-            facebook: !!(leadGen?.config?.pageId && leadGen.config.isActive),
+            shopify: { connected: false },
+            zapier: { connected: false },
+            mailchimp: { connected: false },
+            slack: { connected: false },
+            gmail: { 
+                connected: !!emailAccount,
+                lastSyncAt: emailAccount?.lastSyncAt ? new Date(emailAccount.lastSyncAt).toISOString() : undefined,
+                syncStatus: emailAccount?.syncStatus || (emailAccount ? 'ok' : undefined),
+            },
+            whatsapp: { 
+                connected: !!whatsappAccount,
+                lastSyncAt: whatsappAccount?.lastSyncAt ? new Date(whatsappAccount.lastSyncAt).toISOString() : undefined,
+                syncStatus: whatsappAccount?.syncStatus || (whatsappAccount ? 'ok' : undefined),
+            },
+            facebook: { 
+                connected: !!(leadGen?.config?.pageId && leadGen.config.isActive),
+                lastSyncAt: leadGen?.config?.lastSyncAt ? new Date(leadGen.config.lastSyncAt).toISOString() : undefined,
+                syncStatus: leadGen?.config?.syncStatus || (leadGen?.config?.isActive ? 'ok' : undefined),
+            },
         };
     } catch (e) {
         console.error("Failed to fetch integration status:", e);
         return EMPTY_STATUS;
+    }
+}
+
+export async function getCustomIntegrations(): Promise<CrmIntegrationDoc[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const docs = await db
+            .collection(INTEGRATIONS_COLLECTION)
+            .find({ userId: new ObjectId(session.user._id) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return docs.map(redact);
+    } catch (e) {
+        console.error('[getCustomIntegrations] failed:', e);
+        return [];
     }
 }
 
@@ -110,7 +146,13 @@ export async function getIntegrationById(
 ): Promise<CrmIntegrationDoc | null> {
     const session = await getSession();
     if (!session?.user) return null;
-    if (!ObjectId.isValid(id)) return null;
+    
+    try {
+        if (!ObjectId.isValid(id)) return null;
+        if (!ObjectId.isValid(session.user._id)) return null;
+    } catch (e) {
+        return null; // Handle malformed ID gracefully
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -273,5 +315,35 @@ export async function deleteIntegration(
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/** Get webhook logs for an integration */
+export async function getWebhookLogs(integrationId: string) {
+    const session = await getSession();
+    if (!session?.user) return [];
+    
+    if (!ObjectId.isValid(integrationId)) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        // Fallback to empty array if collection doesn't exist yet
+        const logs = await db.collection('webhook_logs')
+            .find({ integrationId: new ObjectId(integrationId), userId: new ObjectId(session.user._id) })
+            .sort({ timestamp: -1 })
+            .limit(10)
+            .toArray();
+            
+        return logs.map(l => ({
+            _id: String(l._id),
+            status: l.status,
+            method: l.method,
+            payload: l.payload,
+            response: l.response,
+            timestamp: l.timestamp instanceof Date ? l.timestamp.toISOString() : l.timestamp,
+        }));
+    } catch (e) {
+        console.error('[getWebhookLogs] failed:', e);
+        return [];
     }
 }

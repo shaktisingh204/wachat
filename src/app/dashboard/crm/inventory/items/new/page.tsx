@@ -15,6 +15,18 @@ import { ItemForm } from '../_components/item-form';
 
 export const dynamic = 'force-dynamic';
 
+async function fetchWithTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  let timeoutId: NodeJS.Timeout;
+  const timeoutPromise = new Promise<T>((resolve) => {
+    timeoutId = setTimeout(() => {
+      console.warn('MongoDB fetch timeout exceeded');
+      resolve(fallback);
+    }, ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
+}
+
+
 interface SearchParams {
   fromKind?: string;
   fromId?: string;
@@ -30,7 +42,7 @@ export default async function NewItemPage({ searchParams }: PageProps) {
   // ?fromKind=product&fromId=<id> duplicates an existing item.
   let initial = null;
   if (sp.fromKind === 'product' && sp.fromId) {
-    const source = await getCrmProductById(sp.fromId);
+    const source = await fetchWithTimeout(getCrmProductById(sp.fromId), 8000, null);
     if (source) {
       const { _id: _omit, sku: sourceSku, ...rest } = source as {
         _id: unknown;

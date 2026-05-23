@@ -120,6 +120,7 @@ export default async function PurchaseOrdersPage({ searchParams }: PageProps) {
             },
             { projection: { name: 1, vendorName: 1 } },
           )
+          .maxTimeMS(5000)
           .toArray();
         for (const d of docs) {
           const rec = d as { name?: string; vendorName?: string };

@@ -3,13 +3,8 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { notFound } from 'next/navigation';
 import { Card, ZoruCardContent } from '@/components/zoruui';
 import { type DashboardWidget, resolveWidgetData } from '@/app/actions/crm-dashboards.actions';
-import dynamic from 'next/dynamic';
 import React from 'react';
-
-const WidgetRenderer = dynamic(() => import('../../_components/widget-renderer').then(m => m.WidgetRenderer), { 
-    loading: () => <div className="h-full w-full animate-pulse bg-zoru-surface-2 rounded-md"></div>, 
-    ssr: false 
-});
+import { WidgetRenderer } from '../../_components/widget-renderer';
 
 interface PageProps {
     params: Promise<{ id: string }>;

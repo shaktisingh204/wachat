@@ -1,24 +1,16 @@
-import { Badge, Card, cn } from '@/components/zoruui';
-import {
-    AlertTriangle,
-    Bot,
-    Link2,
-    Link2Off,
-    Mail,
-    Megaphone,
-    MessageSquare,
-    ShoppingCart,
-    Zap,
-} from 'lucide-react';
-
-import { getIntegrationTypes } from '@/app/actions/crm-integrations.actions';
-
-export const dynamic = 'force-dynamic';
-
+import { Suspense } from 'react';
+import { Badge, Card, cn, Skeleton } from '@/components/zoruui';
+import { AlertTriangle, Link2, Link2Off, Plus } from 'lucide-react';
 import Link from 'next/link';
 
+import { getIntegrationTypes, getCustomIntegrations } from '@/app/actions/crm-integrations.actions';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { HubKpiGrid, type HubKpi } from '../_components/hub-kpi-grid';
+import { BUILT_IN_INTEGRATIONS, type IntegrationStatusKey } from './_components/integrations.config';
+import { IntegrationsSearch } from './_components/integrations-search';
+import { IntegrationsList } from './_components/integrations-list';
+
+export const dynamic = 'force-dynamic';
 
 const btnBase =
     'inline-flex h-9 w-full items-center justify-center gap-2 rounded-full px-4 text-[13px] font-medium leading-none transition-colors';
@@ -28,153 +20,170 @@ const btnRoseSoft =
 const btnDisabled =
     'bg-zoru-bg text-zoru-ink-muted border border-zoru-line opacity-60 pointer-events-none';
 
-type IntegrationStatus = 'connected' | 'available' | 'coming_soon';
-
-interface Integration {
-    name: string;
-    icon: React.ElementType;
-    description: string;
-    status: IntegrationStatus;
-    link?: string;
+function fmtDateTime(value: unknown): string {
+    if (!value) return '—';
+    const d = new Date(value as string);
+    if (Number.isNaN(d.getTime())) return '—';
+    return new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+    }).format(d);
 }
 
-export default async function IntegrationsPage() {
-    const status = await getIntegrationTypes();
+function KpiSkeleton() {
+    return (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}
+        </div>
+    );
+}
 
-    const integrations: Integration[] = [
-        {
-            name: 'Gmail',
-            icon: Mail,
-            description: 'Sync your emails and contacts directly from Gmail.',
-            status: status.gmail ? 'connected' : 'available',
-            link: '/dashboard/email/settings',
-        },
-        {
-            name: 'WhatsApp',
-            icon: MessageSquare,
-            description: 'Connect your WhatsApp Business API for direct messaging.',
-            status: status.whatsapp ? 'connected' : 'available',
-            link: '/dashboard/settings/whatsapp',
-        },
-        {
-            name: 'Facebook Lead Ads',
-            icon: Megaphone,
-            description: 'Auto-create CRM leads from Facebook Lead Ad forms in real-time.',
-            status: status.facebook ? 'connected' : 'available',
-            link: '/dashboard/crm/settings/integrations/facebook-ads',
-        },
-        {
-            name: 'Shopify',
-            icon: ShoppingCart,
-            description: 'Sync customers, products, and orders directly from your Shopify store.',
-            status: status.shopify ? 'connected' : 'coming_soon',
-        },
-        {
-            name: 'Zapier',
-            icon: Zap,
-            description: 'Connect your CRM to thousands of other apps with Zapier automation.',
-            status: status.zapier ? 'connected' : 'coming_soon',
-        },
-        {
-            name: 'Slack',
-            icon: Bot,
-            description: 'Get real-time notifications for new leads, deals, and tasks in Slack.',
-            status: status.slack ? 'connected' : 'coming_soon',
-        },
-    ];
+async function IntegrationsDashboard({ q }: { q?: string }) {
+    const [status, customIntegrations] = await Promise.all([
+        getIntegrationTypes(),
+        getCustomIntegrations(),
+    ]);
 
-    const totalCount = integrations.length;
-    const connectedCount = integrations.filter((i) => i.status === 'connected').length;
-    const disconnectedCount = integrations.filter((i) => i.status === 'available').length;
-    const comingSoonCount = integrations.filter((i) => i.status === 'coming_soon').length;
+    const mappedBuiltIn = BUILT_IN_INTEGRATIONS.map((integration) => {
+        const typeStatus = status[integration.id];
+        const isConnected = typeStatus?.connected;
+        const currentStatus = isConnected 
+            ? 'connected' 
+            : integration.isAvailable 
+                ? 'available' 
+                : 'coming_soon';
+        
+        return {
+            ...integration,
+            status: currentStatus,
+            lastSyncAt: typeStatus?.lastSyncAt,
+            syncStatus: typeStatus?.syncStatus,
+        };
+    });
+
+    const filteredBuiltIn = mappedBuiltIn.filter(i => 
+        !q || i.name.toLowerCase().includes(q.toLowerCase()) || i.description.toLowerCase().includes(q.toLowerCase())
+    );
+
+    const filteredCustom = customIntegrations.filter(i => 
+        !q || i.name.toLowerCase().includes(q.toLowerCase()) || i.provider.toLowerCase().includes(q.toLowerCase())
+    );
+
+    const totalCount = BUILT_IN_INTEGRATIONS.length + customIntegrations.length;
+    const connectedCount = mappedBuiltIn.filter((i) => i.status === 'connected').length + customIntegrations.filter(i => i.isActive).length;
+    const availableCount = mappedBuiltIn.filter((i) => i.status === 'available').length + customIntegrations.filter(i => !i.isActive).length;
+    const comingSoonCount = mappedBuiltIn.filter((i) => i.status === 'coming_soon').length;
 
     const kpis: HubKpi[] = [
-        {
-            label: 'Total integrations',
-            value: totalCount,
-            icon: Link2,
-        },
-        {
-            label: 'Connected',
-            value: connectedCount,
-            icon: Link2,
-            tone: connectedCount > 0 ? 'success' : 'default',
-        },
-        {
-            label: 'Available to connect',
-            value: disconnectedCount,
-            icon: Link2Off,
-        },
-        {
-            label: 'Coming soon',
-            value: comingSoonCount,
-            icon: AlertTriangle,
-        },
+        { label: 'Total integrations', value: totalCount, icon: Link2 },
+        { label: 'Connected', value: connectedCount, icon: Link2, tone: connectedCount > 0 ? 'success' : 'default' },
+        { label: 'Available to connect', value: availableCount, icon: Link2Off },
+        { label: 'Coming soon', value: comingSoonCount, icon: AlertTriangle },
     ];
+
+    return (
+        <>
+            <Suspense fallback={<KpiSkeleton />}>
+                <HubKpiGrid kpis={kpis} />
+            </Suspense>
+
+            <IntegrationsSearch />
+
+            {filteredBuiltIn.length > 0 && (
+                <div className="mb-8">
+                    <h2 className="mb-4 text-lg font-semibold text-zoru-ink">Built-in Integrations</h2>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {filteredBuiltIn.map((integration) => {
+                            const Icon = integration.icon;
+                            const connected = integration.status === 'connected';
+
+                            return (
+                                <Card key={integration.name} className="flex h-full flex-col p-6">
+                                    <div className="flex items-start gap-3">
+                                        <div
+                                            className={
+                                                'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ' +
+                                                (connected
+                                                    ? 'bg-emerald-50 text-emerald-500'
+                                                    : 'bg-accent text-accent-foreground')
+                                            }
+                                        >
+                                            <Icon className="h-5 w-5" strokeWidth={1.75} />
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="text-[14.5px] font-semibold text-zoru-ink">
+                                                    {integration.name}
+                                                </h3>
+                                                {connected ? (
+                                                    <Badge variant="success">Connected</Badge>
+                                                ) : null}
+                                            </div>
+                                            <p className="mt-1 text-[12.5px] leading-snug text-zoru-ink-muted">
+                                                {integration.description}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {connected && (integration.lastSyncAt || integration.syncStatus) ? (
+                                        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-zoru-ink-muted">
+                                            {integration.syncStatus ? <span>sync: {integration.syncStatus}</span> : null}
+                                            {integration.lastSyncAt ? <span>last sync: {fmtDateTime(integration.lastSyncAt)}</span> : null}
+                                        </div>
+                                    ) : null}
+
+                                    <div className="mt-5 flex-1" />
+
+                                    {connected ? (
+                                        <Link href={integration.link || '#'} className={cn(btnBase, btnRoseSoft)}>
+                                            Manage
+                                        </Link>
+                                    ) : integration.status === 'available' ? (
+                                        <Link href={integration.link || '#'} className={cn(btnBase, btnObsidian)}>
+                                            Connect
+                                        </Link>
+                                    ) : (
+                                        <span className={cn(btnBase, btnDisabled)}>Coming Soon</span>
+                                    )}
+                                </Card>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
+            <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-zoru-ink">Custom Integrations</h2>
+                <Link href="/dashboard/crm/integrations/new" className={cn(btnBase, btnObsidian, "w-auto")}>
+                    <Plus className="mr-1 h-4 w-4" /> Add Custom
+                </Link>
+            </div>
+            
+            {(filteredCustom.length > 0 || q) ? (
+                <IntegrationsList items={filteredCustom} />
+            ) : (
+                <div className="text-sm text-zoru-ink-muted">No custom integrations configured.</div>
+            )}
+        </>
+    );
+}
+
+export default async function IntegrationsPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+    const params = await searchParams;
+    const q = typeof params?.q === 'string' ? params.q : undefined;
 
     return (
         <EntityListShell
             title="Integrations"
             subtitle="Connect your CRM to other tools and services to streamline your workflow."
         >
-            <HubKpiGrid kpis={kpis} />
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {integrations.map((integration) => {
-                    const Icon = integration.icon;
-                    const connected = integration.status === 'connected';
-
-                    return (
-                        <Card key={integration.name} className="flex h-full flex-col p-6">
-                            <div className="flex items-start gap-3">
-                                <div
-                                    className={
-                                        'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ' +
-                                        (connected
-                                            ? 'bg-emerald-50 text-emerald-500'
-                                            : 'bg-accent text-accent-foreground')
-                                    }
-                                >
-                                    <Icon className="h-5 w-5" strokeWidth={1.75} />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="text-[14.5px] font-semibold text-zoru-ink">
-                                            {integration.name}
-                                        </h3>
-                                        {connected ? (
-                                            <Badge variant="success">Connected</Badge>
-                                        ) : null}
-                                    </div>
-                                    <p className="mt-1 text-[12.5px] leading-snug text-zoru-ink-muted">
-                                        {integration.description}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="mt-5 flex-1" />
-
-                            {connected ? (
-                                <Link
-                                    href={integration.link || '#'}
-                                    className={cn(btnBase, btnRoseSoft)}
-                                >
-                                    Manage
-                                </Link>
-                            ) : integration.status === 'available' ? (
-                                <Link
-                                    href={integration.link || '#'}
-                                    className={cn(btnBase, btnObsidian)}
-                                >
-                                    Connect
-                                </Link>
-                            ) : (
-                                <span className={cn(btnBase, btnDisabled)}>Coming Soon</span>
-                            )}
-                        </Card>
-                    );
-                })}
-            </div>
+            <Suspense fallback={<KpiSkeleton />}>
+                <IntegrationsDashboard q={q} />
+            </Suspense>
         </EntityListShell>
     );
 }

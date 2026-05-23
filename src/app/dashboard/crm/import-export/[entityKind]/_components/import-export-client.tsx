@@ -11,17 +11,21 @@ import { Download, Loader2 } from 'lucide-react';
  */
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 
 import { BulkImportWizard } from '@/components/crm/BulkImportWizard';
 
 import { exportEntityToCsv } from '@/app/actions/crm-bulk-export.actions';
+import { logExportHistory } from './export-history.actions';
 
 interface Props {
     entityKind: string;
+    onExportSuccess?: () => void;
 }
 
-export function ImportExportClient({ entityKind }: Props): React.ReactElement {
+export function ImportExportClient({ entityKind, onExportSuccess }: Props): React.ReactElement {
     const { toast } = useZoruToast();
+    const router = useRouter();
     const [busy, setBusy] = React.useState(false);
 
     const handleExport = React.useCallback(async (): Promise<void> => {
@@ -48,6 +52,11 @@ export function ImportExportClient({ entityKind }: Props): React.ReactElement {
                 .slice(0, 10)}.csv`;
             a.click();
             URL.revokeObjectURL(url);
+            
+            await logExportHistory(entityKind, rowCount || 0);
+            onExportSuccess?.();
+            router.refresh();
+            
             toast({
                 title: 'Export ready',
                 description: capped
@@ -57,7 +66,7 @@ export function ImportExportClient({ entityKind }: Props): React.ReactElement {
         } finally {
             setBusy(false);
         }
-    }, [entityKind, toast]);
+    }, [entityKind, toast, onExportSuccess]);
 
     return (
         <div className="flex w-full flex-col gap-4">

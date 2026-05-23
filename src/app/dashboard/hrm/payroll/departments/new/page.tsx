@@ -7,7 +7,7 @@
  */
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { DepartmentForm } from '@/app/dashboard/crm/hr-payroll/departments/_components/department-form';
+import { DepartmentForm } from '@/app/dashboard/hrm/payroll/departments/_components/department-form';
 
 export const dynamic = 'force-dynamic';
 

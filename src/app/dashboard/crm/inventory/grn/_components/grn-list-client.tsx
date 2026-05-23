@@ -19,6 +19,10 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
 } from '@/components/zoruui';
 import {
   useRouter,
@@ -30,6 +34,9 @@ import {
   LoaderCircle,
   Pencil,
   Trash2,
+  MoreVertical,
+  Activity,
+  Printer,
   } from 'lucide-react';
 
 /**
@@ -59,6 +66,7 @@ import {
     downloadXlsx,
     type ExportRow,
 } from '@/lib/crm-list-export';
+import { fmtDate } from '@/lib/utils';
 import {
     GrnBulkBar,
     GrnFiltersBar,
@@ -68,11 +76,7 @@ import {
     type GrnStatusKey,
 } from './grn-list-bits';
 
-function fmtDate(v?: string): string {
-    if (!v) return '—';
-    const d = new Date(v);
-    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 export interface GrnListClientProps {
     grns: CrmGrnDoc[];
@@ -134,6 +138,31 @@ export function GrnListClient({
         return () => clearTimeout(t);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query]);
+
+    // WebSocket for real-time updates
+    React.useEffect(() => {
+        const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3000/api/ws';
+        const ws = new WebSocket(wsUrl);
+        
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'inventory_update' || data.type === 'grn_update') {
+                    toast({
+                        title: 'Live Update',
+                        description: 'New inventory activity detected. Refreshing...',
+                    });
+                    router.refresh();
+                }
+            } catch (err) {
+                // Ignore parse errors
+            }
+        };
+
+        return () => {
+            ws.close();
+        };
+    }, [router, toast]);
 
     function pushParams(updates: Record<string, string | undefined>) {
         const params = new URLSearchParams(sp?.toString() ?? '');
@@ -462,10 +491,38 @@ export function GrnListClient({
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => setPendingDelete(grn)}
-                                                    className="text-zoru-danger-ink"
+                                                    className="text-zoru-danger-ink hidden md:flex"
                                                 >
                                                     <Trash2 className="h-3.5 w-3.5" />
                                                 </Button>
+                                                <ZoruDropdownMenu>
+                                                    <ZoruDropdownMenuTrigger asChild>
+                                                        <Button size="sm" variant="ghost">
+                                                            <MoreVertical className="h-3.5 w-3.5" />
+                                                        </Button>
+                                                    </ZoruDropdownMenuTrigger>
+                                                    <ZoruDropdownMenuContent align="end">
+                                                        <ZoruDropdownMenuItem asChild>
+                                                            <Link href={`/dashboard/crm/inventory/grn/${id}`}>
+                                                                View Details
+                                                            </Link>
+                                                        </ZoruDropdownMenuItem>
+                                                        <ZoruDropdownMenuItem asChild>
+                                                            <Link href={`/dashboard/crm/inventory/grn/${id}/activity`}>
+                                                                <Activity className="mr-2 h-3.5 w-3.5" /> Activity
+                                                            </Link>
+                                                        </ZoruDropdownMenuItem>
+                                                        <ZoruDropdownMenuItem disabled>
+                                                            <Printer className="mr-2 h-3.5 w-3.5" /> Print
+                                                        </ZoruDropdownMenuItem>
+                                                        <ZoruDropdownMenuItem
+                                                            onClick={() => setPendingDelete(grn)}
+                                                            className="text-zoru-danger-ink"
+                                                        >
+                                                            <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
+                                                        </ZoruDropdownMenuItem>
+                                                    </ZoruDropdownMenuContent>
+                                                </ZoruDropdownMenu>
                                             </div>
                                         </ZoruTableCell>
                                     </ZoruTableRow>

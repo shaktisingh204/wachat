@@ -8,7 +8,7 @@
 
 import { notFound } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { AttendanceForm } from '@/app/dashboard/crm/hr-payroll/attendance/_components/attendance-form';
+import { AttendanceForm } from '@/app/dashboard/hrm/payroll/attendance/_components/attendance-form';
 import { getAttendance } from '@/app/actions/crm/attendance.actions';
 
 export const dynamic = 'force-dynamic';

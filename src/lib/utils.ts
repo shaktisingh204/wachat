@@ -88,3 +88,30 @@ export const validateFile = (file: File, allowedTypes: string[], maxSizeMB = 5) 
 
     return { isValid: true, error: null, sanitizedName };
 };
+
+
+export function fmtDate(v?: string | Date | number): string {
+  if (!v) return '—';
+  try {
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return String(v);
+    return new Intl.DateTimeFormat('en-IN', {
+        dateStyle: 'medium',
+    }).format(d);
+  } catch {
+    return String(v);
+  }
+}
+
+export function fmtINR(value: number | undefined, currency: string = 'INR'): string {
+  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
+  try {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 2,
+    }).format(value);
+  } catch {
+    return `${currency} ${value}`;
+  }
+}

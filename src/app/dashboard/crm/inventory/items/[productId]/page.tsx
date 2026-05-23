@@ -27,9 +27,21 @@ import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
+async function fetchWithTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  let timeoutId: NodeJS.Timeout;
+  const timeoutPromise = new Promise<T>((resolve) => {
+    timeoutId = setTimeout(() => {
+      console.warn('MongoDB fetch timeout exceeded');
+      resolve(fallback);
+    }, ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
+}
+
+
 interface PageProps {
   params: Promise<{ productId: string }>;
-  searchParams: Promise<{ print?: string; qr?: string }>;
+  searchParams: Promise<{ print?: string; qr?: string; tab?: string }>;
 }
 
 export default async function InventoryItemDetailPage({
@@ -37,9 +49,7 @@ export default async function InventoryItemDetailPage({
   searchParams,
 }: PageProps) {
   const [{ productId }, sp] = await Promise.all([params, searchParams]);
-  const product = (await getCrmProductById(productId)) as
-    | (WithId<CrmProduct> & Record<string, unknown>)
-    | null;
+  const product = await fetchWithTimeout(getCrmProductById(productId), 8000, null) as (WithId<CrmProduct> & Record<string, unknown>) | null;
   if (!product) notFound();
 
   /* Print / QR sheet variants */
@@ -111,7 +121,7 @@ export default async function InventoryItemDetailPage({
       }
       audit={<EntityAuditTimeline entityKind="item" entityId={productId} />}
     >
-      <ItemDetailBody product={product} productId={productId} />
+      <ItemDetailBody product={product} productId={productId} defaultTab={sp.tab} />
     </EntityDetailShell>
   );
 }

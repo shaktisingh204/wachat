@@ -13,7 +13,7 @@ import { getBudgetById } from '@/app/actions/crm-budgets.actions';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EditBudgetForm } from './edit-budget-form';
-import { BudgetProgressBar } from '../_components/budget-progress-bar';
+import { BudgetProgressBar } from '../../_components/budget-progress-bar';
 
 interface PageProps {
     params: Promise<{ id: string }>;

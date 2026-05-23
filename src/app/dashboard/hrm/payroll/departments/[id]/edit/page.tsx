@@ -9,7 +9,7 @@
 import { notFound } from 'next/navigation';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { DepartmentForm } from '@/app/dashboard/crm/hr-payroll/departments/_components/department-form';
+import { DepartmentForm } from '@/app/dashboard/hrm/payroll/departments/_components/department-form';
 import { getDepartment } from '@/app/actions/crm/departments.actions';
 
 export const dynamic = 'force-dynamic';

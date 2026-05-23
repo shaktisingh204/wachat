@@ -21,19 +21,14 @@ import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 
 import { getCrmItemBatchById } from '@/app/actions/crm-item-batches.actions';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
 const BASE = '/dashboard/crm/inventory/batch-expiry';
 const SOON_DAYS = 30;
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
-
-function daysUntil(value: unknown): number | null {
+function daysUntil(value: string | undefined): number | null {
     if (!value) return null;
     const d = new Date(value as string);
     if (Number.isNaN(d.getTime())) return null;
@@ -146,13 +141,7 @@ export default async function BatchDetailPage({
                     <div>
                         <div className="text-zoru-ink-muted">Cost price</div>
                         <div className="font-mono text-zoru-ink">
-                            {typeof batch.costPrice === 'number'
-                                ? batch.costPrice.toLocaleString('en-IN', {
-                                      style: 'currency',
-                                      currency: 'INR',
-                                      maximumFractionDigits: 2,
-                                  })
-                                : '—'}
+                            {fmtINR(batch.costPrice)}
                         </div>
                     </div>
                     <div>

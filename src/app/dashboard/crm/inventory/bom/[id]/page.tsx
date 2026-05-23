@@ -1,5 +1,7 @@
 import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import { notFound } from 'next/navigation';
+import { withTimeout } from '../lib/timeout';
+import { fmtINR } from '@/lib/utils';
 
 /**
  * BOM detail page (server component) — §1D.2 bar.
@@ -13,7 +15,7 @@ import { notFound } from 'next/navigation';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import {
   getBomVersionsForFinishedGood,
-  getCrmBomById,
+  getCrmBomById, CrmBomComponent,
   getProductionOrdersForBom,
 } from '@/app/actions/crm-bom.actions';
 
@@ -41,14 +43,6 @@ function statusTone(status: string | undefined): EntityStatusTone {
   return 'amber';
 }
 
-function fmtINR(value: unknown): string {
-  if (typeof value !== 'number' || !Number.isFinite(value)) return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 2,
-    }).format(value);
   } catch {
     return `INR ${value}`;
   }
@@ -56,43 +50,43 @@ function fmtINR(value: unknown): string {
 
 export default async function BomDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const bom = await getCrmBomById(id);
+  const bom = await withTimeout(getCrmBomById(id), 10000);
   if (!bom) notFound();
 
-  const components = Array.isArray((bom as any).components) ? (bom as any).components : [];
-  const title = (bom as any).bomNo || (bom as any).finishedGoodName || 'BOM';
-  const active = (bom as any).active === true || (bom as any).status === 'active';
+  const components = Array.isArray(bom.components) ? bom.components : [];
+  const title = bom.bomNo || bom.finishedGoodName || 'BOM';
+  const active = bom.active === true || bom.status === 'active';
   const finishedGoodId =
-    (bom as any).finishedGoodId && typeof (bom as any).finishedGoodId !== 'string'
-      ? (bom as any).finishedGoodId.toString?.()
-      : (bom as any).finishedGoodId;
+    bom.finishedGoodId && typeof bom.finishedGoodId !== 'string'
+      ? bom.finishedGoodId.toString?.()
+      : bom.finishedGoodId;
 
-  const [versions, productionOrders] = await Promise.all([
+  const [versions, productionOrders] = await withTimeout(Promise.all([
     getBomVersionsForFinishedGood(finishedGoodId, id),
     getProductionOrdersForBom(id),
   ]);
 
-  const materialCost = components.reduce((sum: number, c: any) => {
+  const materialCost = components.reduce((sum: number, c: CrmBomComponent) => {
     const qty = Number.isFinite(c.qty) ? c.qty : 0;
     const cost = Number.isFinite(c.costPerUnit ?? 0) ? c.costPerUnit ?? 0 : 0;
     const scrapMul = 1 + ((Number.isFinite(c.scrapPct) ? c.scrapPct : 0) / 100);
     return sum + qty * cost * scrapMul;
   }, 0);
-  const labour = (bom as any).labourCost ?? 0;
-  const overhead = (bom as any).overheadCost ?? 0;
-  const total = (bom as any).totalCost ?? materialCost + labour + overhead;
+  const labour = bom.labourCost ?? 0;
+  const overhead = bom.overheadCost ?? 0;
+  const total = bom.totalCost ?? materialCost + labour + overhead;
 
   return (
     <EntityDetailShell
       eyebrow="BILL OF MATERIALS"
       title={title}
-      status={{ label: (bom as any).status || 'draft', tone: statusTone((bom as any).status) }}
+      status={{ label: bom.status || 'draft', tone: statusTone(bom.status) }}
       back={{ href: '/dashboard/crm/inventory/bom', label: 'Back to all BOMs' }}
       actions={
         <BomDetailActions
           bomId={id}
-          bomNo={(bom as any).bomNo || ''}
-          finishedGoodName={(bom as any).finishedGoodName || ''}
+          bomNo={bom.bomNo || ''}
+          finishedGoodName={bom.finishedGoodName || ''}
           active={active}
         />
       }
@@ -108,43 +102,43 @@ export default async function BomDetailPage({ params }: PageProps) {
             <div>
               <dt className="text-xs text-zinc-500">BOM code</dt>
               <dd className="font-mono text-zinc-900 dark:text-zinc-100">
-                {(bom as any).bomNo || '—'}
+                {bom.bomNo || '—'}
               </dd>
             </div>
             <div>
               <dt className="text-xs text-zinc-500">Finished good</dt>
               <dd className="text-zinc-900 dark:text-zinc-100">
-                {(bom as any).finishedGoodName || '—'}
+                {bom.finishedGoodName || '—'}
               </dd>
             </div>
             <div>
               <dt className="text-xs text-zinc-500">Output qty</dt>
               <dd className="text-zinc-900 dark:text-zinc-100">
-                {typeof (bom as any).outputQty === 'number' ? (bom as any).outputQty : '—'}{' '}
-                {(bom as any).unit || ''}
+                {typeof bom.outputQty === 'number' ? bom.outputQty : '—'}{' '}
+                {bom.unit || ''}
               </dd>
             </div>
             <div>
               <dt className="text-xs text-zinc-500">Version</dt>
-              <dd className="text-zinc-900 dark:text-zinc-100">{(bom as any).version || '—'}</dd>
+              <dd className="text-zinc-900 dark:text-zinc-100">{bom.version || '—'}</dd>
             </div>
             <div>
               <dt className="text-xs text-zinc-500">Effective date</dt>
               <dd className="text-zinc-900 dark:text-zinc-100">
-                {formatDate((bom as any).effectiveDate)}
+                {formatDate(bom.effectiveDate)}
               </dd>
             </div>
             <div>
               <dt className="text-xs text-zinc-500">Created</dt>
               <dd className="text-zinc-900 dark:text-zinc-100">
-                {formatDate((bom as any).createdAt)}
+                {formatDate(bom.createdAt)}
               </dd>
             </div>
-            {(bom as any).notes ? (
+            {bom.notes ? (
               <div className="sm:col-span-2">
                 <dt className="text-xs text-zinc-500">Notes</dt>
                 <dd className="whitespace-pre-wrap text-zinc-900 dark:text-zinc-100">
-                  {(bom as any).notes}
+                  {bom.notes}
                 </dd>
               </div>
             ) : null}
@@ -179,7 +173,7 @@ export default async function BomDetailPage({ params }: PageProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {components.map((c: any, idx: number) => (
+                  {components.map((c: CrmBomComponent, idx: number) => (
                     <tr
                       key={`${c.itemName}-${idx}`}
                       className="border-t border-zinc-200 dark:border-zinc-800"

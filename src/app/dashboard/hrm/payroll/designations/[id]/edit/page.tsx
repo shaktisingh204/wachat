@@ -8,7 +8,7 @@
 import { notFound } from 'next/navigation';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { DesignationForm } from '@/app/dashboard/crm/hr-payroll/designations/_components/designation-form';
+import { DesignationForm } from '@/app/dashboard/hrm/payroll/designations/_components/designation-form';
 import { getDesignation } from '@/app/actions/crm/departments.actions';
 
 export const dynamic = 'force-dynamic';

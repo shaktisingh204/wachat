@@ -6,14 +6,15 @@
 import { getCrmBoms, getCrmBomKpis } from '@/app/actions/crm-bom.actions';
 import type { CrmBomDoc } from '@/app/actions/crm-bom.actions';
 import { BomListClient } from './_components/bom-list-client';
+import { withTimeout } from './lib/timeout';
 
 export const dynamic = 'force-dynamic';
 
 export default async function BomPage() {
-  const [bomsRaw, kpis] = await Promise.all([getCrmBoms(), getCrmBomKpis()]);
+  const [bomsRaw, kpis] = await withTimeout(Promise.all([getCrmBoms(), getCrmBomKpis()]), 10000);
 
   // Normalize: ensure _id is a string for client serialization.
-  const boms: (CrmBomDoc & { _id: string })[] = bomsRaw.map((b: any) => ({
+  const boms: (CrmBomDoc & { _id: string })[] = bomsRaw.map((b: CrmBomDoc) => ({
     ...b,
     _id: typeof b._id === 'string' ? b._id : b._id?.toString?.() ?? '',
     finishedGoodId:

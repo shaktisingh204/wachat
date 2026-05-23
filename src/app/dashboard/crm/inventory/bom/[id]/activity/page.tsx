@@ -10,6 +10,7 @@ import { notFound } from 'next/navigation';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmBomById } from '@/app/actions/crm-bom.actions';
+import { withTimeout } from '../../lib/timeout';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -17,7 +18,7 @@ interface PageProps {
 
 export default async function BomActivityPage({ params }: PageProps) {
   const { id } = await params;
-  const bom = await getCrmBomById(id);
+  const bom = await withTimeout(getCrmBomById(id), 10000);
   if (!bom) notFound();
 
   const title = bom.bomNo || bom.finishedGoodName || 'BOM';

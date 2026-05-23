@@ -12,8 +12,7 @@ import {
 } from '@/app/actions/crm-dashboards.actions';
 import { ShareButton } from '../_components/share-button';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
-import dynamic from 'next/dynamic';
-const WidgetRenderer = dynamic(() => import('../_components/widget-renderer').then(m => m.WidgetRenderer), { loading: () => <div className="h-full w-full animate-pulse bg-zoru-surface-2 rounded-md"></div>, ssr: false });
+import { WidgetRenderer } from '../_components/widget-renderer';
 
 interface PageProps {
     params: Promise<{ id: string }>;

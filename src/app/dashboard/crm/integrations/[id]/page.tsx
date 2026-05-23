@@ -26,6 +26,10 @@ import {
   IntegrationConnectButton,
   IntegrationDeleteButton,
 } from './_components/integration-detail-actions';
+import { SyncStatusMonitor } from '../_components/sync-status-monitor';
+import { WebhookLogsPreview } from '../_components/webhook-logs';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,7 +38,11 @@ const BASE = '/dashboard/crm/integrations';
 function fmtDate(value: unknown): string {
   if (!value) return '—';
   const d = new Date(value as string);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
+  if (Number.isNaN(d.getTime())) return '—';
+  return new Intl.DateTimeFormat('en-US', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+  }).format(d);
 }
 
 export default async function IntegrationDetailPage({
@@ -110,11 +118,10 @@ export default async function IntegrationDetailPage({
             ) : (
               <Badge variant="ghost">Inactive</Badge>
             )}
-            {integration.syncStatus ? (
-              <Badge variant="info" className="capitalize">
-                Sync: {integration.syncStatus}
-              </Badge>
-            ) : null}
+            <SyncStatusMonitor 
+              integrationId={String(integration._id)} 
+              initialStatus={integration.syncStatus} 
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -182,6 +189,13 @@ export default async function IntegrationDetailPage({
             ***hidden***
           </div>
         </Card>
+
+        {/* Webhook Logs */}
+        {integration.provider === 'webhook' && (
+          <Suspense fallback={<Skeleton className="h-48 w-full rounded-xl" />}>
+            <WebhookLogsPreview integrationId={String(integration._id)} />
+          </Suspense>
+        )}
     </EntityDetailShell>
   );
 }

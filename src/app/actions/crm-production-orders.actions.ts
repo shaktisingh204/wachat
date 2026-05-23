@@ -9,7 +9,7 @@
  */
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId } from 'mongodb';
+import { ObjectId, Filter, Document } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
@@ -101,7 +101,7 @@ export async function getProductionOrderById(
     const doc = await db.collection('crm_production_orders').findOne({
       _id: new ObjectId(orderId),
       userId: new ObjectId(session.user._id as string),
-    } as any);
+    } as Filter<Document>, { maxTimeMS: 5000 });
     return doc ? JSON.parse(JSON.stringify(doc)) : null;
   } catch (e) {
     console.error('Failed to load production order:', e);
@@ -155,9 +155,11 @@ export async function getProductionOrders(
         { bomRef: re },
       ];
     }
+    const filterQuery = query as Filter<Document>;
     const docs = await db
       .collection('crm_production_orders')
-      .find(query as any)
+      .find(filterQuery)
+      .maxTimeMS(5000)
       .sort({ createdAt: -1 })
       .limit(500)
       .toArray();
@@ -192,7 +194,8 @@ export async function getProductionOrderKpis(): Promise<CrmProductionOrderKpis> 
     const { db } = await connectToDatabase();
     const docs = await db
       .collection('crm_production_orders')
-      .find({ userId: new ObjectId(session.user._id as string) } as any)
+      .find({ userId: new ObjectId(session.user._id as string) } as Filter<Document>)
+      .maxTimeMS(5000)
       .toArray();
     let open = 0;
     let inProgress = 0;
@@ -257,9 +260,9 @@ export async function getBomPrefillForProductionOrder(
     const bom = await db.collection('crm_boms').findOne({
       _id: new ObjectId(bomId),
       userId: new ObjectId(session.user._id as string),
-    } as any);
+    } as Filter<Document>, { maxTimeMS: 5000 });
     if (!bom) return null;
-    const b = bom as any;
+    const b = bom as Document;
     return {
       bomId,
       bomNo: b.bomNo,
@@ -337,7 +340,7 @@ export async function saveProductionOrder(
 
     if (isEditing) {
       await db.collection('crm_production_orders').updateOne(
-        { _id: new ObjectId(orderId), userId: userObjectId } as any,
+        { _id: new ObjectId(orderId), userId: userObjectId } as Filter<Document>,
         {
           $set: {
             orderNo,
@@ -452,7 +455,7 @@ export async function setProductionOrderStatus(
   try {
     const { db } = await connectToDatabase();
     await db.collection('crm_production_orders').updateOne(
-      { _id: new ObjectId(orderId), userId: new ObjectId(session.user._id as string) } as any,
+      { _id: new ObjectId(orderId), userId: new ObjectId(session.user._id as string) } as Filter<Document>,
       { $set: { status, updatedAt: new Date() } },
     );
     await writeAuditEntry({
@@ -499,7 +502,7 @@ export async function updateProductionOrderYield(
       {
         _id: new ObjectId(orderId),
         userId: new ObjectId(session.user._id as string),
-      } as any,
+      } as Filter<Document>,
       {
         $set: {
           actualYield,
@@ -541,7 +544,7 @@ export async function deleteProductionOrder(
     await db.collection('crm_production_orders').deleteOne({
       _id: new ObjectId(orderId),
       userId: new ObjectId(session.user._id as string),
-    } as any);
+    } as Filter<Document>);
     await writeAuditEntry({
       tenantUserId: String(session.user._id),
       action: 'delete',
@@ -587,7 +590,7 @@ export async function bulkProductionOrderAction(
         .deleteMany({
           _id: { $in: objIds },
           userId: new ObjectId(session.user._id as string),
-        } as any);
+        } as Filter<Document>);
       processed = r.deletedCount ?? 0;
     } else {
       const status = op.replace('status_', '');
@@ -595,7 +598,7 @@ export async function bulkProductionOrderAction(
         {
           _id: { $in: objIds },
           userId: new ObjectId(session.user._id as string),
-        } as any,
+        } as Filter<Document>,
         { $set: { status, updatedAt: new Date() } },
       );
       processed = r.modifiedCount ?? 0;

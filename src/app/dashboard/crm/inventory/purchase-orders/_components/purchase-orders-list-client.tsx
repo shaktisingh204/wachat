@@ -33,10 +33,10 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  useZoruToast,
+  useZoruToast, DropdownMenu, ZoruDropdownMenuTrigger, ZoruDropdownMenuContent, ZoruDropdownMenuItem,
 } from '@/components/zoruui';
-import { CheckCheck, Download, Trash2, X, XCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { CheckCheck, Download, Trash2, X, XCircle, MoreHorizontal } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -153,6 +153,7 @@ export function PurchaseOrdersListClient({
   error,
 }: PurchaseOrdersListClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useZoruToast();
 
   /* Filters */
@@ -160,7 +161,22 @@ export function PurchaseOrdersListClient({
   const [statusFilter, setStatusFilter] = React.useState('all');
   const [fromDate, setFromDate] = React.useState('');
   const [toDate, setToDate] = React.useState('');
-  const [kpiFilter, setKpiFilter] = React.useState<string>('all');
+  const [kpiFilter, setKpiFilter] = React.useState<string>(searchParams?.get('tab') || 'all');
+
+  React.useEffect(() => {
+    const tab = searchParams?.get('tab');
+    if (tab && tab !== kpiFilter) {
+      updateTab(tab);
+    }
+  }, [searchParams]);
+
+  const updateTab = (tab: string) => {
+    updateTab(tab);
+    const params = new URLSearchParams(searchParams?.toString());
+    if (tab === 'all') params.delete('tab');
+    else params.set('tab', tab);
+    router.replace(`?${params.toString()}`);
+  };
 
   /* Selection */
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -231,7 +247,7 @@ export function PurchaseOrdersListClient({
     setStatusFilter('all');
     setFromDate('');
     setToDate('');
-    setKpiFilter('all');
+    updateTab('all');
   }, []);
 
   const filtersActive =
@@ -449,33 +465,33 @@ export function PurchaseOrdersListClient({
               kpi.closedCount
             ).toLocaleString()}
             active={kpiFilter === 'all'}
-            onClick={() => setKpiFilter('all')}
+            onClick={() => updateTab('all')}
           />
           <KpiCard
             label="Draft"
             value={kpi.draftCount.toLocaleString()}
             active={kpiFilter === 'draft'}
-            onClick={() => setKpiFilter(kpiFilter === 'draft' ? 'all' : 'draft')}
+            onClick={() => updateTab(kpiFilter === 'draft' ? 'all' : 'draft')}
           />
           <KpiCard
             label="Awaiting approval"
             value={kpi.awaitingApprovalCount.toLocaleString()}
             active={kpiFilter === 'awaiting_approval'}
             onClick={() =>
-              setKpiFilter(kpiFilter === 'awaiting_approval' ? 'all' : 'awaiting_approval')
+              updateTab(kpiFilter === 'awaiting_approval' ? 'all' : 'awaiting_approval')
             }
           />
           <KpiCard
             label="Approved"
             value={kpi.approvedCount.toLocaleString()}
             active={kpiFilter === 'approved'}
-            onClick={() => setKpiFilter(kpiFilter === 'approved' ? 'all' : 'approved')}
+            onClick={() => updateTab(kpiFilter === 'approved' ? 'all' : 'approved')}
           />
           <KpiCard
             label="Received / closed"
             value={kpi.closedCount.toLocaleString()}
             active={kpiFilter === 'received'}
-            onClick={() => setKpiFilter(kpiFilter === 'received' ? 'all' : 'received')}
+            onClick={() => updateTab(kpiFilter === 'received' ? 'all' : 'received')}
           />
         </div>
 
@@ -513,13 +529,14 @@ export function PurchaseOrdersListClient({
                   <ZoruTableHead>Expected</ZoruTableHead>
                   <ZoruTableHead className="text-right">Total</ZoruTableHead>
                   <ZoruTableHead>Status</ZoruTableHead>
+                  <ZoruTableHead className="w-10"></ZoruTableHead>
                 </ZoruTableRow>
               </ZoruTableHeader>
               <ZoruTableBody>
                 {filtered.length === 0 ? (
                   <ZoruTableRow>
                     <ZoruTableCell
-                      colSpan={7}
+                      colSpan={8}
                       className="h-24 text-center text-[13px] text-muted-foreground"
                     >
                       {filtersActive
@@ -561,6 +578,29 @@ export function PurchaseOrdersListClient({
                       </ZoruTableCell>
                       <ZoruTableCell>
                         <StatusBadge status={po.status} />
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <DropdownMenu>
+                          <ZoruDropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </ZoruDropdownMenuTrigger>
+                          <ZoruDropdownMenuContent align="end">
+                            <ZoruDropdownMenuItem onClick={() => router.push(`/dashboard/crm/inventory/purchase-orders/${po._id}`)}>
+                              View details
+                            </ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem onClick={() => { setSelected(new Set([po._id])); setApprovePending(true); }}>
+                              Approve
+                            </ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem onClick={() => { setSelected(new Set([po._id])); setCancelPending(true); }}>
+                              Cancel
+                            </ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem className="text-destructive" onClick={() => { setSelected(new Set([po._id])); setDeletePending(true); }}>
+                              Delete
+                            </ZoruDropdownMenuItem>
+                          </ZoruDropdownMenuContent>
+                        </DropdownMenu>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))

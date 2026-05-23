@@ -10,7 +10,7 @@
 import { notFound } from 'next/navigation';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { LeaveForm } from '@/app/dashboard/crm/hr-payroll/leave/_components/leave-form';
+import { LeaveForm } from '@/app/dashboard/hrm/payroll/leave/_components/leave-form';
 import {
   getLeave,
   listLeaveTypeOptions,

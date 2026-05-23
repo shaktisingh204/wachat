@@ -2,7 +2,7 @@
 
 import { Button, useZoruToast } from '@/components/zoruui';
 import {
-  useRouter } from 'next/navigation';
+  useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Factory,
   Layers,
   Plus } from 'lucide-react';
@@ -34,6 +34,7 @@ import type { CrmBomDoc, CrmBomKpis } from '@/app/actions/crm-bom.actions';
 import { BomKpiStrip } from './bom-kpi-strip';
 import { BomFiltersRow, BomBulkBar, type BomStatusFilter } from './bom-filters';
 import { BomTable } from './bom-table';
+import { useBomWebsocket } from './use-bom-websocket';
 
 export interface BomListClientProps {
     initialBoms: (CrmBomDoc & { _id: string })[];
@@ -77,14 +78,24 @@ function toCsv(rows: (CrmBomDoc & { _id: string })[]): string {
 
 export function BomListClient({ initialBoms, initialKpis }: BomListClientProps) {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
     const { toast } = useZoruToast();
 
-    const [boms] = React.useState(initialBoms);
+    const { boms } = useBomWebsocket(initialBoms);
     const [kpis] = React.useState(initialKpis);
 
     /* Filters */
     const [search, setSearch] = React.useState('');
-    const [status, setStatus] = React.useState<BomStatusFilter>('all');
+    const [status, setStatusRaw] = React.useState<BomStatusFilter>((searchParams.get('tab') as BomStatusFilter) || 'all');
+    
+    const setStatus = React.useCallback((newStatus: BomStatusFilter) => {
+        setStatusRaw(newStatus);
+        const params = new URLSearchParams(searchParams.toString());
+        if (newStatus === 'all') params.delete('tab');
+        else params.set('tab', newStatus);
+        router.push(`${pathname}?${params.toString()}`);
+    }, [pathname, router, searchParams]);
     const [finishedGoodId, setFinishedGoodId] = React.useState('');
     const [versionMin, setVersionMin] = React.useState('');
     const [versionMax, setVersionMax] = React.useState('');
@@ -139,7 +150,7 @@ export function BomListClient({ initialBoms, initialKpis }: BomListClientProps) 
                 const fgKey =
                     typeof b.finishedGoodId === 'string'
                         ? b.finishedGoodId
-                        : (b.finishedGoodId as any)?.toString?.();
+                        : (b.finishedGoodId as { toString?: () => string })?.toString?.();
                 if (fgKey !== finishedGoodId) return false;
             }
             if (versionMin && verCmp(String(b.version ?? ''), versionMin) < 0) return false;
@@ -152,7 +163,7 @@ export function BomListClient({ initialBoms, initialKpis }: BomListClientProps) 
                 const t = new Date(b.effectiveDate as string).getTime();
                 if (!Number.isNaN(t) && t > toTs) return false;
             }
-            if (activeOnly && !((b as any).active === true || b.status === 'active')) {
+            if (activeOnly && !(b.active === true || b.status === 'active')) {
                 return false;
             }
             return true;

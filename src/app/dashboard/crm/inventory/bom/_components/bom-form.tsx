@@ -386,11 +386,11 @@ export function BomForm({ initial }: BomFormProps) {
                                                                           hydrated?.chip.primary ??
                                                                           c.itemName,
                                                                       costPerUnit:
-                                                                          (hydrated as any)?.cost?.value ??
-                                                                          (hydrated as any)?.priceCost ??
+                                                                          (hydrated as { cost?: { value?: number }, priceCost?: number, unit?: string })?.cost?.value ??
+                                                                          (hydrated as { cost?: { value?: number }, priceCost?: number, unit?: string })?.priceCost ??
                                                                           c.costPerUnit,
                                                                       unit:
-                                                                          (hydrated as any)?.unit ??
+                                                                          (hydrated as { cost?: { value?: number }, priceCost?: number, unit?: string })?.unit ??
                                                                           c.unit,
                                                                   }
                                                                 : c,

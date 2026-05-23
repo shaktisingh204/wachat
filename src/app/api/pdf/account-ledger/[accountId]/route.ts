@@ -128,7 +128,7 @@ export async function GET(
             status: 200,
             headers: {
                 'Content-Type': 'application/pdf',
-                'Content-Disposition': \`inline; filename="ledger-\${account.name.replace(/\\s+/g, '-')}.pdf"\`,
+                'Content-Disposition': `inline; filename="ledger-${account.name.replace(/\s+/g, '-')}.pdf"`,
                 'Cache-Control': 'private, no-store',
             },
         });

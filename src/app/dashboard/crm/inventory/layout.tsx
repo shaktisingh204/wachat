@@ -2,6 +2,7 @@
 
 import { useProject } from '@/context/project-context';
 import { FeatureLock, FeatureLockOverlay } from '@/components/wabasimplify/feature-lock';
+import { ErrorBoundary } from './error-boundary';
 
 export default function InventoryLayout({ children }: { children: React.ReactNode }) {
     const { sessionUser } = useProject();
@@ -10,7 +11,9 @@ export default function InventoryLayout({ children }: { children: React.ReactNod
         <div className="w-full relative">
             <FeatureLockOverlay isAllowed={isAllowed} featureName="CRM Inventory" />
             <FeatureLock isAllowed={isAllowed}>
-                {children}
+                <ErrorBoundary>
+                    {children}
+                </ErrorBoundary>
             </FeatureLock>
         </div>
     );

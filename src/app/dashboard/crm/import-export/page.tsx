@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Card } from '@/components/zoruui';
 import {
     AlertCircle,
@@ -28,9 +29,20 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { listImportJobs } from '@/app/actions/crm-import.actions';
+import { hasPermissionGroup } from '@/lib/permission-groups/check';
+import {
+    Breadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    Skeleton,
+} from '@/components/zoruui';
 import { HubKpiGrid, type HubKpi } from '../_components/hub-kpi-grid';
 import { formatDate } from '../_components/hub-data';
 import { ImportWizardShell } from './_components/import-wizard-shell';
+import { KpiDateFilter } from './_components/kpi-date-filter';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,7 +85,7 @@ interface ImportJobStats {
     lastImportDate: Date | null;
 }
 
-async function getImportJobStats(): Promise<ImportJobStats> {
+async function getImportJobStats(start?: Date, end?: Date): Promise<ImportJobStats | { error: string }> {
     const empty: ImportJobStats = { total: 0, completed: 0, failed: 0, lastImportDate: null };
     try {
         const session = await getSession();
@@ -81,10 +93,17 @@ async function getImportJobStats(): Promise<ImportJobStats> {
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id as string);
 
+        const matchQuery: Record<string, any> = { userId, action: { $regex: '^bulk_import_' } };
+        if (start || end) {
+            matchQuery.createdAt = {};
+            if (start) matchQuery.createdAt.$gte = start;
+            if (end) matchQuery.createdAt.$lte = end;
+        }
+
         const result = await db
             .collection('crm_audit_log')
             .aggregate([
-                { $match: { userId, action: { $regex: '^bulk_import_' } } },
+                { $match: matchQuery },
                 {
                     $group: {
                         _id: null,
@@ -109,15 +128,24 @@ async function getImportJobStats(): Promise<ImportJobStats> {
             lastImportDate: result[0].lastDate ?? null,
         };
     } catch {
-        return empty;
+        return { error: 'Failed to fetch import job stats.' };
     }
 }
 
-export default async function ImportExportLandingPage(): Promise<React.ReactElement> {
-    const [stats, recentJobs] = await Promise.all([
-        getImportJobStats(),
-        listImportJobs(),
-    ]);
+async function KpiStatsGridWrapper({ searchParams }: { searchParams?: Promise<{ start?: string; end?: string }> }) {
+    const params = await searchParams;
+    const start = params?.start ? new Date(params.start) : undefined;
+    const end = params?.end ? new Date(params.end) : undefined;
+    const stats = await getImportJobStats(start, end);
+
+    if ('error' in stats) {
+        return (
+            <div className="flex items-center justify-center p-6 text-sm text-zoru-danger border border-zoru-danger/20 rounded-xl bg-zoru-danger/5">
+                <AlertCircle className="w-4 h-4 mr-2" />
+                {stats.error}
+            </div>
+        );
+    }
 
     const kpis: HubKpi[] = [
         {
@@ -145,7 +173,43 @@ export default async function ImportExportLandingPage(): Promise<React.ReactElem
     ];
 
     return (
+        <div className="flex flex-col gap-3">
+            <div className="flex justify-end">
+                <KpiDateFilter />
+            </div>
+            <HubKpiGrid kpis={kpis} />
+        </div>
+    );
+}
+
+export default async function ImportExportLandingPage(props: { searchParams?: Promise<{ start?: string; end?: string }> }): Promise<React.ReactElement> {
+    const canView = await hasPermissionGroup('import_export', 'view');
+    if (!canView) {
+        return (
+            <div className="flex flex-col items-center justify-center p-12 text-center">
+                <AlertCircle className="h-8 w-8 text-zoru-ink-muted mb-4" />
+                <h2 className="text-lg font-semibold text-zoru-ink">Access Denied</h2>
+                <p className="text-sm text-zoru-ink-muted">You do not have permission to view Import & Export.</p>
+            </div>
+        );
+    }
+
+    const recentJobs = await listImportJobs();
+
+    return (
         <div className="flex w-full flex-col gap-5">
+            <Breadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/crm">CRM</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Import &amp; Export</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </Breadcrumb>
+            
             <header className="flex items-center gap-3">
                 <FileSpreadsheet className="h-6 w-6 text-zoru-accent" />
                 <div>
@@ -160,7 +224,9 @@ export default async function ImportExportLandingPage(): Promise<React.ReactElem
                 </div>
             </header>
 
-            <HubKpiGrid kpis={kpis} />
+            <Suspense fallback={<div className="grid grid-cols-2 lg:grid-cols-4 gap-4"><Skeleton className="h-24 w-full" /><Skeleton className="h-24 w-full" /><Skeleton className="h-24 w-full" /><Skeleton className="h-24 w-full" /></div>}>
+                <KpiStatsGridWrapper searchParams={props.searchParams} />
+            </Suspense>
 
             <ImportWizardShell initialJobs={recentJobs} />
 

@@ -1,42 +1,34 @@
 'use client';
 
 import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Switch,
-  Textarea,
-  useZoruToast,
+    Badge,
+    Button,
+    Card,
+    Input,
+    Label,
+    Select,
+    Switch,
+    Textarea,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    useZoruToast,
 } from '@/components/zoruui';
 import {
-  useActionState,
-  useEffect,
-  useState } from 'react';
+    ArrowLeft,
+    LoaderCircle,
+    Save,
+    ShieldAlert,
+    ChevronRight,
+    CheckCircle2
+} from 'lucide-react';
+
+import * as React from 'react';
+import { useActionState, useEffect, useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  LoaderCircle,
-  Save,
-  ShieldAlert } from 'lucide-react';
-
-/**
- * <IntegrationForm /> — create + edit form for `crm_integrations`.
- *
- * Binds to `saveIntegration` via `useActionState`. The `credentials`
- * textarea is intentionally a JSON blob and is shown as an empty box
- * on edit — typing new contents OVERWRITES the secrets; leaving it
- * blank keeps the current secrets untouched.
- *
- * Plaintext credentials are NEVER pre-filled here; the server only
- * returns `'***hidden***'`.
- */
 
 import {
     saveIntegration,
@@ -45,7 +37,7 @@ import {
 
 const BASE = '/dashboard/crm/integrations';
 
-const PROVIDER_OPTIONS: Array<{ value: string; label: string }> = [
+const PROVIDER_OPTIONS = [
     { value: 'slack', label: 'Slack' },
     { value: 'zapier', label: 'Zapier' },
     { value: 'webhook', label: 'Generic webhook' },
@@ -91,9 +83,18 @@ export function IntegrationForm({
     const isEditing = !!initialData?._id;
 
     const [state, formAction] = useActionState(saveIntegration, initialState);
+    
+    // Wizard state
+    const [step, setStep] = useState(1);
+    
+    // Form fields
+    const [name, setName] = useState(initialData?.name ?? '');
     const [provider, setProvider] = useState<string>(
         initialData?.provider ?? 'webhook',
     );
+    const [webhookUrl, setWebhookUrl] = useState(initialData?.webhookUrl ?? '');
+    const [configData, setConfigData] = useState(initialData?.config ? JSON.stringify(initialData.config, null, 2) : '{}');
+    const [credentialsData, setCredentialsData] = useState('');
     const [isActive, setIsActive] = useState<boolean>(
         initialData?.isActive ?? true,
     );
@@ -112,139 +113,237 @@ export function IntegrationForm({
         }
     }, [state, toast, router]);
 
-    const configInitial = initialData?.config
-        ? JSON.stringify(initialData.config, null, 2)
-        : '{}';
+    const handleNext = () => setStep(s => s + 1);
+    const handleBack = () => setStep(s => s - 1);
 
-    return (
-        <Card className="p-6">
-            <form action={formAction} className="flex flex-col gap-6">
-                {isEditing ? (
-                    <input
-                        type="hidden"
-                        name="integrationId"
-                        value={initialData!._id}
-                    />
-                ) : null}
-                <input type="hidden" name="provider" value={provider} />
-                <input
-                    type="hidden"
-                    name="isActive"
-                    value={isActive ? 'on' : 'off'}
-                />
-
-                {/* Row 1: Name + Provider */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                        <Label htmlFor="name">Name *</Label>
-                        <Input
-                            id="name"
-                            name="name"
-                            required
-                            placeholder="e.g. Ops Slack alerts"
-                            defaultValue={initialData?.name ?? ''}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <Label htmlFor="provider-trigger">Provider *</Label>
-                        <Select value={provider} onValueChange={setProvider}>
-                            <ZoruSelectTrigger id="provider-trigger">
-                                <ZoruSelectValue placeholder="Pick a provider…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {PROVIDER_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </Select>
-                    </div>
+    const renderWizardStep1 = () => (
+        <div className="space-y-6">
+            <h3 className="text-lg font-medium text-zoru-ink">Step 1: Choose Provider</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                    <Label htmlFor="provider-trigger">Provider *</Label>
+                    <Select value={provider} onValueChange={setProvider}>
+                        <ZoruSelectTrigger id="provider-trigger">
+                            <ZoruSelectValue placeholder="Pick a provider…" />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            {PROVIDER_OPTIONS.map((o) => (
+                                <ZoruSelectItem key={o.value} value={o.value}>
+                                    {o.label}
+                                </ZoruSelectItem>
+                            ))}
+                        </ZoruSelectContent>
+                    </Select>
                 </div>
+                <div className="space-y-1.5">
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
+                        id="name"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        placeholder="e.g. Ops Slack alerts"
+                    />
+                </div>
+            </div>
+            <div className="flex justify-end pt-4">
+                <Button type="button" onClick={handleNext} disabled={!name || !provider}>
+                    Next <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+            </div>
+        </div>
+    );
 
-                {/* Row 2: Webhook URL */}
+    const renderWizardStep2 = () => (
+        <div className="space-y-6">
+            <h3 className="text-lg font-medium text-zoru-ink">Step 2: API & Webhook Configuration</h3>
+            <div className="space-y-4">
                 <div className="space-y-1.5">
                     <Label htmlFor="webhookUrl">Webhook URL</Label>
                     <Input
                         id="webhookUrl"
-                        name="webhookUrl"
                         type="url"
+                        value={webhookUrl}
+                        onChange={e => setWebhookUrl(e.target.value)}
                         placeholder="https://hooks.example.com/services/…"
-                        defaultValue={initialData?.webhookUrl ?? ''}
                     />
                 </div>
-
-                {/* Row 3: Config (JSON) */}
                 <div className="space-y-1.5">
                     <Label htmlFor="config">Config (JSON)</Label>
                     <Textarea
                         id="config"
-                        name="config"
                         rows={6}
-                        defaultValue={configInitial}
+                        value={configData}
+                        onChange={e => setConfigData(e.target.value)}
                         spellCheck={false}
                         className="font-mono text-[12.5px]"
                         placeholder='{"channelId":"C123","region":"eu-west-1"}'
                     />
                     <p className="text-[12px] text-zoru-ink-muted">
-                        Non-secret configuration. JSON object. Channel ids, region,
-                        feature flags, etc.
+                        Non-secret configuration. JSON object. Channel ids, region, feature flags, etc.
                     </p>
                 </div>
+            </div>
+            <div className="flex justify-between pt-4">
+                <Button type="button" variant="outline" onClick={handleBack}>
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                </Button>
+                <Button type="button" onClick={handleNext}>
+                    Next <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+            </div>
+        </div>
+    );
 
-                {/* Row 4: Credentials (JSON) — never pre-filled */}
-                <div className="space-y-1.5">
-                    <Label htmlFor="credentials" className="flex items-center gap-1.5">
-                        <ShieldAlert className="h-3.5 w-3.5 text-amber-600" />
-                        Credentials (JSON)
+    const renderWizardStep3 = () => (
+        <div className="space-y-6">
+            <h3 className="text-lg font-medium text-zoru-ink">Step 3: Secure Credentials</h3>
+            <div className="space-y-1.5">
+                <Label htmlFor="credentials" className="flex items-center gap-1.5">
+                    <ShieldAlert className="h-3.5 w-3.5 text-amber-600" />
+                    Credentials (JSON)
+                </Label>
+                <Textarea
+                    id="credentials"
+                    rows={4}
+                    value={credentialsData}
+                    onChange={e => setCredentialsData(e.target.value)}
+                    spellCheck={false}
+                    autoComplete="off"
+                    className="font-mono text-[12.5px]"
+                    placeholder='{"apiKey":"…","signingSecret":"…"}'
+                />
+                <p className="text-[12px] text-zoru-ink-muted">
+                    Stored encrypted at rest. Never displayed back to the UI.
+                </p>
+            </div>
+            <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2">
+                <div>
+                    <Label htmlFor="isActive-toggle" className="cursor-pointer">
+                        Activate Immediately
                     </Label>
-                    <Textarea
-                        id="credentials"
-                        name="credentials"
-                        rows={4}
-                        spellCheck={false}
-                        autoComplete="off"
-                        className="font-mono text-[12.5px]"
-                        placeholder={
-                            isEditing
-                                ? 'Leave blank to keep existing credentials. Paste JSON here to ROTATE.'
-                                : '{"apiKey":"…","signingSecret":"…"}'
-                        }
-                    />
                     <p className="text-[12px] text-zoru-ink-muted">
-                        Stored encrypted at rest. Never displayed back to the UI.
-                        {isEditing
-                            ? ' Leave this field blank to keep the current secrets.'
-                            : null}
+                        Toggle on to enable this integration as soon as it is created.
                     </p>
                 </div>
+                <Switch
+                    id="isActive-toggle"
+                    checked={isActive}
+                    onCheckedChange={(v) => setIsActive(v === true)}
+                />
+            </div>
+            <div className="flex justify-between pt-4">
+                <Button type="button" variant="outline" onClick={handleBack}>
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                </Button>
+                {/* Submit the actual form values via hidden inputs and the main form action */}
+                <SubmitButton isEditing={false} />
+            </div>
+        </div>
+    );
 
-                {/* Row 5: Active toggle */}
-                <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2">
-                    <div>
-                        <Label htmlFor="isActive-toggle" className="cursor-pointer">
-                            Active
-                        </Label>
-                        <p className="text-[12px] text-zoru-ink-muted">
-                            Inactive integrations don't fire on webhooks or sync.
-                        </p>
-                    </div>
-                    <Switch
-                        id="isActive-toggle"
-                        checked={isActive}
-                        onCheckedChange={(v) => setIsActive(v === true)}
-                    />
+    return (
+        <Card className="p-6">
+            {!isEditing && (
+                <div className="mb-8 flex items-center justify-center space-x-4">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="flex items-center">
+                            <div className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${step === i ? 'border-primary text-primary' : step > i ? 'border-primary bg-primary text-primary-foreground' : 'border-zoru-line text-zoru-ink-muted'}`}>
+                                {step > i ? <CheckCircle2 className="h-5 w-5" /> : <span className="text-sm font-semibold">{i}</span>}
+                            </div>
+                            {i < 3 && <div className={`h-1 w-12 mx-2 rounded ${step > i ? 'bg-primary' : 'bg-zoru-line'}`} />}
+                        </div>
+                    ))}
                 </div>
+            )}
+            <form action={formAction} className="flex flex-col gap-6">
+                {isEditing ? (
+                    <input type="hidden" name="integrationId" value={initialData!._id} />
+                ) : null}
+                
+                {/* Hidden inputs always reflect state for the Server Action */}
+                <input type="hidden" name="provider" value={provider} />
+                <input type="hidden" name="name" value={name} />
+                <input type="hidden" name="webhookUrl" value={webhookUrl} />
+                <input type="hidden" name="config" value={configData} />
+                <input type="hidden" name="credentials" value={credentialsData} />
+                <input type="hidden" name="isActive" value={isActive ? 'on' : 'off'} />
 
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                    <Button variant="ghost" asChild>
-                        <Link href={BASE}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to integrations
-                        </Link>
-                    </Button>
-                    <SubmitButton isEditing={isEditing} />
-                </div>
+                {!isEditing ? (
+                    <>
+                        {step === 1 && renderWizardStep1()}
+                        {step === 2 && renderWizardStep2()}
+                        {step === 3 && renderWizardStep3()}
+                    </>
+                ) : (
+                    <>
+                        {/* Standard Edit Form */}
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="name">Name *</Label>
+                                <Input id="name" value={name} onChange={e => setName(e.target.value)} required />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="provider-trigger">Provider *</Label>
+                                <Select value={provider} onValueChange={setProvider}>
+                                    <ZoruSelectTrigger id="provider-trigger">
+                                        <ZoruSelectValue />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        {PROVIDER_OPTIONS.map((o) => (
+                                            <ZoruSelectItem key={o.value} value={o.value}>
+                                                {o.label}
+                                            </ZoruSelectItem>
+                                        ))}
+                                    </ZoruSelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label htmlFor="webhookUrl">Webhook URL</Label>
+                            <Input id="webhookUrl" type="url" value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label htmlFor="config">Config (JSON)</Label>
+                            <Textarea id="config" rows={6} value={configData} onChange={e => setConfigData(e.target.value)} spellCheck={false} className="font-mono text-[12.5px]" />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label htmlFor="credentials" className="flex items-center gap-1.5">
+                                <ShieldAlert className="h-3.5 w-3.5 text-amber-600" />
+                                Credentials (JSON)
+                            </Label>
+                            <Textarea
+                                id="credentials"
+                                rows={4}
+                                value={credentialsData}
+                                onChange={e => setCredentialsData(e.target.value)}
+                                spellCheck={false}
+                                autoComplete="off"
+                                className="font-mono text-[12.5px]"
+                                placeholder='Leave blank to keep existing credentials. Paste JSON here to ROTATE.'
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2">
+                            <div>
+                                <Label htmlFor="isActive-toggle" className="cursor-pointer">Active</Label>
+                            </div>
+                            <Switch id="isActive-toggle" checked={isActive} onCheckedChange={(v) => setIsActive(v === true)} />
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+                            <Button variant="ghost" asChild>
+                                <Link href={BASE}>
+                                    <ArrowLeft className="mr-2 h-4 w-4" />
+                                    Back to integrations
+                                </Link>
+                            </Button>
+                            <SubmitButton isEditing={isEditing} />
+                        </div>
+                    </>
+                )}
             </form>
         </Card>
     );

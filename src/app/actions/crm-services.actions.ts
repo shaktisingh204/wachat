@@ -172,7 +172,7 @@ export async function getContracts() {
 }
 export const getContractById = cache(async function getContractById(id: string) {
   return hrGetById<HrContract>('crm_contracts', id);
-}
+});
 export async function saveContract(_prev: any, formData: FormData) {
   return save('crm_contracts', '/dashboard/crm/contracts', formData, {
     idFields: ['clientId'],

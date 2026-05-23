@@ -16,7 +16,7 @@
  */
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId, type WithId } from 'mongodb';
+import { ObjectId, type WithId, type Document } from 'mongodb';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
@@ -83,6 +83,27 @@ function serialize<T>(doc: T): T {
 
 /* ─── Reads ────────────────────────────────────────────────────────── */
 
+function mapToDto(doc: WithId<Document>): CrmItemBatchDoc {
+    return {
+        _id: doc._id.toString(),
+        userId: doc.userId.toString(),
+        itemId: doc.itemId?.toString(),
+        itemName: String(doc.itemName),
+        batchNumber: String(doc.batchNumber),
+        manufactureDate: (doc.manufactureDate instanceof Date) ? doc.manufactureDate.toISOString() : undefined,
+        expiryDate: (doc.expiryDate instanceof Date) ? doc.expiryDate.toISOString() : undefined,
+        quantity: Number(doc.quantity),
+        unit: doc.unit ? String(doc.unit) : undefined,
+        locationId: doc.locationId?.toString(),
+        supplierId: doc.supplierId?.toString(),
+        costPrice: typeof doc.costPrice === 'number' ? doc.costPrice : undefined,
+        notes: doc.notes ? String(doc.notes) : undefined,
+        status: doc.status as CrmItemBatchStatus,
+        createdAt: (doc.createdAt instanceof Date) ? doc.createdAt.toISOString() : undefined,
+        updatedAt: (doc.updatedAt instanceof Date) ? doc.updatedAt.toISOString() : undefined,
+    };
+}
+
 /**
  * Fetch all batches for the active user, sorted by `expiryDate ASC` so
  * expired / soon-to-expire batches surface first.
@@ -100,11 +121,15 @@ export async function getCrmItemBatches(): Promise<CrmItemBatchDoc[]> {
             .collection(COLLECTION)
             .find({ userId: new ObjectId(session.user._id) })
             .sort({ expiryDate: 1, batchNumber: 1 })
+            .maxTimeMS(5000)
             .toArray();
-        return serialize(docs as unknown as CrmItemBatchDoc[]);
+        return docs.map(mapToDto);
     } catch (e) {
         console.error('[getCrmItemBatches] failed:', e);
-        return [];
+        if (e instanceof Error && e.message.includes('timed out')) {
+             throw new Error('Database request timed out. Please try again later.');
+        }
+        throw new Error('Failed to fetch inventory batches.');
     }
 }
 
@@ -121,14 +146,20 @@ export async function getCrmItemBatchById(
 
     try {
         const { db } = await connectToDatabase();
-        const doc = await db.collection(COLLECTION).findOne({
-            _id: new ObjectId(batchId),
-            userId: new ObjectId(session.user._id),
-        });
-        return doc ? serialize(doc as unknown as CrmItemBatchDoc) : null;
+        const doc = await db.collection(COLLECTION).findOne(
+            {
+                _id: new ObjectId(batchId),
+                userId: new ObjectId(session.user._id),
+            },
+            { maxTimeMS: 5000 }
+        );
+        return doc ? mapToDto(doc) : null;
     } catch (e) {
         console.error('[getCrmItemBatchById] failed:', e);
-        return null;
+        if (e instanceof Error && e.message.includes('timed out')) {
+             throw new Error('Database request timed out. Please try again later.');
+        }
+        throw new Error('Failed to fetch inventory batch.');
     }
 }
 

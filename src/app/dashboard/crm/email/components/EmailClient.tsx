@@ -102,7 +102,7 @@ export function EmailClient() {
                     <div className="p-4 border-b border-zoru-border flex items-center justify-between">
                         <h2 className="font-semibold text-zoru-ink">Inbox</h2>
                         <Button variant="ghost" size="sm" onClick={handleSync} disabled={isSyncing}>
-                            <RefreshCw className={\`h-4 w-4 \${isSyncing ? 'animate-spin' : ''}\`} />
+                            <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
                         </Button>
                     </div>
                     <div className="p-3 border-b border-zoru-border">
@@ -116,15 +116,15 @@ export function EmailClient() {
                             <div 
                                 key={email.id} 
                                 onClick={() => setSelectedEmail(email)}
-                                className={\`p-4 border-b border-zoru-border cursor-pointer hover:bg-zoru-surface-2 transition-colors \${selectedEmail?.id === email.id ? 'bg-zoru-surface' : ''}\`}
+                                className={`p-4 border-b border-zoru-border cursor-pointer hover:bg-zoru-surface-2 transition-colors ${selectedEmail?.id === email.id ? 'bg-zoru-surface' : ''}`}
                             >
                                 <div className="flex justify-between items-start mb-1">
-                                    <span className={\`font-medium text-[14px] truncate pr-2 \${!email.isRead ? 'text-zoru-ink font-bold' : 'text-zoru-ink'}\`}>
+                                    <span className={`font-medium text-[14px] truncate pr-2 ${!email.isRead ? 'text-zoru-ink font-bold' : 'text-zoru-ink'}`}>
                                         {email.sender.split(' ')[0]}
                                     </span>
                                     <span className="text-[12px] text-zoru-ink-muted whitespace-nowrap">{email.date}</span>
                                 </div>
-                                <div className={\`text-[13px] truncate mb-1 \${!email.isRead ? 'text-zoru-ink font-semibold' : 'text-zoru-ink'}\`}>
+                                <div className={`text-[13px] truncate mb-1 ${!email.isRead ? 'text-zoru-ink font-semibold' : 'text-zoru-ink'}`}>
                                     {email.subject}
                                 </div>
                                 <div className="text-[13px] text-zoru-ink-muted truncate">
@@ -337,7 +337,7 @@ export function EmailClient() {
             <div className="flex border-b border-zoru-border mb-6 space-x-1">
                 <button
                     onClick={() => setActiveTab('inbox')}
-                    className={\`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors \${activeTab === 'inbox' ? 'border-zoru-brand text-zoru-brand' : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'}\`}
+                    className={`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors ${activeTab === 'inbox' ? 'border-zoru-brand text-zoru-brand' : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'}`}
                 >
                     <div className="flex items-center gap-2">
                         <Inbox className="h-4 w-4" />
@@ -346,7 +346,7 @@ export function EmailClient() {
                 </button>
                 <button
                     onClick={() => setActiveTab('templates')}
-                    className={\`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors \${activeTab === 'templates' ? 'border-zoru-brand text-zoru-brand' : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'}\`}
+                    className={`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors ${activeTab === 'templates' ? 'border-zoru-brand text-zoru-brand' : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'}`}
                 >
                     <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4" />
@@ -355,7 +355,7 @@ export function EmailClient() {
                 </button>
                 <button
                     onClick={() => setActiveTab('analytics')}
-                    className={\`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors \${activeTab === 'analytics' ? 'border-zoru-brand text-zoru-brand' : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'}\`}
+                    className={`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors ${activeTab === 'analytics' ? 'border-zoru-brand text-zoru-brand' : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'}`}
                 >
                     <div className="flex items-center gap-2">
                         <BarChart className="h-4 w-4" />
@@ -364,7 +364,7 @@ export function EmailClient() {
                 </button>
                 <button
                     onClick={() => setActiveTab('settings')}
-                    className={\`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors \${activeTab === 'settings' ? 'border-zoru-brand text-zoru-brand' : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'}\`}
+                    className={`px-4 py-2 text-[14px] font-medium border-b-2 transition-colors ${activeTab === 'settings' ? 'border-zoru-brand text-zoru-brand' : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink'}`}
                 >
                     <div className="flex items-center gap-2">
                         <Settings className="h-4 w-4" />

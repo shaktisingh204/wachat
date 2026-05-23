@@ -134,6 +134,7 @@ export default function BillingPage() {
                                         : 'No limit'}
                                 </div>
                             </ZoruCardContent>
+                        </ZoruCard>
                         <ZoruCard className="md:col-span-3 border border-zoru-line bg-zoru-surface/50 shadow-[var(--zoru-shadow-sm)]">
                             <ZoruCardHeader className="pb-2">
                                 <ZoruCardTitle className="text-sm text-zoru-ink-muted">Spending limit progress</ZoruCardTitle>

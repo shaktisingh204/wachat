@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 
 import { getCrmBomById } from '@/app/actions/crm-bom.actions';
 import { BomForm, type BomFormInitial } from '../../_components/bom-form';
+import { withTimeout } from '../../lib/timeout';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -16,27 +17,27 @@ export const dynamic = 'force-dynamic';
 
 export default async function EditBomPage({ params }: PageProps) {
   const { id } = await params;
-  const bom = await getCrmBomById(id);
+  const bom = await withTimeout(getCrmBomById(id), 10000);
   if (!bom) notFound();
 
   const initial: BomFormInitial = {
-    _id: String((bom as any)._id),
-    bomNo: (bom as any).bomNo,
+    _id: String(bom._id),
+    bomNo: bom.bomNo,
     finishedGoodId:
-      (bom as any).finishedGoodId &&
-      typeof (bom as any).finishedGoodId !== 'string'
-        ? (bom as any).finishedGoodId.toString?.()
-        : (bom as any).finishedGoodId,
-    finishedGoodName: (bom as any).finishedGoodName,
-    outputQty: (bom as any).outputQty,
-    unit: (bom as any).unit,
-    effectiveDate: (bom as any).effectiveDate,
-    version: (bom as any).version,
-    status: (bom as any).status,
-    notes: (bom as any).notes,
-    labourCost: (bom as any).labourCost,
-    overheadCost: (bom as any).overheadCost,
-    components: (bom as any).components ?? [],
+      bom.finishedGoodId &&
+      typeof bom.finishedGoodId !== 'string'
+        ? bom.finishedGoodId.toString?.()
+        : bom.finishedGoodId,
+    finishedGoodName: bom.finishedGoodName,
+    outputQty: bom.outputQty,
+    unit: bom.unit,
+    effectiveDate: bom.effectiveDate,
+    version: bom.version,
+    status: bom.status,
+    notes: bom.notes,
+    labourCost: bom.labourCost,
+    overheadCost: bom.overheadCost,
+    components: bom.components ?? [],
   };
 
   return <BomForm initial={initial} />;

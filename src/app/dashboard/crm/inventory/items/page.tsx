@@ -24,6 +24,18 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+async function fetchWithTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  let timeoutId: NodeJS.Timeout;
+  const timeoutPromise = new Promise<T>((resolve) => {
+    timeoutId = setTimeout(() => {
+      console.warn('MongoDB fetch timeout exceeded');
+      resolve(fallback);
+    }, ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
+}
+
+
 interface SearchParams {
   page?: string;
   limit?: string;
@@ -49,7 +61,7 @@ function toRow(doc: WithId<CrmProduct>): ItemListRow {
     images?: string[];
   };
   const vendorIds = Array.isArray(d.vendorIds)
-    ? (d.vendorIds as unknown[]).map((id) => String(id))
+    ? (d.vendorIds as string[]).map((id) => String(id))
     : [];
   const inventory = (d.inventory ?? []).map((row) => ({
     warehouseId: String(row.warehouseId),
@@ -122,8 +134,8 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
   // strip so totals aren't capped by `limit`. The list action sources from
   // either Rust BFF or legacy Mongo — see crm-products.actions.ts.
   const [pageResult, kpiResult] = await Promise.all([
-    getCrmProducts(page, limit, q || undefined),
-    getCrmProducts(1, 200, undefined),
+    fetchWithTimeout(getCrmProducts(page, limit, q || undefined), 8000, { products: [], total: 0 }),
+    fetchWithTimeout(getCrmProducts(1, 200, undefined), 8000, { products: [], total: 0 }),
   ]);
 
   const rows = pageResult.products.map(toRow);

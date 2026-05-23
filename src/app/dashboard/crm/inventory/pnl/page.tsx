@@ -1,5 +1,6 @@
 'use client';
 
+import { fmtINR, fmtDate } from "@/lib/utils";
 /**
  * Inventory — Product P&L deep view.
  *
@@ -78,12 +79,6 @@ type SortConfig = {
     direction: 'ascending' | 'descending';
 };
 
-const fmtCurrency = (amount: number): string =>
-    new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        maximumFractionDigits: 0,
-    }).format(amount);
 
 const KPI_EMPTY: PnlDeepKpis = {
     grossSales: 0,
@@ -272,13 +267,13 @@ export default function ProductPnlDeepPage(): React.JSX.Element {
             <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
                 <KpiTile
                     label="Gross sales"
-                    value={fmtCurrency(kpis.grossSales)}
+                    value={fmtINR(kpis.grossSales)}
                     sub="Last 6 months"
                     icon={TrendingUp}
                 />
                 <KpiTile
                     label="COGS"
-                    value={fmtCurrency(kpis.totalCogs)}
+                    value={fmtINR(kpis.totalCogs)}
                     sub="Buying-price × qty sold"
                     icon={TrendingDown}
                 />
@@ -291,7 +286,7 @@ export default function ProductPnlDeepPage(): React.JSX.Element {
                 <KpiTile
                     label="Top profitable item"
                     value={kpis.topProfitable ? kpis.topProfitable.name : '—'}
-                    sub={kpis.topProfitable ? `${fmtCurrency(kpis.topProfitable.profit)} profit` : 'No data'}
+                    sub={kpis.topProfitable ? `${fmtINR(kpis.topProfitable.profit)} profit` : 'No data'}
                     icon={Award}
                 />
             </div>
@@ -307,7 +302,7 @@ export default function ProductPnlDeepPage(): React.JSX.Element {
                             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                             <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                             <YAxis tick={{ fontSize: 11 }} />
-                            <Tooltip formatter={(value) => fmtCurrency(Number(value))} />
+                            <Tooltip formatter={(value) => fmtINR(Number(value))} />
                             <Legend wrapperStyle={{ fontSize: 12 }} />
                             <Line
                                 type="monotone"
@@ -369,16 +364,16 @@ export default function ProductPnlDeepPage(): React.JSX.Element {
                                             {item.netSoldQty}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-foreground">
-                                            {fmtCurrency(item.totalRevenue)}
+                                            {fmtINR(item.totalRevenue)}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-foreground">
-                                            {fmtCurrency(item.avgSellingPrice)}
+                                            {fmtINR(item.avgSellingPrice)}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-foreground">
-                                            {fmtCurrency(item.totalCogs)}
+                                            {fmtINR(item.totalCogs)}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="font-semibold text-foreground">
-                                            {fmtCurrency(item.grossProfit)}
+                                            {fmtINR(item.grossProfit)}
                                         </ZoruTableCell>
                                         <ZoruTableCell
                                             className={`font-semibold ${

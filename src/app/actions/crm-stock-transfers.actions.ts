@@ -13,7 +13,7 @@
  */
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId, type WithId } from 'mongodb';
+import { ObjectId, type WithId, type Filter } from 'mongodb';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
@@ -172,7 +172,7 @@ async function nextTransferNumber(
     userId: ObjectId,
 ): Promise<string> {
     try {
-        const count = await db.collection(COLLECTION).countDocuments({ userId });
+        const count = await db.collection(COLLECTION).countDocuments({ userId }, { maxTimeMS: 5000 });
         return `ST-${String(count + 1).padStart(4, '0')}`;
     } catch {
         return `ST-${Date.now().toString(36).toUpperCase()}`;
@@ -196,7 +196,7 @@ export async function getStockTransferById(
         const doc = await db.collection<CrmStockTransfer>(COLLECTION).findOne({
             _id: new ObjectId(id),
             userId: new ObjectId(session.user._id),
-        });
+        }, { maxTimeMS: 5000 });
         return doc ? JSON.parse(JSON.stringify(doc)) : null;
     } catch (e) {
         console.error('Failed to fetch CRM stock transfer:', e);
@@ -229,7 +229,7 @@ export async function getStockTransfers(
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
 
-        const query: Record<string, unknown> = { userId };
+        const query: Filter<CrmStockTransfer> = { userId };
 
         if (!filters.includeArchived) {
             query.status = { $ne: 'archived' };
@@ -259,7 +259,7 @@ export async function getStockTransfers(
                 search.trim().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'),
                 'i',
             );
-            (query as Record<string, unknown>).$or = [
+            query.$or = [
                 { transferNumber: rx },
                 { notes: rx },
             ];

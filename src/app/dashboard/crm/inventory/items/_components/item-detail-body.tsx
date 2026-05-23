@@ -21,6 +21,9 @@ import type { WithId } from 'mongodb';
  */
 
 import Link from 'next/link';
+import { fmtINR } from '@/lib/utils';
+import { ItemDetailTabs } from './item-detail-tabs';
+import { TabsContent } from '@/components/ui/tabs';
 import Image from 'next/image';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
@@ -28,24 +31,14 @@ import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmProduct } from '@/lib/definitions';
 
 interface ItemDetailBodyProps {
+  defaultTab?: string;
   product: WithId<CrmProduct> & Record<string, unknown>;
   productId: string;
 }
 
-function fmtMoney(value: number | undefined, currency: string): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 2,
-    }).format(value);
-  } catch {
-    return `${currency} ${value}`;
-  }
-}
 
-export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
+
+export function ItemDetailBody({ product, productId, defaultTab }: ItemDetailBodyProps) {
   const currency = product.currency || 'INR';
   const variants = (product.variants as unknown[]) ?? [];
   const specs = (product.specifications as { key: string; value: string }[]) ?? [];
@@ -63,7 +56,8 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
     product.inventory?.[0]?.reorderPoint;
 
   return (
-    <>
+    <ItemDetailTabs defaultTab={defaultTab}>
+      <TabsContent value="overview" className="space-y-4">
       {/* Overview */}
       <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
@@ -139,6 +133,8 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
         </div>
       </Card>
 
+      </TabsContent>
+      <TabsContent value="pricing" className="space-y-4">
       {/* Pricing */}
       <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
@@ -146,10 +142,10 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
         </h2>
         <div className="grid gap-4 md:grid-cols-3">
           <DetailField label="Selling price">
-            {fmtMoney(product.sellingPrice, currency)}
+            {fmtINR(product.sellingPrice, currency)}
           </DetailField>
           <DetailField label="MRP">
-            {fmtMoney(product.mrp as number | undefined, currency)}
+            {fmtINR(product.mrp as number | undefined, currency)}
           </DetailField>
           <DetailField label="Discount %">
             {typeof product.discountPct === 'number'
@@ -157,10 +153,10 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
               : '—'}
           </DetailField>
           <DetailField label="Wholesale">
-            {fmtMoney(product.wholesalePrice as number | undefined, currency)}
+            {fmtINR(product.wholesalePrice as number | undefined, currency)}
           </DetailField>
           <DetailField label="Cost price">
-            {fmtMoney(product.costPrice, currency)}
+            {fmtINR(product.costPrice, currency)}
           </DetailField>
           <DetailField label="Currency">{currency}</DetailField>
           <DetailField label="Tax rate">
@@ -175,6 +171,8 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
         </div>
       </Card>
 
+      </TabsContent>
+      <TabsContent value="inventory" className="space-y-4">
       {/* Inventory per warehouse */}
       <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
@@ -299,6 +297,8 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
         </Card>
       ) : null}
 
+      </TabsContent>
+      <TabsContent value="accounting" className="space-y-4">
       {/* Accounting refs */}
       <Card className="p-6">
         <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
@@ -460,7 +460,8 @@ export function ItemDetailBody({ product, productId }: ItemDetailBodyProps) {
           </div>
         </Card>
       ) : null}
-    </>
+      </TabsContent>
+    </ItemDetailTabs>
   );
 }
 

@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input, DialogDescription } from '@/components/zoruui';

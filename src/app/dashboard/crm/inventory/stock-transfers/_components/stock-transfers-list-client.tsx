@@ -14,6 +14,11 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
+  ZoruDropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
 } from '@/components/zoruui';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import { useDebouncedCallback } from 'use-debounce';
@@ -28,6 +33,9 @@ import {
   Trash2,
   Truck,
   X,
+  MoreVertical,
+  Eye,
+  Edit2,
 } from 'lucide-react';
 
 /**
@@ -53,6 +61,7 @@ import {
   downloadXlsx,
   type ExportRow,
 } from '@/lib/crm-list-export';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 import {
   bulkStockTransferAction,
@@ -77,11 +86,7 @@ const EMPTY_KPIS: CrmStockTransferKpis = {
 
 type StatusFilterValue = '' | CrmStockTransferStatus;
 
-function fmtDate(value: unknown): string {
-  if (!value) return '—';
-  const d = new Date(value as string);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function statusBadge(status: string) {
   if (status === 'Received')
@@ -527,14 +532,38 @@ export function StockTransfersListClient() {
                             {statusBadge(String(r.status || 'Draft'))}
                           </ZoruTableCell>
                           <ZoruTableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              aria-label="Delete"
-                              onClick={() => setDeleteTargetId(id)}
-                            >
-                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                            </Button>
+                            <ZoruDropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" aria-label="Open menu">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem asChild>
+                                  <Link href={`${BASE}/${id}`}>
+                                    <Eye className="mr-2 h-4 w-4" />
+                                    View details
+                                  </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                  <Link href={`${BASE}/${id}/edit`}>
+                                    <Edit2 className="mr-2 h-4 w-4" />
+                                    Edit transfer
+                                  </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  className="text-destructive focus:text-destructive"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteTargetId(id);
+                                  }}
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </ZoruDropdownMenu>
                           </ZoruTableCell>
                         </ZoruTableRow>
                       );

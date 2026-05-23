@@ -25,6 +25,7 @@ import {
     Sparkles,
     UploadCloud,
     XCircle,
+    Download,
 } from 'lucide-react';
 
 import {
@@ -243,6 +244,24 @@ export function ImportWizard({
             setError(`Map every required field: ${missing.join(', ')}`);
             return;
         }
+
+        // Pre-flight validation checks
+        if (parseResult?.sampleRows && parseResult.sampleRows.length > 0) {
+            for (const field of schema.fields) {
+                const header = mapping[field.name];
+                if (!header) continue;
+
+                // Check email format
+                if (field.name.toLowerCase().includes('email')) {
+                    const invalid = parseResult.sampleRows.find(r => r[header] && !r[header].includes('@'));
+                    if (invalid) {
+                        setError(`Pre-flight validation failed: "${invalid[header]}" does not look like a valid email for ${field.label}.`);
+                        return;
+                    }
+                }
+            }
+        }
+
         setIsSubmitting(true);
         setError(null);
         try {
@@ -769,9 +788,15 @@ function ProgressStep({
                             {jobStatus.errors.length} row error
                             {jobStatus.errors.length === 1 ? '' : 's'}
                         </span>
-                        <span className="text-zoru-ink-muted">
-                            {showAllErrors ? 'Show less' : 'Show all'}
-                        </span>
+                        <div className="flex items-center gap-3">
+                            <a href={`/api/import-jobs/${jobId}/errors`} className="text-zoru-accent hover:underline flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                <Download className="h-3.5 w-3.5" />
+                                Download log
+                            </a>
+                            <span className="text-zoru-ink-muted">
+                                {showAllErrors ? 'Show less' : 'Show all'}
+                            </span>
+                        </div>
                     </button>
                     <Table>
                         <ZoruTableHeader>

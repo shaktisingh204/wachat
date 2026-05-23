@@ -1,5 +1,6 @@
 'use client';
 
+import { fmtINR, fmtDate } from "@/lib/utils";
 /**
  * Inventory — Party Transactions deep view.
  *
@@ -72,12 +73,6 @@ type PartyTransaction = {
     rate: number;
 };
 
-const fmtCurrency = (amount: number): string =>
-    new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        maximumFractionDigits: 0,
-    }).format(amount);
 
 const KPI_EMPTY: PartyTransactionsDeepKpis = {
     totalParties: 0,
@@ -163,7 +158,7 @@ export default function PartyTransactionsDeepPage(): React.JSX.Element {
     const exportRows = useMemo<ExportRow[]>(
         () =>
             reportData.map((d) => ({
-                Date: format(new Date(d.date), 'PPP'),
+                Date: fmtDate(d.date),
                 Type: d.type,
                 Reference: d.reference,
                 'Item Name': d.itemName,
@@ -235,17 +230,17 @@ export default function PartyTransactionsDeepPage(): React.JSX.Element {
                 <KpiTile
                     label="Top party by volume"
                     value={kpis.topParty ? kpis.topParty.name : '—'}
-                    sub={kpis.topParty ? fmtCurrency(kpis.topParty.volume) : 'No data'}
+                    sub={kpis.topParty ? fmtINR(kpis.topParty.volume) : 'No data'}
                     icon={Crown}
                 />
                 <KpiTile
                     label="Total debit / credit"
-                    value={`${fmtCurrency(kpis.totalDebit)} / ${fmtCurrency(kpis.totalCredit)}`}
+                    value={`${fmtINR(kpis.totalDebit)} / ${fmtINR(kpis.totalCredit)}`}
                     icon={ArrowUpToLine}
                 />
                 <KpiTile
                     label="Outstanding balance"
-                    value={fmtCurrency(kpis.outstandingBalance)}
+                    value={fmtINR(kpis.outstandingBalance)}
                     sub="Unpaid invoice total"
                     icon={ArrowDownToLine}
                 />
@@ -269,7 +264,7 @@ export default function PartyTransactionsDeepPage(): React.JSX.Element {
                             />
                             <Tooltip
                                 cursor={{ opacity: 0.1 }}
-                                formatter={(value) => fmtCurrency(Number(value))}
+                                formatter={(value) => fmtINR(Number(value))}
                             />
                             <Bar dataKey="volume" fill="hsl(var(--primary))" name="Volume" />
                         </BarChart>
@@ -361,7 +356,7 @@ export default function PartyTransactionsDeepPage(): React.JSX.Element {
                                         className="border-border"
                                     >
                                         <ZoruTableCell className="text-foreground">
-                                            {format(new Date(row.date), 'PPP')}
+                                            {fmtDate(row.date)}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-foreground">{row.type}</ZoruTableCell>
                                         <ZoruTableCell className="font-mono text-[11.5px] text-foreground">
@@ -374,10 +369,10 @@ export default function PartyTransactionsDeepPage(): React.JSX.Element {
                                             {row.quantity}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-right text-foreground">
-                                            {fmtCurrency(row.rate)}
+                                            {fmtINR(row.rate)}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-right font-semibold text-foreground">
-                                            {fmtCurrency(row.quantity * row.rate)}
+                                            {fmtINR(row.quantity * row.rate)}
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))

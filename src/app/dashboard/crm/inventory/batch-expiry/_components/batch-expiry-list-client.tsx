@@ -37,6 +37,11 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/zoruui';
 import {
   Archive,
@@ -47,8 +52,9 @@ import {
   Search,
   Trash2,
   X,
+  MoreHorizontal,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
@@ -60,6 +66,7 @@ import {
   downloadXlsx,
   type ExportRow,
 } from '@/lib/crm-list-export';
+import { fmtDate, fmtINR } from '@/lib/utils';
 import {
   deleteCrmItemBatch,
   saveCrmItemBatch,
@@ -119,24 +126,6 @@ function statusLabelFor(b: CrmItemBatchDoc, flag: ExpiryFlag): string {
   if (flag.expired) return 'expired';
   if (flag.soon && flag.daysLeft != null) return `expires in ${flag.daysLeft}d`;
   return b.status ?? 'active';
-}
-
-function fmtDate(v: string | undefined): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
-
-function fmtMoney(v: number, currency = 'INR'): string {
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(v);
-  } catch {
-    return `${currency} ${v.toLocaleString()}`;
-  }
 }
 
 /* ─── KPI strip ──────────────────────────────────────────────────── */
@@ -212,6 +201,7 @@ export function BatchExpiryListClient({
   kpi,
 }: BatchExpiryListClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useZoruToast();
   const [bulkPending, startBulkTransition] = React.useTransition();
 
@@ -220,7 +210,39 @@ export function BatchExpiryListClient({
   const [statusFilter, setStatusFilter] = React.useState('all');
   const [expiryFilter, setExpiryFilter] = React.useState('all');
   const [locationFilter, setLocationFilter] = React.useState('');
-  const [kpiFilter, setKpiFilter] = React.useState<'all' | 'expired' | 'expiring30'>('all');
+  
+  const tab = searchParams.get('tab') as 'all' | 'expired' | 'expiring30' | null;
+  const kpiFilter = tab ?? 'all';
+
+  const setKpiFilter = React.useCallback((newTab: 'all' | 'expired' | 'expiring30') => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (newTab === 'all') {
+      params.delete('tab');
+    } else {
+      params.set('tab', newTab);
+    }
+    router.push(`?${params.toString()}`);
+  }, [searchParams, router]);
+
+  React.useEffect(() => {
+    // Real-time live inventory tracking via WebSockets
+    const wsUrl = process.env.NEXT_PUBLIC_INVENTORY_WS_URL || 'ws://localhost:3001/inventory';
+    let ws: WebSocket;
+    try {
+      ws = new WebSocket(wsUrl);
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'INVENTORY_UPDATE') {
+            router.refresh();
+          }
+        } catch { /* ignore parse error */ }
+      };
+    } catch { /* ignore connection error */ }
+    return () => {
+      if (ws) ws.close();
+    };
+  }, [router]);
 
   /* Selection */
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -299,7 +321,7 @@ export function BatchExpiryListClient({
     setExpiryFilter('all');
     setLocationFilter('');
     setKpiFilter('all');
-  }, []);
+  }, [setKpiFilter]);
 
   const filtersActive =
     Boolean(query) ||
@@ -469,7 +491,7 @@ export function BatchExpiryListClient({
           />
           <KpiCard
             label="Near-expiry value"
-            value={fmtMoney(kpi.nearExpiryValue)}
+            value={fmtINR(kpi.nearExpiryValue)}
             tone="warning"
           />
         </div>
@@ -713,24 +735,27 @@ export function BatchExpiryListClient({
                           />
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button variant="ghost" size="icon" asChild>
-                              <Link
-                                href={`/dashboard/crm/inventory/batch-expiry/${b._id}/edit`}
-                                aria-label={`Edit ${b.batchNumber}`}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" aria-label={`Actions for ${b.batchNumber}`}>
+                                <MoreHorizontal className="h-4 w-4 text-zoru-ink-muted" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem asChild>
+                                <Link href={`/dashboard/crm/inventory/batch-expiry/${b._id}/edit`}>
+                                  <Edit className="mr-2 h-4 w-4 text-zoru-ink-muted" /> Edit
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => setSingleDeleteTarget(b)}
+                                className="text-destructive focus:bg-red-50 focus:text-red-700 dark:focus:bg-red-950/50 dark:focus:text-red-300"
                               >
-                                <Edit className="h-4 w-4 text-zoru-ink-muted" />
-                              </Link>
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setSingleDeleteTarget(b)}
-                              aria-label={`Delete ${b.batchNumber}`}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </ZoruTableCell>
                       </ZoruTableRow>
                     );

@@ -1,6 +1,9 @@
 'use client';
 
 import * as React from 'react';
+import { usePathname } from 'next/navigation';
+
+import { fmtINR } from '@/lib/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -35,16 +38,7 @@ interface ItemsTableProps {
   density?: ItemDensity;
 }
 
-function fmtMoney(value: number | undefined, currency: string): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 2,
-    }).format(value);
-  } catch {
-    return `${currency} ${value}`;
+`;
   }
 }
 
@@ -57,7 +51,16 @@ export function ItemsTable({
   filtersActive,
   density = 'comfortable',
 }: ItemsTableProps) {
-  const { toast } = useZoruToast();
+  
+  const pathname = usePathname();
+  const [contextMenu, setContextMenu] = React.useState<{ id: string; x: number; y: number } | null>(null);
+
+  React.useEffect(() => {
+    const handleClick = () => setContextMenu(null);
+    window.addEventListener('click', handleClick);
+    return () => window.removeEventListener('click', handleClick);
+  }, []);
+const { toast } = useZoruToast();
   const router = useRouter();
 
   const bulky = useCrmBulkyState<ItemListRow>({
@@ -165,7 +168,7 @@ export function ItemsTable({
       sortable: true,
       render: (row) => (
         <span className="font-mono tabular-nums text-zoru-ink text-right block w-full">
-          {fmtMoney(row.sellingPrice, row.currency)}
+          {fmtINR(row.sellingPrice, row.currency)}
         </span>
       ),
     },

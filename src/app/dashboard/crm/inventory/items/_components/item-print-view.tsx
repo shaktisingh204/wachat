@@ -1,4 +1,5 @@
 import { Card } from '@/components/zoruui';
+import { fmtINR } from '@/lib/utils';
 /**
  * <ItemPrintView> — A4 label sheet for an item barcode or QR.
  *
@@ -25,15 +26,7 @@ interface ItemPrintViewProps {
 // 3-column × 8-row standard label sheet (24 labels per A4).
 const LABELS_PER_SHEET = 24;
 
-function fmtMoney(value: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${currency} ${value}`;
+`;
   }
 }
 
@@ -81,7 +74,7 @@ export function ItemPrintView({
             )}
             <div className="text-[11px] font-mono">{code}</div>
             <div className="text-[10.5px] text-zinc-600">
-              {fmtMoney(sellingPrice, currency)}
+              {fmtINR(sellingPrice, currency)}
             </div>
           </div>
         ))}

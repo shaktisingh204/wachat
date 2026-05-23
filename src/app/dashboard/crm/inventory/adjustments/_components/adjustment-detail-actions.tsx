@@ -34,6 +34,16 @@ export function AdjustmentDetailActions({
 }: AdjustmentDetailActionsProps) {
     const router = useRouter();
     const { toast } = useZoruToast();
+async function handleRevert() {
+        if (!confirm('Are you sure you want to create a reverting adjustment?')) return;
+        const res = await revertStockAdjustment(id);
+        if (res.success) {
+            toast({ title: 'Reverted', description: 'Compensating adjustment created.' });
+            if (res.newAdjustmentId) router.push(`/dashboard/crm/inventory/adjustments/${res.newAdjustmentId}`);
+        } else {
+            toast({ title: 'Revert failed', description: res.error, variant: 'destructive' });
+        }
+    }
 
     const [approveNotes, setApproveNotes] = React.useState('');
     const [rejectNotes, setRejectNotes] = React.useState('');

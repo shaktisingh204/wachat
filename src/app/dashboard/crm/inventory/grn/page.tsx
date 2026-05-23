@@ -47,15 +47,22 @@ export default async function GrnPage({
     const dateFrom = (sp.dateFrom ?? '').trim();
     const dateTo = (sp.dateTo ?? '').trim();
 
+    const withTimeout = <T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> => {
+        return Promise.race([
+            promise,
+            new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms))
+        ]).catch(() => fallback);
+    };
+
     const [{ grns, hasMore, error }, kpis] = await Promise.all([
-        listGrns({
+        withTimeout(listGrns({
             page,
             limit,
             q: q || undefined,
             vendorId: vendorId || undefined,
             status: status || undefined,
-        }),
-        getGrnKpis(),
+        }), 8000, { grns: [], hasMore: false, error: 'Database fetch timed out.' }),
+        withTimeout(getGrnKpis(), 8000, { total: 0, draft: 0, posted: 0, rejected: 0 }),
     ]);
 
     // Client-side filter for warehouse, qcStatus and date range — the

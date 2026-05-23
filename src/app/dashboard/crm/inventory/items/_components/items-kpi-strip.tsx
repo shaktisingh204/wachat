@@ -1,6 +1,7 @@
 'use client';
 
 import { StatCard } from '@/components/zoruui';
+import { fmtINR } from '@/lib/utils';
 import { Boxes, CheckCircle2, AlertTriangle, XCircle, Wallet, PackageCheck } from 'lucide-react';
 
 /**
@@ -21,15 +22,7 @@ interface ItemsKpiStripProps {
   onSelect: (preset: ItemPresetKey) => void;
 }
 
-function fmtMoney(value: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${currency} ${Math.round(value).toLocaleString('en-IN')}`;
+`;
   }
 }
 
@@ -94,7 +87,7 @@ export function ItemsKpiStrip({ kpi, currency, active, onSelect }: ItemsKpiStrip
       </KpiButton>
       <StatCard
         label="Inventory value"
-        value={fmtMoney(kpi.inventoryValue, currency)}
+        value={fmtINR(kpi.inventoryValue, currency)}
         period="cost × on-hand"
         icon={<Wallet />}
       />

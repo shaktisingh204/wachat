@@ -29,15 +29,13 @@ import { LineageRail } from '@/components/crm/lineage-rail';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getGrn } from '@/app/actions/crm/grns.actions';
 import { GrnDetailActions } from '../_components/grn-detail-actions';
+import { GrnTabsClient } from '../_components/grn-tabs-client';
 import type { LineageRef } from '@/lib/definitions';
+import { fmtDate } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
-function fmtDate(v?: string): string {
-    if (!v) return '—';
-    const d = new Date(v);
-    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function fmtQty(n?: number): string {
     if (typeof n !== 'number' || !Number.isFinite(n)) return '—';
@@ -205,140 +203,144 @@ export default async function GrnDetailPage({
                         </div>
                     </Card>
 
-                    {/* Vehicle & transport — only when carried forward by the legacy form */}
-                    {transport &&
-                    (transport.vehicleNumber ||
-                        transport.driverName ||
-                        transport.lrNumber ||
-                        transport.mode) ? (
-                        <Card className="p-6">
-                            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                                Vehicle & transport
-                            </h3>
-                            <div className="grid gap-4 md:grid-cols-3">
-                                <Field label="Vehicle number">
-                                    {transport.vehicleNumber || '—'}
-                                </Field>
-                                <Field label="Driver">{transport.driverName || '—'}</Field>
-                                <Field label="Mode">{transport.mode || '—'}</Field>
-                                <Field label="LR / consignment">
-                                    {transport.lrNumber || '—'}
-                                </Field>
-                                <Field label="LR date">{fmtDate(transport.lrDate)}</Field>
-                            </div>
-                        </Card>
-                    ) : null}
-
-                    {/* Line items */}
-                    <Card className="overflow-hidden p-0">
-                        <div className="border-b border-zoru-line p-3">
-                            <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                                Line items
-                            </h3>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-[12.5px]">
-                                <thead>
-                                    <tr className="border-b border-zoru-line bg-zoru-surface-2 text-left text-zoru-ink-muted">
-                                        <th className="px-3 py-2 font-medium">Item</th>
-                                        <th className="px-3 py-2 text-right font-medium">Ordered</th>
-                                        <th className="px-3 py-2 text-right font-medium">Received</th>
-                                        <th className="px-3 py-2 text-right font-medium">Accepted</th>
-                                        <th className="px-3 py-2 text-right font-medium">Rejected</th>
-                                        <th className="px-3 py-2 font-medium">Batch</th>
-                                        <th className="px-3 py-2 font-medium">Expiry</th>
-                                        <th className="px-3 py-2 font-medium">Serial nos.</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {items.length === 0 ? (
-                                        <tr>
-                                            <td
-                                                colSpan={8}
-                                                className="h-20 px-3 text-center text-zoru-ink-muted"
-                                            >
-                                                No line items.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        items.map((it, idx) => (
-                                            <tr
-                                                key={idx}
-                                                className="border-b border-zoru-line/60 text-zoru-ink"
-                                            >
-                                                <td className="px-3 py-2">
-                                                    {it.itemId ? (
-                                                        <EntityPickerChip
-                                                            entity="item"
-                                                            id={it.itemId}
-                                                        />
-                                                    ) : (
-                                                        '—'
-                                                    )}
-                                                </td>
-                                                <td className="px-3 py-2 text-right tabular-nums">
-                                                    {fmtQty(it.orderedQty)}
-                                                </td>
-                                                <td className="px-3 py-2 text-right tabular-nums">
-                                                    {fmtQty(it.receivedQty)}
-                                                </td>
-                                                <td className="px-3 py-2 text-right tabular-nums">
-                                                    {fmtQty(it.acceptedQty)}
-                                                </td>
-                                                <td className="px-3 py-2 text-right tabular-nums">
-                                                    {fmtQty(it.rejectedQty)}
-                                                </td>
-                                                <td className="px-3 py-2 text-zoru-ink-muted">
-                                                    {it.batch || '—'}
-                                                </td>
-                                                <td className="px-3 py-2 text-zoru-ink-muted">
-                                                    {fmtDate(it.expiry)}
-                                                </td>
-                                                <td className="px-3 py-2 text-zoru-ink-muted">
-                                                    {Array.isArray(it.serialNos) &&
-                                                    it.serialNos.length > 0
-                                                        ? it.serialNos.join(', ')
-                                                        : '—'}
-                                                </td>
+                    <GrnTabsClient
+                        itemsContent={
+                            <Card className="overflow-hidden p-0">
+                                <div className="border-b border-zoru-line p-3">
+                                    <h3 className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                                        Line items
+                                    </h3>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-[12.5px]">
+                                        <thead>
+                                            <tr className="border-b border-zoru-line bg-zoru-surface-2 text-left text-zoru-ink-muted">
+                                                <th className="px-3 py-2 font-medium">Item</th>
+                                                <th className="px-3 py-2 text-right font-medium">Ordered</th>
+                                                <th className="px-3 py-2 text-right font-medium">Received</th>
+                                                <th className="px-3 py-2 text-right font-medium">Accepted</th>
+                                                <th className="px-3 py-2 text-right font-medium">Rejected</th>
+                                                <th className="px-3 py-2 font-medium">Batch</th>
+                                                <th className="px-3 py-2 font-medium">Expiry</th>
+                                                <th className="px-3 py-2 font-medium">Serial nos.</th>
                                             </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </Card>
-
-                    {/* Attachments / photos */}
-                    {Array.isArray(grn.attachments) && grn.attachments.length > 0 ? (
-                        <Card className="p-6">
-                            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                                Photos & attachments ({grn.attachments.length})
-                            </h3>
-                            <ul className="grid grid-cols-2 gap-2 md:grid-cols-4">
-                                {grn.attachments.map((a, idx) => (
-                                    <li
-                                        key={idx}
-                                        className="overflow-hidden rounded-md border border-zoru-line bg-zoru-surface-2 p-2 text-[12px] text-zoru-ink-muted"
-                                    >
-                                        <span className="line-clamp-2">
-                                            {a.name || a.url || `Attachment ${idx + 1}`}
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </Card>
-                    ) : null}
-
-                    {extra.notes ? (
-                        <Card className="p-6">
-                            <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                                Notes
-                            </h3>
-                            <div className="whitespace-pre-wrap text-[13px] text-zoru-ink">
-                                {extra.notes}
-                            </div>
-                        </Card>
-                    ) : null}
+                                        </thead>
+                                        <tbody>
+                                            {items.length === 0 ? (
+                                                <tr>
+                                                    <td
+                                                        colSpan={8}
+                                                        className="h-20 px-3 text-center text-zoru-ink-muted"
+                                                    >
+                                                        No line items.
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                items.map((it, idx) => (
+                                                    <tr
+                                                        key={idx}
+                                                        className="border-b border-zoru-line/60 text-zoru-ink"
+                                                    >
+                                                        <td className="px-3 py-2">
+                                                            {it.itemId ? (
+                                                                <EntityPickerChip
+                                                                    entity="item"
+                                                                    id={it.itemId}
+                                                                />
+                                                            ) : (
+                                                                '—'
+                                                            )}
+                                                        </td>
+                                                        <td className="px-3 py-2 text-right tabular-nums">
+                                                            {fmtQty(it.orderedQty)}
+                                                        </td>
+                                                        <td className="px-3 py-2 text-right tabular-nums">
+                                                            {fmtQty(it.receivedQty)}
+                                                        </td>
+                                                        <td className="px-3 py-2 text-right tabular-nums">
+                                                            {fmtQty(it.acceptedQty)}
+                                                        </td>
+                                                        <td className="px-3 py-2 text-right tabular-nums">
+                                                            {fmtQty(it.rejectedQty)}
+                                                        </td>
+                                                        <td className="px-3 py-2 text-zoru-ink-muted">
+                                                            {it.batch || '—'}
+                                                        </td>
+                                                        <td className="px-3 py-2 text-zoru-ink-muted">
+                                                            {fmtDate(it.expiry)}
+                                                        </td>
+                                                        <td className="px-3 py-2 text-zoru-ink-muted">
+                                                            {Array.isArray(it.serialNos) &&
+                                                            it.serialNos.length > 0
+                                                                ? it.serialNos.join(', ')
+                                                                : '—'}
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </Card>
+                        }
+                        vehicleContent={
+                            transport &&
+                            (transport.vehicleNumber ||
+                                transport.driverName ||
+                                transport.lrNumber ||
+                                transport.mode) ? (
+                                <Card className="p-6">
+                                    <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                                        Vehicle & transport
+                                    </h3>
+                                    <div className="grid gap-4 md:grid-cols-3">
+                                        <Field label="Vehicle number">
+                                            {transport.vehicleNumber || '—'}
+                                        </Field>
+                                        <Field label="Driver">{transport.driverName || '—'}</Field>
+                                        <Field label="Mode">{transport.mode || '—'}</Field>
+                                        <Field label="LR / consignment">
+                                            {transport.lrNumber || '—'}
+                                        </Field>
+                                        <Field label="LR date">{fmtDate(transport.lrDate)}</Field>
+                                    </div>
+                                </Card>
+                            ) : null
+                        }
+                        attachmentsContent={
+                            Array.isArray(grn.attachments) && grn.attachments.length > 0 ? (
+                                <Card className="p-6">
+                                    <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                                        Photos & attachments ({grn.attachments.length})
+                                    </h3>
+                                    <ul className="grid grid-cols-2 gap-2 md:grid-cols-4">
+                                        {grn.attachments.map((a, idx) => (
+                                            <li
+                                                key={idx}
+                                                className="overflow-hidden rounded-md border border-zoru-line bg-zoru-surface-2 p-2 text-[12px] text-zoru-ink-muted"
+                                            >
+                                                <span className="line-clamp-2">
+                                                    {a.name || a.url || `Attachment ${idx + 1}`}
+                                                </span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </Card>
+                            ) : null
+                        }
+                        notesContent={
+                            extra.notes ? (
+                                <Card className="p-6">
+                                    <h3 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                                        Notes
+                                    </h3>
+                                    <div className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+                                        {extra.notes}
+                                    </div>
+                                </Card>
+                            ) : null
+                        }
+                    />
 
                     <div className="text-[11px] text-zoru-ink-muted">
                         Created {fmtDate(grn.createdAt || grn.audit?.createdAt)} · Updated{' '}

@@ -83,6 +83,8 @@ export function ImportWizardShell({
     const [wizardKey, setWizardKey] = React.useState(0);
     const [jobs, setJobs] = React.useState<ImportJobStatus[]>(initialJobs);
     const [isRefreshing, setIsRefreshing] = React.useState(false);
+    const [page, setPage] = React.useState(1);
+    const pageSize = 5;
 
     const refresh = React.useCallback(async (): Promise<void> => {
         setIsRefreshing(true);
@@ -187,7 +189,7 @@ export function ImportWizardShell({
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
-                                {jobs.map((job) => {
+                                {jobs.slice((page - 1) * pageSize, page * pageSize).map((job) => {
                                     const schema = ENTITY_SCHEMAS[job.entityType];
                                     const total = job.totalRows || 0;
                                     const pct =
@@ -266,6 +268,31 @@ export function ImportWizardShell({
                                 })}
                             </ZoruTableBody>
                         </Table>
+                    </div>
+                )}
+                {jobs.length > pageSize && (
+                    <div className="flex items-center justify-between border-t border-zoru-line px-4 py-3">
+                        <div className="text-[12.5px] text-zoru-ink-muted">
+                            Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, jobs.length)} of {jobs.length} imports
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => setPage(p => Math.max(1, p - 1))}
+                                disabled={page === 1}
+                            >
+                                Previous
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => setPage(p => Math.min(Math.ceil(jobs.length / pageSize), p + 1))}
+                                disabled={page === Math.ceil(jobs.length / pageSize)}
+                            >
+                                Next
+                            </Button>
+                        </div>
                     </div>
                 )}
             </Card>

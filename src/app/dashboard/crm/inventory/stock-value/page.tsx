@@ -1,5 +1,6 @@
 'use client';
 
+import { fmtINR, fmtDate } from "@/lib/utils";
 /**
  * Inventory — Stock Value report (deep view).
  *
@@ -85,12 +86,6 @@ const PIE_COLORS = [
     '#ec4899',
 ];
 
-const fmtCurrency = (amount: number): string =>
-    new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        maximumFractionDigits: 0,
-    }).format(amount);
 
 const KPI_EMPTY: StockValueDeepKpis = {
     totalStockValue: 0,
@@ -223,19 +218,19 @@ export default function StockValueDeepPage(): React.JSX.Element {
             <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
                 <KpiTile
                     label="Total stock value"
-                    value={fmtCurrency(kpis.totalStockValue || summary.totalValue || 0)}
+                    value={fmtINR(kpis.totalStockValue || summary.totalValue || 0)}
                     sub={`${(summary.totalUnits ?? 0).toLocaleString('en-IN')} units · ${(summary.productCount ?? 0).toLocaleString('en-IN')} SKUs`}
                     icon={IndianRupee}
                 />
                 <KpiTile
                     label="Fast-moving value"
-                    value={fmtCurrency(kpis.fastMovingValue)}
+                    value={fmtINR(kpis.fastMovingValue)}
                     sub="≥ 10 units sold in last 90d"
                     icon={Zap}
                 />
                 <KpiTile
                     label="Slow-moving value"
-                    value={fmtCurrency(kpis.slowMovingValue)}
+                    value={fmtINR(kpis.slowMovingValue)}
                     sub="0 units sold in last 90d"
                     icon={Snowflake}
                 />
@@ -280,7 +275,7 @@ export default function StockValueDeepPage(): React.JSX.Element {
                                         />
                                     ))}
                                 </Pie>
-                                <Tooltip formatter={(value) => fmtCurrency(Number(value))} />
+                                <Tooltip formatter={(value) => fmtINR(Number(value))} />
                                 <Legend wrapperStyle={{ fontSize: 12 }} />
                             </PieChart>
                         </ResponsiveContainer>
@@ -327,10 +322,10 @@ export default function StockValueDeepPage(): React.JSX.Element {
                                             {item.stock}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-right font-mono text-foreground">
-                                            {fmtCurrency(item.unitCost)}
+                                            {fmtINR(item.unitCost)}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-right font-semibold text-foreground">
-                                            {fmtCurrency(item.stockValue)}
+                                            {fmtINR(item.stockValue)}
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))

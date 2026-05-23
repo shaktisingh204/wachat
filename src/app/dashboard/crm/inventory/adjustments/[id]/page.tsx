@@ -29,6 +29,8 @@ import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getCrmStockAdjustmentById } from '@/app/actions/crm-inventory.actions';
 
 import { AdjustmentDetailActions } from '../_components/adjustment-detail-actions';
+import { PrintButton } from '../_components/print-button';
+import { mapToStockAdjustmentDto } from '../types';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 interface PageProps {
@@ -56,28 +58,19 @@ function fmtDateOnly(value: unknown): string {
 
 export default async function StockAdjustmentDetailPage({ params }: PageProps) {
     const { id } = await params;
-    const adj = await getCrmStockAdjustmentById(id);
-    if (!adj) notFound();
+    const rawAdj = await getCrmStockAdjustmentById(id);
+    const adj = mapToStockAdjustmentDto(rawAdj);
+    if (!rawAdj) notFound();
 
-    const status = ((adj as any).status as string) || 'pending';
+    const status = (adj.status as string) || 'pending';
     const qty = typeof adj.quantity === 'number' ? adj.quantity : 0;
-    const cost = Number((adj as any).costPerUnit || 0);
-    const productName = (adj as any).productName as string | undefined;
-    const warehouseName = (adj as any).warehouseName as string | undefined;
+    const cost = Number(adj.costPerUnit || 0);
+    const productName = adj.productName as string | undefined;
+    const warehouseName = adj.warehouseName as string | undefined;
     const number =
-        (adj as any).adjustmentNumber || `ADJ-${String(adj._id).slice(-6)}`;
+        adj.adjustmentNumber || `ADJ-${String(adj._id).slice(-6)}`;
     const title = `${number}${productName ? ` · ${productName}` : ''}`;
-    const lines = ((adj as any).lines as
-        | Array<{
-              productId: string;
-              qtyBefore?: number;
-              qtyAfter?: number;
-              delta?: number;
-              batch?: string;
-              serial?: string;
-              costPerUnit?: number;
-          }>
-        | undefined) ?? [];
+    const lines = (adj.lines) ?? [];
 
     const totalImpact = lines.length
         ? lines.reduce(
@@ -118,12 +111,7 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                             Edit
                         </Link>
                     </Button>
-                    <Button variant="outline" size="sm" asChild>
-                        <a href="javascript:window.print()">
-                            <Printer className="h-3.5 w-3.5" strokeWidth={1.75} />
-                            Print
-                        </a>
-                    </Button>
+                    <PrintButton />
                     <AdjustmentDetailActions id={id} status={status} />
                 </>
             }
@@ -229,11 +217,13 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                                                 className="border-t border-zoru-line"
                                             >
                                                 <td className="px-3 py-2">
-                                                    <EntityPickerChip
-                                                        entity="item"
-                                                        id={String(l.productId)}
-                                                        fallback="Item"
-                                                    />
+                                                    <Link href={`/dashboard/crm/inventory/products/${l.productId}/ledger`} className="hover:underline">
+                                                        <EntityPickerChip
+                                                            entity="item"
+                                                            id={String(l.productId)}
+                                                            fallback="Item"
+                                                        />
+                                                    </Link>
                                                 </td>
                                                 <td className="px-3 py-2 text-right font-mono">
                                                     {l.qtyBefore ?? 0}
@@ -274,11 +264,13 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                                 ) : (
                                     <tr className="border-t border-zoru-line">
                                         <td className="px-3 py-2">
-                                            <EntityPickerChip
-                                                entity="item"
-                                                id={String(adj.productId)}
-                                                fallback={productName || 'Item'}
-                                            />
+                                            <Link href={`/dashboard/crm/inventory/products/${adj.productId}/ledger`} className="hover:underline">
+                                                <EntityPickerChip
+                                                    entity="item"
+                                                    id={String(adj.productId)}
+                                                    fallback={productName || 'Item'}
+                                                />
+                                            </Link>
                                         </td>
                                         <td className="px-3 py-2 text-right font-mono">—</td>
                                         <td className="px-3 py-2 text-right font-mono">—</td>
@@ -337,12 +329,12 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                         <div>
                             <dt className="text-xs text-zinc-500">Approver</dt>
                             <dd className="text-zinc-900 dark:text-zinc-100">
-                                {(adj as any).approvedBy ? (
+                                {adj.approvedBy ? (
                                     <EntityPickerChip
                                         entity="user"
-                                        id={String((adj as any).approvedBy)}
+                                        id={String(adj.approvedBy)}
                                         fallback={
-                                            (adj as any).approvedByName || 'Approver'
+                                            adj.approvedByName || 'Approver'
                                         }
                                     />
                                 ) : (
@@ -353,14 +345,14 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                         <div>
                             <dt className="text-xs text-zinc-500">Approved at</dt>
                             <dd className="text-zinc-900 dark:text-zinc-100">
-                                {fmtDateOnly((adj as any).approvedAt)}
+                                {fmtDateOnly(adj.approvedAt)}
                             </dd>
                         </div>
-                        {(adj as any).approvalNotes ? (
+                        {adj.approvalNotes ? (
                             <div className="sm:col-span-2">
                                 <dt className="text-xs text-zinc-500">Notes</dt>
                                 <dd className="whitespace-pre-wrap text-zinc-900 dark:text-zinc-100">
-                                    {(adj as any).approvalNotes}
+                                    {adj.approvalNotes}
                                 </dd>
                             </div>
                         ) : null}

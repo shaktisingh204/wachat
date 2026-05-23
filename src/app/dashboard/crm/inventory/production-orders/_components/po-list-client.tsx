@@ -1,8 +1,7 @@
 'use client';
 
 import { Button, useZoruToast } from '@/components/zoruui';
-import {
-  useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Factory,
   Plus } from 'lucide-react';
 
@@ -88,17 +87,76 @@ function toCsv(rows: CrmProductionOrderDoc[]): string {
 
 export function PoListClient({ initialOrders, initialKpis }: PoListClientProps) {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
     const { toast } = useZoruToast();
 
+    // Use a state for orders to allow real-time updates
+    const [orders, setOrders] = React.useState<CrmProductionOrderDoc[]>(initialOrders);
+
+    // WebSocket real-time updates placeholder
+    React.useEffect(() => {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/api/ws/inventory`;
+        let ws: WebSocket;
+        try {
+            ws = new WebSocket(wsUrl);
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'PO_UPDATE') {
+                        setOrders((prev) => {
+                            const idx = prev.findIndex((o) => o._id === data.payload._id);
+                            if (idx >= 0) {
+                                const copy = [...prev];
+                                copy[idx] = { ...copy[idx], ...data.payload };
+                                return copy;
+                            }
+                            return [data.payload, ...prev];
+                        });
+                    } else if (data.type === 'PO_DELETE') {
+                        setOrders((prev) => prev.filter((o) => o._id !== data.payload._id));
+                    }
+                } catch (e) {
+                    console.error('WS parse error:', e);
+                }
+            };
+        } catch (e) {
+            console.warn('Real-time updates not available:', e);
+        }
+        return () => ws?.close();
+    }, []);
+
     /* Filters */
-    const [search, setSearch] = React.useState('');
-    const [statusFilter, setStatusFilter] = React.useState<PoStatusFilter>('all');
-    const [bomFilter, setBomFilter] = React.useState('');
-    const [machineFilter, setMachineFilter] = React.useState('');
-    const [operatorFilter, setOperatorFilter] = React.useState('');
-    const [dateFrom, setDateFrom] = React.useState('');
-    const [dateTo, setDateTo] = React.useState('');
-    const [yieldBucket, setYieldBucket] = React.useState<PoYieldBucket>('all');
+    const [search, setSearch] = React.useState(searchParams.get('search') || '');
+    const [statusFilter, setStatusFilter] = React.useState<PoStatusFilter>(
+        (searchParams.get('status') as PoStatusFilter) || 'all'
+    );
+    const [bomFilter, setBomFilter] = React.useState(searchParams.get('bom') || '');
+    const [machineFilter, setMachineFilter] = React.useState(searchParams.get('machine') || '');
+    const [operatorFilter, setOperatorFilter] = React.useState(searchParams.get('operator') || '');
+    const [dateFrom, setDateFrom] = React.useState(searchParams.get('dateFrom') || '');
+    const [dateTo, setDateTo] = React.useState(searchParams.get('dateTo') || '');
+    const [yieldBucket, setYieldBucket] = React.useState<PoYieldBucket>(
+        (searchParams.get('yieldBucket') as PoYieldBucket) || 'all'
+    );
+
+    // Deep linking: Sync state to URL params
+    React.useEffect(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (search) params.set('search', search); else params.delete('search');
+        if (statusFilter !== 'all') params.set('status', statusFilter); else params.delete('status');
+        if (bomFilter) params.set('bom', bomFilter); else params.delete('bom');
+        if (machineFilter) params.set('machine', machineFilter); else params.delete('machine');
+        if (operatorFilter) params.set('operator', operatorFilter); else params.delete('operator');
+        if (dateFrom) params.set('dateFrom', dateFrom); else params.delete('dateFrom');
+        if (dateTo) params.set('dateTo', dateTo); else params.delete('dateTo');
+        if (yieldBucket !== 'all') params.set('yieldBucket', yieldBucket); else params.delete('yieldBucket');
+        
+        const q = params.toString();
+        router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
+    }, [search, statusFilter, bomFilter, machineFilter, operatorFilter, dateFrom, dateTo, yieldBucket, pathname, router, searchParams]);
+
 
     /* Selection + dialogs */
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -119,7 +177,7 @@ export function PoListClient({ initialOrders, initialKpis }: PoListClientProps) 
         const q = search.trim().toLowerCase();
         const fromTs = dateFrom ? new Date(dateFrom).getTime() : null;
         const toTs = dateTo ? new Date(dateTo).getTime() : null;
-        return initialOrders.filter((o) => {
+        return orders.filter((o) => {
             if (q) {
                 const hay = `${o.orderNo ?? ''} ${o.finishedGoodName ?? ''} ${o.bomRef ?? ''}`.toLowerCase();
                 if (!hay.includes(q)) return false;
@@ -156,7 +214,7 @@ export function PoListClient({ initialOrders, initialKpis }: PoListClientProps) 
             return true;
         });
     }, [
-        initialOrders,
+        orders,
         search,
         statusFilter,
         bomFilter,
@@ -197,7 +255,7 @@ export function PoListClient({ initialOrders, initialKpis }: PoListClientProps) 
     const exportCsv = React.useCallback(() => {
         const rows =
             selected.size > 0
-                ? initialOrders.filter((o) => selected.has(o._id))
+                ? orders.filter((o) => selected.has(o._id))
                 : filtered;
         if (rows.length === 0) {
             toast({ title: 'Nothing to export', description: 'Filter or select rows first.' });
@@ -214,7 +272,7 @@ export function PoListClient({ initialOrders, initialKpis }: PoListClientProps) 
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         toast({ title: 'Exported', description: `${rows.length} orders saved to CSV.` });
-    }, [initialOrders, filtered, selected, toast]);
+    }, [orders, filtered, selected, toast]);
 
     const handleDeleteConfirm = React.useCallback(async () => {
         if (!deleteTargetId) return;

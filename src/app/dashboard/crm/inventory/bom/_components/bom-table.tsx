@@ -1,5 +1,6 @@
 'use client';
 
+import { fmtDate } from '@/lib/utils';
 import {
   Checkbox,
   DropdownMenu,
@@ -23,6 +24,7 @@ import {
   MoreHorizontal,
   Power,
   Trash2 } from 'lucide-react';
+import { RowContextMenu } from './context-menu';
 
 /**
  * <BomTable> — 10-column dense table per §1D.1: select · BOM code ·
@@ -51,11 +53,6 @@ export interface BomTableProps {
     onToggleStatus: (id: string, active: boolean) => void;
 }
 
-function fmtDate(v: unknown): string {
-    if (!v) return '—';
-    const d = new Date(v as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
 
 function fmtNum(v: unknown): string {
     if (typeof v !== 'number' || !Number.isFinite(v)) return '—';
@@ -137,16 +134,16 @@ export function BomTable({
                             const id = String(bom._id);
                             const isSel = selectedIds.has(id);
                             const status = bom.status || 'draft';
-                            const isActive = (bom as any).active === true || status === 'active';
+                            const isActive = bom.active === true || status === 'active';
                             const fgId =
                                 bom.finishedGoodId
                                     ? typeof bom.finishedGoodId === 'string'
                                         ? bom.finishedGoodId
-                                        : (bom.finishedGoodId as any)?.toString?.()
+                                        : (bom.finishedGoodId as { toString?: () => string })?.toString?.()
                                     : '';
                             return (
+                                <RowContextMenu key={id} bomId={id}>
                                 <ZoruTableRow
-                                    key={id}
                                     className={[
                                         'border-zoru-line transition-colors',
                                         status === 'archived' ? 'opacity-70' : '',
@@ -255,6 +252,7 @@ export function BomTable({
                                         </DropdownMenu>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
+                                </RowContextMenu>
                             );
                         })
                     )}

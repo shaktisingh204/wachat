@@ -9,6 +9,7 @@
 import { notFound } from 'next/navigation';
 
 import { getCrmStockAdjustmentById } from '@/app/actions/crm-inventory.actions';
+import { mapToStockAdjustmentDto } from '../../types';
 import { AdjustmentEditForm } from './adjustment-edit-form';
 
 interface PageProps {
@@ -20,16 +21,7 @@ export default async function EditStockAdjustmentPage({ params }: PageProps) {
     const adj = await getCrmStockAdjustmentById(id);
     if (!adj) notFound();
 
-    const initial = JSON.parse(JSON.stringify(adj)) as {
-        _id: string;
-        reason: string;
-        notes?: string;
-        quantity: number;
-        productName?: string;
-        warehouseName?: string;
-        referenceNumber?: string;
-        adjustmentNumber?: string;
-    };
+    const initial = mapToStockAdjustmentDto(adj) as any;
 
     return <AdjustmentEditForm initial={initial} />;
 }

@@ -29,6 +29,7 @@ import Link from 'next/link';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+import { fmtDate } from '@/lib/utils';
 
 import type { CrmProductionOrderDoc } from '@/app/actions/crm-production-orders.actions';
 
@@ -47,11 +48,7 @@ export interface PoTableProps {
     onDelete: (id: string) => void;
 }
 
-function fmtDate(v: unknown): string {
-    if (!v) return '—';
-    const d = new Date(v as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function fmtNum(v: unknown): string {
     if (typeof v !== 'number' || !Number.isFinite(v)) return '—';
@@ -115,6 +112,11 @@ export function PoTable({
                             return (
                                 <ZoruTableRow
                                     key={o._id}
+                                    onContextMenu={(e) => {
+                                        e.preventDefault();
+                                        const btn = document.getElementById(`po-actions-${o._id}`);
+                                        if (btn) btn.click();
+                                    }}
                                     className={[
                                         'border-zoru-line transition-colors',
                                         isSel ? 'bg-zoru-surface-2/70' : '',
@@ -172,6 +174,7 @@ export function PoTable({
                                         <DropdownMenu>
                                             <ZoruDropdownMenuTrigger asChild>
                                                 <button
+                                                    id={`po-actions-${o._id}`}
                                                     type="button"
                                                     aria-label={`Actions for ${o.orderNo}`}
                                                     className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"

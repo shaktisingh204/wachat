@@ -41,6 +41,7 @@ import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 import type { CrmStockAdjustment } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
+import { StockAdjustment } from '../types';
 
 function fmtDate(value: unknown): string {
     if (!value) return '—';
@@ -48,15 +49,15 @@ function fmtDate(value: unknown): string {
     return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-function impactOf(adj: WithId<CrmStockAdjustment>): number {
+function impactOf(adj: StockAdjustment): number {
     const qty = Number(adj.quantity || 0);
-    const cost = Number((adj as any).costPerUnit || 0);
+    const cost = Number(adj.costPerUnit || 0);
     if (!cost) return Math.abs(qty);
     return Math.abs(qty * cost);
 }
 
 export interface AdjustmentsTableProps {
-    rows: WithId<CrmStockAdjustment>[];
+    rows: StockAdjustment[];
     loading: boolean;
     selected: Set<string>;
     onToggleOne: (id: string) => void;
@@ -148,7 +149,7 @@ export function AdjustmentsTable({
 }
 
 interface RowProps {
-    a: WithId<CrmStockAdjustment>;
+    a: StockAdjustment;
     selected: boolean;
     onToggle: (id: string) => void;
     onApprove: (id: string) => void;
@@ -165,10 +166,10 @@ function AdjustmentRow({
     onDelete,
 }: RowProps) {
     const id = String(a._id);
-    const status = ((a as any).status as string) || 'pending';
-    const linesCount = (a as any).lines?.length ?? 1;
+    const status = (a.status as string) || 'pending';
+    const linesCount = a.lines?.length ?? 1;
     const impact = impactOf(a);
-    const num = (a as any).adjustmentNumber || id.slice(-6);
+    const num = a.adjustmentNumber || id.slice(-6);
 
     return (
         <ZoruTableRow
@@ -199,7 +200,7 @@ function AdjustmentRow({
                     <EntityPickerChip
                         entity="warehouse"
                         id={String(a.warehouseId)}
-                        fallback={(a as any).warehouseName || 'Warehouse'}
+                        fallback={a.warehouseName || 'Warehouse'}
                     />
                 ) : (
                     <span className="text-zoru-ink-muted">—</span>
@@ -231,11 +232,11 @@ function AdjustmentRow({
                 <StatusPill label={status} tone={statusToTone(status)} />
             </ZoruTableCell>
             <ZoruTableCell className="text-[12.5px]">
-                {(a as any).approvedBy ? (
+                {a.approvedBy ? (
                     <EntityPickerChip
                         entity="user"
-                        id={String((a as any).approvedBy)}
-                        fallback={(a as any).approvedByName || 'Approver'}
+                        id={String(a.approvedBy)}
+                        fallback={a.approvedByName || 'Approver'}
                     />
                 ) : (
                     <span className="text-zoru-ink-muted">—</span>

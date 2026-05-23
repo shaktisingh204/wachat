@@ -140,6 +140,8 @@ export default function CampaignCalendarPage() {
                                 return (
                                     <div
                                         key={idx}
+                                        className="relative min-h-[120px] bg-zoru-surface/30 p-2 border border-zoru-line flex flex-col justify-between"
+                                    >
                                         <div
                                             className="absolute top-1 left-1 bottom-1 right-1 cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 rounded-sm z-0"
                                             onClick={() => {
