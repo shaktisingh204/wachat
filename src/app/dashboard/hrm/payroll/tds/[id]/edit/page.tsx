@@ -1,21 +1,27 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
-
-/**
- * Edit TDS record page — server wrapper that loads the record and passes
- * it as `initialData` to `<TdsForm />`.
- */
-
+import { Suspense } from 'react';
+import { notFound, redirect } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getTdsRecordById } from '@/app/actions/crm-tds.actions';
-
 import { TdsForm } from '../../_components/tds-form';
 
 export const dynamic = 'force-dynamic';
 
-const BASE = '/dashboard/hrm/payroll/tds';
+async function EditFormLoader({ id }: { id: string }) {
+    try {
+        const row = await getTdsRecordById(id);
+        if (!row) notFound();
+        return <TdsForm initialData={row} />;
+    } catch (error) {
+        console.error('Failed to fetch TDS record:', error);
+        return (
+            <div className="p-6 bg-red-50 text-red-600 rounded-md border border-red-200">
+                <h3 className="text-lg font-medium">Error loading TDS record</h3>
+                <p className="mt-2 text-sm">It may have been deleted or there is a server error.</p>
+            </div>
+        );
+    }
+}
 
 export default async function EditTdsPage({
     params,
@@ -27,19 +33,34 @@ export default async function EditTdsPage({
     const session = await getSession();
     if (!session?.user) redirect('/login');
 
-    const row = await getTdsRecordById(id);
-    if (!row) notFound();
-
-    const employeeName = (row.employeeName as string | undefined) ?? 'TDS record';
-    const financialYear = (row.financialYear as string | undefined) ?? '—';
-    const quarter = (row.quarter as string | undefined) ?? '—';
-
     return (
         <EntityListShell
-            title={`Edit · ${employeeName}`}
-            subtitle={`FY ${financialYear} · ${quarter}`}
+            title="Edit TDS Record"
+            subtitle="Manage tax deducted at source details"
         >
-            <TdsForm initialData={row} />
+            <Suspense 
+                fallback={
+                    <div className="p-6 animate-pulse space-y-6 bg-white rounded-xl shadow-sm border border-slate-200">
+                        <div className="h-8 bg-slate-100 rounded w-1/4"></div>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="h-12 bg-slate-100 rounded w-full"></div>
+                            <div className="h-12 bg-slate-100 rounded w-full"></div>
+                        </div>
+                        <div className="grid gap-4 sm:grid-cols-3">
+                            <div className="h-12 bg-slate-100 rounded w-full"></div>
+                            <div className="h-12 bg-slate-100 rounded w-full"></div>
+                            <div className="h-12 bg-slate-100 rounded w-full"></div>
+                        </div>
+                        <div className="h-24 bg-slate-100 rounded w-full mt-4"></div>
+                        <div className="flex justify-between pt-4">
+                            <div className="h-10 bg-slate-100 rounded w-24"></div>
+                            <div className="h-10 bg-slate-100 rounded w-32"></div>
+                        </div>
+                    </div>
+                }
+            >
+                <EditFormLoader id={id} />
+            </Suspense>
         </EntityListShell>
     );
 }

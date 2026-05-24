@@ -104,6 +104,19 @@ export async function deleteWorkflow(id: string): Promise<void> {
   revalidatePath('/dashboard/n8n');
 }
 
+/* ── Bulk Delete workflows ───────────────────────────────────── */
+
+export async function bulkDeleteWorkflows(ids: string[]): Promise<void> {
+  const userId = await requireUser();
+  for (const id of ids) {
+    const existing = await getWorkflowByObjectId(id);
+    if (existing && existing.userId === userId) {
+      await dbDeleteWorkflow(existing.id, { hard: true });
+    }
+  }
+  revalidatePath('/dashboard/n8n');
+}
+
 /* ── Activate workflow ───────────────────────────────────────── */
 
 export async function activateWorkflow(id: string): Promise<void> {
@@ -115,6 +128,19 @@ export async function activateWorkflow(id: string): Promise<void> {
   revalidatePath('/dashboard/n8n');
 }
 
+/* ── Bulk Activate workflows ─────────────────────────────────── */
+
+export async function bulkActivateWorkflows(ids: string[]): Promise<void> {
+  const userId = await requireUser();
+  for (const id of ids) {
+    const existing = await getWorkflowByObjectId(id);
+    if (existing && existing.userId === userId) {
+      await setWorkflowActive(existing.id, true);
+    }
+  }
+  revalidatePath('/dashboard/n8n');
+}
+
 /* ── Deactivate workflow ─────────────────────────────────────── */
 
 export async function deactivateWorkflow(id: string): Promise<void> {
@@ -123,6 +149,19 @@ export async function deactivateWorkflow(id: string): Promise<void> {
   if (!existing || existing.userId !== userId) throw new Error('Workflow not found');
 
   await setWorkflowActive(existing.id, false);
+  revalidatePath('/dashboard/n8n');
+}
+
+/* ── Bulk Deactivate workflows ───────────────────────────────── */
+
+export async function bulkDeactivateWorkflows(ids: string[]): Promise<void> {
+  const userId = await requireUser();
+  for (const id of ids) {
+    const existing = await getWorkflowByObjectId(id);
+    if (existing && existing.userId === userId) {
+      await setWorkflowActive(existing.id, false);
+    }
+  }
   revalidatePath('/dashboard/n8n');
 }
 

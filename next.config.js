@@ -221,6 +221,17 @@ const nextConfig = {
         destination: '/dashboard/hrm/payroll/:path*',
         permanent: true,
       },
+      // Redirect meta-suite to facebook
+      {
+        source: '/dashboard/meta-suite',
+        destination: '/dashboard/facebook',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/meta-suite/:path*',
+        destination: '/dashboard/facebook/:path*',
+        permanent: true,
+      },
     ];
   },
 

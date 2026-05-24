@@ -8,6 +8,7 @@ import {
   LuLoader,
   LuZap,
   LuZapOff,
+  LuCopy,
 } from 'react-icons/lu';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -16,6 +17,14 @@ import { WorkflowCanvas } from './canvas/WorkflowCanvas';
 import { N8NNodesList } from './nodes/N8NNodesList';
 import { N8NNodeRegistry } from './nodes/N8NNodeProperties';
 import type { N8NCanvasWorkflow, N8NCanvasNode } from './types';
+import { WORKFLOW_TEMPLATES, WorkflowTemplate } from './WorkflowTemplates';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { createId } from '@paralleldrive/cuid2';
 
 type Props = {
   workflow: N8NCanvasWorkflow;
@@ -60,6 +69,54 @@ function EditorContent({
     ? workflow.nodes.find((n) => n.id === selectedNodeId) ?? null
     : null;
 
+  const handleApplyTemplate = (template: WorkflowTemplate) => {
+    // Generate new unique names to avoid collisions with existing workflow nodes
+    const nameMap = new Map<string, string>();
+
+    const getUniqueName = (baseName: string) => {
+      let currentName = baseName;
+      let counter = 1;
+      const existingNames = new Set(workflow.nodes.map(n => n.name));
+      
+      while (existingNames.has(currentName) || Array.from(nameMap.values()).includes(currentName)) {
+        currentName = `${baseName} ${counter}`;
+        counter++;
+      }
+      return currentName;
+    };
+
+    const newNodes = template.nodes.map((n) => {
+      const newName = getUniqueName(n.name);
+      nameMap.set(n.name, newName);
+      
+      return { 
+        ...n, 
+        id: createId(), 
+        name: newName,
+        // Offset position slightly so it doesn't perfectly overlap if dropped multiple times
+        position: [n.position[0] + 50, n.position[1] + 50] as [number, number]
+      };
+    });
+
+    const newConnections = template.connections.map((c) => ({
+      ...c,
+      id: createId(),
+      sourceNodeName: nameMap.get(c.sourceNodeName) || c.sourceNodeName,
+      targetNodeName: nameMap.get(c.targetNodeName) || c.targetNodeName,
+    }));
+
+    const updated = {
+      ...workflow,
+      nodes: [...workflow.nodes, ...newNodes],
+      connections: [...workflow.connections, ...newConnections],
+    };
+    
+    setWorkflow(updated);
+    startSaving(async () => {
+      await onSave?.(updated);
+    });
+  };
+
   return (
     <div className="flex flex-col h-screen overflow-clip bg-[var(--gray-2)]">
       {/* ── Header ────────────────────────────────────────────────────────── */}
@@ -84,6 +141,34 @@ function EditorContent({
         />
 
         <div className="flex-1" />
+
+        {/* Templates */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="flex items-center gap-1.5 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors"
+            >
+              <LuCopy className="h-3.5 w-3.5" strokeWidth={2} />
+              Templates
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 bg-[var(--gray-1)] border-[var(--gray-5)]">
+            {WORKFLOW_TEMPLATES.map((template) => (
+              <DropdownMenuItem
+                key={template.id}
+                onClick={() => handleApplyTemplate(template)}
+                className="flex flex-col items-start gap-1 p-2 cursor-pointer focus:bg-[var(--gray-3)]"
+              >
+                <span className="text-[13px] font-medium text-[var(--gray-12)]">
+                  {template.name}
+                </span>
+                <span className="text-[11.5px] text-[var(--gray-9)] line-clamp-2 leading-snug">
+                  {template.description}
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Saved indicator */}
         {lastSaved && (

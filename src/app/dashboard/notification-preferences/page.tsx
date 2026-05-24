@@ -45,6 +45,7 @@ type NotifDef = {
   label: string;
   description: string;
   icon: React.ElementType;
+  module: string;
 };
 
 const NOTIF_DEFS: NotifDef[] = [
@@ -53,36 +54,42 @@ const NOTIF_DEFS: NotifDef[] = [
     label: 'New message',
     description: 'Get notified when a new message arrives.',
     icon: MessageSquare,
+    module: 'Chat & Inbox',
   },
   {
     id: 'new_contact',
     label: 'New contact',
     description: 'Get notified when a new contact is added.',
     icon: UserPlus,
+    module: 'Chat & Inbox',
   },
   {
     id: 'broadcast_complete',
     label: 'Broadcast complete',
     description: 'Get notified when a broadcast finishes sending.',
     icon: Radio,
-  },
-  {
-    id: 'system_alerts',
-    label: 'System alerts',
-    description: 'Critical system notifications and downtime alerts.',
-    icon: TriangleAlert,
+    module: 'Campaigns',
   },
   {
     id: 'template_approved',
     label: 'Template approved',
     description: 'Get notified when a template is approved by WhatsApp.',
     icon: FileCheck,
+    module: 'Campaigns',
+  },
+  {
+    id: 'system_alerts',
+    label: 'System alerts',
+    description: 'Critical system notifications and downtime alerts.',
+    icon: TriangleAlert,
+    module: 'System & Billing',
   },
   {
     id: 'low_credits',
     label: 'Low credits',
     description: 'Alert when your messaging credits are running low.',
     icon: Coins,
+    module: 'System & Billing',
   },
 ];
 
@@ -139,6 +146,12 @@ export default function NotificationPreferencesPage() {
     );
   }
 
+  const groupedDefs = NOTIF_DEFS.reduce((acc, def) => {
+    if (!acc[def.module]) acc[def.module] = [];
+    acc[def.module].push(def);
+    return acc;
+  }, {} as Record<string, NotifDef[]>);
+
   return (
     <div className="flex min-h-full flex-col gap-6">
       <Breadcrumb>
@@ -167,27 +180,34 @@ export default function NotificationPreferencesPage() {
         </Button>
       </div>
 
-      <Card className="divide-y divide-zoru-line p-0">
-        {NOTIF_DEFS.map((def) => {
-          const Icon = def.icon;
-          return (
-            <div key={def.id} className="flex items-center gap-4 px-5 py-4">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
-                <Icon className="h-5 w-5 text-zoru-ink-muted" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="text-sm text-zoru-ink">{def.label}</div>
-                <div className="text-[12.5px] text-zoru-ink-muted">{def.description}</div>
-              </div>
-              <Switch
-                checked={!!prefs[def.id]}
-                onCheckedChange={() => toggle(def.id)}
-                aria-label={`Toggle ${def.label}`}
-              />
-            </div>
-          );
-        })}
-      </Card>
+      <div className="flex flex-col gap-8">
+        {Object.entries(groupedDefs).map(([moduleName, defs]) => (
+          <div key={moduleName} className="flex flex-col gap-4">
+            <h3 className="text-sm font-medium text-zoru-ink">{moduleName}</h3>
+            <Card className="divide-y divide-zoru-line p-0">
+              {defs.map((def) => {
+                const Icon = def.icon;
+                return (
+                  <div key={def.id} className="flex items-center gap-4 px-5 py-4">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
+                      <Icon className="h-5 w-5 text-zoru-ink-muted" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm text-zoru-ink">{def.label}</div>
+                      <div className="text-[12.5px] text-zoru-ink-muted">{def.description}</div>
+                    </div>
+                    <Switch
+                      checked={!!prefs[def.id]}
+                      onCheckedChange={() => toggle(def.id)}
+                      aria-label={`Toggle ${def.label}`}
+                    />
+                  </div>
+                );
+              })}
+            </Card>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

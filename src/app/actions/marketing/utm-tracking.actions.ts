@@ -76,3 +76,33 @@ export async function deleteUtmLink(id: string) {
     return { success: false, error: 'Database error' };
   }
 }
+
+export async function generateOptimalUtmTags(url: string) {
+  try {
+    // Mocking AI response
+    // In a real scenario, you'd integrate with OpenAI or similar here
+    await new Promise(resolve => setTimeout(resolve, 1500)); // simulate delay
+    
+    const aiSuggestions = [
+      { source: 'google', medium: 'cpc', campaign: 'spring_sale' },
+      { source: 'newsletter', medium: 'email', campaign: 'weekly_digest' },
+      { source: 'facebook', medium: 'social', campaign: 'retargeting' },
+      { source: 'linkedin', medium: 'social', campaign: 'b2b_leadgen' }
+    ];
+    
+    // Simple deterministic random for mock
+    const choice = (url?.length || 0) % aiSuggestions.length;
+    const suggested = aiSuggestions[choice];
+
+    return { 
+      success: true, 
+      data: {
+        source: suggested.source,
+        medium: suggested.medium,
+        campaign: `${suggested.campaign}_${Math.floor(Math.random() * 1000)}`
+      }
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to generate tags' };
+  }
+}

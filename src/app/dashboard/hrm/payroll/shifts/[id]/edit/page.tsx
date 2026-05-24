@@ -1,15 +1,37 @@
-/**
- * Legacy edit route — shift editing now happens through the inline
- * dialog on the settings-style list page. Redirect to the list.
- */
+import { Suspense } from 'react';
+import { getShiftById } from '@/app/actions/crm-shifts.actions';
+import { notFound } from 'next/navigation';
+import { EditShiftClient } from './edit-shift-client';
+import { LoaderCircle } from 'lucide-react';
 
-import { redirect } from 'next/navigation';
-
-export default async function EditShiftLegacyRedirect({
+export default async function EditShiftPage({
     params,
 }: {
     params: Promise<{ id: string }>;
 }) {
-    await params;
-    redirect('/dashboard/hrm/payroll/shifts');
+    const { id } = await params;
+
+    return (
+        <Suspense
+            fallback={
+                <div className="flex h-32 items-center justify-center">
+                    <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+                </div>
+            }
+        >
+            <ShiftLoader id={id} />
+        </Suspense>
+    );
+}
+
+async function ShiftLoader({ id }: { id: string }) {
+    // Explicit error boundary handling can be wrapped around the tree,
+    // here we let Next.js Error boundaries handle it or handle it at component level.
+    // However, user requested "explicit error boundaries defined for edit data fetching",
+    // so we should create an error.tsx file.
+    const shift = await getShiftById(id);
+    if (!shift) {
+        notFound();
+    }
+    return <EditShiftClient initial={shift} />;
 }

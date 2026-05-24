@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Input, Card, ZoruAvatar } from '@/components/zoruui';
-import { Send, CheckCircle2, MessageCircle, MoreVertical } from 'lucide-react';
+import { Button, Input, Card, ZoruAvatar, Badge } from '@/components/zoruui';
+import { Send, CheckCircle2, MessageCircle, MoreVertical, BarChart, Activity, Users, Megaphone, Target } from 'lucide-react';
 import { createInboxMessage, updateInboxMessage } from '@/app/actions/marketing/universal-inbox.actions';
+import Link from 'next/link';
 
-export function UniversalInboxClient({ initialData }: { initialData: any[] }) {
+export function UniversalInboxClient({ initialData, campaigns = [] }: { initialData: any[], campaigns?: any[] }) {
   const [messages, setMessages] = useState(initialData);
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
   const [reply, setReply] = useState('');
@@ -124,9 +125,107 @@ export function UniversalInboxClient({ initialData }: { initialData: any[] }) {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-zoru-ink-muted">
-            <MessageCircle className="h-12 w-12 mb-4 opacity-20" />
-            <p>Select a message to view the conversation</p>
+          <div className="flex-1 flex flex-col bg-zoru-bg overflow-y-auto">
+            {/* Global Campaign Dashboard Header */}
+            <div className="p-8 pb-4 border-b border-zoru-line bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 rounded-lg bg-blue-100 text-blue-600">
+                  <Megaphone className="h-6 w-6" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-zoru-ink">Global Campaign Dashboard</h2>
+                  <p className="text-sm text-zoru-ink-muted">Monitor and manage all active marketing initiatives</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <Card className="p-4 shadow-sm border-zoru-line flex items-center gap-4">
+                  <div className="p-3 rounded-full bg-green-100 text-green-600">
+                    <Activity className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-zoru-ink-muted">Active Campaigns</p>
+                    <p className="text-2xl font-bold text-zoru-ink">{campaigns.filter(c => c.status === 'active').length}</p>
+                  </div>
+                </Card>
+                <Card className="p-4 shadow-sm border-zoru-line flex items-center gap-4">
+                  <div className="p-3 rounded-full bg-purple-100 text-purple-600">
+                    <Target className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-zoru-ink-muted">Total Audience</p>
+                    <p className="text-2xl font-bold text-zoru-ink">24.5k</p>
+                  </div>
+                </Card>
+                <Card className="p-4 shadow-sm border-zoru-line flex items-center gap-4">
+                  <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+                    <MessageCircle className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-zoru-ink-muted">Total Messages</p>
+                    <p className="text-2xl font-bold text-zoru-ink">{messages.length}</p>
+                  </div>
+                </Card>
+              </div>
+            </div>
+
+            {/* Campaigns List */}
+            <div className="p-8 pt-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-zoru-ink flex items-center gap-2">
+                  <BarChart className="h-5 w-5 text-zoru-ink-muted" />
+                  Recent Drip Campaigns
+                </h3>
+                <Link href="/dashboard/marketing/drip-campaigns">
+                  <Button variant="outline" size="sm">View All</Button>
+                </Link>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-4">
+                {campaigns.length === 0 ? (
+                  <div className="text-center p-8 border border-dashed border-zoru-line rounded-lg text-zoru-ink-muted">
+                    No campaigns active.
+                  </div>
+                ) : (
+                  campaigns.slice(0, 5).map(campaign => (
+                    <Card key={campaign._id} className="p-4 border-zoru-line shadow-sm hover:border-blue-200 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-2 h-2 rounded-full ${campaign.status === 'active' ? 'bg-green-500' : 'bg-gray-300'}`} />
+                          <div>
+                            <p className="font-medium text-zoru-ink">{campaign.name}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'} className="capitalize text-[10px] py-0 h-4">
+                                {campaign.status}
+                              </Badge>
+                              <span className="text-xs text-zoru-ink-muted flex items-center gap-1">
+                                <Users className="h-3 w-3" /> Audience: {campaign.audienceId}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right flex flex-col items-end gap-1">
+                           <span className="text-xs text-zoru-ink-muted">
+                             {new Date(campaign.createdAt).toLocaleDateString()}
+                           </span>
+                           <Button variant="ghost" size="sm" className="h-6 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                             Manage
+                           </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </div>
+            
+            {/* Context Notice */}
+            <div className="mt-auto p-4 text-center border-t border-zoru-line">
+              <div className="inline-flex items-center gap-2 text-sm text-zoru-ink-muted bg-zoru-surface-sheen px-4 py-2 rounded-full">
+                <MessageCircle className="h-4 w-4" />
+                <span>Select an inbox message on the left to start responding</span>
+              </div>
+            </div>
           </div>
         )}
       </div>

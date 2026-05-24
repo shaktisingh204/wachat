@@ -1,13 +1,14 @@
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 /**
- * New TDS record page — server wrapper around `<TdsForm />`.
+ * New TDS record page — server wrapper.
  */
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
-
-import { TdsForm } from '../_components/tds-form';
+import { NewTdsClient } from './page-client';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +21,9 @@ export default async function NewTdsPage() {
             title="New TDS record"
             subtitle="Record TDS for an employee for a specific FY + quarter."
         >
-            <TdsForm />
+            <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+                <NewTdsClient />
+            </Suspense>
         </EntityListShell>
     );
 }

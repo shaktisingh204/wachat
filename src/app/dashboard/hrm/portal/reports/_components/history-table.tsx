@@ -2,17 +2,10 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  Badge,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/zoruui';
+import { Badge } from '@/components/zoruui';
 import { LoaderCircle } from 'lucide-react';
 import type { HrmTaskReport } from '@/app/actions/hrm-task-reports.actions';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 interface HistoryTableProps {
   reports: HrmTaskReport[];
@@ -33,9 +26,18 @@ function fmtDate(iso: string | undefined): string {
 }
 
 export function HistoryTable({ reports, loading }: HistoryTableProps) {
+  const parentRef = React.useRef<HTMLDivElement>(null);
+
+  const rowVirtualizer = useVirtualizer({
+    count: reports.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 56,
+    overscan: 5,
+  });
+
   if (loading) {
     return (
-      <div className="flex h-40 items-center justify-center">
+      <div className="flex h-40 items-center justify-center border border-zoru-line rounded-lg">
         <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
       </div>
     );
@@ -43,58 +45,82 @@ export function HistoryTable({ reports, loading }: HistoryTableProps) {
 
   if (reports.length === 0) {
     return (
-      <div className="flex h-40 items-center justify-center text-sm text-zoru-ink-muted">
+      <div className="flex h-40 items-center justify-center text-sm text-zoru-ink-muted border border-zoru-line rounded-lg">
         No completed tasks in this range.
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-zoru-line">
-      <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-            <ZoruTableHead className="text-zoru-ink-muted">Task Title</ZoruTableHead>
-            <ZoruTableHead className="text-zoru-ink-muted">Roadmap</ZoruTableHead>
-            <ZoruTableHead className="text-zoru-ink-muted">Phase</ZoruTableHead>
-            <ZoruTableHead className="text-zoru-ink-muted">Completed At</ZoruTableHead>
-            <ZoruTableHead className="text-zoru-ink-muted">Manager Acknowledged</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
-          {reports.map((report) => {
+    <div className="overflow-hidden rounded-lg border border-zoru-line flex flex-col">
+      {/* Header */}
+      <div className="grid grid-cols-[minmax(150px,2fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(120px,1fr)_minmax(150px,1fr)] items-center px-4 py-3 border-b border-zoru-line bg-zoru-surface-2 text-[13px] font-medium text-zoru-ink-muted">
+        <div>Task Title</div>
+        <div>Roadmap</div>
+        <div>Phase</div>
+        <div>Completed At</div>
+        <div>Manager Acknowledged</div>
+      </div>
+
+      {/* Body */}
+      <div
+        ref={parentRef}
+        className="overflow-auto"
+        style={{ height: '400px' }}
+      >
+        <div
+          style={{
+            height: `${rowVirtualizer.getTotalSize()}px`,
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            const report = reports[virtualRow.index];
             const isAcked = !!report.acknowledgedAt;
+
             return (
-              <ZoruTableRow key={report._id} className="border-zoru-line">
-                <ZoruTableCell className="font-medium text-zoru-ink">
+              <div
+                key={report._id}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: `${virtualRow.size}px`,
+                  transform: `translateY(${virtualRow.start}px)`,
+                }}
+                className="grid grid-cols-[minmax(150px,2fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(120px,1fr)_minmax(150px,1fr)] items-center px-4 border-b border-zoru-line hover:bg-zoru-surface-2/50 transition-colors bg-zoru-surface text-[13px]"
+              >
+                <div className="font-medium text-zoru-ink pr-2 truncate">
                   {report.taskTitle}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </div>
+                <div>
                   <Link
                     href={`/dashboard/hrm/portal/roadmaps/${report.roadmapId}`}
-                    className="text-[13px] hover:underline text-zoru-ink"
+                    className="hover:underline text-zoru-ink truncate"
                   >
                     View roadmap
                   </Link>
-                </ZoruTableCell>
-                <ZoruTableCell className="text-[13px] text-zoru-ink">
+                </div>
+                <div className="text-zoru-ink truncate">
                   {report.phaseId || '—'}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-[13px] text-zoru-ink">
+                </div>
+                <div className="text-zoru-ink truncate">
                   {fmtDate(report.completedAt)}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </div>
+                <div>
                   {isAcked ? (
                     <Badge variant="success">Yes</Badge>
                   ) : (
                     <Badge variant="ghost">Pending</Badge>
                   )}
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </div>
+              </div>
             );
           })}
-        </ZoruTableBody>
-      </Table>
+        </div>
+      </div>
     </div>
   );
 }

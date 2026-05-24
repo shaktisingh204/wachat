@@ -3,6 +3,7 @@ export interface AISalesForecast {
   period: string; // e.g., 'Q3 2026'
   predictedRevenue: number;
   confidenceScore: number;
+  aiModel?: string;
   drivers: string[];
   createdAt: string;
 }

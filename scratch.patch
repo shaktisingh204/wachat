@@ -1,0 +1,62 @@
+--- src/app/actions/n8n/index.ts
++++ src/app/actions/n8n/index.ts
+@@ -107,6 +107,17 @@
+   revalidatePath('/dashboard/n8n');
+ }
+ 
++/* ── Bulk Delete workflows ───────────────────────────────────── */
++
++export async function bulkDeleteWorkflows(ids: string[]): Promise<void> {
++  const userId = await requireUser();
++  for (const id of ids) {
++    const existing = await getWorkflowByObjectId(id);
++    if (existing && existing.userId === userId) {
++      await dbDeleteWorkflow(existing.id, { hard: true });
++    }
++  }
++  revalidatePath('/dashboard/n8n');
++}
++
+ /* ── Activate workflow ───────────────────────────────────────── */
+ 
+ export async function activateWorkflow(id: string): Promise<void> {
+@@ -118,6 +129,17 @@
+   revalidatePath('/dashboard/n8n');
+ }
+ 
++/* ── Bulk Activate workflows ─────────────────────────────────── */
++
++export async function bulkActivateWorkflows(ids: string[]): Promise<void> {
++  const userId = await requireUser();
++  for (const id of ids) {
++    const existing = await getWorkflowByObjectId(id);
++    if (existing && existing.userId === userId) {
++      await setWorkflowActive(existing.id, true);
++    }
++  }
++  revalidatePath('/dashboard/n8n');
++}
++
+ /* ── Deactivate workflow ─────────────────────────────────────── */
+ 
+ export async function deactivateWorkflow(id: string): Promise<void> {
+@@ -129,6 +151,17 @@
+   revalidatePath('/dashboard/n8n');
+ }
+ 
++/* ── Bulk Deactivate workflows ───────────────────────────────── */
++
++export async function bulkDeactivateWorkflows(ids: string[]): Promise<void> {
++  const userId = await requireUser();
++  for (const id of ids) {
++    const existing = await getWorkflowByObjectId(id);
++    if (existing && existing.userId === userId) {
++      await setWorkflowActive(existing.id, false);
++    }
++  }
++  revalidatePath('/dashboard/n8n');
++}
++
+ /* ── Execute workflow manually ───────────────────────────────── */
+ 
+ /**

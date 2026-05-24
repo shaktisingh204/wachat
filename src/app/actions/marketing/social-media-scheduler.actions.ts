@@ -6,7 +6,11 @@ import { ObjectId } from 'mongodb';
 import { z } from 'zod';
 
 const schema = z.object({
-  platform: z.enum(["facebook", "twitter", "instagram", "linkedin"]), content: z.string().min(1), scheduledTime: z.string().or(z.date()), status: z.enum(["scheduled", "published", "failed"])
+  platform: z.enum(["facebook", "twitter", "instagram", "linkedin"]), 
+  content: z.string().min(1), 
+  scheduledTime: z.string().or(z.date()), 
+  status: z.enum(["scheduled", "published", "failed"]),
+  tags: z.array(z.string()).optional()
 });
 
 export async function getSocialPosts() {
@@ -74,5 +78,17 @@ export async function deleteSocialPost(id: string) {
   } catch (error) {
     console.error('Error deleting SocialPost:', error);
     return { success: false, error: 'Database error' };
+  }
+}
+
+import { generateSocialPostOptimizations } from '@/ai/flows/generate-social-post-optimizations';
+
+export async function suggestOptimizations(content: string, platform: string) {
+  try {
+    const result = await generateSocialPostOptimizations({ content, platform });
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error('Error suggesting optimizations:', error);
+    return { success: false, error: error.message || 'Failed to suggest optimizations' };
   }
 }

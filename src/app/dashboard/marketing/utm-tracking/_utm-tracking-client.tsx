@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button } from '@/components/zoruui';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Wand2 } from 'lucide-react';
 import { 
   Table, 
   ZoruTableHeader, 
@@ -24,7 +24,7 @@ import { Input } from '@/components/zoruui';
 import { Label } from '@/components/zoruui';
 import { Badge } from '@/components/zoruui';
 import { useZoruToast } from '@/components/zoruui';
-import { createUtmLink, updateUtmLink, deleteUtmLink } from '@/app/actions/marketing/utm-tracking.actions';
+import { createUtmLink, updateUtmLink, deleteUtmLink, generateOptimalUtmTags } from '@/app/actions/marketing/utm-tracking.actions';
 
 export function UtmLinkClient({ initialData }: { initialData: any[] }) {
   const [data, setData] = useState(initialData);
@@ -43,6 +43,27 @@ export function UtmLinkClient({ initialData }: { initialData: any[] }) {
   const filteredData = data.filter(item => 
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
+
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleGenerateTags = async () => {
+    setIsGenerating(true);
+    try {
+      const res = await generateOptimalUtmTags(url);
+      if (res.success && res.data) {
+        setSource(res.data.source);
+        setMedium(res.data.medium);
+        setCampaign(res.data.campaign);
+        toast({ title: 'Success', description: 'Tags generated successfully!' });
+      } else {
+        toast({ title: 'Error', description: res.error || 'Failed to generate tags.', variant: 'destructive' });
+      }
+    } catch (err) {
+      toast({ title: 'Error', description: 'An unexpected error occurred.', variant: 'destructive' });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const openNew = () => {
     setEditingItem(null);
@@ -131,14 +152,26 @@ export function UtmLinkClient({ initialData }: { initialData: any[] }) {
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="url" className="text-right">url</Label>
                   
+                  <div className="col-span-3 flex gap-2">
                     <Input
                       id="url"
                       type="text"
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
-                      className="col-span-3"
+                      className="flex-1"
+                      placeholder="https://example.com"
                     />
-                  
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={handleGenerateTags}
+                      disabled={isGenerating}
+                      title="AI Suggest Tags"
+                    >
+                      <Wand2 className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''} mr-2`} />
+                      Suggest
+                    </Button>
+                  </div>
                 </div>
               
               

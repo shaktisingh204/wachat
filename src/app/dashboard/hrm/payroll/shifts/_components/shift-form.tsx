@@ -1,280 +1,264 @@
 'use client';
 
+import * as React from 'react';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { LoaderCircle } from 'lucide-react';
 import {
-  Button,
-  Input,
-  Label,
-  Checkbox,
+    Button,
+    Checkbox,
+    Input,
+    Label,
+    Textarea,
+    useZoruToast,
 } from '@/components/zoruui';
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { ClayCard } from '@/components/clay';
-
-// TODO 1E.sweep: shift-type dropdowns -> <EnumFormField enumName="shiftType">; department/employees -> <EntityFormField>/<EntityMultiFormField>. See plan §1E.
-
 import { EnumFormField } from '@/components/crm/enum-form-field';
-import { saveEmployeeShift } from '@/app/actions/worksuite/shifts.actions';
-import type { WsEmployeeShift, WsWeekDay, WsDayOff } from '@/lib/worksuite/shifts-types';
+import { saveShift } from '@/app/actions/crm-shifts.actions';
+import type { CrmShiftDoc, CrmShiftStatus } from '@/lib/rust-client/crm-shifts';
 
-const WEEKDAYS: WsWeekDay[] = [
-  'monday',
-  'tuesday',
-  'wednesday',
-  'thursday',
-  'friday',
-  'saturday',
-  'sunday',
+const WEEKDAYS = [
+    { value: 'monday', label: 'Mon' },
+    { value: 'tuesday', label: 'Tue' },
+    { value: 'wednesday', label: 'Wed' },
+    { value: 'thursday', label: 'Thu' },
+    { value: 'friday', label: 'Fri' },
+    { value: 'saturday', label: 'Sat' },
+    { value: 'sunday', label: 'Sun' },
 ];
 
-export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+const saveInitial = {};
 
-  const [form, setForm] = useState<WsEmployeeShift>(
-    initial ?? {
-      userId: '',
-      name: '',
-      color_code: '#EAB308',
-      clock_in_time: '09:00',
-      clock_out_time: '18:00',
-      total_hours: 8,
-      late_mark_after: 15,
-      early_clock_in: 30,
-      office_open_days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-      office_start_time: '09:00',
-      office_end_time: '18:00',
-      office_hours: 8,
-      days_off_type: 'week-off',
-      break_time_hours: 1,
-      half_day_after: 4,
-      half_day_start: '',
-      half_day_end: '',
-    },
-  );
-
-  const set = <K extends keyof WsEmployeeShift>(key: K, value: WsEmployeeShift[K]) =>
-    setForm((prev) => ({ ...prev, [key]: value }));
-
-  const toggleDay = (day: WsWeekDay, on: boolean) => {
-    setForm((prev) => ({
-      ...prev,
-      office_open_days: on
-        ? Array.from(new Set([...(prev.office_open_days ?? []), day]))
-        : (prev.office_open_days ?? []).filter((d) => d !== day),
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
-    startTransition(async () => {
-      const res = await saveEmployeeShift(form);
-      if (!res.success) {
-        setError(res.error ?? 'Failed to save shift');
-        return;
-      }
-      router.push('/dashboard/hrm/payroll/shifts');
-      router.refresh();
-    });
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <ClayCard>
-        <h2 className="mb-4 text-[16px] font-semibold text-foreground">Shift Details</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Field label="Shift Name" required>
-            <Input
-              value={form.name}
-              onChange={(e) => set('name', e.target.value)}
-              required
-              placeholder="Morning Shift"
-            />
-          </Field>
-          <Field label="Color">
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={form.color_code}
-                onChange={(e) => set('color_code', e.target.value)}
-                className="h-9 w-12 cursor-pointer rounded-md border border-border bg-card p-1"
-              />
-              <Input
-                value={form.color_code}
-                onChange={(e) => set('color_code', e.target.value)}
-                placeholder="#EAB308"
-              />
-            </div>
-          </Field>
-          <Field label="Clock In Time">
-            <Input
-              type="time"
-              value={form.clock_in_time ?? ''}
-              onChange={(e) => set('clock_in_time', e.target.value)}
-            />
-          </Field>
-          <Field label="Clock Out Time">
-            <Input
-              type="time"
-              value={form.clock_out_time ?? ''}
-              onChange={(e) => set('clock_out_time', e.target.value)}
-            />
-          </Field>
-          <Field label="Office Start Time">
-            <Input
-              type="time"
-              value={form.office_start_time}
-              onChange={(e) => set('office_start_time', e.target.value)}
-            />
-          </Field>
-          <Field label="Office End Time">
-            <Input
-              type="time"
-              value={form.office_end_time}
-              onChange={(e) => set('office_end_time', e.target.value)}
-            />
-          </Field>
-          <Field label="Total Hours">
-            <Input
-              type="number"
-              step="0.25"
-              value={form.total_hours ?? 0}
-              onChange={(e) => set('total_hours', Number(e.target.value))}
-            />
-          </Field>
-          <Field label="Office Hours">
-            <Input
-              type="number"
-              step="0.25"
-              value={form.office_hours ?? 0}
-              onChange={(e) => set('office_hours', Number(e.target.value))}
-            />
-          </Field>
-          <Field label="Late Mark After (minutes)">
-            <Input
-              type="number"
-              min={0}
-              value={form.late_mark_after}
-              onChange={(e) => set('late_mark_after', Number(e.target.value))}
-            />
-          </Field>
-          <Field label="Early Clock-In Allowed (minutes)">
-            <Input
-              type="number"
-              min={0}
-              value={form.early_clock_in}
-              onChange={(e) => set('early_clock_in', Number(e.target.value))}
-            />
-          </Field>
-          <Field label="Break Time (hours)">
-            <Input
-              type="number"
-              step="0.25"
-              min={0}
-              value={form.break_time_hours ?? 0}
-              onChange={(e) => set('break_time_hours', Number(e.target.value))}
-            />
-          </Field>
-          <Field label="Days Off Type">
-            <EnumFormField
-              enumName="daysOffType"
-              name="__days_off_picker"
-              initialId={form.days_off_type}
-              onChange={(v) => set('days_off_type', (v ?? 'week-off') as WsDayOff)}
-            />
-          </Field>
-        </div>
-      </ClayCard>
-
-      <ClayCard>
-        <h2 className="mb-4 text-[16px] font-semibold text-foreground">Half-Day Rules</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Field label="Half-Day After (hours)">
-            <Input
-              type="number"
-              step="0.25"
-              min={0}
-              value={form.half_day_after ?? 0}
-              onChange={(e) => set('half_day_after', Number(e.target.value))}
-            />
-          </Field>
-          <Field label="Half-Day Start">
-            <Input
-              type="time"
-              value={form.half_day_start ?? ''}
-              onChange={(e) => set('half_day_start', e.target.value)}
-            />
-          </Field>
-          <Field label="Half-Day End">
-            <Input
-              type="time"
-              value={form.half_day_end ?? ''}
-              onChange={(e) => set('half_day_end', e.target.value)}
-            />
-          </Field>
-        </div>
-      </ClayCard>
-
-      <ClayCard>
-        <h2 className="mb-4 text-[16px] font-semibold text-foreground">Office Open Days</h2>
-        <div className="flex flex-wrap gap-3">
-          {WEEKDAYS.map((day) => {
-            const checked = form.office_open_days?.includes(day) ?? false;
-            return (
-              <label
-                key={day}
-                className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground"
-              >
-                <Checkbox
-                  checked={checked}
-                  onCheckedChange={(v) => toggleDay(day, Boolean(v))}
-                />
-                <span className="capitalize">{day}</span>
-              </label>
-            );
-          })}
-        </div>
-      </ClayCard>
-
-      {error ? (
-        <div className="rounded-lg border border-rose-50 bg-rose-50/50 px-3 py-2 text-[13px] text-destructive">
-          {error}
-        </div>
-      ) : null}
-
-      <div className="flex items-center justify-end gap-2">
-        <Button
-          variant="pill"
-          type="button"
-          onClick={() => router.push('/dashboard/hrm/payroll/shifts')}
-        >
-          Cancel
-        </Button>
+function SubmitButton({ isEditing }: { isEditing: boolean }) {
+    const { pending } = useFormStatus();
+    return (
         <Button type="submit" disabled={pending}>
-          {pending ? 'Saving…' : initial?._id ? 'Save Changes' : 'Create Shift'}
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+            {isEditing ? 'Save changes' : 'Create shift'}
         </Button>
-      </div>
-    </form>
-  );
+    );
 }
 
-function Field({
-  label,
-  children,
-  required,
+export function ShiftForm({
+    initial,
+    onSaved,
+    onCancel,
 }: {
-  label: string;
-  children: React.ReactNode;
-  required?: boolean;
+    initial: CrmShiftDoc | null;
+    onSaved: () => void;
+    onCancel?: () => void;
 }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label className="text-[12px] text-muted-foreground">
-        {label}
-        {required ? <span className="ml-0.5 text-destructive">*</span> : null}
-      </Label>
-      {children}
-    </div>
-  );
+    const isEditing = !!initial;
+    const [state, formAction] = useActionState(saveShift, saveInitial);
+    const { toast } = useZoruToast();
+
+    const [color, setColor] = React.useState<string>(initial?.color ?? '#EAB308');
+    const [isNight, setIsNight] = React.useState<boolean>(!!initial?.isNightShift);
+    const [isDefault, setIsDefault] = React.useState<boolean>(!!initial?.isDefault);
+    const [days, setDays] = React.useState<string[]>(
+        initial?.workingDays ?? ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+    );
+    const [status, setStatus] = React.useState<CrmShiftStatus>(
+        (initial?.status as CrmShiftStatus) ?? 'active',
+    );
+
+    React.useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Saved', description: state.message });
+            onSaved();
+        }
+        if (state?.error) {
+            toast({
+                title: 'Error',
+                description: state.error,
+                variant: 'destructive',
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [state]);
+
+    const toggleDay = (value: string, on: boolean) => {
+        setDays((prev) =>
+            on
+                ? Array.from(new Set([...prev, value]))
+                : prev.filter((d) => d !== value),
+        );
+    };
+
+    return (
+        <form action={formAction} className="flex flex-col gap-4">
+            {isEditing ? (
+                <input type="hidden" name="shiftId" value={initial!._id} />
+            ) : null}
+            <input type="hidden" name="color" value={color} />
+            <input type="hidden" name="isNightShift" value={isNight ? 'true' : 'false'} />
+            <input type="hidden" name="isDefault" value={isDefault ? 'true' : 'false'} />
+            {days.map((d) => (
+                <input key={d} type="hidden" name="workingDays" value={d} />
+            ))}
+            {isEditing ? (
+                <input type="hidden" name="status" value={status} />
+            ) : null}
+
+            <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5 sm:col-span-2">
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
+                        id="name"
+                        name="name"
+                        required
+                        placeholder="Morning Shift"
+                        defaultValue={initial?.name ?? ''}
+                    />
+                </div>
+                <div className="space-y-1.5">
+                    <Label htmlFor="code">Code</Label>
+                    <Input
+                        id="code"
+                        name="code"
+                        placeholder="MORN"
+                        defaultValue={initial?.code ?? ''}
+                    />
+                </div>
+                <div className="space-y-1.5">
+                    <Label htmlFor="color-trigger">Color</Label>
+                    <div className="flex items-center gap-2">
+                        <input
+                            id="color-trigger"
+                            type="color"
+                            value={color}
+                            onChange={(e) => setColor(e.target.value)}
+                            className="h-9 w-12 cursor-pointer rounded-md border border-zoru-line bg-transparent p-1"
+                            aria-label="Pick shift color"
+                        />
+                        <Input
+                            value={color}
+                            onChange={(e) => setColor(e.target.value)}
+                            placeholder="#EAB308"
+                        />
+                    </div>
+                </div>
+                <div className="space-y-1.5">
+                    <Label htmlFor="startTime">Start time *</Label>
+                    <Input
+                        id="startTime"
+                        name="startTime"
+                        type="time"
+                        required
+                        defaultValue={initial?.startTime ?? '09:00'}
+                    />
+                </div>
+                <div className="space-y-1.5">
+                    <Label htmlFor="endTime">End time *</Label>
+                    <Input
+                        id="endTime"
+                        name="endTime"
+                        type="time"
+                        required
+                        defaultValue={initial?.endTime ?? '18:00'}
+                    />
+                </div>
+                <div className="space-y-1.5">
+                    <Label htmlFor="breakMinutes">Break (minutes)</Label>
+                    <Input
+                        id="breakMinutes"
+                        name="breakMinutes"
+                        type="number"
+                        min="0"
+                        step="1"
+                        defaultValue={initial?.breakMinutes ?? 60}
+                    />
+                </div>
+                <div className="space-y-1.5">
+                    <Label htmlFor="graceMinutes">Grace (minutes)</Label>
+                    <Input
+                        id="graceMinutes"
+                        name="graceMinutes"
+                        type="number"
+                        min="0"
+                        step="1"
+                        defaultValue={initial?.graceMinutes ?? 15}
+                    />
+                </div>
+            </div>
+
+            <div className="space-y-1.5">
+                <Label>Working days</Label>
+                <div className="flex flex-wrap gap-2">
+                    {WEEKDAYS.map((d) => {
+                        const checked = days.includes(d.value);
+                        return (
+                            <label
+                                key={d.value}
+                                className="flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-[12.5px] text-zoru-ink"
+                            >
+                                <Checkbox
+                                    checked={checked}
+                                    onCheckedChange={(v) => toggleDay(d.value, Boolean(v))}
+                                />
+                                <span>{d.label}</span>
+                            </label>
+                        );
+                    })}
+                </div>
+            </div>
+
+            <div className="space-y-1.5">
+                <Label htmlFor="departmentIds">Department IDs (comma-separated)</Label>
+                <Input
+                    id="departmentIds"
+                    name="departmentIds"
+                    placeholder="Optional — leave blank for all departments"
+                    defaultValue={(initial?.departmentIds ?? []).join(', ')}
+                />
+            </div>
+
+            <div className="space-y-1.5">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                    id="description"
+                    name="description"
+                    rows={2}
+                    defaultValue={initial?.description ?? ''}
+                    placeholder="Optional notes about this shift."
+                />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4">
+                <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
+                    <Checkbox
+                        checked={isNight}
+                        onCheckedChange={(v) => setIsNight(Boolean(v))}
+                    />
+                    Night shift (crosses midnight)
+                </label>
+                <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
+                    <Checkbox
+                        checked={isDefault}
+                        onCheckedChange={(v) => setIsDefault(Boolean(v))}
+                    />
+                    Default shift
+                </label>
+                {isEditing ? (
+                    <div className="ml-auto flex items-center gap-2">
+                        <Label className="text-[12.5px]">Status</Label>
+                        <EnumFormField
+                            enumName="activeArchived"
+                            name="__status_picker"
+                            initialId={status}
+                            onChange={(v) => setStatus((v ?? 'active') as CrmShiftStatus)}
+                        />
+                    </div>
+                ) : null}
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-4">
+                {onCancel && (
+                    <Button type="button" variant="ghost" onClick={onCancel}>
+                        Cancel
+                    </Button>
+                )}
+                <SubmitButton isEditing={isEditing} />
+            </div>
+        </form>
+    );
 }

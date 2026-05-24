@@ -1,18 +1,13 @@
 'use client';
 
-import { Badge, Card, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import {
-  useState,
-  useEffect,
-  useTransition,
-  useCallback } from 'react';
-import { LoaderCircle } from 'lucide-react';
-import { startOfMonth,
-  format } from 'date-fns';
-
+import React, { useState, useTransition, Suspense, useCallback } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getPayslips } from '@/app/actions/crm-payroll.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
+import { startOfMonth, format } from 'date-fns';
+import { LoaderCircle } from 'lucide-react';
+import { TdsPeriodSelector } from './period-selector';
+import { TdsDataView } from './tds-client-view';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
@@ -23,47 +18,49 @@ const months = [
     { value: 9, label: 'October' }, { value: 10, label: 'November' }, { value: 11, label: 'December' },
 ];
 
-function regimeBadge(regime: string) {
-    if (regime === 'new') return <Badge variant="info">New Regime</Badge>;
-    return <Badge variant="warning">Old Regime</Badge>;
+function fetchTdsData(year: number, month: number) {
+    const period = startOfMonth(new Date(year, month));
+    return Promise.all([
+        getPayslips(period),
+        getCrmEmployees(),
+    ]).then(([payslipsData, employeesData]) => {
+        const employeeMap = new Map(employeesData.map((e: any) => [e._id.toString(), e]));
+        return payslipsData.map((slip: any) => {
+            const emp = employeeMap.get(slip.employeeId.toString());
+            const tds = slip.deductions.find((d: any) => d.name?.includes('Tax') || d.name?.includes('TDS'))?.amount ?? 0;
+            return {
+                ...slip,
+                employee: emp,
+                tds,
+                pan: (emp as any)?.pan ?? '—',
+                taxRegime: (emp as any)?.taxRegime ?? 'old',
+                deductionDate: format(period, 'dd MMM yyyy'),
+            };
+        });
+    });
 }
 
 export default function TdsPage() {
-    const [rows, setRows] = useState<any[]>([]);
-    const [isLoading, startTransition] = useTransition();
     const [month, setMonth] = useState(new Date().getMonth());
     const [year, setYear] = useState(currentYear);
+    const [isPending, startTransition] = useTransition();
 
-    const fetchData = useCallback(() => {
-        startTransition(async () => {
-            const period = startOfMonth(new Date(year, month));
-            const [payslipsData, employeesData] = await Promise.all([
-                getPayslips(period),
-                getCrmEmployees(),
-            ]);
-            const employeeMap = new Map(employeesData.map(e => [e._id.toString(), e]));
+    const [dataPromise, setDataPromise] = useState(() => fetchTdsData(year, month));
 
-            const enriched = payslipsData
-                .map(slip => {
-                    const emp = employeeMap.get(slip.employeeId.toString());
-                    const tds = slip.deductions.find((d: any) => d.name?.includes('Tax') || d.name?.includes('TDS'))?.amount ?? 0;
-                    return {
-                        ...slip,
-                        employee: emp,
-                        tds,
-                        pan: (emp as any)?.pan ?? '—',
-                        taxRegime: (emp as any)?.taxRegime ?? 'old',
-                        deductionDate: format(period, 'dd MMM yyyy'),
-                    };
-                });
-
-            setRows(enriched);
+    const handleMonthChange = useCallback((val: number) => {
+        setMonth(val);
+        startTransition(() => {
+            setDataPromise(fetchTdsData(year, val));
         });
-    }, [month, year]);
+    }, [year]);
 
-    useEffect(() => { fetchData(); }, [fetchData]);
+    const handleYearChange = useCallback((val: number) => {
+        setYear(val);
+        startTransition(() => {
+            setDataPromise(fetchTdsData(val, month));
+        });
+    }, [month]);
 
-    const totalTDS = rows.reduce((s, r) => s + r.tds, 0);
     const monthLabel = months.find(m => m.value === month)?.label ?? '';
     const periodLabel = `${monthLabel} ${year}`;
 
@@ -72,111 +69,25 @@ export default function TdsPage() {
             title="TDS Management"
             subtitle={`Tax Deducted at Source tracking for ${periodLabel}.`}
             primaryAction={
-                <>
-                    <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                        <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            {months.map(m => <ZoruSelectItem key={m.value} value={String(m.value)}>{m.label}</ZoruSelectItem>)}
-                        </ZoruSelectContent>
-                    </Select>
-                    <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
-                        <ZoruSelectTrigger className="w-28 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
-                        </ZoruSelectContent>
-                    </Select>
-                </>
+                <TdsPeriodSelector 
+                    month={month} 
+                    year={year} 
+                    onMonthChange={handleMonthChange} 
+                    onYearChange={handleYearChange}
+                    months={months}
+                    years={years}
+                />
             }
         >
-
-            <div className="grid gap-4 md:grid-cols-3">
-                <Card className="p-6">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total TDS Collected</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">₹{totalTDS.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{periodLabel}</p>
-                </Card>
-                <Card className="p-6">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Employees with TDS</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">{rows.filter(r => r.tds > 0).length}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">out of {rows.length} employees</p>
-                </Card>
-                <Card className="p-6">
-                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Avg. TDS per Employee</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">
-                        ₹{rows.length > 0 ? Math.round(totalTDS / rows.filter(r => r.tds > 0).length || 0).toLocaleString('en-IN') : 0}
+            <div className={isPending ? 'opacity-50 transition-opacity' : 'transition-opacity'}>
+                <Suspense fallback={
+                    <div className="flex justify-center p-24">
+                        <LoaderCircle className="h-8 w-8 animate-spin text-zoru-brand" />
                     </div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">among applicable employees</p>
-                </Card>
+                }>
+                    <TdsDataView dataPromise={dataPromise} periodLabel={periodLabel} />
+                </Suspense>
             </div>
-
-            <Card className="p-6">
-                <div className="mb-4">
-                    <h2 className="text-[16px] text-zoru-ink">TDS Deduction Details</h2>
-                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Per-employee breakdown with PAN, tax regime, and deduction date.</p>
-                </div>
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <table className="w-full text-left text-[13px]">
-                        <thead>
-                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Employee</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">PAN Number</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Tax Regime</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Gross Salary</th>
-                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">TDS Amount</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Month</th>
-                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Deduction Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {isLoading ? (
-                                <tr>
-                                    <td colSpan={7} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
-                                    </td>
-                                </tr>
-                            ) : rows.length > 0 ? (
-                                rows.map((row, idx) => (
-                                    <tr key={row._id?.toString() ?? idx} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
-                                        <td className="px-4 py-3">
-                                            <div className="font-medium text-zoru-ink">
-                                                {row.employee?.firstName} {row.employee?.lastName}
-                                            </div>
-                                            <div className="text-[11.5px] text-zoru-ink-muted">{row.employee?.designationName ?? '—'}</div>
-                                        </td>
-                                        <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink">{row.pan}</td>
-                                        <td className="px-4 py-3">{regimeBadge(row.taxRegime)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{(row.grossSalary ?? 0).toLocaleString('en-IN')}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
-                                            {row.tds > 0 ? `₹${row.tds.toLocaleString('en-IN')}` : <Badge variant="secondary">Nil</Badge>}
-                                        </td>
-                                        <td className="px-4 py-3 text-zoru-ink">{periodLabel}</td>
-                                        <td className="px-4 py-3 text-zoru-ink-muted">{row.deductionDate}</td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
-                                        No TDS data for {periodLabel}.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                        {rows.length > 0 && (
-                            <tfoot>
-                                <tr className="border-t-2 border-zoru-line bg-zoru-surface-2">
-                                    <td colSpan={4} className="px-4 py-3 text-[12.5px] text-zoru-ink">Total TDS</td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">₹{totalTDS.toLocaleString('en-IN')}</td>
-                                    <td colSpan={2} />
-                                </tr>
-                            </tfoot>
-                        )}
-                    </table>
-                </div>
-            </Card>
         </EntityListShell>
     );
 }

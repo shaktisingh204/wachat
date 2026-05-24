@@ -11,6 +11,7 @@ const forecastSchema = z.object({
   period: z.string(),
   predictedRevenue: z.number(),
   confidenceScore: z.number(),
+  aiModel: z.string().optional(),
   drivers: z.array(z.string()),
 });
 
@@ -22,6 +23,7 @@ export async function getSalesForecasts(): Promise<AISalesForecast[]> {
     period: doc.period,
     predictedRevenue: doc.predictedRevenue,
     confidenceScore: doc.confidenceScore,
+    aiModel: doc.aiModel,
     drivers: doc.drivers || [],
     createdAt: doc.createdAt?.toISOString() || new Date().toISOString(),
   }));

@@ -43,7 +43,10 @@ import {
   Inbox,
   Loader2,
   RefreshCw,
+  Settings,
   } from "lucide-react";
+
+import { useProject } from "@/context/project-context";
 
 import {
   getAllNotifications,
@@ -93,11 +96,10 @@ export default function NotificationsPage() {
   const [appFilter, setAppFilter] = useState("ALL");
   const { toast } = useZoruToast();
   const router = useRouter();
-  const [projectId, setProjectId] = useState<string | null>(null);
+  const { activeProjectId } = useProject();
 
   useEffect(() => {
     document.title = "All Notifications · SabNode";
-    setProjectId(localStorage.getItem("activeProjectId"));
   }, []);
 
   const fetchNotifications = useCallback(
@@ -108,7 +110,7 @@ export default function NotificationsPage() {
             page,
             NOTIFICATIONS_PER_PAGE,
             currentFilter,
-            projectId,
+            activeProjectId,
           );
           setNotifications(next);
           setTotalPages(Math.ceil(total / NOTIFICATIONS_PER_PAGE));
@@ -127,7 +129,7 @@ export default function NotificationsPage() {
         }
       });
     },
-    [projectId, toast],
+    [activeProjectId, toast],
   );
 
   useEffect(() => {
@@ -258,6 +260,15 @@ export default function NotificationsPage() {
               ))}
             </ZoruSelectContent>
           </Select>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push("/dashboard/notification-preferences")}
+          >
+            <Settings />
+            Preferences
+          </Button>
 
           <Button
             variant="outline"

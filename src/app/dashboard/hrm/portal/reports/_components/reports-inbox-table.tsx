@@ -2,19 +2,10 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  Badge,
-  Button,
-  Checkbox,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/zoruui';
+import { Badge, Button, Checkbox } from '@/components/zoruui';
 import { CheckCheck, LoaderCircle } from 'lucide-react';
 import type { HrmTaskReport } from '@/app/actions/hrm-task-reports.actions';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 interface ReportsInboxTableProps {
   reports: HrmTaskReport[];
@@ -70,12 +61,21 @@ export function ReportsInboxTable({
   onAcknowledge,
   acknowledging,
 }: ReportsInboxTableProps) {
+  const parentRef = React.useRef<HTMLDivElement>(null);
+
+  const rowVirtualizer = useVirtualizer({
+    count: reports.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 56, // Approx row height
+    overscan: 5,
+  });
+
   const allSelected = reports.length > 0 && reports.every((r) => selectedIds.has(r._id));
   const someSelected = reports.some((r) => selectedIds.has(r._id));
 
   if (loading) {
     return (
-      <div className="flex h-40 items-center justify-center">
+      <div className="flex h-40 items-center justify-center border border-zoru-line rounded-lg">
         <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
       </div>
     );
@@ -83,50 +83,74 @@ export function ReportsInboxTable({
 
   if (reports.length === 0) {
     return (
-      <div className="flex h-40 items-center justify-center text-sm text-zoru-ink-muted">
+      <div className="flex h-40 items-center justify-center text-sm text-zoru-ink-muted border border-zoru-line rounded-lg">
         No reports match your filters.
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-zoru-line">
-      <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-            <ZoruTableHead className="w-10 pl-4">
-              <Checkbox
-                checked={allSelected ? true : someSelected ? 'indeterminate' : false}
-                onCheckedChange={onToggleAll}
-                aria-label="Select all"
-              />
-            </ZoruTableHead>
-            <ZoruTableHead className="text-zoru-ink-muted">Task Title</ZoruTableHead>
-            <ZoruTableHead className="text-zoru-ink-muted">Worker</ZoruTableHead>
-            <ZoruTableHead className="text-zoru-ink-muted">Roadmap</ZoruTableHead>
-            <ZoruTableHead className="text-zoru-ink-muted">Phase</ZoruTableHead>
-            <ZoruTableHead className="text-zoru-ink-muted">Completed At</ZoruTableHead>
-            <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-            <ZoruTableHead className="text-right text-zoru-ink-muted pr-4">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
-          {reports.map((report) => {
+    <div className="overflow-hidden rounded-lg border border-zoru-line flex flex-col">
+      {/* Header */}
+      <div className="grid grid-cols-[3rem_minmax(120px,1.5fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(80px,0.8fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(120px,1fr)] items-center px-4 py-3 border-b border-zoru-line bg-zoru-surface-2 text-[13px] font-medium text-zoru-ink-muted">
+        <div className="flex justify-center">
+          <Checkbox
+            checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+            onCheckedChange={onToggleAll}
+            aria-label="Select all"
+          />
+        </div>
+        <div>Task Title</div>
+        <div>Worker</div>
+        <div>Roadmap</div>
+        <div>Phase</div>
+        <div>Completed At</div>
+        <div>Status</div>
+        <div className="text-right">Actions</div>
+      </div>
+
+      {/* Body */}
+      <div
+        ref={parentRef}
+        className="overflow-auto"
+        style={{ height: '400px' }} // Fixed height for virtualizer
+      >
+        <div
+          style={{
+            height: `${rowVirtualizer.getTotalSize()}px`,
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            const report = reports[virtualRow.index];
             const isAcked = !!report.acknowledgedAt;
             const isPending = acknowledging.has(report._id);
+
             return (
-              <ZoruTableRow key={report._id} className="border-zoru-line">
-                <ZoruTableCell className="pl-4">
+              <div
+                key={report._id}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: `${virtualRow.size}px`,
+                  transform: `translateY(${virtualRow.start}px)`,
+                }}
+                className="grid grid-cols-[3rem_minmax(120px,1.5fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(80px,0.8fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(120px,1fr)] items-center px-4 border-b border-zoru-line hover:bg-zoru-surface-2/50 transition-colors bg-zoru-surface text-[13px]"
+              >
+                <div className="flex justify-center">
                   <Checkbox
                     checked={selectedIds.has(report._id)}
                     onCheckedChange={() => onToggleSelect(report._id)}
                     aria-label={`Select ${report.taskTitle}`}
                   />
-                </ZoruTableCell>
-                <ZoruTableCell className="font-medium text-zoru-ink">
+                </div>
+                <div className="font-medium text-zoru-ink pr-2 truncate">
                   {report.taskTitle}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </div>
+                <div>
                   <div className="flex items-center gap-2">
                     <span
                       className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold ${avatarColor(report.workerName)}`}
@@ -134,38 +158,38 @@ export function ReportsInboxTable({
                     >
                       {workerInitials(report.workerName)}
                     </span>
-                    <span className="text-[13px] text-zoru-ink">{report.workerName}</span>
+                    <span className="text-zoru-ink truncate">{report.workerName}</span>
                   </div>
-                </ZoruTableCell>
-                <ZoruTableCell className="text-zoru-ink">
+                </div>
+                <div>
                   <Link
                     href={`/dashboard/hrm/portal/roadmaps/${report.roadmapId}`}
-                    className="text-[13px] hover:underline text-zoru-ink"
+                    className="hover:underline text-zoru-ink truncate"
                   >
                     View roadmap
                   </Link>
-                </ZoruTableCell>
-                <ZoruTableCell className="text-[13px] text-zoru-ink">
+                </div>
+                <div className="text-zoru-ink truncate">
                   {report.phaseId || '—'}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-[13px] text-zoru-ink">
+                </div>
+                <div className="text-zoru-ink truncate">
                   {fmtDate(report.completedAt)}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </div>
+                <div>
                   {isAcked ? (
                     <Badge variant="success">Acknowledged</Badge>
                   ) : (
                     <Badge variant="warning">Unacknowledged</Badge>
                   )}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right pr-4">
+                </div>
+                <div className="text-right flex justify-end">
                   {!isAcked && (
                     <Button
                       size="sm"
                       variant="outline"
                       disabled={isPending}
                       onClick={() => onAcknowledge(report._id)}
-                      className="gap-1.5"
+                      className="gap-1.5 h-8"
                     >
                       {isPending ? (
                         <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
@@ -175,12 +199,12 @@ export function ReportsInboxTable({
                       Acknowledge
                     </Button>
                   )}
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </div>
+              </div>
             );
           })}
-        </ZoruTableBody>
-      </Table>
+        </div>
+      </div>
     </div>
   );
 }

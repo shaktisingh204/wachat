@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button } from '@/components/zoruui';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Wand2, Loader2 } from 'lucide-react';
 import { 
   Table, 
   ZoruTableHeader, 
@@ -24,7 +24,7 @@ import { Input } from '@/components/zoruui';
 import { Label } from '@/components/zoruui';
 import { Badge } from '@/components/zoruui';
 import { useZoruToast } from '@/components/zoruui';
-import { createSocialPost, updateSocialPost, deleteSocialPost } from '@/app/actions/marketing/social-media-scheduler.actions';
+import { createSocialPost, updateSocialPost, deleteSocialPost, suggestOptimizations } from '@/app/actions/marketing/social-media-scheduler.actions';
 
 export function SocialPostClient({ initialData }: { initialData: any[] }) {
   const [data, setData] = useState(initialData);
@@ -38,6 +38,9 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
   const [platform, setPlatform] = useState<any>("");
   const [content, setContent] = useState<any>("");
   const [status, setStatus] = useState<any>("");
+  const [scheduledTime, setScheduledTime] = useState<any>("");
+  const [tags, setTags] = useState<string>("");
+  const [isSuggesting, setIsSuggesting] = useState(false);
 
   const filteredData = data.filter(item => 
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
@@ -48,6 +51,8 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
     setPlatform("");
     setContent("");
     setStatus("");
+    setScheduledTime("");
+    setTags("");
     setIsDialogOpen(true);
   };
 
@@ -56,6 +61,8 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
     setPlatform(item.platform || "");
     setContent(item.content || "");
     setStatus(item.status || "");
+    setScheduledTime(item.scheduledTime || "");
+    setTags(item.tags ? item.tags.join(', ') : "");
     setIsDialogOpen(true);
   };
 
@@ -64,7 +71,9 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
     const payload = {
       platform,
       content,
-      status
+      status,
+      scheduledTime,
+      tags: tags.split(',').map(t => t.trim()).filter(Boolean)
     };
 
     try {
@@ -102,6 +111,33 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
       toast({ title: 'Success', description: 'Record deleted.' });
     } else {
       toast({ title: 'Error', description: res.error || 'Failed to delete record.', variant: 'destructive' });
+    }
+  };
+
+  const handleSuggest = async () => {
+    if (!content || !platform) {
+      toast({ title: 'Notice', description: 'Please enter content and select a platform first.' });
+      return;
+    }
+    
+    setIsSuggesting(true);
+    try {
+      const res = await suggestOptimizations(content, platform);
+      if (res.success && res.data) {
+        if (res.data.suggestedTags) {
+          setTags(res.data.suggestedTags.join(', '));
+        }
+        if (res.data.optimalPostingTime) {
+          setScheduledTime(res.data.optimalPostingTime);
+        }
+        toast({ title: 'Success', description: 'Generated suggestions successfully.' });
+      } else {
+        toast({ title: 'Error', description: res.error || 'Failed to generate suggestions.', variant: 'destructive' });
+      }
+    } catch (err) {
+      toast({ title: 'Error', description: 'An unexpected error occurred during suggestion generation.', variant: 'destructive' });
+    } finally {
+      setIsSuggesting(false);
     }
   };
 
@@ -174,6 +210,47 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
                   
                 </div>
               
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="scheduledTime" className="text-right">Scheduled Time</Label>
+                  <div className="col-span-3 flex flex-col gap-2">
+                    <Input
+                      id="scheduledTime"
+                      type="text"
+                      placeholder="e.g. 2023-11-05T14:30:00Z or Tuesday 10:00 AM"
+                      value={scheduledTime}
+                      onChange={(e) => setScheduledTime(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="tags" className="text-right">Tags</Label>
+                  <div className="col-span-3 flex flex-col gap-2">
+                    <Input
+                      id="tags"
+                      type="text"
+                      placeholder="Comma-separated tags"
+                      value={tags}
+                      onChange={(e) => setTags(e.target.value)}
+                    />
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleSuggest} 
+                      disabled={isSuggesting || !content || !platform}
+                      className="w-fit"
+                    >
+                      {isSuggesting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Wand2 className="mr-2 h-4 w-4" />
+                      )}
+                      Suggest Tags & Time
+                    </Button>
+                  </div>
+                </div>
+              
             </div>
             <ZoruDialogFooter>
               <Button disabled={loading} onClick={handleSave}>Save</Button>
@@ -194,6 +271,8 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
                 <ZoruTableHead className="capitalize">platform</ZoruTableHead>
                 <ZoruTableHead className="capitalize">content</ZoruTableHead>
                 <ZoruTableHead className="capitalize">status</ZoruTableHead>
+                <ZoruTableHead className="capitalize">time</ZoruTableHead>
+                <ZoruTableHead className="capitalize">tags</ZoruTableHead>
                 <ZoruTableHead className="text-right">Actions</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
@@ -213,6 +292,18 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
                   
                     <ZoruTableCell>
                       {String(item.status || '')}
+                    </ZoruTableCell>
+
+                    <ZoruTableCell>
+                      {String(item.scheduledTime || '')}
+                    </ZoruTableCell>
+
+                    <ZoruTableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {item.tags?.map((tag: string, idx: number) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">{tag}</Badge>
+                        ))}
+                      </div>
                     </ZoruTableCell>
                   
                   <ZoruTableCell className="text-right space-x-2">
