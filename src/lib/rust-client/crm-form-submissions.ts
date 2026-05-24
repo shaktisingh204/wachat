@@ -23,6 +23,7 @@ export interface CrmFormSubmissionDoc {
   status: CrmFormSubmissionStatus;
   processedAt?: string;
   notes?: string;
+  tags?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -50,6 +51,7 @@ export interface CrmFormSubmissionCreateInput {
   userAgent?: string;
   referrer?: string;
   notes?: string;
+  tags?: string[];
 }
 
 export type CrmFormSubmissionUpdateInput = Partial<

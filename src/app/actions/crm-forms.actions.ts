@@ -490,7 +490,7 @@ export async function getCrmFormKpis(): Promise<CrmFormKpis> {
 
 export async function bulkFormAction(
     ids: string[],
-    op: 'delete' | 'publish' | 'draft',
+    op: 'delete' | 'publish' | 'draft' | 'archive',
 ): Promise<{ success: boolean; processed?: number; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
@@ -513,12 +513,13 @@ export async function bulkFormAction(
             revalidatePath('/dashboard/crm/sales-crm/custom-forms');
             return { success: true, processed: result.deletedCount ?? 0 };
         }
-        if (op === 'publish' || op === 'draft') {
+        if (op === 'publish' || op === 'draft' || op === 'archive') {
+            const status = op === 'publish' ? 'published' : op === 'draft' ? 'draft' : 'archived';
             const result = await db
                 .collection('crm_forms')
                 .updateMany(match, {
                     $set: {
-                        'settings.status': op === 'publish' ? 'published' : 'draft',
+                        'settings.status': status,
                         updatedAt: new Date(),
                     },
                 });
@@ -781,6 +782,36 @@ export async function updateSubmissionStatus(
     const patch: Record<string, unknown> = { status };
     if (status === 'processed') patch.processedAt = new Date();
     const ok = await patchSubmissionMongo(submissionId, patch);
+    if (!ok) return { success: false, error: 'Submission not found.' };
+    revalidatePath('/dashboard/crm/sales-crm/forms', 'layout');
+    return { success: true };
+}
+
+export async function updateSubmissionTags(
+    submissionId: string,
+    tags: string[],
+): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(submissionId)) {
+        return { success: false, error: 'Invalid submission id.' };
+    }
+
+    if (useRustCrm()) {
+        try {
+            await crmFormSubmissionsApi.update(submissionId, { tags });
+            revalidatePath('/dashboard/crm/sales-crm/forms', 'layout');
+            return { success: true };
+        } catch (e) {
+            console.error('[updateSubmissionTags] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'form_submission',
+                op: 'update',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    const ok = await patchSubmissionMongo(submissionId, { tags });
     if (!ok) return { success: false, error: 'Submission not found.' };
     revalidatePath('/dashboard/crm/sales-crm/forms', 'layout');
     return { success: true };

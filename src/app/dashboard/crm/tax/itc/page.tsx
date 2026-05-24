@@ -14,6 +14,9 @@ import {
 } from '@/app/actions/crm-india-itc.actions';
 import { ItcClient } from './_components/itc-client';
 
+import { SyncGstnButton } from './_components/sync-gstn-button';
+import { ItcSummaryChart } from './_components/itc-summary-chart';
+
 function currentPeriod(): string {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -70,7 +73,12 @@ export default async function ItcReconciliationPage(props: {
         <EntityListShell
             title="ITC Reconciliation"
             subtitle="Books vs GSTR-2B — claimable Input Tax Credit per supplier."
-            primaryAction={<PeriodForm period={period} />}
+            primaryAction={
+                <div className="flex items-center gap-2">
+                    <SyncGstnButton />
+                    <PeriodForm period={period} />
+                </div>
+            }
         >
             {/* KPI strip */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -105,6 +113,15 @@ export default async function ItcReconciliationPage(props: {
                     hint={recon ? `${recon.onlyInGstr2b.length} invoices` : ''}
                 />
             </div>
+
+            {/* Visual Breakdown Chart */}
+            {recon && (
+                <ItcSummaryChart
+                    matched={recon.summary.totalMatched}
+                    onlyInBooks={recon.summary.totalOnlyInBooks}
+                    onlyIn2B={recon.summary.totalOnlyInGstr2b}
+                />
+            )}
 
             {/* Import prompt */}
             {needsImport ? (

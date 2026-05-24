@@ -29,6 +29,7 @@ import {
   type PresetKey,
   type ViewMode,
 } from './quotation-list-toolbar';
+import { QuotationKanban } from './quotation-kanban';
 import { useQuotationBulk } from './use-quotation-bulk';
 import type { QuotationKpiSummary, QuotationListRow } from './types';
 
@@ -684,21 +685,30 @@ export function QuotationListClient({
               onClear={clearFilters}
             />
 
-            <CrmBulkyGrid<QuotationListRow>
-              columns={columns}
-              data={quotations}
-              selectedIds={selected}
-              onSelectOne={toggleSelectOne}
-              onSelectAll={(checked) => toggleSelectAll(quotations.map(x => x._id), checked)}
-              density={density}
-              inlineEditRowId={inlineEditRowId}
-              editBuffer={editBuffer}
-              onStartInlineEdit={startInlineEdit}
-              onCancelInlineEdit={cancelInlineEdit}
-              onSaveInlineEdit={handleSaveInlineEdit}
-              onUpdateEditBuffer={updateEditBuffer}
-              isLoading={isPending}
-            />
+            {view === 'kanban' ? (
+              <div className="p-4">
+                <QuotationKanban
+                  quotations={quotations}
+                  currency={defaultCurrency}
+                />
+              </div>
+            ) : (
+              <CrmBulkyGrid<QuotationListRow>
+                columns={columns}
+                data={quotations}
+                selectedIds={selected}
+                onSelectOne={toggleSelectOne}
+                onSelectAll={(checked) => toggleSelectAll(quotations.map(x => x._id), checked)}
+                density={density}
+                inlineEditRowId={inlineEditRowId}
+                editBuffer={editBuffer}
+                onStartInlineEdit={startInlineEdit}
+                onCancelInlineEdit={cancelInlineEdit}
+                onSaveInlineEdit={handleSaveInlineEdit}
+                onUpdateEditBuffer={updateEditBuffer}
+                isLoading={isPending}
+              />
+            )}
           </Card>
         </div>
       </EntityListShell>

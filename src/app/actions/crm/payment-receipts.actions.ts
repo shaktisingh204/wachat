@@ -488,3 +488,45 @@ export async function bulkPaymentReceiptAction(
     return { success: false, processed: 0, error: rustErr(e) };
   }
 }
+
+export async function requestReceiptsExport(
+  filters?: { clientId?: string; status?: string }
+): Promise<{ success: boolean; jobId?: string; csvData?: string; error?: string }> {
+  try {
+    // Simulate background job creation
+    const rows = await crmPaymentReceiptsApi.list({ page: 1, limit: 1000, clientId: filters?.clientId, status: filters?.status !== 'all' ? filters?.status : undefined });
+    
+    const header = [
+      'Receipt #',
+      'Date',
+      'Customer',
+      'Mode',
+      'Bank',
+      'Reference',
+      'Amount',
+      'Currency',
+      'Status',
+    ];
+    const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const csv = [
+      header.join(','),
+      ...rows.map((r) =>
+        [
+          escape(r.receiptNo),
+          escape(r.date),
+          escape(r.clientId),
+          escape(r.mode),
+          escape(r.bankAccountId),
+          escape(r.chequeNo || r.txnId || r.reference || ''),
+          escape(r.amount ?? 0),
+          escape(r.currency || 'INR'),
+          escape(r.status || 'received'),
+        ].join(','),
+      ),
+    ].join('\n');
+
+    return { success: true, jobId: `job_${Date.now()}`, csvData: csv };
+  } catch (e) {
+    return { success: false, error: rustErr(e) };
+  }
+}

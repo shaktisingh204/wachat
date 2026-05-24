@@ -3,6 +3,7 @@
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, type WithId, Filter } from 'mongodb';
+import { unstable_cache } from 'next/cache';
 import type { CrmAccount, CrmContact, CrmDeal, CrmPipeline, User, EcommProduct, CrmInvoice, CrmCreditNote, CrmWarehouse, ProductBatch, CrmSalesOrder, CrmStockAdjustment } from '@/lib/definitions';
 
 export async function generateClientReportData(): Promise<{ success: boolean; data?: any[]; error?: string }> {
@@ -50,6 +51,67 @@ export async function generateClientReportData(): Promise<{ success: boolean; da
     }
 }
 
+const getCachedSummaryDataFromDB = unstable_cache(
+    async (userIdStr: string, filtersStr: string, pipelineStr: string) => {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(userIdStr);
+        const filters = JSON.parse(filtersStr);
+        const activePipeline = JSON.parse(pipelineStr);
+
+        const baseDealFilter: any = { userId };
+        if (filters.leadSource) baseDealFilter.leadSource = filters.leadSource;
+        if (filters.assigneeId) baseDealFilter.ownerId = new ObjectId(filters.assigneeId);
+        if (filters.createdFrom && filters.createdTo) {
+            baseDealFilter.createdAt = { $gte: new Date(filters.createdFrom), $lte: new Date(filters.createdTo) };
+        }
+
+        const deals = await db.collection<CrmDeal>('crm_deals').find(baseDealFilter).toArray();
+
+        const newLeads = deals.filter(d => d.stage === 'New' || d.stage === 'Open').length;
+        const closedLeads = deals.filter(d => d.stage === 'Won' || d.stage === 'Lost').length;
+        const scheduledLeads = 0;
+        const overdueLeads = 0;
+
+        const pipelineSummary = activePipeline.stages.map((stage: any) => {
+            const dealsInStage = deals.filter(d => d.stage === stage.name);
+            const totalValue = dealsInStage.reduce((sum, d) => sum + d.value, 0);
+            const weightedValue = totalValue * (stage.chance / 100);
+
+            // Mock AI predictive lead scoring
+            const avgScore = dealsInStage.length > 0 ? dealsInStage.reduce((sum, d) => {
+                let score = 50; 
+                score += (stage.chance || 0) * 0.3;
+                score += Math.min(d.value / 1000, 10);
+                const ageDays = d.createdAt ? (Date.now() - new Date(d.createdAt).getTime()) / (1000 * 60 * 60 * 24) : 10;
+                if (ageDays < 7) score += 10;
+                else if (ageDays < 30) score += 5;
+                else score -= 10; 
+                return sum + Math.max(0, Math.min(100, score));
+            }, 0) / dealsInStage.length : 0;
+
+            return {
+                name: stage.name,
+                leadCount: dealsInStage.length,
+                totalValue,
+                weightedValue,
+                avgPredictiveScore: Math.round(avgScore),
+            };
+        });
+
+        const allUsersUnderAccount = await db.collection<User>('users').find({}).project({ name: 1 }).toArray();
+        const leadSources = (await db.collection('crm_deals').distinct('leadSource', { userId })) as string[];
+
+        return {
+            newLeads, closedLeads, scheduledLeads, overdueLeads,
+            pipelineSummary,
+            leadSources,
+            assignees: allUsersUnderAccount.map(u => ({ _id: u._id.toString(), name: u.name }))
+        };
+    },
+    ['leads-summary-aggregation'],
+    { revalidate: 300 } // 5 minutes cache
+);
+
 export async function getLeadsSummaryData(filters: {
     pipelineId?: string;
     leadSource?: string;
@@ -61,54 +123,32 @@ export async function getLeadsSummaryData(filters: {
     if (!session?.user) return null;
 
     try {
-        const { db } = await connectToDatabase();
-        const userId = new ObjectId(session.user._id);
-
-        const baseDealFilter: any = { userId };
-        if (filters.leadSource) baseDealFilter.leadSource = filters.leadSource;
-        if (filters.assigneeId) baseDealFilter.ownerId = new ObjectId(filters.assigneeId);
-        if (filters.createdFrom && filters.createdTo) {
-            baseDealFilter.createdAt = { $gte: filters.createdFrom, $lte: filters.createdTo };
-        }
-
-        const deals = await db.collection<CrmDeal>('crm_deals').find(baseDealFilter).toArray();
-
-        const newLeads = deals.filter(d => d.stage === 'New' || d.stage === 'Open').length;
-        const closedLeads = deals.filter(d => d.stage === 'Won' || d.stage === 'Lost').length;
-        const scheduledLeads = 0;
-        const overdueLeads = 0;
-
         const pipelines = session.user.crmPipelines || [{ id: 'default', name: 'Sales Pipeline', stages: [{ id: '1', name: 'Open', chance: 10 }, { id: '2', name: 'Contacted', chance: 20 }, { id: '3', name: 'Proposal Sent', chance: 50 }, { id: '4', name: 'Deal Done', chance: 100 }, { id: '5', name: 'Lost', chance: 0 }, { id: '6', name: 'Not Serviceable', chance: 0 }] }];
         const activePipeline = pipelines.find((p: any) => p.id === (filters.pipelineId || pipelines[0].id)) || pipelines[0];
 
-        const pipelineSummary = activePipeline.stages.map((stage: any) => {
-            const dealsInStage = deals.filter(d => d.stage === stage.name);
-            const totalValue = dealsInStage.reduce((sum, d) => sum + d.value, 0);
-            const weightedValue = totalValue * (stage.chance / 100);
-            return {
-                name: stage.name,
-                leadCount: dealsInStage.length,
-                totalValue,
-                weightedValue,
-            };
-        });
+        const cachedResult = await getCachedSummaryDataFromDB(
+             session.user._id.toString(),
+             JSON.stringify(filters),
+             JSON.stringify(activePipeline)
+        );
 
-        const allUsersUnderAccount = await db.collection<User>('users').find({}).project({ name: 1 }).toArray();
-
-        const leadSources = (await db.collection('crm_deals').distinct('leadSource', { userId })) as string[];
+        const totalScore = cachedResult.pipelineSummary.reduce((sum: number, s: any) => sum + (s.avgPredictiveScore || 0) * s.leadCount, 0);
+        const totalLeads = cachedResult.pipelineSummary.reduce((sum: number, s: any) => sum + s.leadCount, 0);
+        const overallPredictiveScore = totalLeads > 0 ? Math.round(totalScore / totalLeads) : 0;
 
         return {
             summary: {
-                newLeads,
-                scheduledLeads,
-                overdueLeads,
-                closedLeads,
+                newLeads: cachedResult.newLeads,
+                scheduledLeads: cachedResult.scheduledLeads,
+                overdueLeads: cachedResult.overdueLeads,
+                closedLeads: cachedResult.closedLeads,
+                overallPredictiveScore,
             },
-            pipelineSummary,
+            pipelineSummary: cachedResult.pipelineSummary,
             filtersData: {
                 pipelines,
-                leadSources,
-                assignees: allUsersUnderAccount.map(u => ({ _id: u._id.toString(), name: u.name })),
+                leadSources: cachedResult.leadSources,
+                assignees: cachedResult.assignees,
             }
         };
 

@@ -10,7 +10,10 @@ import { useRouter } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
 import { ArrowLeft,
   LoaderCircle,
-  Save } from 'lucide-react';
+  Save,
+  CalendarDays,
+  Pause,
+  Play } from 'lucide-react';
 
 /**
  * <RecurringInvoiceForm /> — canonical create/edit form for CRM
@@ -50,6 +53,37 @@ function toDateInput(value: unknown): string {
     return d.toISOString().slice(0, 10);
 }
 
+function getNextRunDates(startDateStr: string, frequency: CrmRecurringInvoiceFrequency, count: number): Date[] {
+    const dates: Date[] = [];
+    if (!startDateStr) return dates;
+    
+    const current = new Date(startDateStr);
+    if (Number.isNaN(current.getTime())) return dates;
+
+    for (let i = 0; i < count; i++) {
+        dates.push(new Date(current));
+        
+        switch (frequency) {
+            case 'daily':
+                current.setUTCDate(current.getUTCDate() + 1);
+                break;
+            case 'weekly':
+                current.setUTCDate(current.getUTCDate() + 7);
+                break;
+            case 'monthly':
+                current.setUTCMonth(current.getUTCMonth() + 1);
+                break;
+            case 'quarterly':
+                current.setUTCMonth(current.getUTCMonth() + 3);
+                break;
+            case 'yearly':
+                current.setUTCFullYear(current.getUTCFullYear() + 1);
+                break;
+        }
+    }
+    return dates;
+}
+
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
@@ -81,6 +115,11 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
     const [status, setStatus] = useState<CrmRecurringInvoiceStatus>(
         (initialData?.status as CrmRecurringInvoiceStatus) ?? 'active',
     );
+    const [startDate, setStartDate] = useState<string>(
+        toDateInput(initialData?.startDate) || toDateInput(new Date().toISOString())
+    );
+
+    const projectedDates = getNextRunDates(startDate, frequency, 5);
 
     useEffect(() => {
         if (state?.message) {
@@ -179,10 +218,8 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
                             name="startDate"
                             type="date"
                             required
-                            defaultValue={
-                                toDateInput(initialData?.startDate) ||
-                                toDateInput(new Date().toISOString())
-                            }
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
                         />
                     </div>
                     <div className="space-y-1.5">
@@ -195,6 +232,26 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
                         />
                     </div>
                 </div>
+
+                {/* Frequency Visualizer */}
+                {projectedDates.length > 0 && (
+                    <div className="space-y-3 rounded-md border p-4 bg-muted/20">
+                        <div className="flex items-center gap-2">
+                            <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                            <h4 className="text-sm font-medium">Projected Schedule</h4>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {projectedDates.map((d, i) => (
+                                <div key={i} className="flex items-center gap-1.5 rounded-full bg-background px-3 py-1 text-xs border shadow-sm">
+                                    <span className="text-muted-foreground font-mono opacity-60">#{i + 1}</span>
+                                    <span className="font-medium text-foreground">
+                                        {d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Notes */}
                 <div className="space-y-1.5">
@@ -216,7 +273,22 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
                             Back to schedules
                         </Link>
                     </Button>
-                    <SubmitButton isEditing={isEditing} />
+                    <div className="flex items-center gap-2">
+                        {isEditing && (
+                            <Button
+                                type="button"
+                                variant={status === 'paused' ? 'outline' : 'secondary'}
+                                onClick={() => setStatus(status === 'paused' ? 'active' : 'paused')}
+                            >
+                                {status === 'paused' ? (
+                                    <><Play className="mr-2 h-4 w-4" /> Resume</>
+                                ) : (
+                                    <><Pause className="mr-2 h-4 w-4" /> Pause</>
+                                )}
+                            </Button>
+                        )}
+                        <SubmitButton isEditing={isEditing} />
+                    </div>
                 </div>
             </form>
         </Card>

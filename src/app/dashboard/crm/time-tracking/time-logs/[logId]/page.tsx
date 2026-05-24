@@ -44,12 +44,17 @@ import {
   type WsProjectTimeLog,
   type WsProjectTimeLogBreak,
 } from '@/lib/worksuite/time-types';
+import { format, parseISO } from 'date-fns';
 
 function fmt(value: unknown): string {
   if (!value) return '—';
-  const d = new Date(value as string);
-  if (isNaN(d.getTime())) return '—';
-  return d.toLocaleString();
+  try {
+    const d = typeof value === 'string' ? parseISO(value) : new Date(value as any);
+    if (isNaN(d.getTime())) return '—';
+    return format(d, 'PPpp');
+  } catch {
+    return '—';
+  }
 }
 
 export default function TimeLogDetailPage({

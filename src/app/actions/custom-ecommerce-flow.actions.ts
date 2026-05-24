@@ -76,14 +76,14 @@ export async function saveEcommFlow(data: {
 
         if (isNew) {
             const result = await db.collection('ecomm_flows').insertOne({ ...flowData, createdAt: new Date() } as any);
-            revalidatePath('/dashboard/custom-ecommerce/flow-builder');
+            revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${projectId}/flow-builder`);
             return { message: 'Flow created successfully.', flowId: result.insertedId.toString() };
         } else {
             await db.collection('ecomm_flows').updateOne(
                 { _id: new ObjectId(flowId) },
                 { $set: flowData }
             );
-            revalidatePath('/dashboard/custom-ecommerce/flow-builder');
+            revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${projectId}/flow-builder`);
             return { message: 'Flow updated successfully.', flowId };
         }
     } catch (e: any) {
@@ -103,7 +103,7 @@ export async function deleteEcommFlow(flowId: string): Promise<{ message?: strin
 
     try {
         await db.collection('ecomm_flows').deleteOne({ _id: new ObjectId(flowId) });
-        revalidatePath('/dashboard/custom-ecommerce/flow-builder');
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${flow.projectId.toString()}/flow-builder`);
         return { message: 'Flow deleted.' };
     } catch (e) {
         return { error: 'Failed to delete flow.' };

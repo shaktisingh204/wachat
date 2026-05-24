@@ -66,6 +66,7 @@ export default function LeadSourceReportPage() {
     const [endDate, setEndDate] = useState<Date | undefined>();
     const [pipelineId, setPipelineId] = useState<string>('');
     const [assigneeId, setAssigneeId] = useState<string>('');
+    const [sourceFilter, setSourceFilter] = useState<string>('all');
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
@@ -87,44 +88,53 @@ export default function LeadSourceReportPage() {
         fetchData();
     }, [fetchData]);
 
+    const availableSources = useMemo(() => {
+        return Array.from(new Set(reportData.map((d) => d.leadSource || 'Unknown'))).sort();
+    }, [reportData]);
+
+    const filteredReportData = useMemo(() => {
+        if (!sourceFilter || sourceFilter === 'all') return reportData;
+        return reportData.filter((d) => (d.leadSource || 'Unknown') === sourceFilter);
+    }, [reportData, sourceFilter]);
+
     /* ─── KPIs ──────────────────────────────────────────────────── */
 
     const kpis = useMemo(() => {
-        const totalSources = reportData.length;
+        const totalSources = filteredReportData.length;
         if (totalSources === 0) {
             return { totalSources: 0, topSource: '—', topSourceLeads: 0, totalLeads: 0 };
         }
-        const sorted = [...reportData].sort((a, b) => b.leadsGenerated - a.leadsGenerated);
+        const sorted = [...filteredReportData].sort((a, b) => b.leadsGenerated - a.leadsGenerated);
         const top = sorted[0];
-        const totalLeads = reportData.reduce((s, d) => s + d.leadsGenerated, 0);
+        const totalLeads = filteredReportData.reduce((s, d) => s + d.leadsGenerated, 0);
         return {
             totalSources,
             topSource: top?.leadSource ?? '—',
             topSourceLeads: top?.leadsGenerated ?? 0,
             totalLeads,
         };
-    }, [reportData]);
+    }, [filteredReportData]);
 
     /* ─── Bar chart data ────────────────────────────────────────── */
 
     const chartData = useMemo(
         () =>
-            [...reportData]
+            [...filteredReportData]
                 .sort((a, b) => b.leadsGenerated - a.leadsGenerated)
                 .slice(0, 12)
                 .map((d) => ({ name: d.leadSource || 'Unknown', Leads: d.leadsGenerated })),
-        [reportData],
+        [filteredReportData],
     );
 
     /* ─── Export ────────────────────────────────────────────────── */
 
     const handleDownload = () => {
-        if (reportData.length === 0) {
+        if (filteredReportData.length === 0) {
             toast({ title: 'No data', description: 'No report data to download.' });
             return;
         }
         const csv = Papa.unparse(
-            reportData.map((d) => ({
+            filteredReportData.map((d) => ({
                 ...d,
                 totalRevenue: d.totalRevenue.toFixed(2),
                 leadConversionRate: `${d.leadConversionRate.toFixed(1)}%`,
@@ -145,6 +155,7 @@ export default function LeadSourceReportPage() {
         setEndDate(undefined);
         setPipelineId('');
         setAssigneeId('');
+        setSourceFilter('all');
     };
 
     return (
@@ -194,7 +205,7 @@ export default function LeadSourceReportPage() {
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
                 </div>
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
                     <div className="space-y-1">
                         <Label className="text-foreground">Lead created from</Label>
                         <DatePicker
@@ -239,6 +250,22 @@ export default function LeadSourceReportPage() {
                             </ZoruSelectContent>
                         </Select>
                     </div>
+                    <div className="space-y-1">
+                        <Label className="text-foreground">Source</Label>
+                        <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue placeholder="All sources" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="all">All sources</ZoruSelectItem>
+                                {availableSources.map((s) => (
+                                    <ZoruSelectItem key={s} value={s}>
+                                        {s}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </Select>
+                    </div>
                 </div>
                 <div className="mt-4 flex gap-2">
                     <Button onClick={fetchData} disabled={isLoading}>
@@ -265,7 +292,7 @@ export default function LeadSourceReportPage() {
                             <XAxis type="number" />
                             <YAxis dataKey="name" type="category" width={120} />
                             <Tooltip />
-                            <Bar dataKey="Leads" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                            <Bar dataKey="Leads" fill="hsl(var(--chart-1))" radius={[0, 4, 4, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
                 </Card>
@@ -276,7 +303,7 @@ export default function LeadSourceReportPage() {
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Report data</h2>
                     <p className="mt-0.5 text-[12.5px] text-muted-foreground">
-                        {reportData.length} source(s).
+                        {filteredReportData.length} source(s).
                     </p>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
@@ -302,8 +329,8 @@ export default function LeadSourceReportPage() {
                                         <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                                     </ZoruTableCell>
                                 </ZoruTableRow>
-                            ) : reportData.length > 0 ? (
-                                reportData.map((row) => (
+                            ) : filteredReportData.length > 0 ? (
+                                filteredReportData.map((row) => (
                                     <ZoruTableRow key={row.leadSource} className="border-border">
                                         <ZoruTableCell className="font-medium text-foreground">
                                             {row.leadSource || 'Unknown'}
@@ -320,10 +347,10 @@ export default function LeadSourceReportPage() {
                                         <ZoruTableCell className="text-foreground">
                                             {row.openLeads}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-green-600">
+                                        <ZoruTableCell className="text-emerald-600 dark:text-emerald-500">
                                             {row.closedLeads}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-red-600">
+                                        <ZoruTableCell className="text-destructive">
                                             {row.lostLeads}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-foreground">

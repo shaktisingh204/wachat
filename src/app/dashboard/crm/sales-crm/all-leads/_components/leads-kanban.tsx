@@ -27,9 +27,9 @@ import {
     updateCrmLeadStage,
 } from '@/app/actions/crm-leads.actions';
 import type { CrmLead, WithId } from '@/lib/definitions';
+import { useLeadsContext } from './leads-context';
 
 interface LeadsKanbanProps {
-    leads: WithId<CrmLead>[];
     /** Optional refresher invoked after a successful drop. */
     onAfterMove?: () => void;
 }
@@ -82,18 +82,13 @@ function buildGroups(leads: WithId<CrmLead>[]): KanbanGroup[] {
     return Array.from(byKey.values());
 }
 
-export function LeadsKanban({ leads, onAfterMove }: LeadsKanbanProps) {
+export function LeadsKanban({ onAfterMove }: LeadsKanbanProps) {
+    const { leads, updateLeadOptimistically } = useLeadsContext();
     const { toast } = useZoruToast();
-    const [optimistic, setOptimistic] = React.useState<WithId<CrmLead>[]>(leads);
     const [busyId, setBusyId] = React.useState<string | null>(null);
     const [dragOverKey, setDragOverKey] = React.useState<string | null>(null);
     const [isPending, startTransition] = React.useTransition();
-
-    React.useEffect(() => {
-        setOptimistic(leads);
-    }, [leads]);
-
-    const groups = React.useMemo(() => buildGroups(optimistic), [optimistic]);
+    const groups = React.useMemo(() => buildGroups(leads), [leads]);
 
     const handleDrop = React.useCallback(
         (targetKey: string, fromStatus: boolean) => {
@@ -101,20 +96,17 @@ export function LeadsKanban({ leads, onAfterMove }: LeadsKanbanProps) {
             const transferId = currentDragId.current;
             currentDragId.current = null;
             if (!transferId) return;
-            const lead = optimistic.find((l) => String(l._id) === transferId);
+            const lead = leads.find((l) => String(l._id) === transferId);
             if (!lead) return;
             const currentKey = (lead.stage ?? '').trim() || (lead.status as string);
             if (currentKey === targetKey) return;
 
-            const before = optimistic;
-            const next = optimistic.map((l) =>
-                String(l._id) === transferId
-                    ? fromStatus
-                        ? ({ ...l, status: targetKey } as WithId<CrmLead>)
-                        : ({ ...l, stage: targetKey } as WithId<CrmLead>)
-                    : l,
-            );
-            setOptimistic(next);
+            const previousState = { stage: lead.stage, status: lead.status };
+            if (fromStatus) {
+                updateLeadOptimistically(transferId, { status: targetKey });
+            } else {
+                updateLeadOptimistically(transferId, { stage: targetKey });
+            }
             setBusyId(transferId);
 
             startTransition(async () => {
@@ -129,7 +121,7 @@ export function LeadsKanban({ leads, onAfterMove }: LeadsKanbanProps) {
                     });
                     onAfterMove?.();
                 } catch (e) {
-                    setOptimistic(before);
+                    updateLeadOptimistically(transferId, previousState);
                     toast({
                         title: 'Move failed',
                         description: e instanceof Error ? e.message : 'Unknown error',

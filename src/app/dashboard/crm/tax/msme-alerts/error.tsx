@@ -1,0 +1,29 @@
+'use client';
+import { useEffect } from 'react';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+
+export default function ErrorBoundary({
+    error,
+    reset,
+}: {
+    error: Error & { digest?: string };
+    reset: () => void;
+}) {
+    useEffect(() => {
+        console.error(error);
+    }, [error]);
+
+    return (
+        <EntityListShell title="MSME Alerts Error" subtitle="There was a problem loading the MSME alerts.">
+            <div className="flex h-[300px] flex-col items-center justify-center gap-4 rounded-lg border border-border bg-card">
+                <p className="text-[14px] text-muted-foreground">{error.message || 'An error occurred during data load or computation.'}</p>
+                <button
+                    onClick={() => reset()}
+                    className="rounded-md bg-primary px-4 py-2 text-[13px] font-medium text-primary-foreground hover:opacity-90"
+                >
+                    Try again
+                </button>
+            </div>
+        </EntityListShell>
+    );
+}

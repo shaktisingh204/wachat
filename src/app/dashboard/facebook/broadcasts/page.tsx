@@ -107,6 +107,29 @@ const STEPS = [
 
 type StepKey = (typeof STEPS)[number]['key'];
 
+type BroadcastState = {
+  step: StepKey;
+  message: string;
+};
+
+type BroadcastAction =
+  | { type: 'SET_STEP'; payload: StepKey }
+  | { type: 'SET_MESSAGE'; payload: string }
+  | { type: 'RESET' };
+
+function broadcastReducer(state: BroadcastState, action: BroadcastAction): BroadcastState {
+  switch (action.type) {
+    case 'SET_STEP':
+      return { ...state, step: action.payload };
+    case 'SET_MESSAGE':
+      return { ...state, message: action.payload };
+    case 'RESET':
+      return { step: 'audience', message: '' };
+    default:
+      return state;
+  }
+}
+
 function PageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
@@ -235,8 +258,7 @@ export default function FacebookBroadcastsPage() {
   const { activeProject, isLoadingProject, sessionUser } = useProject();
   const [broadcasts, setBroadcasts] = useState<BroadcastRow[]>([]);
   const [isLoading, startLoading] = useTransition();
-  const [step, setStep] = useState<StepKey>('audience');
-  const [message, setMessage] = useState('');
+  const [stateForm, dispatch] = React.useReducer(broadcastReducer, { step: 'audience', message: '' });
 
   const [state, formAction] = useActionState(
     handleSendFacebookBroadcast,
@@ -264,8 +286,7 @@ export default function FacebookBroadcastsPage() {
     if (state?.message) {
       toast({ title: 'Broadcast queued', description: state.message });
       formRef.current?.reset();
-      setMessage('');
-      setStep('audience');
+      dispatch({ type: 'RESET' });
       fetchData();
     }
     if (state?.error) {
@@ -419,13 +440,13 @@ export default function FacebookBroadcastsPage() {
             </div>
 
             <div className="mt-6">
-              <StepperHeader current={step} />
+              <StepperHeader current={stateForm.step} />
             </div>
 
             <Card className="mt-4 p-0">
               <ZoruCardHeader>
                 <ZoruCardTitle className="text-base">
-                  {STEPS.find((s) => s.key === step)?.label}
+                  {STEPS.find((s) => s.key === stateForm.step)?.label}
                 </ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent>
@@ -435,9 +456,9 @@ export default function FacebookBroadcastsPage() {
                     name="projectId"
                     value={activeProject._id.toString()}
                   />
-                  <input type="hidden" name="message" value={message} />
+                  <input type="hidden" name="message" value={stateForm.message} />
 
-                  {step === 'audience' ? (
+                  {stateForm.step === 'audience' ? (
                     <div className="flex flex-col gap-4">
                       <Alert>
                         <Users className="h-4 w-4" />
@@ -459,7 +480,7 @@ export default function FacebookBroadcastsPage() {
                       <div className="flex justify-end">
                         <Button
                           type="button"
-                          onClick={() => setStep('compose')}
+                          onClick={() => dispatch({ type: 'SET_STEP', payload: 'compose' })}
                         >
                           Continue <ArrowRight />
                         </Button>
@@ -467,7 +488,7 @@ export default function FacebookBroadcastsPage() {
                     </div>
                   ) : null}
 
-                  {step === 'compose' ? (
+                  {stateForm.step === 'compose' ? (
                     <div className="flex flex-col gap-4">
                       <div className="flex flex-col gap-1.5">
                         <Label htmlFor="broadcast-message">
@@ -477,26 +498,26 @@ export default function FacebookBroadcastsPage() {
                           id="broadcast-message"
                           className="min-h-32"
                           placeholder="Enter your broadcast message…"
-                          value={message}
-                          onChange={(e) => setMessage(e.target.value)}
+                          value={stateForm.message}
+                          onChange={(e) => dispatch({ type: 'SET_MESSAGE', payload: e.target.value })}
                           required
                         />
                         <p className="text-[11px] text-zoru-ink-muted">
-                          {message.length} characters
+                          {stateForm.message.length} characters
                         </p>
                       </div>
                       <div className="flex justify-between">
                         <Button
                           type="button"
                           variant="outline"
-                          onClick={() => setStep('audience')}
+                          onClick={() => dispatch({ type: 'SET_STEP', payload: 'audience' })}
                         >
                           <ArrowLeft /> Back
                         </Button>
                         <Button
                           type="button"
-                          onClick={() => setStep('review')}
-                          disabled={!message.trim()}
+                          onClick={() => dispatch({ type: 'SET_STEP', payload: 'review' })}
+                          disabled={!stateForm.message.trim()}
                         >
                           Continue <ArrowRight />
                         </Button>
@@ -504,14 +525,14 @@ export default function FacebookBroadcastsPage() {
                     </div>
                   ) : null}
 
-                  {step === 'review' ? (
+                  {stateForm.step === 'review' ? (
                     <div className="flex flex-col gap-4">
                       <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-4 py-3">
                         <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
                           Preview
                         </p>
                         <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
-                          {message || '— empty message —'}
+                          {stateForm.message || '— empty message —'}
                         </p>
                       </div>
                       <Alert variant="warning">
@@ -526,11 +547,11 @@ export default function FacebookBroadcastsPage() {
                         <Button
                           type="button"
                           variant="outline"
-                          onClick={() => setStep('compose')}
+                          onClick={() => dispatch({ type: 'SET_STEP', payload: 'compose' })}
                         >
                           <ArrowLeft /> Back
                         </Button>
-                        <SubmitButton disabled={!message.trim()} />
+                        <SubmitButton disabled={!stateForm.message.trim()} />
                       </div>
                     </div>
                   ) : null}

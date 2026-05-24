@@ -35,6 +35,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
+  Switch,
 } from '@/components/zoruui';
 import {
   Archive,
@@ -162,6 +163,16 @@ export default function CrmFormsPage() {
     return forms.filter((f) => resolveStatus(f) === statusFilter);
   }, [forms, statusFilter]);
 
+  const groupedFiltered = React.useMemo(() => {
+    const groups: Record<string, typeof filtered> = {};
+    for (const f of filtered) {
+      const cat = (f.settings as any)?.category || 'Uncategorized';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(f);
+    }
+    return groups;
+  }, [filtered]);
+
   const allSelectedOnPage =
     filtered.length > 0 && filtered.every((f) => selected.has(f._id.toString()));
 
@@ -201,6 +212,29 @@ export default function CrmFormsPage() {
     }
   }, [deletingId, fetchData, toast]);
 
+  /* Quick status toggle */
+  const handleToggleActive = useCallback((id: string, currentStatus: string) => {
+    const nextOp = currentStatus === 'published' ? 'draft' : 'publish';
+    startTransition(async () => {
+      // Optimistically update local state for snappier UI
+      setForms((prev) =>
+        prev.map((f) =>
+          f._id.toString() === id
+            ? { ...f, settings: { ...(f.settings as any), status: nextOp === 'publish' ? 'published' : 'draft' } }
+            : f
+        )
+      );
+      const res = await bulkFormAction([id], nextOp);
+      if (res.success) {
+        toast({ title: `Form ${nextOp === 'publish' ? 'activated' : 'deactivated'}` });
+        fetchData();
+      } else {
+        toast({ title: 'Update failed', description: res.error, variant: 'destructive' });
+        fetchData(); // Revert on failure
+      }
+    });
+  }, [toast, fetchData]);
+
   /* Bulk handlers */
   const selectedIds = React.useMemo(() => Array.from(selected), [selected]);
 
@@ -226,7 +260,7 @@ export default function CrmFormsPage() {
   const runBulkArchive = useCallback(() => {
     if (selectedIds.length === 0) return;
     startBulkTransition(async () => {
-      const res = await bulkFormAction(selectedIds, 'draft');
+      const res = await bulkFormAction(selectedIds, 'archive');
       toast({
         title: res.success
           ? `${res.processed ?? selectedIds.length} form${selectedIds.length === 1 ? '' : 's'} archived`
@@ -435,36 +469,55 @@ export default function CrmFormsPage() {
                     </ZoruTableHead>
                     <ZoruTableHead>Form Name</ZoruTableHead>
                     <ZoruTableHead>Status</ZoruTableHead>
+                    <ZoruTableHead>Active</ZoruTableHead>
                     <ZoruTableHead className="text-right">Submissions</ZoruTableHead>
                     <ZoruTableHead>Created</ZoruTableHead>
                     <ZoruTableHead className="text-right">Actions</ZoruTableHead>
                   </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody>
-                  {filtered.map((form) => {
-                    const id = form._id.toString();
-                    return (
-                      <ZoruTableRow key={id} className="border-zoru-line">
-                        <ZoruTableCell className="pl-3">
-                          <Checkbox
-                            checked={selected.has(id)}
-                            onCheckedChange={() => toggleRow(id)}
-                            aria-label={`Select ${form.name}`}
-                          />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
-                          <EntityRowLink
-                            href={`/dashboard/crm/sales-crm/forms/${id}/submissions`}
-                            label={form.name}
-                            subtitle={`${form.submissionCount ?? 0} submission${(form.submissionCount ?? 0) === 1 ? '' : 's'}`}
-                          />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
-                          <StatusBadge form={form} />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
-                          {(form.submissionCount ?? 0).toLocaleString()}
-                        </ZoruTableCell>
+                  {Object.entries(groupedFiltered).map(([category, catForms]) => (
+                    <React.Fragment key={category}>
+                      {Object.keys(groupedFiltered).length > 1 && (
+                        <ZoruTableRow className="bg-zoru-surface/50 hover:bg-zoru-surface/50">
+                          <ZoruTableCell colSpan={7} className="py-2 text-[12px] font-semibold text-zoru-ink-muted uppercase tracking-wider">
+                            {category}
+                          </ZoruTableCell>
+                        </ZoruTableRow>
+                      )}
+                      {catForms.map((form) => {
+                        const id = form._id.toString();
+                        const status = resolveStatus(form);
+                        const isActive = status === 'published';
+                        return (
+                          <ZoruTableRow key={id} className="border-zoru-line">
+                            <ZoruTableCell className="pl-3">
+                              <Checkbox
+                                checked={selected.has(id)}
+                                onCheckedChange={() => toggleRow(id)}
+                                aria-label={`Select ${form.name}`}
+                              />
+                            </ZoruTableCell>
+                            <ZoruTableCell>
+                              <EntityRowLink
+                                href={`/dashboard/crm/sales-crm/forms/${id}/submissions`}
+                                label={form.name}
+                                subtitle={`${form.submissionCount ?? 0} submission${(form.submissionCount ?? 0) === 1 ? '' : 's'}`}
+                              />
+                            </ZoruTableCell>
+                            <ZoruTableCell>
+                              <StatusBadge form={form} />
+                            </ZoruTableCell>
+                            <ZoruTableCell>
+                              <Switch
+                                checked={isActive}
+                                onCheckedChange={() => handleToggleActive(id, status)}
+                                aria-label="Toggle active status"
+                              />
+                            </ZoruTableCell>
+                            <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
+                              {(form.submissionCount ?? 0).toLocaleString()}
+                            </ZoruTableCell>
                         <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
                           {form.createdAt
                             ? formatDistanceToNow(new Date(form.createdAt), { addSuffix: true })
@@ -498,8 +551,10 @@ export default function CrmFormsPage() {
                           </div>
                         </ZoruTableCell>
                       </ZoruTableRow>
-                    );
-                  })}
+                        );
+                      })}
+                    </React.Fragment>
+                  ))}
                 </ZoruTableBody>
               </Table>
             </div>
@@ -559,7 +614,7 @@ export default function CrmFormsPage() {
         open={bulkArchivePending}
         onOpenChange={setBulkArchivePending}
         title={`Archive ${selected.size} form${selected.size === 1 ? '' : 's'}?`}
-        description="The selected forms will be set to draft and will stop accepting new submissions."
+        description="The selected forms will be archived and will stop accepting new submissions."
         confirmLabel="Archive"
         confirmTone="primary"
         onConfirm={runBulkArchive}

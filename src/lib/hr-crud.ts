@@ -55,6 +55,8 @@ export interface HrCrudOptions {
   dateFields?: string[];
   sortBy?: Record<string, 1 | -1>;
   extraFilter?: Filter<any>;
+  limit?: number;
+  skip?: number;
 }
 
 export async function hrList<T>(
@@ -68,12 +70,42 @@ export async function hrList<T>(
     userId: new ObjectId(user._id),
     ...(opts.extraFilter || {}),
   };
-  const docs = await db
+  let query = db
     .collection(collection)
     .find(filter)
-    .sort(opts.sortBy ?? { createdAt: -1 })
-    .toArray();
+    .sort(opts.sortBy ?? { createdAt: -1 });
+
+  if (opts.skip) query = query.skip(opts.skip);
+  if (opts.limit) query = query.limit(opts.limit);
+
+  const docs = await query.toArray();
   return serialize(docs) as WithId<T>[];
+}
+
+export async function hrListPaginated<T>(
+  collection: string,
+  opts: HrCrudOptions = {},
+): Promise<{ items: WithId<T>[]; total: number }> {
+  const user = await requireSession();
+  if (!user) return { items: [], total: 0 };
+  const { db } = await connectToDatabase();
+  const filter: Filter<any> = {
+    userId: new ObjectId(user._id),
+    ...(opts.extraFilter || {}),
+  };
+
+  const total = await db.collection(collection).countDocuments(filter);
+
+  let query = db
+    .collection(collection)
+    .find(filter)
+    .sort(opts.sortBy ?? { createdAt: -1 });
+
+  if (opts.skip) query = query.skip(opts.skip);
+  if (opts.limit) query = query.limit(opts.limit);
+
+  const docs = await query.toArray();
+  return { items: serialize(docs) as WithId<T>[], total };
 }
 
 export async function hrGetById<T>(

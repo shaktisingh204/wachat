@@ -72,16 +72,35 @@ function PageSkeleton() {
     );
 }
 
-const crmModules = [
-    { id: 'contacts', name: 'Contacts & Leads' },
-    { id: 'accounts', name: 'Accounts (Companies)' },
-    { id: 'deals', name: 'Deals Pipeline' },
-    { id: 'tasks', name: 'Tasks' },
-    { id: 'automations', name: 'Automations' },
-    { id: 'reports', name: 'Reports' },
+const permissionTree = [
+    {
+        id: 'crm',
+        name: 'CRM Modules',
+        children: [
+            { id: 'contacts', name: 'Contacts & Leads', actions: ['view', 'create', 'edit', 'delete', 'export'] },
+            { id: 'accounts', name: 'Accounts (Companies)', actions: ['view', 'create', 'edit', 'delete', 'export'] },
+            { id: 'deals', name: 'Deals Pipeline', actions: ['view', 'create', 'edit', 'delete', 'change_stage'] }
+        ]
+    },
+    {
+        id: 'team',
+        name: 'Team & Productivity',
+        children: [
+            { id: 'tasks', name: 'Tasks', actions: ['view', 'create', 'edit', 'delete', 'assign'] },
+            { id: 'team_chat', name: 'Team Chat', actions: ['view', 'create', 'edit', 'delete', 'manage_channels'] },
+            { id: 'team_roles', name: 'Role Management', actions: ['view', 'create', 'edit', 'delete'] }
+        ]
+    },
+    {
+        id: 'system',
+        name: 'System',
+        children: [
+            { id: 'automations', name: 'Automations', actions: ['view', 'create', 'edit', 'delete', 'execute'] },
+            { id: 'reports', name: 'Reports', actions: ['view', 'create', 'edit', 'delete', 'export'] },
+            { id: 'settings', name: 'CRM Settings', actions: ['view', 'edit', 'manage_billing'] }
+        ]
+    }
 ];
-
-const actions = ['view', 'create', 'edit', 'delete'];
 
 function countPermissions(permissions: Record<string, unknown>): number {
     let count = 0;
@@ -486,40 +505,36 @@ export default function ManageRolesPage() {
                                 </ZoruAccordionTrigger>
                                 <ZoruAccordionContent className="p-4 pt-0">
                                     <input type="hidden" name="roleId" value={role.id} />
-                                    <Table>
-                                        <ZoruTableHeader>
-                                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                                <ZoruTableHead className="text-zoru-ink-muted">Module</ZoruTableHead>
-                                                {actions.map((action) => (
-                                                    <ZoruTableHead
-                                                        key={action}
-                                                        className="text-center capitalize text-zoru-ink-muted"
-                                                    >
-                                                        {action}
-                                                    </ZoruTableHead>
-                                                ))}
-                                            </ZoruTableRow>
-                                        </ZoruTableHeader>
-                                        <ZoruTableBody>
-                                            {crmModules.map((module) => (
-                                                <ZoruTableRow key={module.id} className="border-zoru-line">
-                                                    <ZoruTableCell className="font-medium text-zoru-ink">
-                                                        {module.name}
-                                                    </ZoruTableCell>
-                                                    {actions.map((action) => (
-                                                        <ZoruTableCell key={action} className="text-center">
-                                                            <Checkbox
-                                                                name={`${role.id}_${module.id}_${action}`}
-                                                                defaultChecked={
-                                                                    crmPermissions[module.id]?.[action] ?? false
-                                                                }
-                                                            />
-                                                        </ZoruTableCell>
+                                    <div className="flex flex-col gap-6">
+                                        {permissionTree.map((category) => (
+                                            <div key={category.id} className="border border-zoru-line rounded-lg p-4 bg-muted/10">
+                                                <h4 className="font-semibold text-sm mb-4 text-muted-foreground uppercase tracking-wider">{category.name}</h4>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    {category.children.map((module) => (
+                                                        <div key={module.id} className="flex flex-col gap-2 bg-background p-3 rounded-md border border-border shadow-sm">
+                                                            <span className="font-medium text-[13.5px] text-foreground border-b border-border pb-2 mb-1">{module.name}</span>
+                                                            <div className="flex flex-col gap-2">
+                                                                {module.actions.map((action) => {
+                                                                    const fieldName = `${role.id}_${module.id}_${action}`;
+                                                                    const isChecked = crmPermissions[module.id]?.[action] ?? false;
+                                                                    return (
+                                                                        <label key={action} className="flex items-center gap-2 text-[12.5px] text-muted-foreground hover:text-foreground cursor-pointer group">
+                                                                            <Checkbox
+                                                                                name={fieldName}
+                                                                                defaultChecked={isChecked}
+                                                                                className="transition-colors data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                                                            />
+                                                                            <span className="capitalize group-hover:underline decoration-muted-foreground/30 underline-offset-2">{action.replace('_', ' ')}</span>
+                                                                        </label>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </div>
                                                     ))}
-                                                </ZoruTableRow>
-                                            ))}
-                                        </ZoruTableBody>
-                                    </Table>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </ZoruAccordionContent>
                             </ZoruAccordionItem>
                         );

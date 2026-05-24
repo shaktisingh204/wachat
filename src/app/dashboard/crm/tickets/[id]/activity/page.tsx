@@ -16,6 +16,9 @@ import { LifeBuoy } from 'lucide-react';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getTicket } from '@/app/actions/crm/tickets.actions';
+import { connectToDatabase } from '@/lib/mongodb';
+import { getSession } from '@/app/actions/user.actions';
+import { ObjectId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,38 +58,38 @@ export default async function TicketActivityPage({
     }
 
     const entries: ActivityEntry[] = [];
-    if (ticket.audit?.createdAt) {
-        entries.push({
-            id: 'created',
-            ts: ticket.audit.createdAt,
-            label: 'Ticket created',
-            actorId: ticket.audit.createdBy,
-            kind: 'system',
-            tone: 'info',
-        });
+    const session = await getSession();
+
+    if (session?.user) {
+        try {
+            const { db } = await connectToDatabase();
+            const auditLogs = await db
+                .collection('crm_audit_log')
+                .find({
+                    userId: new ObjectId(String(session.user._id)),
+                    entityKind: 'ticket',
+                    entityId: id,
+                })
+                .sort({ createdAt: -1 })
+                .toArray();
+
+            for (const log of auditLogs) {
+                entries.push({
+                    id: String(log._id),
+                    ts: log.createdAt ? new Date(log.createdAt).toISOString() : new Date().toISOString(),
+                    label: log.action === 'create' ? 'Ticket created' : log.action === 'update' ? 'Ticket updated' : `Action: ${log.action}`,
+                    actorId: log.actorId ? String(log.actorId) : undefined,
+                    kind: 'system',
+                    tone: log.action === 'create' ? 'info' : 'ghost',
+                    body: log.reason ?? undefined,
+                });
+            }
+        } catch (e) {
+            console.error('[TicketActivityPage] failed to fetch audit logs:', e);
+        }
     }
-    if (
-        ticket.audit?.updatedAt &&
-        ticket.audit.updatedAt !== ticket.audit.createdAt
-    ) {
-        entries.push({
-            id: 'updated',
-            ts: ticket.audit.updatedAt,
-            label: 'Ticket updated',
-            actorId: ticket.audit.updatedBy,
-            kind: 'system',
-        });
-    }
-    if (ticket.assignment?.assignedAt) {
-        entries.push({
-            id: 'assigned',
-            ts: ticket.assignment.assignedAt,
-            label: 'Assigned',
-            actorId: ticket.assignment.assignedBy,
-            kind: 'system',
-            tone: 'warning',
-        });
-    }
+
+    // Still include internalNotes if any
     if (Array.isArray(ticket.internalNotes)) {
         for (const [idx, n] of (ticket.internalNotes as unknown[]).entries()) {
             const obj = (n ?? {}) as Record<string, unknown>;

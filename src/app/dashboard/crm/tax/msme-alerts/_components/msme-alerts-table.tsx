@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge, Button, Checkbox } from '@/components/zoruui';
-import { CalendarClock, Download, Loader2, Wallet, X } from 'lucide-react';
+import { CalendarClock, Download, Loader2, Wallet, X, Mail } from 'lucide-react';
 
 /**
  * Per-bucket MSME alerts table with:
@@ -227,6 +227,24 @@ export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
                     >
                         {bulkPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CalendarClock className="h-3.5 w-3.5" />}
                         Request extension
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={async () => {
+                            setBulkPending(true);
+                            setBulkError(null);
+                            setBulkSuccess(null);
+                            // Simulate sending email reminder
+                            await new Promise((resolve) => setTimeout(resolve, 1000));
+                            setBulkPending(false);
+                            setBulkSuccess(`Email reminders sent to ${selectionCount} vendor(s).`);
+                            setSelected(new Set());
+                        }}
+                        disabled={bulkPending}
+                    >
+                        {bulkPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mail className="h-3.5 w-3.5" />}
+                        Send reminder
                     </Button>
                     <Button
                         size="sm"

@@ -1632,6 +1632,11 @@ export type FormFieldValidation = {
         operator: 'equals' | 'notEquals' | 'isFilled';
         value?: string;
     };
+    showIf?: {
+        fieldId: string;
+        operator: 'equals' | 'notEquals' | 'isFilled';
+        value?: string;
+    };
 };
 
 export type FormField = {
@@ -2342,6 +2347,7 @@ export type Plan = {
             vendors: number;
             warehouses: number;
             pipelines: number;
+            forms?: number;
         };
         /** @deprecated use `facebook` + `adManager` instead. Kept for legacy plans. */
         meta?: {

@@ -243,3 +243,38 @@ export async function getTaggedMediaForProduct(
         return { error: getErrorMessage(e) };
     }
 }
+
+export async function bulkAddProductsToCatalog(
+    projectId: string,
+    catalogId: string,
+    products: any[],
+): Promise<{ successCount: number; failCount: number; errors: string[] }> {
+    const { rustClient } = await import('@/lib/rust-client');
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
+    for (const product of products) {
+        try {
+            const result = await rustClient.metaSuite.addProduct(projectId, catalogId, {
+                retailerId: product.retailerId || product.id,
+                name: product.name || product.title,
+                description: product.description || undefined,
+                url: product.url || product.link || undefined,
+                imageUrl: product.imageUrl || product.image_link || undefined,
+                price: product.price || undefined,
+                currency: product.currency || 'USD',
+            });
+            if (result.success) {
+                successCount++;
+            } else {
+                failCount++;
+                errors.push(`Failed for SKU ${product.retailerId || product.id}: ${result.message}`);
+            }
+        } catch (e: any) {
+            failCount++;
+            errors.push(`Failed for SKU ${product.retailerId || product.id}: ${getErrorMessage(e)}`);
+        }
+    }
+    return { successCount, failCount, errors };
+}

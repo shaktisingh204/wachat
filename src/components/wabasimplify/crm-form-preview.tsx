@@ -31,6 +31,23 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
     const description = settings.description || 'Form description...';
     const fields: FormField[] = settings.fields || [];
 
+    const [formValues, setFormValues] = React.useState<Record<string, string>>({});
+
+    const handleValueChange = (id: string, value: string) => {
+        setFormValues(prev => ({ ...prev, [id]: value }));
+    };
+
+    const isFieldVisible = (field: FormField) => {
+        if (field.type === 'hidden') return false;
+        if (!field.validation?.showIf) return true;
+        const condition = field.validation.showIf;
+        const targetValue = formValues[condition.fieldId || ''] || '';
+        if (condition.operator === 'isFilled') return targetValue.trim().length > 0;
+        if (condition.operator === 'equals') return targetValue === condition.value;
+        if (condition.operator === 'notEquals') return targetValue !== condition.value;
+        return true;
+    };
+
     const uniqueId = React.useId().replace(/:/g, "");
 
     const dynamicStyles = `
@@ -75,28 +92,34 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
                     const widthClasses: { [key: string]: string } = { '100%': 'col-span-12', '50%': 'col-span-12 sm:col-span-6', '33.33%': 'col-span-12 sm:col-span-4', '25%': 'col-span-12 sm:col-span-3' };
                     const sizeClasses = { sm: 'h-8 text-xs', md: 'h-10 text-sm', lg: 'h-12 text-base'}[field.size || 'md'];
 
-                    if (field.type === 'hidden') return null;
+                    if (!isFieldVisible(field)) return null;
 
                     const fieldContent = () => {
-                        const commonProps = { id: `preview-${field.id}`, placeholder: field.placeholder, className: cn('form-field-preview', sizeClasses), disabled: true };
+                        const commonProps = { 
+                            id: `preview-${field.id}`, 
+                            placeholder: field.placeholder, 
+                            className: cn('form-field-preview', sizeClasses),
+                            value: formValues[field.fieldId || field.id] || '',
+                            onChange: (e: any) => handleValueChange(field.fieldId || field.id, e.target.value)
+                        };
                         const fieldOptions = (field.options || '').split('\n').map(o => o.trim());
 
                         switch(field.type) {
                             case 'textarea': return <Textarea {...commonProps} />;
-                            case 'select': return <Select><ZoruSelectTrigger className={cn('form-field-preview', sizeClasses)}><ZoruSelectValue placeholder={field.placeholder || "Select..."} /></ZoruSelectTrigger><ZoruSelectContent>{fieldOptions.map(opt => <ZoruSelectItem key={opt} value={opt}>{opt}</ZoruSelectItem>)}</ZoruSelectContent></Select>;
-                            case 'checkbox': return <div className="flex items-center gap-2 pt-2"><Checkbox id={`preview-${field.id}`} disabled /><Label htmlFor={`preview-${field.id}`} className="font-normal">{field.label}</Label></div>;
-                            case 'acceptance': return <div className="flex items-center gap-2 pt-2"><Checkbox id={`preview-${field.id}`} disabled /><Label htmlFor={`preview-${field.id}`} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label></div>;
-                            case 'radio': return <RadioGroup defaultValue={field.defaultValue} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><ZoruRadioGroupItem value={opt} id={`preview-${field.id}-${opt}`} disabled /><Label htmlFor={`preview-${field.id}-${opt}`} className="font-normal">{opt}</Label></div>)}</RadioGroup>
-                            case 'file': return <Input {...commonProps} type="file" />;
+                            case 'select': return <Select value={formValues[field.fieldId || field.id] || ''} onValueChange={v => handleValueChange(field.fieldId || field.id, v)}><ZoruSelectTrigger className={cn('form-field-preview', sizeClasses)}><ZoruSelectValue placeholder={field.placeholder || "Select..."} /></ZoruSelectTrigger><ZoruSelectContent>{fieldOptions.map(opt => <ZoruSelectItem key={opt} value={opt}>{opt}</ZoruSelectItem>)}</ZoruSelectContent></Select>;
+                            case 'checkbox': return <div className="flex items-center gap-2 pt-2"><Checkbox id={`preview-${field.id}`} checked={formValues[field.fieldId || field.id] === 'true'} onCheckedChange={(c) => handleValueChange(field.fieldId || field.id, c ? 'true' : '')} /><Label htmlFor={`preview-${field.id}`} className="font-normal">{field.label}</Label></div>;
+                            case 'acceptance': return <div className="flex items-center gap-2 pt-2"><Checkbox id={`preview-${field.id}`} checked={formValues[field.fieldId || field.id] === 'true'} onCheckedChange={(c) => handleValueChange(field.fieldId || field.id, c ? 'true' : '')} /><Label htmlFor={`preview-${field.id}`} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label></div>;
+                            case 'radio': return <RadioGroup value={formValues[field.fieldId || field.id] || field.defaultValue || ''} onValueChange={(v) => handleValueChange(field.fieldId || field.id, v)} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><ZoruRadioGroupItem value={opt} id={`preview-${field.id}-${opt}`} /><Label htmlFor={`preview-${field.id}-${opt}`} className="font-normal">{opt}</Label></div>)}</RadioGroup>
+                            case 'file': return <Input id={`preview-${field.id}`} className={cn('form-field-preview', sizeClasses)} type="file" />;
                             case 'phone': return <Input {...commonProps} type="tel" placeholder={field.placeholder || '+1 555 123 4567'} />;
                             case 'address': return (
                                 <div className="grid grid-cols-2 gap-2">
-                                    <Input className={cn('col-span-2 form-field-preview', sizeClasses)} placeholder="Address line 1" disabled />
-                                    <Input className={cn('col-span-2 form-field-preview', sizeClasses)} placeholder="Address line 2" disabled />
-                                    <Input className={cn('form-field-preview', sizeClasses)} placeholder="City" disabled />
-                                    <Input className={cn('form-field-preview', sizeClasses)} placeholder="State" disabled />
-                                    <Input className={cn('form-field-preview', sizeClasses)} placeholder="ZIP" disabled />
-                                    <Input className={cn('form-field-preview', sizeClasses)} placeholder="Country" disabled />
+                                    <Input className={cn('col-span-2 form-field-preview', sizeClasses)} placeholder="Address line 1" />
+                                    <Input className={cn('col-span-2 form-field-preview', sizeClasses)} placeholder="Address line 2" />
+                                    <Input className={cn('form-field-preview', sizeClasses)} placeholder="City" />
+                                    <Input className={cn('form-field-preview', sizeClasses)} placeholder="State" />
+                                    <Input className={cn('form-field-preview', sizeClasses)} placeholder="ZIP" />
+                                    <Input className={cn('form-field-preview', sizeClasses)} placeholder="Country" />
                                 </div>
                             );
                             case 'rating': return (

@@ -46,7 +46,7 @@ export default async function FormSubmissionsPage({ params, searchParams }: Page
     const status = parseStatus(sp.status);
     const from = sp.from ?? '';
     const to = sp.to ?? '';
-    const limit = 25;
+    const limit = 100;
 
     const [form, listing] = await Promise.all([
         getCrmFormById(formId),

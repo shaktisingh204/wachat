@@ -23,6 +23,8 @@ import {
     getAwardById,
 } from '@/app/actions/worksuite/knowledge.actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import type { WsAward, WsAppreciation } from '@/lib/worksuite/knowledge-types';
+import { AwardPresence } from './_components/award-presence';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,8 +46,8 @@ export default async function AwardDetailPage({
     ]);
     if (!award) notFound();
 
-    const a = award as any;
-    const linked = (apps as any[]).filter((x) => x.award_id === a._id);
+    const a = award as WsAward;
+    const linked = (apps as WsAppreciation[]).filter((x) => x.award_id === a._id);
 
     return (
         <div className="p-4 md:p-6">
@@ -56,6 +58,7 @@ export default async function AwardDetailPage({
                 back={{ href: '/dashboard/crm/workspace/awards', label: 'Back to awards' }}
                 actions={
                     <>
+                        <AwardPresence awardId={String(a._id)} />
                         <Button asChild variant="outline" size="sm">
                             <Link href={`/dashboard/crm/workspace/awards/${a._id}/edit`}>
                                 <Pencil className="h-3.5 w-3.5" /> Edit
@@ -88,7 +91,7 @@ export default async function AwardDetailPage({
                             <dd className="text-zoru-ink">{linked.length}</dd>
                             <dt className="text-zoru-ink-muted">Winners</dt>
                             <dd className="text-zoru-ink">
-                                {new Set(linked.map((x: any) => x.given_to_user_id)).size}
+                                {new Set(linked.map((x) => x.given_to_user_id)).size}
                             </dd>
                             <dt className="text-zoru-ink-muted">Prize</dt>
                             <dd className="text-zoru-ink">{a.prize || '—'}</dd>
@@ -139,7 +142,7 @@ export default async function AwardDetailPage({
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-zoru-line">
-                                    {linked.map((ap: any) => (
+                                    {linked.map((ap) => (
                                         <tr key={String(ap._id)}>
                                             <td className="px-2 py-1.5">
                                                 <Badge variant="success">

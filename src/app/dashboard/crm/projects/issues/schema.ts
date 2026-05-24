@@ -22,20 +22,20 @@ export const issueAttachmentSchema = z.object({
 });
 
 export const issueSchema = z.object({
-  _id: z.string().or(z.object({ toString: z.function().returns(z.string()) })).transform(String),
-  projectId: z.string().or(z.object({ toString: z.function().returns(z.string()) })).transform(String).optional().nullable(),
+  _id: z.string().or(z.any()).transform(String),
+  projectId: z.string().or(z.any()).transform(String).optional().nullable(),
   title: z.string().default(''),
   description: z.string().optional().nullable(),
   status: z.string().default('open'),
   priority: z.string().optional().nullable(),
   severity: z.string().optional().nullable(),
   issueType: z.string().optional().nullable(),
-  reporterUserId: z.string().or(z.object({ toString: z.function().returns(z.string()) })).transform(String).optional().nullable(),
+  reporterUserId: z.string().or(z.any()).transform(String).optional().nullable(),
   reporterName: z.string().optional().nullable(),
-  reporterId: z.string().or(z.object({ toString: z.function().returns(z.string()) })).transform(String).optional().nullable(),
-  assigneeUserId: z.string().or(z.object({ toString: z.function().returns(z.string()) })).transform(String).optional().nullable(),
+  reporterId: z.string().or(z.any()).transform(String).optional().nullable(),
+  assigneeUserId: z.string().or(z.any()).transform(String).optional().nullable(),
   assigneeName: z.string().optional().nullable(),
-  assigneeId: z.string().or(z.object({ toString: z.function().returns(z.string()) })).transform(String).optional().nullable(),
+  assigneeId: z.string().or(z.any()).transform(String).optional().nullable(),
   dueDate: z.string().or(z.date()).transform(d => {
     if (!d) return undefined;
     const s = typeof d === 'string' ? d : d.toISOString();

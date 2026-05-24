@@ -1,6 +1,94 @@
+import { Suspense } from 'react';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { crmAwardProgramsApi } from '@/lib/rust-client/crm-awards';
+import { StatCard } from '@/components/zoruui/stat-card';
+import { Skeleton } from '@/components/zoruui/skeleton';
+import { Award, Trophy, Users, Star } from 'lucide-react';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui/card';
 
 export const dynamic = 'force-dynamic';
+
+async function AwardSummaryMetrics({ id }: { id: string }) {
+    try {
+        const award = await crmAwardProgramsApi.getById(id);
+        if (!award) return null;
+
+        const totalNominations = award.nominations?.length || 0;
+        const totalWinners = award.winners?.length || 0;
+        const totalValue = award.cashValue || award.pointsValue || 0;
+        const valueLabel = award.cashValue ? 'Cash Value' : (award.pointsValue ? 'Points Value' : 'Value');
+
+        return (
+            <div className="mb-6 grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                    label="Status"
+                    value={<span className="capitalize">{award.status}</span>}
+                    icon={<Award className="h-4 w-4" />}
+                />
+                <StatCard
+                    label="Nominations"
+                    value={totalNominations}
+                    icon={<Users className="h-4 w-4" />}
+                />
+                <StatCard
+                    label="Winners"
+                    value={totalWinners}
+                    icon={<Trophy className="h-4 w-4" />}
+                />
+                <StatCard
+                    label={valueLabel}
+                    value={totalValue}
+                    icon={<Star className="h-4 w-4" />}
+                />
+            </div>
+        );
+    } catch (error) {
+        console.error("Failed to load award metrics:", error);
+        return null;
+    }
+}
+
+function MetricsSkeleton() {
+    return (
+        <div className="mb-6 grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+                    <div className="flex items-center justify-between">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-8 w-8 rounded-md" />
+                    </div>
+                    <Skeleton className="mt-4 h-8 w-16" />
+                </div>
+            ))}
+        </div>
+    );
+}
+
+function TimelineSkeleton() {
+    return (
+        <Card>
+            <ZoruCardHeader>
+                <ZoruCardTitle>Activity</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+                <div className="space-y-6">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="flex gap-4">
+                            <Skeleton className="h-4 w-4 rounded-full shrink-0 mt-1" />
+                            <div className="space-y-2 flex-1">
+                                <div className="flex items-center gap-2">
+                                    <Skeleton className="h-4 w-24" />
+                                    <Skeleton className="h-4 w-16 rounded-full" />
+                                </div>
+                                <Skeleton className="h-3 w-1/3" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </ZoruCardContent>
+        </Card>
+    );
+}
 
 export default async function AwardActivityPage({
     params,
@@ -9,9 +97,21 @@ export default async function AwardActivityPage({
 }) {
     const { id } = await params;
     return (
-        <div className="p-4 md:p-6">
-            <h1 className="mb-4 text-xl font-semibold text-zoru-ink">Award activity</h1>
-            <EntityAuditTimeline entityKind="award" entityId={id} />
+        <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-6">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 className="text-2xl font-semibold tracking-tight text-zoru-ink">Award Overview & Activity</h1>
+                    <p className="text-sm text-zoru-ink-muted">Key metrics and recent audit history for this award program.</p>
+                </div>
+            </div>
+
+            <Suspense fallback={<MetricsSkeleton />}>
+                <AwardSummaryMetrics id={id} />
+            </Suspense>
+
+            <Suspense fallback={<TimelineSkeleton />}>
+                <EntityAuditTimeline entityKind="award" entityId={id} />
+            </Suspense>
         </div>
     );
 }

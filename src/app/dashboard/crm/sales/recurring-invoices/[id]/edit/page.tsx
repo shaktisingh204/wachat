@@ -9,7 +9,7 @@ import {
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
-import { getRecurringInvoiceById } from '@/app/actions/crm-recurring-invoices.actions';
+import { getRecurringInvoiceById, type CrmRecurringInvoiceDoc } from '@/app/actions/crm-recurring-invoices.actions';
 
 import { RecurringInvoiceForm } from '../../_components/recurring-invoice-form';
 
@@ -27,7 +27,7 @@ export default async function EditRecurringInvoicePage({
     const session = await getSession();
     if (!session?.user) redirect('/login');
 
-    const rec = await getRecurringInvoiceById(id);
+    const rec: CrmRecurringInvoiceDoc | null = await getRecurringInvoiceById(id);
     if (!rec) notFound();
 
     const label = rec.title || `Schedule ${id.slice(-6)}`;

@@ -107,6 +107,25 @@ export default function AppreciationsPage(): React.JSX.Element {
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
   const [bulkConfirm, setBulkConfirm] = React.useState(false);
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [page, setPage] = React.useState(1);
+  const ITEMS_PER_PAGE = 20;
+
+  const observer = React.useRef<IntersectionObserver | null>(null);
+  const observerTarget = React.useCallback((node: HTMLDivElement | null) => {
+    if (observer.current) observer.current.disconnect();
+    if (node) {
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          setPage((p) => p + 1);
+        }
+      });
+      observer.current.observe(node);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    setPage(1);
+  }, [filters]);
 
   const fetchData = React.useCallback(() => {
     startTransition(async () => {
@@ -246,7 +265,7 @@ export default function AppreciationsPage(): React.JSX.Element {
     });
   }, []);
 
-  const handleDelete = async () => {
+  const handleDelete = React.useCallback(async () => {
     if (!deleteId) return;
     const r = await deleteAppreciation(deleteId);
     if (r.success) {
@@ -261,9 +280,9 @@ export default function AppreciationsPage(): React.JSX.Element {
       toast({ title: 'Error', description: r.error, variant: 'destructive' });
     }
     setDeleteId(null);
-  };
+  }, [deleteId, toast, fetchData]);
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = React.useCallback(async () => {
     const ids = Array.from(selected);
     let ok = 0;
     let fail = 0;
@@ -280,7 +299,7 @@ export default function AppreciationsPage(): React.JSX.Element {
     setSelected(new Set());
     setBulkConfirm(false);
     fetchData();
-  };
+  }, [selected, toast, fetchData]);
 
   const buildExportRows = React.useCallback((): ExportRow[] => {
     return visible.map((a) => ({
@@ -328,6 +347,10 @@ export default function AppreciationsPage(): React.JSX.Element {
       .map((x) => `${x.name}: ${x.count}`)
       .join(' · ') || '—';
   }, [kpis.types, awardById]);
+
+  const paginatedVisible = React.useMemo(() => {
+    return visible.slice(0, page * ITEMS_PER_PAGE);
+  }, [visible, page]);
 
   return (
     <div className="flex w-full flex-col gap-6 p-4 md:p-6">
@@ -518,7 +541,7 @@ export default function AppreciationsPage(): React.JSX.Element {
               </Card>
             ) : null}
 
-            {visible.map((a) => {
+            {paginatedVisible.map((a) => {
               const award = awardById.get(a.award_id);
               const isSelected = selected.has(a._id);
               return (
@@ -593,6 +616,10 @@ export default function AppreciationsPage(): React.JSX.Element {
                 </Card>
               );
             })}
+            
+            {page * ITEMS_PER_PAGE < visible.length && (
+              <div ref={observerTarget} className="h-10 w-full" />
+            )}
           </div>
         </div>
       </EntityListShell>

@@ -8,6 +8,7 @@ import {
   hrGetById,
   hrSave,
   hrDelete,
+  hrListPaginated,
   requireSession,
   serialize,
 } from '@/lib/hr-crud';
@@ -46,6 +47,7 @@ export async function getTimeLogs(filter?: {
   user_id?: string;
   from?: string;
   to?: string;
+  is_running?: boolean;
 }): Promise<WsProjectTimeLog[]> {
   const extra: Record<string, unknown> = {};
   if (filter?.project_id && ObjectId.isValid(filter.project_id)) {
@@ -59,6 +61,9 @@ export async function getTimeLogs(filter?: {
     if (filter.from) range.$gte = new Date(filter.from);
     if (filter.to) range.$lte = new Date(filter.to);
     extra.start_time = range;
+  }
+  if (filter?.is_running) {
+    extra.end_time = { $exists: false };
   }
   const list = await hrList<WsProjectTimeLog>(COL_LOG, {
     extraFilter: extra,
@@ -287,6 +292,46 @@ export async function getWeeklyTimesheets(): Promise<WsWeeklyTimesheet[]> {
     sortBy: { week_start_date: -1 },
   });
   return list as unknown as WsWeeklyTimesheet[];
+}
+
+export async function getWeeklyTimesheetsPaginated(
+  page: number,
+  limit: number,
+  filter?: {
+    user_id?: string;
+    status?: string;
+    fromDate?: string;
+    toDate?: string;
+    search?: string;
+  }
+) {
+  const extraFilter: Record<string, any> = {};
+  if (filter?.user_id && filter.user_id !== '') {
+    if (ObjectId.isValid(filter.user_id)) {
+      extraFilter.user_id = new ObjectId(filter.user_id);
+    } else {
+      extraFilter.user_id = filter.user_id; // in case it's stored as string
+    }
+  }
+  if (filter?.status && filter.status !== 'all') {
+    extraFilter.status = filter.status;
+  }
+  if (filter?.fromDate || filter?.toDate) {
+    extraFilter.week_start_date = {};
+    if (filter.fromDate) extraFilter.week_start_date.$gte = new Date(filter.fromDate);
+    if (filter.toDate) extraFilter.week_start_date.$lte = new Date(filter.toDate);
+  }
+  if (filter?.search) {
+    extraFilter.reason = { $regex: filter.search, $options: 'i' };
+  }
+
+  const res = await hrListPaginated<WsWeeklyTimesheet>(COL_TS, {
+    extraFilter,
+    sortBy: { week_start_date: -1 },
+    skip: (page - 1) * limit,
+    limit,
+  });
+  return { items: res.items as unknown as WsWeeklyTimesheet[], total: res.total };
 }
 
 export async function getWeeklyTimesheetById(id: string) {

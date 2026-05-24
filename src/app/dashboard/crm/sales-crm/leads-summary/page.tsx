@@ -46,6 +46,7 @@ interface PipelineSummaryRow {
     leadCount: number;
     totalValue: number;
     weightedValue: number;
+    avgPredictiveScore?: number;
 }
 
 interface FiltersData {
@@ -60,6 +61,7 @@ interface SummaryData {
         scheduledLeads: number;
         overdueLeads: number;
         closedLeads: number;
+        overallPredictiveScore?: number;
     };
     pipelineSummary: PipelineSummaryRow[];
     filtersData: FiltersData;
@@ -258,7 +260,7 @@ export default function LeadsSummaryPage() {
             subtitle="A high-level overview of your sales pipeline performance."
         >
             {/* KPI strip */}
-            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
                 <StatCard
                     title="Total leads"
                     value={derived.totalLeads}
@@ -279,6 +281,11 @@ export default function LeadsSummaryPage() {
                     title="Top source"
                     value={derived.sourcePie.length}
                     accent={`Top: ${derived.topSource}`}
+                />
+                <StatCard
+                    title="AI Score"
+                    value={summary.overallPredictiveScore ?? 0}
+                    accent="Avg deal health"
                 />
             </div>
 
@@ -538,6 +545,9 @@ export default function LeadsSummaryPage() {
                             </p>
                             <p className="text-[11.5px] text-muted-foreground">
                                 Weighted: ₹{stage.weightedValue.toLocaleString()}
+                            </p>
+                            <p className="text-[11.5px] font-medium text-[hsl(var(--primary))]">
+                                AI Score: {stage.avgPredictiveScore ?? 0}/100
                             </p>
                         </div>
                     ))}

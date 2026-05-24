@@ -16,12 +16,17 @@ import {
   wsFormatDuration,
   type WsProjectTimeLog,
 } from '@/lib/worksuite/time-types';
+import { format, parseISO } from 'date-fns';
 
 function fmt(value: unknown): string {
   if (!value) return '—';
-  const d = new Date(value as string);
-  if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleString();
+  try {
+    const d = typeof value === 'string' ? parseISO(value) : new Date(value as any);
+    if (Number.isNaN(d.getTime())) return '—';
+    return format(d, 'PPpp');
+  } catch {
+    return '—';
+  }
 }
 
 function badge(log: WsProjectTimeLog): { label: string; variant: string } {

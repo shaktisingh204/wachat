@@ -15,6 +15,24 @@
 
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react';
+import {
   Button,
   DropdownMenu,
   ZoruDropdownMenuContent,
@@ -45,6 +63,57 @@ const ADDABLE_TYPES: EmailJourneyNodeType[] = [
   'split',
   'exit',
 ];
+
+
+function SortableJourneyNode({ 
+  node, i, selectedNodeId, onSelect, readOnly, move, remove, nodesLength 
+}: any) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: node.id, disabled: readOnly || node.type === 'trigger' });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: transform ? 10 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex w-full flex-col items-center relative">
+      <div className="flex w-full items-start gap-2 max-w-md">
+        <div className="flex flex-col gap-1 mt-2">
+           {(!readOnly && node.type !== 'trigger') ? (
+              <div {...attributes} {...listeners} className="cursor-grab hover:bg-zoru-surface-2 p-1 rounded">
+                 <GripVertical className="h-4 w-4 text-zoru-ink-muted" />
+              </div>
+           ) : <div className="w-6" />}
+        </div>
+        <div className="flex-1">
+          <JourneyNodeCard
+            node={node}
+            index={i}
+            selected={selectedNodeId === node.id}
+            onSelect={() => onSelect(node.id)}
+          />
+        </div>
+        {!readOnly && node.type !== 'trigger' ? (
+          <div className="flex flex-col gap-1 mt-2">
+            <Button size="icon" variant="ghost" aria-label="Delete" onClick={() => remove(i)}>
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        ) : <div className="w-8" />}
+      </div>
+      {i < nodesLength - 1 ? (
+        <div aria-hidden className="h-6 w-px bg-border my-1" />
+      ) : null}
+    </div>
+  );
+}
 
 export function JourneyCanvas({
   nodes,

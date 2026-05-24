@@ -60,6 +60,113 @@ import {
 } from '@/app/actions/crm-templates.actions';
 import { CRM_STUDIO_VARIABLES } from '@/data/reference/crm-template-variables';
 
+import DOMPurify from 'dompurify';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+function SortableEmailBlock({ block, isActive, onSelect, onMove, onDelete, index, total, themeColor, fontFamily }: any) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: block.id });
+    
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            onClick={onSelect}
+            className={cn(
+                "group relative border rounded-lg p-2 transition-all cursor-pointer",
+                isActive 
+                    ? "border-indigo-500 bg-indigo-950/10 shadow-lg" 
+                    : "border-slate-800/80 bg-slate-950/20 hover:border-slate-700/80 hover:bg-slate-900/10"
+            )}
+        >
+            <div className="absolute left-2 top-3 z-20 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing text-slate-500 hover:text-slate-300" {...attributes} {...listeners}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 6h.01M16 6h.01M8 12h.01M16 12h.01M8 18h.01M16 18h.01"/></svg>
+            </div>
+            
+            <div className="absolute right-2 top-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                <button 
+                    onClick={(e) => { e.stopPropagation(); onMove(index, 'up', e); }}
+                    disabled={index === 0}
+                    className="p-1 rounded bg-slate-950 border border-slate-800 hover:border-slate-600 disabled:opacity-30 disabled:pointer-events-none text-slate-400 hover:text-slate-100"
+                >
+                    <ArrowUp className="h-3 w-3" />
+                </button>
+                <button 
+                    onClick={(e) => { e.stopPropagation(); onMove(index, 'down', e); }}
+                    disabled={index === total - 1}
+                    className="p-1 rounded bg-slate-950 border border-slate-800 hover:border-slate-600 disabled:opacity-30 disabled:pointer-events-none text-slate-400 hover:text-slate-100"
+                >
+                    <ArrowDown className="h-3 w-3" />
+                </button>
+                <button 
+                    onClick={(e) => { e.stopPropagation(); onDelete(block.id, e); }}
+                    className="p-1 rounded bg-slate-950 border border-red-950 text-red-500 hover:bg-red-950/20"
+                >
+                    <Trash2 className="h-3 w-3" />
+                </button>
+            </div>
+
+            <div className="pl-6">
+                {block.type === 'header' && (
+                    <h1 className="text-xl font-bold tracking-tight text-slate-100 pr-16" style={{ fontFamily: fontFamily, color: themeColor }}>
+                        {block.content.title}
+                    </h1>
+                )}
+
+                {block.type === 'text' && (
+                    <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap pr-16" style={{ fontFamily: fontFamily }}>
+                        {block.content.html}
+                    </p>
+                )}
+
+                {block.type === 'button' && (
+                    <div className="py-2" style={{ textAlign: block.style?.align || 'center' }}>
+                        <span 
+                            className="inline-block px-4 py-2 text-xs font-semibold rounded-md shadow text-white" 
+                            style={{ backgroundColor: themeColor, fontFamily: fontFamily }}
+                        >
+                            {block.content.text}
+                        </span>
+                    </div>
+                )}
+
+                {block.type === 'divider' && (
+                    <hr className="border-t border-slate-800 my-2" />
+                )}
+
+                {block.type === 'footer' && (
+                    <div className="text-[10px] text-slate-500 font-mono whitespace-pre-wrap mt-2 pr-16" style={{ fontFamily: fontFamily }}>
+                        {block.content.signature}
+                    </div>
+                )}
+
+                <span className="absolute left-6 bottom-1 text-[8px] uppercase text-slate-600 font-mono tracking-wider font-semibold pointer-events-none opacity-40">
+                    {block.type} component
+                </span>
+            </div>
+        </div>
+    );
+}
 interface TemplateStudioProps {
     initialTemplate?: UnifiedTemplate | null;
 }
@@ -324,9 +431,12 @@ export function TemplateStudio({ initialTemplate }: TemplateStudioProps): React.
     };
 
     // Version history rollback execution
-    const handleVersionRestore = (restoredContent: string, restoredSubject?: string) => {
+    const handleVersionRestore = (restoredContent: string, restoredSubject?: string, versionObj?: any) => {
         setContent(restoredContent);
         if (restoredSubject) setSubject(restoredSubject);
+        if (versionObj?.emailConfig) setEmailConfig(versionObj.emailConfig);
+        if (versionObj?.whatsappConfig) setWhatsappConfig(versionObj.whatsappConfig);
+        if (versionObj?.documentConfig) setDocumentConfig(versionObj.documentConfig);
         toast({ title: 'Rollback complete', description: 'Snapshot successfully restored into designer.' });
     };
 
@@ -390,7 +500,10 @@ export function TemplateStudio({ initialTemplate }: TemplateStudioProps): React.
                 timestamp: new Date(),
                 content: content,
                 subject: subject,
-                description: `Manual update of ${name} details`
+                description: `Manual update of ${name} details`,
+                emailConfig: emailConfig,
+                whatsappConfig: whatsappConfig,
+                documentConfig: documentConfig
             },
             ...history
         ];
@@ -426,6 +539,22 @@ export function TemplateStudio({ initialTemplate }: TemplateStudioProps): React.
     };
 
     const activeBlock = emailConfig.blocks.find(b => b.id === activeBlockId);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    );
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+        
+        setEmailConfig(prev => {
+            const oldIndex = prev.blocks.findIndex(b => b.id === active.id);
+            const newIndex = prev.blocks.findIndex(b => b.id === over.id);
+            return { blocks: arrayMove(prev.blocks, oldIndex, newIndex) };
+        });
+    };
 
     return (
         <div className="flex h-screen w-full flex-col bg-[#0b0c10] text-[#e2e8f0] overflow-hidden select-none font-sans">
@@ -854,7 +983,7 @@ export function TemplateStudio({ initialTemplate }: TemplateStudioProps): React.
                                                     <p className="text-xs font-semibold text-slate-200">{subject}</p>
                                                 </div>
                                             )}
-                                            <div dangerouslySetInnerHTML={{ __html: compiledHtml }} />
+                                            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(compiledHtml) }} />
                                         </div>
                                     ) : type === 'whatsapp' ? (
                                         /* Simulated WhatsApp iOS message box */
@@ -972,82 +1101,24 @@ export function TemplateStudio({ initialTemplate }: TemplateStudioProps): React.
                                     /* Interactive Designer grid edit workspace canvas */
                                     type === 'email' ? (
                                         <div className="w-full max-w-[600px] bg-[#0c0e14]/90 border border-slate-800 rounded-xl p-6 shadow-2xl mx-auto flex flex-col gap-3 min-h-[420px]">
-                                            {emailConfig.blocks.map((block, index) => {
-                                                const isActive = activeBlockId === block.id;
-                                                return (
-                                                    <div
-                                                        key={block.id}
-                                                        onClick={() => setActiveBlockId(block.id)}
-                                                        className={cn(
-                                                            "group relative border rounded-lg p-2 transition-all cursor-pointer",
-                                                            isActive 
-                                                                ? "border-indigo-500 bg-indigo-950/10 shadow-lg" 
-                                                                : "border-slate-800/80 bg-slate-950/20 hover:border-slate-700/80 hover:bg-slate-900/10"
-                                                        )}
-                                                    >
-                                                        {/* Reorder actions block */}
-                                                        <div className="absolute right-2 top-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                                            <button 
-                                                                onClick={(e) => handleMoveBlock(index, 'up', e)}
-                                                                disabled={index === 0}
-                                                                className="p-1 rounded bg-slate-950 border border-slate-800 hover:border-slate-600 disabled:opacity-30 disabled:pointer-events-none text-slate-400 hover:text-slate-100"
-                                                            >
-                                                                <ArrowUp className="h-3 w-3" />
-                                                            </button>
-                                                            <button 
-                                                                onClick={(e) => handleMoveBlock(index, 'down', e)}
-                                                                disabled={index === emailConfig.blocks.length - 1}
-                                                                className="p-1 rounded bg-slate-950 border border-slate-800 hover:border-slate-600 disabled:opacity-30 disabled:pointer-events-none text-slate-400 hover:text-slate-100"
-                                                            >
-                                                                <ArrowDown className="h-3 w-3" />
-                                                            </button>
-                                                            <button 
-                                                                onClick={(e) => handleDeleteBlock(block.id, e)}
-                                                                className="p-1 rounded bg-slate-950 border border-red-950 text-red-500 hover:bg-red-950/20"
-                                                            >
-                                                                <Trash2 className="h-3 w-3" />
-                                                            </button>
-                                                        </div>
-
-                                                        {block.type === 'header' && (
-                                                            <h1 className="text-xl font-bold tracking-tight text-slate-100 pr-16" style={{ fontFamily: fontFamily, color: themeColor }}>
-                                                                {block.content.title}
-                                                            </h1>
-                                                        )}
-
-                                                        {block.type === 'text' && (
-                                                            <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap pr-16" style={{ fontFamily: fontFamily }}>
-                                                                {block.content.html}
-                                                            </p>
-                                                        )}
-
-                                                        {block.type === 'button' && (
-                                                            <div className="py-2" style={{ textAlign: block.style?.align || 'center' }}>
-                                                                <span 
-                                                                    className="inline-block px-4 py-2 text-xs font-semibold rounded-md shadow text-white" 
-                                                                    style={{ backgroundColor: themeColor, fontFamily: fontFamily }}
-                                                                >
-                                                                    {block.content.text}
-                                                                </span>
-                                                            </div>
-                                                        )}
-
-                                                        {block.type === 'divider' && (
-                                                            <hr className="border-t border-slate-800 my-2" />
-                                                        )}
-
-                                                        {block.type === 'footer' && (
-                                                            <div className="text-[10px] text-slate-500 font-mono whitespace-pre-wrap mt-2 pr-16" style={{ fontFamily: fontFamily }}>
-                                                                {block.content.signature}
-                                                            </div>
-                                                        )}
-
-                                                        <span className="absolute left-2 bottom-1 text-[8px] uppercase text-slate-600 font-mono tracking-wider font-semibold pointer-events-none opacity-40">
-                                                            {block.type} component
-                                                        </span>
-                                                    </div>
-                                                );
-                                            })}
+                                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                                                <SortableContext items={emailConfig.blocks.map((b: any) => b.id)} strategy={verticalListSortingStrategy}>
+                                                    {emailConfig.blocks.map((block: any, index: number) => (
+                                                        <SortableEmailBlock
+                                                            key={block.id}
+                                                            block={block}
+                                                            isActive={activeBlockId === block.id}
+                                                            onSelect={() => setActiveBlockId(block.id)}
+                                                            onMove={(idx: number, dir: 'up' | 'down', e: any) => handleMoveBlock(idx, dir, e)}
+                                                            onDelete={(id: string, e: any) => handleDeleteBlock(id, e)}
+                                                            index={index}
+                                                            total={emailConfig.blocks.length}
+                                                            themeColor={themeColor}
+                                                            fontFamily={fontFamily}
+                                                        />
+                                                    ))}
+                                                </SortableContext>
+                                            </DndContext>
                                             
                                             {emailConfig.blocks.length === 0 && (
                                                 <div className="flex flex-1 flex-col items-center justify-center p-8 text-center text-xs text-slate-500 border border-dashed border-slate-800 rounded-lg">

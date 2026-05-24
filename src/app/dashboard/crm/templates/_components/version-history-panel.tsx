@@ -16,14 +16,14 @@ interface VersionHistoryPanelProps {
     history?: VersionHistory[];
     currentContent: string;
     currentSubject?: string;
-    onRestore: (content: string, subject?: string) => void;
+    onRestore: (content: string, subject?: string, versionObj?: any) => void;
 }
 
 export function VersionHistoryPanel({ history = [], currentContent, currentSubject, onRestore }: VersionHistoryPanelProps): React.JSX.Element {
     const [selectedVersion, setSelectedVersion] = React.useState<VersionHistory | null>(null);
 
     const handleRestoreClick = (version: VersionHistory) => {
-        onRestore(version.content, version.subject);
+        onRestore(version.content, version.subject, version);
         setSelectedVersion(null);
     };
 

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import sanitizeHtml from 'sanitize-html';
 
 import {
     Badge,
@@ -46,16 +47,52 @@ function fmtDateTime(v?: string | Date): string {
     return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
 }
 
-function renderValue(v: unknown): string {
-    if (v == null) return '—';
-    if (typeof v === 'object') {
-        try {
-            return JSON.stringify(v, null, 2);
-        } catch {
-            return String(v);
-        }
+
+function GenericFieldRenderer({ type, value }: { type?: string; value: unknown }) {
+    if (value == null || value === '') return <span className="text-zoru-ink-muted">—</span>;
+
+    if (type === 'email') {
+        return (
+            <a href={`mailto:${value}`} className="text-zoru-primary hover:underline">
+                {String(value)}
+            </a>
+        );
     }
-    return String(v);
+    if (type === 'url') {
+        return (
+            <a href={String(value)} target="_blank" rel="noopener noreferrer" className="text-zoru-primary hover:underline">
+                {String(value)}
+            </a>
+        );
+    }
+    if (type === 'boolean' || type === 'checkbox') {
+        return <Badge variant="outline">{value === true || value === 'true' ? 'Yes' : 'No'}</Badge>;
+    }
+    if (type === 'date') {
+        const d = new Date(String(value));
+        return <span>{Number.isNaN(d.getTime()) ? String(value) : d.toLocaleDateString()}</span>;
+    }
+
+    let stringVal = '';
+    if (typeof value === 'object') {
+        try {
+            stringVal = JSON.stringify(value, null, 2);
+        } catch {
+            stringVal = String(value);
+        }
+    } else {
+        stringVal = String(value);
+    }
+
+    // Sanitize raw text to prevent XSS
+    const cleanHtml = sanitizeHtml(stringVal, {
+        allowedTags: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li'],
+        allowedAttributes: {
+            a: ['href'],
+        },
+    });
+
+    return <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: cleanHtml }} />;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -112,10 +149,11 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
     const createdAt = submission.createdAt ?? submission.submittedAt;
 
     return (
-        <EntityDetailShell
-            title={form.name}
-            eyebrow="FORM SUBMISSION"
-            status={{ label: status, tone: statusTone(status) }}
+        <div id="submission-detail-content">
+            <EntityDetailShell
+                title={form.name}
+                eyebrow="FORM SUBMISSION"
+                status={{ label: status, tone: statusTone(status) }}
             back={{
                 href: `/dashboard/crm/sales-crm/forms/${formId}/submissions`,
                 label: 'Back to submissions',
@@ -220,12 +258,12 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                         <div className="grid gap-4 md:grid-cols-2">
                             {fieldDefs.map((f) => (
                                 <Field key={f.name} label={f.label || f.name}>
-                                    {renderValue(data[f.name])}
+                                    <GenericFieldRenderer type={f.type} value={data[f.name]} />
                                 </Field>
                             ))}
                             {extras.map((k) => (
                                 <Field key={k} label={k}>
-                                    {renderValue(data[k])}
+                                    <GenericFieldRenderer type="text" value={data[k]} />
                                 </Field>
                             ))}
                         </div>
@@ -261,5 +299,6 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                 </Card>
             ) : null}
         </EntityDetailShell>
+        </div>
     );
 }

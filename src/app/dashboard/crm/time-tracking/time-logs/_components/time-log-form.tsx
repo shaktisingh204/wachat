@@ -59,13 +59,17 @@ const STATUS_OPTIONS: Array<{ value: CrmTimeLogStatus; label: string }> = [
     { value: 'archived', label: 'Archived' },
 ];
 
+import { format, parseISO } from 'date-fns';
+
 function toDateTimeInput(value: unknown): string {
     if (!value) return '';
-    const d = new Date(value as string);
-    if (Number.isNaN(d.getTime())) return '';
-    // Convert to `YYYY-MM-DDTHH:MM` for `<input type="datetime-local">`.
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    try {
+        const d = typeof value === 'string' ? parseISO(value) : new Date(value as any);
+        if (Number.isNaN(d.getTime())) return '';
+        return format(d, "yyyy-MM-dd'T'HH:mm");
+    } catch {
+        return '';
+    }
 }
 
 interface TimeLogFormProps {

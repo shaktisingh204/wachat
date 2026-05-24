@@ -54,6 +54,7 @@ import { TicketsHeaderTools, type TicketsViewMode } from './tickets-header-tools
 import { TicketsTable } from './tickets-table';
 import { TicketsKanban } from './tickets-kanban';
 import { TicketsQueue } from './tickets-queue';
+import { TicketsInbox } from './tickets-inbox';
 
 const TICKETS_PER_PAGE = 20;
 
@@ -530,8 +531,10 @@ export function TicketsListClient({
                         />
                     ) : view === 'kanban' ? (
                         <TicketsKanban tickets={visibleTickets} />
-                    ) : (
+                    ) : view === 'queue' ? (
                         <TicketsQueue tickets={visibleTickets} />
+                    ) : (
+                        <TicketsInbox tickets={visibleTickets} />
                     )}
                 </div>
             </EntityListShell>

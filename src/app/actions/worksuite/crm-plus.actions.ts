@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
 import {
   hrList,
+  hrListPaginated,
   hrGetById,
   hrSave,
   hrDelete,
@@ -380,8 +381,44 @@ export async function deleteLeadCustomForm(id: string) {
  *  Lead Notes
  * ══════════════════════════════════════════════════════════════════ */
 
-export async function getLeadNotes() {
-  return hrList<WsLeadNote>(COL_LEAD_NOTES);
+export async function getLeadNotes(params?: {
+  limit?: number;
+  skip?: number;
+  q?: string;
+  tag?: string;
+  leadId?: string;
+  from?: string;
+  to?: string;
+}) {
+  const extraFilter: any = {};
+  if (params?.q) {
+    extraFilter.$or = [
+      { title: { $regex: params.q, $options: 'i' } },
+      { details: { $regex: params.q, $options: 'i' } },
+      { 'mentions.label': { $regex: params.q, $options: 'i' } },
+    ];
+  }
+  if (params?.tag) {
+    extraFilter.tags = params.tag;
+  }
+  if (params?.leadId) {
+    extraFilter.lead_id = params.leadId;
+  }
+  if (params?.from || params?.to) {
+    extraFilter.createdAt = {};
+    if (params.from) {
+      extraFilter.createdAt.$gte = new Date(params.from).toISOString();
+    }
+    if (params.to) {
+      extraFilter.createdAt.$lte = new Date(`${params.to}T23:59:59`).toISOString();
+    }
+  }
+
+  return hrListPaginated<WsLeadNote>(COL_LEAD_NOTES, {
+    limit: params?.limit,
+    skip: params?.skip,
+    extraFilter,
+  });
 }
 export async function getLeadNoteById(id: string) {
   return hrGetById<WsLeadNote>(COL_LEAD_NOTES, id);

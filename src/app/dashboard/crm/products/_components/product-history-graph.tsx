@@ -31,7 +31,7 @@ export function ProductHistoryGraph() {
             <Line yAxisId="right" type="monotone" dataKey="stock" stroke="#82ca9d" name="Stock" strokeWidth={2} />
           </LineChart>
         </ResponsiveContainer>
-      </CardContent>
+      </ZoruCardContent>
     </Card>
   );
 }

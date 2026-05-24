@@ -1,12 +1,9 @@
-'use client';
-
-import { Skeleton, cn } from '@/components/zoruui';
-import {
-  cn as _zoruCn,
-  Suspense } from 'react';
-import { CrmFormBuilder } from '@/components/wabasimplify/crm-form-builder';
-
-void _zoruCn;
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/zoruui';
+import { NewFormWizard } from './new-form-wizard';
+import { getCrmForms } from '@/app/actions/crm-forms.actions';
+import { getSession } from '@/app/actions/user.actions';
+import { AlertCircle } from 'lucide-react';
 
 function NewFormSkeleton() {
     return (
@@ -24,10 +21,32 @@ function NewFormSkeleton() {
     );
 }
 
-export default function NewCrmFormPage() {
+export default async function NewCrmFormPage() {
+    const session = await getSession();
+    if (!session?.user) return null;
+
+    // Strict check for tenant quota limits
+    const { total } = await getCrmForms(1, 1);
+    
+    // Check plan limit; fallback to 5 if undefined.
+    const formLimit = session.user.plan?.appLimits?.crm?.forms ?? 5;
+
+    if (total >= formLimit) {
+        return (
+            <div className="max-w-3xl mx-auto p-12 text-center mt-20">
+                <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-6" />
+                <h1 className="text-3xl font-bold text-foreground mb-4">Quota Exceeded</h1>
+                <p className="text-lg text-muted-foreground mb-8">
+                    You have reached your limit of {formLimit} CRM forms for your current plan. 
+                    Please upgrade your plan to create more forms.
+                </p>
+            </div>
+        );
+    }
+
     return (
         <Suspense fallback={<NewFormSkeleton />}>
-            <CrmFormBuilder />
+            <NewFormWizard />
         </Suspense>
     );
 }

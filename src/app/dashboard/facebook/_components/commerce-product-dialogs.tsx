@@ -45,6 +45,7 @@ import {
   Loader2,
   Pencil,
   PlusCircle,
+  UploadCloud,
   } from "lucide-react";
 
 import {
@@ -52,6 +53,7 @@ import {
   deleteProductFromCatalog,
   getTaggedMediaForProduct,
   updateProductInCatalog,
+  bulkAddProductsToCatalog,
   } from "@/app/actions/catalog.actions";
 
 /**
@@ -62,6 +64,7 @@ import {
  *   - EditProductDialog          (updateProductInCatalog)
  *   - DeleteProductConfirmDialog (deleteProductFromCatalog)
  *   - ViewTaggedMediaDialog      (getTaggedMediaForProduct)
+ *   - BulkUploadProductsDialog   (bulkAddProductsToCatalog)
  *
  * Pure ZoruUI primitives, useZoruToast, lucide-react.
  */
@@ -556,6 +559,139 @@ export function ViewTaggedMediaDialog({
             </div>
           )}
         </div>
+      </ZoruDialogContent>
+    </Dialog>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Bulk upload products                                               */
+/* ------------------------------------------------------------------ */
+
+export interface BulkUploadProductsDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  catalogId: string;
+  projectId: string;
+  onUploaded?: () => void;
+}
+
+export function BulkUploadProductsDialog({
+  open,
+  onOpenChange,
+  catalogId,
+  projectId,
+  onUploaded,
+}: BulkUploadProductsDialogProps) {
+  const { toast } = useZoruToast();
+  const [file, setFile] = useState<File | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const handleUpload = () => {
+    if (!file) return;
+    startTransition(async () => {
+      try {
+        const text = await file.text();
+        const lines = text.split(/\r?\n/).filter(line => line.trim());
+        if (lines.length < 2) {
+          toast({ title: "Invalid CSV", description: "CSV must have a header row and at least one data row.", variant: "destructive" });
+          return;
+        }
+        
+        const splitLine = (l: string) => {
+          const matches = l.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+          return matches ? matches.map(m => m.replace(/^"|"$/g, '').trim()) : [];
+        };
+        
+        const headers = splitLine(lines[0].toLowerCase());
+        const rows = lines.slice(1).map(l => {
+          const cols = splitLine(l);
+          const obj: Record<string, string> = {};
+          headers.forEach((h, i) => {
+            if (cols[i]) obj[h] = cols[i];
+          });
+          return obj;
+        });
+
+        const result = await bulkAddProductsToCatalog(projectId, catalogId, rows);
+        
+        if (result.failCount > 0) {
+          toast({
+            title: `Bulk upload finished with errors`,
+            description: `Successfully added ${result.successCount} products, but ${result.failCount} failed.`,
+            variant: "warning",
+          });
+          console.error("Bulk upload errors:", result.errors);
+        } else {
+          toast({
+            title: "Bulk upload complete",
+            description: `Successfully added ${result.successCount} products.`,
+            variant: "success",
+          });
+        }
+        onOpenChange(false);
+        onUploaded?.();
+      } catch (err: any) {
+         toast({
+            title: "Error parsing CSV",
+            description: err.message,
+            variant: "destructive",
+          });
+      }
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(open) => {
+      if (!open) setFile(null);
+      onOpenChange(open);
+    }}>
+      <ZoruDialogContent className="sm:max-w-md">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Bulk upload via CSV</ZoruDialogTitle>
+          <ZoruDialogDescription>
+            Upload a CSV file to add multiple products to this catalog at once.
+            Ensure headers match: <code>id</code>, <code>title</code>, <code>description</code>, <code>price</code>, <code>currency</code>, <code>image_link</code>, <code>link</code>.
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
+
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-1.5">
+            <Label htmlFor="csvFile">CSV File</Label>
+            <Input
+              id="csvFile"
+              type="file"
+              accept=".csv"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+            />
+            {file && (
+              <p className="text-xs text-zoru-ink-muted">Selected: {file.name}</p>
+            )}
+          </div>
+        </div>
+
+        <ZoruDialogFooter>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            onClick={handleUpload}
+            disabled={!file || isPending}
+          >
+            {isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <UploadCloud className="mr-2 h-4 w-4" />
+            )}
+            {isPending ? "Uploading…" : "Upload"}
+          </Button>
+        </ZoruDialogFooter>
       </ZoruDialogContent>
     </Dialog>
   );

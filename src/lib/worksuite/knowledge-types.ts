@@ -189,6 +189,8 @@ export interface WsAward {
   userId?: string;
   title: string;
   summary?: string;
+  criteria?: string;
+  prize?: string;
   icon: string;
   frequency: WsAwardFrequency;
   createdAt?: WsDateLike;

@@ -232,6 +232,47 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove, otherFields = []
                                     )}
                                 </div>
                             )}
+
+                            <div className="pt-2"></div>
+                            <Label>Show only if (cross-field)</Label>
+                            <Select
+                                value={(validation as any).showIf?.fieldId || '__none__'}
+                                onValueChange={(val) => updateValidation({
+                                    showIf: val === '__none__'
+                                        ? undefined
+                                        : { fieldId: val, operator: (validation as any).showIf?.operator ?? 'isFilled', value: (validation as any).showIf?.value }
+                                } as any)}
+                            >
+                                <ZoruSelectTrigger><ZoruSelectValue placeholder="Always show"/></ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="__none__">-- Always show --</ZoruSelectItem>
+                                    {otherFields.filter(f => f.id !== field.id && f.type !== 'html').map(f => (
+                                        <ZoruSelectItem key={f.id} value={f.fieldId || f.id}>{f.label || f.fieldId || f.id}</ZoruSelectItem>
+                                    ))}
+                                </ZoruSelectContent>
+                            </Select>
+                            {(validation as any).showIf && (
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Select
+                                        value={(validation as any).showIf.operator}
+                                        onValueChange={(val) => updateValidation({ showIf: { ...(validation as any).showIf!, operator: val as 'equals' | 'notEquals' | 'isFilled' } } as any)}
+                                    >
+                                        <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
+                                        <ZoruSelectContent>
+                                            <ZoruSelectItem value="isFilled">is filled</ZoruSelectItem>
+                                            <ZoruSelectItem value="equals">equals</ZoruSelectItem>
+                                            <ZoruSelectItem value="notEquals">not equals</ZoruSelectItem>
+                                        </ZoruSelectContent>
+                                    </Select>
+                                    {(validation as any).showIf.operator !== 'isFilled' && (
+                                        <Input
+                                            placeholder="value"
+                                            value={(validation as any).showIf.value ?? ''}
+                                            onChange={(e) => updateValidation({ showIf: { ...(validation as any).showIf!, value: e.target.value } } as any)}
+                                        />
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>

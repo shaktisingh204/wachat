@@ -9,7 +9,10 @@ import {
     Trash2,
     UserPlus,
     Briefcase,
+    Download,
 } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 import { Button, useZoruToast } from '@/components/zoruui';
 import {
@@ -99,6 +102,35 @@ export function SubmissionDetailActions({
         });
     };
 
+    const onExportPDF = async () => {
+        const element = document.getElementById('submission-detail-content');
+        if (!element) {
+            toast({ title: 'Export failed', description: 'Content not found', variant: 'destructive' });
+            return;
+        }
+
+        startTransition(async () => {
+            try {
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`submission-${submissionId}.pdf`);
+            } catch (error) {
+                console.error('Error exporting PDF:', error);
+                toast({ title: 'Export failed', description: 'An error occurred during export.', variant: 'destructive' });
+            }
+        });
+    };
+
     return (
         <div className="flex flex-wrap items-center gap-2">
             <Button size="sm" variant="outline" onClick={() => setStatus('processed')} disabled={pending}>
@@ -115,6 +147,9 @@ export function SubmissionDetailActions({
             </Button>
             <Button size="sm" variant="default" onClick={onConvertLead} disabled={pending}>
                 <Briefcase className="h-3.5 w-3.5" /> Convert to lead
+            </Button>
+            <Button size="sm" variant="outline" onClick={onExportPDF} disabled={pending}>
+                <Download className="h-3.5 w-3.5" /> Export PDF
             </Button>
             <Button size="sm" variant="destructive" onClick={onDelete} disabled={pending}>
                 <Trash2 className="h-3.5 w-3.5" /> Delete

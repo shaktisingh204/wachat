@@ -13,7 +13,11 @@ import {
     Trash2,
     X,
     ListChecks,
+    Tag,
+    Download,
 } from 'lucide-react';
+
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 import {
     Badge,
@@ -38,6 +42,7 @@ import { PaginationBar } from '@/components/crm/pagination-bar';
 import {
     updateSubmissionStatus,
     deleteSubmission,
+    updateSubmissionTags,
 } from '@/app/actions/crm-forms.actions';
 import type { CrmFormSubmissionDoc } from '@/lib/rust-client/crm-form-submissions';
 
@@ -120,6 +125,14 @@ export function SubmissionsTable({
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
     const [pending, startTransition] = React.useTransition();
 
+    const parentRef = React.useRef<HTMLDivElement>(null);
+    const rowVirtualizer = useVirtualizer({
+        count: submissions.length,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 53, // approximate row height
+        overscan: 5,
+    });
+
     const ids = React.useMemo(() => submissions.map((s) => String(s._id)), [submissions]);
     const headChecked =
         ids.length > 0 && ids.every((id) => selected.has(id));
@@ -155,6 +168,67 @@ export function SubmissionsTable({
             setSelected(new Set());
             router.refresh();
         });
+    };
+
+    const bulkTag = () => {
+        if (selected.size === 0) return;
+        const tag = window.prompt('Enter a tag to add to selected submissions:');
+        if (!tag || tag.trim() === '') return;
+        const targets = Array.from(selected);
+        startTransition(async () => {
+            let ok = 0;
+            let failed = 0;
+            for (const id of targets) {
+                const sub = submissions.find(s => String(s._id) === id);
+                const existingTags = (sub?.tags as string[]) || [];
+                const res = await updateSubmissionTags(id, Array.from(new Set([...existingTags, tag.trim()])));
+                if (res.success) ok += 1;
+                else failed += 1;
+            }
+            toast({
+                title: failed === 0
+                    ? `${ok} submission${ok === 1 ? '' : 's'} tagged`
+                    : `${ok} tagged · ${failed} failed`,
+                variant: failed > 0 ? 'destructive' : undefined,
+            });
+            setSelected(new Set());
+            router.refresh();
+        });
+    };
+
+    const bulkExport = () => {
+        if (selected.size === 0) return;
+        const targets = submissions.filter(s => selected.has(String(s._id)));
+        const data = targets.map(t => {
+            const row: Record<string, any> = { _id: t._id, status: t.status, createdAt: t.createdAt };
+            if (t.data) {
+                for (const [k, v] of Object.entries(t.data)) {
+                    row[`data.${k}`] = v;
+                }
+            }
+            return row;
+        });
+        
+        const header = Array.from(new Set(data.flatMap(r => Object.keys(r))));
+        const csv = [
+            header.join(','),
+            ...data.map(r => header.map(h => {
+                const val = r[h];
+                if (val == null) return '';
+                const str = String(val);
+                if (/[",\n]/.test(str)) return `"${str.replace(/"/g, '""')}"`;
+                return str;
+            }).join(','))
+        ].join('\n');
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `submissions_export_${Date.now()}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast({ title: 'Exported ' + targets.length + ' submissions.' });
     };
 
     const bulkDelete = () => {
@@ -236,6 +310,10 @@ export function SubmissionsTable({
         );
     }
 
+    const virtualItems = rowVirtualizer.getVirtualItems();
+    const paddingTop = virtualItems.length > 0 ? virtualItems[0]?.start || 0 : 0;
+    const paddingBottom = virtualItems.length > 0 ? rowVirtualizer.getTotalSize() - (virtualItems[virtualItems.length - 1]?.end || 0) : 0;
+
     return (
         <div className="flex flex-col gap-3">
             {selected.size > 0 ? (
@@ -245,6 +323,22 @@ export function SubmissionsTable({
                         {selected.size} selected
                     </div>
                     <div className="flex items-center gap-1">
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={bulkExport}
+                            disabled={pending}
+                        >
+                            <Download className="h-3.5 w-3.5" /> Export
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={bulkTag}
+                            disabled={pending}
+                        >
+                            <Tag className="h-3.5 w-3.5" /> Tag
+                        </Button>
                         <Button
                             size="sm"
                             variant="outline"
@@ -289,9 +383,10 @@ export function SubmissionsTable({
                 </div>
             ) : null}
 
-            <Card className="overflow-hidden p-0">
+            <Card className="overflow-hidden p-0 flex flex-col">
+                <div ref={parentRef} className="max-h-[600px] overflow-auto relative">
                 <Table>
-                    <ZoruTableHeader>
+                    <ZoruTableHeader className="sticky top-0 bg-zoru-surface z-10 shadow-sm">
                         <ZoruTableRow>
                             <ZoruTableHead className="w-8">
                                 <Checkbox
@@ -308,12 +403,16 @@ export function SubmissionsTable({
                         </ZoruTableRow>
                     </ZoruTableHeader>
                     <ZoruTableBody>
-                        {submissions.map((s) => {
+                        {paddingTop > 0 && (
+                            <tr><td style={{ height: `${paddingTop}px` }} /></tr>
+                        )}
+                        {virtualItems.map((virtualRow) => {
+                            const s = submissions[virtualRow.index];
                             const id = String(s._id);
                             const checked = selected.has(id);
                             const status = (s.status ?? 'new') as StatusValue;
                             return (
-                                <ZoruTableRow key={id}>
+                                <ZoruTableRow key={id} ref={rowVirtualizer.measureElement} data-index={virtualRow.index}>
                                     <ZoruTableCell>
                                         <Checkbox
                                             checked={checked}
@@ -330,6 +429,13 @@ export function SubmissionsTable({
                                             label={summarise(s.data as Record<string, unknown> | undefined, fieldOrder)}
                                             subtitle={`#${id.slice(-6)}`}
                                         />
+                                        {s.tags && s.tags.length > 0 && (
+                                            <div className="mt-1 flex flex-wrap gap-1">
+                                                {s.tags.map(tag => (
+                                                    <Badge key={tag} variant="secondary" className="text-[10px] px-1 py-0 h-4">{tag}</Badge>
+                                                ))}
+                                            </div>
+                                        )}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {safeHost(s.sourceUrl)}
@@ -375,9 +481,15 @@ export function SubmissionsTable({
                                 </ZoruTableRow>
                             );
                         })}
+                        {paddingBottom > 0 && (
+                            <tr><td style={{ height: `${paddingBottom}px` }} /></tr>
+                        )}
                     </ZoruTableBody>
                 </Table>
-                <PaginationBar page={page} limit={limit} hasMore={hasMore} total={total} />
+                </div>
+                <div className="p-2 border-t border-zoru-line bg-zoru-surface">
+                    <PaginationBar page={page} limit={limit} hasMore={hasMore} total={total} />
+                </div>
             </Card>
         </div>
     );

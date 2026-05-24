@@ -48,6 +48,9 @@ export interface UnifiedTemplate {
         content: string;
         subject?: string;
         description: string;
+        emailConfig?: any;
+        whatsappConfig?: any;
+        documentConfig?: any;
     }>;
     createdAt?: Date;
     updatedAt?: Date;

@@ -78,7 +78,7 @@ import { NoProjectState } from "../_components/no-project-state";
 
 const initialState: { message?: string; error?: string } = {};
 
-type PostType = "text" | "image" | "video";
+type PostType = "text" | "image" | "video" | "carousel";
 
 function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
@@ -110,6 +110,7 @@ export default function CreateFacebookPostPage() {
   const [mediaUrl, setMediaUrl] = useState<string>("");
   const [mediaName, setMediaName] = useState<string>("");
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [mediaUrls, setMediaUrls] = useState<{url: string, name: string}[]>([]);
   const [postType, setPostType] = useState<PostType>("text");
 
   // Scheduling state
@@ -140,6 +141,7 @@ export default function CreateFacebookPostPage() {
       setMediaUrl("");
       setMediaName("");
       setMediaPreview(null);
+      setMediaUrls([]);
       setPostType("text");
       setIsScheduled(false);
       setScheduledDate(undefined);
@@ -174,14 +176,28 @@ export default function CreateFacebookPostPage() {
     setMediaPreview(pick.url);
   };
 
+  const handlePickedCarouselMedia = (pick: { url: string; name: string }) => {
+    setMediaUrls((prev) => [...prev, { url: pick.url, name: pick.name }]);
+    setPostType("carousel");
+  };
+
   const clearMedia = () => {
     setMediaUrl("");
     setMediaName("");
     setMediaPreview(null);
+    setMediaUrls([]);
     setPostType("text");
   };
 
-  const isPostDisabled = message.trim() === "" && !mediaUrl;
+  const clearCarouselMedia = (index: number) => {
+    setMediaUrls((prev) => {
+      const newUrls = prev.filter((_, i) => i !== index);
+      if (newUrls.length === 0) setPostType("text");
+      return newUrls;
+    });
+  };
+
+  const isPostDisabled = message.trim() === "" && !mediaUrl && mediaUrls.length === 0;
 
   const previewTimestamp = useMemo(() => {
     if (isScheduled && scheduledDate) {
@@ -248,6 +264,7 @@ export default function CreateFacebookPostPage() {
       <form action={formAction} ref={formRef} className="mt-6">
         <input type="hidden" name="projectId" value={projectId} />
         <input type="hidden" name="postType" value={postType} />
+        <input type="hidden" name="mediaUrls" value={JSON.stringify(mediaUrls.map(u => u.url))} />
         {isScheduled && (
           <>
             <input type="hidden" name="isScheduled" value="on" />
@@ -270,9 +287,9 @@ export default function CreateFacebookPostPage() {
               <ZoruCardContent>
                 <div className="flex items-center gap-3">
                   <Avatar>
-                    {pageDetails?.picture?.data.url && (
+                    {pageDetails?.picture?.data?.url && (
                       <ZoruAvatarImage
-                        src={pageDetails.picture.data.url}
+                        src={pageDetails.picture.data?.url}
                         alt={pageDetails.name}
                       />
                     )}
@@ -324,11 +341,31 @@ export default function CreateFacebookPostPage() {
                 <ZoruCardTitle>Media</ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent className="flex flex-col gap-4">
-                {/* The server action expects `mediaUrl` — a public URL that
-                    Meta can pull. Files now go to SabFiles first, then we
-                    pass the resulting URL down here. */}
                 <input type="hidden" name="mediaUrl" value={mediaUrl} />
-                {mediaPreview ? (
+                
+                {postType === "carousel" && mediaUrls.length > 0 ? (
+                  <div className="flex flex-col gap-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      {mediaUrls.map((media, i) => (
+                        <div key={i} className="relative overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface-2 aspect-square">
+                          <Image src={media.url} fill alt="Carousel image" className="object-cover" unoptimized />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon-sm"
+                            className="absolute right-2 top-2 z-10"
+                            onClick={() => clearCarouselMedia(i)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex justify-end">
+                      <Button type="button" variant="ghost" size="sm" onClick={clearMedia}>Clear all</Button>
+                    </div>
+                  </div>
+                ) : mediaPreview ? (
                   <div className="relative overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface-2">
                     {postType === "image" ? (
                       <Image
@@ -371,19 +408,24 @@ export default function CreateFacebookPostPage() {
                     </span>
                   </div>
                 )}
+                
                 <div className="flex flex-wrap items-center gap-2">
-                  <SabFilePickerButton
-                    accept="image"
-                    onPick={handlePickedMedia}
-                  >
-                    <ImageIcon /> Add image
-                  </SabFilePickerButton>
-                  <SabFilePickerButton
-                    accept="video"
-                    onPick={handlePickedMedia}
-                  >
-                    <Video /> Add video
-                  </SabFilePickerButton>
+                  {postType !== "carousel" && (
+                    <>
+                      <SabFilePickerButton accept="image" onPick={handlePickedMedia}>
+                        <ImageIcon /> Add image
+                      </SabFilePickerButton>
+                      <SabFilePickerButton accept="video" onPick={handlePickedMedia}>
+                        <Video /> Add video
+                      </SabFilePickerButton>
+                    </>
+                  )}
+                  {(postType === "text" || postType === "carousel") && (
+                    <SabFilePickerButton accept="image" onPick={handlePickedCarouselMedia}>
+                      <ImageIcon /> {postType === "carousel" ? "Add another image" : "Create carousel"}
+                    </SabFilePickerButton>
+                  )}
+                  
                   {mediaName && (
                     <span className="ml-2 truncate text-[12px] text-zoru-ink-muted">
                       {mediaName}
@@ -475,15 +517,17 @@ export default function CreateFacebookPostPage() {
                     ? "Video"
                     : postType === "image"
                     ? "Photo"
+                    : postType === "carousel"
+                    ? "Carousel"
                     : "Text"}
                 </Badge>
               </ZoruCardHeader>
               <ZoruCardContent className="flex flex-col gap-3">
                 <div className="flex items-center gap-3">
                   <Avatar>
-                    {pageDetails?.picture?.data.url && (
+                    {pageDetails?.picture?.data?.url && (
                       <ZoruAvatarImage
-                        src={pageDetails.picture.data.url}
+                        src={pageDetails.picture.data?.url}
                         alt={pageDetails.name}
                       />
                     )}
@@ -511,8 +555,16 @@ export default function CreateFacebookPostPage() {
                     Your message will appear here.
                   </p>
                 )}
-
-                {mediaPreview && (
+                
+                {postType === "carousel" && mediaUrls.length > 0 ? (
+                  <div className="flex gap-2 overflow-x-auto snap-x pb-2">
+                    {mediaUrls.map((media, i) => (
+                      <div key={i} className="flex-none w-[80%] snap-center overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2 aspect-square relative">
+                        <Image src={media.url} fill alt="Carousel preview" className="object-cover" unoptimized />
+                      </div>
+                    ))}
+                  </div>
+                ) : mediaPreview && (
                   <div className="overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2">
                     {postType === "image" ? (
                       <Image

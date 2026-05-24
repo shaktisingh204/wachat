@@ -234,11 +234,11 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
                 } catch {
                     /* non-fatal */
                 }
-                revalidatePath('/dashboard/team/manage-users');
+                revalidatePath('/dashboard/crm/team/manage-users');
                 return { message: `Invitation sent to ${email}.` };
             } catch (emailError: any) {
                 console.error("Email sending failed", emailError);
-                revalidatePath('/dashboard/team/manage-users');
+                revalidatePath('/dashboard/crm/team/manage-users');
                 return { error: `Invitation created, but email failed: ${emailError.message || 'Check Email Settings'}` };
             }
         } catch (e: any) {
@@ -271,7 +271,7 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
             );
 
             revalidatePath('/dashboard/settings');
-            revalidatePath('/dashboard/team/manage-users');
+            revalidatePath('/dashboard/crm/team/manage-users');
             await logActivity('MEMBER_INVITED', { email, role, project: project.name }, project._id);
             try {
                 await writeAuditEntry({
@@ -313,7 +313,7 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
             }
 
             revalidatePath('/dashboard/settings');
-            revalidatePath('/dashboard/team/manage-users');
+            revalidatePath('/dashboard/crm/team/manage-users');
             await logActivity('MEMBER_INVITED', { email, role, count: updatedCount, type: 'Global Invite' });
             try {
                 await writeAuditEntry({
@@ -368,7 +368,7 @@ export async function handleRemoveAgent(prevState: any, formData: FormData): Pro
         }
 
         revalidatePath('/dashboard/settings');
-        revalidatePath('/dashboard/team/manage-users');
+        revalidatePath('/dashboard/crm/team/manage-users');
         await logActivity('MEMBER_REMOVED', { agentId: agentUserId, scope: projectId ? 'Single Project' : 'All Projects' }, projectId || undefined);
         try {
             await writeAuditEntry({
@@ -594,11 +594,11 @@ export async function acceptInvitation(
             recipientUserId: invite.inviterId,
             projectId: attachedProjectId,
             message: `${session.user.name} accepted your invitation`,
-            link: '/dashboard/team/manage-users',
+            link: '/dashboard/crm/team/manage-users',
             eventType: 'MEMBER_JOINED',
         });
 
-        revalidatePath('/dashboard/team/manage-users');
+        revalidatePath('/dashboard/crm/team/manage-users');
         revalidatePath('/wachat');
 
         return {
@@ -636,7 +636,7 @@ export async function declineInvitation(token: string): Promise<{ success: boole
             { email: invite.inviteeEmail },
             invite.projectId?.toString(),
         );
-        revalidatePath('/dashboard/team/manage-users');
+        revalidatePath('/dashboard/crm/team/manage-users');
         return { success: true };
     } catch (e) {
         console.error('[declineInvitation] failed:', e);
@@ -692,7 +692,7 @@ export async function resendInvitation(
             html: emailHtml,
         });
 
-        revalidatePath('/dashboard/team/manage-users');
+        revalidatePath('/dashboard/crm/team/manage-users');
         return { success: true, message: `Invitation resent to ${invite.inviteeEmail}.` };
     } catch (e) {
         console.error('[resendInvitation] failed:', e);
@@ -723,7 +723,7 @@ export async function revokeInvitation(
             { $set: { status: 'revoked', revokedAt: new Date() } as any },
         );
         await logActivity('MEMBER_INVITE_REVOKED', { email: invite.inviteeEmail }, invite.projectId?.toString());
-        revalidatePath('/dashboard/team/manage-users');
+        revalidatePath('/dashboard/crm/team/manage-users');
         return { success: true, message: `Invitation to ${invite.inviteeEmail} revoked.` };
     } catch (e) {
         console.error('[revokeInvitation] failed:', e);
@@ -852,7 +852,7 @@ export async function bulkRemoveAgents(
         } catch {
             /* non-fatal */
         }
-        revalidatePath('/dashboard/team/manage-users');
+        revalidatePath('/dashboard/crm/team/manage-users');
         return { success: true, removed: result.modifiedCount };
     } catch (e) {
         console.error('[bulkRemoveAgents] failed:', e);
@@ -907,7 +907,7 @@ export async function bulkChangeAgentRole(args: {
         } catch {
             /* non-fatal */
         }
-        revalidatePath('/dashboard/team/manage-users');
+        revalidatePath('/dashboard/crm/team/manage-users');
         return { success: true, updated: result.modifiedCount };
     } catch (e) {
         console.error('[bulkChangeAgentRole] failed:', e);
@@ -966,12 +966,12 @@ export async function changeAgentRole(args: {
                 recipientUserId: agentUserId,
                 projectId,
                 message: `${session.user.name} updated your role to ${role}`,
-                link: '/dashboard/team/manage-users',
+                link: '/dashboard/crm/team/manage-users',
                 eventType: 'MEMBER_ROLE_CHANGED',
             });
         } catch { /* non-fatal */ }
 
-        revalidatePath('/dashboard/team/manage-users');
+        revalidatePath('/dashboard/crm/team/manage-users');
         return { success: true };
     } catch (e) {
         console.error('[changeAgentRole] failed:', e);

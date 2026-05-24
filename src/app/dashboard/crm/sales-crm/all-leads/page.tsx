@@ -48,12 +48,8 @@ import { LeadsTable } from './_components/leads-table';
 import { LeadsKanban } from './_components/leads-kanban';
 import { LeadsKpiStrip } from './_components/leads-kpi-strip';
 import { LeadsHeaderTools, type LeadsViewMode } from './_components/leads-header-tools';
-import {
-    LeadsBulkBar,
-    LeadsFiltersRow,
-    buildLeadsViewState,
-    type LeadsStatusFilter,
-} from './_components/leads-filters';
+import { LeadsBulkBar, LeadsFiltersRow, buildLeadsViewState, type LeadsStatusFilter } from './_components/leads-filters';
+import { LeadsProvider } from './_components/leads-context';
 
 const LEADS_PER_PAGE = 20;
 
@@ -532,21 +528,24 @@ export default function AllLeadsPage() {
                         onPickStatus={setFilterFromKpi}
                     />
 
-                    {view === 'table' ? (
-                        <LeadsTable
-                            leads={displayedLeads}
-                            loading={isPending}
-                            selectedIds={selected}
-                            onToggleOne={handleToggleOne}
-                            onToggleAll={handleToggleAll}
-                            onArchive={(id) => setArchiveTargetId(id)}
-                            onDelete={(id) => setDeleteTargetId(id)}
-                            onConvert={handleConvert}
-                            convertingId={convertingId}
-                        />
-                    ) : (
-                        <LeadsKanban leads={displayedLeads} onAfterMove={fetchData} />
-                    )}
+                    <LeadsProvider leads={displayedLeads}>
+                        <div className={view === 'table' ? 'block' : 'hidden'}>
+                            <LeadsTable
+                                loading={isPending}
+                                selectedIds={selected}
+                                onToggleOne={handleToggleOne}
+                                onToggleAll={handleToggleAll}
+                                onArchive={(id) => setArchiveTargetId(id)}
+                                onDelete={(id) => setDeleteTargetId(id)}
+                                onConvert={handleConvert}
+                                convertingId={convertingId}
+                                onRefresh={fetchData}
+                            />
+                        </div>
+                        <div className={view === 'kanban' ? 'block' : 'hidden'}>
+                            <LeadsKanban onAfterMove={fetchData} />
+                        </div>
+                    </LeadsProvider>
                 </div>
             </EntityListShell>
 

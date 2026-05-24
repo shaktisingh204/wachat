@@ -42,11 +42,11 @@ import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
-import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmLead, WithId } from '@/lib/definitions';
+import { InlineOwnerEdit, InlineStageEdit, InlineStatusEdit } from './leads-inline-edits';
+import { useLeadsContext } from './leads-context';
 
 interface LeadsTableProps {
-    leads: WithId<CrmLead>[];
     loading: boolean;
     selectedIds: Set<string>;
     onToggleOne: (id: string) => void;
@@ -55,6 +55,7 @@ interface LeadsTableProps {
     onDelete: (id: string) => void;
     onConvert: (id: string) => void;
     convertingId?: string | null;
+    onRefresh?: () => void;
 }
 
 function formatMoney(value: number | undefined, currency: string | undefined): string {
@@ -71,7 +72,6 @@ function formatMoney(value: number | undefined, currency: string | undefined): s
 }
 
 export function LeadsTable({
-    leads,
     loading,
     selectedIds,
     onToggleOne,
@@ -80,7 +80,9 @@ export function LeadsTable({
     onDelete,
     onConvert,
     convertingId,
+    onRefresh,
 }: LeadsTableProps) {
+    const { leads, updateLeadOptimistically } = useLeadsContext();
     const allSelected = leads.length > 0 && leads.every((l) => selectedIds.has(String(l._id)));
     const someSelected = !allSelected && leads.some((l) => selectedIds.has(String(l._id)));
 
@@ -223,21 +225,34 @@ export function LeadsTable({
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         {lead.stage ? (
-                                            <StatusPill label={lead.stage} tone={statusToTone(lead.stage)} />
+                                            <InlineStageEdit 
+                                                leadId={id} 
+                                                stage={lead.stage} 
+                                                onSaved={() => {
+                                                    updateLeadOptimistically(id, { stage: lead.stage });
+                                                    onRefresh?.();
+                                                }} 
+                                            />
                                         ) : (
-                                            <StatusPill label={status} tone={statusToTone(status)} />
+                                            <InlineStatusEdit 
+                                                leadId={id} 
+                                                status={status} 
+                                                onSaved={() => {
+                                                    updateLeadOptimistically(id, { status });
+                                                    onRefresh?.();
+                                                }} 
+                                            />
                                         )}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        {lead.assignedTo ? (
-                                            <EntityPickerChip
-                                                entity="user"
-                                                id={String(lead.assignedTo)}
-                                                fallback="Unassigned"
-                                            />
-                                        ) : (
-                                            <span className="text-[12px] text-zoru-ink-muted">Unassigned</span>
-                                        )}
+                                        <InlineOwnerEdit 
+                                            leadId={id} 
+                                            ownerId={lead.assignedTo ? String(lead.assignedTo) : null} 
+                                            onSaved={() => {
+                                                updateLeadOptimistically(id, { assignedTo: lead.assignedTo });
+                                                onRefresh?.();
+                                            }} 
+                                        />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right font-mono text-[12.5px] text-zoru-ink">
                                         {formatMoney(lead.value, lead.currency)}

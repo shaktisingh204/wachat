@@ -4,9 +4,8 @@ import {
 import {
   Pencil,
   Activity,
-  Printer,
-  Mail,
-  } from 'lucide-react';
+} from 'lucide-react';
+import { ObjectId } from 'mongodb';
 
 /**
  * Payment receipt detail — `/dashboard/crm/sales/receipts/[receiptId]`.
@@ -24,9 +23,13 @@ import { EntityPickerChip } from '@/components/crm/entity-picker';
 // `<StatusPill>` lives inside `<ReceiptInlineStatus>` now.
 import { LineageRail } from '@/components/crm/lineage-rail';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { connectToDatabase } from '@/lib/mongodb';
+import { getSession } from '@/app/actions/user.actions';
 import { getPaymentReceipt } from '@/app/actions/crm/payment-receipts.actions';
 import { ReceiptDetailActions } from '../_components/receipt-detail-actions';
 import { ReceiptInlineStatus } from '../_components/receipt-inline-status';
+import { ReceiptShareActions } from '../_components/receipt-share-actions';
+import { ReceiptPrintView } from '../_components/receipt-print-view';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,12 +78,42 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     );
 }
 
+async function hydrateCustomer(
+    clientId: string | undefined,
+    userId: ObjectId,
+): Promise<{ name: string | null; email: string | null; phone: string | null }> {
+    if (!clientId || !ObjectId.isValid(clientId)) {
+        return { name: null, email: null, phone: null };
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db
+            .collection('crm_accounts')
+            .findOne(
+                { _id: new ObjectId(clientId), userId },
+                { projection: { name: 1, email: 1, phone: 1 } },
+            );
+        return {
+            name: (doc as { name?: string } | null)?.name ?? null,
+            email: (doc as { email?: string } | null)?.email ?? null,
+            phone: (doc as { phone?: string } | null)?.phone ?? null,
+        };
+    } catch {
+        return { name: null, email: null, phone: null };
+    }
+}
+
 export default async function PaymentReceiptDetailPage({
     params,
+    searchParams,
 }: {
     params: Promise<{ receiptId: string }>;
+    searchParams: Promise<{ print?: string }>;
 }) {
     const { receiptId } = await params;
+    const sp = await searchParams;
+    const printMode = sp?.print === '1';
+
     const { receipt, error } = await getPaymentReceipt(receiptId);
 
     if (!receipt) {
@@ -110,6 +143,21 @@ export default async function PaymentReceiptDetailPage({
     );
     const advance = Math.max(0, (Number(receipt.amount) || 0) - totalSettled);
 
+    const session = await getSession();
+    const userObjectId = session?.user?._id ? new ObjectId(String(session.user._id)) : null;
+    const customer = userObjectId
+        ? await hydrateCustomer(receipt.clientId, userObjectId)
+        : { name: null, email: null, phone: null };
+
+    if (printMode) {
+        return (
+            <ReceiptPrintView
+                receipt={receipt}
+                customerLabel={customer.name ?? receipt.clientId}
+            />
+        );
+    }
+
     return (
         <EntityDetailShell
             eyebrow="RECEIPT"
@@ -126,12 +174,12 @@ export default async function PaymentReceiptDetailPage({
                         id={receiptId}
                         currentStatus={status}
                     />
-                    <Button variant="outline" disabled title="Coming soon">
-                        <Printer className="h-4 w-4" /> Print
-                    </Button>
-                    <Button variant="outline" disabled title="Coming soon">
-                        <Mail className="h-4 w-4" /> Email
-                    </Button>
+                    <ReceiptShareActions 
+                        receiptId={receiptId}
+                        receiptNo={receipt.receiptNo}
+                        amount={receipt.amount}
+                        currency={currency}
+                    />
                     <Button asChild>
                         <Link href={`/dashboard/crm/sales/receipts/${receiptId}/edit`}>
                             <Pencil className="h-4 w-4" /> Edit

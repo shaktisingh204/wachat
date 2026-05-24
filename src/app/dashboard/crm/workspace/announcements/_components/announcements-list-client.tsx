@@ -23,6 +23,9 @@ import {
     Send,
     Trash2,
     X,
+    Eye,
+    Zap,
+    PenTool,
 } from 'lucide-react';
 
 import {
@@ -36,6 +39,7 @@ import {
     ZoruSelectTrigger,
     ZoruSelectValue,
     StatCard,
+    Card,
     useZoruToast,
 } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -127,6 +131,10 @@ export function AnnouncementsListClient({
             });
         });
     }, []);
+
+    const totalViews = React.useMemo(() => {
+        return items.reduce((acc, a) => acc + (a.viewCount ?? 0), 0);
+    }, [items]);
 
     const onSearch = useDebouncedCallback((v: string) => setSearch(v), 200);
 
@@ -405,28 +413,48 @@ export function AnnouncementsListClient({
                 loading={loading && items.length === 0}
             >
                 <div className="flex flex-col gap-4">
-                    {/* KPI strip */}
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        <StatCard
-                            label="Total"
-                            value={kpis.total}
-                            icon={<Megaphone className="h-4 w-4" />}
-                        />
-                        <StatCard
-                            label="Active / Pinned"
-                            value={kpis.activeOrPinned}
-                            icon={<Pin className="h-4 w-4" />}
-                        />
-                        <StatCard
-                            label="Published this month"
-                            value={kpis.publishedThisMonth}
-                            icon={<Send className="h-4 w-4" />}
-                        />
-                        <StatCard
-                            label="Drafts"
-                            value={kpis.drafts}
-                            icon={<Megaphone className="h-4 w-4" />}
-                        />
+                    {/* Dashboard Strip */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* KPIs */}
+                        <div className="md:col-span-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                            <StatCard
+                                label="Total"
+                                value={kpis.total}
+                                icon={<Megaphone className="h-4 w-4" />}
+                            />
+                            <StatCard
+                                label="Active / Pinned"
+                                value={kpis.activeOrPinned}
+                                icon={<Pin className="h-4 w-4" />}
+                            />
+                            <StatCard
+                                label="Published this month"
+                                value={kpis.publishedThisMonth}
+                                icon={<Send className="h-4 w-4" />}
+                            />
+                            <StatCard
+                                label="Total Views"
+                                value={totalViews}
+                                icon={<Eye className="h-4 w-4" />}
+                            />
+                        </div>
+
+                        {/* Quick Actions */}
+                        <Card className="flex flex-col p-4 justify-center gap-3 shadow-none border-zoru-line bg-zoru-surface-2/50">
+                            <h3 className="text-[13px] font-medium text-zoru-ink-muted uppercase tracking-wider">Quick Actions</h3>
+                            <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-2">
+                                <Button variant="outline" size="sm" className="flex-1 justify-start bg-zoru-bg" asChild>
+                                    <Link href="/dashboard/crm/workspace/announcements/new?audience=all">
+                                        <Zap className="mr-2 h-3.5 w-3.5" /> Company Update
+                                    </Link>
+                                </Button>
+                                <Button variant="outline" size="sm" className="flex-1 justify-start bg-zoru-bg" asChild>
+                                    <Link href="/dashboard/crm/workspace/announcements/new?status=draft">
+                                        <PenTool className="mr-2 h-3.5 w-3.5" /> Draft Post
+                                    </Link>
+                                </Button>
+                            </div>
+                        </Card>
                     </div>
 
                     {/* Table */}

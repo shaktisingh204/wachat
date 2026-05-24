@@ -39,6 +39,13 @@ function toRows(initial: CrmFormFieldDef[] | undefined): RowState[] {
   return initial.map((f) => ({ ...f, __key: nextKey() }));
 }
 
+function getDuplicateNames(rows: RowState[]): Set<string> {
+  const names = rows.map((r) => r.name.trim());
+  return new Set(
+    names.filter((n, idx) => n && names.indexOf(n) !== idx)
+  );
+}
+
 export interface FormFieldsRepeaterProps {
   initialFields?: CrmFormFieldDef[];
 }
@@ -108,6 +115,8 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
           {rows.map((row, idx) => {
             const needsOptions = OPTIONS_TYPES.has(row.type ?? 'text');
             const prefix = `fields[${idx}]`;
+            const duplicateNames = getDuplicateNames(rows);
+            const isDuplicate = row.name.trim() && duplicateNames.has(row.name.trim());
             return (
               <div
                 key={row.__key}
@@ -156,13 +165,26 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                       id={`${prefix}-name`}
                       name={`${prefix}[name]`}
                       required
+                      pattern="^[a-zA-Z0-9_-]+$"
+                      title="Only alphanumeric characters, underscores, and hyphens are allowed."
                       placeholder="e.g. order_id"
                       value={row.name}
-                      onChange={(e) =>
-                        updateRow(row.__key, { name: e.target.value })
-                      }
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        e.target.setCustomValidity(
+                          !val.match(/^[a-zA-Z0-9_-]+$/)
+                            ? 'Only alphanumeric characters, underscores, and hyphens are allowed.'
+                            : duplicateNames.has(val.trim()) && rows.filter((r) => r.name.trim() === val.trim()).length > 1
+                            ? 'Field name must be unique.'
+                            : ''
+                        );
+                        updateRow(row.__key, { name: val });
+                      }}
                       className="font-mono"
                     />
+                    {isDuplicate ? (
+                      <p className="text-xs text-destructive">This field name is already in use.</p>
+                    ) : null}
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor={`${prefix}-label`}>Label</Label>

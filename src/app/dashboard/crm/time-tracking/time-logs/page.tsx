@@ -70,20 +70,14 @@ import {
 import type { WsProjectTimeLog } from '@/lib/worksuite/time-types';
 import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
 
+import { format, parseISO, startOfWeek as dfStartOfWeek, startOfMonth as dfStartOfMonth, getTime } from 'date-fns';
+
 function startOfWeek(): Date {
-  const d = new Date();
-  const day = d.getDay();
-  const diff = (day + 6) % 7;
-  d.setDate(d.getDate() - diff);
-  d.setHours(0, 0, 0, 0);
-  return d;
+  return dfStartOfWeek(new Date(), { weekStartsOn: 1 });
 }
 
 function startOfMonth(): Date {
-  const d = new Date();
-  d.setDate(1);
-  d.setHours(0, 0, 0, 0);
-  return d;
+  return dfStartOfMonth(new Date());
 }
 
 function fmtHours(log: WsProjectTimeLog): string {
@@ -216,7 +210,7 @@ export default function TimeLogsPage() {
     const projHrs = new Map<string, number>();
     for (const r of rows) {
       if (!r.start_time) continue;
-      const ts = new Date(r.start_time as string | Date).getTime();
+      const ts = getTime(typeof r.start_time === 'string' ? parseISO(r.start_time) : new Date(r.start_time as any));
       const h =
         (Number(r.total_hours) || 0) + (Number(r.total_minutes) || 0) / 60;
       if (ts >= wkStart) wkH += h;
@@ -356,7 +350,7 @@ export default function TimeLogsPage() {
       'Employee ID': String(r.user_id ?? ''),
       'Project ID': String(r.project_id ?? ''),
       'Task ID': String(r.task_id ?? ''),
-      Date: r.start_time ? new Date(r.start_time as string | Date).toISOString().slice(0, 10) : '',
+      Date: r.start_time ? format(typeof r.start_time === 'string' ? parseISO(r.start_time) : new Date(r.start_time as any), 'yyyy-MM-dd') : '',
       Hours: Number(r.total_hours) || 0,
       Minutes: Number(r.total_minutes) || 0,
       Billable: (r as { billable?: boolean }).billable ? 'Yes' : 'No',
@@ -376,7 +370,7 @@ export default function TimeLogsPage() {
       'Employee ID': String(r.user_id ?? ''),
       'Project ID': String(r.project_id ?? ''),
       'Task ID': String(r.task_id ?? ''),
-      Date: r.start_time ? new Date(r.start_time as string | Date).toISOString().slice(0, 10) : '',
+      Date: r.start_time ? format(typeof r.start_time === 'string' ? parseISO(r.start_time) : new Date(r.start_time as any), 'yyyy-MM-dd') : '',
       Hours: Number(r.total_hours) || 0,
       Minutes: Number(r.total_minutes) || 0,
       Billable: (r as { billable?: boolean }).billable ? 'Yes' : 'No',

@@ -32,28 +32,13 @@ import {
   Input,
   Label,
   Skeleton,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  DataTable,
   zoruSonnerToast,
 } from '@/components/zoruui';
-import {
-  useCallback,
-  useEffect,
-  useState,
-  useTransition } from 'react';
-import {
-  AlertCircle,
-  ExternalLink,
-  Plus,
-  Radar,
-  RefreshCw,
-  Trash2,
-  } from 'lucide-react';
+import { useCallback, useEffect, useState, useTransition, useMemo } from 'react';
+import { AlertCircle, ExternalLink, Plus, Radar, RefreshCw, Trash2, TrendingUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { type ColumnDef } from '@tanstack/react-table';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -61,19 +46,8 @@ import {
   getTrackedCompetitors,
   removeCompetitor,
   syncCompetitorData,
-  } from '@/app/actions/facebook.actions';
-
-/**
- * /dashboard/facebook/competitors — Tracked competitor Pages.
- *
- * Lists competitors with follower / 7-day-post / last-synced metrics,
- * an "Add competitor" dialog, and per-row sync + remove. The underlying
- * Rust action returns NOT_IMPL today — the UI surfaces a friendly empty
- * state and keeps the controls live so the page is ready when the BFF
- * lands.
- */
-
-import * as React from 'react';
+  analyzeCompetitorTrends,
+} from '@/app/actions/facebook.actions';
 
 interface Competitor {
   _id?: string;
@@ -93,7 +67,6 @@ function fmtDate(iso?: string): string {
   return formatDistanceToNow(d, { addSuffix: true });
 }
 
-/** Extract a page id or vanity slug from a Facebook URL. */
 function parsePageRef(input: string): string {
   const trimmed = input.trim();
   if (!trimmed) return '';
@@ -107,7 +80,7 @@ function parsePageRef(input: string): string {
   }
 }
 
-export default function FacebookCompetitorsPage(): React.JSX.Element {
+export default function FacebookCompetitorsPage() {
   const { activeProject } = useProject();
   const projectId = activeProject?._id?.toString() ?? '';
 
@@ -122,6 +95,10 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
   const [formUrl, setFormUrl] = useState('');
 
   const [confirmRemove, setConfirmRemove] = useState<Competitor | null>(null);
+  
+  const [analysisOpen, setAnalysisOpen] = useState(false);
+  const [analyzingId, setAnalyzingId] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
     if (!projectId) return;
@@ -198,6 +175,129 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
     })();
   };
 
+  const handleAnalyze = (c: Competitor) => {
+    const id = c._id ?? c.id ?? '';
+    if (!id || !projectId) return;
+    setAnalyzingId(id);
+    setAnalysisResult(null);
+    setAnalysisOpen(true);
+    
+    (async () => {
+      const res = await analyzeCompetitorTrends(projectId, id);
+      setAnalyzingId(null);
+      if (!res.success) {
+        zoruSonnerToast.error(res.error ?? 'Analysis failed.');
+        setAnalysisOpen(false);
+        return;
+      }
+      setAnalysisResult(res.analysis ?? 'No analysis returned.');
+    })();
+  };
+
+  const columns = useMemo<ColumnDef<Competitor>[]>(() => [
+    {
+      accessorKey: 'name',
+      header: 'Name',
+      cell: ({ row }) => (
+        <span className="font-medium text-zoru-ink">
+          {row.original.name ?? row.original.pageId ?? '—'}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'page',
+      header: 'Page',
+      cell: ({ row }) => {
+        const c = row.original;
+        return c.pageUrl ? (
+          <a
+            href={c.pageUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-zoru-ink-muted hover:underline"
+          >
+            {c.pageUrl.replace(/^https?:\/\/(www\.)?/, '')}
+            <ExternalLink className="h-3 w-3" />
+          </a>
+        ) : c.pageId ? (
+          <Badge variant="outline">{c.pageId}</Badge>
+        ) : (
+          '—'
+        );
+      },
+    },
+    {
+      accessorKey: 'followers',
+      header: 'Followers',
+      cell: ({ row }) => (
+        <div className="text-right">
+          {(row.original.followers ?? 0).toLocaleString()}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'posts7d',
+      header: 'Posts (7d)',
+      cell: ({ row }) => (
+        <div className="text-right">
+          {(row.original.posts7d ?? 0).toLocaleString()}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'lastSyncedAt',
+      header: 'Last synced',
+      cell: ({ row }) => (
+        <div className="text-xs text-zoru-ink-muted">
+          {fmtDate(row.original.lastSyncedAt) || 'never'}
+        </div>
+      ),
+    },
+    {
+      id: 'actions',
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => {
+        const c = row.original;
+        const id = c._id ?? c.id ?? '';
+        const isSyncing = syncingId === id;
+        return (
+          <div className="flex items-center justify-end gap-1">
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => handleAnalyze(c)}
+              aria-label="Analyze Trends"
+              title="Analyze Trends"
+            >
+              <TrendingUp className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => handleSync(c)}
+              disabled={isSyncing}
+              aria-label="Sync now"
+              title="Sync now"
+            >
+              <RefreshCw
+                className={isSyncing ? 'h-3.5 w-3.5 animate-spin' : 'h-3.5 w-3.5'}
+              />
+            </Button>
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => setConfirmRemove(c)}
+              aria-label="Remove"
+              title="Remove"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ], [syncingId]);
+
   if (!projectId) {
     return (
       <div className="p-6">
@@ -263,89 +363,20 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
             </div>
-          ) : competitors.length === 0 ? (
-            <EmptyState
-              icon={<Radar />}
-              title="No competitors tracked"
-              description='Add a competitor by Page URL or numeric ID. Use "Track competitor" above.'
-            />
           ) : (
-            <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Name</ZoruTableHead>
-                  <ZoruTableHead>Page</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Followers</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Posts (7d)</ZoruTableHead>
-                  <ZoruTableHead>Last synced</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
-                {competitors.map((c) => {
-                  const id = c._id ?? c.id ?? '';
-                  const isSyncing = syncingId === id;
-                  return (
-                    <ZoruTableRow key={id || c.pageId || c.name}>
-                      <ZoruTableCell className="font-medium text-zoru-ink">
-                        {c.name ?? c.pageId ?? '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
-                        {c.pageUrl ? (
-                          <a
-                            href={c.pageUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-zoru-ink-muted hover:underline"
-                          >
-                            {c.pageUrl.replace(/^https?:\/\/(www\.)?/, '')}
-                            <ExternalLink className="h-3 w-3" />
-                          </a>
-                        ) : c.pageId ? (
-                          <Badge variant="outline">{c.pageId}</Badge>
-                        ) : (
-                          '—'
-                        )}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
-                        {(c.followers ?? 0).toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
-                        {(c.posts7d ?? 0).toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-xs text-zoru-ink-muted">
-                        {fmtDate(c.lastSyncedAt) || 'never'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
-                        <div className="inline-flex items-center gap-1">
-                          <Button
-                            size="icon-sm"
-                            variant="ghost"
-                            onClick={() => handleSync(c)}
-                            disabled={isSyncing}
-                            aria-label="Sync now"
-                          >
-                            <RefreshCw
-                              className={
-                                isSyncing ? 'h-3.5 w-3.5 animate-spin' : 'h-3.5 w-3.5'
-                              }
-                            />
-                          </Button>
-                          <Button
-                            size="icon-sm"
-                            variant="ghost"
-                            onClick={() => setConfirmRemove(c)}
-                            aria-label="Remove"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
-                  );
-                })}
-              </ZoruTableBody>
-            </Table>
+            <DataTable
+              columns={columns}
+              data={competitors}
+              filterColumn="name"
+              filterPlaceholder="Filter competitors..."
+              empty={
+                <EmptyState
+                  icon={<Radar />}
+                  title="No competitors tracked"
+                  description='Add a competitor by Page URL or numeric ID. Use "Track competitor" above.'
+                />
+              }
+            />
           )}
         </ZoruCardContent>
       </Card>
@@ -389,6 +420,32 @@ export default function FacebookCompetitorsPage(): React.JSX.Element {
             <Button onClick={handleAdd} disabled={saving}>
               {saving ? 'Adding...' : 'Track'}
             </Button>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </Dialog>
+
+      <Dialog open={analysisOpen} onOpenChange={setAnalysisOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Competitor Trend Analysis</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Automated LLM insights for the selected competitor.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="py-4">
+            {analyzingId ? (
+              <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                Analyzing recent trends and posts...
+              </div>
+            ) : (
+              <div className="text-sm text-zoru-ink bg-zoru-surface-muted p-4 rounded-md">
+                {analysisResult}
+              </div>
+            )}
+          </div>
+          <ZoruDialogFooter>
+            <Button onClick={() => setAnalysisOpen(false)}>Close</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </Dialog>

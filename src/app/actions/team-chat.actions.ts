@@ -164,12 +164,12 @@ export async function createGroupChannel(args: {
             participants.filter((p) => !p.userId.equals(currentUserId)).map((p) => p.userId),
             {
                 message: `${session.user.name} added you to the group "${name}"`,
-                link: '/dashboard/team/team-chat',
+                link: '/dashboard/crm/team/team-chat',
                 eventType: 'CHAT_GROUP_CREATED',
             },
         );
 
-        revalidatePath('/dashboard/team/team-chat');
+        revalidatePath('/dashboard/crm/team/team-chat');
         return { success: true, channel: serializeChannel({ ...newChannel, _id: result.insertedId }) };
     } catch (e) {
         console.error('[createGroupChannel] failed:', e);
@@ -216,7 +216,7 @@ export async function addChannelMembers(
             { $push: { participants: { $each: newParticipants } }, $set: { updatedAt: new Date() } } as any,
         );
 
-        revalidatePath('/dashboard/team/team-chat');
+        revalidatePath('/dashboard/crm/team/team-chat');
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
@@ -363,13 +363,18 @@ export async function sendTeamMessage(args: {
         const otherIds = channel.participants
             .map((p: any) => p.userId)
             .filter((id: ObjectId) => !id.equals(sessionUserId));
+        const notificationMessage = `${session.user.name}${channel.type === 'group' ? ` (#${channel.name})` : ''}: ${preview}`;
         await notifyManyTeamMembers(otherIds, {
-            message: `${session.user.name}${channel.type === 'group' ? ` (#${channel.name})` : ''}: ${preview}`,
-            link: '/dashboard/team/team-chat',
+            message: notificationMessage,
+            link: '/dashboard/crm/team/team-chat',
             eventType: 'CHAT_MESSAGE',
         });
 
-        revalidatePath('/dashboard/team/team-chat');
+        import('@/lib/integrations/slack').then(({ sendSlackNotification }) => {
+            void sendSlackNotification(notificationMessage).catch(() => {});
+        }).catch(() => {});
+
+        revalidatePath('/dashboard/crm/team/team-chat');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };

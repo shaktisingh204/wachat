@@ -113,7 +113,7 @@ const ENTITY_ROUTE: Record<EntityKey, (id: string) => string> = {
   vendor: (id) => `/dashboard/crm/purchases/vendors/${id}`,
   item: (id) => `/dashboard/crm/inventory/items/${id}`,
   employee: (id) => `/dashboard/hrm/payroll/employees/${id}`,
-  user: () => `/dashboard/team/manage-users`,
+  user: () => `/dashboard/crm/team/manage-users`,
   account: (id) => `/dashboard/crm/accounting/charts/${id}`,
   warehouse: (id) => `/dashboard/crm/inventory/warehouses/${id}`,
   bankAccount: (id) => `/dashboard/crm/banking/bank-accounts/${id}`,

@@ -70,7 +70,7 @@ export async function saveRolePermissions(prevState: { message?: string; error?:
             { _id: new ObjectId(session.user._id) },
             { $set: { 'crm.permissions': permissionsToSave } }
         );
-        revalidatePath('/dashboard/team/manage-roles');
+        revalidatePath('/dashboard/crm/team/manage-roles');
         await logActivity('ROLE_UPDATED', { roles: roleIds, action: 'Permissions Updated' }, undefined);
         try {
             await writeAuditEntry({
@@ -120,7 +120,7 @@ export async function saveRole(role: { id: string, name: string, permissions: an
                 name: newRole.name,
                 permissions: permsForRust,
             });
-            revalidatePath('/dashboard/team/manage-roles');
+            revalidatePath('/dashboard/crm/team/manage-roles');
             await logActivity('ROLE_UPDATED', { role: newRole.name, action: 'Role Created' }, undefined);
             return { success: true };
         } catch (e) {
@@ -142,7 +142,7 @@ export async function saveRole(role: { id: string, name: string, permissions: an
             { $push: { 'crm.customRoles': newRole } } as any
         );
 
-        revalidatePath('/dashboard/team/manage-roles');
+        revalidatePath('/dashboard/crm/team/manage-roles');
         await logActivity('ROLE_UPDATED', { role: newRole.name, action: 'Role Created' }, undefined);
         try {
             await writeAuditEntry({
@@ -176,7 +176,7 @@ export async function deleteRole(roleId: string): Promise<{ success: boolean, er
     if (useRustCrm() && ObjectId.isValid(roleId)) {
         try {
             await crmRolesApi.delete(roleId);
-            revalidatePath('/dashboard/team/manage-roles');
+            revalidatePath('/dashboard/crm/team/manage-roles');
             await logActivity('ROLE_UPDATED', { roleId, action: 'Role Deleted' }, undefined);
             return { success: true };
         } catch (e) {
@@ -199,7 +199,7 @@ export async function deleteRole(roleId: string): Promise<{ success: boolean, er
                 $unset: { [`crm.permissions.${roleId}`]: "" }
             } as any
         );
-        revalidatePath('/dashboard/team/manage-roles');
+        revalidatePath('/dashboard/crm/team/manage-roles');
         await logActivity('ROLE_UPDATED', { roleId, action: 'Role Deleted' }, undefined);
         try {
             await writeAuditEntry({

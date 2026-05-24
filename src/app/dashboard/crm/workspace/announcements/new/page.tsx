@@ -1,15 +1,20 @@
-'use client';
+import { getAnnouncementKpis } from '@/app/actions/crm-announcements.actions';
+import { NewAnnouncementClient } from './_components/new-announcement-client';
 
 /**
  * New announcement — form page (§1B W7).
+ *
+ * Enhanced with summary dashboard and quick actions.
  */
 
-import { AnnouncementForm } from '../_components/announcement-form';
+export const dynamic = 'force-dynamic';
 
-export default function NewAnnouncementPage() {
+export default async function NewAnnouncementPage() {
+    const kpis = await getAnnouncementKpis();
+
     return (
         <div className="flex w-full flex-col gap-6 p-4 md:p-6">
-            <AnnouncementForm mode="new" />
+            <NewAnnouncementClient initialKpis={kpis} />
         </div>
     );
 }

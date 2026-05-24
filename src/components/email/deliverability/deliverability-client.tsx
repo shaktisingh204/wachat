@@ -38,6 +38,7 @@ import {
 import { ScoreGauge } from './score-gauge';
 import { DomainList } from './domain-list';
 import { WarmupSchedule } from './warmup-schedule';
+import { ContentAnalyzer } from './content-analyzer';
 
 export function DeliverabilityClient() {
   const [score, setScore] = useState<DeliverabilityScore | null>(null);
@@ -209,6 +210,8 @@ export function DeliverabilityClient() {
           </ZoruCardContent>
         </Card>
       </div>
+
+      <ContentAnalyzer />
 
       <section className="space-y-3">
         <div className="flex items-center gap-2">

@@ -41,6 +41,9 @@ import type { LineageKind } from '@/lib/definitions';
 import { QuotationDetailActions } from '../_components/quotation-detail-actions';
 import { QuotationPrintView } from '../_components/quotation-print-view';
 import { QuotationQuickEdits } from '../_components/quotation-quick-edits';
+import { QuotationRealtimeSubscriber } from '../_components/quotation-realtime-subscriber';
+import { QuotationFloatingBar } from '../_components/quotation-floating-bar';
+import { AutoPrint } from '../_components/auto-print';
 
 import { CrmLineageChart, LineageNode } from '@/components/crm/crm-lineage-chart';
 import { Crm360Timeline } from '@/components/crm/crm-360-timeline';
@@ -273,7 +276,12 @@ export default async function QuotationDetailPage({
   /* ─── Print mode ────────────────────────────────────────────── */
 
   if (printMode) {
-    return <QuotationPrintView quotation={quotation} />;
+    return (
+      <>
+        <QuotationPrintView quotation={quotation} />
+        {sp?.autoPrint === '1' && <AutoPrint />}
+      </>
+    );
   }
 
   /* ─── Detail surface composed via <EntityDetailShell> ─────── */
@@ -760,6 +768,9 @@ export default async function QuotationDetailPage({
           onSendWhatsApp={sendWhatsAppAction}
         />
       </div>
+
+      <QuotationRealtimeSubscriber quotationId={quotationId} />
+      <QuotationFloatingBar quotationId={quotationId} />
     </EntityDetailShell>
   );
 }

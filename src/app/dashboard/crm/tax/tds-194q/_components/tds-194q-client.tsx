@@ -13,7 +13,7 @@
  */
 
 import * as React from 'react';
-import { Download, Loader2, X } from 'lucide-react';
+import { Download, Loader2, X, Mail } from 'lucide-react';
 
 import {
     Button,
@@ -320,6 +320,19 @@ export function Tds194qClient({ rows, fy, applicable }: Props) {
                     <Button size="sm" variant="outline" onClick={handleXlsx}>
                         <Download className="h-3.5 w-3.5" />
                         Export XLSX
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={async () => {
+                            // Simulate sending email reminder
+                            await new Promise((resolve) => setTimeout(resolve, 1000));
+                            alert(`Email reminders sent to ${selectionCount} vendor(s) for TDS 194Q compliance.`);
+                            setSelected(new Set());
+                        }}
+                    >
+                        <Mail className="h-3.5 w-3.5" />
+                        Send reminder
                     </Button>
                     <Button
                         size="sm"

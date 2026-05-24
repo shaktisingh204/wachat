@@ -4,7 +4,8 @@ import { Badge, Button, Card, Label, Textarea, useZoruToast } from '@/components
 import {
   useRouter } from 'next/navigation';
 import { LoaderCircle,
-  Send } from 'lucide-react';
+  Send,
+  Bot } from 'lucide-react';
 
 /**
  * <TicketConversation> — notes composer + internal-vs-public toggle
@@ -113,6 +114,11 @@ export function TicketConversation({ ticket, mode, onModeChange }: TicketConvers
         });
     };
 
+    const suggestReply = () => {
+        // In a real implementation this would fetch from an AI endpoint hitting the knowledge base.
+        setBody(prev => (prev ? prev + '\n\n' : '') + `[AI Suggestion] Hello,\n\nBased on our knowledge base, here are some steps that might resolve your issue:\n1. Restart the application.\n2. Clear your browser cache.\n\nPlease let us know if you need further assistance.`);
+    };
+
     return (
         <Card className="flex flex-col gap-4 p-6">
             <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
@@ -180,17 +186,22 @@ export function TicketConversation({ ticket, mode, onModeChange }: TicketConvers
                 />
 
                 <div className="flex items-center justify-between gap-2">
-                    <label className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
-                        <input
-                            type="checkbox"
-                            checked={kind === 'internal'}
-                            onChange={(e) =>
-                                setKind(e.target.checked ? 'internal' : 'public')
-                            }
-                            className="h-3.5 w-3.5"
-                        />
-                        Internal (not visible to requester)
-                    </label>
+                    <div className="flex items-center gap-4">
+                        <label className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                            <input
+                                type="checkbox"
+                                checked={kind === 'internal'}
+                                onChange={(e) =>
+                                    setKind(e.target.checked ? 'internal' : 'public')
+                                }
+                                className="h-3.5 w-3.5"
+                            />
+                            Internal (not visible to requester)
+                        </label>
+                        <Button type="button" variant="outline" size="sm" onClick={suggestReply}>
+                            <Bot className="mr-1.5 h-3.5 w-3.5" /> AI Suggest Reply
+                        </Button>
+                    </div>
                     <Button size="sm" onClick={submit} disabled={pending || body.trim().length === 0}>
                         {pending ? (
                             <LoaderCircle className="h-3.5 w-3.5 animate-spin" />

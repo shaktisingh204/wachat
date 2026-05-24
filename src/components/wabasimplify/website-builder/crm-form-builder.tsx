@@ -340,6 +340,28 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
     };
 
     const handleSave = () => {
+        if (!formName || !formName.trim()) {
+            toast({ title: 'Validation Error', description: 'Form name cannot be empty.', variant: 'destructive' });
+            return;
+        }
+
+        const usedFieldIds = new Set<string>();
+        for (const page of pages) {
+            for (const field of page.fields) {
+                if (field.type !== 'html' && field.type !== 'hidden' && (!field.label || !field.label.trim())) {
+                    toast({ title: 'Validation Error', description: 'All visible fields must have a label.', variant: 'destructive' });
+                    return;
+                }
+                if (field.fieldId) {
+                    if (usedFieldIds.has(field.fieldId)) {
+                        toast({ title: 'Validation Error', description: `Duplicate Field ID found: ${field.fieldId}. Field IDs must be unique.`, variant: 'destructive' });
+                        return;
+                    }
+                    usedFieldIds.add(field.fieldId);
+                }
+            }
+        }
+
         startSaving(async () => {
             // Persist BOTH `pages` and `fields` (flat) so legacy renderers keep working.
             const result = await saveCrmForm({

@@ -35,6 +35,7 @@ import {
   ShoppingBag,
   Tags,
   Trash2,
+  UploadCloud,
   } from "lucide-react";
 
 import {
@@ -73,6 +74,7 @@ import {
   DeleteProductConfirmDialog,
   EditProductDialog,
   ViewTaggedMediaDialog,
+  BulkUploadProductsDialog,
 } from "../../../_components/commerce-product-dialogs";
 import {
   CreateCollectionDialog,
@@ -121,6 +123,7 @@ export default function CatalogDetailPage() {
 
   // Dialog state
   const [createOpen, setCreateOpen] = useState(false);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<ProductRow | null>(null);
   const [deleteProduct, setDeleteProduct] = useState<ProductRow | null>(null);
   const [taggedProduct, setTaggedProduct] = useState<ProductRow | null>(null);
@@ -380,10 +383,15 @@ export default function CatalogDetailPage() {
             </ZoruCardDescription>
           </div>
           {projectId ? (
-            <Button size="sm" onClick={() => setCreateOpen(true)}>
-              <PlusCircle />
-              Add product
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" onClick={() => setBulkUploadOpen(true)}>
+                <UploadCloud className="mr-2 h-4 w-4" /> Bulk upload CSV
+              </Button>
+              <Button size="sm" onClick={() => setCreateOpen(true)}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add product
+              </Button>
+            </div>
           ) : null}
         </ZoruCardHeader>
         <ZoruCardContent>
@@ -476,6 +484,13 @@ export default function CatalogDetailPage() {
             catalogId={catalogId}
             projectId={projectId}
             onCreated={fetchData}
+          />
+          <BulkUploadProductsDialog
+            open={bulkUploadOpen}
+            onOpenChange={setBulkUploadOpen}
+            catalogId={catalogId}
+            projectId={projectId}
+            onUploaded={fetchData}
           />
           <EditProductDialog
             open={!!editProduct}

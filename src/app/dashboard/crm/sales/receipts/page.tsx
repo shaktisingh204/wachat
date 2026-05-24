@@ -33,6 +33,7 @@ import {
     getPaymentReceiptKpis,
     bulkPaymentReceiptAction,
     deletePaymentReceiptAction,
+    requestReceiptsExport,
     type PaymentReceiptKpis,
 } from '@/app/actions/crm/payment-receipts.actions';
 import type { CrmPaymentReceiptDoc } from '@/lib/rust-client/crm-payment-receipts';
@@ -44,6 +45,8 @@ import {
 } from './_components/receipt-list-client';
 import { ReceiptFiltersRow } from './_components/receipt-filters';
 import { ReceiptBulkBar } from './_components/receipt-bulk-bar';
+import { ReceiptReconciliationView } from './_components/receipt-reconciliation-view';
+import { RefreshCcw } from 'lucide-react';
 
 const RECEIPTS_PER_PAGE = 20;
 
@@ -78,6 +81,9 @@ export default function PaymentReceiptsPage() {
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
     const [deleteTargetId, setDeleteTargetId] = React.useState<string | null>(null);
     const [bulkDelete, setBulkDelete] = React.useState(false);
+
+    // View mode
+    const [viewMode, setViewMode] = React.useState<'list' | 'reconcile'>('list');
 
     const fetchData = React.useCallback(() => {
         startTransition(async () => {
@@ -233,50 +239,67 @@ export default function PaymentReceiptsPage() {
         [selected, fetchData, toast],
     );
 
-    const exportCsv = React.useCallback(() => {
-        const rows =
-            selected.size > 0
-                ? receipts.filter((r) => selected.has(String(r._id)))
-                : receipts;
-        const header = [
-            'Receipt #',
-            'Date',
-            'Customer',
-            'Mode',
-            'Bank',
-            'Reference',
-            'Amount',
-            'Currency',
-            'Status',
-            'Applied invoices',
-        ];
-        const escape = (v: unknown) =>
-            `"${String(v ?? '').replace(/"/g, '""')}"`;
-        const csv = [
-            header.join(','),
-            ...rows.map((r) =>
-                [
-                    escape(r.receiptNo),
-                    escape(r.date),
-                    escape(r.clientId),
-                    escape(r.mode),
-                    escape(r.bankAccountId),
-                    escape(r.chequeNo || r.txnId || r.reference || ''),
-                    escape(r.amount ?? 0),
-                    escape(r.currency || 'INR'),
-                    escape(r.status || 'received'),
-                    escape(r.applyTo?.length ?? 0),
-                ].join(','),
-            ),
-        ].join('\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `payment-receipts-${new Date().toISOString().slice(0, 10)}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
-    }, [receipts, selected]);
+    const exportCsv = React.useCallback(async () => {
+        if (selected.size > 0) {
+            // Client-side export for selected items
+            const rows = receipts.filter((r) => selected.has(String(r._id)));
+            const header = [
+                'Receipt #',
+                'Date',
+                'Customer',
+                'Mode',
+                'Bank',
+                'Reference',
+                'Amount',
+                'Currency',
+                'Status',
+                'Applied invoices',
+            ];
+            const escape = (v: unknown) =>
+                `"${String(v ?? '').replace(/"/g, '""')}"`;
+            const csv = [
+                header.join(','),
+                ...rows.map((r) =>
+                    [
+                        escape(r.receiptNo),
+                        escape(r.date),
+                        escape(r.clientId),
+                        escape(r.mode),
+                        escape(r.bankAccountId),
+                        escape(r.chequeNo || r.txnId || r.reference || ''),
+                        escape(r.amount ?? 0),
+                        escape(r.currency || 'INR'),
+                        escape(r.status || 'received'),
+                        escape(r.applyTo?.length ?? 0),
+                    ].join(','),
+                ),
+            ].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `payment-receipts-selected-${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            return;
+        }
+
+        // Background export for all filtered items
+        toast({ title: 'Export started', description: 'Generating CSV in the background. It will download automatically when ready.' });
+        const res = await requestReceiptsExport({ clientId: clientFilter || undefined, status: statusFilter });
+        if (res.success && res.csvData) {
+            const blob = new Blob([res.csvData], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `payment-receipts-${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast({ title: 'Export complete', description: 'Your file has been downloaded.' });
+        } else {
+            toast({ title: 'Export failed', description: res.error || 'Unknown error occurred.', variant: 'destructive' });
+        }
+    }, [receipts, selected, clientFilter, statusFilter, toast]);
 
     return (
         <>
@@ -289,11 +312,30 @@ export default function PaymentReceiptsPage() {
                     placeholder: 'Search by receipt #, reference, txn id…',
                 }}
                 primaryAction={
-                    <Button asChild>
-                        <Link href="/dashboard/crm/sales/receipts/new">
-                            <Plus className="h-4 w-4" /> New Receipt
-                        </Link>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button 
+                            variant={viewMode === 'reconcile' ? 'secondary' : 'outline'} 
+                            onClick={() => {
+                                setViewMode(prev => prev === 'reconcile' ? 'list' : 'reconcile');
+                                if (viewMode === 'list') {
+                                    // When entering reconcile mode, optionally pre-filter
+                                    setStatusFilter('received');
+                                    setPage(1);
+                                }
+                            }}
+                        >
+                            <RefreshCcw className="h-4 w-4" /> 
+                            {viewMode === 'reconcile' ? 'Exit Reconcile' : 'Reconcile'}
+                        </Button>
+                        <Button asChild>
+                            <Link href="/dashboard/crm/sales/receipts/new">
+                                <Plus className="h-4 w-4" /> New Receipt
+                            </Link>
+                        </Button>
+                        <Button variant="outline" onClick={exportCsv} disabled={isPending}>
+                            Export CSV
+                        </Button>
+                    </div>
                 }
                 filters={
                     <ReceiptFiltersRow
@@ -379,25 +421,35 @@ export default function PaymentReceiptsPage() {
                 }
             >
                 <div className="flex flex-col gap-4">
-                    <ReceiptKpiStrip
-                        kpis={kpis}
-                        statusFilter={statusFilter}
-                        onClearAll={clearFilters}
-                        onPickStatus={(s) => {
-                            setStatusFilter((prev) => (prev === s ? 'all' : s));
-                            setActivePreset('all');
-                            setPage(1);
-                        }}
-                    />
+                    {viewMode === 'list' ? (
+                        <>
+                            <ReceiptKpiStrip
+                                kpis={kpis}
+                                statusFilter={statusFilter}
+                                onClearAll={clearFilters}
+                                onPickStatus={(s) => {
+                                    setStatusFilter((prev) => (prev === s ? 'all' : s));
+                                    setActivePreset('all');
+                                    setPage(1);
+                                }}
+                            />
 
-                    <ReceiptListClient
-                        receipts={receipts}
-                        loading={isPending}
-                        selectedIds={selected}
-                        onToggleOne={handleToggleOne}
-                        onToggleAll={handleToggleAll}
-                        onDelete={(id) => setDeleteTargetId(id)}
-                    />
+                            <ReceiptListClient
+                                receipts={receipts}
+                                loading={isPending}
+                                selectedIds={selected}
+                                onToggleOne={handleToggleOne}
+                                onToggleAll={handleToggleAll}
+                                onDelete={(id) => setDeleteTargetId(id)}
+                            />
+                        </>
+                    ) : (
+                        <ReceiptReconciliationView 
+                            receipts={receipts}
+                            loading={isPending}
+                            onStatusUpdated={fetchData}
+                        />
+                    )}
                 </div>
             </EntityListShell>
 

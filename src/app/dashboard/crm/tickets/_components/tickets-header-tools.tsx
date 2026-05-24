@@ -11,7 +11,7 @@ import { KanbanSquare, LayoutList, List } from 'lucide-react';
 
 import { TicketsViewsMenu } from './tickets-filters';
 
-export type TicketsViewMode = 'table' | 'kanban' | 'queue';
+export type TicketsViewMode = 'table' | 'kanban' | 'queue' | 'inbox';
 
 interface TicketsHeaderToolsProps {
     view: TicketsViewMode;
@@ -47,6 +47,12 @@ export function TicketsHeaderTools({
                     icon={<LayoutList className="h-3.5 w-3.5" />}
                     active={view === 'queue'}
                     onClick={() => onViewChange('queue')}
+                />
+                <ViewToggle
+                    label="Inbox"
+                    icon={<List className="h-3.5 w-3.5" />}
+                    active={view === 'inbox'}
+                    onClick={() => onViewChange('inbox')}
                 />
             </div>
         </div>

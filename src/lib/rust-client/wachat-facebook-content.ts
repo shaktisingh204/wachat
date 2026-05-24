@@ -114,11 +114,13 @@ export interface FacebookBulkCreateResult {
 // ---------------------------------------------------------------------------
 
 export interface CreateFacebookPostBody {
-    /** `text` | `image` | `video`. */
-    postType: 'text' | 'image' | 'video';
+    /** `text` | `image` | `video` | `carousel`. */
+    postType: 'text' | 'image' | 'video' | 'carousel';
     message?: string;
     /** Public URL — alternative to `mediaId`. */
     mediaUrl?: string;
+    /** For carousel posts */
+    mediaUrls?: string[];
     /** Pre-uploaded Meta media id — alternative to `mediaUrl`. */
     mediaId?: string;
     /** Comma-separated user-tag ids. */

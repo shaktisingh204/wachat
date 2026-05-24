@@ -16,6 +16,7 @@ import {
   Plus,
   Search,
   Table as TableIcon,
+  LayoutDashboard,
   } from 'lucide-react';
 
 /**
@@ -33,7 +34,7 @@ import Link from 'next/link';
 
 import type { QuotationKpiSummary } from './types';
 
-export type ViewMode = 'table';
+export type ViewMode = 'table' | 'kanban';
 export type Density = 'comfortable' | 'compact' | 'dense';
 export type PresetKey = 'all' | 'my-open' | 'accepted-30d' | 'expiring-week' | 'draft';
 
@@ -247,7 +248,7 @@ export function QuotationListToolbar({
           </ZoruSelectContent>
         </Select>
 
-        {/* View switcher (table only for now — kept for parity with Deals). */}
+        {/* View switcher */}
         <div className="flex items-center rounded border border-zoru-line bg-zoru-surface p-0.5">
           <Button
             type="button"
@@ -258,6 +259,16 @@ export function QuotationListToolbar({
             aria-label="Table view"
           >
             <TableIcon className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant={view === 'kanban' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => onViewChange('kanban')}
+            aria-pressed={view === 'kanban'}
+            aria-label="Kanban view"
+          >
+            <LayoutDashboard className="h-3.5 w-3.5" />
           </Button>
         </div>
 

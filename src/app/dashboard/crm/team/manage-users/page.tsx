@@ -115,6 +115,8 @@ export default function ManageUsersPage() {
     const [page, setPage] = React.useState(1);
     const [pageSize, setPageSize] = React.useState<number>(DEFAULT_PAGE_SIZE);
 
+    const [viewMode, setViewMode] = React.useState<'list' | 'org'>('list');
+
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
     const [bulkRoleValue, setBulkRoleValue] = React.useState<string>('agent');
     const [bulkBusy, setBulkBusy] = React.useState<false | 'role' | 'remove'>(false);
@@ -289,6 +291,26 @@ export default function ManageUsersPage() {
             <EntityListShell
                 title="Manage Users"
                 subtitle="Invite, role-manage and audit every member with access to your CRM workspace."
+                viewSwitcher={
+                    <div className="flex bg-muted/30 p-1 rounded-md border border-border">
+                        <Button
+                            variant={viewMode === 'list' ? 'default' : 'ghost'}
+                            size="sm"
+                            className="h-7 text-xs px-3"
+                            onClick={() => setViewMode('list')}
+                        >
+                            List
+                        </Button>
+                        <Button
+                            variant={viewMode === 'org' ? 'default' : 'ghost'}
+                            size="sm"
+                            className="h-7 text-xs px-3"
+                            onClick={() => setViewMode('org')}
+                        >
+                            Org Chart
+                        </Button>
+                    </div>
+                }
                 search={{
                     value: search,
                     onChange: (v) => {
@@ -343,7 +365,7 @@ export default function ManageUsersPage() {
                 }
                 loading={isLoading && members.length === 0}
                 pagination={
-                    members.length > 0 ? (
+                    viewMode === 'list' ? (
                         <PaginationBar
                             page={safePage}
                             limit={pageSize}
@@ -384,95 +406,99 @@ export default function ManageUsersPage() {
                     ) : null
                 }
             >
-                <div className="flex flex-col gap-4">
-                    <KpiStrip {...kpis} />
+                {viewMode === 'org' ? (
+                    <OrgChart members={members} pendingEmails={pendingEmails} />
+                ) : (
+                    <div className="flex flex-col gap-4">
+                        <KpiStrip {...kpis} />
 
-                    <Card className="p-0 overflow-hidden">
-                        <div className="flex items-center gap-3 border-b border-zoru-line px-4 py-3 text-[12px] text-zoru-ink-muted">
-                            <Checkbox
-                                checked={allSelectedOnPage}
-                                onCheckedChange={(v) => toggleAll(Boolean(v))}
-                                aria-label="Select all on page"
-                            />
-                            <span className="flex-1">Member</span>
-                            <span className="hidden w-32 sm:inline">Role</span>
-                            <span className="hidden w-32 md:inline">Department</span>
-                            <span className="hidden w-24 md:inline">Status</span>
-                            <span className="w-24 text-right">Projects</span>
-                        </div>
-                        {isLoading && members.length === 0 ? (
-                            <div className="space-y-2 p-3">
-                                <Skeleton className="h-14 w-full" />
-                                <Skeleton className="h-14 w-full" />
-                                <Skeleton className="h-14 w-full" />
+                        <Card className="p-0 overflow-hidden">
+                            <div className="flex items-center gap-3 border-b border-zoru-line px-4 py-3 text-[12px] text-zoru-ink-muted">
+                                <Checkbox
+                                    checked={allSelectedOnPage}
+                                    onCheckedChange={(v) => toggleAll(Boolean(v))}
+                                    aria-label="Select all on page"
+                                />
+                                <span className="flex-1">Member</span>
+                                <span className="hidden w-32 sm:inline">Role</span>
+                                <span className="hidden w-32 md:inline">Department</span>
+                                <span className="hidden w-24 md:inline">Status</span>
+                                <span className="w-24 text-right">Projects</span>
                             </div>
-                        ) : (
-                            <ul role="list" className="divide-y divide-zoru-line">
-                                {paged.map((m) => {
-                                    const id = m._id.toString();
-                                    const role = deriveRole(m);
-                                    const status = deriveStatus(m, pendingEmails);
-                                    const dept = deriveDepartment(m);
-                                    const isSelf = currentUserId && id === currentUserId;
-                                    return (
-                                        <li
-                                            key={id}
-                                            className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zoru-bg/60"
-                                        >
-                                            <Checkbox
-                                                checked={selected.has(id)}
-                                                onCheckedChange={() => toggleOne(id)}
-                                                disabled={Boolean(isSelf)}
-                                                aria-label={`Select ${m.name}`}
-                                            />
-                                            <div className="flex min-w-0 flex-1 items-center gap-3">
-                                                <Avatar className="h-8 w-8">
-                                                    <ZoruAvatarImage
-                                                        src={`https://i.pravatar.cc/150?u=${m.email}`}
-                                                        alt={m.name}
-                                                    />
-                                                    <ZoruAvatarFallback className="text-[11px]">
-                                                        {m.name.substring(0, 2).toUpperCase()}
-                                                    </ZoruAvatarFallback>
-                                                </Avatar>
-                                                <div className="min-w-0 flex-1">
-                                                    <EntityRowLink
-                                                        href={`/dashboard/crm/team/manage-users/${id}`}
-                                                        label={
-                                                            <span className="truncate">
-                                                                {m.name}
-                                                                {isSelf ? (
-                                                                    <span className="ml-2 text-[11px] text-zoru-ink-muted">
-                                                                        (you)
-                                                                    </span>
-                                                                ) : null}
-                                                            </span>
-                                                        }
-                                                        subtitle={
-                                                            <span className="truncate">{m.email}</span>
-                                                        }
-                                                    />
+                            {isLoading && members.length === 0 ? (
+                                <div className="space-y-2 p-3">
+                                    <Skeleton className="h-14 w-full" />
+                                    <Skeleton className="h-14 w-full" />
+                                    <Skeleton className="h-14 w-full" />
+                                </div>
+                            ) : (
+                                <ul role="list" className="divide-y divide-zoru-line">
+                                    {paged.map((m) => {
+                                        const id = m._id.toString();
+                                        const role = deriveRole(m);
+                                        const status = deriveStatus(m, pendingEmails);
+                                        const dept = deriveDepartment(m);
+                                        const isSelf = currentUserId && id === currentUserId;
+                                        return (
+                                            <li
+                                                key={id}
+                                                className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zoru-bg/60"
+                                            >
+                                                <Checkbox
+                                                    checked={selected.has(id)}
+                                                    onCheckedChange={() => toggleOne(id)}
+                                                    disabled={Boolean(isSelf)}
+                                                    aria-label={`Select ${m.name}`}
+                                                />
+                                                <div className="flex min-w-0 flex-1 items-center gap-3">
+                                                    <Avatar className="h-8 w-8">
+                                                        <ZoruAvatarImage
+                                                            src={`https://i.pravatar.cc/150?u=${m.email}`}
+                                                            alt={m.name}
+                                                        />
+                                                        <ZoruAvatarFallback className="text-[11px]">
+                                                            {m.name.substring(0, 2).toUpperCase()}
+                                                        </ZoruAvatarFallback>
+                                                    </Avatar>
+                                                    <div className="min-w-0 flex-1">
+                                                        <EntityRowLink
+                                                            href={`/dashboard/crm/team/manage-users/${id}`}
+                                                            label={
+                                                                <span className="truncate">
+                                                                    {m.name}
+                                                                    {isSelf ? (
+                                                                        <span className="ml-2 text-[11px] text-zoru-ink-muted">
+                                                                            (you)
+                                                                        </span>
+                                                                    ) : null}
+                                                                </span>
+                                                            }
+                                                            subtitle={
+                                                                <span className="truncate">{m.email}</span>
+                                                            }
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="hidden w-32 sm:block">
-                                                <RoleBadge role={role} />
-                                            </div>
-                                            <div className="hidden w-32 truncate text-[12.5px] text-zoru-ink-muted md:block">
-                                                {dept}
-                                            </div>
-                                            <div className="hidden w-24 md:block">
-                                                <StatusBadge status={status} />
-                                            </div>
-                                            <div className="w-24 text-right text-[12.5px] text-zoru-ink-muted">
-                                                {Object.keys(m.roles ?? {}).length}
-                                            </div>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        )}
-                    </Card>
-                </div>
+                                                <div className="hidden w-32 sm:block">
+                                                    <RoleBadge role={role} />
+                                                </div>
+                                                <div className="hidden w-32 truncate text-[12.5px] text-zoru-ink-muted md:block">
+                                                    {dept}
+                                                </div>
+                                                <div className="hidden w-24 md:block">
+                                                    <StatusBadge status={status} />
+                                                </div>
+                                                <div className="w-24 text-right text-[12.5px] text-zoru-ink-muted">
+                                                    {Object.keys(m.roles ?? {}).length}
+                                                </div>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            )}
+                        </Card>
+                    </div>
+                )}
             </EntityListShell>
 
             <ConfirmDialog
@@ -812,5 +838,38 @@ function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemberDialo
                 </form>
             </ZoruDialogContent>
         </Dialog>
+    );
+}
+
+function OrgChart({ members, pendingEmails }: { members: MemberRow[], pendingEmails: Set<string> }) {
+    const roles = ['owner', 'admin', 'agent', 'member'];
+    
+    return (
+        <div className="flex flex-col items-center p-8 gap-8 bg-muted/10 rounded-lg border border-border mt-4">
+            {roles.map(role => {
+                const group = members.filter(m => deriveRole(m) === role);
+                if (group.length === 0) return null;
+                return (
+                    <div key={role} className="flex flex-col items-center relative w-full">
+                        <div className="mb-4 font-semibold capitalize text-muted-foreground text-sm tracking-widest">{role}s</div>
+                        <div className="flex flex-wrap justify-center gap-4">
+                            {group.map(member => (
+                                <Card key={member._id.toString()} className="w-48 p-4 flex flex-col items-center gap-2 shadow-sm relative z-10 bg-background">
+                                    <Avatar className="w-12 h-12">
+                                        <ZoruAvatarImage src={`https://i.pravatar.cc/150?u=${member.email}`} />
+                                        <ZoruAvatarFallback>{member.name?.slice(0, 2).toUpperCase() || 'UN'}</ZoruAvatarFallback>
+                                    </Avatar>
+                                    <div className="text-center">
+                                        <p className="text-sm font-medium leading-none mb-1">{member.name || member.email.split('@')[0]}</p>
+                                        <p className="text-xs text-muted-foreground truncate w-40" title={member.email}>{member.email}</p>
+                                    </div>
+                                    <StatusBadge status={deriveStatus(member, pendingEmails)} />
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
     );
 }

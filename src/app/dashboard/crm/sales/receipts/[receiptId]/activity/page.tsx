@@ -6,21 +6,32 @@
  */
 
 import { notFound } from 'next/navigation';
-
-import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getPaymentReceiptById } from '@/app/actions/crm-payment-receipts.actions';
+import { ReceiptAuditTimeline } from './_components/receipt-audit-timeline';
+import { TimelineFilter } from './_components/timeline-filter';
+import type { CrmPaymentReceipt } from '@/lib/definitions';
 
 interface PageProps {
     params: Promise<{ receiptId: string }>;
+    searchParams: Promise<{ type?: string }>;
 }
 
-export default async function PaymentReceiptActivityPage({ params }: PageProps) {
+export default async function PaymentReceiptActivityPage({ params, searchParams }: PageProps) {
     const { receiptId } = await params;
+    const resolvedSearchParams = await searchParams;
+    const filterType = (resolvedSearchParams.type === 'manual' || resolvedSearchParams.type === 'system') 
+        ? resolvedSearchParams.type 
+        : 'all';
+
     const receipt = await getPaymentReceiptById(receiptId);
     if (!receipt) notFound();
 
-    const title = (receipt as any).receiptNumber || (receipt as any).receiptNo || `Receipt ${receiptId.slice(-6)}`;
+    // Standardize PaymentReceipt type definition handling possible DTO mismatches
+    type StandardizedReceipt = CrmPaymentReceipt & { receiptNo?: string };
+    const standardizedReceipt = receipt as unknown as StandardizedReceipt;
+    
+    const title = standardizedReceipt.receiptNumber || standardizedReceipt.receiptNo || `Receipt ${receiptId.slice(-6)}`;
 
     return (
         <EntityDetailShell
@@ -31,7 +42,12 @@ export default async function PaymentReceiptActivityPage({ params }: PageProps) 
                 label: 'Back to receipt',
             }}
         >
-            <EntityAuditTimeline entityKind="paymentReceipt" entityId={receiptId} />
+            <TimelineFilter />
+            <ReceiptAuditTimeline 
+                entityKind="paymentReceipt" 
+                entityId={receiptId} 
+                filterType={filterType} 
+            />
         </EntityDetailShell>
     );
 }

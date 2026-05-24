@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { connectToDatabase } from '@/lib/mongodb';
 import {
   hrList,
+  hrListPaginated,
   hrGetById,
   hrSave,
   hrDelete,
@@ -367,8 +368,17 @@ export async function deleteAward(id: string) {
   return r;
 }
 
+export async function getAppreciationsPaginated(skip = 0, limit = 20) {
+  return hrListPaginated<WsAppreciation>(COLS.appreciation, { sortBy: { given_on: -1 }, skip, limit });
+}
 export async function getAppreciations() {
   return hrList<WsAppreciation>(COLS.appreciation, { sortBy: { given_on: -1 } });
+}
+export async function getAppreciationsByAward(awardId: string) {
+  return hrList<WsAppreciation>(COLS.appreciation, { 
+    sortBy: { given_on: -1 }, 
+    extraFilter: { award_id: awardId } 
+  });
 }
 export async function getAppreciationById(id: string) {
   return hrGetById<WsAppreciation>(COLS.appreciation, id);

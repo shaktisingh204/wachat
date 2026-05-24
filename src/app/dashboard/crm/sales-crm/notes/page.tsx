@@ -54,6 +54,8 @@ import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { RowDrawer } from '@/components/crm/row-drawer';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { RichTextMentionsEditor } from '@/components/crm/rich-text-mentions-editor';
+import { marked } from 'marked';
 
 import {
   getLeadNotes,
@@ -127,24 +129,46 @@ export default function LeadNotesPage() {
   const [from, setFrom] = React.useState('');
   const [to, setTo] = React.useState('');
   const [page, setPage] = React.useState(1);
+  const [debouncedQ, setDebouncedQ] = React.useState('');
+
+  React.useEffect(() => {
+    const t = setTimeout(() => setDebouncedQ(q), 300);
+    return () => clearTimeout(t);
+  }, [q]);
 
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
 
   const loadAll = React.useCallback(() => {
     startLoad(async () => {
-      const [list, k] = await Promise.all([
-        getLeadNotes(),
-        getLeadNoteKpis(),
-      ]);
-      const rs = list as unknown as Row[];
-      setRows(rs);
+      const k = await getLeadNoteKpis();
       setKpis(k);
 
-      const uniqueIds = Array.from(
-        new Set(rs.map((r) => String(r.lead_id)).filter(Boolean)),
-      );
-      if (uniqueIds.length > 0) {
-        const lr = await lookupEntity('lead', { ids: uniqueIds });
+      let skip = 0;
+      const limit = 250;
+      let allRows: Row[] = [];
+      let uniqueLeadIds = new Set<string>();
+
+      // Clear rows initially for new searches
+      setRows([]);
+
+      while (true) {
+        const chunk = await getLeadNotes({ skip, limit, q: debouncedQ });
+        const items = chunk.items as unknown as Row[];
+        if (items.length === 0) break;
+        
+        allRows = [...allRows, ...items];
+        items.forEach(r => {
+          if (r.lead_id) uniqueLeadIds.add(String(r.lead_id));
+        });
+        
+        setRows([...allRows]); // progressive UI update
+        
+        if (items.length < limit) break;
+        skip += limit;
+      }
+
+      if (uniqueLeadIds.size > 0) {
+        const lr = await lookupEntity('lead', { ids: Array.from(uniqueLeadIds) });
         const map: Record<string, string> = {};
         for (const it of lr.items) map[it.id] = it.chip.primary;
         setLeadLabels(map);
@@ -152,7 +176,7 @@ export default function LeadNotesPage() {
         setLeadLabels({});
       }
     });
-  }, []);
+  }, [debouncedQ]);
 
   React.useEffect(() => {
     loadAll();
@@ -188,34 +212,21 @@ export default function LeadNotesPage() {
   }, [rows]);
 
   const filtered = React.useMemo(() => {
-    const needle = q.trim().toLowerCase();
+    // Search needle logic removed because it is now done server-side via debouncedQ.
+    // We only apply client side filters for tag, lead, from, to.
     const fromTs = from ? new Date(from).getTime() : null;
     const toTs = to ? new Date(`${to}T23:59:59`).getTime() : null;
     return rows.filter((r) => {
-      if (needle) {
-        const blob = [
-          r.title,
-          r.details,
-          (r.tags ?? []).join(' '),
-          leadLabels[String(r.lead_id)] ?? '',
-        ]
-          .map((x) => String(x ?? '').toLowerCase())
-          .join(' ');
-        if (!blob.includes(needle)) return false;
-      }
-      if (tagFilter) {
-        const tags = (r.tags ?? []).map((t) => String(t));
-        if (!tags.includes(tagFilter)) return false;
-      }
+      if (tagFilter && (!r.tags || !r.tags.includes(tagFilter))) return false;
       if (leadFilter && String(r.lead_id) !== leadFilter) return false;
-      if (fromTs || toTs) {
-        const t = new Date(String(r.createdAt ?? 0)).getTime();
-        if (fromTs && t < fromTs) return false;
-        if (toTs && t > toTs) return false;
+      if (r.createdAt && (fromTs || toTs)) {
+        const d = new Date(String(r.createdAt)).getTime();
+        if (fromTs && d < fromTs) return false;
+        if (toTs && d > toTs) return false;
       }
       return true;
     });
-  }, [rows, q, tagFilter, leadFilter, from, to, leadLabels]);
+  }, [rows, tagFilter, leadFilter, from, to]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageSafe = Math.min(page, totalPages);
@@ -778,12 +789,13 @@ export default function LeadNotesPage() {
               </div>
               <div>
                 <Label>Details</Label>
-                <textarea
-                  value={details}
-                  onChange={(e) => setDetails(e.target.value)}
-                  rows={5}
-                  className="mt-1.5 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink outline-none focus-visible:border-zoru-primary"
-                />
+                <div className="mt-1.5">
+                  <RichTextMentionsEditor
+                    value={details}
+                    onChange={setDetails}
+                    placeholder="Type details or @mention someone..."
+                  />
+                </div>
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <Button
@@ -909,11 +921,12 @@ function NoteDrawerBody({
           ))}
         </div>
       ) : null}
-      <div className="whitespace-pre-wrap text-[13px] leading-6 text-zoru-ink">
-        {note.details || (
-          <span className="text-zoru-ink-muted">No details.</span>
-        )}
-      </div>
+      <div 
+        className="prose prose-sm prose-zoru max-w-none text-[13px] leading-6 text-zoru-ink"
+        dangerouslySetInnerHTML={{
+          __html: note.details ? marked.parse(note.details) as string : '<span class="text-zoru-ink-muted">No details.</span>'
+        }}
+      />
       <div className="border-t border-zoru-line pt-3 text-[12px] text-zoru-ink-muted">
         Created{' '}
         {note.createdAt

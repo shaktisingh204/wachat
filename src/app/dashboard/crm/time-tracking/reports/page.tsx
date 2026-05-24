@@ -38,6 +38,8 @@ import * as React from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getTimeReport } from '@/app/actions/worksuite/time.actions';
+import { downloadCsv } from '@/lib/crm-list-export';
+import { format } from 'date-fns';
 import { wsWeekBounds } from '@/lib/worksuite/time-types';
 import type { WsTimeReportRow } from '@/lib/worksuite/time-types';
 
@@ -54,7 +56,7 @@ function toCsv(rows: WsTimeReportRow[], groupLabel: string): string {
   return header + body;
 }
 
-function downloadCsv(filename: string, text: string) {
+function triggerCsvDownload(filename: string, text: string) {
   const blob = new Blob([text], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -124,8 +126,8 @@ export default function TimeTrackingReportsPage() {
       primaryAction={
         <Button
           onClick={() =>
-            downloadCsv(
-              `time-report-${group}-${new Date().toISOString().slice(0, 10)}.csv`,
+            triggerCsvDownload(
+              `time-report-${group}-${format(new Date(), 'yyyy-MM-dd')}.csv`,
               toCsv(rows, groupLabel),
             )
           }

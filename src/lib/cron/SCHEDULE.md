@@ -23,6 +23,7 @@ and never throws — failures bubble back through the JSON response.
 0    9  *  *  *     visa-passport-expiry-alerts   # daily at 09:00
 0    9  *  *  *     estimate-contract-expiry      # daily at 09:00
 0    6  *  *  *     exchange-rate-update          # daily at 06:00
+*/10 *  *  *  *     sla-computation               # every 10 min
 ```
 
 ## Example PM2 worker tick (node-cron)
@@ -50,6 +51,7 @@ cron.schedule('0 9 * * *',    () => hit('follow-up-reminders'));
 cron.schedule('0 9 * * *',    () => hit('visa-passport-expiry-alerts'));
 cron.schedule('0 9 * * *',    () => hit('estimate-contract-expiry'));
 cron.schedule('0 6 * * *',    () => hit('exchange-rate-update'));
+cron.schedule('*/10 * * * *', () => hit('sla-computation'));
 ```
 
 Register in `ecosystem.config.js` alongside `sabwa-node` etc.:
@@ -84,3 +86,4 @@ Register in `ecosystem.config.js` alongside `sabwa-node` etc.:
 | `visa-passport-expiry-alerts` | `visa_details`, `passports`    | source rows (`alert_sent`)            | Per-doc `alert_before_months`.           |
 | `estimate-contract-expiry`    | `crm_estimates`, `crm_contracts` | source rows (`expiry_alert_sent`)   | 7-day / 30-day horizons.                 |
 | `exchange-rate-update`        | `currencies`                   | `currencies.exchange_rate`            | Uses keyless open.er-api (base USD).     |
+| `sla-computation`             | `crm_tickets`                  | `crm_tickets` (`slaBreachNotified`)   | Flags SLA breaches.                      |

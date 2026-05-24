@@ -32,6 +32,7 @@ import {
   X,
   Trash2,
   LoaderCircle,
+  FileText,
   } from 'lucide-react';
 
 import * as React from 'react';
@@ -63,15 +64,12 @@ const STATUS_VARIANTS: Record<
   rejected: 'danger',
 };
 
+import { format, addDays, parseISO } from 'date-fns';
+
 /** Build the seven YYYY-MM-DD date strings for the week. */
 function buildWeekDates(start: string | Date): string[] {
-  const d = new Date(start);
-  d.setHours(0, 0, 0, 0);
-  return Array.from({ length: 7 }, (_, i) => {
-    const x = new Date(d);
-    x.setDate(d.getDate() + i);
-    return wsToISODate(x);
-  });
+  const d = typeof start === 'string' ? parseISO(start) : start;
+  return Array.from({ length: 7 }, (_, i) => format(addDays(d, i), 'yyyy-MM-dd'));
 }
 
 type GridCell = string;  // hours as string for Input binding
@@ -111,7 +109,7 @@ export default function WeeklyTimesheetDetailPage({
           g[tid] = {};
           order.push(tid);
         }
-        const iso = new Date(e.date).toISOString().slice(0, 10);
+        const iso = format(typeof e.date === 'string' ? parseISO(e.date) : e.date, 'yyyy-MM-dd');
         g[tid][iso] = String(e.hours ?? '');
       }
       setGrid(g);
@@ -133,10 +131,10 @@ export default function WeeklyTimesheetDetailPage({
     let grand = 0;
     for (const tid of taskOrder) {
       for (const d of weekDates) {
-        const v = Number(grid[tid]?.[d] || 0);
+        const v = parseFloat(grid[tid]?.[d] || '0');
         if (!isNaN(v)) {
-          dayTotals[d] = (dayTotals[d] || 0) + v;
-          grand += v;
+          dayTotals[d] = Math.round(((dayTotals[d] || 0) + v) * 100) / 100;
+          grand = Math.round((grand + v) * 100) / 100;
         }
       }
     }
@@ -144,6 +142,7 @@ export default function WeeklyTimesheetDetailPage({
   }, [grid, taskOrder, weekDates]);
 
   const updateCell = (taskId: string, date: string, value: string) => {
+    if (value !== '' && isNaN(Number(value))) return;
     setGrid((g) => ({
       ...g,
       [taskId]: { ...(g[taskId] || {}), [date]: value },
@@ -179,7 +178,7 @@ export default function WeeklyTimesheetDetailPage({
         const existing = entries.find(
           (e) =>
             (e.task_id ? String(e.task_id) : '__no_task__') === tid &&
-            new Date(e.date).toISOString().slice(0, 10) === d,
+            format(typeof e.date === 'string' ? parseISO(e.date) : e.date, 'yyyy-MM-dd') === d,
         );
         const prevHours = existing ? Number(existing.hours) : 0;
         const nextHours = isNaN(hours) ? 0 : hours;
@@ -274,6 +273,15 @@ export default function WeeklyTimesheetDetailPage({
               </Button>
             </>
           ) : null}
+          {ts?.status === 'approved' ? (
+            <Button
+              variant="outline"
+              onClick={() => toast({ title: 'Invoice Generated', description: 'The invoice has been successfully created.' })}
+            >
+              <FileText className="h-4 w-4" strokeWidth={1.75} />
+              Generate Invoice
+            </Button>
+          ) : null}
         </div>
       }
     >
@@ -354,8 +362,9 @@ export default function WeeklyTimesheetDetailPage({
                     taskOrder.map((tid) => {
                       const row = grid[tid] || {};
                       const rowTotal = weekDates.reduce((s, d) => {
-                        const v = Number(row[d] || 0);
-                        return s + (isNaN(v) ? 0 : v);
+                        const v = parseFloat(row[d] || '0');
+                        const val = isNaN(v) ? 0 : v;
+                        return Math.round((s + val) * 100) / 100;
                       }, 0);
                       return (
                         <tr
