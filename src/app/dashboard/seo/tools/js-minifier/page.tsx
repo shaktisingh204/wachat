@@ -1,30 +1,51 @@
 'use client';
 
-import { Textarea, cn } from '@/components/zoruui';
-import { cn as _zoruCn, useMemo, useState } from 'react';
-
-void _zoruCn;
-
+import { Textarea } from '@/components/zoruui';
+import { useEffect, useRef, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function JsMinifierPage() {
   const [text, setText] = useState('');
-  // Naive minifier: strips comments and extra whitespace. Does NOT preserve strings perfectly.
-  const min = useMemo(
-    () =>
-      text
-        .replace(/\/\*[\s\S]*?\*\//g, '')
-        .replace(/(^|[^:])\/\/.*$/gm, '$1')
-        .replace(/\n+/g, '\n')
-        .replace(/\s*([{};,()\[\]=+\-*/<>!&|])\s*/g, '$1')
-        .trim(),
-    [text],
-  );
+  const [minified, setMinified] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const workerRef = useRef<Worker | null>(null);
+  const nextId = useRef(0);
+
+  useEffect(() => {
+    workerRef.current = new Worker(new URL('./worker.ts', import.meta.url));
+    workerRef.current.onmessage = (e: MessageEvent) => {
+      const { success, result, error } = e.data;
+      if (success) {
+        setMinified(result || '');
+        setError(null);
+      } else {
+        setError(error);
+      }
+    };
+    return () => {
+      workerRef.current?.terminate();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!text.trim()) {
+      setMinified('');
+      setError(null);
+      return;
+    }
+    
+    // Send to worker
+    const id = nextId.current++;
+    workerRef.current?.postMessage({ id, code: text });
+  }, [text]);
+
   return (
-    <ToolShell title="JS Minifier" description="Naive JavaScript minifier (strips comments + whitespace). Avoid on code with strings containing those chars.">
+    <ToolShell title="JS Minifier" description="Advanced JavaScript minifier using Terser (preserves strings and regex).">
       <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste JS…" />
-      <div className="text-sm text-muted-foreground">{text.length} → {min.length} bytes</div>
-      <Textarea readOnly value={min} className="min-h-[200px] font-mono text-xs" />
+      <div className="text-sm text-muted-foreground my-2">
+        {error ? <span className="text-destructive">Error: {error}</span> : `${text.length} → ${minified.length} bytes`}
+      </div>
+      <Textarea readOnly value={minified} className="min-h-[200px] font-mono text-xs" placeholder="Minified code will appear here..." />
     </ToolShell>
   );
 }

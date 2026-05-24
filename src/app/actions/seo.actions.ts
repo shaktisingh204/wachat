@@ -53,6 +53,39 @@ export async function getSeoProjects() {
     }
 }
 
+export async function updateSeoProjectSettings(id: string, settings: Partial<SeoProjectSettings>) {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const projectOid = new ObjectId(id);
+        
+        // Use dot notation to update specific fields in the settings object
+        const updateDoc: Record<string, any> = {};
+        for (const [key, value] of Object.entries(settings)) {
+            updateDoc[`settings.${key}`] = value;
+        }
+
+        const result = await db.collection('seo_projects').updateOne(
+            { _id: projectOid, userId },
+            { $set: updateDoc }
+        );
+        
+        if (result.matchedCount === 0) {
+            return { error: 'Project not found.' };
+        }
+        
+        revalidatePath('/dashboard/seo');
+        revalidatePath(`/dashboard/seo/${id}`);
+        revalidatePath(`/dashboard/seo/${id}/audit`);
+        return { success: true };
+    } catch (e: any) {
+        return { error: e?.message ?? 'Failed to update project settings.' };
+    }
+}
+
 export async function getSeoProject(id: string) {
     const session = await getSession();
     if (!session?.user) return null;
@@ -93,6 +126,23 @@ export async function deleteSeoProject(id: string) {
         return { success: true };
     } catch (e: any) {
         return { error: e?.message ?? 'Failed to delete project.' };
+    }
+}
+
+export async function toggleSeoProjectFavorite(id: string, isFavorite: boolean) {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('seo_projects').updateOne(
+            { _id: new ObjectId(id), userId: new ObjectId(session.user._id) },
+            { $set: { isFavorite } }
+        );
+        revalidatePath('/dashboard/seo');
+        return { success: true };
+    } catch (e: any) {
+        return { error: e.message };
     }
 }
 
@@ -198,6 +248,20 @@ export async function getLatestAudit(projectId: string) {
         return audit ? JSON.parse(JSON.stringify(audit)) : null;
     } catch (e) {
         return null;
+    }
+}
+
+export async function getAuditHistory(projectId: string, limit: number = 5) {
+    try {
+        const { db } = await connectToDatabase();
+        const audits = await db.collection('seo_audits')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ startedAt: -1 })
+            .limit(limit)
+            .toArray();
+        return JSON.parse(JSON.stringify(audits));
+    } catch (e) {
+        return [];
     }
 }
 
@@ -309,28 +373,76 @@ export async function getSiteMetrics(domain: string): Promise<SiteMetrics> {
     return defaults;
 }
 
-export async function getBrandMentions(brandName: string) {
+export async function getBrandMentions(brandName: string): Promise<BrandMention[]> {
+    const mentions: BrandMention[] = [];
+
+    // 1. Fetch Reddit Data
+    try {
+        const redditUrl = `https://www.reddit.com/search.json?q=${encodeURIComponent(brandName)}&sort=new&limit=5`;
+        const res = await fetch(redditUrl, { headers: { 'User-Agent': 'SabNode-CRM/1.0' } });
+        if (res.ok) {
+            const json = await res.json();
+            const children = json.data?.children || [];
+            for (const child of children) {
+                const data = child.data;
+                const text = (data.title + " " + (data.selftext || "")).toLowerCase();
+                let sentiment: BrandMention['sentiment'] = 'neutral';
+                
+                if (text.includes('love') || text.includes('great') || text.includes('awesome') || text.includes('best') || text.includes('good')) {
+                    sentiment = 'positive';
+                } else if (text.includes('hate') || text.includes('bad') || text.includes('worst') || text.includes('sucks') || text.includes('terrible')) {
+                    sentiment = 'negative';
+                }
+                
+                mentions.push({
+                    source: 'Reddit',
+                    author: data.author || 'Anonymous',
+                    content: data.title,
+                    url: `https://reddit.com${data.permalink}`,
+                    sentiment,
+                    date: new Date(data.created_utc * 1000)
+                });
+            }
+        }
+    } catch (e) {
+        console.error("Reddit fetch failed", e);
+    }
+
+    // 2. Fetch Web Data (DataForSEO)
     try {
         const { getSerpLive } = await import('@/lib/seo/data-for-seo');
-        // Search for "brandName -site:brandName.com" to find external mentions
-        const query = `${brandName} -site:${brandName.replace(' ', '').toLowerCase()}.com`;
+        const query = `${brandName} -site:${brandName.replace(/ /g, '').toLowerCase()}.com`;
         const data = await getSerpLive(query);
 
         if (data && data.tasks && data.tasks[0]?.result) {
             const items = data.tasks[0].result[0].items || [];
-            return items.filter((i: any) => i.type === 'organic').map((item: any) => ({
-                source: item.domain || 'Web',
-                sentiment: 'neutral', // Sentiment analysis would require NLP
-                text: item.title,
-                date: new Date(), // SERP doesn't always give date, use now
-                url: item.url
-            })).slice(0, 10);
+            const organic = items.filter((i: any) => i.type === 'organic').slice(0, 5);
+            
+            for (const item of organic) {
+                const text = (item.title || "").toLowerCase();
+                let sentiment: BrandMention['sentiment'] = 'neutral';
+                
+                if (text.includes('top') || text.includes('best') || text.includes('review') || text.includes('guide')) {
+                    sentiment = 'positive';
+                } else if (text.includes('scam') || text.includes('avoid') || text.includes('warning')) {
+                    sentiment = 'negative';
+                }
+
+                mentions.push({
+                    source: item.domain || 'Web',
+                    author: item.domain || 'Web',
+                    content: item.title || 'No Title',
+                    url: item.url || '#',
+                    sentiment,
+                    date: new Date()
+                });
+            }
         }
     } catch (e) {
         console.error("Brand Mentions Fetch Failed", e);
     }
 
-    return [];
+    return mentions.sort((a, b) => b.date.getTime() - a.date.getTime());
 }
 
 export async function getBacklinks(domain: string) {
@@ -356,7 +468,7 @@ export async function getBacklinks(domain: string) {
 }
 
 // New Action for Grid Tracking
-export async function startGridTracking(projectId: string, keyword: string, lat: number, lng: number) {
+export async function startGridTracking(projectId: string, keyword: string, lat: number, lng: number, radiusKm: number = 10, gridSize: number = 3) {
     const session = await getSession();
     if (!session?.user) return { error: "Unauthorized" };
 
@@ -365,7 +477,7 @@ export async function startGridTracking(projectId: string, keyword: string, lat:
     try {
         const { getLocalGridRanking } = await import('@/lib/seo/data-for-seo');
         // 10km radius, 3x3 grid
-        const data = await getLocalGridRanking(keyword, lat, lng, 10, 3);
+        const data = await getLocalGridRanking(keyword, lat, lng, radiusKm, gridSize);
 
         if (data && data.tasks) {
             // Map tasks to simple { lat, lng, rank } array
@@ -392,6 +504,33 @@ export async function startGridTracking(projectId: string, keyword: string, lat:
             return { success: true, points };
         }
         return { error: "No data returned" };
+    } catch (e: any) {
+        return { error: e.message };
+    }
+}
+
+export async function updateSeoProject(id: string, updateData: Partial<SeoProject>) {
+    const session = await getSession();
+    if (!session?.user) return { error: "Unauthorized" };
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        // Ensure we don't accidentally override _id or userId
+        const { _id, userId, ...safeUpdateData } = updateData as any;
+        
+        const result = await db.collection('seo_projects').updateOne(
+            { _id: new ObjectId(id), userId: new ObjectId(session.user._id) },
+            { $set: { ...safeUpdateData, updatedAt: new Date() } }
+        );
+
+        if (result.matchedCount === 0) {
+            return { error: 'Project not found' };
+        }
+
+        revalidatePath(`/dashboard/seo/${id}`);
+        revalidatePath('/dashboard/seo');
+        return { success: true };
     } catch (e: any) {
         return { error: e.message };
     }

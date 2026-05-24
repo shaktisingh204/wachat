@@ -19,6 +19,9 @@ import {
   useZoruToast
 } from "@/components/zoruui";
 import { useRouter } from "next/navigation";
+import { Star } from "lucide-react";
+import type { App, AppPricing } from "@/lib/marketplace";
+import { installMarketplaceAppAction } from "./actions";
 
 function PriceBadge({ pricing }: { pricing: AppPricing }) {
   if (pricing.type === "free") {

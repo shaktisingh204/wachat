@@ -28,8 +28,8 @@ import { formatDistanceToNow } from 'date-fns';
 const ChartContainer = dynamic(() => import('@/components/zoruui').then((mod) => mod.ZoruChartContainer), {
     ssr: false,
     loading: () => <Skeleton className="h-64 w-full" />,
-}) as any;
-const ChartTooltip = dynamic(() => import('@/components/zoruui').then((mod) => mod.ZoruChartTooltip), { ssr: false }) as any;
+});
+const ChartTooltip = dynamic(() => import('@/components/zoruui').then((mod) => mod.ZoruChartTooltip), { ssr: false });
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 const chartConfigSentiment = { count: { label: 'Count', color: 'hsl(var(--chart-2))' } };
@@ -66,16 +66,13 @@ export default function BrandRadarPage() {
     const handleAnalyze = () => {
         if (!brand) return;
         startTransition(async () => {
-            const data: any[] = await getBrandMentions(brand);
-            const mapped = data.map((d) => ({
-                source: d.source,
-                sentiment: d.sentiment,
-                content: d.text,
-                author: d.source,
-                date: new Date(d.date),
-                url: d.url,
-            }));
-            setMentions(mapped);
+            try {
+                const data = await getBrandMentions(brand);
+                setMentions(data || []);
+            } catch (error) {
+                console.error("Failed to analyze brand mentions:", error);
+                setMentions([]);
+            }
         });
     };
 

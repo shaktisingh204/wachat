@@ -238,7 +238,7 @@ export async function generateAuthenticator2faSecret(): Promise<
   const ctx = await requireUserOid();
   if (!ctx) return { ok: false, error: 'Unauthorized.' };
   const secret = generateSecret();
-  const qrUrl = generateQrUrl(secret, ctx.email || ctx.oid.toString());
+  const qrUrl = await generateQrUrl(secret, ctx.email || ctx.oid.toString());
   const backupCodes = generateBackupCodes(8);
   const hashedBackup = await Promise.all(
     backupCodes.map((c) => bcrypt.hash(c, BACKUP_CODE_ROUNDS)),
@@ -491,4 +491,34 @@ export async function verifyTwoFactorChallenge(
   }
 
   return { ok: false, error: 'Invalid code.' };
+}
+
+export interface LoginAttempt {
+  _id: string;
+  ip: string;
+  userAgent: string;
+  status: 'success' | 'failed' | 'pending_2fa';
+  createdAt: Date;
+}
+
+export async function getRecentLoginAttempts(): Promise<ActionResult<LoginAttempt[]>> {
+  const ctx = await requireUserOid();
+  if (!ctx) return { ok: false, error: 'Unauthorized.' };
+  const { db } = await connectToDatabase();
+  const attempts = await db.collection('login_attempts')
+    .find({ userId: ctx.oid })
+    .sort({ createdAt: -1 })
+    .limit(10)
+    .toArray();
+  
+  return {
+    ok: true,
+    data: attempts.map(a => ({
+      _id: a._id.toString(),
+      ip: a.ip || 'Unknown',
+      userAgent: a.userAgent || 'Unknown',
+      status: a.status,
+      createdAt: a.createdAt,
+    }))
+  };
 }

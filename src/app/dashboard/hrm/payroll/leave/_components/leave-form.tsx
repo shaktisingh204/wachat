@@ -56,6 +56,10 @@ interface LeaveFormProps {
   initial?: CrmLeaveDoc | null;
   /** Catalog of valid `leaveTypeId` values for the dropdown. */
   leaveTypes: CrmLeaveTypeOption[];
+  /** Whether the leave dates/type should be read-only based on HR policy. */
+  isLocked?: boolean;
+  /** Pass employee leave balances to calculate real-time warnings. */
+  leaveBalances?: any[];
 }
 
 function SubmitButton({ editing }: { editing: boolean }) {
@@ -84,13 +88,59 @@ function initialApproverId(initial?: CrmLeaveDoc | null): string | null {
 }
 
 
-export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
+export function LeaveForm({ initial, leaveTypes, isLocked, leaveBalances }: LeaveFormProps) {
   const router = useRouter();
   const { toast } = useZoruToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(saveLeaveAction, INITIAL_STATE);
+  const [warning, setWarning] = React.useState<string | null>(null);
 
   const editing = !!initial?._id;
+
+  const checkBalances = (e: React.FormEvent<HTMLFormElement>) => {
+    if (!leaveBalances || leaveBalances.length === 0 || !editing) return;
+    const fd = new FormData(e.currentTarget);
+    const ltId = fd.get('leaveTypeId') as string;
+    const fromStr = fd.get('from') as string;
+    const toStr = fd.get('to') as string;
+    const halfDay = fd.get('halfDay') === 'true';
+
+    if (!ltId || !fromStr || !toStr) return;
+
+    let newDays = 1;
+    const fromMs = new Date(fromStr).getTime();
+    const toMs = new Date(toStr).getTime();
+    if (toMs >= fromMs) {
+      newDays = Math.max(1, Math.round((toMs - fromMs) / (1000 * 60 * 60 * 24)) + 1);
+    }
+    if (halfDay) newDays = 0.5;
+
+    const existingTypeId = initial?.leaveTypeId;
+    const existingDays = typeof initial?.days === 'number' ? initial.days : 0;
+    const isDifferentType = ltId !== existingTypeId;
+    const daysToDeduct = isDifferentType ? newDays : newDays - existingDays;
+
+    if (daysToDeduct > 0) {
+      const leaveTypeObj = leaveTypes.find(lt => lt._id === ltId);
+      if (leaveTypeObj) {
+        const matchedBalance = leaveBalances.find(b => 
+          b.leaveType.toLowerCase() === leaveTypeObj.code.toLowerCase() || 
+          b.leaveType.toLowerCase() === leaveTypeObj.name.toLowerCase() ||
+          b.leaveType.replace(/_/g, ' ').toLowerCase() === leaveTypeObj.name.toLowerCase() ||
+          b.leaveType.replace(/_/g, ' ').toLowerCase() === leaveTypeObj.code.toLowerCase()
+        );
+        const remaining = matchedBalance 
+           ? Math.max(0, (matchedBalance.allotted || 0) - (matchedBalance.used || 0) - (matchedBalance.pending || 0))
+           : 0;
+
+        if (remaining - daysToDeduct < 0) {
+           setWarning('Warning: Modifying the leave dates will cause negative leave balances. You only have ' + remaining + ' days remaining for ' + leaveTypeObj.name + '.');
+           return;
+        }
+      }
+    }
+    setWarning(null);
+  };
 
   useEffect(() => {
     if (state?.message) {
@@ -107,10 +157,16 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
   }, [state, toast, router]);
 
   return (
-    <form ref={formRef} action={formAction} className="space-y-6">
+    <form ref={formRef} action={formAction} onChange={checkBalances} className="space-y-6">
       {editing ? (
         <input type="hidden" name="_id" value={String(initial!._id)} />
       ) : null}
+
+      {warning && (
+        <div className="rounded-md border border-amber-500/50 bg-amber-500/10 p-4 text-sm font-medium text-amber-700">
+          {warning}
+        </div>
+      )}
 
       <Card className="p-6">
         <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
@@ -136,6 +192,7 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
                 name="leaveTypeId"
                 defaultValue={initial?.leaveTypeId ?? undefined}
                 required
+                disabled={isLocked}
               >
                 <ZoruSelectTrigger>
                   <ZoruSelectValue placeholder="Pick a leave type…" />
@@ -176,6 +233,7 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
               name="from"
               type="date"
               required
+              disabled={isLocked}
               defaultValue={isoToDateInput(initial?.from)}
               className="mt-1.5"
             />
@@ -189,6 +247,7 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
               name="to"
               type="date"
               required
+              disabled={isLocked}
               defaultValue={isoToDateInput(initial?.to)}
               className="mt-1.5"
             />
@@ -198,6 +257,7 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
               id="halfDay"
               name="halfDay"
               value="true"
+              disabled={isLocked}
               defaultChecked={initial?.halfDay ?? false}
             />
             <Label htmlFor="halfDay" className="cursor-pointer">

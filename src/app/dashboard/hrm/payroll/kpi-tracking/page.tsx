@@ -36,7 +36,18 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
+  Button,
+  Dialog,
+  ZoruDialogTrigger,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogDescription,
+  Label,
+  Textarea,
+  ZoruDateRangePicker,
 } from '@/components/zoruui';
+import type { DateRange } from 'react-day-picker';
 
 type Row = WithId<CrmKpi>;
 type StringRow = Omit<Row, '_id'> & { _id: string };
@@ -134,11 +145,98 @@ function InlineActualEditor({ row, onRefresh }: { row: StringRow; onRefresh: () 
   );
 }
 
+function QuickAddModal({ onRefresh }: { onRefresh: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [kpiName, setKpiName] = useState('');
+  const [targetValue, setTargetValue] = useState('');
+  const [unit, setUnit] = useState('%');
+  const [period, setPeriod] = useState('');
+  const [employees, setEmployees] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useZoruToast();
+
+  const handleSave = async () => {
+    const employeeList = employees.split(',').map(e => e.trim()).filter(Boolean);
+    if (!kpiName || !targetValue || employeeList.length === 0) {
+      toast({ title: 'Validation Error', description: 'Please fill in all required fields.', variant: 'destructive' });
+      return;
+    }
+    setIsSubmitting(true);
+    let ok = 0;
+    for (const emp of employeeList) {
+      const formData = new FormData();
+      formData.set('employee_id', emp);
+      formData.set('kpi_name', kpiName);
+      formData.set('target_value', targetValue);
+      formData.set('actual_value', '0');
+      formData.set('unit', unit);
+      formData.set('period', period);
+      formData.set('status', 'on-track');
+      
+      const res = await saveCrmKpi(null, formData);
+      if (!res?.error) ok++;
+    }
+    setIsSubmitting(false);
+    toast({ title: `Successfully created ${ok} KPIs` });
+    setOpen(false);
+    onRefresh();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <ZoruDialogTrigger asChild>
+        <Button variant="outline" size="sm">Quick Add</Button>
+      </ZoruDialogTrigger>
+      <ZoruDialogContent>
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Bulk Create KPIs</ZoruDialogTitle>
+          <ZoruDialogDescription>
+            Quickly create a KPI for multiple employees.
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>KPI Name</Label>
+              <Input value={kpiName} onChange={e => setKpiName(e.target.value)} placeholder="e.g. Sales Target" />
+            </div>
+            <div className="space-y-2">
+              <Label>Period</Label>
+              <Input value={period} onChange={e => setPeriod(e.target.value)} placeholder="e.g. May 2024" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+             <div className="space-y-2">
+               <Label>Target Value</Label>
+               <Input type="number" value={targetValue} onChange={e => setTargetValue(e.target.value)} />
+             </div>
+             <div className="space-y-2">
+               <Label>Unit</Label>
+               <Input value={unit} onChange={e => setUnit(e.target.value)} />
+             </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Employee IDs (comma separated)</Label>
+            <Textarea value={employees} onChange={e => setEmployees(e.target.value)} placeholder="EMP-001, EMP-002" />
+          </div>
+        </div>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={handleSave} disabled={isSubmitting}>
+            {isSubmitting ? 'Saving...' : 'Create KPIs'}
+          </Button>
+        </div>
+      </ZoruDialogContent>
+    </Dialog>
+  );
+}
+
 export default function KpiTrackingPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, startTransition] = useTransition();
   const [periodFilter, setPeriodFilter] = useState('all');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   const refresh = useCallback(() => {
     startTransition(async () => {
@@ -162,9 +260,21 @@ export default function KpiTrackingPage() {
   }, [rows]);
 
   const filteredRows = React.useMemo(() => {
-    if (periodFilter === 'all') return rows;
-    return rows.filter((r) => r.period === periodFilter);
-  }, [rows, periodFilter]);
+    let result = rows;
+    if (periodFilter !== 'all') {
+      result = result.filter((r) => r.period === periodFilter);
+    }
+    if (dateRange?.from) {
+      const fromTime = dateRange.from.getTime();
+      const toTime = dateRange.to ? dateRange.to.getTime() : fromTime;
+      result = result.filter((r) => {
+        if (!r.createdAt) return true;
+        const d = new Date(r.createdAt).getTime();
+        return d >= fromTime && d <= toTime + 86400000;
+      });
+    }
+    return result;
+  }, [rows, periodFilter, dateRange]);
 
   const kpis = React.useMemo(() => {
     const total = filteredRows.length;
@@ -184,19 +294,29 @@ export default function KpiTrackingPage() {
     _id: String(r._id),
   })) as StringRow[];
 
-  const extraFilters = periods.length > 0 ? (
-    <Select value={periodFilter} onValueChange={setPeriodFilter}>
-      <SelectTrigger className="h-8 w-[150px]">
-        <SelectValue placeholder="All Periods" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">All Periods</SelectItem>
-        {periods.map((p) => (
-          <SelectItem key={p} value={p}>{p}</SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  ) : null;
+  const extraFilters = (
+    <div className="flex items-center gap-2">
+      {periods.length > 0 && (
+        <Select value={periodFilter} onValueChange={setPeriodFilter}>
+          <SelectTrigger className="h-8 w-[150px]">
+            <SelectValue placeholder="All Periods" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Periods</SelectItem>
+            {periods.map((p) => (
+              <SelectItem key={p} value={p}>{p}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+      <ZoruDateRangePicker
+        value={dateRange}
+        onChange={setDateRange}
+        className="h-8 w-[220px] text-xs"
+      />
+      <QuickAddModal onRefresh={refresh} />
+    </div>
+  );
 
   return (
     <div className="flex flex-col gap-4">

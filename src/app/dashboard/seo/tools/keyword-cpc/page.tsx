@@ -1,10 +1,13 @@
 'use client';
 
 import { Button, Input, Card, ZoruCardContent, cn } from '@/components/zoruui';
-import { cn as _zoruCn, useState } from 'react';
+import { Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui/alert';
+import { Switch } from '@/components/zoruui/switch';
+import { Label } from '@/components/zoruui/label';
+import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-
-void _zoruCn;
+import { Info, TriangleAlert, Loader2 } from 'lucide-react';
+import { getLiveCpcData } from './actions';
 
 const COMMERCIAL = ['buy', 'best', 'price', 'cheap', 'deal', 'discount', 'purchase', 'order', 'shop', 'cost'];
 
@@ -31,43 +34,150 @@ function estimateCpc(kw: string): { low: number; high: number; intent: string } 
 
 export default function KeywordCpcPage() {
   const [kw, setKw] = useState('');
-  const [result, setResult] = useState<ReturnType<typeof estimateCpc> | null>(null);
+  const [useLiveApi, setUseLiveApi] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+  const [heuristicResult, setHeuristicResult] = useState<ReturnType<typeof estimateCpc> | null>(null);
+  const [apiResult, setApiResult] = useState<{cpc: number | null, search_volume: number | null, competition: number | null, competition_level: string | null} | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const run = () => {
+  const run = async () => {
     const s = kw.trim();
     if (!s) return;
-    setResult(estimateCpc(s));
+
+    setErrorMsg(null);
+    setHeuristicResult(null);
+    setApiResult(null);
+
+    if (!useLiveApi) {
+      setHeuristicResult(estimateCpc(s));
+    } else {
+      setLoading(true);
+      const res = await getLiveCpcData(s);
+      setLoading(false);
+      
+      if (res.error) {
+        setErrorMsg(res.error);
+      } else if (res.data) {
+        setApiResult(res.data);
+      }
+    }
   };
 
   return (
     <ToolShell title="Keyword CPC Estimator" description="Estimate cost-per-click range for a keyword based on intent and length heuristics.">
-      <div className="flex gap-2">
-        <Input
-          value={kw}
-          onChange={(e) => setKw(e.target.value)}
-          placeholder="Enter a keyword"
-          onKeyDown={(e) => e.key === 'Enter' && run()}
-        />
-        <Button onClick={run}>Estimate</Button>
+      
+      {!useLiveApi && (
+        <Alert variant="warning" className="mb-4">
+          <TriangleAlert className="h-4 w-4" />
+          <ZoruAlertTitle>Simulated Heuristic Mode</ZoruAlertTitle>
+          <ZoruAlertDescription>
+            You are currently using a simulated heuristic based on commercial intent words and keyword length. 
+            For production-grade estimates, please switch to <strong>Live Data API</strong> mode (requires DataForSEO API integration).
+          </ZoruAlertDescription>
+        </Alert>
+      )}
+
+      {useLiveApi && (
+        <Alert variant="info" className="mb-4">
+          <Info className="h-4 w-4" />
+          <ZoruAlertTitle>Live Data API Mode</ZoruAlertTitle>
+          <ZoruAlertDescription>
+            Using real SERP API (DataForSEO) for production-grade estimates. Ensure your environment variables are configured.
+          </ZoruAlertDescription>
+        </Alert>
+      )}
+
+      <div className="flex flex-col sm:flex-row gap-4 mb-4 items-center">
+        <div className="flex-1 flex gap-2 w-full">
+          <Input
+            value={kw}
+            onChange={(e) => setKw(e.target.value)}
+            placeholder="Enter a keyword"
+            onKeyDown={(e) => e.key === 'Enter' && run()}
+            disabled={loading}
+          />
+          <Button onClick={run} disabled={loading}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Estimate
+          </Button>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch 
+            id="api-mode-toggle"
+            checked={useLiveApi} 
+            onCheckedChange={(v) => {
+              setUseLiveApi(v);
+              // Clear previous results when toggling
+              setHeuristicResult(null);
+              setApiResult(null);
+              setErrorMsg(null);
+            }} 
+          />
+          <Label htmlFor="api-mode-toggle">Live Data API</Label>
+        </div>
       </div>
-      {result && (
-        <Card>
+
+      {errorMsg && (
+        <Alert variant="destructive" className="mt-4">
+          <TriangleAlert className="h-4 w-4" />
+          <ZoruAlertTitle>Error fetching live data</ZoruAlertTitle>
+          <ZoruAlertDescription>
+            {errorMsg}
+          </ZoruAlertDescription>
+        </Alert>
+      )}
+
+      {heuristicResult && !useLiveApi && (
+        <Card className="mt-4">
           <ZoruCardContent className="p-6 space-y-4">
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold">${result.low}</span>
+              <span className="text-4xl font-bold">${heuristicResult.low}</span>
               <span className="text-muted-foreground">–</span>
-              <span className="text-4xl font-bold">${result.high}</span>
+              <span className="text-4xl font-bold">${heuristicResult.high}</span>
             </div>
             <div className="text-sm">
               <span className="text-muted-foreground">Intent: </span>
-              <span className="font-medium">{result.intent}</span>
+              <span className="font-medium">{heuristicResult.intent}</span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Heuristic estimate based on commercial intent words and keyword length. Use Google Keyword Planner for precise numbers.
+              Heuristic estimate based on commercial intent words and keyword length. Switch to Live Data API for precise numbers.
             </p>
           </ZoruCardContent>
         </Card>
       )}
+
+      {apiResult && useLiveApi && (
+        <Card className="mt-4">
+          <ZoruCardContent className="p-6 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Average CPC</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-bold">${apiResult.cpc?.toFixed(2) ?? '0.00'}</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Search Volume</p>
+                <span className="text-2xl font-semibold">{apiResult.search_volume?.toLocaleString() ?? 'N/A'}</span>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Competition Level</p>
+                <span className="text-lg font-medium capitalize">{apiResult.competition_level?.toLowerCase() ?? 'Unknown'}</span>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Competition Index</p>
+                <span className="text-lg font-medium">{apiResult.competition ?? 'N/A'}</span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-4 border-t pt-4">
+              Production-grade estimate retrieved via DataForSEO Live API.
+            </p>
+          </ZoruCardContent>
+        </Card>
+      )}
+
     </ToolShell>
   );
 }

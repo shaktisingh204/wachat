@@ -119,125 +119,210 @@ export default function LeaveBalancePage() {
       subtitle="Per-employee remaining leaves across every leave type."
       filters={yearSelector}
     >
-      <Card className="p-0 border-0 shadow-none bg-transparent">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line bg-white dark:bg-zinc-950">
-          <table className="w-full text-left text-[13px] border-collapse relative min-w-max">
-            <thead>
-              <tr className="border-b border-zoru-line">
-                <th className="px-4 py-3 text-zoru-ink-muted sticky left-0 z-20 bg-zoru-surface border-r border-zoru-line">
-                  Employee
-                </th>
-                {types.map((t) => (
-                  <th
-                    key={String(t._id)}
-                    className="px-4 py-3 text-zoru-ink-muted whitespace-nowrap min-w-[150px] bg-white dark:bg-zinc-950"
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <span
-                        aria-hidden
-                        className="inline-block h-2 w-2 rounded-full"
-                        style={{ backgroundColor: t.color || '#94A3B8' }}
-                      />
-                      {t.type_name}
-                    </span>
+      <div className="hidden md:block">
+        <Card className="p-0 border-0 shadow-none bg-transparent">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line bg-white dark:bg-zinc-950">
+            <table className="w-full text-left text-[13px] border-collapse relative min-w-max">
+              <thead>
+                <tr className="border-b border-zoru-line">
+                  <th className="px-4 py-3 text-zoru-ink-muted sticky left-0 z-20 bg-zoru-surface border-r border-zoru-line">
+                    Employee
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={types.length + 1}
-                    className="h-24 text-center text-zoru-ink-muted"
-                  >
-                    Loading…
-                  </td>
+                  {types.map((t) => (
+                    <th
+                      key={String(t._id)}
+                      className="px-4 py-3 text-zoru-ink-muted whitespace-nowrap min-w-[150px] bg-white dark:bg-zinc-950"
+                    >
+                      <span className="inline-flex items-center gap-1.5">
+                        <span
+                          aria-hidden
+                          className="inline-block h-2 w-2 rounded-full"
+                          style={{ backgroundColor: t.color || '#94A3B8' }}
+                        />
+                        {t.type_name}
+                      </span>
+                    </th>
+                  ))}
                 </tr>
-              ) : rows.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={types.length + 1}
-                    className="h-24 text-center text-zoru-ink-muted"
-                  >
-                    No employees found.
-                  </td>
-                </tr>
-              ) : (
-                rows.map((r) => {
-                  const byType = new Map(r.rows.map((x) => [x.leave_type_id, x]));
-                  return (
-                    <tr key={r.employee_id} className="border-b border-zoru-line last:border-0 group">
-                      <td className="px-4 py-3 text-zoru-ink sticky left-0 z-10 bg-zoru-surface border-r border-zoru-line shadow-[1px_0_0_0_var(--zoru-line)]">
-                        {r.employee_name}
-                      </td>
-                      {types.map((t) => {
-                        const row = byType.get(String(t._id));
-                        if (!row) {
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td
+                      colSpan={types.length + 1}
+                      className="h-24 text-center text-zoru-ink-muted"
+                    >
+                      Loading…
+                    </td>
+                  </tr>
+                ) : rows.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={types.length + 1}
+                      className="h-24 text-center text-zoru-ink-muted"
+                    >
+                      No employees found.
+                    </td>
+                  </tr>
+                ) : (
+                  rows.map((r) => {
+                    const byType = new Map<string, typeof r.rows[0]>(r.rows.map((x) => [x.leave_type_id, x]));
+                    return (
+                      <tr key={r.employee_id} className="border-b border-zoru-line last:border-0 group">
+                        <td className="px-4 py-3 text-zoru-ink sticky left-0 z-10 bg-zoru-surface border-r border-zoru-line shadow-[1px_0_0_0_var(--zoru-line)]">
+                          {r.employee_name}
+                        </td>
+                        {types.map((t) => {
+                          const row = byType.get(String(t._id));
+                          if (!row) {
+                            return (
+                              <td
+                                key={String(t._id)}
+                                className="px-4 py-3 text-zoru-ink-muted text-center"
+                              >
+                                —
+                              </td>
+                            );
+                          }
+                          const low = row.remaining <= 1 && row.allocated > 0;
+                          const percent = Math.min(100, (row.used / (row.allocated || 1)) * 100);
+                          
                           return (
-                            <td
-                              key={String(t._id)}
-                              className="px-4 py-3 text-zoru-ink-muted text-center"
-                            >
-                              —
+                            <td key={String(t._id)} className="px-4 py-3 group/cell relative hover:bg-zoru-surface">
+                              <div className="flex flex-col gap-1.5 w-full min-w-[120px] max-w-[180px]">
+                                <div className="flex justify-between items-center text-[12px]">
+                                  <span className={low ? 'text-red-500 font-medium' : 'text-zoru-ink font-medium'}>
+                                    {row.remaining} left
+                                  </span>
+                                  <span className="text-zoru-ink-muted">
+                                    {row.used} / {row.allocated}
+                                  </span>
+                                </div>
+                                <div className="h-1.5 w-full bg-zoru-surface rounded-full overflow-hidden flex relative border border-zoru-line">
+                                  <div
+                                    className="h-full"
+                                    style={{ width: `${percent}%`, backgroundColor: t.color || '#3B82F6' }}
+                                  />
+                                </div>
+                                {row.topup ? (
+                                  <div className="text-[10px] text-green-600 dark:text-green-500 text-right h-4">
+                                    +{row.topup} top-up
+                                  </div>
+                                ) : (
+                                  <div className="h-4" />
+                                )}
+                              </div>
+                              <div className="absolute top-1/2 -translate-y-1/2 right-4 opacity-0 group-hover/cell:opacity-100 transition-opacity flex justify-end">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-6 text-[11px] px-2 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm"
+                                  onClick={() => {
+                                    setTopupForm({
+                                      employeeId: r.employee_id,
+                                      employeeName: r.employee_name,
+                                      leaveTypeId: String(t._id),
+                                      leaveTypeName: t.type_name,
+                                      amount: '',
+                                      reason: '',
+                                    });
+                                    setTopupModalOpen(true);
+                                  }}
+                                >
+                                  Top Up
+                                </Button>
+                              </div>
                             </td>
                           );
-                        }
-                        const low = row.remaining <= 1 && row.allocated > 0;
-                        return (
-                          <td key={String(t._id)} className="px-4 py-3 group/cell relative hover:bg-zoru-surface">
-                            <div className="flex flex-col gap-0.5">
-                              <span
-                                className={
-                                  low
-                                    ? 'text-red-500 font-medium'
-                                    : 'text-zoru-ink font-medium'
-                                }
-                              >
-                                {row.remaining} / {row.allocated}
-                              </span>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[11px] text-zoru-ink-muted">
-                                  used: {row.used}
-                                </span>
-                                {row.topup ? (
-                                  <span className="text-[11px] text-green-600 dark:text-green-500">
-                                    (+{row.topup})
-                                  </span>
-                                ) : null}
-                              </div>
-                            </div>
-                            <div className="absolute top-1/2 -translate-y-1/2 right-2 opacity-0 group-hover/cell:opacity-100 transition-opacity">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-6 text-[11px] px-2"
-                                onClick={() => {
-                                  setTopupForm({
-                                    employeeId: r.employee_id,
-                                    employeeName: r.employee_name,
-                                    leaveTypeId: String(t._id),
-                                    leaveTypeName: t.type_name,
-                                    amount: '',
-                                    reason: '',
-                                  });
-                                  setTopupModalOpen(true);
-                                }}
-                              >
-                                Top Up
-                              </Button>
-                            </div>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+                        })}
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </div>
+
+      <div className="md:hidden flex flex-col gap-4">
+        {isLoading ? (
+          <div className="text-center py-8 text-zoru-ink-muted">Loading…</div>
+        ) : rows.length === 0 ? (
+          <div className="text-center py-8 text-zoru-ink-muted">No employees found.</div>
+        ) : (
+          rows.map((r) => {
+            const byType = new Map<string, typeof r.rows[0]>(r.rows.map((x) => [x.leave_type_id, x]));
+            return (
+              <Card key={r.employee_id} className="p-4 space-y-4 shadow-sm border border-zoru-line">
+                <div className="font-medium text-base text-zoru-ink pb-2 border-b border-zoru-line">
+                  {r.employee_name}
+                </div>
+                <div className="space-y-4">
+                  {types.map((t) => {
+                    const row = byType.get(String(t._id));
+                    if (!row) return null;
+                    const low = row.remaining <= 1 && row.allocated > 0;
+                    const percent = Math.min(100, (row.used / (row.allocated || 1)) * 100);
+                    
+                    return (
+                      <div key={String(t._id)} className="space-y-2">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="flex items-center gap-1.5 font-medium text-zoru-ink">
+                            <span
+                              aria-hidden
+                              className="inline-block h-2 w-2 rounded-full"
+                              style={{ backgroundColor: t.color || '#94A3B8' }}
+                            />
+                            {t.type_name}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className={low ? 'text-red-500 font-medium text-xs' : 'text-zoru-ink font-medium text-xs'}>
+                              {row.remaining} left
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-6 text-[11px] px-2"
+                              onClick={() => {
+                                setTopupForm({
+                                  employeeId: r.employee_id,
+                                  employeeName: r.employee_name,
+                                  leaveTypeId: String(t._id),
+                                  leaveTypeName: t.type_name,
+                                  amount: '',
+                                  reason: '',
+                                });
+                                setTopupModalOpen(true);
+                              }}
+                            >
+                              Top Up
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="h-1.5 w-full bg-zoru-surface border border-zoru-line rounded-full overflow-hidden flex">
+                          <div
+                            className="h-full"
+                            style={{ width: `${percent}%`, backgroundColor: t.color || '#3B82F6' }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-[11px] text-zoru-ink-muted">
+                          <span>Used: {row.used} / {row.allocated}</span>
+                          {row.topup ? (
+                            <span className="text-green-600 dark:text-green-500">
+                              +{row.topup} top-up
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Card>
+            );
+          })
+        )}
+      </div>
 
       <Dialog open={topupModalOpen} onOpenChange={setTopupModalOpen}>
         <DialogContent>

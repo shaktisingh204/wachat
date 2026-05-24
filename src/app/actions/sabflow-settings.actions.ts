@@ -13,6 +13,7 @@ import { revalidatePath } from 'next/cache';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { z } from 'zod';
 
 const MODULE = 'sabflow' as const;
 const COLLECTION = 'module_settings';
@@ -51,6 +52,8 @@ export type SabflowSettings = {
     variables: SabflowVariableEntry[];
     updatedAt?: string;
 };
+
+import { sabflowSettingsSchema } from './sabflow-settings.schema';
 
 const DEFAULTS: SabflowSettings = {
     defaults: {
@@ -116,6 +119,11 @@ export async function saveSabflowSettings(patch: Partial<SabflowSettings>): Prom
         const session = await getSession();
         if (!session?.user) return { error: 'Unauthorized' };
 
+        const parseResult = sabflowSettingsSchema.safeParse(patch);
+        if (!parseResult.success) {
+            return { error: parseResult.error.errors[0].message };
+        }
+
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
 
@@ -151,5 +159,37 @@ export async function saveSabflowSettings(patch: Partial<SabflowSettings>): Prom
         return { settings: { ...next, updatedAt: updatedAt.toISOString() } };
     } catch (e) {
         return { error: e instanceof Error ? e.message : 'Failed to save settings' };
+    }
+}
+
+export async function testSabflowWebhook(url: string, secret: string): Promise<{ success?: boolean; error?: string }> {
+    try {
+        const session = await getSession();
+        if (!session?.user) return { error: 'Unauthorized' };
+
+        if (!url) return { error: 'No URL provided' };
+        
+        try {
+            z.string().url().parse(url);
+        } catch {
+            return { error: 'Must be a valid URL' };
+        }
+
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(secret ? { 'x-sabflow-signature': secret } : {})
+            },
+            body: JSON.stringify({ event: 'test', message: 'This is a test webhook from SabNode SabFlow.' })
+        });
+        
+        if (!res.ok) {
+            return { error: `Endpoint returned status ${res.status}` };
+        }
+        
+        return { success: true };
+    } catch (e) {
+        return { error: e instanceof Error ? e.message : 'Test request failed' };
     }
 }

@@ -1,25 +1,50 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Card, Input } from '@/components/zoruui';
 import { performGlobalSearch } from '@/app/actions/platform/global-search.actions';
 import type { GlobalSearchResult } from '@/types/platform';
-import { Search, LoaderCircle, ArrowRight } from 'lucide-react';
+import { Search, LoaderCircle, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function GlobalSearchPage() {
   const [data, setData] = useState<GlobalSearchResult[]>([]);
+  const [total, setTotal] = useState(0);
   const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasSearched, setHasSearched] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const handleSearch = () => {
+  const limit = 5;
+
+  const handleSearch = (newPage: number = 1) => {
     if (!query) return;
     startTransition(async () => {
-      const res = await performGlobalSearch(query);
-      setData(res);
+      const res = await performGlobalSearch(query, newPage, limit);
+      setData(res.data);
+      setTotal(res.total);
+      setPage(newPage);
+      setHasSearched(true);
     });
   };
+
+  const onSearchClick = () => {
+    handleSearch(1);
+  };
+
+  const handleNextPage = () => {
+    if (page * limit < total) {
+      handleSearch(page + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      handleSearch(page - 1);
+    }
+  };
+
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="max-w-5xl mx-auto p-6 md:p-10 space-y-8">
@@ -36,11 +61,11 @@ export default function GlobalSearchPage() {
             placeholder="Search deals, contacts, settings..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            onKeyDown={(e) => e.key === 'Enter' && onSearchClick()}
           />
           <Button 
             className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full px-6"
-            onClick={handleSearch}
+            onClick={onSearchClick}
             disabled={isPending || !query}
           >
             {isPending ? <LoaderCircle className="w-4 h-4 animate-spin" /> : 'Search'}
@@ -63,12 +88,43 @@ export default function GlobalSearchPage() {
             </Card>
           </Link>
         ))}
-        {data.length === 0 && query && !isPending && (
+        {data.length === 0 && hasSearched && !isPending && (
           <div className="text-center py-12 text-zoru-ink-light">
             No results found for "{query}". Try searching for an organization name.
           </div>
         )}
       </div>
+
+      {total > 0 && (
+        <div className="flex items-center justify-between border-t border-zoru-line pt-4 mt-6">
+          <span className="text-sm text-zoru-ink-light">
+            Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} results
+          </span>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrevPage}
+              disabled={page === 1 || isPending}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </Button>
+            <span className="text-sm px-2 text-zoru-ink-light">
+              Page {page} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleNextPage}
+              disabled={page === totalPages || isPending}
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

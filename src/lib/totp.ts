@@ -102,13 +102,21 @@ export function generateOtpauthUrl(
   return `otpauth://totp/${label}?${params.toString()}`;
 }
 
+import * as QRCode from 'qrcode';
+
 /**
- * Convenience: build a Google-Chart QR URL pointing at the otpauth
- * payload. No library required — works in any modern browser.
+ * Convenience: build a data URI QR URL pointing at the otpauth
+ * payload using a secure backend-generated data URI.
  */
-export function generateQrUrl(secret: string, accountName: string): string {
+export async function generateQrUrl(secret: string, accountName: string): Promise<string> {
   const otpauth = generateOtpauthUrl(secret, accountName);
-  return `https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(otpauth)}`;
+  try {
+    return await QRCode.toDataURL(otpauth, { width: 200, margin: 2 });
+  } catch (error) {
+    console.error('Failed to generate QR code data URI', error);
+    // fallback or throw
+    throw new Error('Could not generate QR code');
+  }
 }
 
 /**

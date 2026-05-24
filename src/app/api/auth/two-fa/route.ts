@@ -37,12 +37,24 @@ export async function POST(request: NextRequest) {
     if (!code) return new Response('Code required.', { status: 400 });
 
     const result = await verifyTwoFactorChallenge(userId, code);
+
+    const reqIp = request.headers.get('x-forwarded-for') || request.ip || 'Unknown';
+    const reqUserAgent = request.headers.get('user-agent') || 'Unknown';
+    const now = new Date();
+    const { db } = await connectToDatabase();
+    await db.collection('login_attempts').insertOne({
+        userId: new ObjectId(userId),
+        ip: reqIp,
+        userAgent: reqUserAgent,
+        status: result.ok ? 'success' : 'failed',
+        createdAt: now
+    });
+
     if (!result.ok) {
       return new Response(result.error ?? 'Invalid code.', { status: 401 });
     }
 
     // Load fresh user, mint the real session.
-    const { db } = await connectToDatabase();
     const user = (await db
       .collection('users')
       .findOne({ _id: new ObjectId(userId) })) as WithId<User> | null;

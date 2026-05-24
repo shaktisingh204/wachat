@@ -46,7 +46,7 @@ export default async function EditPayrollRunPage({
     return (
         <EntityListShell
             title={`Edit · ${periodLabel}`}
-            subtitle="Update status, notes, or finalize the run."
+            subtitle="Payslips and totals are locked. You can only update the status, notes, and metadata for this run."
         >
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                 <div className="lg:col-span-2">
@@ -54,7 +54,7 @@ export default async function EditPayrollRunPage({
                 </div>
                 <div className="lg:col-span-1 space-y-6">
                     <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
-                        <EntityAuditTimeline entityKind="payroll_run" entityId={runId} />
+                        <EntityAuditTimeline entityKind="payroll_run" entityId={runId} title="Audit Log (Status Changes)" />
                     </Suspense>
                 </div>
             </div>

@@ -4,7 +4,19 @@ import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton 
 import {
   use,
   useEffect,
-  useState } from 'react';
+  useState,
+  useMemo
+} from 'react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  Legend
+} from 'recharts';
 
 import { TrendingUp, RefreshCw } from 'lucide-react';
 import { getKeywords } from '@/app/actions/seo-rank.actions';
@@ -15,12 +27,20 @@ export default function RankingsPage({ params }: { params: Promise<{ projectId: 
     const { projectId } = use(params);
     const [keywords, setKeywords] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const loadData = async () => {
         setLoading(true);
-        const data = await getKeywords(projectId);
-        setKeywords(data);
-        setLoading(false);
+        setError(null);
+        try {
+            const data = await getKeywords(projectId);
+            setKeywords(data);
+        } catch (err: any) {
+            console.error('Failed to load keywords:', err);
+            setError(err.message || 'Failed to load rankings data.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -30,7 +50,58 @@ export default function RankingsPage({ params }: { params: Promise<{ projectId: 
 
     const handleRefresh = () => loadData();
 
+    const chartData = useMemo(() => {
+        const dateMap: Record<string, { totalRank: number; count: number, top10: number, tracked: number }> = {};
+
+        keywords.forEach((kw) => {
+            if (kw.history && Array.isArray(kw.history)) {
+                kw.history.forEach((h: any) => {
+                    const d = new Date(h.date);
+                    if (isNaN(d.getTime())) return;
+                    
+                    const dateStr = d.toISOString().split('T')[0];
+                    if (!dateMap[dateStr]) {
+                        dateMap[dateStr] = { totalRank: 0, count: 0, top10: 0, tracked: 0 };
+                    }
+                    
+                    const rank = h.rank > 0 ? h.rank : 100;
+                    dateMap[dateStr].totalRank += rank;
+                    dateMap[dateStr].count += 1;
+                    dateMap[dateStr].tracked += 1;
+                    if (h.rank > 0 && h.rank <= 10) {
+                        dateMap[dateStr].top10 += 1;
+                    }
+                });
+            }
+        });
+
+        const sortedDates = Object.keys(dateMap).sort();
+        
+        return sortedDates.map(date => {
+            const stats = dateMap[date];
+            const displayDate = new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            return {
+                date: displayDate,
+                avgRank: stats.count > 0 ? Math.round(stats.totalRank / stats.count) : 0,
+                visibility: stats.tracked > 0 ? Math.round((stats.top10 / stats.tracked) * 100) : 0
+            };
+        });
+    }, [keywords]);
+
     if (loading && keywords.length === 0) return <Skeleton className="h-[400px] w-full" />;
+
+    if (error) {
+        return (
+            <div className="flex flex-col gap-6">
+                <Card className="border-red-200 bg-red-50">
+                    <ZoruCardContent className="pt-6 text-red-600">
+                        <p>{error}</p>
+                        <Button variant="outline" className="mt-4" onClick={handleRefresh}>Try Again</Button>
+                    </ZoruCardContent>
+                </Card>
+            </div>
+        );
+    }
 
     const trackedCount = keywords.length;
     const top3 = keywords.filter((k) => k.currentRank > 0 && k.currentRank <= 3).length;
@@ -92,6 +163,35 @@ export default function RankingsPage({ params }: { params: Promise<{ projectId: 
                     </ZoruCardContent>
                 </Card>
             </div>
+
+            {chartData.length > 0 && (
+                <Card>
+                    <ZoruCardHeader>
+                        <ZoruCardTitle>Visibility & Rank Trends</ZoruCardTitle>
+                    </ZoruCardHeader>
+                    <ZoruCardContent>
+                        <div className="h-[350px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                                    <XAxis dataKey="date" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
+                                    {/* YAxis for Average Rank (reversed so top rank is higher up visually) */}
+                                    <YAxis yAxisId="left" reversed domain={[1, 100]} stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} label={{ value: 'Avg Rank', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }} />
+                                    {/* YAxis for Visibility */}
+                                    <YAxis yAxisId="right" orientation="right" domain={[0, 100]} stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} label={{ value: 'Visibility %', angle: 90, position: 'insideRight', style: { textAnchor: 'middle' } }} />
+                                    <RechartsTooltip 
+                                        contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                        labelStyle={{ color: '#374151', fontWeight: 600, marginBottom: '4px' }}
+                                    />
+                                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                    <Line yAxisId="left" type="monotone" name="Avg Rank" dataKey="avgRank" stroke="#f59e0b" strokeWidth={2} activeDot={{ r: 6 }} />
+                                    <Line yAxisId="right" type="monotone" name="Visibility %" dataKey="visibility" stroke="#3b82f6" strokeWidth={2} activeDot={{ r: 6 }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </ZoruCardContent>
+                </Card>
+            )}
 
             <Card>
                 <ZoruCardHeader>

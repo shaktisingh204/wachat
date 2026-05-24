@@ -119,34 +119,7 @@ export default function AttendanceReportPage() {
             return;
         }
 
-        const workerCode = `
-            self.onmessage = function(e) {
-                const data = e.data;
-                if (!data || data.length === 0) {
-                    self.postMessage('');
-                    return;
-                }
-                const keys = Object.keys(data[0]);
-                let csv = keys.join(',') + '\\n';
-                for (let i = 0; i < data.length; i++) {
-                    let row = [];
-                    for (let j = 0; j < keys.length; j++) {
-                        let val = data[i][keys[j]];
-                        if (val === null || val === undefined) val = '';
-                        val = String(val);
-                        if (val.includes(',') || val.includes('"') || val.includes('\\n')) {
-                            val = '"' + val.replace(/"/g, '""') + '"';
-                        }
-                        row.push(val);
-                    }
-                    csv += row.join(',') + '\\n';
-                }
-                self.postMessage(csv);
-            };
-        `;
-
-        const blob = new Blob([workerCode], { type: 'application/javascript' });
-        const worker = new Worker(URL.createObjectURL(blob));
+        const worker = new Worker(new URL('./csv.worker.ts', import.meta.url));
 
         worker.onmessage = (e) => {
             const csv = e.data;
@@ -156,7 +129,7 @@ export default function AttendanceReportPage() {
             a.href = url;
             const startStr = startDate ? format(startDate, 'yyyy-MM-dd') : 'all-time';
             const endStr = endDate ? format(endDate, 'yyyy-MM-dd') : 'all-time';
-            a.download = \`attendance_\${startStr}_to_\${endStr}.csv\`;
+            a.download = `attendance_${startStr}_to_${endStr}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -176,27 +149,42 @@ export default function AttendanceReportPage() {
         const doc = new jsPDF();
         const startDateStr = startDate ? format(startDate, 'dd MMM yyyy') : 'All time';
         const endDateStr = endDate ? format(endDate, 'dd MMM yyyy') : 'All time';
-        const period = startDate && endDate ? \`\${startDateStr} - \${endDateStr}\` : 'All time';
+        const period = startDate && endDate ? `${startDateStr} - ${endDateStr}` : 'All time';
 
-        // Branding / Header
-        doc.setFontSize(20);
-        doc.text('Attendance Report', 14, 22);
+        // Add Brand Background
+        doc.setFillColor(41, 128, 185);
+        doc.rect(0, 0, doc.internal.pageSize.width, 40, 'F');
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SabNode CRM', 14, 20);
+        
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Management Attendance Report', 14, 30);
+        
+        // Reset Text Color for the rest of the document
+        doc.setTextColor(0);
         
         doc.setFontSize(11);
         doc.setTextColor(100);
-        doc.text(\`Period: \${period}\`, 14, 30);
+        doc.text(`Period: ${period}`, 14, 50);
+        doc.text(`Generated on: ${format(new Date(), 'dd MMM yyyy HH:mm')}`, 14, 56);
         
         // Add Summary
         doc.setFontSize(12);
         doc.setTextColor(0);
-        doc.text('Summary', 14, 40);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Summary Overview', 14, 66);
         
         doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
         doc.setTextColor(100);
-        doc.text(\`Total Employees: \${summary.totalEmployees}\`, 14, 46);
-        doc.text(\`Overall Attendance: \${summary.overallAttendance.toFixed(1)}%\`, 80, 46);
-        doc.text(\`Total Present Days: \${summary.totalPresent}\`, 14, 52);
-        doc.text(\`Total Absent Days: \${summary.totalAbsent}\`, 80, 52);
+        doc.text(`Total Employees: ${summary.totalEmployees}`, 14, 72);
+        doc.text(`Overall Attendance: ${summary.overallAttendance.toFixed(1)}%`, 80, 72);
+        doc.text(`Total Present Days: ${summary.totalPresent}`, 14, 78);
+        doc.text(`Total Absent Days: ${summary.totalAbsent}`, 80, 78);
 
         // Table Data
         const tableData = reportData.map(row => [
@@ -209,7 +197,7 @@ export default function AttendanceReportPage() {
             row.halfDay,
             row.leave,
             row.totalWorkingDays,
-            \`\${row.attendancePercentage.toFixed(1)}%\`
+            `${row.attendancePercentage.toFixed(1)}%`
         ]);
 
         // Totals row for table
@@ -223,11 +211,11 @@ export default function AttendanceReportPage() {
             reportData.reduce((s, r) => s + r.halfDay, 0).toString(),
             reportData.reduce((s, r) => s + r.leave, 0).toString(),
             reportData.reduce((s, r) => s + r.totalWorkingDays, 0).toString(),
-            \`\${(reportData.reduce((s, r) => s + r.attendancePercentage, 0) / (reportData.length || 1)).toFixed(1)}%\`
+            `${(reportData.reduce((s, r) => s + r.attendancePercentage, 0) / (reportData.length || 1)).toFixed(1)}%`
         ]);
 
         autoTable(doc, {
-            startY: 60,
+            startY: 85,
             head: [['Employee', 'Department', 'Present', 'Absent', 'Late', 'WFH', 'Half Day', 'Leave', 'Total Days', 'Attendance %']],
             body: tableData,
             theme: 'striped',
@@ -240,9 +228,19 @@ export default function AttendanceReportPage() {
             },
         });
 
+        // Add Footer with Page Numbers
+        const pageCount = (doc as any).internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(10);
+            doc.setTextColor(150);
+            doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+            doc.text('Confidential - Internal Use Only', 14, doc.internal.pageSize.height - 10);
+        }
+
         const startStr = startDate ? format(startDate, 'yyyy-MM-dd') : 'all-time';
         const endStr = endDate ? format(endDate, 'yyyy-MM-dd') : 'all-time';
-        doc.save(\`Attendance_Report_\${startStr}_to_\${endStr}.pdf\`);
+        doc.save(`Attendance_Report_${startStr}_to_${endStr}.pdf`);
     };
 
     return (

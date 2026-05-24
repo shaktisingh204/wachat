@@ -1,15 +1,84 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Input, Label, Textarea, cn } from '@/components/zoruui';
-import { cn as _zoruCn, useMemo, useState } from 'react';
-
-void _zoruCn;
+import {
+  Button,
+  Card,
+  ZoruCardContent,
+  Input,
+  Label,
+  Textarea,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/zoruui';
+import { useMemo, useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
+
+const ECOMMERCE_SNIPPETS = {
+  purchase: `window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  event: "purchase",
+  ecommerce: {
+    transaction_id: "T_12345",
+    value: 25.42,
+    tax: 4.90,
+    shipping: 5.99,
+    currency: "USD",
+    coupon: "SUMMER_SALE",
+    items: [
+      {
+        item_id: "SKU_12345",
+        item_name: "Stan and Friends Tee",
+        price: 9.99,
+        quantity: 1
+      }
+    ]
+  }
+});`,
+  add_to_cart: `window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  event: "add_to_cart",
+  ecommerce: {
+    currency: "USD",
+    value: 7.77,
+    items: [
+      {
+        item_id: "SKU_12345",
+        item_name: "Stan and Friends Tee",
+        price: 9.99,
+        quantity: 1
+      }
+    ]
+  }
+});`,
+  view_item: `window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  event: "view_item",
+  ecommerce: {
+    currency: "USD",
+    value: 7.77,
+    items: [
+      {
+        item_id: "SKU_12345",
+        item_name: "Stan and Friends Tee",
+        price: 9.99,
+        quantity: 1
+      }
+    ]
+  }
+});`,
+};
 
 export default function GtmSnippetPage() {
   const [id, setId] = useState('GTM-XXXXXXX');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [snippetType, setSnippetType] = useState<keyof typeof ECOMMERCE_SNIPPETS>('purchase');
+
+  const isValidFormat = /^GTM-[A-Za-z0-9]+$/.test(id.trim());
+  const showValidationError = id.trim().length > 0 && !isValidFormat;
 
   const { head, body } = useMemo(() => {
     const safeId = (id || '').trim() || 'GTM-XXXXXXX';
@@ -37,6 +106,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
   };
 
+  const currentSnippet = ECOMMERCE_SNIPPETS[snippetType];
+
   return (
     <ToolShell
       title="GTM Snippet Generator"
@@ -51,6 +122,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             onChange={(e) => setId(e.target.value)}
             placeholder="GTM-XXXXXXX"
           />
+          {showValidationError && (
+            <p className="text-destructive text-sm">
+              Invalid GTM ID format. It should look like GTM-XXXXXXX.
+            </p>
+          )}
         </ZoruCardContent>
       </Card>
 
@@ -72,6 +148,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </Button>
         </div>
         <Textarea readOnly value={body} className="min-h-[120px] font-mono text-xs" />
+      </div>
+
+      <div className="space-y-4 pt-4 border-t">
+        <h3 className="text-lg font-medium">E-commerce DataLayer Snippets</h3>
+        <p className="text-sm text-muted-foreground">
+          Use these standard snippets to push e-commerce events to the dataLayer before the GTM tag fires, or on user interactions.
+        </p>
+
+        <div className="flex items-center space-x-4">
+          <Label>Select Event:</Label>
+          <Select value={snippetType} onValueChange={(val: any) => setSnippetType(val)}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Select event..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="purchase">Purchase</SelectItem>
+              <SelectItem value="add_to_cart">Add to Cart</SelectItem>
+              <SelectItem value="view_item">View Item</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label>DataLayer Code</Label>
+            <Button size="sm" variant="outline" onClick={() => copy('ecommerce', currentSnippet)}>
+              {copiedKey === 'ecommerce' ? 'Copied!' : 'Copy'}
+            </Button>
+          </div>
+          <Textarea readOnly value={currentSnippet} className="min-h-[220px] font-mono text-xs" />
+        </div>
       </div>
     </ToolShell>
   );

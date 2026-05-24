@@ -3,8 +3,9 @@
 import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import { use } from 'react';
 
-import { FileText, Upload, Activity } from 'lucide-react';
+import { FileText, Activity } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
+import { LogUploader } from './_components/log-uploader';
 
 const DATA = [
     { name: 'Googlebot', value: 400, color: '#4285F4' },
@@ -34,12 +35,8 @@ export default function LogsPage({ params }: { params: Promise<{ projectId: stri
                     <ZoruCardHeader>
                         <ZoruCardTitle>Upload Access Logs</ZoruCardTitle>
                     </ZoruCardHeader>
-                    <ZoruCardContent className="flex h-[300px] items-center justify-center">
-                        <div className="flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-[var(--zoru-radius)] border-2 border-dashed border-zoru-line p-12 text-center transition-colors hover:bg-zoru-surface-2/50">
-                            <Upload className="mb-4 h-10 w-10 text-zoru-ink-muted" />
-                            <h3 className="text-zoru-ink mb-1">Drag .log files here</h3>
-                            <p className="text-xs text-zoru-ink-muted">Supports Apache/Nginx formats</p>
-                        </div>
+                    <ZoruCardContent className="p-0">
+                        <LogUploader />
                     </ZoruCardContent>
                 </Card>
 

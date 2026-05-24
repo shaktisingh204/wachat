@@ -180,6 +180,23 @@ export async function saveLeaveAction(
         }
       }
 
+      if (isApproved && existing.from && existing.assignedTo) {
+        const { connectToDatabase } = await import('@/lib/mongodb');
+        const { ObjectId } = await import('mongodb');
+        const { startOfMonth } = await import('date-fns');
+        const { db } = await connectToDatabase();
+        
+        const payPeriodStart = startOfMonth(new Date(existing.from));
+        const payrollProcessed = await db.collection('crm_payslips').findOne({
+            employeeId: new ObjectId(existing.assignedTo),
+            payPeriodStart,
+        });
+
+        if (payrollProcessed) {
+            return { error: 'Cannot modify an approved leave that affects a processed payroll.' };
+        }
+      }
+
       let newDays = 1;
       const fromMs = new Date(from).getTime();
       const toMs = new Date(to).getTime();

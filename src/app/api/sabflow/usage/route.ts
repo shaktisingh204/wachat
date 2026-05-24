@@ -31,7 +31,9 @@ export async function GET(req: NextRequest) {
   const daysRaw = Number(searchParams.get('days') ?? 7);
   const days = Math.min(Math.max(Number.isFinite(daysRaw) ? daysRaw : 7, 1), 90);
 
-  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const now = Date.now();
+  const since = new Date(now - days * 24 * 60 * 60 * 1000);
+  const prevSince = new Date(now - 2 * days * 24 * 60 * 60 * 1000);
 
   try {
     const { db } = await connectToDatabase();
@@ -95,6 +97,44 @@ export async function GET(req: NextRequest) {
       ? durations[Math.min(durations.length - 1, Math.floor(durations.length * 0.95))]
       : 0;
 
+    // ── Previous period stats for trends
+    const prevSummaryAgg = await execsCol
+      .aggregate([
+        { $match: { flowId: { $in: flowIds }, startedAt: { $gte: prevSince, $lt: since } } },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            success: {
+              $sum: { $cond: [{ $eq: ['$status', 'success'] }, 1, 0] },
+            },
+            errored: {
+              $sum: { $cond: [{ $eq: ['$status', 'error'] }, 1, 0] },
+            },
+            durations: { $push: '$executionTimeMs' },
+          },
+        },
+      ])
+      .toArray();
+
+    const prevSummary = prevSummaryAgg[0] ?? { total: 0, success: 0, errored: 0, durations: [] };
+    const prevDurations = (prevSummary.durations ?? [])
+      .filter((d: unknown) => typeof d === 'number' && d > 0)
+      .sort((a: number, b: number) => a - b);
+    const prevP95 = prevDurations.length
+      ? prevDurations[Math.min(prevDurations.length - 1, Math.floor(prevDurations.length * 0.95))]
+      : 0;
+    const prevSuccessRate = prevSummary.total > 0 ? prevSummary.success / prevSummary.total : 0;
+    const successRate = summary.total > 0 ? summary.success / summary.total : 0;
+
+    // Calculate trends (percentage change)
+    const trends = {
+      total: calculateTrend(prevSummary.total, summary.total),
+      successRate: calculateTrend(prevSuccessRate * 100, successRate * 100),
+      errored: calculateTrend(prevSummary.errored, summary.errored),
+      p95DurationMs: calculateTrend(prevP95, p95),
+    };
+
     // ── Daily buckets
     const dailyAgg = await execsCol
       .aggregate([
@@ -149,10 +189,10 @@ export async function GET(req: NextRequest) {
         errored: summary.errored,
         running: summary.running,
         cancelled: summary.cancelled,
-        successRate:
-          summary.total > 0 ? summary.success / summary.total : 0,
+        successRate,
         avgDurationMs: Math.round(summary.avgDuration ?? 0),
         p95DurationMs: Math.round(p95),
+        trends,
       },
       daily: dailyAgg.map((d) => ({
         date: d._id,
@@ -189,11 +229,22 @@ function emptyResponse(days: number) {
       successRate: 0,
       avgDurationMs: 0,
       p95DurationMs: 0,
+      trends: {
+        total: 0,
+        successRate: 0,
+        errored: 0,
+        p95DurationMs: 0,
+      },
     },
     daily: [],
     topFlows: [],
     topFailing: [],
   };
+}
+
+function calculateTrend(oldValue: number, newValue: number): number {
+  if (oldValue === 0) return newValue > 0 ? 100 : 0;
+  return ((newValue - oldValue) / oldValue) * 100;
 }
 
 /** Silence the unused-import lint when this file is examined in isolation. */

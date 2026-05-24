@@ -106,6 +106,7 @@ export default function ApplyLeavePage() {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
+    mode: 'onChange',
     defaultValues: {
       userId: '',
       leaveTypeId: '',
@@ -174,7 +175,7 @@ export default function ApplyLeavePage() {
     return watchLeaveDate ? 1 : 0;
   }, [watchDaysCount, watchDuration, watchHours, watchLeaveDate, watchEndDate]);
 
-  const exceedsQuota = currentBalance && calculatedDays > currentBalance.remaining;
+  const exceedsQuota = currentBalance ? calculatedDays > currentBalance.remaining : false;
 
   const onSubmit = async (data: FormValues) => {
     startSave(async () => {
@@ -226,7 +227,7 @@ export default function ApplyLeavePage() {
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value || undefined} onValueChange={field.onChange}>
-                    <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectTrigger className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.userId ? 'border-red-500' : ''}`}>
                       <ZoruSelectValue placeholder="Select employee" />
                     </ZoruSelectTrigger>
                     <ZoruSelectContent>
@@ -250,7 +251,7 @@ export default function ApplyLeavePage() {
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value || undefined} onValueChange={field.onChange}>
-                    <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectTrigger className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.leaveTypeId ? 'border-red-500' : ''}`}>
                       <ZoruSelectValue placeholder="Select leave type" />
                     </ZoruSelectTrigger>
                     <ZoruSelectContent>
@@ -278,11 +279,19 @@ export default function ApplyLeavePage() {
             {currentBalance && (
               <div className="md:col-span-2">
                 <div className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-bg p-3 text-[13px]">
-                  <div className="flex-1">
-                    <span className="font-medium text-zoru-ink">Remaining Balance: </span>
-                    <span className="text-zoru-ink-muted">
-                      {currentBalance.remaining} {currentBalance.remaining === 1 ? 'day' : 'days'}
-                    </span>
+                  <div className="flex-1 flex flex-col gap-1">
+                    <div>
+                      <span className="font-medium text-zoru-ink">Requested Days: </span>
+                      <span className="text-zoru-ink-muted">
+                        {calculatedDays} {calculatedDays === 1 ? 'day' : 'days'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-zoru-ink">Remaining Balance: </span>
+                      <span className="text-zoru-ink-muted">
+                        {currentBalance.remaining} {currentBalance.remaining === 1 ? 'day' : 'days'}
+                      </span>
+                    </div>
                   </div>
                   {exceedsQuota && (
                     <div className="flex items-center gap-1.5 text-amber-600">
@@ -341,7 +350,7 @@ export default function ApplyLeavePage() {
               <Input
                 type="date"
                 {...register('leaveDate')}
-                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.leaveDate ? 'border-red-500' : ''}`}
               />
               {errors.leaveDate && (
                 <p className="mt-1 text-[13px] text-red-500">{errors.leaveDate.message}</p>
@@ -353,8 +362,9 @@ export default function ApplyLeavePage() {
                 <Label className="text-zoru-ink">End Date *</Label>
                 <Input
                   type="date"
+                  min={watchLeaveDate}
                   {...register('endDate')}
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.endDate ? 'border-red-500' : ''}`}
                 />
                 {errors.endDate && (
                   <p className="mt-1 text-[13px] text-red-500">{errors.endDate.message}</p>
@@ -370,7 +380,7 @@ export default function ApplyLeavePage() {
                   step="0.5"
                   min="0.5"
                   {...register('hours')}
-                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                  className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.hours ? 'border-red-500' : ''}`}
                 />
                 {errors.hours && (
                   <p className="mt-1 text-[13px] text-red-500">{errors.hours.message}</p>
@@ -435,7 +445,7 @@ export default function ApplyLeavePage() {
               </Button>
               <Button
                 type="submit"
-                disabled={isSaving}
+                disabled={isSaving || exceedsQuota}
               >
                 {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Submit Application

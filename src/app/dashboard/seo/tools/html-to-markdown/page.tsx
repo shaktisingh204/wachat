@@ -7,28 +7,21 @@ void _zoruCn;
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
+import TurndownService from 'turndown';
+
 function html2md(html: string): string {
-  return html
-    .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, '# $1\n')
-    .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, '## $1\n')
-    .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, '### $1\n')
-    .replace(/<h4[^>]*>([\s\S]*?)<\/h4>/gi, '#### $1\n')
-    .replace(/<h5[^>]*>([\s\S]*?)<\/h5>/gi, '##### $1\n')
-    .replace(/<h6[^>]*>([\s\S]*?)<\/h6>/gi, '###### $1\n')
-    .replace(/<strong[^>]*>([\s\S]*?)<\/strong>/gi, '**$1**')
-    .replace(/<b[^>]*>([\s\S]*?)<\/b>/gi, '**$1**')
-    .replace(/<em[^>]*>([\s\S]*?)<\/em>/gi, '*$1*')
-    .replace(/<i[^>]*>([\s\S]*?)<\/i>/gi, '*$1*')
-    .replace(/<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)')
-    .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '- $1\n')
-    .replace(/<\/?(ul|ol)[^>]*>/gi, '')
-    .replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1\n\n')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<pre[^>]*><code[^>]*>([\s\S]*?)<\/code><\/pre>/gi, '```\n$1\n```\n')
-    .replace(/<code[^>]*>([\s\S]*?)<\/code>/gi, '`$1`')
-    .replace(/<[^>]+>/g, '')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
+  if (!html) return '';
+  const turndownService = new TurndownService({
+    headingStyle: 'atx',
+    codeBlockStyle: 'fenced'
+  });
+  
+  try {
+    return turndownService.turndown(html);
+  } catch (error) {
+    console.error('Error converting HTML to Markdown:', error);
+    return 'Error converting HTML to Markdown';
+  }
 }
 
 export default function HtmlToMarkdownPage() {

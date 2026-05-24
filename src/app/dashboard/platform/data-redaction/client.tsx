@@ -1,0 +1,263 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, useZoruToast, ZoruSelect, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/zoruui';
+import { createRedactionPolicy, deleteRedactionPolicy } from '@/app/actions/platform/data-redaction.actions';
+import type { RedactionPolicy } from '@/types/platform';
+import { LoaderCircle, Plus, Trash2, Filter, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
+interface DataRedactionClientProps {
+  initialData: RedactionPolicy[];
+  total: number;
+  currentPage: number;
+  totalPages: number;
+}
+
+export function DataRedactionClient({ initialData, total, currentPage, totalPages }: DataRedactionClientProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useZoruToast();
+
+  const [form, setForm] = useState({ name: '', targetFields: '', maskPattern: '***', status: 'active' });
+
+  // Filter states
+  const search = searchParams.get('search') || '';
+  const statusFilter = searchParams.get('status') || 'all';
+  const targetFieldFilter = searchParams.get('targetField') || '';
+
+  const updateFilters = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    // reset to page 1 on filter change
+    params.set('page', '1');
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', newPage.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleCreate = async () => {
+    if (!form.name) return;
+    startTransition(async () => {
+      try {
+        await createRedactionPolicy({
+          ...form,
+          targetFields: form.targetFields.split(',').map(f => f.trim()).filter(Boolean)
+        });
+        toast({ title: 'Policy created', variant: 'success' });
+        setDialogOpen(false);
+        setForm({ name: '', targetFields: '', maskPattern: '***', status: 'active' });
+        router.refresh();
+      } catch (err) {
+        toast({ title: 'Error creating policy', variant: 'destructive' });
+      }
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure?')) return;
+    try {
+      await deleteRedactionPolicy(id);
+      toast({ title: 'Policy deleted', variant: 'success' });
+      router.refresh();
+    } catch (err) {
+      toast({ title: 'Error deleting policy', variant: 'destructive' });
+    }
+  };
+
+  return (
+    <EntityListShell
+      title="Data Redaction Policies"
+      subtitle="Automatically mask sensitive fields across the platform."
+      primaryAction={<Button onClick={() => setDialogOpen(true)}><Plus className="w-4 h-4 mr-2" />New Policy</Button>}
+      search={{ 
+        value: search, 
+        onChange: (v) => updateFilters('search', v), 
+        placeholder: 'Search policies...' 
+      }}
+    >
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm text-zoru-ink-light">
+          <span>{total} total policies</span>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="h-9 border-dashed">
+                <Filter className="mr-2 h-4 w-4" />
+                Advanced Activity Log Filters
+                {(statusFilter !== 'all' || targetFieldFilter !== '') && (
+                  <span className="ml-2 rounded-full bg-primary/20 px-1.5 py-0.5 text-xs font-semibold">
+                    {(statusFilter !== 'all' ? 1 : 0) + (targetFieldFilter !== '' ? 1 : 0)}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="end">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">Advanced Filters</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Filter policies by specific criteria.
+                  </p>
+                </div>
+                <div className="grid gap-2">
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="status">Status</Label>
+                    <div className="col-span-2">
+                      <ZoruSelect value={statusFilter} onValueChange={(v) => updateFilters('status', v === 'all' ? '' : v)}>
+                        <ZoruSelectTrigger id="status"><ZoruSelectValue placeholder="All Statuses" /></ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                          <ZoruSelectItem value="all">All</ZoruSelectItem>
+                          <ZoruSelectItem value="active">Active</ZoruSelectItem>
+                          <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
+                        </ZoruSelectContent>
+                      </ZoruSelect>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="targetField">Target Field</Label>
+                    <Input
+                      id="targetField"
+                      value={targetFieldFilter}
+                      onChange={(e) => updateFilters('targetField', e.target.value)}
+                      className="col-span-2 h-8"
+                      placeholder="e.g. email"
+                    />
+                  </div>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  className="w-full text-xs" 
+                  onClick={() => {
+                    updateFilters('status', '');
+                    updateFilters('targetField', '');
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+
+      <Card className="border-zoru-line bg-zoru-bg overflow-hidden">
+        <Table>
+          <ZoruTableHeader>
+            <ZoruTableRow>
+              <ZoruTableHead>Name</ZoruTableHead>
+              <ZoruTableHead>Target Fields</ZoruTableHead>
+              <ZoruTableHead>Mask Pattern</ZoruTableHead>
+              <ZoruTableHead>Status</ZoruTableHead>
+              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+            </ZoruTableRow>
+          </ZoruTableHeader>
+          <ZoruTableBody>
+            {initialData.map(item => (
+              <ZoruTableRow key={item.id}>
+                <ZoruTableCell className="font-medium">{item.name}</ZoruTableCell>
+                <ZoruTableCell className="font-mono text-sm">{item.targetFields.join(', ')}</ZoruTableCell>
+                <ZoruTableCell>{item.maskPattern}</ZoruTableCell>
+                <ZoruTableCell>
+                  <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-zoru-neutral-hover text-zoru-ink'}`}>
+                    {item.status}
+                  </span>
+                </ZoruTableCell>
+                <ZoruTableCell className="text-right">
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                  </Button>
+                </ZoruTableCell>
+              </ZoruTableRow>
+            ))}
+            {initialData.length === 0 && (
+              <ZoruTableRow>
+                <ZoruTableCell colSpan={5} className="text-center py-8 text-zoru-ink-light">No redaction policies found.</ZoruTableCell>
+              </ZoruTableRow>
+            )}
+          </ZoruTableBody>
+        </Table>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-4 border-t border-zoru-line">
+            <p className="text-sm text-zoru-ink-light">
+              Page {currentPage} of {totalPages}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage <= 1}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>New Redaction Policy</ZoruDialogTitle>
+          </ZoruDialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label>Policy Name</Label>
+              <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Mask SSN" />
+            </div>
+            <div className="grid gap-2">
+              <Label>Target Fields (comma separated JSON keys)</Label>
+              <Input value={form.targetFields} onChange={e => setForm({ ...form, targetFields: e.target.value })} placeholder="ssn, social_security" />
+            </div>
+            <div className="grid gap-2">
+              <Label>Mask Pattern</Label>
+              <Input value={form.maskPattern} onChange={e => setForm({ ...form, maskPattern: e.target.value })} placeholder="***-**-****" />
+            </div>
+            <div className="grid gap-2">
+              <Label>Status</Label>
+              <ZoruSelect value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
+                <ZoruSelectTrigger><ZoruSelectValue placeholder="Select status" /></ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="active">Active</ZoruSelectItem>
+                  <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
+            </div>
+          </div>
+          <ZoruDialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleCreate} disabled={isPending}>
+              {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null} Create
+            </Button>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </Dialog>
+    </EntityListShell>
+  );
+}

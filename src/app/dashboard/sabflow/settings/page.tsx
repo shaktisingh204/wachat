@@ -37,11 +37,12 @@ import { Save,
 import { useProject } from '@/context/project-context';
 import {
     getSabflowSettings,
-  saveSabflowSettings,
-  type SabflowSettings,
-  type SabflowVariableEntry,
-  } from '@/app/actions/sabflow-settings.actions';
-
+    saveSabflowSettings,
+    testSabflowWebhook,
+    type SabflowSettings,
+    type SabflowVariableEntry,
+} from '@/app/actions/sabflow-settings.actions';
+import { sabflowSettingsSchema } from '@/app/actions/sabflow-settings.schema';
 /**
  * /dashboard/sabflow/settings — module-level SabFlow settings.
  *
@@ -120,6 +121,12 @@ export default function SabflowSettingsPage() {
         patch: Partial<SabflowSettings>,
         label: string,
     ) {
+        const parseResult = sabflowSettingsSchema.safeParse(patch);
+        if (!parseResult.success) {
+            zoruSonnerToast.error(parseResult.error.errors[0].message);
+            return;
+        }
+
         setSavingSection(section as string);
         startSaving(async () => {
             const res = await saveSabflowSettings(patch);
@@ -130,6 +137,36 @@ export default function SabflowSettingsPage() {
             }
             setSettings(res.settings);
             zoruSonnerToast.success(`${label} saved`);
+        });
+    }
+
+    function saveAll() {
+        if (!settings) return;
+
+        const patch = {
+            defaults: settings.defaults,
+            retention: settings.retention,
+            runLimits: settings.runLimits,
+            webhooks: settings.webhooks,
+            variables: settings.variables,
+        };
+
+        const parseResult = sabflowSettingsSchema.safeParse(patch);
+        if (!parseResult.success) {
+            zoruSonnerToast.error(parseResult.error.errors[0].message);
+            return;
+        }
+
+        setSavingSection('all');
+        startSaving(async () => {
+            const res = await saveSabflowSettings(patch);
+            setSavingSection(null);
+            if (res.error || !res.settings) {
+                zoruSonnerToast.error(res.error || 'Save failed');
+                return;
+            }
+            setSettings(res.settings);
+            zoruSonnerToast.success('All settings saved');
         });
     }
 
@@ -180,11 +217,14 @@ export default function SabflowSettingsPage() {
                         visual flow builder.
                     </ZoruPageDescription>
                 </ZoruPageHeading>
-                <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="gap-1.5">
+                <div className="flex items-center gap-3">
+                    <Badge variant="outline" className="gap-1.5 h-[32px] px-3">
                         <span className="text-zoru-ink-subtle">Last saved:</span>
-                        <span className="text-zoru-ink">{formatTimestamp(settings.updatedAt)}</span>
+                        <span className="text-zoru-ink font-medium">{formatTimestamp(settings.updatedAt)}</span>
                     </Badge>
+                    <Button size="sm" onClick={saveAll} disabled={savingSection === 'all'}>
+                        <Save /> {savingSection === 'all' ? 'Saving…' : 'Save all'}
+                    </Button>
                 </div>
             </PageHeader>
 
@@ -445,12 +485,23 @@ function WebhooksSection({
     onSave: () => void;
     saving: boolean;
 }) {
+    const [isTesting, startTesting] = useTransition();
+
     function sendTest() {
         if (!value.url) {
             zoruSonnerToast.error('Add a webhook URL first.');
             return;
         }
-        zoruSonnerToast.info('Test webhook queued. Check your endpoint logs.');
+
+        startTesting(async () => {
+            zoruSonnerToast.loading('Testing webhook...', { id: 'webhook-test' });
+            const res = await testSabflowWebhook(value.url, value.secret);
+            if (res.error) {
+                zoruSonnerToast.error(`Test failed: ${res.error}`, { id: 'webhook-test' });
+            } else {
+                zoruSonnerToast.success('Test webhook sent successfully.', { id: 'webhook-test' });
+            }
+        });
     }
 
     return (
@@ -461,8 +512,8 @@ function WebhooksSection({
                     description="Notify your endpoint when flow runs complete or fail."
                 />
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={sendTest}>
-                        <Send /> Send test
+                    <Button variant="outline" size="sm" onClick={sendTest} disabled={isTesting}>
+                        <Send /> {isTesting ? 'Sending...' : 'Send test'}
                     </Button>
                     <Button size="sm" onClick={onSave} disabled={saving}>
                         <Save /> {saving ? 'Saving…' : 'Save'}

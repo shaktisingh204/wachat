@@ -217,3 +217,39 @@ export async function setAsHomepage(pageId: string, siteId: string): Promise<{ m
         return { error: 'Failed to set homepage.' };
     }
 }
+
+export async function updateSiteDomain(siteId: string, customDomain: string): Promise<{ message?: string; error?: string }> {
+    if (!ObjectId.isValid(siteId)) return { error: 'Invalid Site ID.' };
+
+    const site = await getSiteById(siteId);
+    if (!site) return { error: 'Access denied' };
+
+    const session = await getSession();
+    if (session?.user._id.toString() !== site.userId.toString()) {
+        return { error: 'Access denied' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        if (customDomain) {
+            const existing = await db.collection('sites').findOne({ 
+                customDomain, 
+                _id: { $ne: new ObjectId(siteId) } 
+            });
+            if (existing) {
+                return { error: 'This domain is already mapped to another site.' };
+            }
+        }
+
+        await db.collection('sites').updateOne(
+            { _id: new ObjectId(siteId) },
+            { $set: { customDomain, updatedAt: new Date() } }
+        );
+
+        revalidatePath('/dashboard/portfolio');
+        return { message: 'Domain updated successfully.' };
+    } catch (e) {
+        return { error: 'Failed to update domain.' };
+    }
+}

@@ -17,7 +17,7 @@ import {
   useState,
   useTransition } from 'react';
 
-import { Globe, Link as LinkIcon, BarChart, Search } from 'lucide-react';
+import { Globe, Link as LinkIcon, BarChart, Search, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { getBacklinks, getSiteMetrics } from '@/app/actions/seo.actions';
 import type { Backlink, SiteMetrics } from '@/lib/definitions';
@@ -52,16 +52,46 @@ export default function SiteExplorerPage() {
 
     const [domain, setDomain] = useState('');
     const [analyzedDomain, setAnalyzedDomain] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 5;
 
     const handleAnalyze = () => {
         if (!domain) return;
         setAnalyzedDomain(domain);
+        setCurrentPage(1);
         startTransition(async () => {
             const [metricsData, backlinksData] = await Promise.all([getSiteMetrics(domain), getBacklinks(domain)]);
             setMetrics(metricsData);
             setBacklinks(backlinksData);
         });
     };
+
+    const exportToCSV = () => {
+        if (!backlinks.length) return;
+        const headers = ['Domain', 'Source URL', 'Anchor Text', 'Domain Authority', 'Link Type'];
+        const csvContent = [
+            headers.join(','),
+            ...backlinks.map((link) => {
+                let linkDomain = link.sourceUrl;
+                try {
+                    linkDomain = new URL(link.sourceUrl).hostname;
+                } catch (e) {}
+                return `"${linkDomain}","${link.sourceUrl}","${link.anchorText.replace(/"/g, '""')}","${link.domainAuthority}","${link.linkType}"`;
+            }),
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const linkElem = document.createElement('a');
+        linkElem.href = url;
+        linkElem.setAttribute('download', `${analyzedDomain}_backlinks.csv`);
+        document.body.appendChild(linkElem);
+        linkElem.click();
+        document.body.removeChild(linkElem);
+    };
+
+    const totalPages = Math.ceil(backlinks.length / ITEMS_PER_PAGE);
+    const paginatedBacklinks = backlinks.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
     const anchorTextData = backlinks
         .reduce(
@@ -195,11 +225,15 @@ export default function SiteExplorerPage() {
                     </ZoruCardContent>
                 </Card>
                 <Card>
-                    <ZoruCardHeader>
+                    <ZoruCardHeader className="flex flex-row items-center justify-between">
                         <ZoruCardTitle>Top Linking Domains</ZoruCardTitle>
+                        <Button variant="outline" size="sm" onClick={exportToCSV} disabled={!backlinks.length}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Export CSV
+                        </Button>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <div className="rounded-[var(--zoru-radius)] border border-zoru-line">
+                        <div className="rounded-[var(--zoru-radius)] border border-zoru-line flex flex-col h-full">
                             <table className="w-full text-sm">
                                 <thead>
                                     <tr className="border-b border-zoru-line">
@@ -208,7 +242,7 @@ export default function SiteExplorerPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {backlinks.map((item, index) => (
+                                    {paginatedBacklinks.map((item, index) => (
                                         <tr key={`${item.sourceUrl}-${index}`} className="border-b border-zoru-line last:border-0">
                                             <td className="p-3 max-w-xs truncate text-zoru-ink">
                                                 {(() => {
@@ -226,6 +260,31 @@ export default function SiteExplorerPage() {
                                     ))}
                                 </tbody>
                             </table>
+                            {totalPages > 1 && (
+                                <div className="flex items-center justify-between p-3 border-t border-zoru-line mt-auto">
+                                    <p className="text-xs text-zoru-ink-muted">
+                                        Page {currentPage} of {totalPages}
+                                    </p>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                            disabled={currentPage === 1}
+                                        >
+                                            <ChevronLeft className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            <ChevronRight className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </ZoruCardContent>
                 </Card>

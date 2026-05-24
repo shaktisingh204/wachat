@@ -101,7 +101,7 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {apps.map((app) => (
-            <AppCardClient key={app.appId} app={app as any} />
+            <AppCardClient key={app.appId} app={app} />
           ))}
         </div>
       )}

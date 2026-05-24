@@ -13,11 +13,11 @@ export interface FetchUrlResult {
   error?: string;
 }
 
-export async function apiFetchUrl(url: string): Promise<FetchUrlResult> {
+export async function apiFetchUrl(url: string, options?: { userAgent?: string; method?: string }): Promise<FetchUrlResult> {
   const res = await fetch('/api/seo-tools/fetch-url', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ url }),
+    body: JSON.stringify({ url, ...options }),
   });
   return res.json();
 }
@@ -68,7 +68,7 @@ export interface ParsedHtml {
   h5: string[];
   h6: string[];
   links: { href: string; text: string; rel: string; nofollow: boolean }[];
-  images: { src: string; alt: string }[];
+  images: { src: string; alt: string; hasAlt?: boolean }[];
   openGraph: Record<string, string>;
   twitter: Record<string, string>;
   schema: any[];
@@ -108,6 +108,7 @@ export function parseHtml(html: string): ParsedHtml {
   const images = Array.from(html.matchAll(/<img\b[^>]*>/gi)).map((m) => ({
     src: attr(m[0], 'src'),
     alt: attr(m[0], 'alt'),
+    hasAlt: /alt\s*=/i.test(m[0]),
   }));
 
   const openGraph: Record<string, string> = {};

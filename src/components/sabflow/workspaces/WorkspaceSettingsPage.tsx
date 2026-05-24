@@ -28,6 +28,7 @@ import {
   LuTrash2,
   LuUserPlus,
   LuUsers,
+  LuHistory,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import type {
@@ -43,7 +44,7 @@ import {
 
 /* ── Types ────────────────────────────────────────────────── */
 
-type Tab = 'general' | 'members' | 'invites' | 'billing';
+type Tab = 'general' | 'members' | 'invites' | 'billing' | 'audit';
 
 interface Props {
   workspaceId: string;
@@ -80,6 +81,7 @@ export function WorkspaceSettingsPage({
         { id: 'general', label: 'General', icon: LuBuilding },
         { id: 'members', label: 'Members', icon: LuUsers },
         { id: 'invites', label: 'Invites', icon: LuMail },
+        { id: 'audit', label: 'Audit Log', icon: LuHistory },
         { id: 'billing', label: 'Billing', icon: LuCreditCard },
       ],
       [],
@@ -158,10 +160,16 @@ export function WorkspaceSettingsPage({
             currentUserId={currentUserId}
           />
         )}
-        {tab === 'invites' && (
+        { tab === 'invites' && (
           <InvitesTab
             workspaceId={workspaceId}
             canManage={canManageMembers(currentUserRole)}
+          />
+        )}
+        {tab === 'audit' && (
+          <AuditTab
+            workspaceId={workspaceId}
+            canManage={canManageWorkspace(currentUserRole)}
           />
         )}
         {tab === 'billing' && <BillingTab workspace={workspace} />}
@@ -332,6 +340,7 @@ function MembersTab({
   isOwner: boolean;
   currentUserId: string;
 }) {
+  const router = useRouter();
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -377,8 +386,9 @@ function MembersTab({
         return;
       }
       await reload();
+      router.refresh();
     },
-    [reload, workspaceId],
+    [reload, workspaceId, router],
   );
 
   const handleRemove = useCallback(
@@ -394,8 +404,9 @@ function MembersTab({
         return;
       }
       await reload();
+      router.refresh();
     },
-    [reload, workspaceId],
+    [reload, workspaceId, router],
   );
 
   return (
@@ -739,6 +750,114 @@ function BillingTab({ workspace }: { workspace: Workspace }) {
             {plan === 'free' ? 'Upgrade' : 'Manage plan'}
           </a>
         </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   Audit tab
+   ══════════════════════════════════════════════════════════ */
+
+interface AuditEntry {
+  id: string;
+  userId: string;
+  action: string;
+  target?: string;
+  createdAt: string;
+  ipAddress?: string;
+}
+
+function AuditTab({
+  workspaceId,
+  canManage,
+}: {
+  workspaceId: string;
+  canManage: boolean;
+}) {
+  const [entries, setEntries] = useState<AuditEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const reload = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/sabflow/workspaces/${workspaceId}/audit-logs`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Failed to load audit logs');
+      setEntries(data.entries ?? []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load audit logs');
+    } finally {
+      setLoading(false);
+    }
+  }, [workspaceId]);
+
+  useEffect(() => {
+    if (canManage) {
+      void reload();
+    } else {
+      setLoading(false);
+    }
+  }, [reload, canManage]);
+
+  if (!canManage) {
+    return (
+      <div className="flex flex-col gap-4 py-2">
+        <Panel title="Audit Log">
+          <div className="text-[13px] text-gray-500">
+            You do not have permission to view audit logs for this workspace.
+          </div>
+        </Panel>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4 py-2">
+      <Panel title="Audit Log" description="Recent workspace activity.">
+        {error && (
+          <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-[13px] text-red-600">
+            {error}
+          </div>
+        )}
+        {loading ? (
+          <div className="text-[13px] text-gray-500">Loading audit logs…</div>
+        ) : entries.length === 0 ? (
+          <div className="text-[13px] text-gray-500">No activity found.</div>
+        ) : (
+          <div className="overflow-x-auto rounded-md border border-gray-200 dark:border-zinc-800">
+            <table className="w-full text-left text-[13px]">
+              <thead className="bg-gray-50 text-gray-600 dark:bg-zinc-900/40 dark:text-zinc-400">
+                <tr>
+                  <th className="px-3 py-2 font-medium">Action</th>
+                  <th className="px-3 py-2 font-medium">User</th>
+                  <th className="px-3 py-2 font-medium">Target</th>
+                  <th className="px-3 py-2 font-medium">Time</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-zinc-800">
+                {entries.map((entry) => (
+                  <tr key={entry.id}>
+                    <td className="px-3 py-2.5 font-medium text-gray-900 dark:text-white">
+                      {entry.action}
+                    </td>
+                    <td className="px-3 py-2.5 text-gray-600 dark:text-zinc-400 font-mono text-[12px]">
+                      {entry.userId}
+                    </td>
+                    <td className="px-3 py-2.5 text-gray-600 dark:text-zinc-400">
+                      {entry.target || '—'}
+                    </td>
+                    <td className="px-3 py-2.5 text-gray-500 whitespace-nowrap">
+                      {new Date(entry.createdAt).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Panel>
     </div>
   );

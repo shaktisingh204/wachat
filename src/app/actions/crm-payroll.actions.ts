@@ -4,6 +4,7 @@ import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, type WithId } from 'mongodb';
 import { getErrorMessage } from '@/lib/utils';
+import { getTransporter } from '@/lib/email-service';
 import type { CrmSalaryStructure, CrmPayslip, CrmEmployee } from '@/lib/definitions';
 import { revalidatePath } from 'next/cache';
 import { startOfMonth, endOfMonth, getDaysInMonth } from 'date-fns';
@@ -96,6 +97,21 @@ export async function deleteSalaryStructure(id: string): Promise<{ success: bool
 export async function generatePayrollData(month: number, year: number): Promise<{ payrollData?: any[]; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required' };
+
+    if (useRustCrm()) {
+        try {
+            const result = await crmPayslipsApi.generate(month, year);
+            return { payrollData: result.payrollData };
+        } catch (e) {
+            console.error('[generatePayrollData] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'payroll',
+                op: 'generate',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -252,6 +268,34 @@ export async function sendPayslipsEmail(month: number, year: number): Promise<{ 
         const userId = new ObjectId(session.user._id);
         const payPeriodStart = startOfMonth(new Date(year, month - 1));
         
+        const payslips = await db.collection<CrmPayslip>('crm_payslips').find({
+            userId, payPeriodStart, status: 'paid'
+        }).toArray();
+
+        if (payslips.length === 0) {
+            return { success: false, error: 'No paid payslips found to send.' };
+        }
+
+        const employeeIds = payslips.map(p => p.employeeId);
+        const employees = await db.collection<CrmEmployee>('crm_employees').find({ _id: { $in: employeeIds } }).toArray();
+        const employeeMap = new Map(employees.map(e => [e._id.toString(), e]));
+
+        const transporter = await getTransporter(session.user._id);
+
+        for (const payslip of payslips) {
+            const emp = employeeMap.get(payslip.employeeId.toString());
+            const email = emp?.email || emp?.personalEmail;
+            
+            if (email && emp) {
+                const monthName = payPeriodStart.toLocaleString('default', { month: 'long' });
+                await transporter.sendMail({
+                    to: email,
+                    subject: `Payslip for ${monthName} ${year}`,
+                    text: `Dear ${emp.firstName},\n\nPlease find your payslip for ${monthName} ${year}.\n\nGross Salary: ${payslip.grossSalary}\nNet Salary: ${payslip.netPay}\n\nRegards,\nHR Team`,
+                });
+            }
+        }
+
         await db.collection('crm_payslips').updateMany(
             { userId, payPeriodStart, status: 'paid' },
             { $set: { emailedAt: new Date() } }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button } from '@/components/zoruui';
+import { Card, Button, Tooltip, ZoruTooltipProvider, ZoruTooltipTrigger, ZoruTooltipContent, Popover, ZoruPopoverTrigger, ZoruPopoverContent } from '@/components/zoruui';
 import {
   useEffect,
   useMemo,
@@ -156,8 +156,9 @@ export default function LeaveCalendarPage() {
       title="Leave Calendar"
       subtitle="Calendar view of approved leaves across the organization."
     >
-      <Card className="p-6">
-        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <ZoruTooltipProvider>
+        <Card className="p-6">
+          <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={goPrev}>
               <ChevronLeft className="h-4 w-4" />
@@ -215,8 +216,8 @@ export default function LeaveCalendarPage() {
           </div>
         </div>
 
-        <div className="w-full overflow-x-auto">
-          <div className="min-w-[600px]">
+        <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-zoru-line scrollbar-track-transparent pb-4">
+          <div className="min-w-[700px]">
             {viewMode !== 'day' && (
               <div className={`grid grid-cols-7 gap-1`}>
                 {WEEKDAYS.map((d) => (
@@ -276,34 +277,77 @@ export default function LeaveCalendarPage() {
                           : `${new Date(e.leave_date).toLocaleDateString()} to ${new Date(e.end_date).toLocaleDateString()}`;
                         
                         return (
-                          <div
-                            key={`${e._id}-${e.date}`}
-                            className="group relative truncate rounded-md px-2 py-1 text-[11.5px] font-medium"
-                            style={{
-                              backgroundColor: (e.color || '#94A3B8') + '25',
-                              color: e.color || '#64748B',
-                            }}
-                            title={`${e.employeeName} — ${e.type_name}\nDate: ${dateRangeStr}`}
-                          >
-                            <div className="truncate">{e.employeeName ?? 'Employee'}</div>
-                            {viewMode !== 'month' && (
-                              <div className="truncate text-[10px] opacity-75 mt-0.5">
-                                {e.type_name} {e.half_day_type ? `(${e.half_day_type})` : ''}
+                          <Tooltip key={`${e._id}-${e.date}`}>
+                            <ZoruTooltipTrigger asChild>
+                              <div
+                                className="group relative truncate rounded-md px-2 py-1 text-[11.5px] font-medium cursor-default transition-colors hover:brightness-95"
+                                style={{
+                                  backgroundColor: (e.color || '#94A3B8') + '25',
+                                  color: e.color || '#64748B',
+                                }}
+                              >
+                                <div className="truncate">{e.employeeName ?? 'Employee'}</div>
+                                {viewMode !== 'month' && (
+                                  <div className="truncate text-[10px] opacity-75 mt-0.5">
+                                    {e.type_name} {e.half_day_type ? `(${e.half_day_type})` : ''}
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
+                            </ZoruTooltipTrigger>
+                            <ZoruTooltipContent side="top">
+                              <div className="flex flex-col gap-1 text-[13px] py-1">
+                                <span className="font-semibold text-zoru-bg">{e.employeeName ?? 'Employee'}</span>
+                                <span className="text-zoru-bg/80">{e.type_name} {e.half_day_type ? `(${e.half_day_type})` : ''}</span>
+                                <span className="text-zoru-bg/80 font-mono text-[11px] mt-1">{dateRangeStr}</span>
+                              </div>
+                            </ZoruTooltipContent>
+                          </Tooltip>
                         );
                       })}
                       {hiddenCount > 0 && (
-                        <div 
-                          className="cursor-pointer text-[11px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:underline"
-                          onClick={() => {
-                            setCursor(cell.date!);
-                            setViewMode('day');
-                          }}
-                        >
-                          +{hiddenCount} more (click to view)
-                        </div>
+                        <Popover>
+                          <ZoruPopoverTrigger asChild>
+                            <div 
+                              className="inline-block cursor-pointer text-[11px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:underline py-0.5"
+                            >
+                              +{hiddenCount} more
+                            </div>
+                          </ZoruPopoverTrigger>
+                          <ZoruPopoverContent side="bottom" align="start" className="w-64 p-3 z-50">
+                            <div className="mb-2 text-[13px] font-medium text-zoru-ink border-b border-zoru-line pb-2 flex justify-between items-center">
+                              <span>{cell.date?.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                              <span className="text-[11px] text-zoru-ink-muted">{dayEntries.length} leaves</span>
+                            </div>
+                            <div className="flex flex-col gap-1.5 max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-zoru-line scrollbar-track-transparent pr-1">
+                              {dayEntries.map((e) => (
+                                <div
+                                  key={`popover-${e._id}-${e.date}`}
+                                  className="truncate rounded-md px-2 py-1.5 text-[11.5px] font-medium"
+                                  style={{
+                                    backgroundColor: (e.color || '#94A3B8') + '25',
+                                    color: e.color || '#64748B',
+                                  }}
+                                >
+                                  <div className="truncate">{e.employeeName ?? 'Employee'}</div>
+                                  <div className="truncate text-[10px] opacity-75 mt-0.5">
+                                    {e.type_name} {e.half_day_type ? `(${e.half_day_type})` : ''}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="mt-3 text-center pt-2 border-t border-zoru-line">
+                              <button
+                                className="text-[12px] text-zoru-brand hover:underline font-medium"
+                                onClick={() => {
+                                  setCursor(cell.date!);
+                                  setViewMode('day');
+                                }}
+                              >
+                                View day schedule
+                              </button>
+                            </div>
+                          </ZoruPopoverContent>
+                        </Popover>
                       )}
                     </div>
                   </div>
@@ -317,6 +361,7 @@ export default function LeaveCalendarPage() {
           <p className="mt-4 text-center text-[13px] text-zoru-ink-muted">Loading…</p>
         ) : null}
       </Card>
+      </ZoruTooltipProvider>
     </EntityListShell>
   );
 }

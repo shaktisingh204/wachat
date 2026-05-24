@@ -146,17 +146,73 @@ export function textToHtml(text: string): string {
     .join('\n');
 }
 
-export function htmlToText(html: string): string {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<\/?[^>]+>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/\s+\n/g, '\n')
-    .trim();
+export interface HtmlToTextOptions {
+  preserveNewlines?: boolean;
+  ignoreHiddenElements?: boolean;
+  decodeEntities?: boolean;
+}
+
+export function htmlToText(html: string, options: HtmlToTextOptions = {}): string {
+  const { preserveNewlines = true, ignoreHiddenElements = true, decodeEntities = true } = options;
+
+  let result = html;
+
+  if (ignoreHiddenElements) {
+    result = result.replace(/<[^>]+style\s*=\s*['"][^'"]*(?:display\s*:\s*none|visibility\s*:\s*hidden)[^'"]*['"][^>]*>[\s\S]*?<\/[^>]+>/gi, '');
+    result = result.replace(/<input[^>]+type\s*=\s*['"]hidden['"][^>]*>/gi, '');
+  }
+
+  result = result.replace(/<script[\s\S]*?<\/script>/gi, '');
+  result = result.replace(/<style[\s\S]*?<\/style>/gi, '');
+
+  if (preserveNewlines) {
+    result = result.replace(/<\/(p|div|h[1-6]|li|tr|table)>/gi, '\n');
+    result = result.replace(/<br\s*\/?>/gi, '\n');
+  } else {
+    result = result.replace(/<\/(p|div|h[1-6]|li|tr|table)>/gi, ' ');
+    result = result.replace(/<br\s*\/?>/gi, ' ');
+  }
+
+  result = result.replace(/<\/?[^>]+>/g, '');
+
+  if (!preserveNewlines) {
+    result = result.replace(/\n+/g, ' ');
+  }
+
+  if (decodeEntities) {
+    result = result
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&amp;/gi, '&')
+      .replace(/&lt;/gi, '<')
+      .replace(/&gt;/gi, '>')
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'")
+      .replace(/&apos;/gi, "'")
+      .replace(/&cent;/gi, '¢')
+      .replace(/&pound;/gi, '£')
+      .replace(/&yen;/gi, '¥')
+      .replace(/&euro;/gi, '€')
+      .replace(/&copy;/gi, '©')
+      .replace(/&reg;/gi, '®')
+      .replace(/&trade;/gi, '™')
+      .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+      .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(dec));
+  } else {
+    // If not decoding entities, still maybe do minimal decoding, or leave them.
+    // The previous implementation did minimal decoding implicitly, but with explicit decodeEntities = false, we might want to preserve them.
+    // We'll leave them as is if decodeEntities is false, to fully respect the flag.
+  }
+
+  if (preserveNewlines) {
+    result = result
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\s*\n\s*/g, '\n')
+      .replace(/\n{3,}/g, '\n\n');
+  } else {
+    result = result.replace(/\s+/g, ' ');
+  }
+
+  return result.trim();
 }
 
 export function wordFrequency(text: string, top = 50): { word: string; count: number }[] {
@@ -181,4 +237,25 @@ export function diffLines(a: string, b: string): { left: string | null; right: s
     rows.push({ left, right, equal: left === right });
   }
   return rows;
+}
+
+
+export function ngramDensity(text: string, n: number = 1): { word: string; count: number; density: number }[] {
+  const words = text.toLowerCase().match(/\b[a-z]{2,}\b/g) || [];
+  if (words.length < n) return [];
+  
+  const ngrams: string[] = [];
+  for (let i = 0; i <= words.length - n; i++) {
+    ngrams.push(words.slice(i, i + n).join(' '));
+  }
+  
+  const total = ngrams.length;
+  if (!total) return [];
+  
+  const counts = new Map<string, number>();
+  for (const gram of ngrams) counts.set(gram, (counts.get(gram) || 0) + 1);
+  
+  return Array.from(counts.entries())
+    .map(([word, count]) => ({ word, count, density: (count / total) * 100 }))
+    .sort((a, b) => b.count - a.count);
 }

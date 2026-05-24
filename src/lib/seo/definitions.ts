@@ -16,6 +16,7 @@ export type SeoProject = {
     settings: SeoProjectSettings;
     lastAuditDate?: Date;
     healthScore?: number;
+    isFavorite?: boolean;
     createdAt: Date;
     updatedAt: Date;
 };

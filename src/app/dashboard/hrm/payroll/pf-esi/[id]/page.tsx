@@ -20,6 +20,7 @@ import {
 } from '@/app/actions/crm-pf-esi.actions';
 
 import { HistoricalContributionGraph } from '../_components/historical-graph';
+import { ChallanUploader } from '../_components/challan-uploader';
 
 export const dynamic = 'force-dynamic';
 
@@ -139,21 +140,15 @@ export default async function PfEsiDetailPage({
                             {(row.employeeId as string | undefined) ?? '—'}
                         </div>
                     </div>
-                    {row.documentUrl ? (
-                        <div className="sm:col-span-3">
-                            <div className="text-zoru-ink-muted">Scanned Challan</div>
-                            <div className="text-zoru-ink">
-                                <a
-                                    href={row.documentUrl as string}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-blue-600 hover:underline"
-                                >
-                                    View Document
-                                </a>
-                            </div>
+                    <div className="sm:col-span-3">
+                        <div className="mb-2 text-zoru-ink-muted">Scanned Challan</div>
+                        <div className="max-w-md">
+                            <ChallanUploader
+                                recordId={id}
+                                initialUrl={row.documentUrl as string | null}
+                            />
                         </div>
-                    ) : null}
+                    </div>
                     {row.notes ? (
                         <div className="sm:col-span-3">
                             <div className="text-zoru-ink-muted">Notes</div>

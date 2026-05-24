@@ -9,6 +9,7 @@ const collectionName = 'platform_generative_ai_drafts';
 
 const draftSchema = z.object({
   entityType: z.enum(['email', 'proposal', 'contract']),
+  aiModel: z.enum(['gpt-4', 'claude']),
   prompt: z.string().min(1),
   content: z.string().min(1),
   status: z.enum(['draft', 'approved', 'rejected']),
@@ -20,6 +21,7 @@ export async function getGenerativeAIDrafts(): Promise<GenerativeAIDraft[]> {
   return docs.map(doc => ({
     id: doc._id.toString(),
     entityType: doc.entityType,
+    aiModel: doc.aiModel || 'gpt-4',
     prompt: doc.prompt,
     content: doc.content,
     status: doc.status,

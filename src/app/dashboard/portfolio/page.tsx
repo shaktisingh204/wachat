@@ -14,6 +14,15 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   Skeleton,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Input,
+  Label,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -22,12 +31,14 @@ import {
   useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight,
-  Globe } from 'lucide-react';
+  Globe,
+  Link as LinkIcon } from 'lucide-react';
 
-import { getSites } from '@/app/actions/portfolio.actions';
+import { getSites, updateSiteDomain } from '@/app/actions/portfolio.actions';
 import type { WithId,
   Website } from '@/lib/definitions';
 import { CreatePortfolioDialog } from '@/components/wabasimplify/create-portfolio-dialog';
+import { toast } from 'sonner';
 
 function PageSkeleton() {
   return (
@@ -48,7 +59,72 @@ function PageSkeleton() {
   );
 }
 
-function SiteCard({ site }: { site: WithId<Website> }) {
+function DomainMappingDialog({ site, onUpdate }: { site: WithId<Website>, onUpdate: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const customDomain = formData.get('customDomain') as string;
+
+    startTransition(async () => {
+      const res = await updateSiteDomain(site._id.toString(), customDomain);
+      if (res.error) {
+        toast.error(res.error);
+      } else {
+        toast.success(res.message || 'Domain updated.');
+        setOpen(false);
+        onUpdate();
+      }
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="w-full mt-2">
+          <LinkIcon className="mr-2 h-4 w-4" />
+          {site.customDomain ? 'Manage Domain' : 'Link Custom Domain'}
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Domain Mapping</DialogTitle>
+          <DialogDescription>
+            Map a custom domain to your website. E.g. www.example.com
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSave}>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="customDomain">Custom Domain</Label>
+              <Input 
+                id="customDomain" 
+                name="customDomain" 
+                defaultValue={site.customDomain || ''} 
+                placeholder="e.g. www.example.com" 
+              />
+            </div>
+            {site.customDomain && (
+              <div className="text-sm text-zoru-ink-muted bg-zoru-surface-hover p-3 rounded-md">
+                <strong>Important:</strong> Please ensure you have added a CNAME or A record in your DNS settings pointing to our servers before linking.
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? 'Saving...' : 'Save Domain'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function SiteCard({ site, onUpdate }: { site: WithId<Website>, onUpdate: () => void }) {
   const router = useRouter();
   const handleManage = () => {
     router.push(`/dashboard/website-builder/manage/${site._id.toString()}/builder`);
@@ -60,10 +136,18 @@ function SiteCard({ site }: { site: WithId<Website> }) {
         <ZoruCardTitle>{site.name}</ZoruCardTitle>
         <ZoruCardDescription>Slug: {site.slug}</ZoruCardDescription>
       </ZoruCardHeader>
-      <ZoruCardContent className="flex-grow">
-        <p className="text-sm text-zoru-ink-muted">
-          Created: {new Date(site.createdAt).toLocaleDateString()}
-        </p>
+      <ZoruCardContent className="flex-grow space-y-4">
+        <div>
+          <p className="text-sm text-zoru-ink-muted">
+            Created: {new Date(site.createdAt).toLocaleDateString()}
+          </p>
+          {site.customDomain && (
+            <p className="text-sm font-medium mt-1">
+              Domain: <a href={`https://${site.customDomain}`} target="_blank" rel="noreferrer" className="text-zoru-brand hover:underline">{site.customDomain}</a>
+            </p>
+          )}
+        </div>
+        <DomainMappingDialog site={site} onUpdate={onUpdate} />
       </ZoruCardContent>
       <ZoruCardFooter>
         <Button onClick={handleManage} block>
@@ -113,7 +197,7 @@ export default function WebsiteBuilderDashboard() {
       {sites.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {sites.map((p) => (
-            <SiteCard key={p._id.toString()} site={p} />
+            <SiteCard key={p._id.toString()} site={p} onUpdate={fetchData} />
           ))}
         </div>
       ) : (
@@ -126,3 +210,4 @@ export default function WebsiteBuilderDashboard() {
     </div>
   );
 }
+

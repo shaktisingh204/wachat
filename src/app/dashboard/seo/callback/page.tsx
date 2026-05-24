@@ -39,8 +39,12 @@ export default function SeoCallbackPage() {
                 } else {
                     setStatus('Failed to exchange token: ' + res.error);
                 }
-            } catch (e: any) {
-                setStatus('Error: ' + e.message);
+            } catch (e: unknown) {
+                if (e instanceof Error) {
+                    setStatus('Error: ' + e.message);
+                } else {
+                    setStatus('Error: An unknown error occurred.');
+                }
             }
         };
 

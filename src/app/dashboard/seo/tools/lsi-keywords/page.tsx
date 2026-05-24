@@ -1,27 +1,36 @@
 'use client';
 
 import { Button, Input, Card, ZoruCardContent, Badge, cn } from '@/components/zoruui';
-import { cn as _zoruCn, useState } from 'react';
+import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
-void _zoruCn;
-
-const SYNONYMS = ['related', 'similar', 'alternative', 'comparable', 'equivalent'];
-const TOPICS = ['benefits', 'features', 'types', 'uses', 'examples', 'tips', 'strategies', 'methods', 'techniques', 'trends'];
-const CONTEXTS = ['for business', 'for marketing', 'for SEO', 'in 2026', 'explained', 'overview'];
 
 export default function LsiKeywordsPage() {
   const [seed, setSeed] = useState('');
   const [results, setResults] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const run = () => {
+  const run = async () => {
     const s = seed.trim().toLowerCase();
     if (!s) return;
-    const out = new Set<string>();
-    for (const syn of SYNONYMS) out.add(`${syn} ${s}`);
-    for (const t of TOPICS) out.add(`${s} ${t}`);
-    for (const c of CONTEXTS) out.add(`${s} ${c}`);
-    setResults(Array.from(out));
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const res = await fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(s)}`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch LSI keywords');
+      }
+      const data = await res.json();
+      setResults(data.slice(0, 50).map((item: { word: string }) => item.word));
+    } catch (err: any) {
+      setError(err.message || 'An error occurred');
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,12 +40,20 @@ export default function LsiKeywordsPage() {
           value={seed}
           onChange={(e) => setSeed(e.target.value)}
           placeholder="Enter seed keyword"
-          onKeyDown={(e) => e.key === 'Enter' && run()}
+          onKeyDown={(e) => e.key === 'Enter' && !loading && run()}
+          disabled={loading}
         />
-        <Button onClick={run}>Generate LSI</Button>
+        <Button onClick={run} disabled={loading || !seed.trim()}>
+          {loading ? 'Generating...' : 'Generate LSI'}
+        </Button>
       </div>
-      {results.length > 0 && (
-        <Card>
+      
+      {error && (
+        <div className="text-red-500 text-sm mt-2">{error}</div>
+      )}
+      
+      {results.length > 0 && !loading && !error && (
+        <Card className="mt-4">
           <ZoruCardContent className="p-4 flex flex-wrap gap-2">
             {results.map((r) => (
               <Badge key={r} variant="outline" className="text-sm">{r}</Badge>

@@ -233,6 +233,18 @@ export async function generatePayrollSummaryData(filters: {
             grossSalary: number; pf: number; esi: number; tds: number;
             professionalTax: number; totalDeductions: number; netPay: number;
         };
+        prevRows?: {
+            employeeId: string;
+            employeeName: string;
+            department: string;
+            grossSalary: number;
+            pf: number;
+            esi: number;
+            tds: number;
+            professionalTax: number;
+            totalDeductions: number;
+            netPay: number;
+        }[];
         totalEmployees: number;
         totalPayroll: number;
     };
@@ -356,6 +368,7 @@ export async function generatePayrollSummaryData(filters: {
                 rows: JSON.parse(JSON.stringify(rows)),
                 totals,
                 previousTotals,
+                prevRows: JSON.parse(JSON.stringify(prevRows)),
                 totalEmployees: employees.length,
                 totalPayroll: totals.grossSalary,
             },
@@ -387,6 +400,9 @@ export async function generateSalaryRegisterData(filters: {
         totalDeductions: number;
         netPay: number;
         ytdGross: number;
+        ytdBasic: number;
+        ytdPf: number;
+        ytdTds: number;
         ytdDeductions: number;
         ytdNetPay: number;
     }[];
@@ -472,14 +488,23 @@ export async function generateSalaryRegisterData(filters: {
             // Calculate YTD values
             const empYtdPayslips = ytdPayslipMap[emp._id.toString()] || [];
             let ytdGross = 0;
+            let ytdBasic = 0;
+            let ytdPf = 0;
+            let ytdTds = 0;
             let ytdDeductions = 0;
             let ytdNetPay = 0;
 
             if (empYtdPayslips.length > 0) {
                 empYtdPayslips.forEach((p: any) => {
                     const pGross = p.grossSalary ?? 0;
+                    const pBasic = p.earnings?.find((e: any) => /basic/i.test(e.name))?.amount ?? Math.round(pGross * 0.5);
+                    const pPf = p.deductions?.find((d: any) => /pf|provident/i.test(d.name))?.amount ?? Math.round(pBasic * 0.12);
+                    const pTds = p.deductions?.find((d: any) => /tds|tax deducted/i.test(d.name))?.amount ?? 0;
                     const pDeductions = p.deductions?.reduce((s: number, d: any) => s + d.amount, 0) ?? 0;
                     ytdGross += pGross;
+                    ytdBasic += pBasic;
+                    ytdPf += pPf;
+                    ytdTds += pTds;
                     ytdDeductions += pDeductions;
                     ytdNetPay += (pGross - pDeductions);
                 });
@@ -489,6 +514,9 @@ export async function generateSalaryRegisterData(filters: {
                 // For a more accurate YTD, we would multiply by the number of months active, 
                 // but usually YTD is just sum of actuals. We will use the current month's values as YTD for now.
                 ytdGross = totalGross;
+                ytdBasic = basic;
+                ytdPf = pf;
+                ytdTds = tds;
                 ytdDeductions = totalDeductions;
                 ytdNetPay = netPay;
             }
@@ -508,6 +536,9 @@ export async function generateSalaryRegisterData(filters: {
                 totalDeductions,
                 netPay,
                 ytdGross,
+                ytdBasic,
+                ytdPf,
+                ytdTds,
                 ytdDeductions,
                 ytdNetPay,
             };

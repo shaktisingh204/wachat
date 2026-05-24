@@ -1,10 +1,9 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/zoruui';
-import { cn as _zoruCn, useState } from 'react';
+import { Button, Input, Card, ZoruCardContent, Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
+import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-
-void _zoruCn;
+import { InfoIcon } from 'lucide-react';
 
 function hashString(s: string): number {
   let h = 0;
@@ -42,6 +41,14 @@ export default function KeywordDifficultyPage() {
 
   return (
     <ToolShell title="Keyword Difficulty" description="Estimate how hard it will be to rank for a keyword (heuristic score).">
+      <Alert variant="info" className="mb-6">
+        <InfoIcon className="h-4 w-4" />
+        <ZoruAlertTitle>Demo Environment</ZoruAlertTitle>
+        <ZoruAlertDescription>
+          This tool is currently running in a demonstration mode. The keyword difficulty scores provided are generated using a deterministic hashing algorithm rather than real-world SERP (Search Engine Results Page) data. In a production environment, this would integrate with an external SEO data provider (e.g., Ahrefs, Semrush, or DataForSEO API) to fetch accurate ranking difficulty metrics.
+        </ZoruAlertDescription>
+      </Alert>
+
       <div className="flex gap-2">
         <Input
           value={kw}
@@ -52,7 +59,7 @@ export default function KeywordDifficultyPage() {
         <Button onClick={run}>Check</Button>
       </div>
       {score !== null && l && (
-        <Card>
+        <Card className="mt-6">
           <ZoruCardContent className="p-6 space-y-4">
             <div className="flex items-baseline gap-3">
               <div className="text-5xl font-bold">{score}</div>
@@ -63,7 +70,7 @@ export default function KeywordDifficultyPage() {
               <div className="h-full bg-primary" style={{ width: `${score}%` }} />
             </div>
             <p className="text-sm text-muted-foreground">
-              Shorter, broader keywords tend to be more competitive. Long-tail keywords are easier to rank for but have less search volume. This is a heuristic score — integrate a SERP API for production-grade data.
+              Shorter, broader keywords tend to be more competitive. Long-tail keywords are easier to rank for but have less search volume.
             </p>
           </ZoruCardContent>
         </Card>

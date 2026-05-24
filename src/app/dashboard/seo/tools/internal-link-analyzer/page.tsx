@@ -12,7 +12,7 @@ export default function InternalLinkAnalyzerPage() {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [links, setLinks] = useState<{ href: string; text: string }[] | null>(null);
+  const [links, setLinks] = useState<{ href: string; text: string; nofollow?: boolean }[] | null>(null);
 
   const run = async () => {
     if (!url) return;
@@ -33,17 +33,29 @@ export default function InternalLinkAnalyzerPage() {
         return;
       }
       const parsed = parseHtml(r.body || '');
+
+      let baseUrl = r.finalUrl || url;
+      const baseMatch = r.body?.match(/<base\b[^>]*href\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))[^>]*>/i);
+      const baseHref = baseMatch ? (baseMatch[1] || baseMatch[2] || baseMatch[3]) : null;
+      if (baseHref) {
+        try {
+          baseUrl = new URL(baseHref, baseUrl).href;
+        } catch {
+          // ignore invalid base href
+        }
+      }
+
       const internal = (parsed.links || [])
         .filter((l) => {
           if (!l.href) return false;
           try {
-            const u = new URL(l.href, r.finalUrl || url);
+            const u = new URL(l.href, baseUrl);
             return u.hostname === host;
           } catch {
             return false;
           }
         })
-        .map((l) => ({ href: l.href, text: l.text }));
+        .map((l) => ({ href: l.href, text: l.text, nofollow: l.nofollow }));
       setLinks(internal);
     } finally {
       setLoading(false);
@@ -76,7 +88,14 @@ export default function InternalLinkAnalyzerPage() {
             <div className="space-y-2 max-h-[600px] overflow-auto">
               {links.map((l, i) => (
                 <div key={i} className="text-sm border-b pb-2">
-                  <div className="font-mono text-xs break-all">{l.href}</div>
+                  <div className="font-mono text-xs break-all flex items-center gap-2">
+                    <span>{l.href}</span>
+                    {l.nofollow && (
+                      <span className="bg-yellow-500/20 text-yellow-600 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
+                        Nofollow
+                      </span>
+                    )}
+                  </div>
                   {l.text && <div className="text-muted-foreground">{l.text}</div>}
                 </div>
               ))}

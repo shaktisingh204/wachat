@@ -2,6 +2,7 @@
 
 import { Button, Input, Card, ZoruCardContent, cn } from '@/components/zoruui';
 import { cn as _zoruCn, useState } from 'react';
+import { Download } from 'lucide-react';
 
 void _zoruCn;
 
@@ -32,6 +33,18 @@ export default function AutocompleteSuggestionsPage() {
     }
   };
 
+  const handleExportCsv = () => {
+    if (results.length === 0) return;
+    const csvContent = "data:text/csv;charset=utf-8,Suggestion\n" + results.map(r => `"${r.replace(/"/g, '""')}"`).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `autocomplete-suggestions-${q.replace(/[^a-z0-9]/gi, '-').toLowerCase() || 'keyword'}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
   return (
     <ToolShell title="Autocomplete Suggestions" description="Google autocomplete for your seed keyword.">
       <div className="flex gap-2">
@@ -40,9 +53,18 @@ export default function AutocompleteSuggestionsPage() {
       </div>
       {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
       {results.length > 0 && (
-        <Card><ZoruCardContent className="p-4 space-y-1">
-          {results.map((s, i) => <div key={i} className="text-sm border-b last:border-0 py-1">{s}</div>)}
-        </ZoruCardContent></Card>
+        <Card>
+          <div className="flex justify-between items-center p-4 border-b">
+            <h3 className="font-medium text-sm">Results ({results.length})</h3>
+            <Button variant="outline" size="sm" onClick={handleExportCsv}>
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+          </div>
+          <ZoruCardContent className="p-4 space-y-1">
+            {results.map((s, i) => <div key={i} className="text-sm border-b last:border-0 py-1">{s}</div>)}
+          </ZoruCardContent>
+        </Card>
       )}
     </ToolShell>
   );

@@ -1,7 +1,21 @@
-import { WebsiteBuilder } from '@/components/wabasimplify/website-builder/website-builder';
 import { getSiteById, getWebsitePages } from '@/app/actions/portfolio.actions';
 import { notFound } from 'next/navigation';
 import { CartProvider } from '@/context/cart-context';
+import nextDynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
+
+const WebsiteBuilder = nextDynamic(
+    () => import('@/components/wabasimplify/website-builder/website-builder').then((mod) => mod.WebsiteBuilder),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="flex h-screen w-full items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+        )
+    }
+);
 
 export const dynamic = 'force-dynamic';
 
@@ -17,8 +31,14 @@ export default async function WebsiteBuilderPage(props: { params: Promise<{ port
     }
 
     return (
-        <CartProvider>
-            <WebsiteBuilder shop={site as any} initialPages={pages} availableProducts={[]} />
-        </CartProvider>
+        <Suspense fallback={
+            <div className="flex h-screen w-full items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+        }>
+            <CartProvider>
+                <WebsiteBuilder shop={site as any} initialPages={pages} availableProducts={[]} />
+            </CartProvider>
+        </Suspense>
     );
 }

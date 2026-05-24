@@ -20,8 +20,6 @@ import { ArrowLeft,
   Save,
   CheckCircle2 } from 'lucide-react';
 
-// TODO 1E.sweep: month -> <EnumFormField enumName="month">; employee -> <EntityFormField entity="employee">. See plan §1E.
-
 /**
  * <PfEsiForm /> — create + edit form for PF/ESI monthly records.
  * Binds to `savePfEsiRecord` via `useActionState`.
@@ -156,10 +154,10 @@ export function PfEsiForm({ initialData }: PfEsiFormProps) {
         setIsVerifyingEsi(true);
         setTimeout(() => {
             setIsVerifyingEsi(false);
-            if (esiIcNumber.length >= 10 && /^\d+$/.test(esiIcNumber)) {
+            if (esiIcNumber.length === 17 && /^\d+$/.test(esiIcNumber)) {
                 toast({ title: 'ESI Verified', description: `ESI IC Number ${esiIcNumber} is valid and active.` });
             } else {
-                toast({ title: 'ESI Invalid', description: 'ESI Number must be at least 10 digits.', variant: 'destructive' });
+                toast({ title: 'ESI Invalid', description: 'ESI Number must be exactly 17 digits.', variant: 'destructive' });
             }
         }, 1000);
     };

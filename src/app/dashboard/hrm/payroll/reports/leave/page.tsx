@@ -35,7 +35,7 @@ type LeaveRow = {
     remaining: number;
 };
 
-type Summary = { totalEmployees: number; totalUsed: number; totalPending: number };
+
 
 type SelectItem = { _id: string; name: string };
 
@@ -54,7 +54,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'
 
 export default function LeaveReportPage() {
     const [reportData, setReportData] = useState<LeaveRow[]>([]);
-    const [summary, setSummary] = useState<Summary>({ totalEmployees: 0, totalUsed: 0, totalPending: 0 });
+
     const [employees, setEmployees] = useState<SelectItem[]>([]);
     const [leaveTypes, setLeaveTypes] = useState<string[]>([]);
     const [isLoading, startTransition] = useTransition();
@@ -82,7 +82,7 @@ export default function LeaveReportPage() {
                 toast({ title: 'Error generating report', description: result.error, variant: 'destructive' });
             } else {
                 setReportData(result.data ?? []);
-                setSummary(result.summary ?? { totalEmployees: 0, totalUsed: 0, totalPending: 0 });
+
                 setExpandedRows(new Set()); // Reset expanded rows on new data
             }
         });
@@ -108,6 +108,8 @@ export default function LeaveReportPage() {
     };
 
     const actualTotalEmployees = useMemo(() => new Set(reportData.map(r => r.employeeId)).size, [reportData]);
+    const totalUsed = useMemo(() => reportData.reduce((sum, r) => sum + r.used, 0), [reportData]);
+    const totalPending = useMemo(() => reportData.reduce((sum, r) => sum + r.pending, 0), [reportData]);
 
     const groupedData = useMemo(() => {
         const map = new Map<string, {
@@ -229,8 +231,8 @@ export default function LeaveReportPage() {
             {/* Summary stat cards */}
             <div className="grid gap-4 sm:grid-cols-3 mb-4">
                 <StatCard title="Employees with Leave" value={actualTotalEmployees} icon={Users} />
-                <StatCard title="Total Days Used" value={summary.totalUsed} icon={CheckCircle2} />
-                <StatCard title="Total Days Pending" value={summary.totalPending} icon={Clock} />
+                <StatCard title="Total Days Used" value={totalUsed} icon={CheckCircle2} />
+                <StatCard title="Total Days Pending" value={totalPending} icon={Clock} />
             </div>
             
             {/* Visualizations */}

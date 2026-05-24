@@ -1,13 +1,14 @@
 'use client';
 
-import { Button, Card, Skeleton, useZoruToast, ZoruChartContainer, ZoruChartTooltip } from '@/components/zoruui';
+import { Button, Card, Skeleton, useZoruToast, ZoruChartContainer, ZoruChartTooltip, Input, Label, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/zoruui';
 import { useEffect, useState, use } from 'react';
 
-import { Star, Link as LinkIcon, BarChart, Globe, Target, Map } from 'lucide-react';
+import { Star, Link as LinkIcon, BarChart, Globe, Target, Map, Trash2, Save, Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { getSeoProject, getSiteMetrics } from '@/app/actions/seo.actions';
+import { getSeoProject, getSiteMetrics, getKeywords, deleteSeoProject, updateSeoProject, addKeyword } from '@/app/actions/seo.actions';
 import { Bar, CartesianGrid, XAxis, YAxis, ComposedChart } from 'recharts';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const ChartContainer = dynamic(() => import("@/components/zoruui").then(mod => mod.ZoruChartContainer), { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }) as any;
 const ChartTooltip = dynamic(() => import("@/components/zoruui").then(mod => mod.ZoruChartTooltip), { ssr: false }) as any;
@@ -35,7 +36,263 @@ function StatCard({ title, value, icon: Icon, desc }: { title: string, value: st
     );
 }
 
-type TabKey = 'overview' | 'keywords' | 'competitors';
+function KeywordsTab({ projectId, project }: { projectId: string, project: any }) {
+    const [keywords, setKeywords] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [newKw, setNewKw] = useState('');
+    const [adding, setAdding] = useState(false);
+    const { toast } = useZoruToast();
+
+    const fetchKeywords = async () => {
+        setLoading(true);
+        try {
+            const data = await getKeywords(projectId);
+            setKeywords(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchKeywords();
+    }, [projectId]);
+
+    const handleAdd = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newKw.trim()) return;
+        setAdding(true);
+        const res = await addKeyword(projectId, newKw.trim());
+        if (res.error) {
+            toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        } else {
+            toast({ title: 'Success', description: 'Keyword added' });
+            setNewKw('');
+            fetchKeywords();
+        }
+        setAdding(false);
+    };
+
+    if (loading) return <Skeleton className="h-40 w-full" />;
+
+    return (
+        <Card className="p-6">
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <div className="text-sm text-zoru-ink font-medium">Top Performing Keywords</div>
+                    <p className="text-zoru-ink-muted text-[12.5px] mt-1">Track your keyword rankings over time.</p>
+                </div>
+                <form onSubmit={handleAdd} className="flex gap-2">
+                    <Input 
+                        placeholder="Add new keyword..." 
+                        value={newKw} 
+                        onChange={(e) => setNewKw(e.target.value)} 
+                        className="w-[200px]"
+                        disabled={adding}
+                    />
+                    <Button type="submit" disabled={adding || !newKw.trim()}>
+                        <Plus className="h-4 w-4 mr-2" /> Add
+                    </Button>
+                </form>
+            </div>
+            {keywords.length === 0 ? (
+                <div className="text-center py-8 text-zoru-ink-muted text-[13px]">
+                    No keywords added yet. Add some to start tracking rankings.
+                </div>
+            ) : (
+                <div className="border border-zoru-line rounded-[var(--zoru-radius)] overflow-hidden">
+                    <Table>
+                        <TableHeader className="bg-zoru-surface-2">
+                            <TableRow>
+                                <TableHead>Keyword</TableHead>
+                                <TableHead>Location</TableHead>
+                                <TableHead className="text-right">Rank</TableHead>
+                                <TableHead className="text-right">Volume</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {keywords.map((kw: any) => (
+                                <TableRow key={kw._id}>
+                                    <TableCell className="font-medium">{kw.keyword}</TableCell>
+                                    <TableCell>{kw.location === '2840' ? 'US' : kw.location}</TableCell>
+                                    <TableCell className="text-right">
+                                        {kw.currentRank ? (
+                                            <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-zoru-ink text-zoru-surface text-[11px] font-semibold">
+                                                {kw.currentRank}
+                                            </span>
+                                        ) : (
+                                            <span className="text-zoru-ink-muted">-</span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-right">{kw.currentVolume?.toLocaleString() || '-'}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            )}
+        </Card>
+    );
+}
+
+function CompetitorMetrics({ domain }: { domain: string }) {
+    const [metrics, setMetrics] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        getSiteMetrics(domain).then(res => {
+            setMetrics(res);
+            setLoading(false);
+        }).catch(() => setLoading(false));
+    }, [domain]);
+
+    if (loading) return <Skeleton className="h-16 w-full mt-2" />;
+
+    return (
+        <div className="grid grid-cols-3 gap-4 mt-3">
+            <div>
+                <div className="text-[11px] text-zoru-ink-muted">DA</div>
+                <div className="text-sm font-semibold text-zoru-ink">{metrics?.domainAuthority || '-'}</div>
+            </div>
+            <div>
+                <div className="text-[11px] text-zoru-ink-muted">Backlinks</div>
+                <div className="text-sm font-semibold text-zoru-ink">{metrics?.totalBacklinks?.toLocaleString() || '-'}</div>
+            </div>
+            <div>
+                <div className="text-[11px] text-zoru-ink-muted">Ref. Domains</div>
+                <div className="text-sm font-semibold text-zoru-ink">{metrics?.linkingDomains?.toLocaleString() || '-'}</div>
+            </div>
+        </div>
+    );
+}
+
+function CompetitorsTab({ project }: { project: any }) {
+    return (
+        <Card className="p-6">
+            <div className="mb-6">
+                <div className="text-sm text-zoru-ink font-medium">Competitor Analysis</div>
+                <p className="text-zoru-ink-muted text-[12.5px] mt-1">Compare your metrics against tracked competitors.</p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+                {project.competitors?.map((comp: string) => (
+                    <div key={comp} className="flex flex-col p-4 border border-zoru-line rounded-[var(--zoru-radius)] bg-zoru-surface">
+                        <div className="flex justify-between items-center pb-3 border-b border-zoru-line border-dashed">
+                            <span className="text-sm font-medium text-zoru-ink flex items-center gap-2">
+                                <Globe className="h-4 w-4 text-zoru-ink-muted" />
+                                {comp}
+                            </span>
+                            <Button size="sm" variant="ghost" className="h-7 text-[11px]">View Report</Button>
+                        </div>
+                        <CompetitorMetrics domain={comp} />
+                    </div>
+                ))}
+                {(!project.competitors || project.competitors.length === 0) && (
+                    <div className="col-span-full py-8 text-center border border-zoru-line border-dashed rounded-[var(--zoru-radius)]">
+                        <p className="text-zoru-ink-muted text-[13px]">No competitors added.</p>
+                        <p className="text-[11px] text-zoru-ink-muted mt-1">Go to Settings to add competitors.</p>
+                    </div>
+                )}
+            </div>
+        </Card>
+    );
+}
+
+function SettingsTab({ project, onUpdate }: { project: any, onUpdate: () => void }) {
+    const [competitors, setCompetitors] = useState(project.competitors?.join(', ') || '');
+    const [location, setLocation] = useState(project.settings?.locations?.[0] || 'US');
+    const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const router = useRouter();
+    const { toast } = useZoruToast();
+
+    const handleSave = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSaving(true);
+        const compArray = competitors.split(',').map((s: string) => s.trim()).filter(Boolean);
+        const res = await updateSeoProject(project._id, {
+            competitors: compArray,
+            settings: { ...project.settings, locations: [location] }
+        });
+        if (res.error) {
+            toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        } else {
+            toast({ title: 'Success', description: 'Settings updated' });
+            onUpdate();
+        }
+        setSaving(false);
+    };
+
+    const handleDelete = async () => {
+        if (!confirm('Are you sure you want to delete this project? This action cannot be undone.')) return;
+        setDeleting(true);
+        const res = await deleteSeoProject(project._id);
+        if (res.error) {
+            toast({ title: 'Error', description: res.error, variant: 'destructive' });
+            setDeleting(false);
+        } else {
+            toast({ title: 'Success', description: 'Project deleted' });
+            router.push('/dashboard/seo');
+        }
+    };
+
+    return (
+        <Card className="p-6 max-w-2xl">
+            <div className="mb-6">
+                <div className="text-sm text-zoru-ink font-medium">Project Settings</div>
+                <p className="text-zoru-ink-muted text-[12.5px] mt-1">Update your SEO project settings or delete the project.</p>
+            </div>
+            
+            <form onSubmit={handleSave} className="flex flex-col gap-6">
+                <div className="space-y-2">
+                    <Label htmlFor="competitors">Competitors</Label>
+                    <Input 
+                        id="competitors" 
+                        value={competitors} 
+                        onChange={(e) => setCompetitors(e.target.value)} 
+                        placeholder="example1.com, example2.com" 
+                    />
+                    <p className="text-[11px] text-zoru-ink-muted">Comma separated list of competitor domains.</p>
+                </div>
+                
+                <div className="space-y-2">
+                    <Label htmlFor="location">Target Location</Label>
+                    <Input 
+                        id="location" 
+                        value={location} 
+                        onChange={(e) => setLocation(e.target.value)} 
+                        placeholder="US, UK, IN" 
+                    />
+                    <p className="text-[11px] text-zoru-ink-muted">Country code for rank tracking.</p>
+                </div>
+
+                <div className="flex gap-3">
+                    <Button type="submit" disabled={saving}>
+                        {saving ? 'Saving...' : (
+                            <>
+                                <Save className="h-4 w-4 mr-2" />
+                                Save Settings
+                            </>
+                        )}
+                    </Button>
+                </div>
+            </form>
+
+            <div className="mt-10 pt-6 border-t border-zoru-line border-dashed">
+                <div className="mb-4">
+                    <h3 className="text-sm font-medium text-red-500">Danger Zone</h3>
+                    <p className="text-[12.5px] text-zoru-ink-muted mt-1">Deleting this project will permanently remove all associated audits, keywords, and history.</p>
+                </div>
+                <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {deleting ? 'Deleting...' : 'Delete Project'}
+                </Button>
+            </div>
+        </Card>
+    );
+}
+
+type TabKey = 'overview' | 'keywords' | 'competitors' | 'settings';
 
 export default function ProjectDashboard({ params }: { params: Promise<{ projectId: string }> }) {
     const unwrappedParams = use(params);
@@ -46,6 +303,7 @@ export default function ProjectDashboard({ params }: { params: Promise<{ project
     const [metrics, setMetrics] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [tab, setTab] = useState<TabKey>('overview');
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     useEffect(() => {
         const loadData = async () => {
@@ -65,7 +323,7 @@ export default function ProjectDashboard({ params }: { params: Promise<{ project
             }
         };
         loadData();
-    }, [projectId, toast]);
+    }, [projectId, toast, refreshTrigger]);
 
     if (loading || !project || !metrics) return <Skeleton className="h-full w-full" />;
 
@@ -87,7 +345,7 @@ export default function ProjectDashboard({ params }: { params: Promise<{ project
                     </Link>
                     <Link href={`/dashboard/seo/${projectId}/grid`}>
                         <Button>
-                            <Map className="h-4 w-4" />
+                            <Map className="h-4 w-4 mr-2" />
                             Grid Tracker
                         </Button>
                     </Link>
@@ -122,7 +380,7 @@ export default function ProjectDashboard({ params }: { params: Promise<{ project
             </div>
 
             <div className="flex items-center gap-2 border-b border-zoru-line">
-                {(['overview', 'keywords', 'competitors'] as TabKey[]).map(key => (
+                {(['overview', 'keywords', 'competitors', 'settings'] as TabKey[]).map(key => (
                     <button
                         key={key}
                         type="button"
@@ -141,7 +399,7 @@ export default function ProjectDashboard({ params }: { params: Promise<{ project
             {tab === 'overview' && (
                 <Card className="p-6">
                     <div className="mb-4">
-                        <div className="text-sm text-zoru-ink">Estimated Traffic Trend</div>
+                        <div className="text-sm text-zoru-ink font-medium">Estimated Traffic Trend</div>
                         <div className="mt-1 text-[11.5px] text-zoru-ink-muted">
                             Organic vs Social traffic over the last 6 months (Simulated)
                         </div>
@@ -160,29 +418,11 @@ export default function ProjectDashboard({ params }: { params: Promise<{ project
                 </Card>
             )}
 
-            {tab === 'keywords' && (
-                <Card className="p-6">
-                    <div className="mb-4 text-sm text-zoru-ink">Top Performing Keywords</div>
-                    <p className="text-zoru-ink-muted text-[12.5px]">Keyword table coming soon...</p>
-                </Card>
-            )}
+            {tab === 'keywords' && <KeywordsTab projectId={projectId} project={project} />}
 
-            {tab === 'competitors' && (
-                <Card className="p-6">
-                    <div className="mb-4 text-sm text-zoru-ink">Competitor Analysis</div>
-                    <div className="flex flex-col gap-2">
-                        {project.competitors?.map((comp: string) => (
-                            <div key={comp} className="flex justify-between items-center p-3 border border-zoru-line rounded-[var(--zoru-radius)]">
-                                <span className="text-zoru-ink">{comp}</span>
-                                <Button size="sm" variant="ghost">View Report</Button>
-                            </div>
-                        ))}
-                        {(!project.competitors || project.competitors.length === 0) && (
-                            <p className="text-zoru-ink-muted text-[12.5px]">No competitors added.</p>
-                        )}
-                    </div>
-                </Card>
-            )}
+            {tab === 'competitors' && <CompetitorsTab project={project} />}
+
+            {tab === 'settings' && <SettingsTab project={project} onUpdate={() => setRefreshTrigger(r => r + 1)} />}
         </div>
     );
 }

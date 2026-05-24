@@ -22,6 +22,23 @@ import {
 import { Button, DropdownMenu, ZoruDropdownMenuTrigger, ZoruDropdownMenuContent, ZoruDropdownMenuLabel, ZoruDropdownMenuRadioGroup, ZoruDropdownMenuRadioItem, ZoruDropdownMenuSeparator, ZoruDropdownMenuItem, ZoruDropdownMenuCheckboxItem } from "@/components/zoruui";
 import { useRouter } from "next/navigation";
 import { compact, curr } from "./utils";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  useSortable
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const TIME_RANGE_LABELS = {
   "24h": "Last 24 hours",
@@ -38,6 +55,30 @@ type KpiGridProps = {
   currency: string;
   onExport: (timeRange: TimeRange) => void;
 };
+
+function SortableKpiTile({ id, kpiData }: { id: string, kpiData: any }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    cursor: "grab",
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <KpiTile {...kpiData} />
+    </div>
+  );
+}
 
 export function KpiGrid({ stats, velocity, derived, currency, onExport }: KpiGridProps) {
   const router = useRouter();
@@ -59,24 +100,9 @@ export function KpiGrid({ stats, velocity, derived, currency, onExport }: KpiGri
     activity: true,
   });
 
-  useEffect(() => {
-    const saved = localStorage.getItem("zoru-dashboard-kpis");
-    if (saved) {
-      try {
-        setVisibleKpis(JSON.parse(saved));
-      } catch (e) {}
-    }
-  }, []);
-
-  const toggleKpi = (key: string) => {
-    const newKpis = { ...visibleKpis, [key]: !visibleKpis[key] };
-    setVisibleKpis(newKpis);
-    localStorage.setItem("zoru-dashboard-kpis", JSON.stringify(newKpis));
-  };
-
-  const kpis = [
+  const defaultKpis = [
     {
-      key: "messages",
+      id: "messages",
       label: "Messages 24h",
       value: compact(velocity.messagesLast24h),
       hint: `${compact(stats.totalMessages)} all time`,
@@ -85,83 +111,134 @@ export function KpiGrid({ stats, velocity, derived, currency, onExport }: KpiGri
       icon: <Send />,
     },
     {
-      key: "delivery",
+      id: "delivery",
       label: "Delivery rate",
       value: `${derived?.deliveryRate ?? 0}%`,
       hint: `${compact(stats.totalDelivered)} / ${compact(stats.totalSent)}`,
       icon: <CircleCheck />,
     },
     {
-      key: "pipeline",
+      id: "pipeline",
       label: "Pipeline value",
       value: curr(stats.pipelineValue, currency),
       hint: `${stats.totalDeals} open deals`,
       icon: <Briefcase />,
     },
     {
-      key: "deals",
+      id: "deals",
       label: "Deals won",
       value: compact(stats.dealsWon),
       hint: `${derived?.dealsWonRate ?? 0}% conversion`,
       icon: <CircleCheck />,
     },
     {
-      key: "leads",
+      id: "leads",
       label: "New leads",
       value: compact(velocity.leadsLast7d),
       hint: `${compact(stats.totalLeads)} total`,
       icon: <Users />,
     },
     {
-      key: "contacts",
+      id: "contacts",
       label: "Contacts",
       value: compact(stats.totalContacts),
       hint: `+${velocity.contactsLast7d} this week`,
       icon: <MessageSquare />,
     },
     {
-      key: "flows",
+      id: "flows",
       label: "Active flows",
       value: `${stats.activeFlows}/${stats.totalFlows}`,
       hint: `${compact(stats.totalFlowExecutions)} executions`,
       icon: <Workflow />,
     },
     {
-      key: "sabchat",
+      id: "sabchat",
       label: "SabChat sessions",
       value: compact(stats.totalSabChatSessions),
       hint: "AI chatbot",
       icon: <Bot />,
     },
     {
-      key: "sms",
+      id: "sms",
       label: "SMS delivered",
       value: `${derived?.smsDeliveryRate ?? 0}%`,
       hint: `${compact(stats.totalSmsSent)} sent`,
       icon: <Smartphone />,
     },
     {
-      key: "email",
+      id: "email",
       label: "Email campaigns",
       value: compact(stats.totalEmailCampaigns),
       hint: `${compact(stats.totalEmailContacts)} contacts`,
       icon: <Mail />,
     },
     {
-      key: "seo",
+      id: "seo",
       label: "SEO audits",
       value: compact(stats.totalSeoAudits),
       hint: `${stats.totalSeoProjects} site${stats.totalSeoProjects !== 1 ? "s" : ""}`,
       icon: <Globe />,
     },
     {
-      key: "activity",
+      id: "activity",
       label: "Activity 7d",
       value: compact(stats.totalActivityLogs7d),
       hint: `${stats.totalProjects} project${stats.totalProjects !== 1 ? "s" : ""}`,
       icon: <Sparkles />,
     }
   ];
+
+  const [kpis, setKpis] = useState(defaultKpis);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("zoru-dashboard-kpis-visible");
+    if (saved) {
+      try { setVisibleKpis(JSON.parse(saved)); } catch (e) {}
+    }
+    const savedOrder = localStorage.getItem("zoru-dashboard-kpis-order");
+    if (savedOrder) {
+      try {
+        const orderIds = JSON.parse(savedOrder);
+        const ordered = [];
+        const remaining = [...defaultKpis];
+        for (const id of orderIds) {
+          const idx = remaining.findIndex(k => k.id === id);
+          if (idx !== -1) {
+            ordered.push(remaining[idx]);
+            remaining.splice(idx, 1);
+          }
+        }
+        setKpis([...ordered, ...remaining]);
+      } catch (e) {}
+    }
+  }, []);
+
+  const toggleKpi = (key: string) => {
+    const newKpis = { ...visibleKpis, [key]: !visibleKpis[key] };
+    setVisibleKpis(newKpis);
+    localStorage.setItem("zoru-dashboard-kpis-visible", JSON.stringify(newKpis));
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setKpis((items) => {
+        const oldIndex = items.findIndex((i) => i.id === active.id);
+        const newIndex = items.findIndex((i) => i.id === over.id);
+        const newArr = arrayMove(items, oldIndex, newIndex);
+        localStorage.setItem("zoru-dashboard-kpis-order", JSON.stringify(newArr.map(k => k.id)));
+        return newArr;
+      });
+    }
+  }
+
+  const visibleKpiList = kpis.filter(k => visibleKpis[k.id] !== false);
 
   return (
     <section className="mt-10">
@@ -186,9 +263,9 @@ export function KpiGrid({ stats, velocity, derived, currency, onExport }: KpiGri
               <ZoruDropdownMenuSeparator />
               {kpis.map((kpi) => (
                 <ZoruDropdownMenuCheckboxItem
-                  key={kpi.key}
-                  checked={visibleKpis[kpi.key] !== false}
-                  onCheckedChange={() => toggleKpi(kpi.key)}
+                  key={kpi.id}
+                  checked={visibleKpis[kpi.id] !== false}
+                  onCheckedChange={() => toggleKpi(kpi.id)}
                 >
                   {kpi.label}
                 </ZoruDropdownMenuCheckboxItem>
@@ -227,19 +304,15 @@ export function KpiGrid({ stats, velocity, derived, currency, onExport }: KpiGri
         </div>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {kpis.filter((kpi) => visibleKpis[kpi.key] !== false).map((kpi) => (
-          <KpiTile
-            key={kpi.key}
-            label={kpi.label}
-            value={kpi.value}
-            hint={kpi.hint}
-            delta={kpi.delta}
-            up={kpi.up}
-            icon={kpi.icon}
-          />
-        ))}
-      </div>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <SortableContext items={visibleKpiList.map(k => k.id)} strategy={rectSortingStrategy}>
+            {visibleKpiList.map((kpi) => (
+              <SortableKpiTile key={kpi.id} id={kpi.id} kpiData={kpi} />
+            ))}
+          </SortableContext>
+        </div>
+      </DndContext>
     </section>
   );
 }

@@ -80,6 +80,7 @@ const YEARS = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 
 export default function PayrollSummaryPage() {
     const [rows, setRows] = useState<PayrollRow[]>([]);
+    const [prevRows, setPrevRows] = useState<PayrollRow[]>([]);
     const [totals, setTotals] = useState<Totals>({ grossSalary: 0, pf: 0, esi: 0, tds: 0, professionalTax: 0, totalDeductions: 0, netPay: 0 });
     const [previousTotals, setPreviousTotals] = useState<Totals | null>(null);
     const [totalEmployees, setTotalEmployees] = useState(0);
@@ -107,6 +108,7 @@ export default function PayrollSummaryPage() {
                 toast({ title: 'Error generating report', description: result.error, variant: 'destructive' });
             } else if (result.data) {
                 setRows(result.data.rows);
+                setPrevRows(result.data.prevRows || []);
                 setTotals(result.data.totals);
                 setPreviousTotals(result.data.previousTotals || null);
                 setTotalEmployees(result.data.totalEmployees);
@@ -342,19 +344,30 @@ export default function PayrollSummaryPage() {
                                 </tr>
                             ) : rows.length > 0 ? (
                                 <>
-                                    {rows.map(row => (
+                                    {rows.map(row => {
+                                        const prevRow = prevRows.find(pr => pr.employeeId === row.employeeId);
+                                        return (
                                         <tr key={row.employeeId} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50">
                                             <td className="px-4 py-3 font-medium text-zoru-ink">{row.employeeName}</td>
                                             <td className="px-4 py-3 text-zoru-ink-muted">{row.department}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.grossSalary)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                                                {fmt(row.grossSalary)}
+                                                {prevRow && <br/><DeltaBadge current={row.grossSalary} previous={prevRow.grossSalary} />}
+                                            </td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.pf)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.esi)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.tds)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.professionalTax)}</td>
-                                            <td className="px-4 py-3 text-right font-mono font-semibold text-red-600">{fmt(row.totalDeductions)}</td>
-                                            <td className="px-4 py-3 text-right font-mono font-bold text-green-600">{fmt(row.netPay)}</td>
+                                            <td className="px-4 py-3 text-right font-mono font-semibold text-red-600">
+                                                {fmt(row.totalDeductions)}
+                                                {prevRow && <br/><DeltaBadge current={row.totalDeductions} previous={prevRow.totalDeductions} invertColor />}
+                                            </td>
+                                            <td className="px-4 py-3 text-right font-mono font-bold text-green-600">
+                                                {fmt(row.netPay)}
+                                                {prevRow && <br/><DeltaBadge current={row.netPay} previous={prevRow.netPay} />}
+                                            </td>
                                         </tr>
-                                    ))}
+                                    )})}
                                     {/* Totals row */}
                                     <tr className="border-t-2 border-zoru-line bg-zoru-surface-2 font-semibold">
                                         <td className="px-4 py-3 text-zoru-ink">Totals</td>

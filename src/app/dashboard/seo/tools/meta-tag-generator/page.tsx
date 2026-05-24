@@ -1,9 +1,7 @@
 'use client';
 
 import { Button, Input, Label, Textarea, cn } from '@/components/zoruui';
-import { cn as _zoruCn, useMemo, useState } from 'react';
-
-void _zoruCn;
+import { useMemo, useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -31,9 +29,25 @@ export default function MetaTagGeneratorPage() {
   return (
     <ToolShell title="Meta Tag Generator" description="Generate meta title, description and Open Graph tags.">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1"><Label>Title</Label><Input value={fields.title} onChange={(e) => update('title', e.target.value)} /></div>
+        <div className="space-y-1">
+          <div className="flex justify-between items-center">
+            <Label>Title</Label>
+            <span className={cn("text-xs", fields.title.length > 60 ? "text-red-500 font-medium" : "text-muted-foreground")}>
+              {fields.title.length}/60
+            </span>
+          </div>
+          <Input value={fields.title} onChange={(e) => update('title', e.target.value)} />
+        </div>
         <div className="space-y-1"><Label>Author</Label><Input value={fields.author} onChange={(e) => update('author', e.target.value)} /></div>
-        <div className="space-y-1 md:col-span-2"><Label>Description</Label><Textarea value={fields.description} onChange={(e) => update('description', e.target.value)} /></div>
+        <div className="space-y-1 md:col-span-2">
+          <div className="flex justify-between items-center">
+            <Label>Description</Label>
+            <span className={cn("text-xs", fields.description.length > 160 ? "text-red-500 font-medium" : "text-muted-foreground")}>
+              {fields.description.length}/160
+            </span>
+          </div>
+          <Textarea value={fields.description} onChange={(e) => update('description', e.target.value)} />
+        </div>
         <div className="space-y-1"><Label>Keywords</Label><Input value={fields.keywords} onChange={(e) => update('keywords', e.target.value)} /></div>
         <div className="space-y-1"><Label>Robots</Label><Input value={fields.robots} onChange={(e) => update('robots', e.target.value)} /></div>
         <div className="space-y-1"><Label>OG Title</Label><Input value={fields.ogTitle} onChange={(e) => update('ogTitle', e.target.value)} /></div>

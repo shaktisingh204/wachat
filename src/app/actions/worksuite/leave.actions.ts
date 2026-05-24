@@ -130,17 +130,48 @@ function daysInclusive(from: Date, to: Date): number {
 
 async function computeDaysCount(
   input: Partial<WsLeave>,
-  hoursPerDay: number,
+  settings: WsLeaveSetting,
+  db: import('mongodb').Db,
 ): Promise<number> {
   const duration = (input.duration || 'full-day') as WsLeaveDuration;
   if (duration === 'half-day') return 0.5;
   if (duration === 'hours') {
     const h = Number(input.hours || 0);
+    const hoursPerDay = settings.hours_per_day || 8;
     if (hoursPerDay <= 0) return 0;
     return Math.round((h / hoursPerDay) * 100) / 100;
   }
   if (duration === 'multiple' && input.leave_date && input.end_date) {
-    return daysInclusive(new Date(input.leave_date), new Date(input.end_date));
+    const from = toDateOnly(input.leave_date);
+    const to = toDateOnly(input.end_date);
+    if (to.getTime() < from.getTime()) return 0;
+
+    let count = 0;
+    let holidays: Date[] | null = null;
+    
+    if (!settings.include_holidays) {
+      const holidayDocs = await db.collection('crm_holidays').find({
+        userId: new ObjectId(settings.userId),
+        // Find holidays where the string date overlaps roughly. For simplicity, just fetch all unarchived holidays for the user or query by date.
+      }).toArray();
+      // Parse holiday dates
+      holidays = holidayDocs
+        .filter(h => h.date && !h.archived)
+        .map(h => toDateOnly(h.date));
+    }
+
+    for (let d = new Date(from); d.getTime() <= to.getTime(); d.setDate(d.getDate() + 1)) {
+      if (!settings.include_weekends) {
+        const day = d.getDay();
+        if (day === 0 || day === 6) continue;
+      }
+      if (!settings.include_holidays && holidays) {
+        const t = toDateOnly(d).getTime();
+        if (holidays.some(h => h.getTime() === t)) continue;
+      }
+      count++;
+    }
+    return count;
   }
   return 1;
 }
@@ -335,7 +366,8 @@ export async function saveLeave(
         ? Number(input.days_count)
         : await computeDaysCount(
             { ...input, leave_date: leaveDate, end_date: endDate },
-            hoursPerDay,
+            settings,
+            db
           );
 
     const doc: Record<string, unknown> = {

@@ -80,8 +80,8 @@ export async function getLocalGridRanking(keyword: string, lat: number, lng: num
     const stepDeg = step / 111; // rough conversation
 
     const tasks = [];
-    const startLat = lat - stepDeg;
-    const startLng = lng - stepDeg;
+    const startLat = lat - (radiusKm / 111);
+    const startLng = lng - (radiusKm / 111);
 
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {

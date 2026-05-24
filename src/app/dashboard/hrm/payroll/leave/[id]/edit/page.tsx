@@ -31,17 +31,27 @@ export default async function EditLeavePage({
 
   if (!leave) notFound();
 
+  let leaveBalances: any[] = [];
+  if (leave.assignedTo) {
+    const { getCrmLeaveBalances } = await import('@/app/actions/crm-leave-balances.actions');
+    leaveBalances = await getCrmLeaveBalances({ employeeId: leave.assignedTo });
+  }
+
   const leaveType = leaveTypes.find((lt) => lt._id === leave.leaveTypeId);
   const ltLabel = leaveType
     ? `${leaveType.code} · ${leaveType.name}`
     : 'Leave request';
+
+  const hasStarted = leave.from && new Date(leave.from).getTime() <= Date.now();
+  const isApproved = leave.status === 'approved';
+  const isLocked = hasStarted || isApproved;
 
   return (
     <EntityListShell
       title={`Edit ${ltLabel}`}
       subtitle="Update leave request details."
     >
-      <LeaveForm initial={leave} leaveTypes={leaveTypes} />
+      <LeaveForm initial={leave} leaveTypes={leaveTypes} isLocked={isLocked} leaveBalances={leaveBalances} />
     </EntityListShell>
   );
 }

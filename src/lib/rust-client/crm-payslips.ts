@@ -100,4 +100,9 @@ export const crmPayslipsApi = {
       `/v1/crm/payslips/${encodeURIComponent(id)}`,
       { method: 'DELETE' },
     ),
+  generate: (month: number, year: number) =>
+    rustFetch<{ payrollData: any[] }>(
+      '/v1/crm/payslips/generate',
+      { method: 'POST', body: JSON.stringify({ month, year }) }
+    ),
 };

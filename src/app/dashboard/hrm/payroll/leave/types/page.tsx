@@ -27,6 +27,18 @@ import {
   X,
 } from 'lucide-react';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
+
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getLeaveTypes,
@@ -59,6 +71,7 @@ export default function LeaveTypesPage() {
   // dialog state
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<(WsLeaveType & { _id: string }) | null>(null);
+  const [typeToDelete, setTypeToDelete] = useState<string | null>(null);
 
   const { register, handleSubmit, control, reset, watch } = useForm<FormValues>({
     defaultValues: {
@@ -146,12 +159,13 @@ export default function LeaveTypesPage() {
     setOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (!window.confirm('Delete this leave type?')) return;
+  const confirmDeleteType = () => {
+    if (!typeToDelete) return;
     startDelete(async () => {
-      const r = await deleteLeaveType(id);
+      const r = await deleteLeaveType(typeToDelete);
       if (r.success) {
         toast({ title: 'Deleted' });
+        setTypeToDelete(null);
         loadTypes();
       } else {
         toast({ title: 'Error', description: r.error, variant: 'destructive' });
@@ -222,7 +236,7 @@ export default function LeaveTypesPage() {
                     <td className="px-4 py-3">
                       {t.accrual_enabled ? (
                         <span className="text-[12px] text-zoru-ink-muted">
-                          {t.accrual_rate} / {t.accrual_frequency}
+                          Earn {t.accrual_rate} {t.leave_unit} per {t.accrual_frequency ? t.accrual_frequency.replace('ly', '') : 'month'}
                         </span>
                       ) : (
                         <span className="text-[12px] text-zoru-ink-muted">-</span>
@@ -238,15 +252,33 @@ export default function LeaveTypesPage() {
                           <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
                           Edit
                         </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(t._id)}
-                          disabled={isDeleting}
-                        >
-                          <Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />
-                          Delete
-                        </Button>
+                        <ZoruAlertDialog>
+                          <ZoruAlertDialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setTypeToDelete(t._id)}
+                              disabled={isDeleting}
+                            >
+                              <Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />
+                              Delete
+                            </Button>
+                          </ZoruAlertDialogTrigger>
+                          <ZoruAlertDialogContent>
+                            <ZoruAlertDialogHeader>
+                              <ZoruAlertDialogTitle>Delete Leave Type</ZoruAlertDialogTitle>
+                              <ZoruAlertDialogDescription>
+                                Are you sure you want to delete this leave type? This action cannot be undone.
+                              </ZoruAlertDialogDescription>
+                            </ZoruAlertDialogHeader>
+                            <ZoruAlertDialogFooter>
+                              <ZoruAlertDialogCancel onClick={() => setTypeToDelete(null)}>Cancel</ZoruAlertDialogCancel>
+                              <ZoruAlertDialogAction destructive onClick={confirmDeleteType} disabled={isDeleting}>
+                                Delete
+                              </ZoruAlertDialogAction>
+                            </ZoruAlertDialogFooter>
+                          </ZoruAlertDialogContent>
+                        </ZoruAlertDialog>
                       </div>
                     </td>
                   </tr>
@@ -430,6 +462,10 @@ export default function LeaveTypesPage() {
                         </Select>
                       )}
                     />
+                  </div>
+                  
+                  <div className="md:col-span-2 rounded-lg bg-zoru-surface-2 p-3 text-[13px] text-zoru-ink-muted">
+                    Preview: Earn <strong className="text-zoru-ink">{watch('accrual_rate') || 0}</strong> {watch('leave_unit')} per {watch('accrual_frequency')?.replace('ly', '') || 'month'}
                   </div>
                 </>
               )}

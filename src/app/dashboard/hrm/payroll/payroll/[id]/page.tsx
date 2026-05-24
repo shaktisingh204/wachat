@@ -91,22 +91,21 @@ export default async function PayrollRunDetailPage({
 
     const totalDeductions =
         run.total_deductions ??
-        (rustRun.totals ? (rustRun.totals.gross - rustRun.totals.net) : undefined) ??
-        payslips.reduce(
-            (s: number, p: PayslipRow) =>
-                s +
-                (p.deductions ?? []).reduce(
-                    (a, d) => a + (Number(d.amount) || 0),
-                    0,
-                ),
-            0,
-        );
+        (rustRun.totals ? (rustRun.totals.gross - rustRun.totals.net) : 0);
 
-    async function handleRecompute() {
+    async function handleRecompute(employeeId?: string | FormData) {
         'use server';
         try {
-            const { crmPayrollRunsApi } = await import('@/lib/rust-client/crm-payroll-runs');
-            await crmPayrollRunsApi.compute(runId);
+            const { rustFetch } = await import('@/lib/rust-client/fetcher');
+            let url = `/v1/hrm/payroll-runs/${runId}/compute`;
+            
+            // If called from a form without .bind, employeeId will be a FormData object
+            if (typeof employeeId === 'string' && employeeId) {
+                url += `?employeeId=${encodeURIComponent(employeeId)}`;
+            }
+            
+            await rustFetch(url, { method: 'POST' });
+            
             const { revalidatePath } = await import('next/cache');
             revalidatePath(`/dashboard/hrm/payroll/payroll/${runId}`);
         } catch (e) {
@@ -227,7 +226,7 @@ export default async function PayrollRunDetailPage({
                                         </ZoruTableCell>
                                         <ZoruTableCell>
                                             {status === 'draft' && (
-                                                <form action={handleRecompute}>
+                                                <form action={handleRecompute.bind(null, p.employeeId)}>
                                                     <Button variant="ghost" size="sm" type="submit" title="Re-calculate payslip">
                                                         <RefreshCw className="h-4 w-4" />
                                                     </Button>

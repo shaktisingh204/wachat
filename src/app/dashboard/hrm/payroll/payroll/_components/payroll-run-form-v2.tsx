@@ -196,97 +196,101 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
         {/* Hidden inputs to pass state */}
         <input type="hidden" name="multiplier" value={multiplier} />
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="period_month">Period month *</Label>
-            <Select
-              name="period_month"
-              defaultValue={String(selectedMonth)}
-              onValueChange={(val) => setSelectedMonth(Number(val))}
-              disabled={isEditing}
-            >
-              <ZoruSelectTrigger id="period_month">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {MONTHS.map((m) => (
-                  <ZoruSelectItem key={m.value} value={String(m.value)}>
-                    {m.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </Select>
+        {/* Wizard Progress Bar */}
+        {!isEditing && (
+          <div className="flex items-center gap-2 text-[12px] font-medium text-zoru-ink-muted bg-zoru-surface-2/20 p-3 rounded-lg border border-zoru-line mb-2">
+            <span className={`px-2 py-1 rounded-md ${wizardStep === 1 ? 'bg-zoru-surface-2 text-zoru-ink font-semibold' : ''}`}>1. Select Period</span>
+            <ChevronRight className="h-4 w-4" />
+            <span className={`px-2 py-1 rounded-md ${wizardStep === 2 ? 'bg-zoru-surface-2 text-zoru-ink font-semibold' : ''}`}>2. Resolve Leaves</span>
+            <ChevronRight className="h-4 w-4" />
+            <span className={`px-2 py-1 rounded-md ${wizardStep === 3 ? 'bg-zoru-surface-2 text-zoru-ink font-semibold' : ''}`}>3. Generate Run</span>
+          </div>
+        )}
+
+        <div className={(!isEditing && wizardStep !== 1) ? 'hidden' : 'flex flex-col gap-6'}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="period_month">Period month *</Label>
+              <Select
+                name="period_month"
+                defaultValue={String(selectedMonth)}
+                onValueChange={(val) => setSelectedMonth(Number(val))}
+                disabled={isEditing}
+              >
+                <ZoruSelectTrigger id="period_month">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {MONTHS.map((m) => (
+                    <ZoruSelectItem key={m.value} value={String(m.value)}>
+                      {m.label}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="period_year">Period year *</Label>
+              <Select
+                name="period_year"
+                defaultValue={String(selectedYear)}
+                onValueChange={(val) => setSelectedYear(Number(val))}
+                disabled={isEditing}
+              >
+                <ZoruSelectTrigger id="period_year">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {YEARS.map((y) => (
+                    <ZoruSelectItem key={y} value={String(y)}>
+                      {y}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="run_date">Run date</Label>
+              <Input
+                id="run_date"
+                name="run_date"
+                type="date"
+                defaultValue={toDateInput(initialData?.run_date)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Status</Label>
+              <EnumFormField
+                name="status"
+                enumName="payrollRunStatus"
+                initialId={initialData?.status ?? 'draft'}
+                allowInlineCreate={false}
+                placeholder="Status"
+              />
+            </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="period_year">Period year *</Label>
-            <Select
-              name="period_year"
-              defaultValue={String(selectedYear)}
-              onValueChange={(val) => setSelectedYear(Number(val))}
-              disabled={isEditing}
-            >
-              <ZoruSelectTrigger id="period_year">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {YEARS.map((y) => (
-                  <ZoruSelectItem key={y} value={String(y)}>
-                    {y}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="run_date">Run date</Label>
-            <Input
-              id="run_date"
-              name="run_date"
-              type="date"
-              defaultValue={toDateInput(initialData?.run_date)}
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
+              id="notes"
+              name="notes"
+              rows={3}
+              placeholder="Anything notable about this run."
+              defaultValue={initialData?.notes ?? ''}
             />
           </div>
-          <div className="space-y-1.5">
-            <Label>Status</Label>
-            <EnumFormField
-              name="status"
-              enumName="payrollRunStatus"
-              initialId={initialData?.status ?? 'draft'}
-              allowInlineCreate={false}
-              placeholder="Status"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="notes">Notes</Label>
-          <Textarea
-            id="notes"
-            name="notes"
-            rows={3}
-            placeholder="Anything notable about this run."
-            defaultValue={initialData?.notes ?? ''}
-          />
         </div>
 
         {/* Dynamic Simulation Console / Wizard (Creation Path only) */}
         {!isEditing && (
           <div className="flex flex-col gap-6">
-            {/* Wizard Progress Bar */}
-            <div className="flex items-center gap-2 text-[12px] font-medium text-zoru-ink-muted bg-zoru-surface-2/20 p-3 rounded-lg border border-zoru-line">
-              <span className={`px-2 py-1 rounded-md ${wizardStep === 1 ? 'bg-zoru-surface-2 text-zoru-ink font-semibold' : ''}`}>1. Select Period</span>
-              <ChevronRight className="h-4 w-4" />
-              <span className={`px-2 py-1 rounded-md ${wizardStep === 2 ? 'bg-zoru-surface-2 text-zoru-ink font-semibold' : ''}`}>2. Resolve Leaves</span>
-              <ChevronRight className="h-4 w-4" />
-              <span className={`px-2 py-1 rounded-md ${wizardStep === 3 ? 'bg-zoru-surface-2 text-zoru-ink font-semibold' : ''}`}>3. Generate Run</span>
-            </div>
-
             {wizardStep === 1 && (
-              <div className="flex justify-end border-t border-zoru-line pt-4 mt-2">
+              <div className="flex justify-end pt-2">
                 <Button type="button" onClick={handleNextToStep2} disabled={isCheckingLeaves}>
                   {isCheckingLeaves ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin" /> : null}
                   Next: Check Pending Leaves
@@ -467,6 +471,13 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                     </label>
                   </div>
                 )}
+                
+                {/* Back button for Step 3 */}
+                <div className="p-4 border-t border-zoru-line flex justify-start bg-zoru-bg">
+                  <Button type="button" variant="outline" onClick={() => setWizardStep(2)}>
+                    Back
+                  </Button>
+                </div>
               </Card>
             )}
           </div>

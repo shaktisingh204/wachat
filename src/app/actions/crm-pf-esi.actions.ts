@@ -441,6 +441,78 @@ export async function savePfEsiRecord(
     }
 }
 
+export async function updatePfEsiDocumentUrl(
+    id: string,
+    documentUrl: string,
+): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
+    if (!id || !ObjectId.isValid(id)) return { error: 'Invalid PF/ESI record id.' };
+
+    const guard = await requirePermission('crm_pf_esi', 'edit');
+    if (!guard.ok) return { error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            await crmPfEsiApi.update(id, { documentUrl });
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: 'update',
+                    entityKind: 'pf_esi_record',
+                    entityId: id,
+                });
+            } catch {
+                /* non-fatal */
+            }
+            revalidatePath('/dashboard/hrm/payroll/pf-esi');
+            revalidatePath(`/dashboard/hrm/payroll/pf-esi/${id}`);
+            return { message: 'Scanned challan uploaded successfully.' };
+        } catch (e) {
+            console.error('[updatePfEsiDocumentUrl] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pf_esi_record',
+                op: 'update',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id as string);
+        
+        const result = await db.collection('crm_pf_esi_records').updateOne(
+            { _id: new ObjectId(id), userId: userObjectId },
+            { $set: { documentUrl, updatedAt: new Date() } },
+        );
+
+        if (result.matchedCount === 0) {
+            return { error: 'PF/ESI record not found.' };
+        }
+
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'pf_esi_record',
+                entityId: id,
+            });
+        } catch {
+            /* non-fatal */
+        }
+
+        revalidatePath('/dashboard/hrm/payroll/pf-esi');
+        revalidatePath(`/dashboard/hrm/payroll/pf-esi/${id}`);
+        return { message: 'Scanned challan uploaded successfully.' };
+    } catch (e) {
+        return { error: `Failed to update document URL: ${getErrorMessage(e)}` };
+    }
+}
+
 export async function deletePfEsiRecord(
     id: string,
 ): Promise<{ success: boolean; error?: string }> {

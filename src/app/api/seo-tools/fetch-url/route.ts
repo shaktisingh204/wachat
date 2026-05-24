@@ -20,7 +20,7 @@ function safeUrl(input: string): URL | null {
   }
 }
 
-async function fetchWithRedirects(url: string, maxRedirects = 10) {
+async function fetchWithRedirects(url: string, method = 'GET', userAgent = 'SabNodeSEOBot/1.0', maxRedirects = 10) {
   const chain: { url: string; status: number; location?: string }[] = [];
   let current = url;
   for (let i = 0; i <= maxRedirects; i++) {
@@ -32,9 +32,10 @@ async function fetchWithRedirects(url: string, maxRedirects = 10) {
     let res: Response;
     try {
       res = await fetch(current, {
+        method,
         redirect: 'manual',
         signal: ctrl.signal,
-        headers: { 'User-Agent': 'SabNodeSEOBot/1.0' },
+        headers: { 'User-Agent': userAgent },
       });
     } finally {
       clearTimeout(timer);
@@ -76,12 +77,12 @@ async function readBodyCapped(res: Response): Promise<string> {
 
 export async function POST(req: Request) {
   try {
-    const { url } = await req.json();
+    const { url, method = 'GET', userAgent = 'SabNodeSEOBot/1.0' } = await req.json();
     if (!url) return NextResponse.json({ error: 'url is required' }, { status: 400 });
     const parsed = safeUrl(url);
     if (!parsed) return NextResponse.json({ error: 'invalid or blocked url' }, { status: 400 });
 
-    const { finalResponse, chain } = await fetchWithRedirects(url);
+    const { finalResponse, chain } = await fetchWithRedirects(url, method, userAgent);
     const headers: Record<string, string> = {};
     finalResponse.headers.forEach((v, k) => (headers[k] = v));
     const contentType = headers['content-type'] || '';

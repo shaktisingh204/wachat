@@ -23,6 +23,9 @@ import {
   LuRefreshCw,
   LuTimer,
   LuTriangleAlert,
+  LuBell,
+  LuSave,
+  LuCheck,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import { useT } from '@/lib/i18n/client';
@@ -39,6 +42,12 @@ type UsageResponse = {
     successRate: number;
     avgDurationMs: number;
     p95DurationMs: number;
+    trends?: {
+      total: number;
+      successRate: number;
+      errored: number;
+      p95DurationMs: number;
+    };
   };
   daily: { date: string; count: number; errors: number }[];
   topFlows: { flowId: string; name: string; runs: number }[];
@@ -142,6 +151,7 @@ export function UsageClient() {
               <TopFlowsCard data={data} />
               <TopFailingCard data={data} />
             </div>
+            <LimitAlertsCard />
           </>
         ) : null}
       </div>
@@ -161,24 +171,32 @@ function KpiCards({ data }: { data: UsageResponse }) {
         label={t('sabflow.usage.kpi.totalRuns')}
         value={summary.total.toLocaleString(locale)}
         accent="text-blue-600 dark:text-blue-400"
+        trend={summary.trends?.total}
+        goodDirection="up"
       />
       <Kpi
         icon={<LuAward className="h-3.5 w-3.5" />}
         label={t('sabflow.usage.kpi.successRate')}
         value={`${(summary.successRate * 100).toFixed(1)}%`}
         accent="text-emerald-600 dark:text-emerald-400"
+        trend={summary.trends?.successRate}
+        goodDirection="up"
       />
       <Kpi
         icon={<LuTriangleAlert className="h-3.5 w-3.5" />}
         label={t('sabflow.usage.kpi.errors')}
         value={summary.errored.toLocaleString(locale)}
         accent="text-red-600 dark:text-red-400"
+        trend={summary.trends?.errored}
+        goodDirection="down"
       />
       <Kpi
         icon={<LuTimer className="h-3.5 w-3.5" />}
         label={t('sabflow.usage.kpi.p95Duration')}
         value={formatDuration(summary.p95DurationMs)}
         accent="text-amber-600 dark:text-amber-400"
+        trend={summary.trends?.p95DurationMs}
+        goodDirection="down"
       />
     </div>
   );
@@ -189,20 +207,38 @@ function Kpi({
   label,
   value,
   accent,
+  trend,
+  goodDirection = 'up',
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
   accent: string;
+  trend?: number;
+  goodDirection?: 'up' | 'down';
 }) {
+  const isGood = goodDirection === 'up' ? (trend ?? 0) > 0 : (trend ?? 0) < 0;
+  const trendColor = trend === 0 || trend === undefined
+    ? 'text-[var(--gray-9)]' 
+    : isGood 
+      ? 'text-emerald-600 dark:text-emerald-400' 
+      : 'text-red-600 dark:text-red-400';
+
   return (
     <div className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 sm:px-4 py-2.5 sm:py-3">
       <div className={cn('flex items-center gap-1.5 text-[10.5px] sm:text-[11px] font-medium', accent)}>
         {icon}
         <span className="uppercase tracking-wide truncate">{label}</span>
       </div>
-      <div className="mt-1 text-[17px] sm:text-[20px] font-semibold tabular-nums text-[var(--gray-12)]">
-        {value}
+      <div className="mt-1 flex items-baseline gap-2">
+        <span className="text-[17px] sm:text-[20px] font-semibold tabular-nums text-[var(--gray-12)]">
+          {value}
+        </span>
+        {trend !== undefined && (
+          <span className={cn('text-[10px] sm:text-[11px] font-medium tabular-nums', trendColor)}>
+            {trend > 0 ? '+' : ''}{trend.toFixed(1)}%
+          </span>
+        )}
       </div>
     </div>
   );
@@ -336,4 +372,157 @@ function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`;
   if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`;
   return `${Math.floor(ms / 60_000)}m ${Math.floor((ms % 60_000) / 1000)}s`;
+}
+
+/* ── Limit Alerts ───────────────────────────────────────────────────────── */
+
+function LimitAlertsCard() {
+  const { t } = useT();
+  const [enabled, setEnabled] = useState(false);
+  const [runsThreshold, setRunsThreshold] = useState(1000);
+  const [errorsThreshold, setErrorsThreshold] = useState(100);
+  const [emails, setEmails] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/sabflow/usage/alerts')
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.error) {
+          setEnabled(data.enabled ?? false);
+          setRunsThreshold(data.thresholds?.runs ?? 1000);
+          setErrorsThreshold(data.thresholds?.errors ?? 100);
+          setEmails((data.emails ?? []).join(', '));
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveSuccess(false);
+    try {
+      const emailArray = emails
+        .split(',')
+        .map((e) => e.trim())
+        .filter(Boolean);
+      await fetch('/api/sabflow/usage/alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          enabled,
+          thresholds: { runs: runsThreshold, errors: errorsThreshold },
+          emails: emailArray,
+        }),
+      });
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return null;
+
+  return (
+    <div className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] p-4 sm:p-5 mt-4 sm:mt-6">
+      <div className="flex items-center gap-2 text-[13px] font-semibold text-[var(--gray-12)] mb-4">
+        <LuBell className="h-4 w-4 text-[var(--gray-11)]" />
+        {t('sabflow.usage.alerts.title', { defaultValue: 'Limit Alerts' })}
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-6">
+        <div className="flex-1 space-y-4 max-w-sm">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={enabled}
+              onChange={(e) => setEnabled(e.target.checked)}
+              className="rounded border-[var(--gray-5)] text-violet-600 focus:ring-violet-600"
+            />
+            <span className="text-[13px] text-[var(--gray-12)]">
+              {t('sabflow.usage.alerts.enable', { defaultValue: 'Enable usage alerts' })}
+            </span>
+          </label>
+
+          <div className="space-y-3 pl-6">
+            <div>
+              <label className="block text-[11px] font-medium text-[var(--gray-11)] mb-1">
+                {t('sabflow.usage.alerts.runsThreshold', { defaultValue: 'Monthly Runs Threshold' })}
+              </label>
+              <input
+                type="number"
+                disabled={!enabled}
+                value={runsThreshold}
+                onChange={(e) => setRunsThreshold(Number(e.target.value))}
+                className="w-full rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1.5 text-[12px] text-[var(--gray-12)] disabled:opacity-50 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-medium text-[var(--gray-11)] mb-1">
+                {t('sabflow.usage.alerts.errorsThreshold', { defaultValue: 'Monthly Errors Threshold' })}
+              </label>
+              <input
+                type="number"
+                disabled={!enabled}
+                value={errorsThreshold}
+                onChange={(e) => setErrorsThreshold(Number(e.target.value))}
+                className="w-full rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1.5 text-[12px] text-[var(--gray-12)] disabled:opacity-50 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-medium text-[var(--gray-11)] mb-1">
+                {t('sabflow.usage.alerts.emails', { defaultValue: 'Alert Emails (comma separated)' })}
+              </label>
+              <input
+                type="text"
+                disabled={!enabled}
+                value={emails}
+                onChange={(e) => setEmails(e.target.value)}
+                placeholder="admin@example.com"
+                className="w-full rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1.5 text-[12px] text-[var(--gray-12)] disabled:opacity-50 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-[12px] font-medium text-white hover:bg-violet-700 disabled:opacity-50 transition-colors"
+            >
+              {saving ? (
+                <LuLoader className="h-3.5 w-3.5 animate-spin" />
+              ) : saveSuccess ? (
+                <LuCheck className="h-3.5 w-3.5" />
+              ) : (
+                <LuSave className="h-3.5 w-3.5" />
+              )}
+              {saveSuccess
+                ? t('action.saved', { defaultValue: 'Saved!' })
+                : t('action.save', { defaultValue: 'Save Config' })}
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 bg-[var(--gray-3)] rounded-lg p-4 text-[12px] text-[var(--gray-11)] leading-relaxed">
+          <p className="mb-2 font-medium text-[var(--gray-12)]">
+            {t('sabflow.usage.alerts.infoTitle', { defaultValue: 'How Alerts Work' })}
+          </p>
+          <p className="mb-2">
+            {t('sabflow.usage.alerts.info1', { defaultValue: 'When enabled, we will send an email to the provided addresses if your workspace usage exceeds the configured thresholds within a 30-day rolling window.' })}
+          </p>
+          <p>
+            {t('sabflow.usage.alerts.info2', { defaultValue: 'Alerts are evaluated daily and will only be sent once per threshold breach.' })}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }

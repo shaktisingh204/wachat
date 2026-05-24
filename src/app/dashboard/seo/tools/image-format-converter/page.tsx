@@ -21,6 +21,12 @@ export default function ImageFormatConverterPage() {
       canvas.height = img.naturalHeight;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
+      
+      if (format === 'jpeg') {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      
       ctx.drawImage(img, 0, 0);
       canvas.toBlob((blob) => {
         if (blob) setUrl(URL.createObjectURL(blob));

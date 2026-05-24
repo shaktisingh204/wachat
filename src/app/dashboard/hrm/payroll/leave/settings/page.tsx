@@ -1,13 +1,8 @@
 'use client';
 
 import { Card, Button, Input, Label, Switch, useZoruToast } from '@/components/zoruui';
-import {
-  useEffect,
-  useState,
-  useTransition } from 'react';
-import {
-  LoaderCircle,
-  Save } from 'lucide-react';
+import { useOptimistic, useEffect, useState, useTransition } from 'react';
+import { LoaderCircle, Save } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
@@ -32,32 +27,43 @@ const DEFAULT: Partial<WsLeaveSetting> = {
 export default function LeaveSettingsPage() {
   const { toast } = useZoruToast();
   const [originalSettings, setOriginalSettings] = useState<Partial<WsLeaveSetting>>(DEFAULT);
-  const [settings, setSettings] = useState<Partial<WsLeaveSetting>>(DEFAULT);
+  
+  const [optimisticSettings, addOptimisticSetting] = useOptimistic(
+    originalSettings,
+    (state, updatedSettings: Partial<WsLeaveSetting>) => ({ ...state, ...updatedSettings })
+  );
+  
+  const [pendingSettings, setPendingSettings] = useState<Partial<WsLeaveSetting>>({});
   const [isLoading, startLoading] = useTransition();
   const [isSaving, startSave] = useTransition();
+
+  const currentSettings = { ...optimisticSettings, ...pendingSettings };
 
   useEffect(() => {
     startLoading(async () => {
       const s = await getLeaveSettings();
       const newSettings = { ...DEFAULT, ...s };
       setOriginalSettings(newSettings);
-      setSettings(newSettings);
     });
   }, []);
 
   const update = <K extends keyof WsLeaveSetting>(key: K, value: WsLeaveSetting[K]) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
+    setPendingSettings((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     startSave(async () => {
-      const r = await saveLeaveSettings(settings);
+      const settingsToSave = { ...originalSettings, ...pendingSettings };
+      addOptimisticSetting(pendingSettings);
+      setPendingSettings({}); // Clear pending to allow optimistic state to take over
+      
+      const r = await saveLeaveSettings(settingsToSave);
       if (r.success) {
-        setOriginalSettings(settings);
+        setOriginalSettings(settingsToSave);
         toast({ title: 'Saved', description: 'Leave settings updated.' });
       } else {
-        setSettings(originalSettings); // revert on failure
+        // On failure, the transition ends, useOptimistic reverts, and we visually revert
         toast({ title: 'Error', description: r.error || 'Failed to save settings', variant: 'destructive' });
       }
     });
@@ -77,53 +83,53 @@ export default function LeaveSettingsPage() {
           <form onSubmit={handleSubmit} className="grid gap-5 md:grid-cols-2">
             <Numeric
               label="Monthly leaves allowed"
-              value={settings.monthly_leaves_allowed}
+              value={currentSettings.monthly_leaves_allowed}
               onChange={(v) => update('monthly_leaves_allowed', v)}
             />
             <Numeric
               label="Allowed leaves per week"
-              value={settings.allowed_leaves_per_week}
+              value={currentSettings.allowed_leaves_per_week}
               onChange={(v) => update('allowed_leaves_per_week', v)}
             />
             <Numeric
               label="Max days in advance"
-              value={settings.max_days_advance}
+              value={currentSettings.max_days_advance}
               onChange={(v) => update('max_days_advance', v)}
             />
             <Numeric
               label="Hours per day (for hourly leave)"
-              value={settings.hours_per_day}
+              value={currentSettings.hours_per_day}
               onChange={(v) => update('hours_per_day', v)}
             />
 
             <Toggle
               label="Require approval"
-              checked={settings.require_approval}
+              checked={currentSettings.require_approval}
               onChange={(v) => update('require_approval', v)}
             />
             <Toggle
               label="Allow half-day leaves"
-              checked={settings.allow_half_day}
+              checked={currentSettings.allow_half_day}
               onChange={(v) => update('allow_half_day', v)}
             />
             <Toggle
               label="Allow hourly leaves"
-              checked={settings.allow_hourly}
+              checked={currentSettings.allow_hourly}
               onChange={(v) => update('allow_hourly', v)}
             />
             <Toggle
               label="Allow future leave applications"
-              checked={settings.allow_future_leave}
+              checked={currentSettings.allow_future_leave}
               onChange={(v) => update('allow_future_leave', v)}
             />
             <Toggle
               label="Include weekends in leave duration"
-              checked={settings.include_weekends}
+              checked={currentSettings.include_weekends}
               onChange={(v) => update('include_weekends', v)}
             />
             <Toggle
               label="Include holidays in leave duration"
-              checked={settings.include_holidays}
+              checked={currentSettings.include_holidays}
               onChange={(v) => update('include_holidays', v)}
             />
 

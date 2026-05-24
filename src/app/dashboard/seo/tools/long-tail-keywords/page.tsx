@@ -6,23 +6,31 @@ import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 void _zoruCn;
 
-const MODIFIERS = [
-  'how to', 'what is', 'where', 'when', 'why', 'best', 'top', 'cheap', 'free',
-  'near me', 'for beginners', 'ideas', 'examples', 'guide', 'tutorial',
-];
+const CATEGORIES = {
+  Questions: ['how to', 'what is', 'where to find', 'when to', 'why is'],
+  Commercial: ['best', 'top', 'cheap', 'buy', 'affordable', 'free'],
+  Local: ['near me', 'in my city', 'around me', 'locally'],
+  Informational: ['for beginners', 'ideas', 'examples', 'guide', 'tutorial', 'tips'],
+};
 
 export default function LongTailKeywordsPage() {
   const [seed, setSeed] = useState('');
-  const [results, setResults] = useState<string[]>([]);
+  const [results, setResults] = useState<Record<string, string[]>>({});
 
   const run = () => {
     const s = seed.trim().toLowerCase();
     if (!s) return;
-    const out: string[] = [];
-    for (const m of MODIFIERS) {
-      out.push(m.startsWith('how') || m.startsWith('what') || m.startsWith('where') || m.startsWith('when') || m.startsWith('why')
-        ? `${m} ${s}`
-        : `${s} ${m}`);
+    
+    const out: Record<string, string[]> = {};
+    for (const [category, mods] of Object.entries(CATEGORIES)) {
+      out[category] = mods.map(m => {
+        // Questions and Commercial usually prefix the seed
+        if (category === 'Questions' || category === 'Commercial') {
+           return `${m} ${s}`;
+        }
+        // Local and Informational usually postfix the seed
+        return `${s} ${m}`;
+      });
     }
     setResults(out);
   };
@@ -38,16 +46,22 @@ export default function LongTailKeywordsPage() {
         />
         <Button onClick={run}>Expand</Button>
       </div>
-      {results.length > 0 && (
-        <Card>
-          <ZoruCardContent className="p-4">
-            <ul className="grid md:grid-cols-2 gap-2 text-sm">
-              {results.map((r) => (
-                <li key={r} className="p-2 rounded bg-muted/40">{r}</li>
-              ))}
-            </ul>
-          </ZoruCardContent>
-        </Card>
+      
+      {Object.keys(results).length > 0 && (
+        <div className="space-y-4">
+          {Object.entries(results).map(([category, items]) => (
+            <Card key={category}>
+              <ZoruCardContent className="p-4 space-y-3">
+                <h3 className="font-semibold text-lg">{category}</h3>
+                <ul className="grid md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+                  {items.map((r) => (
+                    <li key={r} className="p-2 rounded bg-muted/40">{r}</li>
+                  ))}
+                </ul>
+              </ZoruCardContent>
+            </Card>
+          ))}
+        </div>
       )}
     </ToolShell>
   );

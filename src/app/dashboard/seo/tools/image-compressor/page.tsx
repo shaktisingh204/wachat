@@ -10,6 +10,7 @@ import { ToolShell } from '@/components/seo-tools/tool-shell';
 export default function ImageCompressorPage() {
   const [file, setFile] = useState<File | null>(null);
   const [quality, setQuality] = useState(0.7);
+  const [format, setFormat] = useState<'image/jpeg' | 'image/webp'>('image/jpeg');
   const [outUrl, setOutUrl] = useState('');
   const [origBytes, setOrigBytes] = useState(0);
   const [outBytes, setOutBytes] = useState(0);
@@ -28,13 +29,43 @@ export default function ImageCompressorPage() {
         img.onload = () => res(null);
         img.onerror = () => rej(new Error('Failed to load image'));
       });
+
+      let targetW = img.naturalWidth;
+      let targetH = img.naturalHeight;
+      const MAX_DIM = 4096;
+
+      if (targetW > MAX_DIM || targetH > MAX_DIM) {
+        const ratio = Math.min(MAX_DIM / targetW, MAX_DIM / targetH);
+        targetW = Math.floor(targetW * ratio);
+        targetH = Math.floor(targetH * ratio);
+      }
+
+      let curW = img.naturalWidth;
+      let curH = img.naturalHeight;
+      let source: HTMLImageElement | HTMLCanvasElement = img;
+
+      // Downscale in chunks (step-down) to prevent memory crashes/spikes on huge images
+      while (curW * 0.5 > targetW && curH * 0.5 > targetH) {
+        curW = Math.floor(curW * 0.5);
+        curH = Math.floor(curH * 0.5);
+        const stepCanvas = document.createElement('canvas');
+        stepCanvas.width = curW;
+        stepCanvas.height = curH;
+        const stepCtx = stepCanvas.getContext('2d');
+        if (stepCtx) {
+          stepCtx.drawImage(source, 0, 0, curW, curH);
+        }
+        source = stepCanvas;
+      }
+
       const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
+      canvas.width = targetW;
+      canvas.height = targetH;
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Canvas context unavailable');
-      ctx.drawImage(img, 0, 0);
-      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      ctx.drawImage(source, 0, 0, targetW, targetH);
+      
+      const dataUrl = canvas.toDataURL(format, quality);
       setOutUrl(dataUrl);
       const bin = atob(dataUrl.split(',')[1] || '');
       setOutBytes(bin.length);
@@ -44,13 +75,26 @@ export default function ImageCompressorPage() {
     }
   }
 
+  const outExt = format === 'image/webp' ? 'webp' : 'jpg';
+
   return (
-    <ToolShell title="Image Compressor" description="Compress images client-side with adjustable JPEG quality.">
+    <ToolShell title="Image Compressor" description="Compress images client-side with adjustable quality and format.">
       <Card>
         <ZoruCardContent className="p-4 space-y-4">
           <div>
             <Label>Image file</Label>
             <Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+          </div>
+          <div>
+            <Label>Output Format</Label>
+            <select
+              value={format}
+              onChange={(e) => setFormat(e.target.value as any)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-1"
+            >
+              <option value="image/jpeg">JPEG</option>
+              <option value="image/webp">WebP</option>
+            </select>
           </div>
           <div>
             <Label>Quality: {quality.toFixed(2)}</Label>
@@ -85,7 +129,7 @@ export default function ImageCompressorPage() {
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={outUrl} alt="Compressed preview" className="max-w-full rounded border" />
-            <a href={outUrl} download="compressed.jpg" className="underline text-sm">
+            <a href={outUrl} download={`compressed.${outExt}`} className="underline text-sm">
               Download compressed image
             </a>
           </ZoruCardContent>

@@ -90,6 +90,7 @@ export interface CustomObjectDefinition {
 export interface GenerativeAIDraft {
   id: string;
   entityType: 'email' | 'proposal' | 'contract';
+  aiModel: 'gpt-4' | 'claude';
   prompt: string;
   content: string;
   status: 'draft' | 'approved' | 'rejected';

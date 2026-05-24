@@ -1,33 +1,130 @@
 'use client';
 
-import { Card, ZoruCardContent, Input, Label } from '@/components/zoruui';
+import { Card, ZoruCardContent, Input, Label, Button } from '@/components/zoruui';
 import { useMemo, useState } from 'react';
+import { Copy, Check, Download } from 'lucide-react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function AdwordsCpcPage() {
-  const [budget, setBudget] = useState(100);
-  const [cpc, setCpc] = useState(0.5);
-  const [cvr, setCvr] = useState(2);
+  const [budget, setBudget] = useState<number | string>(100);
+  const [cpc, setCpc] = useState<number | string>(0.5);
+  const [cvr, setCvr] = useState<number | string>(2);
+  const [copied, setCopied] = useState(false);
+
+  const numBudget = Number(budget) || 0;
+  const numCpc = Number(cpc) || 0;
+  const numCvr = Number(cvr) || 0;
 
   const { clicks, conversions, cpa } = useMemo(() => {
-    const clicks = cpc > 0 ? budget / cpc : 0;
-    const conversions = clicks * (cvr / 100);
-    const cpa = conversions > 0 ? budget / conversions : 0;
+    const clicks = numCpc > 0 ? numBudget / numCpc : 0;
+    const conversions = clicks * (numCvr / 100);
+    const cpa = conversions > 0 ? numBudget / conversions : 0;
     return { clicks, conversions, cpa };
-  }, [budget, cpc, cvr]);
+  }, [numBudget, numCpc, numCvr]);
+
+  const handleCopy = () => {
+    const text = `AdWords CPC Estimation:
+Budget: $${numBudget}
+CPC: $${numCpc}
+Conversion Rate: ${numCvr}%
+---
+Estimated Clicks: ${clicks.toFixed(0)}
+Estimated Conversions: ${conversions.toFixed(1)}
+Estimated Cost Per Acquisition (CPA): $${cpa.toFixed(2)}`;
+    
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleExport = () => {
+    const csvContent = `Metric,Value
+Budget,${numBudget}
+CPC,${numCpc}
+Conversion Rate (%),${numCvr}
+Estimated Clicks,${clicks.toFixed(0)}
+Estimated Conversions,${conversions.toFixed(1)}
+Estimated CPA,${cpa.toFixed(2)}`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'adwords_cpc_estimation.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   return (
     <ToolShell title="AdWords CPC Calculator" description="Estimate clicks, conversions, and CPA from budget + CPC.">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="space-y-1"><Label>Budget</Label><Input type="number" value={budget} onChange={(e) => setBudget(Number(e.target.value) || 0)} /></div>
-        <div className="space-y-1"><Label>CPC</Label><Input type="number" step="0.01" value={cpc} onChange={(e) => setCpc(Number(e.target.value) || 0)} /></div>
-        <div className="space-y-1"><Label>Conversion rate %</Label><Input type="number" step="0.1" value={cvr} onChange={(e) => setCvr(Number(e.target.value) || 0)} /></div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="space-y-2">
+          <Label>Budget ($)</Label>
+          <Input 
+            type="number" 
+            min="0"
+            value={budget} 
+            onChange={(e) => setBudget(e.target.value)} 
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>CPC ($)</Label>
+          <Input 
+            type="number" 
+            step="0.01" 
+            min="0"
+            value={cpc} 
+            onChange={(e) => setCpc(e.target.value)} 
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Conversion rate (%)</Label>
+          <Input 
+            type="number" 
+            step="0.1" 
+            min="0"
+            max="100"
+            value={cvr} 
+            onChange={(e) => setCvr(e.target.value)} 
+          />
+        </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        <Card><ZoruCardContent className="p-4"><div className="text-2xl text-zoru-ink">{clicks.toFixed(0)}</div><div className="text-xs text-zoru-ink-muted">Clicks</div></ZoruCardContent></Card>
-        <Card><ZoruCardContent className="p-4"><div className="text-2xl text-zoru-ink">{conversions.toFixed(1)}</div><div className="text-xs text-zoru-ink-muted">Conversions</div></ZoruCardContent></Card>
-        <Card><ZoruCardContent className="p-4"><div className="text-2xl text-zoru-ink">${cpa.toFixed(2)}</div><div className="text-xs text-zoru-ink-muted">Cost per acquisition</div></ZoruCardContent></Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <Card>
+          <ZoruCardContent className="p-6">
+            <div className="text-3xl font-semibold text-zoru-ink">{clicks.toFixed(0)}</div>
+            <div className="text-sm text-zoru-ink-muted mt-1">Estimated Clicks</div>
+          </ZoruCardContent>
+        </Card>
+        <Card>
+          <ZoruCardContent className="p-6">
+            <div className="text-3xl font-semibold text-zoru-ink">{conversions.toFixed(1)}</div>
+            <div className="text-sm text-zoru-ink-muted mt-1">Estimated Conversions</div>
+          </ZoruCardContent>
+        </Card>
+        <Card>
+          <ZoruCardContent className="p-6">
+            <div className="text-3xl font-semibold text-zoru-ink">${cpa.toFixed(2)}</div>
+            <div className="text-sm text-zoru-ink-muted mt-1">Cost per acquisition (CPA)</div>
+          </ZoruCardContent>
+        </Card>
+      </div>
+
+      <div className="flex gap-3 justify-end mt-6">
+        <Button variant="outline" onClick={handleCopy}>
+          {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
+          {copied ? 'Copied' : 'Copy Results'}
+        </Button>
+        <Button onClick={handleExport}>
+          <Download className="mr-2 h-4 w-4" />
+          Export CSV
+        </Button>
       </div>
     </ToolShell>
   );

@@ -1,20 +1,101 @@
 'use client';
 
-import { Textarea, cn } from '@/components/zoruui';
-import { cn as _zoruCn, useMemo, useState } from 'react';
-
-void _zoruCn;
-
+import { Textarea, Checkbox, Label } from '@/components/zoruui';
+import { useState, useEffect } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
+import { minifyHtml } from './actions';
+import { Loader2 } from 'lucide-react';
 
 export default function HtmlMinifierPage() {
   const [text, setText] = useState('');
-  const min = useMemo(() => text.replace(/<!--[\s\S]*?-->/g, '').replace(/>\s+</g, '><').replace(/\s{2,}/g, ' ').trim(), [text]);
+  const [minifiedText, setMinifiedText] = useState('');
+  const [isPending, setIsPending] = useState(false);
+  const [options, setOptions] = useState({
+    collapseWhitespace: true,
+    removeComments: true,
+    minifyJS: true,
+    minifyCSS: true,
+    removeAttributeQuotes: false,
+    removeEmptyAttributes: false,
+    keepClosingSlash: true,
+    collapseBooleanAttributes: false,
+    decodeEntities: false,
+    minifyURLs: false,
+    removeRedundantAttributes: false,
+    removeScriptTypeAttributes: false,
+    removeStyleLinkTypeAttributes: false,
+    useShortDoctype: false,
+  });
+
+  useEffect(() => {
+    if (!text) {
+      setMinifiedText('');
+      return;
+    }
+
+    setIsPending(true);
+    const timeout = setTimeout(async () => {
+      try {
+        const minified = await minifyHtml(text, options);
+        setMinifiedText(minified);
+      } catch (error) {
+        console.error('Minification failed:', error);
+      } finally {
+        setIsPending(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [text, options]);
+
+  const savedPercent = text.length ? ((1 - minifiedText.length / text.length) * 100).toFixed(1) : '0.0';
+
   return (
-    <ToolShell title="HTML Minifier" description="Remove whitespace and comments from HTML.">
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste HTML…" />
-      <div className="text-sm text-muted-foreground">{text.length} → {min.length} bytes ({text.length ? ((1 - min.length / text.length) * 100).toFixed(1) : 0}% saved)</div>
-      <Textarea readOnly value={min} className="min-h-[200px] font-mono text-xs" />
+    <ToolShell title="HTML Minifier" description="Safely minify HTML, inline CSS, and JavaScript without breaking formatting.">
+      <div className="grid gap-6">
+        <Textarea 
+          value={text} 
+          onChange={(e) => setText(e.target.value)} 
+          className="min-h-[200px] font-mono text-xs resize-y" 
+          placeholder="Paste HTML here…" 
+        />
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 border rounded-xl bg-muted/10">
+          {Object.entries(options).map(([key, value]) => (
+            <div key={key} className="flex items-center space-x-2">
+              <Checkbox 
+                id={key} 
+                checked={value} 
+                onCheckedChange={(checked) => setOptions(prev => ({ ...prev, [key]: checked === true }))} 
+              />
+              <Label htmlFor={key} className="text-sm font-medium leading-none cursor-pointer">
+                {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+              </Label>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center min-w-[100px]">
+            {isPending ? (
+              <span className="flex items-center text-primary"><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Minifying...</span>
+            ) : (
+              <span>Processed</span>
+            )}
+          </div>
+          <div>
+            {text.length} → {minifiedText.length} bytes 
+            {text.length > 0 && ` (${savedPercent}% saved)`}
+          </div>
+        </div>
+
+        <Textarea 
+          readOnly 
+          value={minifiedText} 
+          className="min-h-[200px] font-mono text-xs resize-y bg-muted/20" 
+          placeholder="Minified HTML will appear here..."
+        />
+      </div>
     </ToolShell>
   );
 }
