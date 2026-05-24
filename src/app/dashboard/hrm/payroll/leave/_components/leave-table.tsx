@@ -12,8 +12,7 @@ import {
 } from '@/components/zoruui';
 import {
   format } from 'date-fns';
-import { Eye,
-  Pencil } from 'lucide-react';
+import { Eye, MessageSquare, Pencil } from 'lucide-react';
 
 /**
  * <LeaveTable> — canonical leave-list table (per §1D.1).
@@ -163,6 +162,17 @@ export function LeaveTable({
               </ZoruTableCell>
               <ZoruTableCell>
                 <div className="flex justify-end gap-1">
+                  {row.employeeEmail ? (
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link
+                        href={`mailto:${row.employeeEmail}?subject=Regarding your leave request`}
+                        aria-label="Message employee"
+                        title="Message employee"
+                      >
+                        <MessageSquare className="h-3.5 w-3.5" />
+                      </Link>
+                    </Button>
+                  ) : null}
                   <Button variant="ghost" size="icon" asChild>
                     <Link
                       href={`/dashboard/hrm/payroll/leave/${row._id}`}

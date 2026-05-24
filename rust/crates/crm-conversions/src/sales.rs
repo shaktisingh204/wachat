@@ -397,6 +397,8 @@ pub fn invoice_to_credit_note(
 
         tax_recalc: false,
 
+        auto_apply: false,
+
         refund_mode: RefundMode::Credit,
         refund_txn_id: None,
 

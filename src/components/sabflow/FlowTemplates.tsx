@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { LuChevronRight, LuLoader } from 'react-icons/lu';
+import { LuChevronRight, LuLoader, LuSparkles } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import { createSabFlow, saveSabFlow } from '@/app/actions/sabflow';
 import {
@@ -207,13 +207,23 @@ export function FlowTemplates({ onFlowCreated }: Props) {
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100">
-          Start from a template
-        </h2>
-        <span className="text-[11px] text-zinc-400">
-          {filtered.length} of {TEMPLATES.length} templates
-        </span>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-150 dark:border-zinc-800 pb-3">
+        <div className="flex items-center gap-3">
+          <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100">
+            Start from a template
+          </h2>
+          <span className="text-[11px] text-zinc-450 dark:text-zinc-400">
+            {filtered.length} of {TEMPLATES.length} templates
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => router.push('/dashboard/sabflow/marketplace')}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 px-3 py-1.5 text-[11.5px] font-semibold text-white transition-all shadow-sm duration-150 hover:shadow cursor-pointer"
+        >
+          <LuSparkles className="w-3.5 h-3.5" />
+          <span>Browse 250+ workflow templates in Marketplace →</span>
+        </button>
       </div>
 
       <FilterBar value={filter} onChange={setFilter} counts={counts} />

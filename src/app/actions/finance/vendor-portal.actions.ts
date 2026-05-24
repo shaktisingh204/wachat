@@ -10,7 +10,7 @@ export interface Vendor {
   userId?: string;
   createdAt?: string;
   updatedAt?: string;
-  name?: string; contactEmail?: string; paymentTerms?: string; activeContracts?: number; onboardingStatus?: string;
+  name?: string; contactEmail?: string; contactPhone?: string; paymentTerms?: string; activeContracts?: number; onboardingStatus?: string; performanceScore?: number;
 }
 
 const schema = z.object({
@@ -18,7 +18,9 @@ const schema = z.object({
   contactEmail: z.string().email(),
   paymentTerms: z.string().optional().default('NET_30'),
   activeContracts: z.number().optional().default(0),
-  onboardingStatus: z.string().optional().default('ACTIVE')
+  onboardingStatus: z.string().optional().default('ACTIVE'),
+  contactPhone: z.string().optional(),
+  performanceScore: z.number().min(0).max(100).optional().default(0)
 });
 
 export async function listVendors(): Promise<{ items: Vendor[], error?: string }> {

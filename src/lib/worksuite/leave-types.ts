@@ -38,6 +38,12 @@ export interface WsLeaveType {
   paid: boolean;
   leave_unit: WsLeaveUnit;
   status: WsLeaveTypeStatus;
+  
+  // Accrual rules config
+  accrual_enabled?: boolean;
+  accrual_rate?: number; // e.g., 1.5
+  accrual_frequency?: 'monthly' | 'yearly' | 'weekly'; // e.g., 'monthly'
+
   createdAt?: string | Date;
   updatedAt?: string | Date;
 }
@@ -63,6 +69,13 @@ export interface WsLeave {
   applied_at?: string | Date;
   /** Resolved working-day count (halves = 0.5, multi-day = span, hours = hours/hours_per_day). */
   days_count: number;
+  comments?: {
+    id: string;
+    userId: string;
+    userName: string;
+    text: string;
+    createdAt: string | Date;
+  }[];
   createdAt?: string | Date;
   updatedAt?: string | Date;
 }
@@ -91,6 +104,8 @@ export interface WsLeaveSetting {
   allow_future_leave: boolean;
   max_days_advance: number;
   hours_per_day: number;
+  include_weekends?: boolean;
+  include_holidays?: boolean;
   /** Carry-forward policy across leave years. */
   carry_forward_enabled?: boolean;
   /** Maximum days that can be carried into the next leave year. */
@@ -117,6 +132,9 @@ export interface WsLeaveCalendarEntry {
   half_day_type?: WsHalfDayType;
   days_count: number;
   employeeName?: string;
+  department_id?: string;
+  leave_date: string;
+  end_date?: string;
 }
 
 /** Per-type balance row used on the balance page. */
@@ -125,6 +143,7 @@ export interface WsLeaveBalanceRow {
   type_name: string;
   color: string;
   allocated: number;              // from leave type
+  topup?: number;                 // manual adjustments
   used: number;                   // sum of approved days_count
   remaining: number;
   monthly_limit: number;

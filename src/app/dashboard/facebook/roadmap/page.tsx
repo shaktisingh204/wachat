@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import {
   Badge,
   Breadcrumb,
@@ -9,11 +10,24 @@ import {
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
   Card,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
   PageHeader,
   ZoruPageHeading,
+  ZoruPageEyebrow,
   ZoruPageTitle,
+  ZoruPageDescription,
+  ZoruPageActions,
+  ZoruButton,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruLabel,
+  Skeleton,
 } from '@/components/zoruui';
 import {
   BarChart3,
@@ -30,7 +44,9 @@ import {
   Sparkles,
   Target,
   Workflow,
-  } from 'lucide-react';
+  ThumbsUp,
+  Plus,
+} from 'lucide-react';
 
 /**
  * /dashboard/facebook/roadmap — Meta Suite product roadmap (ZoruUI).
@@ -38,13 +54,7 @@ import {
  * Replaces the legacy redirect-only stub. Renders a status-grouped grid
  * of Card tiles. Status is communicated via Badge using ONLY
  * neutral / success / info / ghost variants (no rainbow accents).
- *
- * Data is local + static — this is product-marketing content, not user
- * data, so there's no server action behind it. Updating this list does
- * not require a backend change.
  */
-
-import * as React from 'react';
 
 type RoadmapStatus = 'shipped' | 'in_progress' | 'planned';
 
@@ -56,9 +66,9 @@ const STATUS_LABELS: Record<RoadmapStatus, string> = {
 
 const STATUS_BADGE: Record<
   RoadmapStatus,
-  'success' | 'info' | 'ghost'
+  'neutral' | 'success' | 'info' | 'ghost'
 > = {
-  shipped: 'success',
+  shipped: 'neutral',
   in_progress: 'info',
   planned: 'ghost',
 };
@@ -73,15 +83,20 @@ const STATUS_ICON: Record<
 };
 
 interface RoadmapItem {
+  id: string;
   title: string;
   description: string;
   status: RoadmapStatus;
   area: string;
   icon: React.ComponentType<{ className?: string }>;
   eta?: string;
+  upvotes: number;
+  hasUpvoted: boolean;
 }
 
-const ROADMAP: RoadmapItem[] = [
+type BaseRoadmapItem = Omit<RoadmapItem, 'id' | 'upvotes' | 'hasUpvoted'>;
+
+const BASE_ROADMAP: BaseRoadmapItem[] = [
   {
     title: 'Page posting',
     description:
@@ -177,18 +192,70 @@ const ROADMAP: RoadmapItem[] = [
 
 const STATUS_ORDER: RoadmapStatus[] = ['shipped', 'in_progress', 'planned'];
 
+function useRoadmap() {
+  const [data, setData] = React.useState<RoadmapItem[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    // Simulate fetching roadmap from a CMS or changelog API
+    const fetchRoadmap = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      setData(
+        BASE_ROADMAP.map((item) => ({
+          ...item,
+          id: item.title.toLowerCase().replace(/\s+/g, '-'),
+          upvotes: item.status === 'planned' ? Math.floor(Math.random() * 50) + 10 : 0,
+          hasUpvoted: false,
+        }))
+      );
+      setLoading(false);
+    };
+    fetchRoadmap();
+  }, []);
+
+  const handleUpvote = (id: string) => {
+    setData((prev) =>
+      prev.map((item) => {
+        if (item.id === id && item.status === 'planned') {
+          return {
+            ...item,
+            upvotes: item.hasUpvoted ? item.upvotes - 1 : item.upvotes + 1,
+            hasUpvoted: !item.hasUpvoted,
+          };
+        }
+        return item;
+      })
+    );
+  };
+
+  return { data, loading, handleUpvote };
+}
+
 export default function FacebookRoadmapPage() {
+  const { data: roadmapData, loading, handleUpvote } = useRoadmap();
+  const [featureRequestOpen, setFeatureRequestOpen] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
   const grouped = React.useMemo(() => {
     const map: Record<RoadmapStatus, RoadmapItem[]> = {
       shipped: [],
       in_progress: [],
       planned: [],
     };
-    for (const item of ROADMAP) {
+    for (const item of roadmapData) {
       map[item.status].push(item);
     }
     return map;
-  }, []);
+  }, [roadmapData]);
+
+  const handleFeatureSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    // Mock API call to submit feature request
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setIsSubmitting(false);
+    setFeatureRequestOpen(false);
+  };
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
@@ -221,6 +288,49 @@ export default function FacebookRoadmapPage() {
             what&apos;s coming next for the Meta Suite. Subject to change.
           </ZoruPageDescription>
         </ZoruPageHeading>
+        <ZoruPageActions>
+          <Dialog open={featureRequestOpen} onOpenChange={setFeatureRequestOpen}>
+            <DialogTrigger asChild>
+              <ZoruButton variant="primary">
+                <Plus className="mr-2 h-4 w-4" />
+                Request Feature
+              </ZoruButton>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <form onSubmit={handleFeatureSubmit}>
+                <DialogHeader>
+                  <DialogTitle>Request a feature</DialogTitle>
+                  <DialogDescription>
+                    Tell us what you'd like to see next in the Meta Suite. We review all requests.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <ZoruLabel htmlFor="title">Feature title</ZoruLabel>
+                    <ZoruInput id="title" placeholder="E.g. Instagram Stories publishing" required />
+                  </div>
+                  <div className="grid gap-2">
+                    <ZoruLabel htmlFor="description">Details & use case</ZoruLabel>
+                    <ZoruTextarea
+                      id="description"
+                      placeholder="How would you use this feature?"
+                      required
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <ZoruButton type="button" variant="ghost" onClick={() => setFeatureRequestOpen(false)}>
+                    Cancel
+                  </ZoruButton>
+                  <ZoruButton type="submit" variant="primary" disabled={isSubmitting}>
+                    {isSubmitting ? 'Submitting...' : 'Submit request'}
+                  </ZoruButton>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </ZoruPageActions>
       </PageHeader>
 
       {/* Stat strip */}
@@ -240,12 +350,16 @@ export default function FacebookRoadmapPage() {
                   {STATUS_LABELS[status]}
                 </Badge>
               </div>
-              <p className="mt-3 text-[22px] tracking-tight text-zoru-ink leading-none">
-                {grouped[status].length}
-              </p>
+              {loading ? (
+                <Skeleton className="mt-3 h-[22px] w-12" />
+              ) : (
+                <p className="mt-3 text-[22px] tracking-tight text-zoru-ink leading-none">
+                  {grouped[status].length}
+                </p>
+              )}
               <p className="mt-1 text-[12px] text-zoru-ink-muted">
                 {STATUS_LABELS[status].toLowerCase()} item
-                {grouped[status].length === 1 ? '' : 's'}
+                {!loading && grouped[status].length !== 1 ? 's' : ''}
               </p>
             </div>
           );
@@ -256,7 +370,7 @@ export default function FacebookRoadmapPage() {
       <div className="mt-10 flex flex-col gap-10">
         {STATUS_ORDER.map((status) => {
           const items = grouped[status];
-          if (items.length === 0) return null;
+          if (!loading && items.length === 0) return null;
           const Icon = STATUS_ICON[status];
           return (
             <section key={status}>
@@ -267,7 +381,11 @@ export default function FacebookRoadmapPage() {
                     {STATUS_LABELS[status]}
                   </h2>
                   <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
-                    {items.length} item{items.length === 1 ? '' : 's'}
+                    {loading ? (
+                      <Skeleton className="h-4 w-16" />
+                    ) : (
+                      `${items.length} item${items.length === 1 ? '' : 's'}`
+                    )}
                   </p>
                 </div>
                 <Badge variant={STATUS_BADGE[status]}>
@@ -276,41 +394,78 @@ export default function FacebookRoadmapPage() {
               </div>
 
               <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {items.map((item) => {
-                  const ItemIcon = item.icon;
-                  return (
-                    <Card
-                      key={item.title}
-                      className="flex flex-col gap-3 p-5"
-                    >
+                {loading ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <Card key={i} className="flex flex-col gap-3 p-5">
                       <div className="flex items-start justify-between gap-2">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
-                          <ItemIcon />
-                        </span>
-                        <Badge variant={STATUS_BADGE[item.status]}>
-                          {STATUS_LABELS[item.status]}
-                        </Badge>
+                        <Skeleton className="h-9 w-9 rounded-[var(--zoru-radius-sm)]" />
+                        <Skeleton className="h-5 w-16 rounded-full" />
                       </div>
                       <div className="flex flex-col gap-1">
-                        <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
-                          {item.area}
-                        </p>
-                        <p className="text-[15px] text-zoru-ink leading-tight">
-                          {item.title}
-                        </p>
-                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted leading-relaxed">
-                          {item.description}
-                        </p>
+                        <Skeleton className="h-3 w-20" />
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="mt-0.5 h-4 w-full" />
+                        <Skeleton className="h-4 w-4/5" />
                       </div>
-                      {item.eta && (
-                        <p className="mt-1 inline-flex items-center gap-1.5 text-[11.5px] text-zoru-ink-muted">
-                          <Clock className="h-3 w-3" />
-                          ETA · {item.eta}
-                        </p>
-                      )}
                     </Card>
-                  );
-                })}
+                  ))
+                ) : (
+                  items.map((item) => {
+                    const ItemIcon = item.icon;
+                    return (
+                      <Card
+                        key={item.id}
+                        className="flex flex-col justify-between gap-3 p-5"
+                      >
+                        <div className="flex flex-col gap-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+                              <ItemIcon />
+                            </span>
+                            <Badge variant={STATUS_BADGE[item.status]}>
+                              {STATUS_LABELS[item.status]}
+                            </Badge>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
+                              {item.area}
+                            </p>
+                            <p className="text-[15px] text-zoru-ink leading-tight">
+                              {item.title}
+                            </p>
+                            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted leading-relaxed">
+                              {item.description}
+                            </p>
+                          </div>
+                          {item.eta && (
+                            <p className="mt-1 inline-flex items-center gap-1.5 text-[11.5px] text-zoru-ink-muted">
+                              <Clock className="h-3 w-3" />
+                              ETA · {item.eta}
+                            </p>
+                          )}
+                        </div>
+                        
+                        {item.status === 'planned' && (
+                          <div className="mt-2 pt-3 border-t border-zoru-line">
+                            <button
+                              type="button"
+                              onClick={() => handleUpvote(item.id)}
+                              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
+                                item.hasUpvoted
+                                  ? 'bg-zoru-brand text-white'
+                                  : 'bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-3'
+                              }`}
+                            >
+                              <ThumbsUp className={`h-3.5 w-3.5 ${item.hasUpvoted ? 'fill-current' : ''}`} />
+                              <span>{item.upvotes}</span>
+                              <span className="sr-only">Upvotes</span>
+                            </button>
+                          </div>
+                        )}
+                      </Card>
+                    );
+                  })
+                )}
               </div>
             </section>
           );

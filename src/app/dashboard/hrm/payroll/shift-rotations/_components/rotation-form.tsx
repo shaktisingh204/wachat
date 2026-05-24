@@ -106,6 +106,18 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
     const [cycleDays, setCycleDays] = React.useState<number>(
         initialData?.cycleDays ?? 7,
     );
+    
+    // Manage default dates on the client to prevent hydration mismatch
+    const [defaultStartDate, setDefaultStartDate] = React.useState<string>(() => {
+        return toDateInput(initialData?.startDate) || '';
+    });
+    
+    React.useEffect(() => {
+        if (!initialData?.startDate) {
+            setDefaultStartDate(new Date().toISOString().slice(0, 10));
+        }
+    }, [initialData?.startDate]);
+    
     const [pattern, setPattern] = React.useState<PatternRow[]>(() => {
         const src = initialData?.pattern ?? [];
         if (src.length > 0) {
@@ -123,41 +135,43 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
         }
         if (state?.error) {
             toast({
-                title: 'Error',
-                description: state.error,
+                title: 'Failed to save rotation',
+                description: state.error || 'An unexpected error occurred while saving.',
                 variant: 'destructive',
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state]);
 
-    const updateRow = (rowId: string, patch: Partial<PatternRow>) => {
+    const updateRow = React.useCallback((rowId: string, patch: Partial<PatternRow>) => {
         setPattern((prev) =>
             prev.map((r) => (r.rowId === rowId ? { ...r, ...patch } : r)),
         );
-    };
+    }, []);
 
-    const removeRow = (rowId: string) => {
+    const removeRow = React.useCallback((rowId: string) => {
         setPattern((prev) => prev.filter((r) => r.rowId !== rowId));
-    };
+    }, []);
 
-    const addRow = () => {
-        const nextOffset = Math.min(
-            cycleDays - 1,
-            pattern.length === 0
-                ? 0
-                : Math.max(...pattern.map((p) => p.dayOffset)) + 1,
-        );
-        setPattern((prev) => [
-            ...prev,
-            {
-                rowId: newRowId(),
-                dayOffset: Math.max(0, nextOffset),
-                shiftId: '',
-                isOff: false,
-            },
-        ]);
-    };
+    const addRow = React.useCallback(() => {
+        setPattern((prev) => {
+            const nextOffset = Math.min(
+                cycleDays - 1,
+                prev.length === 0
+                    ? 0
+                    : Math.max(...prev.map((p) => p.dayOffset)) + 1,
+            );
+            return [
+                ...prev,
+                {
+                    rowId: newRowId(),
+                    dayOffset: Math.max(0, nextOffset),
+                    shiftId: '',
+                    isOff: false,
+                },
+            ];
+        });
+    }, [cycleDays]);
 
     const patternJson = React.useMemo(
         () =>
@@ -259,10 +273,8 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                             name="startDate"
                             type="date"
                             required
-                            defaultValue={
-                                toDateInput(initialData?.startDate) ||
-                                new Date().toISOString().slice(0, 10)
-                            }
+                            key={defaultStartDate || 'empty'}
+                            defaultValue={defaultStartDate}
                         />
                     </div>
                     <div className="space-y-1.5">

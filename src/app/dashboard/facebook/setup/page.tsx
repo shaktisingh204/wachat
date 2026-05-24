@@ -51,6 +51,7 @@ import { getProjects } from "@/app/actions/project.actions";
 import { getInstagramAccountForPage } from "@/app/actions/facebook.actions";
 import type { Project,
   WithId } from "@/lib/definitions";
+import { useProject } from '@/context/project-context';
 
 /**
  * /dashboard/facebook/setup — Meta Suite onboarding wizard.
@@ -219,6 +220,19 @@ function ConnectStep({
         )}
         <ManualSetupDialog onSuccess={onManualSuccess} />
       </div>
+
+      <Alert className="mt-5">
+        <AlertCircle className="h-4 w-4" />
+        <ZoruAlertTitle>Troubleshooting permission errors</ZoruAlertTitle>
+        <ZoruAlertDescription className="space-y-1">
+          <p>If you encounter permission errors after returning from Meta:</p>
+          <ul className="list-disc pl-4 space-y-0.5 text-[12px] opacity-80">
+            <li>Ensure your personal Meta account has Admin rights to the Facebook Page.</li>
+            <li>In the Meta popup, click &quot;Edit previous settings&quot; and ensure all pages and permissions are checked.</li>
+            <li>Ensure your Meta Business Manager has unrestricted access to the Page.</li>
+          </ul>
+        </ZoruAlertDescription>
+      </Alert>
 
       <Separator className="my-6" />
 
@@ -471,6 +485,7 @@ function AssetRow({
 export default function FacebookSetupPage() {
   const router = useRouter();
   const { toast } = useZoruToast();
+  const { setActiveProjectId } = useProject();
   const [projects, setProjects] = useState<WithId<Project>[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -539,9 +554,8 @@ export default function FacebookSetupPage() {
   const handlePickPage = (id: string) => {
     const proj = projects.find((p) => p._id.toString() === id);
     if (!proj) return;
-    localStorage.setItem("activeProjectId", id);
-    localStorage.setItem("activeProjectName", proj.name);
     setSelectedId(id);
+    setActiveProjectId(id);
     toast({
       title: "Page selected",
       description: `Now managing ${proj.name}.`,

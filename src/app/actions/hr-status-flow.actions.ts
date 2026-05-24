@@ -320,6 +320,7 @@ export async function returnAssetAssignment(
 export async function recordAwardVote(
   programId: string,
   nomineeRef: string,
+  reason?: string,
 ): Promise<HrActionResult> {
   const session = await getSession();
   if (!session?.user) return { error: 'Unauthorized' };
@@ -336,10 +337,11 @@ export async function recordAwardVote(
       { _id: new ObjectId(programId), userId: userObjectId },
       {
         $push: {
-          votes: {
-            voterId: userObjectId,
-            nomineeRef,
-            votedAt: new Date(),
+          nominations: {
+            nominatorId: userObjectId,
+            nomineeName: nomineeRef,
+            reason: reason || undefined,
+            submittedAt: new Date(),
           },
         },
         $set: { updatedAt: new Date() },
@@ -355,12 +357,12 @@ export async function recordAwardVote(
       action: 'update',
       entityKind: 'award',
       entityId: programId,
-      reason: `Vote for ${nomineeRef}`,
+      reason: `Nomination for ${nomineeRef}`,
     });
 
     revalidatePath('/dashboard/hrm/hr/awards');
     revalidatePath(`/dashboard/hrm/hr/awards/${programId}`);
-    return { message: 'Vote recorded.' };
+    return { message: 'Nomination recorded.' };
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Unknown error';
     console.error('[recordAwardVote]', e);
@@ -461,4 +463,41 @@ export async function appealDisciplinaryCase(
     action: 'status_change',
     reason: reason ? `Appealed: ${reason}` : 'Appealed',
   });
+}
+
+export async function sendAwardCashToPayroll(programId: string): Promise<HrActionResult> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Unauthorized' };
+  if (!programId || !ObjectId.isValid(programId)) return { error: 'Invalid id.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const userObjectId = new ObjectId(session.user._id as string);
+    const res = await db.collection('crm_award_programs').updateOne(
+      { _id: new ObjectId(programId), userId: userObjectId },
+      {
+        $set: { payrollStatus: 'processed', updatedAt: new Date() },
+      } as unknown as Parameters<
+        ReturnType<typeof db.collection>['updateOne']
+      >[1],
+    );
+    if (res.matchedCount === 0) return { error: 'Not found.' };
+
+    await writeAuditEntry({
+      tenantUserId: String(session.user._id),
+      actorId: String(session.user._id),
+      action: 'status_change',
+      entityKind: 'award',
+      entityId: programId,
+      reason: 'Cash reward sent to payroll',
+    });
+
+    revalidatePath('/dashboard/hrm/hr/awards');
+    revalidatePath(`/dashboard/hrm/hr/awards/${programId}`);
+    return { message: 'Cash reward sent to payroll.' };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Unknown error';
+    console.error('[sendAwardCashToPayroll]', e);
+    return { error: msg };
+  }
 }

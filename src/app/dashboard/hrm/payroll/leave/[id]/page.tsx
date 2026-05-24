@@ -13,7 +13,20 @@ import {
   Paperclip,
   Trash2,
   Plus,
-  } from 'lucide-react';
+  MessageCircle,
+} from 'lucide-react';
+
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
 
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -25,6 +38,7 @@ import {
   rejectLeave,
   saveLeaveFile,
   deleteLeaveFile,
+  addLeaveComment,
 } from '@/app/actions/worksuite/leave.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import type {
@@ -50,6 +64,12 @@ export default function LeaveDetailPage({
   const [rejectReason, setRejectReason] = useState('');
   const [fileName, setFileName] = useState('');
   const [fileUrl, setFileUrl] = useState('');
+  const [commentText, setCommentText] = useState('');
+  
+  // Dialog states
+  const [fileToDelete, setFileToDelete] = useState<string | null>(null);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [approveDialogOpen, setApproveDialogOpen] = useState(false);
   const [isLoading, startLoading] = useTransition();
   const [isActing, startActing] = useTransition();
 
@@ -90,6 +110,7 @@ export default function LeaveDetailPage({
       const r = await approveLeave(id);
       if (r.success) {
         toast({ title: 'Approved' });
+        setApproveDialogOpen(false);
         load();
       } else {
         toast({ title: 'Error', description: r.error, variant: 'destructive' });
@@ -102,6 +123,7 @@ export default function LeaveDetailPage({
       const r = await rejectLeave(id, rejectReason);
       if (r.success) {
         toast({ title: 'Rejected' });
+        setRejectDialogOpen(false);
         load();
       } else {
         toast({ title: 'Error', description: r.error, variant: 'destructive' });
@@ -127,13 +149,31 @@ export default function LeaveDetailPage({
     }
   };
 
-  const handleDeleteFile = async (fileId: string) => {
-    const r = await deleteLeaveFile(fileId);
-    if (r.success) {
-      load();
-    } else {
-      toast({ title: 'Error', description: r.error, variant: 'destructive' });
-    }
+  const confirmDeleteFile = async () => {
+    if (!fileToDelete) return;
+    startActing(async () => {
+      const r = await deleteLeaveFile(fileToDelete);
+      if (r.success) {
+        setFileToDelete(null);
+        load();
+      } else {
+        toast({ title: 'Error', description: r.error, variant: 'destructive' });
+      }
+    });
+  };
+
+  const handleAddComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+    startActing(async () => {
+      const r = await addLeaveComment(id, commentText);
+      if (r.success) {
+        setCommentText('');
+        load();
+      } else {
+        toast({ title: 'Error', description: r.error, variant: 'destructive' });
+      }
+    });
   };
 
   return (
@@ -240,35 +280,63 @@ export default function LeaveDetailPage({
             ) : null}
 
             {leave.status === 'pending' ? (
-              <div className="mt-6 flex flex-wrap items-end gap-3">
-                <div className="flex-1 min-w-[240px]">
-                  <Label className="text-zoru-ink">Rejection reason (optional)</Label>
-                  <Textarea
-                    rows={2}
-                    value={rejectReason}
-                    onChange={(e) => setRejectReason(e.target.value)}
-                    className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    onClick={handleApprove}
-                    disabled={isActing}
-                  >
-                    <Check className="h-4 w-4" />
-                    Approve
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleReject}
-                    disabled={isActing}
-                  >
-                    <X className="h-4 w-4" />
-                    Reject
-                  </Button>
-                </div>
+              <div className="mt-6 flex flex-wrap gap-3 border-t border-zoru-line pt-4">
+                <ZoruAlertDialog open={approveDialogOpen} onOpenChange={setApproveDialogOpen}>
+                  <ZoruAlertDialogTrigger asChild>
+                    <Button type="button" disabled={isActing}>
+                      <Check className="mr-2 h-4 w-4" />
+                      Approve
+                    </Button>
+                  </ZoruAlertDialogTrigger>
+                  <ZoruAlertDialogContent>
+                    <ZoruAlertDialogHeader>
+                      <ZoruAlertDialogTitle>Approve Leave Request</ZoruAlertDialogTitle>
+                      <ZoruAlertDialogDescription>
+                        Are you sure you want to approve this leave request? This will deduct from the employee's balance and notify them.
+                      </ZoruAlertDialogDescription>
+                    </ZoruAlertDialogHeader>
+                    <ZoruAlertDialogFooter>
+                      <ZoruAlertDialogCancel disabled={isActing}>Cancel</ZoruAlertDialogCancel>
+                      <ZoruAlertDialogAction onClick={handleApprove} disabled={isActing}>
+                        Yes, Approve
+                      </ZoruAlertDialogAction>
+                    </ZoruAlertDialogFooter>
+                  </ZoruAlertDialogContent>
+                </ZoruAlertDialog>
+
+                <ZoruAlertDialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+                  <ZoruAlertDialogTrigger asChild>
+                    <Button type="button" variant="outline" disabled={isActing}>
+                      <X className="mr-2 h-4 w-4" />
+                      Reject
+                    </Button>
+                  </ZoruAlertDialogTrigger>
+                  <ZoruAlertDialogContent>
+                    <ZoruAlertDialogHeader>
+                      <ZoruAlertDialogTitle>Reject Leave Request</ZoruAlertDialogTitle>
+                      <ZoruAlertDialogDescription>
+                        Please provide a reason for rejecting this leave application.
+                      </ZoruAlertDialogDescription>
+                    </ZoruAlertDialogHeader>
+                    <div className="my-4">
+                      <Label htmlFor="rejectReason" className="text-zoru-ink">Rejection Reason</Label>
+                      <Textarea
+                        id="rejectReason"
+                        rows={3}
+                        value={rejectReason}
+                        onChange={(e) => setRejectReason(e.target.value)}
+                        className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                        placeholder="Why is this being rejected?"
+                      />
+                    </div>
+                    <ZoruAlertDialogFooter>
+                      <ZoruAlertDialogCancel disabled={isActing}>Cancel</ZoruAlertDialogCancel>
+                      <ZoruAlertDialogAction destructive onClick={handleReject} disabled={isActing || !rejectReason.trim()}>
+                        Reject Leave
+                      </ZoruAlertDialogAction>
+                    </ZoruAlertDialogFooter>
+                  </ZoruAlertDialogContent>
+                </ZoruAlertDialog>
               </div>
             ) : null}
           </Card>
@@ -293,14 +361,32 @@ export default function LeaveDetailPage({
                       <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
                       {f.filename}
                     </a>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleDeleteFile(String(f._id))}
-                      title="Delete attachment"
-                    >
-                      <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                      Delete
-                    </Button>
+                    <ZoruAlertDialog>
+                      <ZoruAlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          onClick={() => setFileToDelete(String(f._id))}
+                          title="Delete attachment"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                          Delete
+                        </Button>
+                      </ZoruAlertDialogTrigger>
+                      <ZoruAlertDialogContent>
+                        <ZoruAlertDialogHeader>
+                          <ZoruAlertDialogTitle>Delete Attachment</ZoruAlertDialogTitle>
+                          <ZoruAlertDialogDescription>
+                            Are you sure you want to delete this attachment? This action cannot be undone.
+                          </ZoruAlertDialogDescription>
+                        </ZoruAlertDialogHeader>
+                        <ZoruAlertDialogFooter>
+                          <ZoruAlertDialogCancel onClick={() => setFileToDelete(null)}>Cancel</ZoruAlertDialogCancel>
+                          <ZoruAlertDialogAction destructive onClick={confirmDeleteFile} disabled={isActing}>
+                            Delete
+                          </ZoruAlertDialogAction>
+                        </ZoruAlertDialogFooter>
+                      </ZoruAlertDialogContent>
+                    </ZoruAlertDialog>
                   </li>
                 ))}
               </ul>
@@ -322,6 +408,67 @@ export default function LeaveDetailPage({
               <Button type="submit">
                 <Plus className="h-4 w-4" />
                 Add
+              </Button>
+            </form>
+          </Card>
+
+          <Card className="p-6">
+            <h2 className="mb-4 text-[16px] text-zoru-ink">Activity & Comments</h2>
+            
+            <div className="relative border-l border-zoru-line ml-3 mb-6 space-y-6 pb-2">
+              <div className="relative pl-6">
+                <div className="absolute left-[-5px] top-1.5 h-2.5 w-2.5 rounded-full bg-zoru-ink-muted border-2 border-zoru-bg" />
+                <p className="text-[13px] text-zoru-ink">
+                  Leave requested
+                </p>
+                <p className="text-[12px] text-zoru-ink-muted">
+                  {format(new Date(leave.applied_at || leave.createdAt || Date.now()), 'MMM d, yyyy h:mm a')}
+                </p>
+              </div>
+
+              {leave.comments?.map((comment) => (
+                <div key={comment.id} className="relative pl-6">
+                  <div className="absolute left-[-5px] top-1.5 h-2.5 w-2.5 rounded-full bg-blue-500 border-2 border-zoru-bg" />
+                  <div className="rounded-lg bg-zoru-surface-2 p-3 text-[13px]">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-zoru-ink">{comment.userName}</span>
+                      <span className="text-[11px] text-zoru-ink-muted">
+                        {format(new Date(comment.createdAt), 'MMM d, h:mm a')}
+                      </span>
+                    </div>
+                    <p className="text-zoru-ink whitespace-pre-wrap">{comment.text}</p>
+                  </div>
+                </div>
+              ))}
+
+              {leave.status !== 'pending' && leave.approved_at ? (
+                <div className="relative pl-6">
+                  <div className={`absolute left-[-5px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-zoru-bg ${leave.status === 'approved' ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <p className="text-[13px] text-zoru-ink">
+                    Leave {leave.status}
+                  </p>
+                  {leave.reject_reason && (
+                    <p className="text-[13px] text-zoru-danger-ink mt-1">
+                      Reason: {leave.reject_reason}
+                    </p>
+                  )}
+                  <p className="text-[12px] text-zoru-ink-muted">
+                    {format(new Date(leave.approved_at), 'MMM d, yyyy h:mm a')}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+
+            <form onSubmit={handleAddComment} className="mt-4 flex gap-3">
+              <Input
+                placeholder="Write a comment..."
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                className="h-10 flex-1 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+              />
+              <Button type="submit" disabled={isActing || !commentText.trim()}>
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Comment
               </Button>
             </form>
           </Card>

@@ -38,6 +38,7 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { CrmBulkyGrid, type ColumnDef } from '@/components/crm/crm-bulky-grid';
 import { useCrmBulkyState } from '@/components/crm/use-crm-bulky-state';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 import {
     deletePayrollRun,
@@ -86,7 +87,6 @@ function statusLabel(s: string): string {
 }
 
 export default function PayrollRunsListPage() {
-    const [rows, setRows] = React.useState<CrmPayrollRunDoc[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
     const [search, setSearch] = React.useState('');
     const [statusFilter, setStatusFilter] = React.useState<
@@ -99,12 +99,8 @@ export default function PayrollRunsListPage() {
     const { toast } = useZoruToast();
 
     const bulky = useCrmBulkyState<CrmPayrollRunDoc>({
-        initialData: rows,
+        initialData: [],
     });
-
-    React.useEffect(() => {
-        bulky.setData(rows);
-    }, [rows]);
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
@@ -114,13 +110,13 @@ export default function PayrollRunsListPage() {
                 year: yearFilter === 'all' ? undefined : Number(yearFilter),
                 limit: 200,
             });
-            setRows(res);
+            bulky.setData(res);
         } catch {
-            setRows([]);
+            bulky.setData([]);
         } finally {
             setIsLoading(false);
         }
-    }, [statusFilter, yearFilter]);
+    }, [statusFilter, yearFilter, bulky]);
 
     React.useEffect(() => {
         const t = window.setTimeout(() => {
@@ -131,19 +127,33 @@ export default function PayrollRunsListPage() {
 
     const yearOptions = React.useMemo(() => {
         const ys = new Set<number>();
-        for (const r of rows) if (r.period_year) ys.add(r.period_year);
+        for (const r of bulky.data) if (r.period_year) ys.add(r.period_year);
         if (ys.size === 0) ys.add(new Date().getFullYear());
         return Array.from(ys).sort((a, b) => b - a);
-    }, [rows]);
+    }, [bulky.data]);
 
     const filtered = React.useMemo(() => {
         const q = search.trim().toLowerCase();
-        if (!q) return rows;
-        return rows.filter((r) =>
+        if (!q) return bulky.data;
+        return bulky.data.filter((r) =>
             periodLabel(r).toLowerCase().includes(q) ||
             (r.notes ?? '').toLowerCase().includes(q),
         );
-    }, [rows, search]);
+    }, [bulky.data, search]);
+
+    const chartData = React.useMemo(() => {
+        const sorted = [...filtered].sort((a, b) => {
+            if (a.period_year !== b.period_year) return (a.period_year || 0) - (b.period_year || 0);
+            return (a.period_month || 0) - (b.period_month || 0);
+        });
+
+        return sorted.map(r => ({
+            name: periodLabel(r),
+            Gross: r.total_gross || 0,
+            Deductions: r.total_deductions || 0,
+            Net: r.total_net || 0,
+        }));
+    }, [filtered]);
 
     const handleDelete = () => {
         if (!pendingDelete) return;
@@ -173,9 +183,6 @@ export default function PayrollRunsListPage() {
                     title: 'Saved inline',
                     description: `Payroll run status updated to ${updatedFields.status.replace(/_/g, ' ')}.`,
                 });
-                setRows((prev) =>
-                    prev.map((row) => (row._id === id ? { ...row, ...updatedFields } : row))
-                );
                 bulky.setData((prev) =>
                     prev.map((row) => (row._id === id ? { ...row, ...updatedFields } : row))
                 );
@@ -343,8 +350,31 @@ export default function PayrollRunsListPage() {
                         </Select>
                     </>
                 }
-                loading={isLoading && rows.length === 0}
+                loading={isLoading && bulky.data.length === 0}
             >
+                {chartData.length > 0 && (
+                    <div className="mb-6 rounded-lg border border-zoru-line bg-zoru-surface p-4">
+                        <h3 className="mb-4 text-sm font-medium text-zoru-ink">Payroll Expenses Overview</h3>
+                        <div className="h-64 w-full text-xs">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+                                    <XAxis dataKey="name" tick={{ fill: 'hsl(var(--zoru-ink-subtle))' }} axisLine={{ stroke: 'hsl(var(--zoru-line))' }} tickLine={false} />
+                                    <YAxis tickFormatter={(val) => `₹${(val / 1000)}k`} tick={{ fill: 'hsl(var(--zoru-ink-subtle))' }} axisLine={false} tickLine={false} />
+                                    <Tooltip 
+                                        formatter={(value: number) => inr.format(value)}
+                                        contentStyle={{ backgroundColor: 'hsl(var(--zoru-surface))', borderColor: 'hsl(var(--zoru-line))', borderRadius: '6px' }}
+                                    />
+                                    <Legend wrapperStyle={{ paddingTop: '10px' }} />
+                                    <Bar dataKey="Gross" fill="#18181b" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="Net" fill="#71717a" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="Deductions" fill="#d4d4d8" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                )}
+
                 <div className="overflow-hidden rounded-lg border border-zoru-line bg-zoru-surface">
                     <CrmBulkyGrid<CrmPayrollRunDoc>
                         columns={columns}

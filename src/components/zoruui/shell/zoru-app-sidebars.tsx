@@ -536,6 +536,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         label: "Workspace",
         items: [
           leaf("home", "All flows", "/dashboard/sabflow/flow-builder", Workflow, p),
+          leaf("marketplace", "Marketplace", "/dashboard/sabflow/marketplace", ShoppingBag, p),
           leaf("logs", "Logs", "/dashboard/sabflow/logs", FileSearch, p),
           leaf("connections", "Connections", "/dashboard/sabflow/connections", Plug, p),
           leaf("docs", "Docs", "/dashboard/sabflow/docs", BookOpen, p),

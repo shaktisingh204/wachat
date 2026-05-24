@@ -1,0 +1,37 @@
+[
+  {
+    "AllowMultiple": false,
+    "StartLine": 41,
+    "EndLine": 52,
+    "TargetContent": "import {\n  CircleDot,\n  Hash,\n  Image as ImageIcon,\n  Plus,\n  Upload,\n  } from \"lucide-react\";\n\nimport {\n  getPageStories,\n  publishPhotoStory,\n  } from \"@/app/actions/facebook.actions\";",
+    "ReplacementContent": "import {\n  CircleDot,\n  Hash,\n  Image as ImageIcon,\n  Plus,\n  Upload,\n  Link,\n  Video,\n} from \"lucide-react\";\n\nimport {\n  getPageStories,\n  publishPhotoStory,\n  publishVideoStory,\n} from \"@/app/actions/facebook.actions\";\nimport { uploadLibraryFile } from \"@/app/actions/files.actions\";\nimport { ZoruFileUploadCard, ZoruFileUploadItem } from \"@/components/zoruui/file-upload-card\";\nimport { RadioGroup, ZoruRadioCard } from \"@/components/zoruui/radio-group\";"
+  },
+  {
+    "AllowMultiple": false,
+    "StartLine": 134,
+    "EndLine": 142,
+    "TargetContent": "        {story.url ? (\n          <Image\n            src={story.url}\n            alt=\"Story\"\n            fill\n            unoptimized\n            sizes=\"(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw\"\n            className=\"object-cover\"\n          />",
+    "ReplacementContent": "        {story.url ? (\n          story.media_type === \"video\" || story.url.includes(\".mp4\") ? (\n            <video\n              src={story.url}\n              className=\"h-full w-full object-cover\"\n              controls={false}\n              autoPlay\n              muted\n              loop\n              playsInline\n            />\n          ) : (\n            <Image\n              src={story.url}\n              alt=\"Story\"\n              fill\n              unoptimized\n              sizes=\"(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw\"\n              className=\"object-cover\"\n            />\n          )"
+  },
+  {
+    "AllowMultiple": false,
+    "StartLine": 174,
+    "EndLine": 178,
+    "TargetContent": "  const [isPublishing, startPublishTransition] = useTransition();\n  const [projectId, setProjectId] = useState<string | null>(null);\n  const [projectIdReady, setProjectIdReady] = useState(false);\n  const [createOpen, setCreateOpen] = useState(false);\n  const [photoUrl, setPhotoUrl] = useState(\"\");",
+    "ReplacementContent": "  const [projectId, setProjectId] = useState<string | null>(null);\n  const [projectIdReady, setProjectIdReady] = useState(false);\n  const [createOpen, setCreateOpen] = useState(false);"
+  },
+  {
+    "AllowMultiple": false,
+    "StartLine": 212,
+    "EndLine": 232,
+    "TargetContent": "  const handlePublish = () => {\n    if (!projectId || !photoUrl.trim()) return;\n    startPublishTransition(async () => {\n      const result = await publishPhotoStory(projectId, photoUrl.trim());\n      if (result.error) {\n        toast({\n          title: \"Publish failed\",\n          description: result.error,\n          variant: \"destructive\",\n        });\n      } else {\n        toast({\n          title: \"Story published\",\n          description: \"Your photo story is live on the Page.\",\n        });\n        setPhotoUrl(\"\");\n        setCreateOpen(false);\n        fetchStories();\n      }\n    });\n  };",
+    "ReplacementContent": "  const handleSuccess = () => {\n    setCreateOpen(false);\n    fetchStories();\n  };"
+  },
+  {
+    "AllowMultiple": false,
+    "StartLine": 318,
+    "EndLine": 329,
+    "TargetContent": "      <CreateStoryDialog\n        open={createOpen}\n        onOpenChange={(next) => {\n          setCreateOpen(next);\n          if (!next) setPhotoUrl(\"\");\n        }}\n        photoUrl={photoUrl}\n        onPhotoUrlChange={setPhotoUrl}\n        onPublish={handlePublish}\n        isPublishing={isPublishing}\n        projectId={projectId}\n      />",
+    "ReplacementContent": "      <CreateStoryDialog\n        open={createOpen}\n        onOpenChange={setCreateOpen}\n        onSuccess={handleSuccess}\n        projectId={projectId}\n      />"
+  }
+]

@@ -32,6 +32,9 @@ type SalaryRow = {
     tds: number;
     totalDeductions: number;
     netPay: number;
+    ytdGross: number;
+    ytdDeductions: number;
+    ytdNetPay: number;
 };
 
 type Summary = { totalGross: number; totalDeductions: number; totalNetPay: number; totalEmployees: number };
@@ -176,54 +179,61 @@ export default function SalaryRegisterPage() {
                     <table className="w-full text-left text-[13px]">
                         <thead>
                             <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                                <th className="px-4 py-3 font-medium text-zoru-ink-muted">Employee</th>
-                                <th className="px-4 py-3 font-medium text-zoru-ink-muted">Department</th>
+                                <th className="sticky left-0 z-20 bg-zoru-surface-2 w-[180px] min-w-[180px] px-4 py-3 font-medium text-zoru-ink-muted">Employee</th>
+                                <th className="sticky left-[180px] z-20 bg-zoru-surface-2 border-r border-zoru-line w-[140px] min-w-[140px] px-4 py-3 font-medium text-zoru-ink-muted">Department</th>
                                 {/* Earnings */}
                                 <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-green-600">Basic</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-600">HRA</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-600">Spl. Allow.</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-600">Other</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-700">Total Gross</th>
+                                <th className="px-4 py-3 text-right font-medium text-green-700/80">YTD Gross</th>
                                 {/* Deductions */}
                                 <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-red-500">PF</th>
                                 <th className="px-4 py-3 text-right font-medium text-red-500">ESI</th>
                                 <th className="px-4 py-3 text-right font-medium text-red-500">TDS</th>
                                 <th className="px-4 py-3 text-right font-medium text-red-600">Total Deductions</th>
+                                <th className="px-4 py-3 text-right font-medium text-red-600/80">YTD Deductions</th>
                                 {/* Net */}
                                 <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-zoru-ink">Net Pay</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">YTD Net Pay</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={12} className="h-48 text-center">
+                                    <td colSpan={15} className="h-48 text-center">
                                         <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
                                     </td>
                                 </tr>
                             ) : reportData.length > 0 ? (
                                 <>
                                     {reportData.map(row => (
-                                        <tr key={row.employeeId} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50">
-                                            <td className="px-4 py-3 font-medium text-zoru-ink">{row.employeeName}</td>
-                                            <td className="px-4 py-3 text-zoru-ink-muted">{row.department}</td>
+                                        <tr key={row.employeeId} className="group border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
+                                            <td className="sticky left-0 z-10 w-[180px] min-w-[180px] bg-zoru-bg group-hover:bg-zoru-surface-2/50 px-4 py-3 font-medium text-zoru-ink transition-colors">{row.employeeName}</td>
+                                            <td className="sticky left-[180px] z-10 w-[140px] min-w-[140px] bg-zoru-bg group-hover:bg-zoru-surface-2/50 border-r border-zoru-line px-4 py-3 text-zoru-ink-muted transition-colors">{row.department}</td>
                                             {/* Earnings */}
                                             <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.basic)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.hra)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.specialAllowance)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.otherEarnings)}</td>
                                             <td className="px-4 py-3 text-right font-mono font-semibold text-green-700">{fmt(row.totalGross)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-green-700/80">{fmt(row.ytdGross)}</td>
                                             {/* Deductions */}
                                             <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.pf)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.esi)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.tds)}</td>
                                             <td className="px-4 py-3 text-right font-mono font-semibold text-red-600">{fmt(row.totalDeductions)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-red-600/80">{fmt(row.ytdDeductions)}</td>
                                             {/* Net */}
                                             <td className="border-l border-zoru-line px-4 py-3 text-right font-mono font-bold text-zoru-ink">{fmt(row.netPay)}</td>
+                                            <td className="px-4 py-3 text-right font-mono font-medium text-zoru-ink-muted">{fmt(row.ytdNetPay)}</td>
                                         </tr>
                                     ))}
                                     {/* Totals row */}
                                     <tr className="border-t-2 border-zoru-line bg-zoru-surface-2 font-semibold">
-                                        <td className="px-4 py-3 text-zoru-ink" colSpan={2}>Totals</td>
+                                        <td className="sticky left-0 z-10 w-[180px] min-w-[180px] bg-zoru-surface-2 px-4 py-3 text-zoru-ink" colSpan={1}>Totals</td>
+                                        <td className="sticky left-[180px] z-10 w-[140px] min-w-[140px] bg-zoru-surface-2 border-r border-zoru-line px-4 py-3"></td>
                                         <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(reportData.reduce((s, r) => s + r.basic, 0))}
                                         </td>
@@ -239,6 +249,9 @@ export default function SalaryRegisterPage() {
                                         <td className="px-4 py-3 text-right font-mono text-green-700">
                                             {fmt(summary.totalGross)}
                                         </td>
+                                        <td className="px-4 py-3 text-right font-mono text-green-700/80">
+                                            {fmt(reportData.reduce((s, r) => s + r.ytdGross, 0))}
+                                        </td>
                                         <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(reportData.reduce((s, r) => s + r.pf, 0))}
                                         </td>
@@ -251,14 +264,20 @@ export default function SalaryRegisterPage() {
                                         <td className="px-4 py-3 text-right font-mono text-red-600">
                                             {fmt(summary.totalDeductions)}
                                         </td>
+                                        <td className="px-4 py-3 text-right font-mono text-red-600/80">
+                                            {fmt(reportData.reduce((s, r) => s + r.ytdDeductions, 0))}
+                                        </td>
                                         <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(summary.totalNetPay)}
+                                        </td>
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink-muted">
+                                            {fmt(reportData.reduce((s, r) => s + r.ytdNetPay, 0))}
                                         </td>
                                     </tr>
                                 </>
                             ) : (
                                 <tr>
-                                    <td colSpan={12} className="h-24 text-center text-zoru-ink-muted">
+                                    <td colSpan={15} className="h-24 text-center text-zoru-ink-muted">
                                         No salary data found for the selected period.
                                     </td>
                                 </tr>

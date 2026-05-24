@@ -1,23 +1,13 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
-
-/**
- * Edit shift-rotation page — server wrapper that loads the rotation by id
- * and passes it as `initialData` to `<RotationForm />`. Shifts are loaded
- * up-front so the pattern repeater can render its select options.
- */
+import { notFound, redirect } from 'next/navigation';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getShiftRotationById } from '@/app/actions/crm-shift-rotations.actions';
 import { getShifts } from '@/app/actions/crm-shifts.actions';
-
 import { RotationForm } from '../../_components/rotation-form';
+import { ExportRotationButton } from './export-button';
 
 export const dynamic = 'force-dynamic';
-
-const BASE = '/dashboard/hrm/payroll/shift-rotations';
 
 export default async function EditShiftRotationPage({
     params,
@@ -33,6 +23,7 @@ export default async function EditShiftRotationPage({
         getShiftRotationById(rotationId),
         getShifts({ limit: 200, status: 'active' }),
     ]);
+    
     if (!rotation) notFound();
 
     return (
@@ -40,10 +31,15 @@ export default async function EditShiftRotationPage({
             title={`Edit · ${rotation.name}`}
             subtitle="Update rotation scope, pattern and cycle."
         >
-            <RotationForm
-                initialData={rotation}
-                shifts={shiftsRes.items ?? []}
-            />
+            <div className="space-y-4">
+                <div className="flex justify-end">
+                    <ExportRotationButton rotation={rotation} shifts={shiftsRes.items ?? []} />
+                </div>
+                <RotationForm
+                    initialData={rotation}
+                    shifts={shiftsRes.items ?? []}
+                />
+            </div>
         </EntityListShell>
     );
 }

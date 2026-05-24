@@ -1590,6 +1590,13 @@ export type PostRandomizerSettings = {
     enabled: boolean;
     frequencyHours: number;
     lastPostedAt?: Date;
+    blackoutStart?: string;
+    blackoutEnd?: string;
+    history?: {
+        message: string;
+        imageUrl?: string;
+        postedAt: Date;
+    }[];
 };
 
 export type AbandonedCartSettings = {
@@ -2255,6 +2262,7 @@ export type PlanFeaturePermissions = {
     instagramStories: boolean;
     instagramReels: boolean;
     instagramMessages: boolean;
+    postRandomizer: boolean;
     chatbot: boolean;
     email: boolean;
     sabsms: boolean;

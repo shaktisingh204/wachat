@@ -1,0 +1,116 @@
+--- src/app/dashboard/hrm/payroll/professional-tax/page.tsx
++++ src/app/dashboard/hrm/payroll/professional-tax/page.tsx
+@@ -27,2 +27,7 @@
+   ZoruSelectValue,
++  DropdownMenu,
++  DropdownMenuContent,
++  DropdownMenuItem,
++  DropdownMenuTrigger,
++  DropdownMenuLabel,
++  DropdownMenuSeparator,
+   useZoruToast,
+@@ -41,3 +46,4 @@
+   Trash2,
+-  Edit } from 'lucide-react';
++  Edit,
++  Download } from 'lucide-react';
+ 
+@@ -43,3 +49,9 @@
+ 
+-import { getCrmPtSlabs, saveCrmPtSlab, deleteCrmPtSlab, generateProfessionalTaxReport } from '@/app/actions/crm-hr.actions';
++import {
++  getCrmPtSlabs,
++  saveCrmPtSlab,
++  deleteCrmPtSlab,
++  generateProfessionalTaxReport,
++  importCrmPtSlabsTemplate
++} from '@/app/actions/crm-hr.actions';
+ import type { WithId, CrmProfessionalTaxSlab } from '@/lib/definitions';
+@@ -169,2 +181,87 @@
+ 
++const ptTemplates = [
++  {
++    state: 'Maharashtra',
++    slabs: [
++      { minSalary: 0, maxSalary: 7500, taxAmount: 0 },
++      { minSalary: 7501, maxSalary: 10000, taxAmount: 175 },
++      { minSalary: 10001, maxSalary: 9999999, taxAmount: 200 }
++    ]
++  },
++  {
++    state: 'Karnataka',
++    slabs: [
++      { minSalary: 0, maxSalary: 14999, taxAmount: 0 },
++      { minSalary: 15000, maxSalary: 9999999, taxAmount: 200 }
++    ]
++  },
++  {
++    state: 'Telangana',
++    slabs: [
++      { minSalary: 0, maxSalary: 15000, taxAmount: 0 },
++      { minSalary: 15001, maxSalary: 20000, taxAmount: 150 },
++      { minSalary: 20001, maxSalary: 9999999, taxAmount: 200 }
++    ]
++  },
++  {
++    state: 'Tamil Nadu',
++    slabs: [
++      { minSalary: 0, maxSalary: 3500, taxAmount: 0 },
++      { minSalary: 3501, maxSalary: 5000, taxAmount: 23 },
++      { minSalary: 5001, maxSalary: 7500, taxAmount: 53 },
++      { minSalary: 7501, maxSalary: 10000, taxAmount: 115 },
++      { minSalary: 10001, maxSalary: 12500, taxAmount: 171 },
++      { minSalary: 12501, maxSalary: 9999999, taxAmount: 208 }
++    ]
++  }
++];
++
++function ImportTemplatesDropdown({ onImported }: { onImported: () => void }) {
++    const { toast } = useZoruToast();
++    const [isPending, startTransition] = useTransition();
++
++    const handleImport = (state: string, slabsData: Array<{minSalary: number, maxSalary: number, taxAmount: number}>) => {
++        startTransition(async () => {
++            const result = await importCrmPtSlabsTemplate(state, slabsData);
++            if (result.error) {
++                toast({ title: 'Error', description: result.error, variant: 'destructive' });
++            } else {
++                toast({ title: 'Success', description: result.message });
++                onImported();
++            }
++        });
++    };
++
++    return (
++        <DropdownMenu>
++            <DropdownMenuTrigger asChild>
++                <Button variant="outline" size="icon" disabled={isPending}>
++                    {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
++                </Button>
++            </DropdownMenuTrigger>
++            <DropdownMenuContent align="end" className="w-48">
++                <DropdownMenuLabel>Import Templates</DropdownMenuLabel>
++                <DropdownMenuSeparator />
++                {ptTemplates.map((t) => (
++                    <DropdownMenuItem 
++                        key={t.state}
++                        onClick={() => handleImport(t.state, t.slabs)}
++                    >
++                        {t.state}
++                    </DropdownMenuItem>
++                ))}
++            </DropdownMenuContent>
++        </DropdownMenu>
++    );
++}
++
+ export default function ProfessionalTaxPage() {
+@@ -293,3 +390,6 @@
+                                 <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">State-wise salary bands</p>
+                             </div>
+-                            <SlabFormDialog onSave={fetchData} />
++                            <div className="flex gap-2">
++                                <ImportTemplatesDropdown onImported={fetchData} />
++                                <SlabFormDialog onSave={fetchData} />
++                            </div>
+                         </div>

@@ -172,3 +172,40 @@ export async function rejectCandidate(id: string): Promise<HrActionResult> {
 export async function archiveCandidate(id: string): Promise<HrActionResult> {
   return moveCandidateStage(id, 'withdrawn');
 }
+
+import { writeAuditEntry } from '@/lib/audit-log';
+
+export async function addCandidateNote(id: string, note: string): Promise<HrActionResult> {
+  const user = await requireSession();
+  if (!user) return { error: 'Access denied' };
+  if (!ObjectId.isValid(id)) return { error: 'Invalid id' };
+
+  try {
+    const { db } = await connectToDatabase();
+    
+    // Check if candidate exists and maybe append the note to candidate's notes?
+    // Wait, let's just log it in the audit stream as a "note" action since the plan says "tie it directly into the audit stream".
+    const res = await db.collection('hr_candidates').updateOne(
+      { _id: new ObjectId(id), userId: new ObjectId(user._id) },
+      {
+        $set: { updatedAt: new Date() },
+      },
+    );
+    if (!res.matchedCount) return { error: 'Not found' };
+
+    await writeAuditEntry({
+      tenantUserId: String(user._id),
+      actorId: String(user._id),
+      action: 'note',
+      entityKind: 'candidate',
+      entityId: id,
+      reason: note,
+    });
+
+    revalidatePath(`/dashboard/hrm/hr/candidates/${id}`);
+    revalidatePath('/dashboard/hrm/hr/candidates');
+    return { message: 'Note added' };
+  } catch (e: any) {
+    return { error: e?.message || 'Failed to add note' };
+  }
+}

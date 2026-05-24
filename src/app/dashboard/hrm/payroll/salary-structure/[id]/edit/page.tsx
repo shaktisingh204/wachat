@@ -1,20 +1,57 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
-
-/**
- * Edit salary structure page — wrap `<SalaryStructureForm initialData=… />`.
- */
-
+import { notFound, redirect } from 'next/navigation';
+import { Suspense } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getSalaryStructureDoc } from '@/app/actions/crm-salary-structures.actions';
-
 import { SalaryStructureForm } from '../../_components/salary-structure-form';
+import { Skeleton } from '@/components/ui/skeleton';
+import { EditHeaderActions } from './edit-actions';
 
 export const dynamic = 'force-dynamic';
 
-const BASE = '/dashboard/hrm/payroll/salary-structure';
+async function EditFormContent({ id }: { id: string }) {
+    const doc = await getSalaryStructureDoc(id);
+    if (!doc) notFound();
+
+    return (
+        <SalaryStructureForm initialData={doc} />
+    );
+}
+
+async function EditShell({ id }: { id: string }) {
+    const doc = await getSalaryStructureDoc(id);
+    if (!doc) notFound();
+    
+    const label = doc.employeeName ?? doc.employeeId ?? id;
+    
+    return (
+        <EntityListShell
+            title={`Edit · ${label}`}
+            subtitle="Update earnings, deductions, or archive this structure."
+            headerActions={<EditHeaderActions id={id} data={doc} />}
+        >
+            <Suspense fallback={<FormSkeleton />}>
+                <SalaryStructureForm initialData={doc} />
+            </Suspense>
+        </EntityListShell>
+    );
+}
+
+function FormSkeleton() {
+    return (
+        <div className="space-y-4 rounded-xl border border-zoru-line bg-zoru-surface p-6 shadow-sm">
+            <div className="grid gap-4 sm:grid-cols-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+            </div>
+            <Skeleton className="mt-6 h-[200px] w-full" />
+        </div>
+    );
+}
 
 export default async function EditSalaryStructurePage({
     params,
@@ -22,21 +59,19 @@ export default async function EditSalaryStructurePage({
     params: Promise<{ id: string }>;
 }) {
     const { id } = await params;
-
     const session = await getSession();
     if (!session?.user) redirect('/login');
 
-    const doc = await getSalaryStructureDoc(id);
-    if (!doc) notFound();
-
-    const label = doc.employeeName ?? doc.employeeId ?? id;
-
     return (
-        <EntityListShell
-            title={`Edit · ${label}`}
-            subtitle="Update earnings, deductions, or archive this structure."
-        >
-            <SalaryStructureForm initialData={doc} />
-        </EntityListShell>
+        <Suspense fallback={
+            <EntityListShell
+                title="Edit Salary Structure"
+                subtitle="Loading..."
+            >
+                <FormSkeleton />
+            </EntityListShell>
+        }>
+            <EditShell id={id} />
+        </Suspense>
     );
 }

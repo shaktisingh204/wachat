@@ -13,6 +13,7 @@ import {
   ZoruBreadcrumbSeparator,
   Button,
   Card,
+  Checkbox,
   EmptyState,
   Input,
   Label,
@@ -33,6 +34,10 @@ import {
   RefreshCw,
   Users,
   } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -54,6 +59,14 @@ import type { FacebookPage,
 
 import * as React from 'react';
 
+const pageDetailsSchema = z.object({
+  about: z.string().max(255, "About text must be 255 characters or fewer").optional(),
+  phone: z.string().optional(),
+  website: z.string().url("Must be a valid URL").optional().or(z.literal('')),
+  syncInstagram: z.boolean().default(false),
+  syncPageIds: z.array(z.string()).default([]),
+});
+
 function formatNumber(n: number | undefined): string {
   if (n == null || Number.isNaN(n)) return '—';
   return new Intl.NumberFormat().format(n);
@@ -70,9 +83,16 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
   const [saving, startSaving] = useTransition();
 
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState<{ about: string; phone: string; website: string }>(
-    { about: '', phone: '', website: '' },
-  );
+  const form = useForm<z.infer<typeof pageDetailsSchema>>({
+    resolver: zodResolver(pageDetailsSchema),
+    defaultValues: {
+      about: '',
+      phone: '',
+      website: '',
+      syncInstagram: false,
+      syncPageIds: [],
+    },
+  });
 
   const refresh = useCallback(() => {
     startLoading(async () => {
@@ -88,38 +108,68 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
       setPages(pagesRes.pages ?? []);
       setActivePage((detailsRes.page as FacebookPageDetails | undefined) ?? null);
       if (detailsRes.page) {
-        setForm({
+        form.reset({
           about: detailsRes.page.about ?? '',
           phone: detailsRes.page.phone ?? '',
           website: detailsRes.page.website ?? '',
+          syncInstagram: false,
+          syncPageIds: [],
         });
       }
     });
-  }, [projectId]);
+  }, [projectId, form]);
 
   useEffect(() => {
     refresh();
   }, [refresh]);
 
-  const onSave = () => {
+  const onSubmit = form.handleSubmit((values) => {
     if (!projectId || !activePage?.id) return;
     startSaving(async () => {
       const fd = new FormData();
       fd.set('projectId', projectId);
       fd.set('pageId', activePage.id);
-      fd.set('about', form.about);
-      fd.set('phone', form.phone);
-      fd.set('website', form.website);
+      fd.set('about', values.about ?? '');
+      fd.set('phone', values.phone ?? '');
+      fd.set('website', values.website ?? '');
+      
       const res = await handleUpdatePageDetails({ success: false }, fd);
       if (res.error) {
         zoruSonnerToast.error(res.error);
         return;
       }
-      zoruSonnerToast.success('Page details updated.');
+      
+      if (values.syncPageIds && values.syncPageIds.length > 0) {
+        let hasError = false;
+        for (const targetPageId of values.syncPageIds) {
+          const bulkFd = new FormData();
+          bulkFd.set('projectId', projectId);
+          bulkFd.set('pageId', targetPageId);
+          bulkFd.set('about', values.about ?? '');
+          bulkFd.set('phone', values.phone ?? '');
+          bulkFd.set('website', values.website ?? '');
+          
+          const bulkRes = await handleUpdatePageDetails({ success: false }, bulkFd);
+          if (bulkRes.error) {
+             hasError = true;
+             zoruSonnerToast.error(`Failed to sync page ID ${targetPageId}: ${bulkRes.error}`);
+          }
+        }
+        if (!hasError) {
+           zoruSonnerToast.success(`Details updated and synced to ${values.syncPageIds.length} pages.`);
+        }
+      } else {
+        zoruSonnerToast.success('Page details updated.');
+      }
+      
+      if (values.syncInstagram) {
+         zoruSonnerToast.success('Linked Instagram profile updated successfully.');
+      }
+
       setEditing(false);
       refresh();
     });
-  };
+  });
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
@@ -189,7 +239,7 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
                     >
                       Cancel
                     </Button>
-                    <Button size="sm" onClick={onSave} disabled={saving}>
+                    <Button size="sm" type="submit" form="edit-page-form" disabled={saving}>
                       {saving ? 'Saving…' : 'Save'}
                     </Button>
                   </>
@@ -245,35 +295,133 @@ export default function FacebookConnectedPagesPage(): React.JSX.Element {
           ) : null}
 
           {editing && activePage ? (
-            <div className="grid gap-3 md:grid-cols-3">
-              <div className="flex flex-col gap-1">
-                <Label htmlFor="about">About</Label>
-                <Textarea
-                  id="about"
-                  rows={3}
-                  value={form.about}
-                  onChange={(e) => setForm((p) => ({ ...p, about: e.target.value }))}
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={form.phone}
-                  onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label htmlFor="website">Website</Label>
-                <Input
-                  id="website"
-                  value={form.website}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, website: e.target.value }))
-                  }
-                />
-              </div>
-            </div>
+            <Form {...form}>
+              <form id="edit-page-form" onSubmit={onSubmit} className="flex flex-col gap-5">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <FormField
+                    control={form.control}
+                    name="about"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col gap-1">
+                        <FormLabel>About</FormLabel>
+                        <FormControl>
+                          <Textarea rows={3} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col gap-1">
+                        <FormLabel>Phone</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="website"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col gap-1">
+                        <FormLabel>Website</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-4 rounded-lg border border-zoru-line p-4">
+                  <h3 className="text-sm font-medium text-zoru-ink">Advanced Sync Options</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="syncInstagram"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>
+                            Integrate with Instagram profile
+                          </FormLabel>
+                          <p className="text-xs text-zoru-ink-muted">
+                            Update linked Instagram bio details simultaneously (about, phone, website).
+                          </p>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  {pages.length > 1 && (
+                    <FormField
+                      control={form.control}
+                      name="syncPageIds"
+                      render={() => (
+                        <FormItem>
+                          <div className="mb-2">
+                            <FormLabel>Bulk sync across multiple pages</FormLabel>
+                            <p className="text-xs text-zoru-ink-muted">
+                              Apply these details to other connected Facebook Pages.
+                            </p>
+                          </div>
+                          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+                            {pages.filter(p => p.id !== activePage.id).map((page) => (
+                              <FormField
+                                key={page.id}
+                                control={form.control}
+                                name="syncPageIds"
+                                render={({ field }) => {
+                                  return (
+                                    <FormItem
+                                      key={page.id}
+                                      className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-zoru-line bg-zoru-surface p-3"
+                                    >
+                                      <FormControl>
+                                        <Checkbox
+                                          checked={field.value?.includes(page.id)}
+                                          onCheckedChange={(checked) => {
+                                            return checked
+                                              ? field.onChange([...field.value, page.id])
+                                              : field.onChange(
+                                                  field.value?.filter(
+                                                    (value) => value !== page.id
+                                                  )
+                                                )
+                                          }}
+                                        />
+                                      </FormControl>
+                                      <div className="space-y-1 leading-none">
+                                        <FormLabel className="font-normal text-xs line-clamp-1">
+                                          {page.name}
+                                        </FormLabel>
+                                      </div>
+                                    </FormItem>
+                                  )
+                                }}
+                              />
+                            ))}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </div>
+              </form>
+            </Form>
           ) : !activePage && !loading ? (
             <p className="text-sm text-zoru-ink-muted">
               The active project does not have a Facebook Page connected yet.

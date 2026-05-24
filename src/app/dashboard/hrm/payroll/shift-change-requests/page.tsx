@@ -1,5 +1,14 @@
 'use client';
 
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  useRef,
+  Suspense,
+  use,
+} from 'react';
 import {
   Badge,
   Button,
@@ -16,16 +25,13 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
+  Checkbox,
 } from '@/components/zoruui';
-import {
-  useEffect,
-  useMemo,
-  useState,
-  useTransition } from 'react';
-import { Check,
-  Plus,
-  X } from 'lucide-react';
+import { Check, Plus, X, Download, RefreshCw, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
+import Papa from 'papaparse';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
@@ -43,35 +49,87 @@ import type {
   WsShiftChangeStatus,
 } from '@/lib/worksuite/shifts-types';
 
+class ErrorBoundary extends React.Component<{ children: React.ReactNode, fallback: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
+
+// Module-level promise for Suspense (client-side initial fetch)
+let globalDataPromise: Promise<[WsEmployeeShiftChangeRequest[], WithId<CrmEmployee>[], WsEmployeeShift[]]> | null = null;
+function getInitialData() {
+  if (!globalDataPromise) {
+    globalDataPromise = Promise.all([
+      getShiftChangeRequests(),
+      getCrmEmployees(),
+      getEmployeeShifts(),
+    ]);
+  }
+  return globalDataPromise;
+}
+
 export default function ShiftChangeRequestsPage() {
-  const [requests, setRequests] = useState<WsEmployeeShiftChangeRequest[]>([]);
-  const [employees, setEmployees] = useState<WithId<CrmEmployee>[]>([]);
-  const [shifts, setShifts] = useState<WsEmployeeShift[]>([]);
+  return (
+    <ErrorBoundary
+      fallback={
+        <EntityListShell title="Shift Change Requests" subtitle="Review and action employee requests to swap shifts.">
+          <Card className="flex flex-col items-center justify-center p-12 text-zoru-danger-ink">
+            <AlertCircle className="mb-4 h-8 w-8" />
+            <h2 className="text-lg font-medium">Failed to load data</h2>
+            <p className="text-sm">Please try refreshing the page.</p>
+          </Card>
+        </EntityListShell>
+      }
+    >
+      <Suspense
+        fallback={
+          <EntityListShell title="Shift Change Requests" subtitle="Review and action employee requests to swap shifts.">
+            <Card className="flex h-64 items-center justify-center p-6 text-[13px] text-zoru-ink-muted">
+              Loading requests...
+            </Card>
+          </EntityListShell>
+        }
+      >
+        <ShiftChangeRequestsContent />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function ShiftChangeRequestsContent() {
+  const [initialRequests, employees, shifts] = use(getInitialData());
+  const [requests, setRequests] = useState<WsEmployeeShiftChangeRequest[]>(initialRequests);
   const [pending, startTransition] = useTransition();
 
-  // New request dialog state
+  // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [newUserId, setNewUserId] = useState('');
-  const [newDate, setNewDate] = useState('');
-  const [newCurrentShiftId, setNewCurrentShiftId] = useState('');
-  const [newRequestedShiftId, setNewRequestedShiftId] = useState('');
-  const [newReason, setNewReason] = useState('');
-  const [formError, setFormError] = useState<string | null>(null);
 
-  const load = () =>
-    startTransition(async () => {
-      const [reqs, emps, sh] = await Promise.all([
-        getShiftChangeRequests(),
-        getCrmEmployees(),
-        getEmployeeShifts(),
-      ]);
-      setRequests(reqs);
-      setEmployees(emps);
-      setShifts(sh);
-    });
+  // Filter state
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [employeeFilter, setEmployeeFilter] = useState<string>('all');
 
+  // Bulk action state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Real-time polling
   useEffect(() => {
-    load();
+    const interval = setInterval(async () => {
+      try {
+        const newReqs = await getShiftChangeRequests();
+        setRequests(newReqs);
+      } catch (err) {
+        // Silently fail polling
+      }
+    }, 15000); // Poll every 15s
+    return () => clearInterval(interval);
   }, []);
 
   const empMap = useMemo(() => {
@@ -86,41 +144,338 @@ export default function ShiftChangeRequestsPage() {
     return m;
   }, [shifts]);
 
+  const filteredRequests = useMemo(() => {
+    return requests.filter(r => {
+      if (statusFilter !== 'all' && r.status !== statusFilter) return false;
+      if (employeeFilter !== 'all' && r.user_id !== employeeFilter) return false;
+      return true;
+    });
+  }, [requests, statusFilter, employeeFilter]);
+
+  const toggleSelection = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === filteredRequests.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredRequests.map(r => String(r._id))));
+    }
+  };
+
   const handleApprove = (id?: string) => {
     if (!id) return;
+    // Optimistic UI update
+    setRequests(reqs => reqs.map(r => (String(r._id) === id ? { ...r, status: 'approved' } : r)));
+    toast.success('Request approved successfully');
+    
     startTransition(async () => {
-      await approveShiftChange(id);
-      load();
+      try {
+        await approveShiftChange(id);
+        const newReqs = await getShiftChangeRequests();
+        setRequests(newReqs);
+      } catch (err) {
+        toast.error('Failed to approve request. Reverting...');
+        const oldReqs = await getShiftChangeRequests();
+        setRequests(oldReqs);
+      }
     });
   };
 
   const handleReject = (id?: string) => {
     if (!id) return;
     const reason = prompt('Reason for rejection (optional):', '') ?? '';
+    // Optimistic UI update
+    setRequests(reqs => reqs.map(r => (String(r._id) === id ? { ...r, status: 'rejected' } : r)));
+    toast.success('Request rejected');
+
     startTransition(async () => {
-      await rejectShiftChange(id, reason);
-      load();
+      try {
+        await rejectShiftChange(id, reason);
+        const newReqs = await getShiftChangeRequests();
+        setRequests(newReqs);
+      } catch (err) {
+        toast.error('Failed to reject request. Reverting...');
+        const oldReqs = await getShiftChangeRequests();
+        setRequests(oldReqs);
+      }
     });
   };
 
-  const resetForm = () => {
-    setNewUserId('');
-    setNewDate('');
-    setNewCurrentShiftId('');
-    setNewRequestedShiftId('');
-    setNewReason('');
-    setFormError(null);
+  const handleBulkApprove = () => {
+    if (selectedIds.size === 0) return;
+    
+    const idsToApprove = Array.from(selectedIds);
+    // Optimistic UI update
+    setRequests(reqs => reqs.map(r => idsToApprove.includes(String(r._id)) ? { ...r, status: 'approved' } : r));
+    toast.success(`Approved ${idsToApprove.length} requests`);
+    setSelectedIds(new Set());
+
+    startTransition(async () => {
+      try {
+        await Promise.all(idsToApprove.map(id => approveShiftChange(id)));
+        const newReqs = await getShiftChangeRequests();
+        setRequests(newReqs);
+      } catch (err) {
+        toast.error('Bulk approval failed entirely or partially. Reverting...');
+        const oldReqs = await getShiftChangeRequests();
+        setRequests(oldReqs);
+      }
+    });
   };
 
-  const handleCreateRequest = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleExportCSV = () => {
+    const data = filteredRequests.map(r => ({
+      Employee: empMap.get(r.user_id)?.firstName ? `${empMap.get(r.user_id)?.firstName} ${empMap.get(r.user_id)?.lastName}` : r.user_id,
+      Date: format(new Date(r.date), 'PP'),
+      "Current Shift": shiftMap.get(r.current_shift_id)?.name || r.current_shift_id,
+      "Requested Shift": shiftMap.get(r.requested_shift_id)?.name || r.requested_shift_id,
+      Reason: r.reason || '',
+      Status: r.status,
+    }));
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `shift-change-requests-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Exported to CSV');
+  };
+
+  const handleCreateRequest = async (data: any) => {
+    const res = await saveShiftChangeRequest(data);
+    if (!res.success) {
+      throw new Error(res.error ?? 'Failed to create request');
+    }
+    setDialogOpen(false);
+    toast.success('Shift change request created successfully');
+    const newReqs = await getShiftChangeRequests();
+    setRequests(newReqs);
+  };
+
+  const parentRef = useRef<HTMLDivElement>(null);
+  const rowVirtualizer = useVirtualizer({
+    count: filteredRequests.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 65, // approximate row height
+    overscan: 5,
+  });
+
+  return (
+    <EntityListShell
+      title="Shift Change Requests"
+      subtitle="Review and action employee requests to swap shifts."
+      primaryAction={
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleExportCSV}>
+            <Download className="h-4 w-4" strokeWidth={1.75} />
+            Export CSV
+          </Button>
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
+            New Request
+          </Button>
+        </div>
+      }
+    >
+      <Card className="flex flex-col overflow-hidden p-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+          <h2 className="text-[16px] text-zoru-ink">All Requests</h2>
+          <div className="flex flex-wrap items-center gap-3">
+            {selectedIds.size > 0 && (
+              <Button size="sm" variant="outline" onClick={handleBulkApprove}>
+                <Check className="h-3.5 w-3.5" strokeWidth={2} />
+                Approve Selected ({selectedIds.size})
+              </Button>
+            )}
+            
+            <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
+              <ZoruSelectTrigger className="w-[180px] h-8 text-xs">
+                <ZoruSelectValue placeholder="All Employees" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="all">All Employees</ZoruSelectItem>
+                {employees.map(e => (
+                  <ZoruSelectItem key={String(e._id)} value={String(e._id)}>
+                    {e.firstName} {e.lastName}
+                  </ZoruSelectItem>
+                ))}
+              </ZoruSelectContent>
+            </Select>
+
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <ZoruSelectTrigger className="w-[140px] h-8 text-xs">
+                <ZoruSelectValue placeholder="All Statuses" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="all">All Statuses</ZoruSelectItem>
+                <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
+                <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
+                <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
+              </ZoruSelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-zoru-line flex flex-col">
+          {/* Table Header */}
+          <div className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1.5fr_auto_auto] items-center gap-4 border-b border-zoru-line bg-zoru-surface-2 px-4 py-2.5 text-[12px] font-medium text-zoru-ink-muted">
+            <div className="w-4">
+              <Checkbox 
+                checked={filteredRequests.length > 0 && selectedIds.size === filteredRequests.length}
+                onCheckedChange={toggleAll}
+              />
+            </div>
+            <div>Employee</div>
+            <div>Date</div>
+            <div>Current Shift</div>
+            <div>Requested Shift</div>
+            <div>Reason</div>
+            <div>Status</div>
+            <div className="text-right">Actions</div>
+          </div>
+
+          {/* Virtualized List Body */}
+          <div ref={parentRef} className="h-[500px] overflow-auto">
+            {filteredRequests.length === 0 ? (
+              <div className="flex h-24 items-center justify-center text-[13px] text-zoru-ink-muted">
+                No shift change requests found.
+              </div>
+            ) : (
+              <div
+                style={{
+                  height: `${rowVirtualizer.getTotalSize()}px`,
+                  width: '100%',
+                  position: 'relative',
+                }}
+              >
+                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                  const r = filteredRequests[virtualRow.index];
+                  const emp = empMap.get(r.user_id);
+                  const cur = shiftMap.get(r.current_shift_id);
+                  const req = shiftMap.get(r.requested_shift_id);
+                  const isSelected = selectedIds.has(String(r._id));
+
+                  return (
+                    <div
+                      key={virtualRow.key}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: `${virtualRow.size}px`,
+                        transform: `translateY(${virtualRow.start}px)`,
+                      }}
+                      className="grid grid-cols-[auto_1fr_1fr_1fr_1fr_1.5fr_auto_auto] items-center gap-4 border-b border-zoru-line px-4 py-2.5 hover:bg-zoru-surface-2/50"
+                    >
+                      <div className="w-4">
+                        <Checkbox 
+                          checked={isSelected}
+                          onCheckedChange={() => toggleSelection(String(r._id))}
+                        />
+                      </div>
+                      <div className="truncate text-[13px] text-zoru-ink">
+                        {emp ? `${emp.firstName} ${emp.lastName}` : r.user_id}
+                      </div>
+                      <div className="truncate text-[13px] text-zoru-ink">
+                        {format(new Date(r.date), 'PP')}
+                      </div>
+                      <div className="truncate">
+                        <ShiftCell shift={cur} />
+                      </div>
+                      <div className="truncate">
+                        <ShiftCell shift={req} />
+                      </div>
+                      <div className="truncate text-[12.5px] text-zoru-ink-muted">
+                        {r.reason || '—'}
+                      </div>
+                      <div>
+                        <Badge variant={variant(r.status)}>{r.status}</Badge>
+                      </div>
+                      <div className="text-right">
+                        {r.status === 'pending' ? (
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleApprove(String(r._id))}
+                            >
+                              <Check className="h-3.5 w-3.5" strokeWidth={2} />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleReject(String(r._id))}
+                            >
+                              <X className="h-3.5 w-3.5" strokeWidth={2} />
+                            </Button>
+                          </div>
+                        ) : (
+                          <span className="text-[11.5px] text-zoru-ink-muted">—</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </Card>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <ZoruDialogContent className="sm:max-w-[520px]">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>New Shift Change Request</ZoruDialogTitle>
+          </ZoruDialogHeader>
+          <NewShiftChangeRequestForm
+            employees={employees}
+            shifts={shifts}
+            onCancel={() => setDialogOpen(false)}
+            onSubmit={handleCreateRequest}
+          />
+        </ZoruDialogContent>
+      </Dialog>
+    </EntityListShell>
+  );
+}
+
+function NewShiftChangeRequestForm({
+  employees,
+  shifts,
+  onCancel,
+  onSubmit,
+}: {
+  employees: WithId<CrmEmployee>[];
+  shifts: WsEmployeeShift[];
+  onCancel: () => void;
+  onSubmit: (data: any) => Promise<void>;
+}) {
+  const [newUserId, setNewUserId] = useState('');
+  const [newDate, setNewDate] = useState('');
+  const [newCurrentShiftId, setNewCurrentShiftId] = useState('');
+  const [newRequestedShiftId, setNewRequestedShiftId] = useState('');
+  const [newReason, setNewReason] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newUserId || !newDate || !newCurrentShiftId || !newRequestedShiftId) {
       setFormError('Employee, date, current shift and requested shift are all required.');
       return;
     }
     setFormError(null);
-    startTransition(async () => {
-      const res = await saveShiftChangeRequest({
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
         user_id: newUserId,
         date: new Date(newDate),
         current_shift_id: newCurrentShiftId,
@@ -128,243 +483,134 @@ export default function ShiftChangeRequestsPage() {
         reason: newReason,
         status: 'pending',
       });
-      if (!res.success) {
-        setFormError(res.error ?? 'Failed to create request');
-        return;
-      }
-      setDialogOpen(false);
-      resetForm();
-      load();
-    });
-  };
-
-  const variant = (s: WsShiftChangeStatus): 'warning' | 'success' | 'danger' => {
-    if (s === 'approved') return 'success';
-    if (s === 'rejected') return 'danger';
-    return 'warning';
+      // Reset form
+      setNewUserId('');
+      setNewDate('');
+      setNewCurrentShiftId('');
+      setNewRequestedShiftId('');
+      setNewReason('');
+    } catch (err: any) {
+      setFormError(err.message || 'Failed to submit request');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <EntityListShell
-      title="Shift Change Requests"
-      subtitle="Review and action employee requests to swap shifts."
-      primaryAction={
-        <Button
-          onClick={() => { resetForm(); setDialogOpen(true); }}
-        >
-          <Plus className="h-4 w-4" strokeWidth={1.75} />
-          New Request
-        </Button>
-      }
-    >
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
+      <div className="flex flex-col gap-1.5">
+        <Label className="text-[12px] text-zoru-ink-muted">
+          Employee <span className="text-zoru-danger-ink">*</span>
+        </Label>
+        <Select value={newUserId} onValueChange={setNewUserId}>
+          <ZoruSelectTrigger>
+            <ZoruSelectValue placeholder="Select employee" />
+          </ZoruSelectTrigger>
+          <ZoruSelectContent>
+            {employees.map((e) => (
+              <ZoruSelectItem key={String(e._id)} value={String(e._id)}>
+                {e.firstName} {e.lastName}
+              </ZoruSelectItem>
+            ))}
+          </ZoruSelectContent>
+        </Select>
+      </div>
 
-      <Card className="p-6">
-        <h2 className="mb-3 text-[16px] text-zoru-ink">All Requests</h2>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <table className="w-full border-collapse text-[13px]">
-            <thead>
-              <tr className="border-b border-zoru-line bg-zoru-surface-2">
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Employee</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Date</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Current Shift</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Requested Shift</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Reason</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Status</th>
-                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-zoru-ink-muted">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pending && requests.length === 0 ? (
-                <tr className="border-b border-zoru-line">
-                  <td colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
-                    Loading…
-                  </td>
-                </tr>
-              ) : requests.length > 0 ? (
-                requests.map((r) => {
-                  const emp = empMap.get(r.user_id);
-                  const cur = shiftMap.get(r.current_shift_id);
-                  const req = shiftMap.get(r.requested_shift_id);
-                  return (
-                    <tr key={String(r._id)} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50">
-                      <td className="px-4 py-2.5 text-zoru-ink">
-                        {emp ? `${emp.firstName} ${emp.lastName}` : r.user_id}
-                      </td>
-                      <td className="px-4 py-2.5 text-zoru-ink">
-                        {format(new Date(r.date), 'PP')}
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <ShiftCell shift={cur} />
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <ShiftCell shift={req} />
-                      </td>
-                      <td className="max-w-[240px] truncate px-4 py-2.5 text-[12.5px] text-zoru-ink-muted">
-                        {r.reason || '—'}
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <Badge variant={variant(r.status)}>{r.status}</Badge>
-                      </td>
-                      <td className="px-4 py-2.5 text-right">
-                        {r.status === 'pending' ? (
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleApprove(r._id)}
-                            >
-                              <Check className="h-3.5 w-3.5" strokeWidth={2} />
-                              Approve
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleReject(r._id)}
-                            >
-                              <X className="h-3.5 w-3.5" strokeWidth={2} />
-                              Reject
-                            </Button>
-                          </div>
-                        ) : (
-                          <span className="text-[11.5px] text-zoru-ink-muted">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr className="border-b border-zoru-line">
-                  <td colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
-                    No shift change requests.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      <div className="flex flex-col gap-1.5">
+        <Label className="text-[12px] text-zoru-ink-muted">
+          Date <span className="text-zoru-danger-ink">*</span>
+        </Label>
+        <Input
+          type="date"
+          value={newDate}
+          onChange={(e) => setNewDate(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-[12px] text-zoru-ink-muted">
+            Current Shift <span className="text-zoru-danger-ink">*</span>
+          </Label>
+          <Select value={newCurrentShiftId} onValueChange={setNewCurrentShiftId}>
+            <ZoruSelectTrigger>
+              <ZoruSelectValue placeholder="Current" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              {shifts.map((s) => (
+                <ZoruSelectItem key={String(s._id)} value={String(s._id)}>
+                  {s.name}
+                </ZoruSelectItem>
+              ))}
+            </ZoruSelectContent>
+          </Select>
         </div>
-      </Card>
 
-      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
-        <ZoruDialogContent className="sm:max-w-[520px]">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>New Shift Change Request</ZoruDialogTitle>
-          </ZoruDialogHeader>
-          <form onSubmit={handleCreateRequest} className="flex flex-col gap-4 py-2">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-[12px] text-zoru-ink-muted">
-                Employee <span className="text-zoru-danger-ink">*</span>
-              </Label>
-              <Select value={newUserId} onValueChange={setNewUserId}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Select employee" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {employees.map((e) => (
-                    <ZoruSelectItem key={e._id.toString()} value={e._id.toString()}>
-                      {e.firstName} {e.lastName}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </Select>
-            </div>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-[12px] text-zoru-ink-muted">
+            Requested Shift <span className="text-zoru-danger-ink">*</span>
+          </Label>
+          <Select value={newRequestedShiftId} onValueChange={setNewRequestedShiftId}>
+            <ZoruSelectTrigger>
+              <ZoruSelectValue placeholder="Requested" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              {shifts.map((s) => (
+                <ZoruSelectItem key={String(s._id)} value={String(s._id)}>
+                  {s.name}
+                </ZoruSelectItem>
+              ))}
+            </ZoruSelectContent>
+          </Select>
+        </div>
+      </div>
 
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-[12px] text-zoru-ink-muted">
-                Date <span className="text-zoru-danger-ink">*</span>
-              </Label>
-              <Input
-                type="date"
-                value={newDate}
-                onChange={(e) => setNewDate(e.target.value)}
-                required
-              />
-            </div>
+      <div className="flex flex-col gap-1.5">
+        <Label className="text-[12px] text-zoru-ink-muted">Reason (optional)</Label>
+        <textarea
+          value={newReason}
+          onChange={(e) => setNewReason(e.target.value)}
+          rows={3}
+          placeholder="Explain the reason for the shift change…"
+          className="w-full resize-none rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink placeholder:text-zoru-ink-muted focus:outline-none focus:ring-1 focus:ring-ring"
+        />
+      </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[12px] text-zoru-ink-muted">
-                  Current Shift <span className="text-zoru-danger-ink">*</span>
-                </Label>
-                <Select value={newCurrentShiftId} onValueChange={setNewCurrentShiftId}>
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="Current" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    {shifts.map((s) => (
-                      <ZoruSelectItem key={String(s._id)} value={String(s._id)}>
-                        {s.name}
-                      </ZoruSelectItem>
-                    ))}
-                  </ZoruSelectContent>
-                </Select>
-              </div>
+      {formError ? (
+        <div className="rounded-lg border border-rose-50 bg-rose-50/50 px-3 py-2 text-[13px] text-zoru-danger-ink">
+          {formError}
+        </div>
+      ) : null}
 
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[12px] text-zoru-ink-muted">
-                  Requested Shift <span className="text-zoru-danger-ink">*</span>
-                </Label>
-                <Select value={newRequestedShiftId} onValueChange={setNewRequestedShiftId}>
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="Requested" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    {shifts.map((s) => (
-                      <ZoruSelectItem key={String(s._id)} value={String(s._id)}>
-                        {s.name}
-                      </ZoruSelectItem>
-                    ))}
-                  </ZoruSelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-[12px] text-zoru-ink-muted">Reason (optional)</Label>
-              <textarea
-                value={newReason}
-                onChange={(e) => setNewReason(e.target.value)}
-                rows={3}
-                placeholder="Explain the reason for the shift change…"
-                className="w-full resize-none rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink placeholder:text-zoru-ink-muted focus:outline-none focus:ring-1 focus:ring-ring"
-              />
-            </div>
-
-            {formError ? (
-              <div className="rounded-lg border border-rose-50 bg-rose-50/50 px-3 py-2 text-[13px] text-zoru-danger-ink">
-                {formError}
-              </div>
-            ) : null}
-
-            <ZoruDialogFooter>
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => { setDialogOpen(false); resetForm(); }}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={pending}>
-                {pending ? 'Saving…' : 'Submit Request'}
-              </Button>
-            </ZoruDialogFooter>
-          </form>
-        </ZoruDialogContent>
-      </Dialog>
-    </EntityListShell>
+      <ZoruDialogFooter>
+        <Button variant="outline" type="button" onClick={onCancel} disabled={isSubmitting}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving…' : 'Submit Request'}
+        </Button>
+      </ZoruDialogFooter>
+    </form>
   );
 }
 
+function variant(s: WsShiftChangeStatus): 'warning' | 'success' | 'danger' {
+  if (s === 'approved') return 'success';
+  if (s === 'rejected') return 'danger';
+  return 'warning';
+}
+
 function ShiftCell({ shift }: { shift?: WsEmployeeShift }) {
-  if (!shift)
-    return <span className="text-[12.5px] text-zoru-ink-muted">—</span>;
+  if (!shift) return <span className="text-[12.5px] text-zoru-ink-muted">—</span>;
   return (
     <span className="inline-flex items-center gap-2 text-[13px] text-zoru-ink">
       <span
         aria-hidden
-        className="inline-block h-3 w-3 rounded-[3px] border border-zoru-line"
+        className="inline-block h-3 w-3 rounded-[3px] border border-zoru-line flex-shrink-0"
         style={{ backgroundColor: shift.color_code || '#EAB308' }}
       />
-      {shift.name}
+      <span className="truncate">{shift.name}</span>
     </span>
   );
 }

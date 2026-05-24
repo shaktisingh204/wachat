@@ -11,7 +11,9 @@ import { startOfMonth } from 'date-fns';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getPayslips } from '@/app/actions/crm-payroll.actions';
-import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
+import { getComplianceData } from './actions';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
@@ -22,8 +24,6 @@ const months = [
     { value: 9, label: 'October' }, { value: 10, label: 'November' }, { value: 11, label: 'December' },
 ];
 
-// Standard PF rate (employee share): 12% of basic salary
-// Standard ESI rate (employee share): 0.75% of gross (applicable if gross ≤ ₹21,000)
 const PF_RATE = 12;
 const ESI_RATE = 0.75;
 const ESI_WAGE_CEILING = 21000;
@@ -36,40 +36,39 @@ export default function PfEsiPage() {
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const period = startOfMonth(new Date(year, month));
-            const [payslipsData, employeesData] = await Promise.all([
-                getPayslips(period),
-                getCrmEmployees(),
-            ]);
-            const employeeMap = new Map(employeesData.map(e => [e._id.toString(), e]));
-
-            const enriched = payslipsData.map(slip => {
-                const emp = employeeMap.get(slip.employeeId.toString());
-                const pf = slip.deductions.find((d: any) => d.name?.includes('PF') || d.name?.includes('Provident'))?.amount ?? 0;
-                const esi = slip.deductions.find((d: any) => d.name?.includes('ESI'))?.amount ?? 0;
-                const basic = slip.earnings?.find((e: any) => e.name?.toLowerCase().includes('basic'))?.amount ?? 0;
-                const pfRate = basic > 0 ? ((pf / basic) * 100).toFixed(2) : PF_RATE.toFixed(2);
-                const esiRate = slip.grossSalary > 0 ? ((esi / slip.grossSalary) * 100).toFixed(2) : ESI_RATE.toFixed(2);
-                const esiApplicable = slip.grossSalary <= ESI_WAGE_CEILING;
-                return {
-                    ...slip,
-                    employee: emp,
-                    pf,
-                    esi,
-                    pfRate,
-                    esiRate,
-                    esiApplicable,
-                    pfNumber: (emp as any)?.pfNumber ?? '—',
-                    esiNumber: (emp as any)?.esiNumber ?? '—',
-                    uan: (emp as any)?.uan ?? '—',
-                };
-            });
-
-            setRows(enriched);
+            const data = await getComplianceData(month, year);
+            setRows(data);
         });
     }, [month, year]);
 
     useEffect(() => { fetchData(); }, [fetchData]);
+
+    const handleExportECR = () => {
+        // ECR format: UAN#~#Member Name#~#Gross Wages#~#EPF Wages#~#EPS Wages#~#EDLI Wages#~#EE Share Remitted#~#EPS Share Remitted#~#ER Share Remitted#~#NCP Days#~#Refund of Advances
+        if (rows.length === 0) return;
+        let content = '';
+        rows.forEach(row => {
+            const uan = row.uan || '';
+            const name = (row.employee?.firstName + ' ' + row.employee?.lastName) || '';
+            const gross = Math.round(row.grossSalary || 0);
+            const epfWages = Math.min(gross, 15000);
+            const eeShare = Math.round(row.pf);
+            const epsShare = Math.round(epfWages * 0.0833);
+            const erShare = Math.round(epfWages * 0.0367);
+            const ncpDays = 0; // Assuming 0 for now
+            const refund = 0;
+            content += `${uan}#~#${name}#~#${gross}#~#${epfWages}#~#${epfWages}#~#${epfWages}#~#${eeShare}#~#${epsShare}#~#${erShare}#~#${ncpDays}#~#${refund}\n`;
+        });
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ECR_${months.find(m => m.value === month)?.label}_${year}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
 
     const totalPF = rows.reduce((s, r) => s + r.pf, 0);
     const totalESI = rows.reduce((s, r) => s + r.esi, 0);
@@ -81,6 +80,9 @@ export default function PfEsiPage() {
             subtitle={`Provident Fund and Employee State Insurance contributions for ${periodLabel}.`}
             primaryAction={
                 <>
+                    <Button variant="outline" size="sm" onClick={handleExportECR} disabled={rows.length === 0} className="h-9 gap-2">
+                        <Download className="w-4 h-4" /> Export ECR
+                    </Button>
                     <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
                         <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
                             <ZoruSelectValue />

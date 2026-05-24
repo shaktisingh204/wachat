@@ -164,7 +164,7 @@ export default function PostRandomizerPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useZoruToast();
 
-  const isAllowed = sessionUser?.plan?.features?.liveChat ?? false;
+  const isAllowed = sessionUser?.plan?.features?.postRandomizer ?? false;
 
   useEffect(() => {
     document.title = "Post randomizer · Meta Suite · SabNode";
@@ -202,6 +202,12 @@ export default function PostRandomizerPage() {
     formData.append("projectId", activeProject._id.toString());
     formData.append("enabled", settings.enabled ? "on" : "off");
     formData.append("frequencyHours", String(settings.frequencyHours));
+    if (settings.blackoutStart) {
+      formData.append("blackoutStart", settings.blackoutStart);
+    }
+    if (settings.blackoutEnd) {
+      formData.append("blackoutEnd", settings.blackoutEnd);
+    }
 
     startSaving(async () => {
       const result = await saveRandomizerSettings(null, formData);
@@ -245,6 +251,18 @@ export default function PostRandomizerPage() {
       setDeletingId(null);
     });
   };
+
+  const getNextScheduledTime = () => {
+    if (!settings.enabled) return null;
+    let baseTime = settings.lastPostedAt ? new Date(settings.lastPostedAt) : new Date();
+    if (settings.lastPostedAt) {
+      baseTime.setHours(baseTime.getHours() + settings.frequencyHours);
+    }
+    // We don't do complex blackout calculation on frontend, just show baseTime
+    return baseTime;
+  };
+
+  const nextScheduled = getNextScheduledTime();
 
   if (isLoadingProject) return <PageSkeleton />;
 
@@ -362,6 +380,44 @@ export default function PostRandomizerPage() {
                       Minimum 1 hour. Posts are picked at random from the pool.
                     </p>
                   </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="blackoutStart">
+                      Blackout Start (HH:MM)
+                    </Label>
+                    <Input
+                      id="blackoutStart"
+                      type="time"
+                      value={settings.blackoutStart || ""}
+                      onChange={(e) =>
+                        handleSettingsChange("blackoutStart", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="blackoutEnd">
+                      Blackout End (HH:MM)
+                    </Label>
+                    <Input
+                      id="blackoutEnd"
+                      type="time"
+                      value={settings.blackoutEnd || ""}
+                      onChange={(e) =>
+                        handleSettingsChange("blackoutEnd", e.target.value)
+                      }
+                    />
+                    <p className="text-[11px] text-zoru-ink-subtle">
+                      Randomizer will pause posting during this time window.
+                    </p>
+                  </div>
+                  {settings.enabled && nextScheduled && (
+                    <div className="mt-2 rounded-md bg-zoru-surface-2 p-3 text-sm">
+                      <p className="font-semibold text-zoru-ink">Next scheduled post:</p>
+                      <p className="text-zoru-ink-muted">
+                        ~{nextScheduled.toLocaleString()}
+                        {(settings.blackoutStart || settings.blackoutEnd) && " (may be delayed by blackout hours)"}
+                      </p>
+                    </div>
+                  )}
                 </ZoruCardContent>
                 <ZoruCardFooter>
                   <Button
@@ -375,8 +431,10 @@ export default function PostRandomizerPage() {
                 </ZoruCardFooter>
               </Card>
 
-              {/* ── Content pool ──────────────────────────────────── */}
-              <Card className="lg:col-span-2">
+              {/* ── Right Column ──────────────────────────────────── */}
+              <div className="flex flex-col gap-6 lg:col-span-2">
+                {/* ── Content pool ──────────────────────────────────── */}
+                <Card>
                 <ZoruCardHeader>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-col">
@@ -426,7 +484,50 @@ export default function PostRandomizerPage() {
                     />
                   )}
                 </ZoruCardContent>
-              </Card>
+                </Card>
+
+                {/* ── History ──────────────────────────────────────── */}
+                <Card>
+                  <ZoruCardHeader>
+                    <ZoruCardTitle>Publishing History</ZoruCardTitle>
+                    <ZoruCardDescription>
+                      Recently published posts by the randomizer.
+                    </ZoruCardDescription>
+                  </ZoruCardHeader>
+                  <ZoruCardContent>
+                    {!settings.history || settings.history.length === 0 ? (
+                      <EmptyState
+                        icon={<Repeat />}
+                        title="No history yet"
+                        description="Once the randomizer starts publishing, history will appear here."
+                      />
+                    ) : (
+                      <div className="flex max-h-[40vh] flex-col gap-3 overflow-y-auto pr-1">
+                        {settings.history.map((h, i) => (
+                          <div key={i} className="flex gap-4 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-4 py-3">
+                            {h.imageUrl && (
+                              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-zoru-surface-2">
+                                <Image
+                                  src={h.imageUrl}
+                                  alt="History post image"
+                                  fill
+                                  sizes="64px"
+                                  unoptimized
+                                  className="object-cover"
+                                />
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1 flex flex-col justify-center">
+                              <p className="line-clamp-2 text-sm text-zoru-ink">{h.message}</p>
+                              <p className="text-xs text-zoru-ink-muted mt-1">{new Date(h.postedAt).toLocaleString()}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </ZoruCardContent>
+                </Card>
+              </div>
             </div>
           </FeatureLock>
         </div>

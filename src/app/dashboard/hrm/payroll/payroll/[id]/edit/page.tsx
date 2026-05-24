@@ -13,6 +13,9 @@ import {
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getPayrollRunById } from '@/app/actions/crm-payroll-runs.actions';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/zoruui';
 
 import { PayrollRunForm } from '../../_components/payroll-run-form-v2';
 
@@ -45,7 +48,16 @@ export default async function EditPayrollRunPage({
             title={`Edit · ${periodLabel}`}
             subtitle="Update status, notes, or finalize the run."
         >
-            <PayrollRunForm initialData={run} />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                <div className="lg:col-span-2">
+                    <PayrollRunForm initialData={run} />
+                </div>
+                <div className="lg:col-span-1 space-y-6">
+                    <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+                        <EntityAuditTimeline entityKind="payroll_run" entityId={runId} />
+                    </Suspense>
+                </div>
+            </div>
         </EntityListShell>
     );
 }

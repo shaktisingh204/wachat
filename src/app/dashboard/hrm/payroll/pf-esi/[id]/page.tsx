@@ -15,8 +15,11 @@ import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import {
     getPfEsiRecordById,
+    getPfEsiRecords,
     type CrmPfEsiStatus,
 } from '@/app/actions/crm-pf-esi.actions';
+
+import { HistoricalContributionGraph } from '../_components/historical-graph';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,6 +60,19 @@ export default async function PfEsiDetailPage({
     const tone = STATUS_TONE[status] ?? 'neutral';
     const employeeName = (row.employeeName as string | undefined) ?? '—';
     const month = (row.month as string | undefined) ?? '—';
+    const employeeId = row.employeeId as string | undefined;
+
+    let historyData: any[] = [];
+    if (employeeId) {
+        const { items } = await getPfEsiRecords({ employeeId, limit: 24 });
+        historyData = items.map((item) => ({
+            month: (item.month as string) || '—',
+            pfEmployer: Number(item.pfEmployer) || 0,
+            pfEmployee: Number(item.pfEmployee) || 0,
+            esiEmployer: Number(item.esiEmployer) || 0,
+            esiEmployee: Number(item.esiEmployee) || 0,
+        }));
+    }
 
     return (
         <EntityDetailShell
@@ -123,6 +139,21 @@ export default async function PfEsiDetailPage({
                             {(row.employeeId as string | undefined) ?? '—'}
                         </div>
                     </div>
+                    {row.documentUrl ? (
+                        <div className="sm:col-span-3">
+                            <div className="text-zoru-ink-muted">Scanned Challan</div>
+                            <div className="text-zoru-ink">
+                                <a
+                                    href={row.documentUrl as string}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-blue-600 hover:underline"
+                                >
+                                    View Document
+                                </a>
+                            </div>
+                        </div>
+                    ) : null}
                     {row.notes ? (
                         <div className="sm:col-span-3">
                             <div className="text-zoru-ink-muted">Notes</div>
@@ -133,6 +164,12 @@ export default async function PfEsiDetailPage({
                     ) : null}
                 </div>
             </Card>
+
+            {employeeId && historyData.length > 0 && (
+                <div className="mt-6">
+                    <HistoricalContributionGraph data={historyData} />
+                </div>
+            )}
         </EntityDetailShell>
     );
 }

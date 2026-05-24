@@ -7,17 +7,23 @@ import {
   LoaderCircle,
   Users,
   CheckCircle2,
-  Clock } from 'lucide-react';
+  Clock,
+  ChevronDown,
+  ChevronRight
+} from 'lucide-react';
 import { useState,
   useEffect,
   useTransition,
-  useCallback } from 'react';
+  useCallback,
+  useMemo,
+  Fragment } from 'react';
 import { generateLeaveReportData,
   getReportEmployees,
   getReportLeaveTypes } from '@/app/actions/crm-hr-reports.actions';
 import Papa from 'papaparse';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 type LeaveRow = {
     employeeId: string;
@@ -44,6 +50,7 @@ const StatCard = ({ title, value, icon: Icon }: { title: string; value: string |
 );
 
 const YEARS = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
 
 export default function LeaveReportPage() {
     const [reportData, setReportData] = useState<LeaveRow[]>([]);
@@ -56,6 +63,8 @@ export default function LeaveReportPage() {
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedEmployee, setSelectedEmployee] = useState('');
     const [selectedLeaveType, setSelectedLeaveType] = useState('');
+    
+    const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         getReportEmployees().then(r => { if (r.data) setEmployees(r.data); });
@@ -74,6 +83,7 @@ export default function LeaveReportPage() {
             } else {
                 setReportData(result.data ?? []);
                 setSummary(result.summary ?? { totalEmployees: 0, totalUsed: 0, totalPending: 0 });
+                setExpandedRows(new Set()); // Reset expanded rows on new data
             }
         });
     }, [selectedYear, selectedEmployee, selectedLeaveType, toast]);
@@ -95,6 +105,61 @@ export default function LeaveReportPage() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    };
+
+    const actualTotalEmployees = useMemo(() => new Set(reportData.map(r => r.employeeId)).size, [reportData]);
+
+    const groupedData = useMemo(() => {
+        const map = new Map<string, {
+            employeeId: string;
+            employeeName: string;
+            allocated: number;
+            used: number;
+            pending: number;
+            remaining: number;
+            breakdown: LeaveRow[];
+        }>();
+        
+        reportData.forEach(row => {
+            if (!map.has(row.employeeId)) {
+                map.set(row.employeeId, {
+                    employeeId: row.employeeId,
+                    employeeName: row.employeeName,
+                    allocated: 0,
+                    used: 0,
+                    pending: 0,
+                    remaining: 0,
+                    breakdown: []
+                });
+            }
+            const g = map.get(row.employeeId)!;
+            g.allocated += row.allocated;
+            g.used += row.used;
+            g.pending += row.pending;
+            g.remaining += row.remaining;
+            g.breakdown.push(row);
+        });
+        
+        return Array.from(map.values());
+    }, [reportData]);
+
+    const leaveTypeData = useMemo(() => {
+        const map = new Map<string, number>();
+        reportData.forEach(row => {
+            map.set(row.leaveType, (map.get(row.leaveType) || 0) + row.used);
+        });
+        return Array.from(map.entries())
+            .map(([name, value]) => ({ name, value }))
+            .filter(item => item.value > 0);
+    }, [reportData]);
+
+    const toggleRow = (id: string) => {
+        setExpandedRows(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
     };
 
     return (
@@ -162,11 +227,49 @@ export default function LeaveReportPage() {
         >
 
             {/* Summary stat cards */}
-            <div className="grid gap-4 sm:grid-cols-3">
-                <StatCard title="Employees with Leave" value={summary.totalEmployees} icon={Users} />
+            <div className="grid gap-4 sm:grid-cols-3 mb-4">
+                <StatCard title="Employees with Leave" value={actualTotalEmployees} icon={Users} />
                 <StatCard title="Total Days Used" value={summary.totalUsed} icon={CheckCircle2} />
                 <StatCard title="Total Days Pending" value={summary.totalPending} icon={Clock} />
             </div>
+            
+            {/* Visualizations */}
+            {reportData.length > 0 && !isLoading && leaveTypeData.length > 0 && (
+                <Card className="p-6 mb-4">
+                    <div className="mb-4 flex items-center justify-between">
+                        <div>
+                            <h2 className="text-[16px] text-zoru-ink">Leave Types Used</h2>
+                            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Breakdown of consumed leaves by type</p>
+                        </div>
+                    </div>
+                    <div className="h-[300px] w-full flex items-center justify-center">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={leaveTypeData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={100}
+                                    paddingAngle={2}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                >
+                                    {leaveTypeData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip 
+                                    formatter={(value: number) => [`${value} days`, 'Used']}
+                                    contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '13px' }}
+                                />
+                                <Legend wrapperStyle={{ fontSize: '13px' }} />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </Card>
+            )}
 
             <Card className="p-6">
                 <div className="mb-4 flex items-center justify-between">
@@ -175,7 +278,7 @@ export default function LeaveReportPage() {
                         <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Year {selectedYear}</p>
                     </div>
                     {reportData.length > 0 && (
-                        <span className="text-[12.5px] text-zoru-ink-muted">{reportData.length} record{reportData.length !== 1 ? 's' : ''}</span>
+                        <span className="text-[12.5px] text-zoru-ink-muted">{groupedData.length} employee{groupedData.length !== 1 ? 's' : ''}</span>
                     )}
                 </div>
 
@@ -198,30 +301,59 @@ export default function LeaveReportPage() {
                                         <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
                                     </td>
                                 </tr>
-                            ) : reportData.length > 0 ? (
+                            ) : groupedData.length > 0 ? (
                                 <>
-                                    {reportData.map((row, i) => (
-                                        <tr key={`${row.employeeId}-${row.leaveType}-${i}`} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50">
-                                            <td className="px-4 py-3 font-medium text-zoru-ink">{row.employeeName}</td>
-                                            <td className="px-4 py-3">
-                                                <Badge variant="secondary">{row.leaveType}</Badge>
-                                            </td>
-                                            <td className="px-4 py-3 text-center text-zoru-ink">{row.allocated}</td>
-                                            <td className="px-4 py-3 text-center font-semibold text-green-600">{row.used}</td>
-                                            <td className="px-4 py-3 text-center font-semibold text-amber-500">{row.pending}</td>
-                                            <td className="px-4 py-3 text-center">
-                                                <Badge variant={row.remaining > 0 ? 'info' : 'danger'}>{row.remaining}</Badge>
-                                            </td>
-                                        </tr>
+                                    {groupedData.map((group, i) => (
+                                        <Fragment key={group.employeeId}>
+                                            <tr 
+                                                onClick={() => toggleRow(group.employeeId)} 
+                                                className="cursor-pointer border-b border-zoru-line hover:bg-zoru-surface-2/50"
+                                            >
+                                                <td className="px-4 py-3 font-medium text-zoru-ink flex items-center gap-2">
+                                                    {expandedRows.has(group.employeeId) ? (
+                                                        <ChevronDown className="h-4 w-4 text-zoru-ink-muted" />
+                                                    ) : (
+                                                        <ChevronRight className="h-4 w-4 text-zoru-ink-muted" />
+                                                    )}
+                                                    {group.employeeName}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <span className="text-zoru-ink-muted text-[12.5px]">
+                                                        {group.breakdown.length} Type{group.breakdown.length !== 1 ? 's' : ''}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-center text-zoru-ink">{group.allocated}</td>
+                                                <td className="px-4 py-3 text-center font-semibold text-green-600">{group.used}</td>
+                                                <td className="px-4 py-3 text-center font-semibold text-amber-500">{group.pending}</td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <Badge variant={group.remaining > 0 ? 'info' : 'danger'}>{group.remaining}</Badge>
+                                                </td>
+                                            </tr>
+                                            {expandedRows.has(group.employeeId) && group.breakdown.map((row, j) => (
+                                                <tr 
+                                                    key={`${row.employeeId}-${row.leaveType}-${j}`} 
+                                                    className="border-b border-zoru-line/50 bg-zoru-surface-2/30 last:border-b-0 hover:bg-zoru-surface-2/70"
+                                                >
+                                                    <td className="px-4 py-2 pl-10 text-[12.5px] text-zoru-ink-muted"></td>
+                                                    <td className="px-4 py-2">
+                                                        <Badge variant="secondary" className="text-[11px] font-medium">{row.leaveType}</Badge>
+                                                    </td>
+                                                    <td className="px-4 py-2 text-center text-zoru-ink-muted">{row.allocated}</td>
+                                                    <td className="px-4 py-2 text-center font-medium text-green-600/80">{row.used}</td>
+                                                    <td className="px-4 py-2 text-center font-medium text-amber-500/80">{row.pending}</td>
+                                                    <td className="px-4 py-2 text-center text-zoru-ink-muted">{row.remaining}</td>
+                                                </tr>
+                                            ))}
+                                        </Fragment>
                                     ))}
                                     {/* Totals row */}
                                     <tr className="border-t-2 border-zoru-line bg-zoru-surface-2 font-semibold">
                                         <td className="px-4 py-3 text-zoru-ink">Totals</td>
                                         <td className="px-4 py-3" />
-                                        <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.allocated, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-green-600">{reportData.reduce((s, r) => s + r.used, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-amber-500">{reportData.reduce((s, r) => s + r.pending, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.remaining, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-zoru-ink">{groupedData.reduce((s, r) => s + r.allocated, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-green-600">{groupedData.reduce((s, r) => s + r.used, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-amber-500">{groupedData.reduce((s, r) => s + r.pending, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-zoru-ink">{groupedData.reduce((s, r) => s + r.remaining, 0)}</td>
                                     </tr>
                                 </>
                             ) : (
@@ -238,3 +370,4 @@ export default function LeaveReportPage() {
         </EntityListShell>
     );
 }
+

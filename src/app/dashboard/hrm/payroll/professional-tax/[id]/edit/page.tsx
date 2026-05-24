@@ -33,12 +33,25 @@ export default async function EditProfessionalTaxPage({
         (row.employeeName as string | undefined) ?? 'PT record';
     const month = (row.month as string | undefined) ?? '—';
 
+    if (row.status === 'archived' || row.status === 'closed') {
+        return (
+            <EntityListShell
+                title={`Edit · ${employeeName}`}
+                subtitle={month}
+            >
+                <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-4 text-[13px] text-amber-900 dark:text-amber-300">
+                    This Professional Tax record belongs to a closed/archived period and cannot be edited.
+                </div>
+            </EntityListShell>
+        );
+    }
+
     return (
         <EntityListShell
             title={`Edit · ${employeeName}`}
             subtitle={month}
         >
-            <ProfessionalTaxForm initialData={row} />
+            <ProfessionalTaxForm initialData={row} currentUserId={session.user.id} />
         </EntityListShell>
     );
 }

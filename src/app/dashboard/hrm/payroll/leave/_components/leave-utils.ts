@@ -15,7 +15,9 @@ export type EmployeeLite = {
   _id: string;
   firstName?: string;
   lastName?: string;
+  email?: string;
   departmentId?: string | null;
+  employeeUserId?: string;
 };
 
 export function toLeaveRow(
@@ -43,6 +45,8 @@ export function toLeaveRow(
     _id: String(l._id),
     employeeId: l.user_id ? String(l.user_id) : null,
     employeeName,
+    employeeEmail: employee?.email,
+    employeeUserId: employee?.employeeUserId,
     leaveTypeId: l.leave_type_id ? String(l.leave_type_id) : null,
     leaveTypeName: t?.type_name ?? null,
     leaveTypeColor: t?.color ?? null,

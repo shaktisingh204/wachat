@@ -23,7 +23,7 @@ import {
   DropdownMenuTrigger,
   Badge,
 } from '@/components/zoruui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createBudget, updateBudget, deleteBudget, Budget } from '@/app/actions/finance/budgets.actions';
 import { toast } from 'sonner';
@@ -35,6 +35,28 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [viewingItem, setViewingItem] = useState<Budget | null>(null);
+
+  function exportToCsv() {
+    if (items.length === 0) return;
+    const headers = Object.keys(items[0] || {}).filter(k => k !== '_id' && k !== '__v');
+    const csvContent = [
+      headers.join(','),
+      ...items.map(item => headers.map(h => JSON.stringify((item as any)[h] ?? '')).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'budgets_export.csv';
+    link.click();
+  }
+
+  function openView(item: Budget) {
+    setViewingItem(item);
+    setIsViewOpen(true);
+  }
 
   const filteredItems = items.filter(item => 
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
@@ -109,7 +131,11 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
       title="Budget vs Actuals"
       subtitle="Compare budgeted expenses against actuals."
       primaryAction={
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportToCsv}>
+            <Download className="mr-2 h-4 w-4" /> Export CSV
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" onClick={openNew}>
               <Plus className="mr-2 h-4 w-4" /> New Record
@@ -169,6 +195,7 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       }
     >
       {error && (
@@ -216,6 +243,9 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openView(item as any)}>
+                          <Eye className="mr-2 h-4 w-4" /> View Details
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
                           <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
@@ -231,6 +261,22 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+            {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
+              <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
+                <div className="font-medium text-sm text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="col-span-2 text-sm">{String(value)}</div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </EntityListShell>
   );
 }

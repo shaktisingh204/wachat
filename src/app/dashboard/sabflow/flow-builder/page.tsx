@@ -156,8 +156,9 @@ export default function SabFlowListPage() {
   }, [toast]);
 
   useEffect(() => {
+    router.refresh();
     fetchFlows();
-  }, [fetchFlows]);
+  }, [fetchFlows, router]);
 
   /* ── Handlers ──────────────────────────────────────────────────────── */
 

@@ -18,7 +18,9 @@ import {
   Users,
   TrendingUp,
   UserCheck,
-  UserX } from 'lucide-react';
+  UserX,
+  FileText
+} from 'lucide-react';
 import { useState,
   useEffect,
   useTransition,
@@ -26,7 +28,8 @@ import { useState,
 import { generateAttendanceReportData,
   getReportEmployees,
   getReportDepartments } from '@/app/actions/crm-hr-reports.actions';
-import Papa from 'papaparse';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import { DatePicker } from '@/components/ui/date-picker';
 
@@ -110,21 +113,136 @@ export default function AttendanceReportPage() {
 
     useEffect(() => { fetchData(); }, [fetchData]);
 
-    const handleDownload = () => {
+    const handleDownloadCSV = () => {
         if (reportData.length === 0) {
             toast({ title: 'No Data', description: 'There is no data to download.' });
             return;
         }
-        const csv = Papa.unparse(reportData);
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `attendance_${format(startDate ?? new Date(), 'yyyy-MM-dd')}_to_${format(endDate ?? new Date(), 'yyyy-MM-dd')}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+
+        const workerCode = `
+            self.onmessage = function(e) {
+                const data = e.data;
+                if (!data || data.length === 0) {
+                    self.postMessage('');
+                    return;
+                }
+                const keys = Object.keys(data[0]);
+                let csv = keys.join(',') + '\\n';
+                for (let i = 0; i < data.length; i++) {
+                    let row = [];
+                    for (let j = 0; j < keys.length; j++) {
+                        let val = data[i][keys[j]];
+                        if (val === null || val === undefined) val = '';
+                        val = String(val);
+                        if (val.includes(',') || val.includes('"') || val.includes('\\n')) {
+                            val = '"' + val.replace(/"/g, '""') + '"';
+                        }
+                        row.push(val);
+                    }
+                    csv += row.join(',') + '\\n';
+                }
+                self.postMessage(csv);
+            };
+        `;
+
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        const worker = new Worker(URL.createObjectURL(blob));
+
+        worker.onmessage = (e) => {
+            const csv = e.data;
+            const csvBlob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(csvBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            const startStr = startDate ? format(startDate, 'yyyy-MM-dd') : 'all-time';
+            const endStr = endDate ? format(endDate, 'yyyy-MM-dd') : 'all-time';
+            a.download = \`attendance_\${startStr}_to_\${endStr}.csv\`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            worker.terminate();
+        };
+
+        worker.postMessage(reportData);
+    };
+
+    const handleDownloadPDF = () => {
+        if (reportData.length === 0) {
+            toast({ title: 'No Data', description: 'There is no data to download.' });
+            return;
+        }
+
+        const doc = new jsPDF();
+        const startDateStr = startDate ? format(startDate, 'dd MMM yyyy') : 'All time';
+        const endDateStr = endDate ? format(endDate, 'dd MMM yyyy') : 'All time';
+        const period = startDate && endDate ? \`\${startDateStr} - \${endDateStr}\` : 'All time';
+
+        // Branding / Header
+        doc.setFontSize(20);
+        doc.text('Attendance Report', 14, 22);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(100);
+        doc.text(\`Period: \${period}\`, 14, 30);
+        
+        // Add Summary
+        doc.setFontSize(12);
+        doc.setTextColor(0);
+        doc.text('Summary', 14, 40);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(\`Total Employees: \${summary.totalEmployees}\`, 14, 46);
+        doc.text(\`Overall Attendance: \${summary.overallAttendance.toFixed(1)}%\`, 80, 46);
+        doc.text(\`Total Present Days: \${summary.totalPresent}\`, 14, 52);
+        doc.text(\`Total Absent Days: \${summary.totalAbsent}\`, 80, 52);
+
+        // Table Data
+        const tableData = reportData.map(row => [
+            row.employeeName,
+            row.department,
+            row.present,
+            row.absent,
+            row.late,
+            row.wfh,
+            row.halfDay,
+            row.leave,
+            row.totalWorkingDays,
+            \`\${row.attendancePercentage.toFixed(1)}%\`
+        ]);
+
+        // Totals row for table
+        tableData.push([
+            'Totals',
+            '',
+            reportData.reduce((s, r) => s + r.present, 0).toString(),
+            reportData.reduce((s, r) => s + r.absent, 0).toString(),
+            reportData.reduce((s, r) => s + r.late, 0).toString(),
+            reportData.reduce((s, r) => s + r.wfh, 0).toString(),
+            reportData.reduce((s, r) => s + r.halfDay, 0).toString(),
+            reportData.reduce((s, r) => s + r.leave, 0).toString(),
+            reportData.reduce((s, r) => s + r.totalWorkingDays, 0).toString(),
+            \`\${(reportData.reduce((s, r) => s + r.attendancePercentage, 0) / (reportData.length || 1)).toFixed(1)}%\`
+        ]);
+
+        autoTable(doc, {
+            startY: 60,
+            head: [['Employee', 'Department', 'Present', 'Absent', 'Late', 'WFH', 'Half Day', 'Leave', 'Total Days', 'Attendance %']],
+            body: tableData,
+            theme: 'striped',
+            headStyles: { fillColor: [41, 128, 185] },
+            styles: { fontSize: 8 },
+            willDrawCell: (data) => {
+                if (data.row.index === tableData.length - 1) {
+                    doc.setFont('helvetica', 'bold');
+                }
+            },
+        });
+
+        const startStr = startDate ? format(startDate, 'yyyy-MM-dd') : 'all-time';
+        const endStr = endDate ? format(endDate, 'yyyy-MM-dd') : 'all-time';
+        doc.save(\`Attendance_Report_\${startStr}_to_\${endStr}.pdf\`);
     };
 
     return (
@@ -177,14 +295,24 @@ export default function AttendanceReportPage() {
                                 </Button>
                             </ZoruPopoverContent>
                         </Popover>
-                        <Button
-                            variant="outline"
-                            onClick={handleDownload}
-                            disabled={isLoading || reportData.length === 0}
-                        >
-                            <Download className="h-4 w-4" />
-                            Download CSV
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                onClick={handleDownloadCSV}
+                                disabled={isLoading || reportData.length === 0}
+                            >
+                                <Download className="h-4 w-4" />
+                                Download CSV
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={handleDownloadPDF}
+                                disabled={isLoading || reportData.length === 0}
+                            >
+                                <FileText className="h-4 w-4" />
+                                Download PDF
+                            </Button>
+                        </div>
                     </>
                 }
         >

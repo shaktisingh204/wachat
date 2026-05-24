@@ -30,6 +30,7 @@ import * as React from 'react';
 
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { EnumFormField } from '@/components/crm/enum-form-field';
+import { RichTextMentionsEditor } from '@/components/crm/rich-text-mentions-editor';
 
 import { saveAnnouncement } from '@/app/actions/crm-announcements.actions';
 import type {
@@ -104,6 +105,9 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
     );
     const [bannerName, setBannerName] = React.useState<string>(() =>
         initialData?.bannerUrl ? nameFromUrl(initialData.bannerUrl) : '',
+    );
+    const [bodyContent, setBodyContent] = React.useState<string>(
+        initialData?.body ?? '',
     );
 
     // Driven selects so labels stay in sync after user changes them.
@@ -192,13 +196,11 @@ export function AnnouncementForm({ initialData }: AnnouncementFormProps) {
                     {/* Body */}
                     <div className="space-y-1.5">
                         <Label htmlFor="body">Body *</Label>
-                        <Textarea
-                            id="body"
-                            name="body"
-                            rows={8}
-                            required
+                        <input type="hidden" name="body" value={bodyContent} />
+                        <RichTextMentionsEditor
+                            value={bodyContent}
+                            onChange={setBodyContent}
                             placeholder="Announcement content. Markdown is supported."
-                            defaultValue={initialData?.body ?? ''}
                         />
                     </div>
 

@@ -21,6 +21,7 @@ import { writeAuditEntry } from '@/lib/audit-log';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
+import { getCrmLeaveBalances } from '@/app/actions/crm-leave-balances.actions';
 import {
   crmLeavesApi,
   crmLeaveTypesApi,
@@ -161,6 +162,58 @@ export async function saveLeaveAction(
   try {
     let result: CrmLeaveDoc;
     if (id) {
+      const existingReq = await getLeave(id);
+      const existing = existingReq.leave;
+      if (!existing) return { error: 'Leave request not found.' };
+
+      const hasStarted = existing.from && new Date(existing.from).getTime() <= Date.now();
+      const isApproved = existing.status === 'approved';
+
+      if (hasStarted || isApproved) {
+        if (
+          leaveTypeId !== existing.leaveTypeId ||
+          from !== existing.from ||
+          to !== existing.to ||
+          halfDay !== existing.halfDay
+        ) {
+          return { error: 'Strict HR policy: Cannot edit leave type or dates for a leave that has already started or been approved.' };
+        }
+      }
+
+      let newDays = 1;
+      const fromMs = new Date(from).getTime();
+      const toMs = new Date(to).getTime();
+      newDays = Math.max(1, Math.round((toMs - fromMs) / (1000 * 60 * 60 * 24)) + 1);
+      if (halfDay) newDays = 0.5;
+
+      const isDifferentType = leaveTypeId !== existing.leaveTypeId;
+      const daysToDeductFromNewType = isDifferentType ? newDays : newDays - existing.days;
+
+      if (daysToDeductFromNewType > 0) {
+        const leaveTypesRes = await listLeaveTypeOptions();
+        const leaveTypeObj = leaveTypesRes.options?.find(lt => lt._id === leaveTypeId);
+        if (leaveTypeObj) {
+          const employeeIdToCheck = employeeId || existing.assignedTo;
+          if (employeeIdToCheck) {
+            const balances = await getCrmLeaveBalances({ employeeId: employeeIdToCheck });
+            const matchedBalance = balances.find(b => 
+              b.leaveType.toLowerCase() === leaveTypeObj.code.toLowerCase() || 
+              b.leaveType.toLowerCase() === leaveTypeObj.name.toLowerCase() ||
+              b.leaveType.replace(/_/g, ' ').toLowerCase() === leaveTypeObj.name.toLowerCase() ||
+              b.leaveType.replace(/_/g, ' ').toLowerCase() === leaveTypeObj.code.toLowerCase()
+            );
+
+            const remaining = matchedBalance 
+               ? Math.max(0, (matchedBalance.allotted || 0) - (matchedBalance.used || 0) - (matchedBalance.pending || 0))
+               : 0;
+
+            if (remaining - daysToDeductFromNewType < 0) {
+               return { error: 'Warning: Modifying the leave dates will cause negative leave balances.' };
+            }
+          }
+        }
+      }
+
       const patch: CrmLeaveUpdateInput = {
         leaveTypeId,
         from,

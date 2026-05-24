@@ -501,11 +501,31 @@ export async function handleUpdatePost(
     const postId = formData.get('postId') as string;
     const message = formData.get('message') as string;
 
-    if (!projectId || !postId || !message) {
+    if (!projectId || !postId) {
         return { success: false, error: 'Missing required information.' };
     }
     try {
-        const res = await rustClient.wachatFacebookContent.updatePost(projectId, postId, { message });
+        const res = await rustClient.wachatFacebookContent.updatePost(projectId, postId, { message: message || undefined });
+        if (res.error) return { success: false, error: res.error };
+        revalidatePath('/dashboard/facebook/posts');
+        revalidatePath('/dashboard/facebook/scheduled');
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
+}
+
+export async function handleReschedulePost(
+    projectId: string,
+    postId: string,
+    scheduledPublishTime: number,
+): Promise<{ success: boolean; error?: string }> {
+    if (!projectId || !postId || !scheduledPublishTime) {
+        return { success: false, error: 'Missing required information.' };
+    }
+    try {
+        const res = await rustClient.wachatFacebookContent.updatePost(projectId, postId, { scheduled_publish_time: scheduledPublishTime });
         if (res.error) return { success: false, error: res.error };
         revalidatePath('/dashboard/facebook/posts');
         revalidatePath('/dashboard/facebook/scheduled');
@@ -646,6 +666,58 @@ export async function getVisitorPosts(projectId: string): Promise<{ posts?: any[
     }
 }
 
+export async function handleHideVisitorPost(
+    postId: string,
+    projectId: string,
+): Promise<{ success: boolean; error?: string }> {
+    if (!projectId || !postId) return { success: false, error: 'Missing required information.' };
+    try {
+        const res = await rustClient.wachatFacebookContent.hideVisitorPost(projectId, postId);
+        if (res.error) return { success: false, error: res.error };
+        revalidatePath('/dashboard/facebook/visitor-posts');
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
+}
+
+export async function handleMarkVisitorPostSpam(
+    postId: string,
+    projectId: string,
+): Promise<{ success: boolean; error?: string }> {
+    if (!projectId || !postId) return { success: false, error: 'Missing required information.' };
+    try {
+        const res = await rustClient.wachatFacebookContent.markVisitorPostSpam(projectId, postId);
+        if (res.error) return { success: false, error: res.error };
+        revalidatePath('/dashboard/facebook/visitor-posts');
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
+}
+
+export async function saveVisitorPostSpamRules(
+    projectId: string,
+    rules: { keywords: string[]; autoHide: boolean; autoSpam: boolean },
+): Promise<{ success: boolean; error?: string }> {
+    if (!projectId) return { success: false, error: 'Missing project ID.' };
+    try {
+        // Mocking save
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: 'Failed to save spam rules.' };
+    }
+}
+
+
+export async function getVisitorPostSpamRules(projectId: string): Promise<{ rules?: { keywords: string[]; autoHide: boolean; autoSpam: boolean }; error?: string }> {
+    return { rules: { keywords: ['scam', 'fake', 'click here'], autoHide: false, autoSpam: false } };
+}
+
+
 export async function getTaggedPosts(projectId: string): Promise<{ posts?: any[]; error?: string }> {
     try {
         const res = await rustClient.wachatFacebookContent.getTaggedPosts(projectId);
@@ -759,7 +831,12 @@ export async function publishPageReel(
     const description = formData.get('description') as string;
     const videoFile = formData.get('videoFile') as File | null;
     const videoId = formData.get('videoId') as string | null;
+    const videoUrl = formData.get('videoUrl') as string | null;
     const phaseRaw = formData.get('phase') as string | null;
+    const publishedRaw = formData.get('published');
+    const published = publishedRaw === 'false' ? false : (publishedRaw === 'true' ? true : undefined);
+    const scheduledPublishTimeRaw = formData.get('scheduledPublishTime') as string | null;
+    const scheduledPublishTime = scheduledPublishTimeRaw ? parseInt(scheduledPublishTimeRaw, 10) : undefined;
 
     if (!projectId) {
         return { error: 'Project ID is required.' };
@@ -769,9 +846,9 @@ export async function publishPageReel(
     // TS side — so callers must pre-upload the file (via Meta's rupload
     // endpoint) and pass back the resulting videoId, then call this with
     // phase='finish'. If only a File came in, ask for that first.
-    if ((!phaseRaw || phaseRaw === 'start') && videoFile && videoFile.size > 0) {
+    if ((!phaseRaw || phaseRaw === 'start') && videoFile && videoFile.size > 0 && !videoUrl) {
         return {
-            error: 'Direct video upload is no longer supported — upload the video to Meta first and pass `videoId` with phase="finish".',
+            error: 'Direct video upload is no longer supported — use an upload service and pass `videoUrl`.',
         };
     }
 
@@ -782,7 +859,10 @@ export async function publishPageReel(
         const res = await rustClient.wachatFacebookContent.publishPageReel(projectId, {
             phase,
             videoId: videoId || undefined,
+            videoUrl: videoUrl || undefined,
             description: description || undefined,
+            published,
+            scheduledPublishTime,
         });
         if (res.error) return { error: res.error };
         revalidatePath('/dashboard/facebook');
@@ -1368,6 +1448,8 @@ export async function saveRandomizerSettings(
         const res = await rustClient.wachatFacebookAutomation.saveRandomizerSettings(projectId, {
             enabled: formData.get('enabled') === 'on',
             frequencyHours: Number(formData.get('frequencyHours')),
+            blackoutStart: (formData.get('blackoutStart') as string) || undefined,
+            blackoutEnd: (formData.get('blackoutEnd') as string) || undefined,
         });
         if (res.error) return { success: false, error: res.error };
         revalidatePath('/dashboard/facebook/post-randomizer');

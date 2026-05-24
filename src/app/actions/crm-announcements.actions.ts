@@ -29,7 +29,30 @@ import {
     type CrmAnnouncementUpdateInput,
 } from '@/lib/rust-client/crm-announcements';
 
+import { sendSlackNotification } from '@/lib/integrations/slack';
+import { notifyTeamMember } from '@/lib/team-notifications';
+import { connectToDatabase } from '@/lib/mongodb';
+
 const BASE_PATH = '/dashboard/hrm/hr/announcements';
+
+async function broadcastAnnouncement(title: string, body?: string, announcementId?: string) {
+    try {
+        void sendSlackNotification(`📢 *Announcement Published:*\n*${title}*\n${body ? body.substring(0, 100) : ''}...`);
+        
+        const { db } = await connectToDatabase();
+        const users = await db.collection('users').find({}, { projection: { _id: 1 } }).limit(500).toArray();
+        const notifyPromises = users.map((u: any) => notifyTeamMember({
+            recipientUserId: u._id,
+            message: `New HR Announcement: ${title}`,
+            link: announcementId ? `/dashboard/hrm/hr/announcements/${announcementId}` : '/dashboard/hrm/hr/announcements',
+            eventType: 'announcement_published',
+            sourceApp: 'system'
+        }));
+        await Promise.allSettled(notifyPromises);
+    } catch (e) {
+        console.error('[broadcastAnnouncement] failed:', e);
+    }
+}
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
 
@@ -290,6 +313,9 @@ export async function saveAnnouncement(
                 announcementId!,
                 patch,
             );
+            if (payload.status === 'published') {
+                void broadcastAnnouncement(payload.title, payload.body, announcementId!);
+            }
             revalidatePath(BASE_PATH);
             revalidatePath(`${BASE_PATH}/${announcementId}`);
             return {
@@ -299,6 +325,9 @@ export async function saveAnnouncement(
         }
 
         const created = await crmAnnouncementsApi.create(payload);
+        if (payload.status === 'published') {
+            void broadcastAnnouncement(payload.title, payload.body, created.id);
+        }
         revalidatePath(BASE_PATH);
         return {
             message: 'Announcement created.',
@@ -377,6 +406,7 @@ export async function bulkPublishAnnouncements(
     if (!guard.ok) return { ok: 0, fail: ids.length };
     let ok = 0;
     let fail = 0;
+    let publishedCount = 0;
     for (const id of ids) {
         try {
             await crmAnnouncementsApi.update(id, {
@@ -384,10 +414,16 @@ export async function bulkPublishAnnouncements(
                 publishAt: new Date().toISOString(),
             } as CrmAnnouncementUpdateInput);
             ok += 1;
+            publishedCount += 1;
         } catch {
             fail += 1;
         }
     }
+    
+    if (publishedCount > 0) {
+        void sendSlackNotification(`📢 *${publishedCount} Announcement(s) Published via Bulk Action*`);
+    }
+
     revalidatePath(BASE_PATH);
     return { ok, fail };
 }

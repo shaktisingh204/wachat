@@ -44,12 +44,18 @@ import {
   Image as ImageIcon,
   Plus,
   Upload,
-  } from "lucide-react";
+  Link,
+  Video,
+} from "lucide-react";
 
 import {
   getPageStories,
   publishPhotoStory,
-  } from "@/app/actions/facebook.actions";
+  publishVideoStory,
+} from "@/app/actions/facebook.actions";
+import { uploadLibraryFile } from "@/app/actions/files.actions";
+import { ZoruFileUploadCard, ZoruFileUploadItem } from "@/components/zoruui/file-upload-card";
+import { RadioGroup, ZoruRadioCard } from "@/components/zoruui/radio-group";
 
 /**
  * /dashboard/facebook/stories — Meta Suite Stories manager, ZoruUI rebuild.
@@ -132,14 +138,26 @@ function StoryTile({ story }: { story: Story }) {
     <Card variant="elevated" className="overflow-hidden">
       <div className="relative aspect-[9/16] max-h-72 overflow-hidden bg-zoru-surface-2">
         {story.url ? (
-          <Image
-            src={story.url}
-            alt="Story"
-            fill
-            unoptimized
-            sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-            className="object-cover"
-          />
+          story.media_type === "video" || story.url.includes(".mp4") ? (
+            <video
+              src={story.url}
+              className="h-full w-full object-cover"
+              controls={false}
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : (
+            <Image
+              src={story.url}
+              alt="Story"
+              fill
+              unoptimized
+              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+              className="object-cover"
+            />
+          )
         ) : (
           <div className="flex h-full w-full items-center justify-center text-zoru-ink-subtle">
             <ImageIcon className="h-8 w-8" />
@@ -171,11 +189,9 @@ export default function StoriesPage() {
   const [stories, setStories] = useState<Story[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, startTransition] = useTransition();
-  const [isPublishing, startPublishTransition] = useTransition();
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectIdReady, setProjectIdReady] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
-  const [photoUrl, setPhotoUrl] = useState("");
 
   const { toast } = useZoruToast();
 
@@ -209,26 +225,9 @@ export default function StoriesPage() {
     if (projectId) fetchStories();
   }, [projectId, fetchStories]);
 
-  const handlePublish = () => {
-    if (!projectId || !photoUrl.trim()) return;
-    startPublishTransition(async () => {
-      const result = await publishPhotoStory(projectId, photoUrl.trim());
-      if (result.error) {
-        toast({
-          title: "Publish failed",
-          description: result.error,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Story published",
-          description: "Your photo story is live on the Page.",
-        });
-        setPhotoUrl("");
-        setCreateOpen(false);
-        fetchStories();
-      }
-    });
+  const handleSuccess = () => {
+    setCreateOpen(false);
+    fetchStories();
   };
 
   if (!projectIdReady || (isLoading && stories.length === 0 && !error)) {
@@ -317,14 +316,8 @@ export default function StoriesPage() {
       {/* ── Create-story dialog ────────────────────────────────────── */}
       <CreateStoryDialog
         open={createOpen}
-        onOpenChange={(next) => {
-          setCreateOpen(next);
-          if (!next) setPhotoUrl("");
-        }}
-        photoUrl={photoUrl}
-        onPhotoUrlChange={setPhotoUrl}
-        onPublish={handlePublish}
-        isPublishing={isPublishing}
+        onOpenChange={setCreateOpen}
+        onSuccess={handleSuccess}
         projectId={projectId}
       />
     </div>
@@ -336,29 +329,110 @@ export default function StoriesPage() {
 function CreateStoryDialog({
   open,
   onOpenChange,
-  photoUrl,
-  onPhotoUrlChange,
-  onPublish,
-  isPublishing,
+  onSuccess,
   projectId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  photoUrl: string;
-  onPhotoUrlChange: (next: string) => void;
-  onPublish: () => void;
-  isPublishing: boolean;
+  onSuccess: () => void;
   projectId: string | null;
 }) {
-  const trimmed = photoUrl.trim();
+  const [mode, setMode] = useState<"upload" | "url">("upload");
+  const [url, setUrl] = useState("");
+  const [uploadedUrl, setUploadedUrl] = useState("");
+  const [uploadedMime, setUploadedMime] = useState("");
+  const [items, setItems] = useState<ZoruFileUploadItem[]>([]);
+  const [isPublishing, startPublishTransition] = useTransition();
+  const { toast } = useZoruToast();
+
+  useEffect(() => {
+    if (!open) {
+      setMode("upload");
+      setUrl("");
+      setUploadedUrl("");
+      setUploadedMime("");
+      setItems([]);
+    }
+  }, [open]);
+
+  const handleFilesSelected = (files: File[]) => {
+    const file = files[0];
+    if (!file) return;
+
+    const id = Math.random().toString(36).slice(2);
+    setItems([{ id, file, progress: 50, status: "uploading" }]);
+    setUploadedUrl("");
+    setUploadedMime("");
+
+    const fd = new FormData();
+    fd.append("file", file);
+
+    uploadLibraryFile(fd)
+      .then((res) => {
+        setItems((prev) =>
+          prev.map((i) =>
+            i.id === id ? { ...i, progress: 100, status: "done" } : i
+          )
+        );
+        setUploadedUrl(res.url);
+        setUploadedMime(res.mimeType);
+      })
+      .catch((err) => {
+        setItems((prev) =>
+          prev.map((i) =>
+            i.id === id
+              ? { ...i, status: "error", errorMessage: err.message }
+              : i
+          )
+        );
+      });
+  };
+
+  const handlePublish = () => {
+    if (!projectId) return;
+
+    const targetUrl = mode === "url" ? url.trim() : uploadedUrl;
+    if (!targetUrl) return;
+
+    startPublishTransition(async () => {
+      let isVideo = false;
+      if (mode === "upload") {
+        isVideo = uploadedMime.startsWith("video/");
+      } else {
+        isVideo = targetUrl.match(/\.(mp4|mov|webm)$/i) !== null;
+      }
+
+      const result = isVideo
+        ? await publishVideoStory(projectId, targetUrl)
+        : await publishPhotoStory(projectId, targetUrl);
+
+      if (result.error) {
+        toast({
+          title: "Publish failed",
+          description: result.error,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Story published",
+          description: `Your ${isVideo ? "video" : "photo"} story is live on the Page.`,
+        });
+        onSuccess();
+      }
+    });
+  };
+
+  const isReady =
+    mode === "url" ? url.trim().length > 0 : uploadedUrl.length > 0;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <ZoruDialogContent className="max-w-md">
         <ZoruDialogHeader>
-          <ZoruDialogTitle>Create photo story</ZoruDialogTitle>
+          <ZoruDialogTitle>Create story</ZoruDialogTitle>
           <ZoruDialogDescription>
-            Paste a publicly-accessible photo URL. SabNode will upload the
-            photo and publish it as a Page story.
+            Upload a photo or video, or paste a publicly-accessible URL.
+            SabNode will publish it as a Page story.
           </ZoruDialogDescription>
         </ZoruDialogHeader>
 
@@ -370,20 +444,59 @@ function CreateStoryDialog({
           </Alert>
         )}
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="story-photo-url" required>
-            Photo URL
-          </Label>
-          <Input
-            id="story-photo-url"
-            type="url"
-            value={photoUrl}
-            onChange={(e) => onPhotoUrlChange(e.target.value)}
-            placeholder="https://example.com/photo.jpg"
-          />
-          <p className="text-[11.5px] text-zoru-ink-muted">
-            JPEG or PNG, hosted on a public HTTPS URL.
-          </p>
+        <div className="flex flex-col gap-4 py-2">
+          <RadioGroup
+            value={mode}
+            onValueChange={(val: "upload" | "url") => setMode(val)}
+            className="grid grid-cols-2"
+          >
+            <ZoruRadioCard
+              value="upload"
+              label="Upload file"
+              icon={<Upload className="h-4 w-4" />}
+            />
+            <ZoruRadioCard
+              value="url"
+              label="Paste URL"
+              icon={<Link className="h-4 w-4" />}
+            />
+          </RadioGroup>
+
+          {mode === "upload" ? (
+            <div className="flex flex-col gap-2">
+              <ZoruFileUploadCard
+                accept="image/jpeg, image/png, video/mp4"
+                multiple={false}
+                maxSize={50 * 1024 * 1024}
+                hint="JPEG, PNG, or MP4 up to 50MB"
+                items={items}
+                onFilesSelected={handleFilesSelected}
+                onRemove={() => {
+                  setItems([]);
+                  setUploadedUrl("");
+                  setUploadedMime("");
+                }}
+                disabled={isPublishing}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="story-url" required>
+                Media URL
+              </Label>
+              <Input
+                id="story-url"
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://example.com/media.jpg"
+                disabled={isPublishing}
+              />
+              <p className="text-[11.5px] text-zoru-ink-muted">
+                JPEG, PNG, or MP4 hosted on a public HTTPS URL.
+              </p>
+            </div>
+          )}
         </div>
 
         <ZoruDialogFooter>
@@ -391,13 +504,14 @@ function CreateStoryDialog({
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
+            disabled={isPublishing}
           >
             Cancel
           </Button>
           <Button
             type="button"
-            onClick={onPublish}
-            disabled={!projectId || !trimmed || isPublishing}
+            onClick={handlePublish}
+            disabled={!projectId || !isReady || isPublishing}
           >
             <Upload /> Publish story
           </Button>

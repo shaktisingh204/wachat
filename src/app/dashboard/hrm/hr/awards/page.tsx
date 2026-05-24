@@ -17,26 +17,16 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
+import { AwardProgram } from './schema';
 
-type AnyAwardProgram = {
-  _id?: { toString(): string } | string;
-  name?: string;
-  periodStart?: string | Date;
-  periodEnd?: string | Date;
-  nominations?: unknown[];
-  winners?: unknown[];
-  status?: string;
-  createdAt?: string | Date;
-};
-
-function formatDate(value: string | Date | undefined): string {
+function formatDate(value: string | Date | undefined | null): string {
   if (!value) return '—';
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return '—';
   return d.toLocaleDateString();
 }
 
-function formatPeriod(start?: string | Date, end?: string | Date): string {
+function formatPeriod(start?: string | Date | null, end?: string | Date | null): string {
   const s = formatDate(start);
   const e = formatDate(end);
   if (s === '—' && e === '—') return '—';
@@ -61,7 +51,7 @@ function getStatusVariant(status?: string): 'success' | 'warning' | 'danger' | '
 
 export default async function AwardsPage() {
   const session = await getSession();
-  let programs: AnyAwardProgram[] = [];
+  let programs: AwardProgram[] = [];
   let loadError = false;
 
   if (session?.user?._id) {
@@ -74,7 +64,7 @@ export default async function AwardsPage() {
         .sort({ createdAt: -1 })
         .limit(50)
         .toArray();
-      programs = JSON.parse(JSON.stringify(docs)) as AnyAwardProgram[];
+      programs = JSON.parse(JSON.stringify(docs)) as AwardProgram[];
     } catch (e) {
       console.error('Failed to load crm_award_programs:', e);
       loadError = true;
@@ -191,10 +181,7 @@ export default async function AwardsPage() {
                 </ZoruTableRow>
               ) : programs.length > 0 ? (
                 programs.map((program, idx) => {
-                  const id =
-                    typeof program._id === 'string'
-                      ? program._id
-                      : (program._id as any)?.toString?.() ?? String(idx);
+                  const id = program._id ? String(program._id) : String(idx);
                   const nominations = Array.isArray(program.nominations)
                     ? program.nominations.length
                     : 0;

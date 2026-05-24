@@ -1,52 +1,136 @@
 'use client';
 
-import { Card, Button } from '@/components/zoruui';
+import {
+  Card,
+  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  Input,
+  Label,
+  Textarea
+} from '@/components/zoruui';
 import {
   useEffect,
   useState,
-  useTransition } from 'react';
+  useTransition
+} from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getLeaveBalance,
   getLeaveTypes,
+  topupLeaveBalance,
 } from '@/app/actions/worksuite/leave.actions';
 import type {
   WsLeaveBalanceEmployee,
   WsLeaveType,
 } from '@/lib/worksuite/leave-types';
+import { useToast } from '@/components/zoruui/use-zoru-toast';
+
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
 export default function LeaveBalancePage() {
   const [rows, setRows] = useState<WsLeaveBalanceEmployee[]>([]);
   const [types, setTypes] = useState<WsLeaveType[]>([]);
   const [isLoading, startTransition] = useTransition();
+  const [selectedYear, setSelectedYear] = useState<string>(String(currentYear));
+  const { toast } = useToast();
 
-  useEffect(() => {
+  const [topupModalOpen, setTopupModalOpen] = useState(false);
+  const [topupLoading, setTopupLoading] = useState(false);
+  const [topupForm, setTopupForm] = useState({
+    employeeId: '',
+    employeeName: '',
+    leaveTypeId: '',
+    leaveTypeName: '',
+    amount: '',
+    reason: '',
+  });
+
+  const loadData = () => {
     startTransition(async () => {
+      const year = parseInt(selectedYear, 10);
       const [balances, ts] = await Promise.all([
-        getLeaveBalance(),
+        getLeaveBalance(undefined, year),
         getLeaveTypes(),
       ]);
       setRows(balances);
       setTypes(ts);
     });
-  }, []);
+  };
+
+  useEffect(() => {
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedYear]);
+
+  const handleTopup = async () => {
+    if (!topupForm.amount || isNaN(Number(topupForm.amount))) {
+      toast({ title: 'Error', description: 'Invalid amount', variant: 'destructive' });
+      return;
+    }
+    setTopupLoading(true);
+    const result = await topupLeaveBalance(
+      topupForm.employeeId,
+      topupForm.leaveTypeId,
+      Number(topupForm.amount),
+      parseInt(selectedYear, 10),
+      topupForm.reason
+    );
+    setTopupLoading(false);
+    if (result.success) {
+      toast({ title: 'Success', description: 'Balance topped up successfully.' });
+      setTopupModalOpen(false);
+      loadData();
+    } else {
+      toast({ title: 'Error', description: result.error || 'Failed to top up', variant: 'destructive' });
+    }
+  };
+
+  const yearSelector = (
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-zoru-ink-muted">Year:</span>
+      <Select value={selectedYear} onValueChange={setSelectedYear}>
+        <SelectTrigger className="w-[120px]">
+          <SelectValue placeholder="Select Year" />
+        </SelectTrigger>
+        <SelectContent>
+          {years.map((y) => (
+            <SelectItem key={y} value={String(y)}>
+              {y}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
 
   return (
     <EntityListShell
       title="Leave Balance"
       subtitle="Per-employee remaining leaves across every leave type."
+      filters={yearSelector}
     >
-
-      <Card className="p-6">
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <table className="w-full text-left text-[13px]">
+      <Card className="p-0 border-0 shadow-none bg-transparent">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line bg-white dark:bg-zinc-950">
+          <table className="w-full text-left text-[13px] border-collapse relative min-w-max">
             <thead>
               <tr className="border-b border-zoru-line">
-                <th className="px-4 py-3 text-zoru-ink-muted">Employee</th>
+                <th className="px-4 py-3 text-zoru-ink-muted sticky left-0 z-20 bg-zoru-surface border-r border-zoru-line">
+                  Employee
+                </th>
                 {types.map((t) => (
                   <th
                     key={String(t._id)}
-                    className="px-4 py-3 text-zoru-ink-muted"
+                    className="px-4 py-3 text-zoru-ink-muted whitespace-nowrap min-w-[150px] bg-white dark:bg-zinc-950"
                   >
                     <span className="inline-flex items-center gap-1.5">
                       <span
@@ -83,8 +167,8 @@ export default function LeaveBalancePage() {
                 rows.map((r) => {
                   const byType = new Map(r.rows.map((x) => [x.leave_type_id, x]));
                   return (
-                    <tr key={r.employee_id} className="border-b border-zoru-line last:border-0">
-                      <td className="px-4 py-3 text-zoru-ink">
+                    <tr key={r.employee_id} className="border-b border-zoru-line last:border-0 group">
+                      <td className="px-4 py-3 text-zoru-ink sticky left-0 z-10 bg-zoru-surface border-r border-zoru-line shadow-[1px_0_0_0_var(--zoru-line)]">
                         {r.employee_name}
                       </td>
                       {types.map((t) => {
@@ -93,7 +177,7 @@ export default function LeaveBalancePage() {
                           return (
                             <td
                               key={String(t._id)}
-                              className="px-4 py-3 text-zoru-ink-muted"
+                              className="px-4 py-3 text-zoru-ink-muted text-center"
                             >
                               —
                             </td>
@@ -101,20 +185,47 @@ export default function LeaveBalancePage() {
                         }
                         const low = row.remaining <= 1 && row.allocated > 0;
                         return (
-                          <td key={String(t._id)} className="px-4 py-3">
-                            <div className="flex flex-col">
+                          <td key={String(t._id)} className="px-4 py-3 group/cell relative hover:bg-zoru-surface">
+                            <div className="flex flex-col gap-0.5">
                               <span
                                 className={
                                   low
-                                    ? 'text-red-500'
-                                    : 'text-zoru-ink'
+                                    ? 'text-red-500 font-medium'
+                                    : 'text-zoru-ink font-medium'
                                 }
                               >
                                 {row.remaining} / {row.allocated}
                               </span>
-                              <span className="text-[11px] text-zoru-ink-muted">
-                                used: {row.used}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[11px] text-zoru-ink-muted">
+                                  used: {row.used}
+                                </span>
+                                {row.topup ? (
+                                  <span className="text-[11px] text-green-600 dark:text-green-500">
+                                    (+{row.topup})
+                                  </span>
+                                ) : null}
+                              </div>
+                            </div>
+                            <div className="absolute top-1/2 -translate-y-1/2 right-2 opacity-0 group-hover/cell:opacity-100 transition-opacity">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-6 text-[11px] px-2"
+                                onClick={() => {
+                                  setTopupForm({
+                                    employeeId: r.employee_id,
+                                    employeeName: r.employee_name,
+                                    leaveTypeId: String(t._id),
+                                    leaveTypeName: t.type_name,
+                                    amount: '',
+                                    reason: '',
+                                  });
+                                  setTopupModalOpen(true);
+                                }}
+                              >
+                                Top Up
+                              </Button>
                             </div>
                           </td>
                         );
@@ -127,6 +238,52 @@ export default function LeaveBalancePage() {
           </table>
         </div>
       </Card>
+
+      <Dialog open={topupModalOpen} onOpenChange={setTopupModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Top Up Leave Balance</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-1.5">
+              <Label>Employee</Label>
+              <div className="text-sm font-medium">{topupForm.employeeName}</div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Leave Type</Label>
+              <div className="text-sm font-medium">{topupForm.leaveTypeName} ({selectedYear})</div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="topup-amount">Amount (Days)</Label>
+              <Input
+                id="topup-amount"
+                type="number"
+                step="0.5"
+                placeholder="e.g. 1"
+                value={topupForm.amount}
+                onChange={(e) => setTopupForm({ ...topupForm, amount: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="topup-reason">Reason</Label>
+              <Textarea
+                id="topup-reason"
+                placeholder="e.g. Comp-off for weekend work"
+                value={topupForm.reason}
+                onChange={(e) => setTopupForm({ ...topupForm, reason: e.target.value })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTopupModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleTopup} disabled={topupLoading || !topupForm.amount}>
+              {topupLoading ? 'Saving...' : 'Apply Top Up'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </EntityListShell>
   );
 }

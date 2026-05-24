@@ -22,8 +22,10 @@ import {
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
   Badge,
+  Progress,
+  EmptyState,
 } from '@/components/zoruui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Mail, Phone, Building2, Store, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createVendor, updateVendor, deleteVendor, Vendor } from '@/app/actions/finance/vendor-portal.actions';
 import { toast } from 'sonner';
@@ -35,6 +37,28 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [viewingItem, setViewingItem] = useState<Vendor | null>(null);
+
+  function exportToCsv() {
+    if (items.length === 0) return;
+    const headers = Object.keys(items[0] || {}).filter(k => k !== '_id' && k !== '__v');
+    const csvContent = [
+      headers.join(','),
+      ...items.map(item => headers.map(h => JSON.stringify((item as any)[h] ?? '')).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'vendor-portal_export.csv';
+    link.click();
+  }
+
+  function openView(item: Vendor) {
+    setViewingItem(item);
+    setIsViewOpen(true);
+  }
 
   const filteredItems = items.filter(item => 
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
@@ -109,7 +133,11 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
       title="Vendor Portal"
       subtitle="A portal for vendors to see their invoices and POs."
       primaryAction={
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportToCsv}>
+            <Download className="mr-2 h-4 w-4" /> Export CSV
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <ZoruDialogTrigger asChild>
             <Button size="sm" onClick={openNew}>
               <Plus className="mr-2 h-4 w-4" /> New Record
@@ -122,44 +150,74 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
             <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
               <div className="grid gap-4">
             <div className="space-y-1">
-              <Label>Name</Label>
+              <Label>Vendor Name</Label>
               <Input 
                 name="name" 
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.name : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("name")} 
+                required 
               />
             </div>
-            <div className="space-y-1">
-              <Label>ContactEmail</Label>
-              <Input 
-                name="contactEmail" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.contactEmail : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("contactEmail")} 
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label>Contact Email</Label>
+                <Input 
+                  name="contactEmail" 
+                  type="email"
+                  defaultValue={editingId ? items.find(i => i._id === editingId)?.contactEmail : ''} 
+                  required 
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Contact Phone</Label>
+                <Input 
+                  name="contactPhone" 
+                  type="tel"
+                  defaultValue={editingId ? items.find(i => i._id === editingId)?.contactPhone : ''} 
+                />
+              </div>
             </div>
-            <div className="space-y-1">
-              <Label>PaymentTerms</Label>
-              <Input 
-                name="paymentTerms" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.paymentTerms : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("paymentTerms")} 
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label>Payment Terms</Label>
+                <Input 
+                  name="paymentTerms" 
+                  placeholder="e.g. NET_30"
+                  defaultValue={editingId ? items.find(i => i._id === editingId)?.paymentTerms : ''} 
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Active Contracts</Label>
+                <Input 
+                  name="activeContracts" 
+                  type="number"
+                  min="0"
+                  defaultValue={editingId ? items.find(i => i._id === editingId)?.activeContracts : '0'} 
+                />
+              </div>
             </div>
-            <div className="space-y-1">
-              <Label>ActiveContracts</Label>
-              <Input 
-                name="activeContracts" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.activeContracts : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("activeContracts")} 
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>OnboardingStatus</Label>
-              <Input 
-                name="onboardingStatus" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.onboardingStatus : ''} 
-                required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("onboardingStatus")} 
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label>Performance Score (0-100)</Label>
+                <Input 
+                  name="performanceScore" 
+                  type="number"
+                  min="0"
+                  max="100"
+                  defaultValue={editingId ? items.find(i => i._id === editingId)?.performanceScore : '0'} 
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Status</Label>
+                <select 
+                  name="onboardingStatus"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  defaultValue={editingId ? items.find(i => i._id === editingId)?.onboardingStatus : 'ACTIVE'}
+                >
+                  <option value="ACTIVE">Active</option>
+                  <option value="ONBOARDING">Onboarding</option>
+                  <option value="INACTIVE">Inactive</option>
+                </select>
+              </div>
             </div></div>
               <div className="flex justify-end pt-4">
                 <Button type="submit" disabled={loading}>
@@ -193,21 +251,74 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
         <Table>
           <ZoruTableHeader>
             <ZoruTableRow>
-              <ZoruTableHead>Name</ZoruTableHead><ZoruTableHead>ContactEmail</ZoruTableHead><ZoruTableHead>PaymentTerms</ZoruTableHead><ZoruTableHead>ActiveContracts</ZoruTableHead><ZoruTableHead>OnboardingStatus</ZoruTableHead>
+              <ZoruTableHead>Vendor</ZoruTableHead><ZoruTableHead>Directory Contact</ZoruTableHead><ZoruTableHead>Performance</ZoruTableHead><ZoruTableHead>Terms & Contracts</ZoruTableHead><ZoruTableHead>Status</ZoruTableHead>
               <ZoruTableHead className="w-[80px]"></ZoruTableHead>
             </ZoruTableRow>
           </ZoruTableHeader>
           <ZoruTableBody>
             {filteredItems.length === 0 ? (
               <ZoruTableRow>
-                <ZoruTableCell colSpan={6} className="h-24 text-center">
-                  No results.
+                <ZoruTableCell colSpan={6} className="p-8">
+                  <EmptyState 
+                    icon={<Store className="h-6 w-6" />}
+                    title="No vendors found"
+                    description="Get started by creating a new vendor record."
+                    action={
+                      <Button onClick={openNew} size="sm">
+                        <Plus className="mr-2 h-4 w-4" /> Add Vendor
+                      </Button>
+                    }
+                  />
                 </ZoruTableCell>
               </ZoruTableRow>
             ) : (
               filteredItems.map((item) => (
                 <ZoruTableRow key={item._id}>
-                  <ZoruTableCell>{String(item.name ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.contactEmail ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.paymentTerms ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.activeContracts ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.onboardingStatus ?? '')}</ZoruTableCell>
+                  <ZoruTableCell>
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded bg-primary/10">
+                        <Building2 className="h-4 w-4 text-primary" />
+                      </div>
+                      <span className="font-medium">{String(item.name ?? 'Unknown')}</span>
+                    </div>
+                  </ZoruTableCell>
+                  <ZoruTableCell>
+                    <div className="flex flex-col gap-1 text-sm">
+                      {item.contactEmail && (
+                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <Mail className="h-3 w-3" />
+                          <a href={`mailto:${item.contactEmail}`} className="hover:underline text-primary">{item.contactEmail}</a>
+                        </div>
+                      )}
+                      {item.contactPhone && (
+                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <Phone className="h-3 w-3" />
+                          <a href={`tel:${item.contactPhone}`} className="hover:underline">{item.contactPhone}</a>
+                        </div>
+                      )}
+                      {!item.contactEmail && !item.contactPhone && <span className="text-muted-foreground italic">No contact info</span>}
+                    </div>
+                  </ZoruTableCell>
+                  <ZoruTableCell className="w-[200px]">
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Score</span>
+                        <span className="font-medium">{item.performanceScore || 0}/100</span>
+                      </div>
+                      <Progress value={Number(item.performanceScore || 0)} className="h-1.5" />
+                    </div>
+                  </ZoruTableCell>
+                  <ZoruTableCell>
+                    <div className="flex flex-col gap-1 text-sm">
+                      <div>Terms: <span className="font-medium">{item.paymentTerms || 'N/A'}</span></div>
+                      <div className="text-muted-foreground">{item.activeContracts || 0} active contracts</div>
+                    </div>
+                  </ZoruTableCell>
+                  <ZoruTableCell>
+                    <Badge variant={item.onboardingStatus === 'ACTIVE' ? 'default' : item.onboardingStatus === 'INACTIVE' ? 'destructive' : 'secondary'}>
+                      {item.onboardingStatus || 'ACTIVE'}
+                    </Badge>
+                  </ZoruTableCell>
                   <ZoruTableCell>
                     <DropdownMenu>
                       <ZoruDropdownMenuTrigger asChild>
@@ -231,6 +342,22 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
           </ZoruTableBody>
         </Table>
       </div>
+
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+            {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
+              <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
+                <div className="font-medium text-sm text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="col-span-2 text-sm">{String(value)}</div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </EntityListShell>
   );
 }

@@ -41,6 +41,8 @@ import {
   Newspaper,
   RefreshCw,
   Send,
+  CalendarDays,
+  LayoutList
   } from "lucide-react";
 
 import {
@@ -62,6 +64,7 @@ import * as React from "react";
 
 import { CancelScheduleDialog } from "../_components/cancel-schedule-dialog";
 import { EditScheduleSheet } from "../_components/edit-schedule-sheet";
+import { ScheduledCalendar } from "../_components/scheduled-calendar";
 import {
   ErrorState,
   NoProjectState,
@@ -184,7 +187,7 @@ export default function ScheduledPostsPage() {
   const [isLoading, startLoading] = useTransition();
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectIdReady, setProjectIdReady] = useState(false);
-  const [actionCounter, setActionCounter] = useState(0);
+  const [view, setView] = useState<"table" | "calendar">("table");
 
   useEffect(() => {
     document.title = "Scheduled · Meta Suite · SabNode";
@@ -210,11 +213,11 @@ export default function ScheduledPostsPage() {
 
   useEffect(() => {
     if (projectId) fetchPosts();
-  }, [projectId, fetchPosts, actionCounter]);
+  }, [projectId, fetchPosts]);
 
   const handleActionComplete = useCallback(() => {
-    setActionCounter((n) => n + 1);
-  }, []);
+    fetchPosts();
+  }, [fetchPosts]);
 
   const columns = useMemo<ColumnDef<FacebookPost>[]>(
     () => [
@@ -334,6 +337,24 @@ export default function ScheduledPostsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
+          <div className="flex items-center gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line p-1 bg-zoru-surface">
+            <Button
+              variant={view === "table" ? "secondary" : "ghost"}
+              size="icon-sm"
+              onClick={() => setView("table")}
+              title="Table View"
+            >
+              <LayoutList className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={view === "calendar" ? "secondary" : "ghost"}
+              size="icon-sm"
+              onClick={() => setView("calendar")}
+              title="Calendar View"
+            >
+              <CalendarDays className="h-4 w-4" />
+            </Button>
+          </div>
           <Badge variant="secondary">
             <CalendarRange />
             {posts.length} queued
@@ -366,6 +387,12 @@ export default function ScheduledPostsPage() {
                 </Link>
               </Button>
             }
+          />
+        ) : view === "calendar" ? (
+          <ScheduledCalendar 
+            posts={posts} 
+            projectId={projectId} 
+            onActionComplete={handleActionComplete} 
           />
         ) : (
           <DataTable

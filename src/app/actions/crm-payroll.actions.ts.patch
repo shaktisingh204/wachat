@@ -1,0 +1,50 @@
+--- src/app/actions/crm-payroll.actions.ts
++++ src/app/actions/crm-payroll.actions.ts
+@@ -222,6 +222,46 @@
+     } catch (e) {
+         return [];
+     }
+ }
++
++export async function markPayrollPaid(month: number, year: number): Promise<{ success: boolean; error?: string }> {
++    const session = await getSession();
++    if (!session?.user) return { success: false, error: 'Authentication required' };
++
++    try {
++        const { db } = await connectToDatabase();
++        const userId = new ObjectId(session.user._id);
++        const payPeriodStart = startOfMonth(new Date(year, month - 1));
++
++        await db.collection('crm_payslips').updateMany(
++            { userId, payPeriodStart },
++            { $set: { status: 'paid', updatedAt: new Date() } }
++        );
++
++        return { success: true };
++    } catch (e: any) {
++        return { success: false, error: getErrorMessage(e) };
++    }
++}
++
++export async function sendPayslipsEmail(month: number, year: number): Promise<{ success: boolean; error?: string }> {
++    const session = await getSession();
++    if (!session?.user) return { success: false, error: 'Authentication required' };
++
++    try {
++        const { db } = await connectToDatabase();
++        const userId = new ObjectId(session.user._id);
++        const payPeriodStart = startOfMonth(new Date(year, month - 1));
++        
++        // Mocking email send by just updating the 'emailedAt' field
++        await db.collection('crm_payslips').updateMany(
++            { userId, payPeriodStart, status: 'paid' },
++            { $set: { emailedAt: new Date() } }
++        );
++
++        return { success: true };
++    } catch (e: any) {
++        return { success: false, error: getErrorMessage(e) };
++    }
++}
+ 
+ /**

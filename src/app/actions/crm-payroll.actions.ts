@@ -125,7 +125,7 @@ export async function generatePayrollData(month: number, year: number): Promise<
             let deductions: { name: string, amount: number }[] = [];
 
             if (structure) {
-                structure.components.forEach(comp => {
+                (structure as CrmSalaryStructure).components.forEach(comp => {
                     const amount = comp.calculationType === 'fixed' ? comp.value : (grossSalary * comp.value / 100);
                     if (comp.type === 'earning') earnings.push({ name: comp.name, amount });
                     else deductions.push({ name: comp.name, amount });
@@ -223,6 +223,46 @@ export async function getPayslips(payPeriod: Date): Promise<WithId<CrmPayslip>[]
     }
 }
 
+export async function markPayrollPaid(month: number, year: number): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Authentication required' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const payPeriodStart = startOfMonth(new Date(year, month - 1));
+
+        await db.collection('crm_payslips').updateMany(
+            { userId, payPeriodStart },
+            { $set: { status: 'paid', updatedAt: new Date() } }
+        );
+
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function sendPayslipsEmail(month: number, year: number): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Authentication required' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const payPeriodStart = startOfMonth(new Date(year, month - 1));
+        
+        await db.collection('crm_payslips').updateMany(
+            { userId, payPeriodStart, status: 'paid' },
+            { $set: { emailedAt: new Date() } }
+        );
+
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
 /**
  * Fetch a single payslip document scoped to the current user.
  *
@@ -304,5 +344,48 @@ export async function getSalaryStructureById(
     } catch (e) {
         console.error('Failed to fetch salary structure by id:', e);
         return null;
+    }
+}
+
+export async function getPendingLeavesForPeriod(month: number, year: number): Promise<{
+    pendingLeaves: any[];
+    error?: string;
+}> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required', pendingLeaves: [] };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const start = startOfMonth(new Date(year, month - 1));
+        const end = endOfMonth(new Date(year, month - 1));
+
+        const leaves = await db.collection('crm_leaves').find({
+            userId,
+            status: 'Pending',
+            startDate: { $lte: end },
+            endDate: { $gte: start }
+        }).toArray();
+
+        // Also fetch employee names for display
+        if (leaves.length > 0) {
+            const employeeIds = leaves.map(l => l.employeeId);
+            const employees = await db.collection<CrmEmployee>('crm_employees').find({
+                _id: { $in: employeeIds }
+            }).toArray();
+            
+            const empMap = new Map(employees.map(e => [e._id.toString(), e]));
+            
+            leaves.forEach(l => {
+                const emp = empMap.get(l.employeeId.toString());
+                if (emp) {
+                    (l as any).employeeName = `${emp.firstName} ${emp.lastName}`;
+                }
+            });
+        }
+
+        return { pendingLeaves: JSON.parse(JSON.stringify(leaves)) };
+    } catch (e: any) {
+        return { error: getErrorMessage(e), pendingLeaves: [] };
     }
 }

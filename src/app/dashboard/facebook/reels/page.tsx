@@ -29,9 +29,13 @@ import {
   Skeleton,
   Textarea,
   useZoruToast,
+  ZoruFileUploadCard,
+  type ZoruFileUploadItem,
+  RadioGroup,
+  ZoruRadioGroupItem,
+  Input,
 } from '@/components/zoruui';
 import {
-  useActionState,
   useCallback,
   useEffect,
   useState,
@@ -46,17 +50,24 @@ import {
   Film,
   Hash,
   Upload,
+  MessageCircle,
+  ThumbsUp,
+  PlayCircle,
+  Loader2,
   } from "lucide-react";
 
 import {
   getPageReels,
   publishPageReel,
   } from "@/app/actions/facebook.actions";
+import {
+  presignUpload,
+  confirmUpload,
+  } from "@/app/actions/sabfiles.actions";
 
 /**
  * /dashboard/facebook/reels — Meta Suite Reels manager, ZoruUI rebuild.
  *
- * Same handlers + server actions as before (getPageReels, publishPageReel).
  * Visual layer: PageHeader + Breadcrumb, neutral elevated cards
  * for the grid tiles, Dialog (built on ZoruFileUploadCard) for upload.
  */
@@ -76,10 +87,12 @@ type Reel = {
   permalink_url?: string;
   picture?: string;
   views?: number;
+  likes?: { summary?: { total_count: number } } | number;
+  comments?: { summary?: { total_count: number } } | number;
+  video_insights?: {
+    data?: Array<{ name: string; values: Array<{ value: number }> }>;
+  };
 };
-
-type UploadState = { message?: string; error?: string };
-const INITIAL_UPLOAD_STATE: UploadState = {};
 
 function ReelsPageSkeleton() {
   return (
@@ -135,6 +148,24 @@ function MetricTile({
 }
 
 function ReelTile({ reel }: { reel: Reel }) {
+  const likesCount =
+    typeof reel.likes === "number"
+      ? reel.likes
+      : reel.likes?.summary?.total_count;
+
+  const commentsCount =
+    typeof reel.comments === "number"
+      ? reel.comments
+      : reel.comments?.summary?.total_count;
+
+  const watchTimeEntry = reel.video_insights?.data?.find(
+    (d) => d.name === "total_video_avg_time_watched"
+  );
+  const avgWatchTimeSeconds =
+    watchTimeEntry && watchTimeEntry.values?.[0]?.value !== undefined
+      ? watchTimeEntry.values[0].value / 1000
+      : undefined;
+
   return (
     <Card variant="elevated" className="flex flex-col overflow-hidden">
       <div className="relative aspect-[9/16] max-h-72 overflow-hidden bg-zoru-surface-2">
@@ -175,6 +206,24 @@ function ReelTile({ reel }: { reel: Reel }) {
               {Math.round(reel.length)}s
             </span>
           )}
+          {likesCount !== undefined && (
+            <span className="inline-flex items-center gap-1" title="Likes">
+              <ThumbsUp className="h-3 w-3" />
+              {likesCount}
+            </span>
+          )}
+          {commentsCount !== undefined && (
+            <span className="inline-flex items-center gap-1" title="Comments">
+              <MessageCircle className="h-3 w-3" />
+              {commentsCount}
+            </span>
+          )}
+          {avgWatchTimeSeconds !== undefined && (
+            <span className="inline-flex items-center gap-1" title="Avg Watch Time">
+              <PlayCircle className="h-3 w-3" />
+              {avgWatchTimeSeconds.toFixed(1)}s
+            </span>
+          )}
         </div>
         {reel.permalink_url && (
           <a
@@ -198,12 +247,6 @@ export default function ReelsPage() {
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectIdReady, setProjectIdReady] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
-
-  const [uploadState, uploadAction] = useActionState(
-    publishPageReel,
-    INITIAL_UPLOAD_STATE,
-  );
-  const { toast } = useZoruToast();
 
   const fetchReels = useCallback(() => {
     if (!projectId) return;
@@ -234,21 +277,6 @@ export default function ReelsPage() {
   useEffect(() => {
     if (projectId) fetchReels();
   }, [projectId, fetchReels]);
-
-  // Surface upload server action result via toast + close dialog on success.
-  useEffect(() => {
-    if (uploadState?.message) {
-      toast({ title: "Reel published", description: uploadState.message });
-      setUploadOpen(false);
-      fetchReels();
-    } else if (uploadState?.error) {
-      toast({
-        title: "Upload failed",
-        description: uploadState.error,
-        variant: "destructive",
-      });
-    }
-  }, [uploadState, toast, fetchReels]);
 
   if (!projectIdReady || (isLoading && reels.length === 0 && !error)) {
     return <ReelsPageSkeleton />;
@@ -340,44 +368,165 @@ export default function ReelsPage() {
         )}
       </div>
 
-      {/* ── Upload reel dialog ─────────────────────────────────────── */}
       <UploadReelDialog
         open={uploadOpen}
         onOpenChange={setUploadOpen}
         projectId={projectId}
-        action={uploadAction}
-        state={uploadState}
+        onSuccess={fetchReels}
       />
     </div>
   );
 }
 
-/* ── Local upload-reel dialog (form posts to server action) ───────── */
+/* ── Local upload-reel dialog ─────────────────────────────────────── */
 
 function UploadReelDialog({
   open,
   onOpenChange,
   projectId,
-  action,
-  state,
+  onSuccess,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string | null;
-  action: (payload: FormData) => void;
-  state: UploadState;
+  onSuccess: () => void;
 }) {
-  const [file, setFile] = useState<File | null>(null);
+  const [items, setItems] = useState<ZoruFileUploadItem[]>([]);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [description, setDescription] = useState("");
+  const [publishMode, setPublishMode] = useState<"publish" | "schedule" | "draft">("publish");
+  const [scheduleTime, setScheduleTime] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  // Reset selected file whenever the dialog closes.
+  const { toast } = useZoruToast();
+
   useEffect(() => {
-    if (!open) setFile(null);
+    if (open) {
+      setItems([]);
+      setVideoUrl(null);
+      setDescription("");
+      setPublishMode("publish");
+      setScheduleTime("");
+      setFormError(null);
+    }
   }, [open]);
 
-  // Clear file once a successful upload comes back.
-  useEffect(() => {
-    if (state?.message) setFile(null);
-  }, [state?.message]);
+  const handleFilesSelected = async (files: File[]) => {
+    const file = files[0];
+    if (!file || !projectId) return;
+
+    const id = Math.random().toString(36).substring(7);
+    setItems([{ id, file, progress: 0, status: "uploading" }]);
+    setVideoUrl(null);
+    setFormError(null);
+
+    try {
+      const presign = await presignUpload({
+        name: file.name,
+        size: file.size,
+        mime: file.type,
+        parent_id: projectId,
+        module_id: "facebook",
+      });
+
+      if ("error" in presign) throw new Error(presign.error as string);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open(presign.method, presign.upload_url);
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          setItems((prev) =>
+            prev.map((item) =>
+              item.id === id
+                ? { ...item, progress: (e.loaded / e.total) * 100 }
+                : item
+            )
+          );
+        }
+      };
+
+      await new Promise<void>((resolve, reject) => {
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) resolve();
+          else reject(new Error("Upload failed"));
+        };
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.send(file);
+      });
+
+      const confirm = await confirmUpload({
+        key: presign.key,
+        name: file.name,
+        size: file.size,
+        mime: file.type,
+        parent_id: projectId,
+        module_id: "facebook",
+      });
+
+      if ("error" in confirm) throw new Error(confirm.error as string);
+
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, progress: 100, status: "done" } : item
+        )
+      );
+      setVideoUrl(confirm.node?.url ?? null);
+    } catch (e: any) {
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? { ...item, status: "error", errorMessage: e.message }
+            : item
+        )
+      );
+    }
+  };
+
+  const handlePublish = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!projectId || !videoUrl) return;
+
+    setIsSubmitting(true);
+    setFormError(null);
+
+    const fd = new FormData();
+    fd.set("projectId", projectId);
+    fd.set("videoUrl", videoUrl);
+    fd.set("description", description);
+    fd.set("phase", "finish");
+
+    if (publishMode === "draft") {
+      fd.set("published", "false");
+    } else if (publishMode === "schedule") {
+      if (!scheduleTime) {
+        setFormError("Please select a schedule time.");
+        setIsSubmitting(false);
+        return;
+      }
+      const ts = Math.floor(new Date(scheduleTime).getTime() / 1000);
+      fd.set("scheduledPublishTime", String(ts));
+      fd.set("published", "false");
+    }
+
+    try {
+      const result = await publishPageReel({}, fd);
+      if (result.error) {
+        setFormError(result.error);
+      } else {
+        toast({ title: "Reel saved", description: result.message });
+        onOpenChange(false);
+        onSuccess();
+      }
+    } catch (e: any) {
+      setFormError(e.message ?? "An error occurred.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const hasUploading = items.some((i) => i.status === "uploading");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -385,17 +534,15 @@ function UploadReelDialog({
         <ZoruDialogHeader>
           <ZoruDialogTitle>Upload reel</ZoruDialogTitle>
           <ZoruDialogDescription>
-            Pick a vertical video and add an optional caption — it will be
-            published immediately to your Page.
+            Pick a vertical video and add an optional caption. You can publish
+            it now, schedule it, or save it as a draft.
           </ZoruDialogDescription>
         </ZoruDialogHeader>
 
-        <form action={action} className="flex flex-col gap-4">
-          <input type="hidden" name="projectId" value={projectId ?? ""} />
-
-          {state?.error && (
+        <form onSubmit={handlePublish} className="flex flex-col gap-4">
+          {formError && (
             <Alert variant="destructive">
-              <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
+              <ZoruAlertDescription>{formError}</ZoruAlertDescription>
             </Alert>
           )}
 
@@ -406,48 +553,91 @@ function UploadReelDialog({
               name="description"
               rows={3}
               placeholder="Write a caption for this reel…"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              disabled={isSubmitting}
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="reel-video" required>
-              Video file
-            </Label>
-            <label
-              htmlFor="reel-video"
-              className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-bg p-8 text-center transition-colors hover:border-zoru-line-strong hover:bg-zoru-surface focus-within:border-zoru-ink"
-            >
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
-                <Upload className="h-5 w-5" />
-              </span>
-              <span className="text-sm font-medium text-zoru-ink">
-                {file ? file.name : "Click to pick a video"}
-              </span>
-              <span className="text-xs text-zoru-ink-muted">
-                MP4 / MOV — vertical 9:16 recommended
-              </span>
-              <input
-                id="reel-video"
-                name="videoFile"
-                type="file"
-                accept="video/*"
-                required
-                className="sr-only"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              />
-            </label>
+            <Label required>Video file</Label>
+            <ZoruFileUploadCard
+              accept="video/*"
+              multiple={false}
+              items={items}
+              onFilesSelected={handleFilesSelected}
+              onRemove={(id) => {
+                setItems((prev) => prev.filter((i) => i.id !== id));
+                setVideoUrl(null);
+              }}
+              disabled={isSubmitting || hasUploading}
+              hint="MP4 / MOV — vertical 9:16 recommended"
+            />
           </div>
+
+          <div className="flex flex-col gap-2">
+            <Label>Publishing options</Label>
+            <RadioGroup
+              value={publishMode}
+              onValueChange={(val: any) => setPublishMode(val)}
+              disabled={isSubmitting}
+            >
+              <div className="flex items-center space-x-2">
+                <ZoruRadioGroupItem value="publish" id="r-publish" />
+                <Label htmlFor="r-publish" className="font-normal cursor-pointer">
+                  Publish now
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <ZoruRadioGroupItem value="schedule" id="r-schedule" />
+                <Label htmlFor="r-schedule" className="font-normal cursor-pointer">
+                  Schedule
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <ZoruRadioGroupItem value="draft" id="r-draft" />
+                <Label htmlFor="r-draft" className="font-normal cursor-pointer">
+                  Save as draft
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {publishMode === "schedule" && (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="schedule-time" required>Schedule Time</Label>
+              <Input
+                id="schedule-time"
+                type="datetime-local"
+                value={scheduleTime}
+                onChange={(e) => setScheduleTime(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+          )}
 
           <ZoruDialogFooter>
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={!projectId || !file}>
-              <Upload /> Publish reel
+            <Button
+              type="submit"
+              disabled={!projectId || !videoUrl || hasUploading || isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin" /> Saving...
+                </>
+              ) : (
+                <>
+                  <Upload /> {publishMode === "publish" ? "Publish reel" : "Save reel"}
+                </>
+              )}
             </Button>
           </ZoruDialogFooter>
         </form>

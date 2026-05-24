@@ -24,6 +24,7 @@ export interface CrmPfEsiRecordDoc {
   esiEmployee: number;
   esiIcNumber?: string;
   challanNumber?: string;
+  documentUrl?: string;
   /** ISO-8601 date string. */
   depositDate?: string;
   status: string;
@@ -61,6 +62,7 @@ export interface CrmPfEsiCreateInput {
   esiEmployee?: number;
   esiIcNumber?: string;
   challanNumber?: string;
+  documentUrl?: string;
   /** ISO-8601 date string. */
   depositDate?: string;
   status?: CrmPfEsiStatus | string;

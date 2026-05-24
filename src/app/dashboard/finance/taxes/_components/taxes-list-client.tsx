@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Button, 
@@ -23,18 +23,49 @@ import {
   ZoruDropdownMenuTrigger,
   Badge,
 } from '@/components/zoruui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { createTaxRecord, updateTaxRecord, deleteTaxRecord, TaxRecord } from '@/app/actions/finance/taxes.actions';
+import { createTaxRecord, updateTaxRecord, deleteTaxRecord, exportTaxRecordsCSV, TaxRecord } from '@/app/actions/finance/taxes.actions';
 import { toast } from 'sonner';
 
-export function TaxRecordListClient({ initialItems, error }: { initialItems: TaxRecord[], error?: string }) {
+export function TaxRecordListClient({ initialItems, error, initialPeriod }: { initialItems: TaxRecord[], error?: string, initialPeriod?: string }) {
   const router = useRouter();
   const [items, setItems] = useState(initialItems || []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [periodFilter, setPeriodFilter] = useState(initialPeriod || '');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [viewingItem, setViewingItem] = useState<TaxRecord | null>(null);
+
+  function exportToCsv() {
+    if (items.length === 0) return;
+    const headers = Object.keys(items[0] || {}).filter(k => k !== '_id' && k !== '__v');
+    const csvContent = [
+      headers.join(','),
+      ...items.map(item => headers.map(h => JSON.stringify((item as any)[h] ?? '')).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'taxes_export.csv';
+    link.click();
+  }
+
+  function openView(item: TaxRecord) {
+    setViewingItem(item);
+    setIsViewOpen(true);
+  }
+
+  useEffect(() => {
+    setItems(initialItems || []);
+  }, [initialItems]);
+
+  useEffect(() => {
+    setPeriodFilter(initialPeriod || '');
+  }, [initialPeriod]);
 
   const filteredItems = items.filter(item => 
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
@@ -104,17 +135,62 @@ export function TaxRecordListClient({ initialItems, error }: { initialItems: Tax
     setIsDialogOpen(true);
   }
 
+  async function handleExport() {
+    try {
+      const res = await exportTaxRecordsCSV({ period: periodFilter });
+      if (res.error) throw new Error(res.error);
+      if (res.csv) {
+        const blob = new Blob([res.csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tax_records${periodFilter ? '_' + periodFilter : ''}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to export CSV');
+    }
+  }
+
+  function handleFilter(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const url = new URL(window.location.href);
+    if (periodFilter) {
+      url.searchParams.set('period', periodFilter);
+    } else {
+      url.searchParams.delete('period');
+    }
+    router.push(url.pathname + url.search);
+  }
+
+  // Summary Widgets calculation
+  const totalTaxable = items.reduce((acc, i) => acc + (Number(i.taxableIncome) || 0), 0);
+  const totalOwed = items.reduce((acc, i) => acc + (Number(i.taxOwed) || 0), 0);
+  const byJurisdiction = items.reduce((acc, i) => {
+    const j = i.jurisdiction || 'Unknown';
+    if (!acc[j]) acc[j] = { income: 0, owed: 0 };
+    acc[j].income += Number(i.taxableIncome) || 0;
+    acc[j].owed += Number(i.taxOwed) || 0;
+    return acc;
+  }, {} as Record<string, { income: number, owed: number }>);
+
   return (
     <EntityListShell
       title="Tax Filing"
       subtitle="Manage and file your organization taxes."
       primaryAction={
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <ZoruDialogTrigger asChild>
-            <Button size="sm" onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" /> New Record
-            </Button>
-          </ZoruDialogTrigger>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" /> Export CSV
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <ZoruDialogTrigger asChild>
+              <Button size="sm" onClick={openNew}>
+                <Plus className="mr-2 h-4 w-4" /> New Record
+              </Button>
+            </ZoruDialogTrigger>
           <ZoruDialogContent>
             <ZoruDialogHeader>
               <ZoruDialogTitle>{editingId ? 'Edit' : 'Create'} Record</ZoruDialogTitle>
@@ -169,6 +245,7 @@ export function TaxRecordListClient({ initialItems, error }: { initialItems: Tax
             </form>
           </ZoruDialogContent>
         </Dialog>
+        </div>
       }
     >
       {error && (
@@ -177,8 +254,34 @@ export function TaxRecordListClient({ initialItems, error }: { initialItems: Tax
         </div>
       )}
 
-      <div className="mb-6 flex items-center gap-2">
-        <div className="relative flex-1 max-w-sm">
+      {/* Summary Widgets */}
+      <div className="grid gap-4 md:grid-cols-3 mb-6">
+        <div className="rounded-xl border bg-white p-6 shadow-sm">
+          <div className="text-sm font-medium text-muted-foreground mb-2">Total Taxable Income</div>
+          <div className="text-2xl font-bold">${totalTaxable.toLocaleString()}</div>
+        </div>
+        <div className="rounded-xl border bg-white p-6 shadow-sm">
+          <div className="text-sm font-medium text-muted-foreground mb-2">Total Tax Owed</div>
+          <div className="text-2xl font-bold">${totalOwed.toLocaleString()}</div>
+        </div>
+        <div className="rounded-xl border bg-white p-6 shadow-sm max-h-[120px] overflow-y-auto">
+          <div className="text-sm font-medium text-muted-foreground mb-2">By Jurisdiction (Owed)</div>
+          <div className="space-y-1">
+            {Object.entries(byJurisdiction).map(([j, vals]: [string, any]) => (
+              <div key={j} className="flex justify-between text-sm">
+                <span>{j}</span>
+                <span className="font-semibold">${vals.owed.toLocaleString()}</span>
+              </div>
+            ))}
+            {Object.keys(byJurisdiction).length === 0 && (
+              <div className="text-sm text-muted-foreground">No data</div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-6 flex flex-col sm:flex-row items-center gap-4 justify-between">
+        <div className="relative flex-1 w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="Search records..." 
@@ -187,6 +290,16 @@ export function TaxRecordListClient({ initialItems, error }: { initialItems: Tax
             onChange={e => setSearch(e.target.value)}
           />
         </div>
+        
+        <form onSubmit={handleFilter} className="flex items-center gap-2 w-full sm:w-auto">
+          <Input
+            placeholder="Filter by Period (e.g. 2024)"
+            value={periodFilter}
+            onChange={(e) => setPeriodFilter(e.target.value)}
+            className="w-full sm:w-[200px]"
+          />
+          <Button type="submit" variant="secondary">Apply</Button>
+        </form>
       </div>
 
       <div className="rounded-md border bg-white overflow-hidden">
@@ -231,6 +344,22 @@ export function TaxRecordListClient({ initialItems, error }: { initialItems: Tax
           </ZoruTableBody>
         </Table>
       </div>
+
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+            {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
+              <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
+                <div className="font-medium text-sm text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="col-span-2 text-sm">{String(value)}</div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </EntityListShell>
   );
 }

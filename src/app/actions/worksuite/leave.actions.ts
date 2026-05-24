@@ -77,6 +77,8 @@ const DEFAULT_SETTINGS: Omit<WsLeaveSetting, '_id' | 'userId'> = {
   allow_future_leave: true,
   max_days_advance: 365,
   hours_per_day: 8,
+  include_weekends: false,
+  include_holidays: false,
   carry_forward_enabled: false,
   carry_forward_max_days: 0,
   max_accrual_days: 0,
@@ -213,6 +215,12 @@ export async function saveLeaveType(
         formData.get('paid') === '1',
       leave_unit: ((formData.get('leave_unit') as string) || 'days') as WsLeaveType['leave_unit'],
       status: ((formData.get('status') as string) || 'active') as WsLeaveType['status'],
+      accrual_enabled:
+        formData.get('accrual_enabled') === 'true' ||
+        formData.get('accrual_enabled') === 'on' ||
+        formData.get('accrual_enabled') === '1',
+      accrual_rate: Number(formData.get('accrual_rate') || 0),
+      accrual_frequency: ((formData.get('accrual_frequency') as string) || 'monthly') as WsLeaveType['accrual_frequency'],
       updatedAt: new Date(),
     };
 
@@ -589,6 +597,177 @@ export async function rejectLeave(id: string, reason: string): Promise<ActionRes
   }
 }
 
+export async function bulkApproveLeave(ids: string[]): Promise<ActionResult> {
+  const t = await requireTenant();
+  if (!t.ok) return { success: false, error: t.error };
+  const guard = await requirePermission('crm_leave', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  const validIds = ids.map(tryObjectId).filter(Boolean) as ObjectId[];
+  if (validIds.length === 0) return { success: false, error: 'No valid ids provided.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const now = new Date();
+    
+    // Perform bulk update
+    await db.collection(COLL.LEAVES).updateMany(
+      { _id: { $in: validIds }, userId: t.userId, status: { $ne: 'approved' } },
+      {
+        $set: {
+          status: 'approved' as WsLeaveStatus,
+          approved_by: t.userIdString,
+          approved_at: now,
+          updatedAt: now,
+          reject_reason: '',
+        },
+      },
+    );
+
+    // Write audit entries for all approved leaves
+    for (const id of ids) {
+      try {
+        await writeAuditEntry({
+          tenantUserId: t.userIdString,
+          actorId: t.userIdString,
+          action: 'approve',
+          entityKind: 'leave',
+          entityId: id,
+        });
+      } catch {
+        /* non-fatal */
+      }
+    }
+
+    revalidatePath(ROUTE);
+    
+    // We skip calendar push for bulk approve to prevent rate limiting, 
+    // or we could push them async. Let's do a best effort async map.
+    const approvedLeaves = await db.collection(COLL.LEAVES).find({ _id: { $in: validIds } }).toArray();
+    for (const leave of approvedLeaves) {
+      if (!leave.googleEventId && !leave.googleCalendarSyncFailed) {
+        try {
+          const employeeName = await resolveEmployeeName(
+            db,
+            String((leave as any).user_id ?? ''),
+          );
+          const start = ((leave as any).leave_date instanceof Date
+            ? (leave as any).leave_date
+            : new Date((leave as any).leave_date)) as Date;
+          const endRaw = (leave as any).end_date;
+          const end = endRaw
+            ? endRaw instanceof Date
+              ? endRaw
+              : new Date(endRaw)
+            : start;
+          const endExclusive = new Date(end.getTime() + 24 * 60 * 60 * 1000);
+          const push = await pushToCalendar(t.userIdString, {
+            summary: `Leave: ${employeeName}`,
+            description: (leave as any).reason ?? '',
+            start: start.toISOString().slice(0, 10),
+            end: endExclusive.toISOString().slice(0, 10),
+            allDay: true,
+          });
+          if (push.ok && push.googleEventId) {
+            await db.collection(COLL.LEAVES).updateOne(
+              { _id: leave._id },
+              { $set: { googleEventId: push.googleEventId } },
+            );
+          } else if (!push.ok) {
+            await db.collection(COLL.LEAVES).updateOne(
+              { _id: leave._id },
+              { $set: { googleCalendarSyncFailed: true } },
+            );
+          }
+        } catch (err) {
+          console.warn('[bulkApproveLeave] google calendar push failed for', leave._id, ':', err);
+        }
+      }
+    }
+
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: getErrorMessage(e) };
+  }
+}
+
+export async function bulkRejectLeave(ids: string[], reason: string): Promise<ActionResult> {
+  const t = await requireTenant();
+  if (!t.ok) return { success: false, error: t.error };
+  const guard = await requirePermission('crm_leave', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
+  
+  const validIds = ids.map(tryObjectId).filter(Boolean) as ObjectId[];
+  if (validIds.length === 0) return { success: false, error: 'No valid ids provided.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const now = new Date();
+    await db.collection(COLL.LEAVES).updateMany(
+      { _id: { $in: validIds }, userId: t.userId, status: { $ne: 'rejected' } },
+      {
+        $set: {
+          status: 'rejected' as WsLeaveStatus,
+          approved_by: t.userIdString,
+          approved_at: now,
+          reject_reason: reason ?? '',
+          updatedAt: now,
+        },
+      },
+    );
+    for (const id of ids) {
+      try {
+        await writeAuditEntry({
+          tenantUserId: t.userIdString,
+          actorId: t.userIdString,
+          action: 'reject',
+          entityKind: 'leave',
+          entityId: id,
+          reason: reason ?? '',
+        });
+      } catch {
+        /* non-fatal */
+      }
+    }
+    revalidatePath(ROUTE);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: getErrorMessage(e) };
+  }
+}
+
+export async function addLeaveComment(id: string, text: string): Promise<ActionResult> {
+  const t = await requireTenant();
+  if (!t.ok) return { success: false, error: t.error };
+  const guard = await requirePermission('crm_leave', 'view'); // both employees and managers can comment
+  if (!guard.ok) return { success: false, error: guard.error };
+  const oid = tryObjectId(id);
+  if (!oid) return { success: false, error: 'Invalid id' };
+  try {
+    const { db } = await connectToDatabase();
+    const now = new Date();
+    
+    const userName = await resolveEmployeeName(db, t.userIdString);
+
+    const comment = {
+      id: new ObjectId().toString(),
+      userId: t.userIdString,
+      userName: userName,
+      text: text,
+      createdAt: now,
+    };
+
+    await db.collection(COLL.LEAVES).updateOne(
+      { _id: oid, userId: t.userId },
+      { $push: { comments: comment } as any }
+    );
+    revalidatePath(`${ROUTE}/${id}`);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: getErrorMessage(e) };
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Leave files                                                         */
 /* ------------------------------------------------------------------ */
@@ -710,6 +889,8 @@ export async function saveLeaveSettings(
         input.max_days_advance ?? DEFAULT_SETTINGS.max_days_advance,
       ),
       hours_per_day: Number(input.hours_per_day ?? DEFAULT_SETTINGS.hours_per_day),
+      include_weekends: Boolean(input.include_weekends ?? false),
+      include_holidays: Boolean(input.include_holidays ?? false),
       carry_forward_enabled: Boolean(
         input.carry_forward_enabled ?? DEFAULT_SETTINGS.carry_forward_enabled,
       ),
@@ -749,6 +930,7 @@ export async function saveLeaveSettings(
  */
 export async function getLeaveBalance(
   employeeId?: string,
+  year?: number,
 ): Promise<WsLeaveBalanceEmployee[]> {
   const t = await requireTenant();
   if (!t.ok) return [];
@@ -779,10 +961,18 @@ export async function getLeaveBalance(
     );
 
     // Aggregate approved days per (employee, type)
+    const matchQuery: Record<string, unknown> = { userId: t.userId, status: 'approved' };
+    if (year) {
+      matchQuery.leave_date = {
+        $gte: new Date(`${year}-01-01T00:00:00Z`),
+        $lt: new Date(`${year + 1}-01-01T00:00:00Z`),
+      };
+    }
+    
     const agg = await db
       .collection(COLL.LEAVES)
       .aggregate([
-        { $match: { userId: t.userId, status: 'approved' } },
+        { $match: matchQuery },
         {
           $group: {
             _id: { user_id: '$user_id', leave_type_id: '$leave_type_id' },
@@ -798,16 +988,29 @@ export async function getLeaveBalance(
       usedMap.set(k, Number((a as any).total || 0));
     }
 
+    const topups = await db.collection('crm_leave_topups').find({
+      userId: t.userId,
+      ...(year ? { year } : {})
+    }).toArray();
+    
+    const topupMap = new Map<string, number>();
+    for (const t of topups) {
+      const k = `${t.user_id}::${t.leave_type_id}`;
+      topupMap.set(k, (topupMap.get(k) ?? 0) + Number(t.amount || 0));
+    }
+
     const result: WsLeaveBalanceEmployee[] = employeePlain.map((emp) => {
       const rows: WsLeaveBalanceRow[] = types.map((type) => {
         const k = `${emp._id}::${type._id}`;
         const used = usedMap.get(k) ?? 0;
-        const allocated = Number(type.no_of_leaves || 0);
+        const topup = topupMap.get(k) ?? 0;
+        const allocated = Number(type.no_of_leaves || 0) + topup;
         return {
           leave_type_id: String(type._id),
           type_name: type.type_name,
           color: type.color,
           allocated,
+          topup,
           used,
           remaining: Math.max(0, allocated - used),
           monthly_limit: Number(type.monthly_limit || 0),
@@ -870,7 +1073,7 @@ export async function getLeavesForDateRange(
       db
         .collection('crm_employees')
         .find({ userId: t.userId })
-        .project({ firstName: 1, lastName: 1 })
+        .project({ firstName: 1, lastName: 1, departmentId: 1 })
         .toArray(),
     ]);
 
@@ -878,11 +1081,14 @@ export async function getLeavesForDateRange(
     for (const r of toPlain<WsLeaveType[]>(typeRows)) {
       typeMap.set(String(r._id), r);
     }
-    const empMap = new Map<string, string>();
-    for (const r of toPlain<Array<{ _id: string; firstName?: string; lastName?: string }>>(empRows)) {
+    const empMap = new Map<string, { name: string; departmentId?: string }>();
+    for (const r of toPlain<Array<{ _id: string; firstName?: string; lastName?: string; departmentId?: string }>>(empRows)) {
       empMap.set(
         String(r._id),
-        [r.firstName, r.lastName].filter(Boolean).join(' ').trim() || 'Unnamed',
+        {
+          name: [r.firstName, r.lastName].filter(Boolean).join(' ').trim() || 'Unnamed',
+          departmentId: r.departmentId,
+        }
       );
     }
 
@@ -891,7 +1097,9 @@ export async function getLeavesForDateRange(
       const type = typeMap.get(String(row.leave_type_id));
       const typeName = type?.type_name ?? 'Leave';
       const color = type?.color ?? '#94A3B8';
-      const employeeName = empMap.get(String(row.user_id));
+      const empData = empMap.get(String(row.user_id));
+      const employeeName = empData?.name;
+      const department_id = empData?.departmentId;
 
       const dayStart = toDateOnly(row.leave_date);
       const dayEnd =
@@ -918,6 +1126,9 @@ export async function getLeavesForDateRange(
           half_day_type: row.half_day_type,
           days_count: Number(row.days_count || 0),
           employeeName,
+          department_id,
+          leave_date: toDateOnly(row.leave_date).toISOString().slice(0, 10),
+          end_date: row.end_date ? toDateOnly(row.end_date).toISOString().slice(0, 10) : undefined,
         });
       }
     }
@@ -1001,5 +1212,36 @@ export async function getLeaveReport(period: {
   } catch (e) {
     console.error('[leave] getLeaveReport failed:', e);
     return [];
+  }
+}
+
+export async function topupLeaveBalance(
+  employeeId: string,
+  leaveTypeId: string,
+  amount: number,
+  year: number,
+  reason: string
+): Promise<ActionResult> {
+  const t = await requireTenant();
+  if (!t.ok) return { success: false, error: t.error };
+  const guard = await requirePermission('crm_leave', 'edit');
+  if (!guard.ok) return { success: false, error: guard.error };
+
+  try {
+    const { db } = await connectToDatabase();
+    const doc = {
+      userId: t.userId,
+      user_id: employeeId,
+      leave_type_id: leaveTypeId,
+      amount: Number(amount),
+      year: Number(year),
+      reason,
+      createdAt: new Date(),
+    };
+    await db.collection('crm_leave_topups').insertOne(doc);
+    revalidatePath(ROUTE);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: getErrorMessage(e) };
   }
 }

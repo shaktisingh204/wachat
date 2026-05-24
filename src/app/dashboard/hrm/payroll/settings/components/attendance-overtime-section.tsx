@@ -1,0 +1,29 @@
+'use client';
+
+import { Card, Input, Label, Switch } from '@/components/zoruui';
+import type { PayrollSettings } from '@/app/actions/crm-payroll-settings.actions';
+import { memo } from 'react';
+
+function AttendanceOvertimeSectionComponent({ settings }: { settings: PayrollSettings }) {
+  return (
+    <Card className="p-6">
+      <h2 className="mb-4 text-[15px] font-semibold text-zoru-ink">Attendance & Overtime</h2>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="lateMarkingGraceMins">Late-marking Grace (minutes)</Label>
+          <Input id="lateMarkingGraceMins" name="lateMarkingGraceMins" type="number" min="0" max="120" defaultValue={settings.lateMarkingGraceMins} />
+          <p className="text-[11px] text-zoru-ink-muted">Employees arriving within this window are not marked late.</p>
+        </div>
+        <div className="flex items-center gap-4 rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
+          <div className="flex-1">
+            <div className="text-[13px] font-medium text-zoru-ink">Overtime Tracking</div>
+            <div className="text-[11px] text-zoru-ink-muted">Track and pay hours beyond the standard shift.</div>
+          </div>
+          <Switch name="overtimeEnabled" defaultChecked={settings.overtimeEnabled} aria-label="Enable overtime" />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+export const AttendanceOvertimeSection = memo(AttendanceOvertimeSectionComponent);

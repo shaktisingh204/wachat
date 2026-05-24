@@ -141,7 +141,8 @@ export interface BulkCreateFacebookPostsBody {
 }
 
 export interface UpdateFacebookPostBody {
-    message: string;
+    message?: string;
+    scheduled_publish_time?: number;
 }
 
 export interface CrosspostFacebookVideoBody {
@@ -163,9 +164,12 @@ export interface AddFacebookThumbnailBody {
 export interface PublishFacebookReelBody {
     /** `start` to allocate a videoId, `finish` to publish. */
     phase?: 'start' | 'finish';
-    /** Required when `phase === 'finish'`. */
+    /** Required when `phase === 'finish'` if not using videoUrl. */
     videoId?: string;
+    videoUrl?: string;
     description?: string;
+    published?: boolean;
+    scheduledPublishTime?: number;
 }
 
 export interface PublishFacebookPhotoStoryBody {
@@ -257,6 +261,19 @@ export const wachatFacebookContentApi = {
 
     getVisitorPosts: (projectId: string) =>
         rustFetch<FacebookDataListResponse>(`${project(projectId)}/visitor-posts`),
+
+    hideVisitorPost: (projectId: string, postId: string) =>
+        rustFetch<FacebookContentAck>(
+            `${project(projectId)}/visitor-posts/${enc(postId)}/hide`,
+            { method: 'POST' },
+        ),
+
+    markVisitorPostSpam: (projectId: string, postId: string) =>
+        rustFetch<FacebookContentAck>(
+            `${project(projectId)}/visitor-posts/${enc(postId)}/spam`,
+            { method: 'POST' },
+        ),
+
 
     getTaggedPosts: (projectId: string) =>
         rustFetch<FacebookDataListResponse>(`${project(projectId)}/tagged-posts`),

@@ -13,6 +13,8 @@ export interface LeaveListRow {
   _id: string;
   employeeId: string | null;
   employeeName: string;
+  employeeEmail?: string;
+  employeeUserId?: string;
   leaveTypeId: string | null;
   leaveTypeName: string | null;
   leaveTypeColor: string | null;

@@ -472,7 +472,7 @@ const registry: LookupRegistry = {
       ]);
 
       const rawFields = ['firstName', 'lastName', 'email', 'phone', 'employeeId',
-                         'departmentId', 'designationId', 'departmentName', 'designationName'];
+                         'departmentId', 'designationId', 'departmentName', 'designationName', 'workState'];
       const items = docs.map(doc => projectItem(doc, this.toChip, rawFields));
 
       if (hydrateIds) {

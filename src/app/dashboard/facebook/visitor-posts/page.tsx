@@ -28,6 +28,16 @@ import {
   Skeleton,
   Textarea,
   zoruSonnerToast,
+  Checkbox,
+  Dialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  Label,
+  Input,
+  Switch,
 } from '@/components/zoruui';
 import {
   useCallback,
@@ -35,7 +45,7 @@ import {
   useMemo,
   useState,
   useTransition,
-  } from 'react';
+} from 'react';
 import {
   AlertCircle,
   EyeOff,
@@ -44,7 +54,8 @@ import {
   MessagesSquare,
   RefreshCw,
   Trash2,
-  } from 'lucide-react';
+  Settings,
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 import { useProject } from '@/context/project-context';
@@ -53,19 +64,11 @@ import {
   handleDeleteComment,
   handlePostComment,
   handleLikeObject,
-  } from '@/app/actions/facebook.actions';
-
-/**
- * /dashboard/facebook/visitor-posts — User-submitted posts on the Page.
- *
- * Lists visitor posts with author + message preview + status, with a
- * status filter (all/published/hidden/spam). Click a row to open a
- * Sheet for the full message, reply input, hide, and mark-spam
- * actions. Reply uses `handlePostComment`; delete uses `handleDeleteComment`;
- * hide/spam are queued (no dedicated server action yet) and surface a
- * toast — matches the prompt's "render the buttons but call existing
- * handlers / toast.info noting queued" requirement.
- */
+  handleHideVisitorPost,
+  handleMarkVisitorPostSpam,
+  getVisitorPostSpamRules,
+  saveVisitorPostSpamRules,
+} from '@/app/actions/facebook.actions';
 
 import * as React from 'react';
 
@@ -117,6 +120,16 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
   const [replying, startReplying] = useTransition();
   const [acting, startActing] = useTransition();
 
+  // Bulk actions
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Spam rules
+  const [isSpamRulesOpen, setIsSpamRulesOpen] = useState(false);
+  const [spamKeywords, setSpamKeywords] = useState('');
+  const [autoHide, setAutoHide] = useState(false);
+  const [autoSpam, setAutoSpam] = useState(false);
+  const [savingRules, startSavingRules] = useTransition();
+
   const refresh = useCallback(() => {
     if (!projectId) return;
     startLoading(async () => {
@@ -128,6 +141,7 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
       }
       setError(null);
       setPosts((res.posts as VisitorPost[]) ?? []);
+      setSelectedIds(new Set()); // Clear selection on refresh
     });
   }, [projectId]);
 
@@ -135,10 +149,59 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
     refresh();
   }, [refresh]);
 
+  const loadSpamRules = useCallback(async () => {
+    if (!projectId) return;
+    const res = await getVisitorPostSpamRules(projectId);
+    if (res.rules) {
+      setSpamKeywords(res.rules.keywords.join(', '));
+      setAutoHide(res.rules.autoHide);
+      setAutoSpam(res.rules.autoSpam);
+    }
+  }, [projectId]);
+
+  const openSpamRules = () => {
+    loadSpamRules();
+    setIsSpamRulesOpen(true);
+  };
+
+  const handleSaveSpamRules = () => {
+    startSavingRules(async () => {
+      const rules = {
+        keywords: spamKeywords.split(',').map(k => k.trim()).filter(Boolean),
+        autoHide,
+        autoSpam,
+      };
+      const res = await saveVisitorPostSpamRules(projectId, rules);
+      if (res.success) {
+        zoruSonnerToast.success('Spam rules updated successfully.');
+        setIsSpamRulesOpen(false);
+      } else {
+        zoruSonnerToast.error(res.error ?? 'Failed to save rules.');
+      }
+    });
+  };
+
   const filtered = useMemo(() => {
     if (filter === 'all') return posts;
     return posts.filter((p) => inferStatus(p) === filter);
   }, [posts, filter]);
+
+  const toggleSelection = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === filtered.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered.map(p => p.id)));
+    }
+  };
 
   const closeSheet = () => {
     setSelected(null);
@@ -185,12 +248,31 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
   };
 
   const handleHide = () => {
-    // No dedicated server action exists yet — surface as queued per spec.
-    zoruSonnerToast.info('Hide queued — awaiting Page-content BFF.');
+    if (!selected || !projectId) return;
+    startActing(async () => {
+      const res = await handleHideVisitorPost(selected.id, projectId);
+      if (!res.success) {
+        zoruSonnerToast.error(res.error ?? 'Failed to hide post.');
+        return;
+      }
+      zoruSonnerToast.success('Visitor post hidden.');
+      closeSheet();
+      refresh();
+    });
   };
 
   const handleSpam = () => {
-    zoruSonnerToast.info('Marked as spam — queued for moderation BFF.');
+    if (!selected || !projectId) return;
+    startActing(async () => {
+      const res = await handleMarkVisitorPostSpam(selected.id, projectId);
+      if (!res.success) {
+        zoruSonnerToast.error(res.error ?? 'Failed to mark as spam.');
+        return;
+      }
+      zoruSonnerToast.success('Visitor post marked as spam.');
+      closeSheet();
+      refresh();
+    });
   };
 
   const handleLike = () => {
@@ -202,6 +284,36 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
         return;
       }
       zoruSonnerToast.success('Liked.');
+    });
+  };
+
+  const handleBulkAction = async (action: 'hide' | 'spam' | 'delete') => {
+    if (selectedIds.size === 0 || !projectId) return;
+    startActing(async () => {
+      let successCount = 0;
+      let failCount = 0;
+
+      for (const id of Array.from(selectedIds)) {
+        let res;
+        if (action === 'hide') {
+          res = await handleHideVisitorPost(id, projectId);
+        } else if (action === 'spam') {
+          res = await handleMarkVisitorPostSpam(id, projectId);
+        } else {
+          res = await handleDeleteComment(id, projectId);
+        }
+
+        if (res.success) successCount++;
+        else failCount++;
+      }
+
+      if (failCount === 0) {
+        zoruSonnerToast.success(`Successfully processed ${successCount} post(s).`);
+      } else {
+        zoruSonnerToast.warning(`Processed ${successCount}, failed ${failCount}.`);
+      }
+      setSelectedIds(new Set());
+      refresh();
     });
   };
 
@@ -243,6 +355,10 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={openSpamRules}>
+            <Settings className="mr-2 h-4 w-4" />
+            Spam Rules
+          </Button>
           <Select
             value={filter}
             onValueChange={(v) => setFilter(v as StatusFilter)}
@@ -272,6 +388,25 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
         </Alert>
       )}
 
+      {selectedIds.size > 0 && (
+        <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2 p-3">
+          <div className="text-sm font-medium text-zoru-ink">
+            {selectedIds.size} post(s) selected
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => handleBulkAction('hide')} disabled={acting}>
+              <EyeOff className="mr-2 h-4 w-4" /> Hide
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => handleBulkAction('spam')} disabled={acting}>
+              <Flag className="mr-2 h-4 w-4" /> Mark Spam
+            </Button>
+            <Button size="sm" variant="destructive" onClick={() => handleBulkAction('delete')} disabled={acting}>
+              <Trash2 className="mr-2 h-4 w-4" /> Delete
+            </Button>
+          </div>
+        </div>
+      )}
+
       <Card>
         <ZoruCardContent className="pt-6">
           {loading && posts.length === 0 ? (
@@ -291,37 +426,55 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
               }
             />
           ) : (
-            <ul className="flex flex-col gap-2">
-              {filtered.map((p) => {
-                const status = inferStatus(p);
-                const preview = (p.message ?? p.story ?? '').trim() || '(no text)';
-                return (
-                  <li key={p.id}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelected(p);
-                        setReplyText('');
-                      }}
-                      className="flex w-full flex-col gap-1 rounded-md border border-zoru-line px-3 py-2 text-left transition hover:bg-zoru-surface-2"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="line-clamp-1 text-sm font-medium text-zoru-ink">
-                          {p.from?.name ?? 'Unknown visitor'}
-                        </span>
-                        <Badge variant={statusVariant(status)}>{status}</Badge>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2 px-3">
+                <Checkbox
+                  checked={selectedIds.size === filtered.length && filtered.length > 0}
+                  onCheckedChange={toggleAll}
+                  aria-label="Select all"
+                />
+                <span className="text-sm font-medium text-zoru-ink">Select All</span>
+              </div>
+              <ul className="flex flex-col gap-2">
+                {filtered.map((p) => {
+                  const status = inferStatus(p);
+                  const preview = (p.message ?? p.story ?? '').trim() || '(no text)';
+                  const isSelected = selectedIds.has(p.id);
+                  return (
+                    <li key={p.id} className="flex items-start gap-3">
+                      <div className="pt-3">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => toggleSelection(p.id)}
+                          aria-label={`Select post by ${p.from?.name}`}
+                        />
                       </div>
-                      <p className="line-clamp-2 text-xs text-zoru-ink-muted">
-                        {preview}
-                      </p>
-                      <span className="text-[11px] text-zoru-ink-subtle">
-                        {fmtDate(p.created_time)}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelected(p);
+                          setReplyText('');
+                        }}
+                        className="flex w-full flex-col gap-1 rounded-md border border-zoru-line px-3 py-2 text-left transition hover:bg-zoru-surface-2"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="line-clamp-1 text-sm font-medium text-zoru-ink">
+                            {p.from?.name ?? 'Unknown visitor'}
+                          </span>
+                          <Badge variant={statusVariant(status)}>{status}</Badge>
+                        </div>
+                        <p className="line-clamp-2 text-xs text-zoru-ink-muted">
+                          {preview}
+                        </p>
+                        <span className="text-[11px] text-zoru-ink-subtle">
+                          {fmtDate(p.created_time)}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           )}
         </ZoruCardContent>
       </Card>
@@ -383,11 +536,11 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
                 >
                   Like
                 </Button>
-                <Button size="sm" variant="ghost" onClick={handleHide}>
+                <Button size="sm" variant="ghost" onClick={handleHide} disabled={acting}>
                   <EyeOff className="mr-2 h-4 w-4" />
                   Hide
                 </Button>
-                <Button size="sm" variant="ghost" onClick={handleSpam}>
+                <Button size="sm" variant="ghost" onClick={handleSpam} disabled={acting}>
                   <Flag className="mr-2 h-4 w-4" />
                   Mark spam
                 </Button>
@@ -406,6 +559,50 @@ export default function FacebookVisitorPostsPage(): React.JSX.Element {
           ) : null}
         </ZoruSheetContent>
       </Sheet>
+
+      <Dialog open={isSpamRulesOpen} onOpenChange={setIsSpamRulesOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Spam Detection Rules</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Configure automated actions for new visitor posts.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="flex flex-col gap-4 py-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="keywords">Spam Keywords (comma separated)</Label>
+              <Input
+                id="keywords"
+                value={spamKeywords}
+                onChange={(e) => setSpamKeywords(e.target.value)}
+                placeholder="e.g. crypto, click here, invest"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="auto-hide" className="flex flex-col gap-1">
+                <span>Auto-Hide</span>
+                <span className="font-normal text-xs text-zoru-ink-muted">Automatically hide posts containing these keywords.</span>
+              </Label>
+              <Switch id="auto-hide" checked={autoHide} onCheckedChange={setAutoHide} />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="auto-spam" className="flex flex-col gap-1">
+                <span>Auto-Spam</span>
+                <span className="font-normal text-xs text-zoru-ink-muted">Automatically mark posts containing these keywords as spam.</span>
+              </Label>
+              <Switch id="auto-spam" checked={autoSpam} onCheckedChange={setAutoSpam} />
+            </div>
+          </div>
+          <ZoruDialogFooter>
+            <Button variant="outline" onClick={() => setIsSpamRulesOpen(false)} disabled={savingRules}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveSpamRules} disabled={savingRules}>
+              {savingRules ? 'Saving...' : 'Save Rules'}
+            </Button>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </Dialog>
     </div>
   );
 }

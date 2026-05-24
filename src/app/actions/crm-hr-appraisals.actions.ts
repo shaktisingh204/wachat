@@ -161,7 +161,7 @@ export async function getCrmKpis(): Promise<WithId<CrmKpi>[]> {
         return JSON.parse(JSON.stringify(kpis));
     } catch (e) {
         console.error('Failed to fetch KPIs:', e);
-        return [];
+        throw new Error('Failed to fetch KPIs');
     }
 }
 

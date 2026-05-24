@@ -22,6 +22,7 @@ import {
   Edit,
   LoaderCircle,
   Plus,
+  UserPlus,
   Trash2 } from 'lucide-react';
 
 /**
@@ -45,6 +46,7 @@ import type {
     CrmAssetDoc,
     CrmAssetStatus,
 } from '@/lib/rust-client/crm-assets';
+import { QuickAssignDialog } from './_components/quick-assign-dialog';
 
 const BASE = '/dashboard/hrm/hr/assets';
 
@@ -67,6 +69,7 @@ export default function AssetsListPage() {
     const [statusFilter, setStatusFilter] = React.useState<CrmAssetStatus | 'all'>('all');
     const [categoryFilter, setCategoryFilter] = React.useState<CrmAssetCategory | 'all'>('all');
     const [pendingDelete, setPendingDelete] = React.useState<CrmAssetDoc | null>(null);
+    const [quickAssign, setQuickAssign] = React.useState<CrmAssetDoc | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
     const { toast } = useZoruToast();
 
@@ -212,6 +215,9 @@ export default function AssetsListPage() {
                                                             <Edit className="h-4 w-4" />
                                                         </Link>
                                                     </Button>
+                                                    <Button variant="ghost" size="icon" onClick={() => setQuickAssign(a)} title="Quick Assign">
+                                                        <UserPlus className="h-4 w-4" />
+                                                    </Button>
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
@@ -249,6 +255,13 @@ export default function AssetsListPage() {
                     </ZoruAlertDialogFooter>
                 </ZoruAlertDialogContent>
             </ZoruAlertDialog>
+
+            <QuickAssignDialog
+                asset={quickAssign}
+                open={!!quickAssign}
+                onOpenChange={(open) => !open && setQuickAssign(null)}
+                onSuccess={refresh}
+            />
         </>
     );
 }

@@ -9,10 +9,24 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from '@/components/zoruui';
 import {
   Eye,
-  LoaderCircle } from 'lucide-react';
+  LoaderCircle,
+  CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  Download
+} from 'lucide-react';
 
 /**
  * Payslips — list page (Rust-backed).
@@ -56,11 +70,142 @@ function fmtDate(value: unknown): string {
 
 function fmtPeriod(p: string | undefined): string {
     if (!p) return '—';
-    // Accept either `YYYY-MM` or full ISO.
-    const m = /^(\d{4})-(\d{2})/.exec(p);
-    if (!m) return p;
-    const d = new Date(Number(m[1]), Number(m[2]) - 1, 1);
-    return d.toLocaleString('default', { month: 'short', year: 'numeric' });
+    try {
+        const parts = p.split('-');
+        if (parts.length >= 2) {
+             const y = parseInt(parts[0], 10);
+             const m = parseInt(parts[1], 10);
+             if (!Number.isNaN(y) && !Number.isNaN(m)) {
+                 const d = new Date(y, m - 1, 1);
+                 return d.toLocaleString('default', { month: 'short', year: 'numeric' });
+             }
+        }
+        return p;
+    } catch {
+        return p;
+    }
+}
+
+function MonthPickerCalendar({
+    value,
+    onChange,
+    onClose
+}: {
+    value: string;
+    onChange: (v: string) => void;
+    onClose: () => void;
+}) {
+    const [year, setYear] = React.useState(() => {
+        if (!value) return new Date().getFullYear();
+        const parts = value.split('-');
+        const y = parseInt(parts[0], 10);
+        return Number.isNaN(y) ? new Date().getFullYear() : y;
+    });
+
+    const months = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+
+    return (
+        <div className="p-3 w-[220px]">
+            <div className="flex items-center justify-between mb-4">
+                <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setYear(year - 1)}>
+                    <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm font-semibold">{year}</span>
+                <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setYear(year + 1)}>
+                    <ChevronRight className="h-4 w-4" />
+                </Button>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+                {months.map((m, i) => {
+                    const monthStr = String(i + 1).padStart(2, '0');
+                    const period = `${year}-${monthStr}`;
+                    const isSelected = value === period;
+                    return (
+                        <Button
+                            key={m}
+                            variant={isSelected ? "default" : "outline"}
+                            className="h-8 text-xs"
+                            onClick={() => {
+                                onChange(period);
+                                onClose();
+                            }}
+                        >
+                            {m}
+                        </Button>
+                    );
+                })}
+            </div>
+            <div className="mt-4 flex justify-center">
+                <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => { onChange(''); onClose(); }}>
+                    Clear Filter
+                </Button>
+            </div>
+        </div>
+    );
+}
+
+function BulkExportDialog({ rows }: { rows: CrmPayslipDoc[] }) {
+    const [open, setOpen] = React.useState(false);
+    const [department, setDepartment] = React.useState('');
+
+    const handleExport = () => {
+        const headers = ['Employee', 'Pay Period', 'Gross', 'Net', 'Status', 'Department Filter'];
+        const csvRows = rows.map(r => [
+            `"${(r.employeeName ?? r.employeeId ?? '').replace(/"/g, '""')}"`,
+            `"${r.payPeriod}"`,
+            r.gross.toString(),
+            r.net.toString(),
+            r.status,
+            `"${department || 'All'}"`
+        ].join(','));
+        const csvContent = [headers.join(','), ...csvRows].join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `payslips_export_${department ? department.replace(/\s+/g, '_').toLowerCase() : 'all'}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setOpen(false);
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline">
+                    <Download className="mr-2 h-4 w-4" />
+                    Bulk Export
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Bulk Export Payslips</DialogTitle>
+                </DialogHeader>
+                <div className="py-4 space-y-4">
+                    <p className="text-sm text-zoru-ink-muted">
+                        Export payslips for a specific department.
+                    </p>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Department</label>
+                        <Input
+                            placeholder="e.g. Engineering"
+                            value={department}
+                            onChange={e => setDepartment(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                    <Button onClick={handleExport}>Export CSV</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
 }
 
 export default function PayslipsListPage() {
@@ -71,6 +216,7 @@ export default function PayslipsListPage() {
         CrmPayslipStatus | 'all'
     >('all');
     const [payPeriod, setPayPeriod] = React.useState<string>('');
+    const [isMonthPickerOpen, setIsMonthPickerOpen] = React.useState(false);
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
@@ -105,6 +251,7 @@ export default function PayslipsListPage() {
                     onChange: setSearch,
                     placeholder: 'Search by employee…',
                 }}
+                primaryAction={<BulkExportDialog rows={rows} />}
                 filters={
                     <>
                         <EnumFilterField
@@ -115,13 +262,24 @@ export default function PayslipsListPage() {
                             }
                             placeholder="All statuses"
                         />
-                        <Input
-                            type="month"
-                            className="h-9 w-[160px]"
-                            value={payPeriod}
-                            onChange={(e) => setPayPeriod(e.target.value)}
-                            placeholder="Pay period"
-                        />
+                        <Popover open={isMonthPickerOpen} onOpenChange={setIsMonthPickerOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className={`h-9 w-[160px] justify-start text-left font-normal ${!payPeriod ? "text-zoru-ink-muted" : ""}`}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {payPeriod ? fmtPeriod(payPeriod) : "Pay period"}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <MonthPickerCalendar
+                                    value={payPeriod}
+                                    onChange={setPayPeriod}
+                                    onClose={() => setIsMonthPickerOpen(false)}
+                                />
+                            </PopoverContent>
+                        </Popover>
                     </>
                 }
                 loading={isLoading && rows.length === 0}

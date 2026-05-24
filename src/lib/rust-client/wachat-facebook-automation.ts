@@ -62,10 +62,11 @@ export interface UpdateAutomationSettingsBody {
     quickReplies?: unknown;
 }
 
-/** Body for `POST /projects/{projectId}/randomizer/settings`. */
 export interface SaveRandomizerSettingsBody {
     enabled: boolean;
     frequencyHours: number;
+    blackoutStart?: string;
+    blackoutEnd?: string;
 }
 
 /** Body for `POST /projects/{projectId}/randomizer/posts`. */

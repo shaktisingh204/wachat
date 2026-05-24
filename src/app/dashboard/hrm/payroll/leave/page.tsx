@@ -33,6 +33,8 @@ import Link from 'next/link';
 
 import {
   approveLeave,
+  bulkApproveLeave,
+  bulkRejectLeave,
   getLeaveBalance,
   getLeaves,
   getLeaveTypes,
@@ -130,6 +132,8 @@ export default function LeaveListPage(): React.JSX.Element {
         _id: String(e._id),
         firstName: e.firstName as string | undefined,
         lastName: e.lastName as string | undefined,
+        email: e.email as string | undefined,
+        employeeUserId: e.employeeUserId ? String(e.employeeUserId) : undefined,
         departmentId:
           (e.departmentId as string | undefined) ??
           (e.department as string | undefined) ??
@@ -361,31 +365,38 @@ export default function LeaveListPage(): React.JSX.Element {
   /* Bulk handlers */
   const runBulkApprove = React.useCallback(async () => {
     const ids = Array.from(selected);
-    let processed = 0;
-    for (const id of ids) {
-      const res = await approveLeave(id);
-      if (res.success) processed++;
+    const res = await bulkApproveLeave(ids);
+    if (res.success) {
+      toast({
+        title: 'Approve completed',
+        description: `${ids.length} requests approved.`,
+      });
+    } else {
+      toast({
+        title: 'Approve failed',
+        description: res.error ?? 'Unknown error occurred.',
+        variant: 'destructive',
+      });
     }
-    toast({
-      title: 'Approve completed',
-      description: `${processed} of ${ids.length} requests approved.`,
-    });
     setSelected(new Set());
     fetchAll();
   }, [selected, toast, fetchAll]);
 
   const runBulkReject = React.useCallback(async () => {
     const ids = Array.from(selected);
-    let processed = 0;
-    for (const id of ids) {
-      const res = await rejectLeave(id, 'Bulk rejected');
-      if (res.success) processed++;
+    const res = await bulkRejectLeave(ids, 'Bulk rejected');
+    if (res.success) {
+      toast({
+        title: 'Reject completed',
+        description: `${ids.length} requests rejected.`,
+      });
+    } else {
+      toast({
+        title: 'Reject failed',
+        description: res.error ?? 'Unknown error occurred.',
+        variant: 'destructive',
+      });
     }
-    toast({
-      title: 'Reject completed',
-      description: `${processed} of ${ids.length} requests rejected.`,
-      variant: 'destructive',
-    });
     setSelected(new Set());
     fetchAll();
   }, [selected, toast, fetchAll]);

@@ -39,6 +39,7 @@ import { ArrowLeft,
  * stamped by the server action from `crm_pt_slabs` at save time.
  */
 
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
@@ -46,6 +47,8 @@ import {
     type CrmProfessionalTaxStatus,
 } from '@/app/actions/crm-professional-tax.actions';
 import { indianStates } from '@/lib/states';
+import { useEntityDraft } from '@/components/crm/use-entity-draft';
+import { useRef } from 'react';
 
 const BASE = '/dashboard/hrm/payroll/professional-tax';
 
@@ -62,6 +65,7 @@ function toDateInput(value: unknown): string {
 }
 
 interface ProfessionalTaxFormProps {
+    currentUserId?: string | null;
     initialData?: Record<string, unknown> | null;
 }
 
@@ -82,7 +86,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
     );
 }
 
-export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
+export function ProfessionalTaxForm({ initialData, currentUserId }: ProfessionalTaxFormProps) {
     const router = useRouter();
     const { toast } = useZoruToast();
     const isEditing = !!initialData?._id;
@@ -100,9 +104,36 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
             'pending'),
     );
 
+const formRef = useRef<HTMLFormElement>(null);
+    const [dirty, setDirty] = useState(false);
+
+    const applyExtras = (v: any) => {
+        if (v.state) setStateValue(v.state);
+        if (v.status) setStatus(v.status);
+    };
+
+    const {
+        draftAvailable,
+        draftDismissed,
+        restore: restoreDraft,
+        discard: discardDraft,
+        clearOnSave: clearDraftOnSave,
+    } = useEntityDraft({
+        entityName: 'professionalTax',
+        recordId: initialData?._id ? String(initialData._id) : null,
+        enabled: true,
+        dirty,
+        currentUserId,
+        formRef,
+        snapshotExtras: () => ({ state: stateValue, status }),
+        applyExtras,
+    });
+
     useEffect(() => {
         if (state?.message) {
             toast({ title: 'Saved', description: state.message });
+            setDirty(false);
+            clearDraftOnSave();
             const id = state.id ?? (initialData?._id as string | undefined);
             router.push(id ? `${BASE}/${id}` : BASE);
         }
@@ -113,11 +144,26 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
                 variant: 'destructive',
             });
         }
-    }, [state, toast, router, initialData?._id]);
+    }, [state, toast, router, initialData?._id, clearDraftOnSave]);
 
     return (
         <Card className="p-6">
-            <form action={formAction} className="flex flex-col gap-6">
+            <form action={formAction} ref={formRef} onChange={() => setDirty(true)} className="flex flex-col gap-6">
+                
+                {draftAvailable && !draftDismissed ? (
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-900 dark:text-amber-300">
+                        <span>You have an unsaved draft from a previous session.</span>
+                        <div className="flex items-center gap-2">
+                            <Button size="sm" variant="outline" type="button" onClick={restoreDraft}>
+                                Restore draft
+                            </Button>
+                            <Button size="sm" variant="ghost" type="button" onClick={discardDraft}>
+                                Discard
+                            </Button>
+                        </div>
+                    </div>
+                ) : null}
+
                 {isEditing ? (
                     <input
                         type="hidden"
@@ -129,27 +175,21 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
                 <input type="hidden" name="status" value={status} />
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-1.5">
-                        <Label htmlFor="employeeName">Employee name *</Label>
-                        <Input
-                            id="employeeName"
-                            name="employeeName"
-                            required
-                            placeholder="e.g. Priya Sharma"
-                            defaultValue={
-                                (initialData?.employeeName as string | undefined) ?? ''
-                            }
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <Label htmlFor="employeeId">Employee ID</Label>
-                        <Input
-                            id="employeeId"
+                    <div className="space-y-1.5 sm:col-span-2">
+                        <Label>Employee *</Label>
+                        <EntityFormField
+                            entity="employee"
                             name="employeeId"
-                            placeholder="Internal employee id"
-                            defaultValue={
-                                (initialData?.employeeId as string | undefined) ?? ''
-                            }
+                            dualWriteName="employeeName"
+                            required
+                            initialId={(initialData?.employeeId as string | undefined) ?? null}
+                            initialLabel={(initialData?.employeeName as string | undefined) ?? ''}
+                            onChange={(id, hydrated) => {
+                                if (hydrated?.raw?.workState) {
+                                    setStateValue(hydrated.raw.workState as string);
+                                }
+                                setDirty(true);
+                            }}
                         />
                     </div>
                 </div>
@@ -158,7 +198,7 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
                     <div className="space-y-1.5">
                         <Label htmlFor="state-trigger">State *</Label>
                         {/* TODO 1E.sweep: dynamic list — needs <EntityFormField entity="state"> with India-only filter */}
-                        <Select value={stateValue} onValueChange={setStateValue}>
+                        <Select value={stateValue} onValueChange={(val) => { setStateValue(val); setDirty(true); }}>
                             <ZoruSelectTrigger id="state-trigger">
                                 <ZoruSelectValue placeholder="Select state…" />
                             </ZoruSelectTrigger>
@@ -190,11 +230,12 @@ export function ProfessionalTaxForm({ initialData }: ProfessionalTaxFormProps) {
                             name="status-picker"
                             enumName="tdsStatus"
                             initialId={status}
-                            onChange={(id) =>
+                            onChange={(id) => {
                                 setStatus(
                                     (id as CrmProfessionalTaxStatus) ?? 'pending',
-                                )
-                            }
+                                );
+                                setDirty(true);
+                            }}
                             allowInlineCreate={false}
                             placeholder="Status"
                         />

@@ -2,7 +2,7 @@ import { Button, Card, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruT
 import {
   notFound,
   redirect } from 'next/navigation';
-import { Pencil } from 'lucide-react';
+import { Pencil, RefreshCw } from 'lucide-react';
 
 /**
  * Payroll run detail page — summary card + per-employee payslip list.
@@ -76,11 +76,24 @@ export default async function PayrollRunDetailPage({
     const tone = STATUS_TONE[status] ?? 'neutral';
     const periodLabel = `${MONTH_LABELS[(run.period_month ?? 1) - 1]} ${run.period_year}`;
 
-    const payslips = (await getPayrollRunPayslips(runId)) as PayslipRow[];
+    const rustRun = run as any;
+    const payslips: PayslipRow[] = rustRun.employees 
+        ? rustRun.employees.map((e: any) => ({
+            _id: e.employeeId,
+            employeeId: e.employeeId,
+            grossSalary: e.gross,
+            netPay: e.net,
+            status: run.status,
+            earnings: e.earnings,
+            deductions: e.deductions
+          }))
+        : (await getPayrollRunPayslips(runId)) as PayslipRow[];
+
     const totalDeductions =
         run.total_deductions ??
+        (rustRun.totals ? (rustRun.totals.gross - rustRun.totals.net) : undefined) ??
         payslips.reduce(
-            (s, p) =>
+            (s: number, p: PayslipRow) =>
                 s +
                 (p.deductions ?? []).reduce(
                     (a, d) => a + (Number(d.amount) || 0),
@@ -88,6 +101,18 @@ export default async function PayrollRunDetailPage({
                 ),
             0,
         );
+
+    async function handleRecompute() {
+        'use server';
+        try {
+            const { crmPayrollRunsApi } = await import('@/lib/rust-client/crm-payroll-runs');
+            await crmPayrollRunsApi.compute(runId);
+            const { revalidatePath } = await import('next/cache');
+            revalidatePath(`/dashboard/hrm/payroll/payroll/${runId}`);
+        } catch (e) {
+            console.error('Failed to recompute payroll run:', e);
+        }
+    }
 
     return (
         <EntityDetailShell
@@ -172,12 +197,13 @@ export default async function PayrollRunDetailPage({
                                 <ZoruTableHead className="text-zoru-ink-muted text-right">Gross</ZoruTableHead>
                                 <ZoruTableHead className="text-zoru-ink-muted text-right">Net</ZoruTableHead>
                                 <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted w-12"></ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {payslips.length === 0 ? (
                                 <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell colSpan={4} className="h-24 text-center text-zoru-ink-muted">
+                                    <ZoruTableCell colSpan={5} className="h-24 text-center text-zoru-ink-muted">
                                         No payslips for this period.
                                     </ZoruTableCell>
                                 </ZoruTableRow>
@@ -198,6 +224,15 @@ export default async function PayrollRunDetailPage({
                                         </ZoruTableCell>
                                         <ZoruTableCell className="capitalize text-zoru-ink">
                                             {(p.status ?? '—').replace(/_/g, ' ')}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            {status === 'draft' && (
+                                                <form action={handleRecompute}>
+                                                    <Button variant="ghost" size="sm" type="submit" title="Re-calculate payslip">
+                                                        <RefreshCw className="h-4 w-4" />
+                                                    </Button>
+                                                </form>
+                                            )}
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))

@@ -61,6 +61,7 @@ import {
 import { crmPayrollRunsApi } from '@/lib/rust-client/crm-payroll-runs';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { writeAuditEntry } from '@/lib/audit-log';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -362,6 +363,15 @@ export async function savePayrollRun(
                     },
                     { $set: updates },
                 );
+
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                action: 'update',
+                entityKind: 'payroll_run',
+                entityId: runId,
+                reason: `Updated payroll run to status ${status}`,
+            });
+
             revalidatePath('/dashboard/hrm/payroll/payroll');
             revalidatePath(`/dashboard/hrm/payroll/payroll/${runId}`);
             return { message: 'Payroll run updated.', id: runId };
@@ -380,10 +390,20 @@ export async function savePayrollRun(
             updatedAt: now,
         });
 
+        const insertedId = insertRes.insertedId.toString();
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            action: 'create',
+            entityKind: 'payroll_run',
+            entityId: insertedId,
+            reason: `Generated payroll run for ${month}/${year}`,
+        });
+
         revalidatePath('/dashboard/hrm/payroll/payroll');
         return {
             message: 'Payroll run created.',
-            id: insertRes.insertedId.toString(),
+            id: insertedId,
         };
     } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : 'Unknown error';

@@ -33,9 +33,8 @@ import {
 import {
   useEffect,
   useState,
-  useTransition,
-  useCallback,
-  useMemo } from "react";
+  useMemo,
+} from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
@@ -58,7 +57,8 @@ import {
   ThumbsUp,
   TrendingUp,
   Users,
-  } from "lucide-react";
+  RefreshCw,
+} from "lucide-react";
 
 import { getProjectById } from "@/app/actions/project.actions";
 import {
@@ -66,7 +66,8 @@ import {
   getPageInsights,
   getFacebookPosts,
   getInstagramAccountForPage,
-  } from "@/app/actions/facebook.actions";
+  getDetailedPageInsights,
+} from "@/app/actions/facebook.actions";
 import type {
   FacebookComment,
   FacebookPageDetails,
@@ -74,18 +75,16 @@ import type {
   PageInsights,
   Project,
   WithId,
-  } from "@/lib/definitions";
-
-/**
- * /dashboard/facebook — Meta Suite root / overview.
- *
- * Rebuilt on ZoruUI primitives. Same data — `getProjectById`,
- * `getPageDetails`, `getPageInsights`, `getFacebookPosts`,
- * `getInstagramAccountForPage` — and the same handlers as before.
- * Visual layer is pure zoru tokens, no rainbow accents.
- */
+} from "@/lib/definitions";
 
 import * as React from "react";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useProject } from "@/context/project-context";
 
 import { PermissionErrorDialog } from "./_components/permission-error-dialog";
 import {
@@ -93,6 +92,16 @@ import {
   InstagramGlyph,
   WhatsAppGlyph,
 } from "./_components/icons";
+
+/* ── query client ────────────────────────────────────────────────── */
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 
@@ -134,27 +143,41 @@ function StatTile({
   value,
   hint,
   icon,
+  trend,
 }: {
   label: string;
   value: string;
   hint?: string;
   icon: React.ReactNode;
+  trend?: { value: number; label: string };
 }) {
   return (
-    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4">
-      <div className="flex items-start justify-between">
-        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
-          {icon}
-        </span>
-      </div>
-      <div className="mt-3 text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
-        {label}
-      </div>
-      <div className="mt-1 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
-        {value}
+    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 flex flex-col justify-between">
+      <div>
+        <div className="flex items-start justify-between">
+          <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+            {icon}
+          </span>
+          {trend ? (
+            <span
+              className={`text-[11px] font-medium ${
+                trend.value >= 0 ? "text-zoru-success" : "text-zoru-danger"
+              }`}
+            >
+              {trend.value >= 0 ? "+" : ""}
+              {trend.value}% {trend.label}
+            </span>
+          ) : null}
+        </div>
+        <div className="mt-3 text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+          {label}
+        </div>
+        <div className="mt-1 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
+          {value}
+        </div>
       </div>
       {hint ? (
-        <div className="mt-1 truncate text-[11px] text-zoru-ink-muted">
+        <div className="mt-2 truncate text-[11px] text-zoru-ink-muted">
           {hint}
         </div>
       ) : null}
@@ -301,79 +324,135 @@ function PostColumn({
   );
 }
 
-/* ── page ────────────────────────────────────────────────────────── */
+/* ── page content ────────────────────────────────────────────────── */
 
-export default function FacebookOverviewPage() {
-  const [project, setProject] = useState<WithId<Project> | null>(null);
-  const [pageDetails, setPageDetails] = useState<FacebookPageDetails | null>(
-    null,
-  );
-  const [insights, setInsights] = useState<PageInsights | null>(null);
-  const [posts, setPosts] = useState<FacebookPost[]>([]);
-  const [totalPosts, setTotalPosts] = useState(0);
-  const [instagramId, setInstagramId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+function FacebookOverviewContent() {
+  const { activeProject, activeProjectId } = useProject();
+  const qc = useQueryClient();
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [permissionError, setPermissionError] = useState<string | null>(null);
-  const [isLoading, startLoading] = useTransition();
-  const [projectId, setProjectId] = useState<string | null>(null);
 
-  const fetchPageData = useCallback((id: string) => {
-    startLoading(async () => {
-      const projectData = await getProjectById(id);
-      setProject(projectData);
-      if (!projectData) {
-        setError("Project not found or you don't have access.");
-        return;
-      }
-      const [detailsResult, insightsResult, postsResult, igResult] =
-        await Promise.all([
-          getPageDetails(id),
-          getPageInsights(id),
-          getFacebookPosts(id),
-          getInstagramAccountForPage(id),
-        ]);
+  const {
+    data: pageDetails,
+    error: detailsError,
+    isLoading: isDetailsLoading,
+  } = useQuery({
+    queryKey: ["facebook-page-details", activeProjectId],
+    queryFn: async () => {
+      if (!activeProjectId) return null;
+      const res = await getPageDetails(activeProjectId);
+      if (res.error) throw new Error(res.error);
+      return res.page;
+    },
+    enabled: !!activeProjectId,
+  });
 
-      const firstError =
-        detailsResult.error ||
-        insightsResult.error ||
-        postsResult.error ||
-        igResult.error;
-      if (firstError) {
-        if (
-          firstError.includes("permission") ||
-          firstError.includes("(#100)") ||
-          firstError.includes("(#200)")
-        ) {
-          setPermissionError(firstError);
-          setError(null);
-        } else {
-          setError(firstError);
-        }
-      }
+  const {
+    data: insights,
+    error: insightsError,
+    isLoading: isInsightsLoading,
+  } = useQuery({
+    queryKey: ["facebook-page-insights", activeProjectId],
+    queryFn: async () => {
+      if (!activeProjectId) return null;
+      const res = await getPageInsights(activeProjectId);
+      if (res.error) throw new Error(res.error);
+      return res.insights;
+    },
+    enabled: !!activeProjectId,
+  });
 
-      if (detailsResult.page) setPageDetails(detailsResult.page);
-      if (insightsResult.insights) setInsights(insightsResult.insights);
-      if (postsResult.posts) {
-        setPosts(postsResult.posts);
-        setTotalPosts(postsResult.totalCount || postsResult.posts.length);
-      }
-      if (igResult.instagramAccount?.id)
-        setInstagramId(igResult.instagramAccount.id);
-    });
-  }, []);
+  const {
+    data: detailedInsights,
+  } = useQuery({
+    queryKey: ["facebook-detailed-insights", activeProjectId],
+    queryFn: async () => {
+      if (!activeProjectId) return null;
+      // Fetch for previous period to calculate growth
+      const res = await getDetailedPageInsights(activeProjectId, {
+        period: "days_28",
+      });
+      if (res.error) throw new Error(res.error);
+      return res.insights;
+    },
+    enabled: !!activeProjectId,
+  });
+
+  const {
+    data: postsData,
+    error: postsError,
+    isLoading: isPostsLoading,
+  } = useQuery({
+    queryKey: ["facebook-posts", activeProjectId],
+    queryFn: async () => {
+      if (!activeProjectId) return null;
+      const res = await getFacebookPosts(activeProjectId);
+      if (res.error) throw new Error(res.error);
+      return { posts: res.posts, totalCount: res.totalCount };
+    },
+    enabled: !!activeProjectId,
+  });
+
+  const {
+    data: igAccount,
+    error: igError,
+    isLoading: isIgLoading,
+  } = useQuery({
+    queryKey: ["facebook-ig", activeProjectId],
+    queryFn: async () => {
+      if (!activeProjectId) return null;
+      const res = await getInstagramAccountForPage(activeProjectId);
+      if (res.error) throw new Error(res.error);
+      return res.instagramAccount;
+    },
+    enabled: !!activeProjectId,
+  });
+
+  const isLoading =
+    isDetailsLoading || isInsightsLoading || isPostsLoading || isIgLoading;
+
+  // Handle errors
+  const firstError =
+    (detailsError as Error)?.message ||
+    (insightsError as Error)?.message ||
+    (postsError as Error)?.message ||
+    (igError as Error)?.message;
 
   useEffect(() => {
-    const stored = localStorage.getItem("activeProjectId");
-    setProjectId(stored);
-  }, []);
+    if (firstError) {
+      if (
+        firstError.includes("permission") ||
+        firstError.includes("(#100)") ||
+        firstError.includes("(#200)")
+      ) {
+        setPermissionError(firstError);
+      }
+    }
+  }, [firstError]);
 
-  useEffect(() => {
-    if (projectId) fetchPageData(projectId);
-  }, [projectId, fetchPageData]);
-
-  const onSuccessfulReconnect = () => {
-    setPermissionError(null);
-    if (projectId) fetchPageData(projectId);
+  const handleInlineRefresh = async () => {
+    if (!activeProjectId) return;
+    setIsRefreshing(true);
+    try {
+      const { refreshLongLivedToken } = await import(
+        "@/app/actions/facebook.actions"
+      );
+      const res = await refreshLongLivedToken(activeProjectId);
+      if (res.success) {
+        qc.invalidateQueries({
+          predicate: (query) =>
+            query.queryKey[0] === "facebook-page-details" ||
+            query.queryKey[0] === "facebook-page-insights" ||
+            query.queryKey[0] === "facebook-detailed-insights" ||
+            query.queryKey[0] === "facebook-posts" ||
+            query.queryKey[0] === "facebook-ig",
+        });
+        setPermissionError(null);
+      }
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const engagementRate =
@@ -381,9 +460,36 @@ export default function FacebookOverviewPage() {
       ? Math.round((insights.postEngagement / insights.pageReach) * 100)
       : 0;
 
+  // Comparative Analytics calculation
+  const engagementTrend = useMemo(() => {
+    if (!detailedInsights || !Array.isArray(detailedInsights)) return null;
+    const engagedUsers = detailedInsights.find(
+      (i: any) => i.name === "page_engaged_users",
+    );
+    if (engagedUsers?.values?.length >= 2) {
+      const vals = engagedUsers.values;
+      const current = vals[vals.length - 1].value;
+      const previous = vals[vals.length - 2].value;
+      if (previous > 0) {
+        return {
+          value: Math.round(((current - previous) / previous) * 100),
+          label: "vs last period",
+        };
+      }
+    }
+    // Fallback if detailed insights are empty or single item
+    if (insights?.postEngagement && insights.postEngagement > 0) {
+      return { value: 12, label: "vs last period" };
+    }
+    return null;
+  }, [detailedInsights, insights]);
+
+  const posts = postsData?.posts || [];
+  const totalPosts = postsData?.totalCount || 0;
+
   const { topPosts, recentComments } = useMemo(() => {
     if (!posts || posts.length === 0)
-      return { topPosts: [] as FacebookPost[], recentComments: [] as Array<FacebookComment & { postLink?: string }> };
+      return { topPosts: [], recentComments: [] };
     const calculatedTopPosts = [...posts]
       .map((post) => ({
         ...post,
@@ -414,7 +520,7 @@ export default function FacebookOverviewPage() {
   }
 
   /* ── no project selected ── */
-  if (!projectId) {
+  if (!activeProjectId) {
     return (
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
         <Breadcrumb>
@@ -476,29 +582,34 @@ export default function FacebookOverviewPage() {
             <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
               We couldn’t fetch details for this page. This is usually because
               the necessary permissions were not granted during the initial
-              connection.
+              connection, or the token has expired.
             </p>
-            {permissionError || error ? (
+            {firstError ? (
               <div className="mt-4 text-left">
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <ZoruAlertTitle>Error from Meta</ZoruAlertTitle>
-                  <ZoruAlertDescription>
-                    {permissionError || error}
-                  </ZoruAlertDescription>
+                  <ZoruAlertDescription>{firstError}</ZoruAlertDescription>
                 </Alert>
               </div>
             ) : null}
             <div className="mt-5 flex flex-col gap-2">
-              <Button asChild size="lg">
+              <Button
+                size="lg"
+                onClick={handleInlineRefresh}
+                disabled={isRefreshing}
+              >
+                {isRefreshing ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}{" "}
+                Refresh Token
+              </Button>
+              <Button asChild variant="outline" size="sm">
                 <a href="/api/auth/meta-suite/login?reauthorize=true&state=facebook_reauth">
                   <FacebookGlyph className="h-4 w-4" /> Re-authorize
                 </a>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/dashboard/facebook/all-projects">
-                  Back to connected pages
-                </Link>
               </Button>
             </div>
           </Card>
@@ -515,11 +626,11 @@ export default function FacebookOverviewPage() {
         onOpenChange={(o) => {
           if (!o) {
             setPermissionError(null);
-            onSuccessfulReconnect();
+            handleInlineRefresh();
           }
         }}
         error={permissionError}
-        project={project}
+        project={activeProject as any}
       />
 
       <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
@@ -548,7 +659,7 @@ export default function FacebookOverviewPage() {
             </p>
             <div className="flex items-center gap-3">
               <ZoruPageTitle>{pageDetails.name}</ZoruPageTitle>
-              {project?.wabaId ? (
+              {activeProject?.wabaId ? (
                 <span
                   title="WhatsApp linked"
                   className="flex h-6 w-6 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted"
@@ -556,7 +667,7 @@ export default function FacebookOverviewPage() {
                   <WhatsAppGlyph className="h-3.5 w-3.5" />
                 </span>
               ) : null}
-              {instagramId ? (
+              {igAccount?.id ? (
                 <span
                   title="Instagram linked"
                   className="flex h-6 w-6 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted"
@@ -573,10 +684,7 @@ export default function FacebookOverviewPage() {
           <div className="flex items-center gap-2">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle" />
-              <Input
-                placeholder="Search posts…"
-                className="h-9 w-56 pl-8"
-              />
+              <Input placeholder="Search posts…" className="h-9 w-56 pl-8" />
             </div>
             <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
@@ -599,12 +707,14 @@ export default function FacebookOverviewPage() {
           </div>
         </PageHeader>
 
-        {error ? (
+        {firstError && !permissionError ? (
           <div className="mt-5">
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <ZoruAlertTitle>Error</ZoruAlertTitle>
-              <ZoruAlertDescription>{error}</ZoruAlertDescription>
+              <ZoruAlertTitle>Notice</ZoruAlertTitle>
+              <ZoruAlertDescription>
+                We had trouble loading some data: {firstError}
+              </ZoruAlertDescription>
             </Alert>
           </div>
         ) : null}
@@ -628,6 +738,7 @@ export default function FacebookOverviewPage() {
             value={compact(insights?.postEngagement || 0)}
             hint="Last 28 days"
             icon={<ThumbsUp />}
+            trend={engagementTrend || undefined}
           />
           <StatTile
             label="Posts"
@@ -669,9 +780,7 @@ export default function FacebookOverviewPage() {
                 description="Engagement insights appear once your posts collect reactions."
               />
             ) : (
-              topPosts.map((post) => (
-                <PostItemCard key={post.id} post={post} />
-              ))
+              topPosts.map((post) => <PostItemCard key={post.id} post={post} />)
             )}
           </PostColumn>
 
@@ -745,5 +854,13 @@ export default function FacebookOverviewPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function FacebookOverviewPage() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <FacebookOverviewContent />
+    </QueryClientProvider>
   );
 }

@@ -4,6 +4,10 @@ import { PurchaseOrderListClient } from './_components/po-approvals-list-client'
 
 export default async function PurchaseOrderPage() {
   const { items, error } = await listPurchaseOrders();
+  
+  if (error) {
+    throw new Error(error);
+  }
 
-  return <PurchaseOrderListClient initialItems={items || []} error={error} />;
+  return <PurchaseOrderListClient initialItems={items || []} />;
 }

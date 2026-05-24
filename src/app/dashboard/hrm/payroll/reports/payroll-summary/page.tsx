@@ -41,13 +41,33 @@ type SelectItem = { _id: string; name: string };
 
 const fmt = (n: number) => `₹${n.toLocaleString('en-IN')}`;
 
-const StatCard = ({ title, value, icon: Icon, sub }: { title: string; value: string; icon: React.ElementType; sub?: string }) => (
+const DeltaBadge = ({ current, previous, invertColor }: { current: number, previous: number, invertColor?: boolean }) => {
+    if (!previous || previous === 0) return null;
+    if (current === previous) return <span className="text-[11px] text-zoru-ink-muted ml-2">No change</span>;
+    
+    const delta = ((current - previous) / previous) * 100;
+    const isUp = delta > 0;
+    const isGood = invertColor ? !isUp : isUp;
+
+    return (
+        <span className={`text-[11px] font-medium ml-2 px-1.5 py-0.5 rounded-full ${isGood ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+            {isUp ? '↑' : '↓'} {Math.abs(delta).toFixed(1)}%
+        </span>
+    );
+};
+
+const StatCard = ({ title, value, icon: Icon, sub, current, previous, invertColor }: { title: string; value: string; icon: React.ElementType; sub?: string; current?: number; previous?: number; invertColor?: boolean }) => (
     <Card className="flex flex-col gap-1 p-6">
         <div className="flex items-center justify-between">
             <p className="text-[12.5px] font-medium text-zoru-ink-muted">{title}</p>
             <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
         </div>
-        <p className="mt-1 text-2xl text-zoru-ink">{value}</p>
+        <div className="mt-1 flex items-end">
+            <p className="text-2xl text-zoru-ink">{value}</p>
+            {current !== undefined && previous !== undefined && (
+                <DeltaBadge current={current} previous={previous} invertColor={invertColor} />
+            )}
+        </div>
         {sub ? <p className="text-[11.5px] text-zoru-ink-muted">{sub}</p> : null}
     </Card>
 );
@@ -61,6 +81,7 @@ const YEARS = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 export default function PayrollSummaryPage() {
     const [rows, setRows] = useState<PayrollRow[]>([]);
     const [totals, setTotals] = useState<Totals>({ grossSalary: 0, pf: 0, esi: 0, tds: 0, professionalTax: 0, totalDeductions: 0, netPay: 0 });
+    const [previousTotals, setPreviousTotals] = useState<Totals | null>(null);
     const [totalEmployees, setTotalEmployees] = useState(0);
     const [departments, setDepartments] = useState<SelectItem[]>([]);
     const [isLoading, startTransition] = useTransition();
@@ -87,6 +108,7 @@ export default function PayrollSummaryPage() {
             } else if (result.data) {
                 setRows(result.data.rows);
                 setTotals(result.data.totals);
+                setPreviousTotals(result.data.previousTotals || null);
                 setTotalEmployees(result.data.totalEmployees);
             }
         });
@@ -105,6 +127,79 @@ export default function PayrollSummaryPage() {
         const a = document.createElement('a');
         a.href = url;
         a.download = `payroll_summary_${MONTHS[selectedMonth - 1]}_${selectedYear}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleTallyExport = () => {
+        if (rows.length === 0) {
+            toast({ title: 'No Data', description: 'There is no data to export.' });
+            return;
+        }
+
+        const dateStr = `${selectedYear}${String(selectedMonth).padStart(2, '0')}01`; // Or end of month
+        const xml = `<ENVELOPE>
+  <HEADER>
+    <TALLYREQUEST>Import Data</TALLYREQUEST>
+  </HEADER>
+  <BODY>
+    <IMPORTDATA>
+      <REQUESTDESC>
+        <REPORTNAME>Vouchers</REPORTNAME>
+        <STATICVARIABLES>
+          <SVCURRENTCOMPANY>SabNode</SVCURRENTCOMPANY>
+        </STATICVARIABLES>
+      </REQUESTDESC>
+      <REQUESTDATA>
+        <TALLYMESSAGE xmlns:UDF="TallyUDF">
+          <VOUCHER VCHTYPE="Journal" ACTION="Create" OBJVIEW="Accounting Voucher View">
+            <DATE>${dateStr}</DATE>
+            <VOUCHERTYPENAME>Journal</VOUCHERTYPENAME>
+            <NARRATION>Payroll for ${MONTHS[selectedMonth - 1]} ${selectedYear}</NARRATION>
+            <ALLLEDGERENTRIES.LIST>
+              <LEDGERNAME>Salary Expense</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE>
+              <AMOUNT>-${totals.grossSalary}</AMOUNT>
+            </ALLLEDGERENTRIES.LIST>
+            <ALLLEDGERENTRIES.LIST>
+              <LEDGERNAME>PF Payable</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+              <AMOUNT>${totals.pf}</AMOUNT>
+            </ALLLEDGERENTRIES.LIST>
+            <ALLLEDGERENTRIES.LIST>
+              <LEDGERNAME>ESI Payable</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+              <AMOUNT>${totals.esi}</AMOUNT>
+            </ALLLEDGERENTRIES.LIST>
+            <ALLLEDGERENTRIES.LIST>
+              <LEDGERNAME>TDS Payable</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+              <AMOUNT>${totals.tds}</AMOUNT>
+            </ALLLEDGERENTRIES.LIST>
+            <ALLLEDGERENTRIES.LIST>
+              <LEDGERNAME>Professional Tax Payable</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+              <AMOUNT>${totals.professionalTax}</AMOUNT>
+            </ALLLEDGERENTRIES.LIST>
+            <ALLLEDGERENTRIES.LIST>
+              <LEDGERNAME>Salary Payable</LEDGERNAME>
+              <ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE>
+              <AMOUNT>${totals.netPay}</AMOUNT>
+            </ALLLEDGERENTRIES.LIST>
+          </VOUCHER>
+        </TALLYMESSAGE>
+      </REQUESTDATA>
+    </IMPORTDATA>
+  </BODY>
+</ENVELOPE>`;
+
+        const blob = new Blob([xml], { type: 'text/xml;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tally_payroll_${MONTHS[selectedMonth - 1]}_${selectedYear}.xml`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -170,6 +265,14 @@ export default function PayrollSummaryPage() {
                             <Download className="h-4 w-4" />
                             Export CSV
                         </Button>
+                        <Button
+                            variant="outline"
+                            onClick={handleTallyExport}
+                            disabled={isLoading || rows.length === 0}
+                        >
+                            <Download className="h-4 w-4" />
+                            Tally XML
+                        </Button>
                     </>
                 }
         >
@@ -177,9 +280,29 @@ export default function PayrollSummaryPage() {
             {/* Summary stat cards */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard title="Total Employees" value={totalEmployees.toLocaleString()} icon={Users} />
-                <StatCard title="Total Gross Payroll" value={fmt(totals.grossSalary)} icon={IndianRupee} sub={`${MONTHS[selectedMonth - 1]} ${selectedYear}`} />
-                <StatCard title="Total Deductions" value={fmt(totals.totalDeductions)} icon={TrendingDown} />
-                <StatCard title="Total Net Pay" value={fmt(totals.netPay)} icon={Wallet} />
+                <StatCard 
+                    title="Total Gross Payroll" 
+                    value={fmt(totals.grossSalary)} 
+                    icon={IndianRupee} 
+                    sub={`${MONTHS[selectedMonth - 1]} ${selectedYear}`}
+                    current={totals.grossSalary}
+                    previous={previousTotals?.grossSalary}
+                />
+                <StatCard 
+                    title="Total Deductions" 
+                    value={fmt(totals.totalDeductions)} 
+                    icon={TrendingDown} 
+                    current={totals.totalDeductions}
+                    previous={previousTotals?.totalDeductions}
+                    invertColor
+                />
+                <StatCard 
+                    title="Total Net Pay" 
+                    value={fmt(totals.netPay)} 
+                    icon={Wallet} 
+                    current={totals.netPay}
+                    previous={previousTotals?.netPay}
+                />
             </div>
 
             <Card className="p-6">

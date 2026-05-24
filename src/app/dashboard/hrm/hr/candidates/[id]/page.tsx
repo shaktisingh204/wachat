@@ -37,6 +37,10 @@ import { StatusPill,
  */
 
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { InlineNoteComposer } from '../../_components/inline-note-composer';
+import { ParseResumeButton } from '../../_components/parse-resume-button';
+import { CalendlySchedulingCard } from '../../_components/calendly-scheduling-card';
+import { ScorecardCreator } from '../../_components/scorecard-creator';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -148,6 +152,10 @@ export default async function CandidateDetailPage({ params }: PageProps) {
               <span className="text-zoru-ink">{c.source || '—'}</span>
             </p>
           </RailCard>
+          <CalendlySchedulingCard
+            candidateName={c.name || c.firstName || 'Candidate'}
+            candidateEmail={c.email || ''}
+          />
         </>
       }
       audit={<EntityAuditTimeline entityKind="candidate" entityId={id} />}
@@ -209,13 +217,16 @@ export default async function CandidateDetailPage({ params }: PageProps) {
         <p>
           <span className="text-zoru-ink-muted">Resume: </span>
           {c.resumeUrl ? (
-            <Link
-              href={c.resumeUrl}
-              className="text-zoru-ink underline-offset-2 hover:underline"
-              target="_blank"
-            >
-              Open resume
-            </Link>
+            <div className="inline-flex items-center">
+              <Link
+                href={c.resumeUrl}
+                className="text-zoru-ink underline-offset-2 hover:underline"
+                target="_blank"
+              >
+                Open resume
+              </Link>
+              <ParseResumeButton candidateId={id} resumeUrl={c.resumeUrl} />
+            </div>
           ) : (
             <span className="text-zoru-ink">—</span>
           )}
@@ -232,18 +243,14 @@ export default async function CandidateDetailPage({ params }: PageProps) {
           <p className="whitespace-pre-wrap">{c.notes}</p>
         </DetailCard>
       ) : null}
-      {/* TODO 1D.2: notes composer + tag picker inline (depends on
-          a `addCandidateNote` server action). */}
+      {/* Scorecard Creator */}
+      <DetailCard title="Scorecard">
+        <ScorecardCreator candidateId={id} />
+      </DetailCard>
+
+      {/* Inline notes composer */}
       <DetailCard title="Add note">
-        <p className="text-zoru-ink-muted">
-          Inline note composer coming next — wires into recruitment audit
-          stream.
-        </p>
-        <Button variant="outline" size="sm" asChild>
-          <Link href={`/dashboard/hrm/hr/candidates/${id}/edit`}>
-            Edit candidate to update notes
-          </Link>
-        </Button>
+        <InlineNoteComposer candidateId={id} />
       </DetailCard>
     </RecruitmentDetailShell>
   );

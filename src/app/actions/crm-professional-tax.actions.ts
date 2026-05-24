@@ -25,6 +25,13 @@ import { getSession } from '@/app/actions/user.actions';
 import { requirePermission } from '@/lib/rbac-server';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { getErrorMessage } from '@/lib/utils';
+import {
+  runBulkImport,
+  type BulkImportAdapter,
+  type BulkImportContext,
+  type BulkImportReport,
+  type DedupPolicy,
+} from '@/lib/bulk-io';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import {
@@ -566,4 +573,154 @@ export async function deleteProfessionalTaxRecord(
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
     }
+}
+
+/* ─── Bulk Import ───────────────────────────────────────────────────── */
+
+export interface BulkImportActionInput {
+    csv: string;
+    dryRun?: boolean;
+    dedup?: DedupPolicy;
+    maxRows?: number;
+}
+
+interface PTRecordDraft {
+    employeeName: string;
+    employeeId?: string;
+    state: string;
+    month: string;
+    grossSalary?: number;
+    ptAmount?: number;
+    challanNumber?: string;
+    depositDate?: Date;
+    status: CrmProfessionalTaxStatus;
+    notes?: string;
+}
+
+function s(v: string | undefined | null): string | undefined {
+    const t = (v ?? '').trim();
+    return t.length === 0 ? undefined : t;
+}
+
+function pickKey(row: Record<string, string>, ...candidates: string[]): string | undefined {
+    for (const c of candidates) {
+        const direct = row[c];
+        if (direct !== undefined && String(direct).trim().length > 0) return direct;
+        const lc = c.toLowerCase();
+        for (const k of Object.keys(row)) {
+            if (k.toLowerCase() === lc) {
+                const v = row[k];
+                if (v !== undefined && String(v).trim().length > 0) return v;
+            }
+        }
+    }
+    return undefined;
+}
+
+const PT_ADAPTER: BulkImportAdapter<PTRecordDraft> = {
+    entityKind: 'professional_tax_record',
+    mapRow(raw) {
+        const employeeName = s(pickKey(raw, 'employeeName', 'employee', 'name'));
+        if (!employeeName) return { ok: false, error: 'Missing employeeName' };
+        
+        const state = s(pickKey(raw, 'state'));
+        if (!state) return { ok: false, error: 'Missing state' };
+
+        const month = s(pickKey(raw, 'month', 'period'));
+        if (!month || !isValidMonth(month)) return { ok: false, error: 'Month must be YYYY-MM' };
+
+        const depositDateRaw = s(pickKey(raw, 'depositDate', 'date'));
+        let depositDate: Date | undefined;
+        if (depositDateRaw) {
+            const d = new Date(depositDateRaw);
+            if (!Number.isNaN(d.getTime())) depositDate = d;
+        }
+
+        const rawStatus = s(pickKey(raw, 'status'));
+        const status = rawStatus && VALID_STATUSES.has(rawStatus.toLowerCase() as CrmProfessionalTaxStatus)
+            ? (rawStatus.toLowerCase() as CrmProfessionalTaxStatus)
+            : 'pending';
+
+        return {
+            ok: true,
+            value: {
+                employeeName,
+                employeeId: s(pickKey(raw, 'employeeId', 'empId')),
+                state,
+                month,
+                grossSalary: Number(pickKey(raw, 'grossSalary', 'salary') ?? 0),
+                ptAmount: Number(pickKey(raw, 'ptAmount', 'amount', 'tax') ?? 0),
+                challanNumber: s(pickKey(raw, 'challanNumber', 'challan')),
+                depositDate,
+                status,
+                notes: s(pickKey(raw, 'notes', 'remarks')),
+            },
+        };
+    },
+    dedupKey(value) {
+        return `${value.employeeName.toLowerCase()}|${value.month}|${value.state.toLowerCase()}`;
+    },
+    async insertOne(value, ctx) {
+        const userObjectId = new ObjectId(ctx.userId);
+        const slabApplied = await resolveSlabApplied(userObjectId, value.state, value.grossSalary ?? 0);
+        
+        const { db } = await connectToDatabase();
+        const doc = {
+            userId: userObjectId,
+            employeeName: value.employeeName,
+            ...(value.employeeId ? { employeeId: value.employeeId } : {}),
+            state: value.state,
+            month: value.month,
+            grossSalary: value.grossSalary ?? 0,
+            ptAmount: value.ptAmount ?? 0,
+            slabApplied,
+            ...(value.challanNumber ? { challanNumber: value.challanNumber } : {}),
+            ...(value.depositDate ? { depositDate: value.depositDate } : {}),
+            status: value.status,
+            ...(value.notes ? { notes: value.notes } : {}),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
+
+        const r = await db.collection('crm_professional_tax_records').insertOne(doc);
+        return { id: r.insertedId.toString() };
+    },
+};
+
+export async function importProfessionalTaxRecordsCsv(input: BulkImportActionInput): Promise<
+    (BulkImportReport<PTRecordDraft> & { success: true }) | { success: false; error: string }
+> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Unauthorized' };
+
+    const guard = await requirePermission('crm_professional_tax', 'create');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    if (!input.csv?.trim()) return { success: false, error: 'CSV body is required.' };
+
+    const ctx: BulkImportContext = { userId: String(session.user._id) };
+    const report = await runBulkImport({
+        csv: input.csv,
+        adapter: PT_ADAPTER,
+        ctx,
+        dryRun: input.dryRun,
+        dedup: input.dedup,
+        maxRows: input.maxRows,
+    });
+
+    if (!report.dryRun && report.imported > 0) {
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'create',
+                entityKind: 'professional_tax_record',
+                entityId: report.insertedIds[0] ?? '',
+                reason: `bulk_import:${report.imported}/${report.total}`,
+            });
+        } catch { /* ignored */ }
+        revalidatePath('/dashboard/hrm/payroll/professional-tax');
+    }
+
+    return { success: true, ...report };
 }

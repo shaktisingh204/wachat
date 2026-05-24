@@ -9,7 +9,9 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
+  Progress,
 } from '@/components/zoruui';
+import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
 import {
   useState,
   useEffect,
@@ -17,11 +19,12 @@ import {
   useCallback } from 'react';
 import { LoaderCircle,
   Play,
-  CheckCircle } from 'lucide-react';
+  CheckCircle,
+  Mail } from 'lucide-react';
 import { startOfMonth } from 'date-fns';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { getPayslips } from '@/app/actions/crm-payroll.actions';
+import { getPayslips, generatePayrollData, processPayroll, markPayrollPaid, sendPayslipsEmail } from '@/app/actions/crm-payroll.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { useT } from '@/lib/i18n/client';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
@@ -51,25 +54,85 @@ export default function PayrollRunPage() {
     const [month, setMonth] = useState(new Date().getMonth());
     const [year, setYear] = useState(currentYear);
     const [isLoading, startTransition] = useTransition();
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [progressValue, setProgressValue] = useState(0);
+    const { toast } = useZoruToast();
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const period = startOfMonth(new Date(year, month));
-            const [payslipsData, employeesData] = await Promise.all([
-                getPayslips(period),
-                getCrmEmployees(),
-            ]);
-            const employeeMap = new Map(employeesData.map(e => [e._id.toString(), e]));
-            const populated = payslipsData.map(p => ({
-                ...p,
-                employee: employeeMap.get(p.employeeId.toString()),
-            }));
-            setPayslips(populated);
-            setEmployees(employeesData);
+            try {
+                const period = startOfMonth(new Date(year, month));
+                const [payslipsData, employeesData] = await Promise.all([
+                    getPayslips(period),
+                    getCrmEmployees(),
+                ]);
+                const employeeMap = new Map(employeesData.map(e => [e._id.toString(), e]));
+                const populated = payslipsData.map(p => ({
+                    ...p,
+                    employee: employeeMap.get(p.employeeId.toString()),
+                }));
+                setPayslips(populated);
+                setEmployees(employeesData);
+            } catch (error: any) {
+                toast({ title: 'Error', description: error.message || 'Failed to fetch payroll data', variant: 'destructive' });
+            }
         });
-    }, [month, year]);
+    }, [month, year, toast]);
 
     useEffect(() => { fetchData(); }, [fetchData]);
+
+    const handleRunPayroll = async () => {
+        setIsProcessing(true);
+        setProgressValue(10);
+        try {
+            setProgressValue(40);
+            const { payrollData, error: genError } = await generatePayrollData(month + 1, year);
+            if (genError) throw new Error(genError);
+            
+            setProgressValue(70);
+            if (payrollData && payrollData.length > 0) {
+                const { success, error: procError } = await processPayroll(payrollData, month + 1, year);
+                if (!success) throw new Error(procError || 'Failed to process payroll');
+            }
+            
+            setProgressValue(100);
+            toast({ title: 'Success', description: 'Payroll processed successfully.' });
+            fetchData();
+        } catch (err: any) {
+            toast({ title: 'Error', description: err.message, variant: 'destructive' });
+        } finally {
+            setTimeout(() => {
+                setIsProcessing(false);
+                setProgressValue(0);
+            }, 1000);
+        }
+    };
+
+    const handleMarkAllPaid = async () => {
+        startTransition(async () => {
+            try {
+                const { success, error } = await markPayrollPaid(month + 1, year);
+                if (!success) throw new Error(error || 'Failed to mark as paid');
+                toast({ title: 'Success', description: 'All payslips marked as paid.' });
+                fetchData();
+            } catch (err: any) {
+                toast({ title: 'Error', description: err.message, variant: 'destructive' });
+            }
+        });
+    };
+
+    const handleSendEmails = async () => {
+        startTransition(async () => {
+            try {
+                const { success, error } = await sendPayslipsEmail(month + 1, year);
+                if (!success) throw new Error(error || 'Failed to send emails');
+                toast({ title: 'Success', description: 'Payslips have been sent via email.' });
+                fetchData();
+            } catch (err: any) {
+                toast({ title: 'Error', description: err.message, variant: 'destructive' });
+            }
+        });
+    };
 
     const totalGross = payslips.reduce((s, p) => s + (p.grossSalary ?? 0), 0);
     const totalNet = payslips.reduce((s, p) => s + (p.netPay ?? 0), 0);
@@ -98,13 +161,22 @@ export default function PayrollRunPage() {
                             {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
                         </ZoruSelectContent>
                     </Select>
-                    <Button disabled={isLoading}>
+                    <Button disabled={isLoading || isProcessing} onClick={handleRunPayroll}>
                         <Play className="h-4 w-4" />
                         {t('hrm.payroll.run.action.run')}
                     </Button>
                 </>
             }
         >
+            {isProcessing && (
+                <div className="mb-4 space-y-2">
+                    <div className="flex items-center justify-between text-[13px] text-zoru-ink-muted">
+                        <span>Processing payroll...</span>
+                        <span>{progressValue}%</span>
+                    </div>
+                    <Progress value={progressValue} className="h-2 w-full" />
+                </div>
+            )}
 
             <div className="grid gap-4 md:grid-cols-3">
                 <Card className="p-6">
@@ -130,10 +202,19 @@ export default function PayrollRunPage() {
                         <h2 className="text-[16px] text-zoru-ink">{t('hrm.payroll.run.register.title', { period: periodLabel })}</h2>
                         <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">{t('hrm.payroll.run.register.subtitle')}</p>
                     </div>
-                    <Button variant="outline" size="sm" disabled>
-                        <CheckCircle className="h-3.5 w-3.5" />
-                        {t('hrm.payroll.run.action.markAllPaid')}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        {payslips.length > 0 && payslips.every(p => p.status === 'paid') ? (
+                            <Button variant="outline" size="sm" onClick={handleSendEmails} disabled={isLoading || isProcessing}>
+                                <Mail className="h-3.5 w-3.5" />
+                                Send all payslips via email
+                            </Button>
+                        ) : (
+                            <Button variant="outline" size="sm" onClick={handleMarkAllPaid} disabled={isLoading || isProcessing || payslips.length === 0}>
+                                <CheckCircle className="h-3.5 w-3.5" />
+                                {t('hrm.payroll.run.action.markAllPaid')}
+                            </Button>
+                        )}
+                    </div>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <table className="w-full text-left text-[13px]">

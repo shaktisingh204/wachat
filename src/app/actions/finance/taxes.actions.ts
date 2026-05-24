@@ -21,14 +21,18 @@ const schema = z.object({
   isFiled: z.boolean().optional().default(false)
 });
 
-export async function listTaxRecords(): Promise<{ items: TaxRecord[], error?: string }> {
+export async function listTaxRecords(filters?: { period?: string }): Promise<{ items: TaxRecord[], error?: string }> {
   try {
     const session = await getSession();
     if (!session?.user?._id) throw new Error("Unauthorized");
     
     const { db } = await connectToDatabase();
+    const query: any = { userId: new ObjectId(String(session.user._id)) };
+    if (filters?.period) {
+      query.taxPeriod = { $regex: filters.period, $options: 'i' };
+    }
     const docs = await db.collection('finance_taxes')
-      .find({ userId: new ObjectId(String(session.user._id)) })
+      .find(query)
       .sort({ createdAt: -1 })
       .toArray();
       
@@ -37,6 +41,32 @@ export async function listTaxRecords(): Promise<{ items: TaxRecord[], error?: st
     };
   } catch (error: any) {
     return { items: [], error: error.message };
+  }
+}
+
+export async function exportTaxRecordsCSV(filters?: { period?: string }): Promise<{ csv?: string, error?: string }> {
+  try {
+    const { items, error } = await listTaxRecords(filters);
+    if (error) throw new Error(error);
+
+    const headers = ['Tax Period', 'Jurisdiction', 'Taxable Income', 'Tax Owed', 'Is Filed', 'Created At'];
+    const rows = items.map(item => [
+      item.taxPeriod,
+      item.jurisdiction,
+      item.taxableIncome,
+      item.taxOwed,
+      item.isFiled ? 'Yes' : 'No',
+      item.createdAt
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    return { csv: csvContent };
+  } catch (error: any) {
+    return { error: error.message };
   }
 }
 

@@ -90,7 +90,7 @@ export default async function AnnouncementDetailPage({
     return (
         <EntityListShell
             title={announcement.title}
-            subtitle={titleCase(announcement.category as string)}
+            subtitle={titleCase((announcement.category as string) || 'general')}
             primaryAction={
                 <Button asChild>
                     <Link href={`${BASE}/${announcement._id}/edit`}>
@@ -111,12 +111,12 @@ export default async function AnnouncementDetailPage({
                         <div className="mt-2 flex flex-wrap items-center gap-2 text-[12.5px] text-zoru-ink-muted">
                             <span>
                                 Category:{' '}
-                                {titleCase(announcement.category as string)}
+                                {titleCase((announcement.category as string) || 'general')}
                             </span>
                             <span aria-hidden>·</span>
                             <span>
                                 Audience:{' '}
-                                {titleCase(announcement.audience as string)}
+                                {titleCase((announcement.audience as string) || 'all')}
                             </span>
                             {announcement.authorName ? (
                                 <>
@@ -128,11 +128,11 @@ export default async function AnnouncementDetailPage({
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center gap-2">
                         <StatusPill
-                            label={titleCase(announcement.priority as string)}
+                            label={titleCase((announcement.priority as string) || 'normal')}
                             tone={PRIORITY_TONE[priorityKey] ?? 'neutral'}
                         />
                         <StatusPill
-                            label={titleCase(announcement.status)}
+                            label={titleCase((announcement.status as string) || 'draft')}
                             tone={STATUS_TONE[statusKey] ?? 'neutral'}
                         />
                         {announcement.pinned ? (
@@ -194,7 +194,7 @@ export default async function AnnouncementDetailPage({
                         Audience
                     </span>
                     <span className="ml-auto text-[12px] text-zoru-ink-muted">
-                        {titleCase(announcement.audience as string)} ·{' '}
+                        {titleCase((announcement.audience as string) || 'all')} ·{' '}
                         {audienceIds.length} explicit target
                         {audienceIds.length === 1 ? '' : 's'}
                     </span>

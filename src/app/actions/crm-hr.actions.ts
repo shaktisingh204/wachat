@@ -546,3 +546,29 @@ export async function generateProfessionalTaxReport(): Promise<any[]> {
 }
 
     
+
+export async function importCrmPtSlabsTemplate(state: string, slabsData: Array<{minSalary: number, maxSalary: number, taxAmount: number}>): Promise<{ message?: string, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
+
+    try {
+        const { db } = await connectToDatabase();
+        const docs = slabsData.map(s => ({
+            userId: new ObjectId(session.user._id),
+            state,
+            minSalary: s.minSalary,
+            maxSalary: s.maxSalary,
+            taxAmount: s.taxAmount,
+            createdAt: new Date(),
+        }));
+        
+        await db.collection('crm_pt_slabs').insertMany(docs);
+        revalidatePath('/dashboard/hrm/payroll/professional-tax');
+        revalidatePath('/dashboard/hrm/payroll/professional-tax/slabs');
+        
+        return { message: `Successfully imported template for ${state}` };
+    } catch (e) {
+        console.error("Failed to import PT slabs:", e);
+        return { error: 'Failed to import template.' };
+    }
+}

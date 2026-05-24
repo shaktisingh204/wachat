@@ -39,6 +39,7 @@ import { HrActionButtons } from '../../_components/hr-action-buttons';
 import {
     recordAwardVote,
     declareAwardWinner,
+    sendAwardCashToPayroll,
 } from '@/app/actions/hr-status-flow.actions';
 
 const AWARDS_LIST_HREF = '/dashboard/hrm/hr/awards';
@@ -133,8 +134,13 @@ export default async function AwardProgramDetailPage({
             primaryAction={
                 <div className="flex items-center gap-2">
                 <Button variant="outline" asChild>
+                    <Link href={`/dashboard/hrm/hr/awards/${programId}/nominate`}>
+                        <PlusCircle className="h-4 w-4 mr-2" /> Share nomination link
+                    </Link>
+                </Button>
+                <Button variant="outline" asChild>
                     <Link href={`/dashboard/hrm/hr/awards/${programId}/edit`}>
-                        <Pencil className="h-4 w-4" /> Edit
+                        <Pencil className="h-4 w-4 mr-2" /> Edit
                     </Link>
                 </Button>
                 <HrActionButtons
@@ -142,21 +148,28 @@ export default async function AwardProgramDetailPage({
                                 {
                                     key: 'vote',
                                     kind: 'prompt',
-                                    label: 'Cast vote',
+                                    label: 'Submit nomination',
                                     icon: <PlusCircle className="h-4 w-4" />,
-                                    promptTitle: 'Cast a vote',
+                                    promptTitle: 'Submit a nomination',
                                     promptDescription:
-                                        'Record a vote for a nominee. Voting auto-tallies against the program.',
-                                    submitLabel: 'Vote',
+                                        'Record a nomination for a peer.',
+                                    submitLabel: 'Submit',
                                     fields: [
                                         {
                                             name: 'nomineeRef',
                                             label: 'Nominee (employee id or name)',
                                             required: true,
                                         },
+                                        {
+                                            name: 'reason',
+                                            label: 'Reason',
+                                            type: 'textarea',
+                                            required: true,
+                                            placeholder: 'Why does this person deserve the award?',
+                                        },
                                     ],
                                     onRun: (v) =>
-                                        recordAwardVote(programId, v.nomineeRef ?? ''),
+                                        recordAwardVote(programId, v.nomineeRef ?? '', v.reason ?? undefined),
                                 },
                                 {
                                     key: 'winner',
@@ -187,6 +200,15 @@ export default async function AwardProgramDetailPage({
                                             v.citation ?? undefined,
                                         ),
                                 },
+                                ...(cashValue && cashValue > 0 ? [{
+                                    key: 'payroll',
+                                    kind: 'confirm' as const,
+                                    label: 'Send to payroll',
+                                    icon: <Trophy className="h-4 w-4" />,
+                                    confirmTitle: 'Send cash reward to payroll?',
+                                    confirmDescription: 'This will notify payroll to process the cash value for the declared winners.',
+                                    onRun: () => sendAwardCashToPayroll(programId),
+                                }] : [])
                             ]}
                         />
                 </div>

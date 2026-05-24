@@ -8,6 +8,7 @@ import { requirePermission } from '@/lib/rbac-server';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { crmAwardProgramsApi } from '@/lib/rust-client/crm-awards';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { awardProgramFormSchema } from '@/app/dashboard/hrm/hr/awards/schema';
 
 function useRustCrm(): boolean {
   return process.env.USE_RUST_CRM === 'true';
@@ -23,17 +24,24 @@ export async function saveAwardProgram(
   const guard = await requirePermission('hrm_award', 'create');
   if (!guard.ok) return { error: guard.error };
 
-  const name = (formData.get('name') as string | null)?.trim() || '';
-  if (!name) return { error: 'Program name is required.' };
+  const parsed = awardProgramFormSchema.safeParse({
+    name: formData.get('name'),
+    programType: formData.get('programType'),
+    frequency: formData.get('frequency'),
+    periodStart: formData.get('periodStart'),
+    periodEnd: formData.get('periodEnd'),
+    criteria: formData.get('criteria'),
+    description: formData.get('description'),
+    pointsValue: formData.get('pointsValue') || undefined,
+    cashValue: formData.get('cashValue') || undefined,
+    status: formData.get('status'),
+  });
 
-  const programType = (formData.get('programType') as string | null)?.trim() || 'recognition';
-  const frequency = (formData.get('frequency') as string | null)?.trim() || 'monthly';
-  const periodStartRaw = (formData.get('periodStart') as string | null)?.trim() || '';
-  const periodEndRaw = (formData.get('periodEnd') as string | null)?.trim() || '';
-  const criteria = (formData.get('criteria') as string | null)?.trim() || undefined;
-  const pointsValue = formData.get('pointsValue');
-  const cashValue = formData.get('cashValue');
-  const description = (formData.get('description') as string | null)?.trim() || undefined;
+  if (!parsed.success) {
+    return { error: parsed.error.errors.map(e => e.message).join(', ') };
+  }
+
+  const { name, programType, frequency, periodStart, periodEnd, criteria, description, pointsValue, cashValue, status } = parsed.data;
 
   try {
     const { db } = await connectToDatabase();
@@ -42,15 +50,15 @@ export async function saveAwardProgram(
       name,
       programType,
       frequency,
-      ...(periodStartRaw ? { periodStart: new Date(periodStartRaw) } : {}),
-      ...(periodEndRaw ? { periodEnd: new Date(periodEndRaw) } : {}),
+      ...(periodStart ? { periodStart } : {}),
+      ...(periodEnd ? { periodEnd } : {}),
       ...(criteria ? { criteria } : {}),
-      ...(pointsValue ? { pointsValue: parseFloat(pointsValue as string) } : {}),
-      ...(cashValue ? { cashValue: parseFloat(cashValue as string) } : {}),
+      ...(pointsValue ? { pointsValue } : {}),
+      ...(cashValue ? { cashValue } : {}),
       ...(description ? { description } : {}),
       nominations: [],
       winners: [],
-      status: 'draft',
+      status: status || 'draft',
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -83,23 +91,24 @@ export async function updateAwardProgram(
 
   if (!ObjectId.isValid(programId)) return { error: 'Invalid program id.' };
 
-  const name = (formData.get('name') as string | null)?.trim() || '';
-  if (!name) return { error: 'Program name is required.' };
+  const parsed = awardProgramFormSchema.safeParse({
+    name: formData.get('name'),
+    programType: formData.get('programType'),
+    frequency: formData.get('frequency'),
+    periodStart: formData.get('periodStart'),
+    periodEnd: formData.get('periodEnd'),
+    criteria: formData.get('criteria'),
+    description: formData.get('description'),
+    pointsValue: formData.get('pointsValue') || undefined,
+    cashValue: formData.get('cashValue') || undefined,
+    status: formData.get('status'),
+  });
 
-  const programType =
-    (formData.get('programType') as string | null)?.trim() || 'recognition';
-  const frequency =
-    (formData.get('frequency') as string | null)?.trim() || 'monthly';
-  const status = (formData.get('status') as string | null)?.trim() || 'draft';
-  const periodStartRaw =
-    (formData.get('periodStart') as string | null)?.trim() || '';
-  const periodEndRaw =
-    (formData.get('periodEnd') as string | null)?.trim() || '';
-  const criteria = (formData.get('criteria') as string | null)?.trim() || '';
-  const description =
-    (formData.get('description') as string | null)?.trim() || '';
-  const pointsValue = formData.get('pointsValue');
-  const cashValue = formData.get('cashValue');
+  if (!parsed.success) {
+    return { error: parsed.error.errors.map(e => e.message).join(', ') };
+  }
+
+  const { name, programType, frequency, periodStart, periodEnd, criteria, description, pointsValue, cashValue, status } = parsed.data;
 
   try {
     const { db } = await connectToDatabase();
@@ -114,12 +123,12 @@ export async function updateAwardProgram(
           programType,
           frequency,
           status,
-          periodStart: periodStartRaw ? new Date(periodStartRaw) : null,
-          periodEnd: periodEndRaw ? new Date(periodEndRaw) : null,
+          periodStart: periodStart || null,
+          periodEnd: periodEnd || null,
           criteria: criteria || null,
           description: description || null,
-          pointsValue: pointsValue ? parseFloat(pointsValue as string) : null,
-          cashValue: cashValue ? parseFloat(cashValue as string) : null,
+          pointsValue: pointsValue || null,
+          cashValue: cashValue || null,
           updatedAt: new Date(),
         },
       },

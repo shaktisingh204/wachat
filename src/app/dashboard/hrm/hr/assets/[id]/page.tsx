@@ -11,6 +11,7 @@ import {
  */
 
 import Link from 'next/link';
+import QRCode from 'react-qr-code';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
@@ -38,9 +39,37 @@ function fmtDate(value: unknown): string {
 
 function fmtMoney(amount: unknown, currency?: string): string {
     if (amount == null || amount === '') return '—';
-    const n = Number(amount);
-    if (!Number.isFinite(n)) return '—';
-    return `${currency || 'INR'} ${n.toLocaleString()}`;
+    let n = Number(amount);
+    if (!Number.isFinite(n) && typeof amount === 'string') {
+        n = Number(amount.replace(/[^\d.-]/g, ''));
+    }
+    if (!Number.isFinite(n) || Number.isNaN(n)) return '—';
+    return `${currency || 'INR'} ${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function calculateDepreciation(purchasePrice: unknown, purchaseDate: unknown, currency?: string): string {
+    if (purchasePrice == null || purchasePrice === '' || !purchaseDate) return '—';
+    
+    let price = Number(purchasePrice);
+    if (!Number.isFinite(price) && typeof purchasePrice === 'string') {
+        price = Number(purchasePrice.replace(/[^\d.-]/g, ''));
+    }
+    if (!Number.isFinite(price) || Number.isNaN(price)) return '—';
+
+    const pDate = new Date(purchaseDate as string);
+    if (Number.isNaN(pDate.getTime())) return '—';
+
+    const now = new Date();
+    let months = (now.getFullYear() - pDate.getFullYear()) * 12 + (now.getMonth() - pDate.getMonth());
+    if (now.getDate() < pDate.getDate()) {
+        months -= 1;
+    }
+    
+    if (months >= 36) return fmtMoney(0, currency);
+    if (months <= 0) return fmtMoney(price, currency);
+
+    const currentVal = price - (price * (months / 36));
+    return fmtMoney(Math.max(0, currentVal), currency);
 }
 
 function pretty(s?: string): string {
@@ -99,8 +128,15 @@ export default async function AssetDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Asset tag</div>
-                        <div className="font-mono text-zoru-ink">{asset.assetTag}</div>
+                        <div className="text-zoru-ink-muted mb-2">Asset tag</div>
+                        <div className="flex items-start gap-4">
+                            <div className="font-mono text-zoru-ink">{asset.assetTag}</div>
+                            {asset.assetTag && (
+                                <div className="rounded-md border border-zoru-line p-1 bg-white">
+                                    <QRCode value={asset.assetTag} size={48} />
+                                </div>
+                            )}
+                        </div>
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Category</div>
@@ -129,6 +165,10 @@ export default async function AssetDetailPage({
                     <div>
                         <div className="text-zoru-ink-muted">Purchase price</div>
                         <div className="text-zoru-ink">{fmtMoney(asset.purchasePrice, asset.currency)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Depreciated value (3yr SL)</div>
+                        <div className="text-zoru-ink">{calculateDepreciation(asset.purchasePrice, asset.purchaseDate, asset.currency)}</div>
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Warranty expiry</div>

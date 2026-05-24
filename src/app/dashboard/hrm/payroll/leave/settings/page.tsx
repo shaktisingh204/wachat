@@ -25,10 +25,13 @@ const DEFAULT: Partial<WsLeaveSetting> = {
   allow_future_leave: true,
   max_days_advance: 365,
   hours_per_day: 8,
+  include_weekends: false,
+  include_holidays: false,
 };
 
 export default function LeaveSettingsPage() {
   const { toast } = useZoruToast();
+  const [originalSettings, setOriginalSettings] = useState<Partial<WsLeaveSetting>>(DEFAULT);
   const [settings, setSettings] = useState<Partial<WsLeaveSetting>>(DEFAULT);
   const [isLoading, startLoading] = useTransition();
   const [isSaving, startSave] = useTransition();
@@ -36,7 +39,9 @@ export default function LeaveSettingsPage() {
   useEffect(() => {
     startLoading(async () => {
       const s = await getLeaveSettings();
-      setSettings({ ...DEFAULT, ...s });
+      const newSettings = { ...DEFAULT, ...s };
+      setOriginalSettings(newSettings);
+      setSettings(newSettings);
     });
   }, []);
 
@@ -49,9 +54,11 @@ export default function LeaveSettingsPage() {
     startSave(async () => {
       const r = await saveLeaveSettings(settings);
       if (r.success) {
+        setOriginalSettings(settings);
         toast({ title: 'Saved', description: 'Leave settings updated.' });
       } else {
-        toast({ title: 'Error', description: r.error, variant: 'destructive' });
+        setSettings(originalSettings); // revert on failure
+        toast({ title: 'Error', description: r.error || 'Failed to save settings', variant: 'destructive' });
       }
     });
   };
@@ -108,6 +115,16 @@ export default function LeaveSettingsPage() {
               label="Allow future leave applications"
               checked={settings.allow_future_leave}
               onChange={(v) => update('allow_future_leave', v)}
+            />
+            <Toggle
+              label="Include weekends in leave duration"
+              checked={settings.include_weekends}
+              onChange={(v) => update('include_weekends', v)}
+            />
+            <Toggle
+              label="Include holidays in leave duration"
+              checked={settings.include_holidays}
+              onChange={(v) => update('include_holidays', v)}
             />
 
             <div className="flex justify-end md:col-span-2">

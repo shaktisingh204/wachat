@@ -44,6 +44,7 @@ export interface CrmPfEsiListFilters {
     q?: string;
     status?: CrmPfEsiStatus | 'all';
     month?: string; // YYYY-MM
+    employeeId?: string;
     limit?: number;
 }
 
@@ -94,6 +95,7 @@ export async function getPfEsiRecords(
                     filters?.month && isValidMonth(filters.month)
                         ? filters.month
                         : undefined,
+                employeeId: filters?.employeeId,
                 limit: filters?.limit,
             });
             const items = res.items ?? [];
@@ -125,6 +127,9 @@ export async function getPfEsiRecords(
         }
         if (filters?.month && isValidMonth(filters.month)) {
             filter.month = filters.month;
+        }
+        if (filters?.employeeId) {
+            filter.employeeId = filters.employeeId;
         }
         if (filters?.q) {
             const re = new RegExp(
@@ -242,6 +247,7 @@ export async function savePfEsiRecord(
     const challanNumber = asString(formData.get('challanNumber'));
     const depositDateRaw = asString(formData.get('depositDate'));
     const depositDate = depositDateRaw ? new Date(depositDateRaw) : undefined;
+    const documentUrl = asString(formData.get('documentUrl'));
     const notes = asString(formData.get('notes'));
 
     if (useRustCrm()) {
@@ -264,6 +270,7 @@ export async function savePfEsiRecord(
                     ...(depositDate && !Number.isNaN(depositDate.getTime())
                         ? { depositDate: depositDate.toISOString() }
                         : {}),
+                    ...(documentUrl !== undefined ? { documentUrl } : {}),
                     status,
                     ...(notes !== undefined ? { notes } : {}),
                 };
@@ -300,6 +307,7 @@ export async function savePfEsiRecord(
                 ...(depositDate && !Number.isNaN(depositDate.getTime())
                     ? { depositDate: depositDate.toISOString() }
                     : {}),
+                ...(documentUrl ? { documentUrl } : {}),
                 status,
                 ...(notes ? { notes } : {}),
             };
@@ -359,6 +367,7 @@ export async function savePfEsiRecord(
                 ...(depositDate && !Number.isNaN(depositDate.getTime())
                     ? { depositDate }
                     : { depositDate: null }),
+                ...(documentUrl ? { documentUrl } : { documentUrl: null }),
                 status,
                 ...(notes !== undefined ? { notes } : {}),
                 updatedAt: now,
@@ -401,6 +410,7 @@ export async function savePfEsiRecord(
             ...(depositDate && !Number.isNaN(depositDate.getTime())
                 ? { depositDate }
                 : {}),
+            ...(documentUrl ? { documentUrl } : {}),
             status,
             ...(notes ? { notes } : {}),
             createdAt: now,
@@ -611,5 +621,47 @@ export async function bulkImportPfEsiFromPayrollRun(
         return { created, skipped };
     } catch (e) {
         return { created: 0, skipped: 0, error: getErrorMessage(e) };
+    }
+}
+
+export async function getLatestPfEsiRecord(
+    employeeId: string,
+): Promise<Record<string, unknown> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!employeeId) return null;
+
+    const guard = await requirePermission('crm_pf_esi', 'view');
+    if (!guard.ok) return null;
+
+    if (useRustCrm()) {
+        try {
+            const res = await crmPfEsiApi.list({ employeeId, limit: 1 });
+            if (res.items && res.items.length > 0) {
+                return JSON.parse(JSON.stringify(res.items[0]));
+            }
+            return null;
+        } catch (e) {
+            console.error('[getLatestPfEsiRecord] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pf_esi_record',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id as string);
+        const doc = await db.collection('crm_pf_esi_records').findOne(
+            { userId: userObjectId, employeeId },
+            { sort: { month: -1, _id: -1 } },
+        );
+        if (!doc) return null;
+        return JSON.parse(JSON.stringify(doc));
+    } catch (e) {
+        return null;
     }
 }

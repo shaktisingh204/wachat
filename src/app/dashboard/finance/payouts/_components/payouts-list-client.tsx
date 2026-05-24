@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Button, 
@@ -23,22 +23,81 @@ import {
   DropdownMenuTrigger,
   Badge,
 } from '@/components/zoruui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createPayout, updatePayout, deletePayout, Payout } from '@/app/actions/finance/payouts.actions';
 import { toast } from 'sonner';
 
-export function PayoutListClient({ initialItems, error }: { initialItems: Payout[], error?: string }) {
+export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
   const router = useRouter();
   const [items, setItems] = useState(initialItems || []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [viewingItem, setViewingItem] = useState<Payout | null>(null);
+
+  function exportToCsv() {
+    if (items.length === 0) return;
+    const headers = Object.keys(items[0] || {}).filter(k => k !== '_id' && k !== '__v');
+    const csvContent = [
+      headers.join(','),
+      ...items.map(item => headers.map(h => JSON.stringify((item as any)[h] ?? '')).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'payouts_export.csv';
+    link.click();
+  }
+
+  function openView(item: Payout) {
+    setViewingItem(item);
+    setIsViewOpen(true);
+  }
 
   const filteredItems = items.filter(item => 
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
+
+  useEffect(() => {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/api/realtime/payouts`;
+    let ws: WebSocket;
+    
+    try {
+      ws = new WebSocket(wsUrl);
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'payout_update' && data.payout) {
+            setItems(prev => prev.map(item => item._id === data.payout._id ? { ...item, ...data.payout } : item));
+          } else if (data.type === 'payout_create' && data.payout) {
+            setItems(prev => [data.payout, ...prev]);
+          } else if (data.type === 'payout_delete' && data.payoutId) {
+            setItems(prev => prev.filter(item => item._id !== data.payoutId));
+          }
+        } catch (e) {
+          console.error('Failed to parse websocket message', e);
+        }
+      };
+    } catch (e) {
+      console.error('Failed to connect WebSocket', e);
+    }
+
+    return () => {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+    };
+  }, []);
+
+  const totalPayouts = items.length;
+  const pendingPayouts = items.filter(i => String(i.status).toLowerCase() === 'pending').length;
+  const completedPayouts = items.filter(i => String(i.status).toLowerCase() === 'completed').length;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -109,7 +168,11 @@ export function PayoutListClient({ initialItems, error }: { initialItems: Payout
       title="Direct Payouts"
       subtitle="Manage and trigger direct payouts to employees or vendors."
       primaryAction={
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportToCsv}>
+            <Download className="mr-2 h-4 w-4" /> Export CSV
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" onClick={openNew}>
               <Plus className="mr-2 h-4 w-4" /> New Record
@@ -177,6 +240,7 @@ export function PayoutListClient({ initialItems, error }: { initialItems: Payout
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       }
     >
       {error && (
@@ -184,6 +248,33 @@ export function PayoutListClient({ initialItems, error }: { initialItems: Payout
           {error}
         </div>
       )}
+
+      <div className="grid gap-4 md:grid-cols-3 mb-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Payouts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalPayouts}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{pendingPayouts}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Completed</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{completedPayouts}</div>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="mb-6 flex items-center gap-2">
         <div className="relative flex-1 max-w-sm">
@@ -239,6 +330,22 @@ export function PayoutListClient({ initialItems, error }: { initialItems: Payout
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+            {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
+              <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
+                <div className="font-medium text-sm text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="col-span-2 text-sm">{String(value)}</div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </EntityListShell>
   );
 }

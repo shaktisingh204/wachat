@@ -9,6 +9,7 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 
 import { ProfessionalTaxForm } from '../_components/professional-tax-form';
+import { BulkUploadPtCard } from '../_components/bulk-upload-pt-card';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,9 +22,12 @@ export default async function NewProfessionalTaxPage() {
     return (
         <EntityListShell
             title="New PT record"
-            subtitle="Record an employee's monthly professional tax filing."
+            subtitle="Record an employee's monthly professional tax filing, or bulk upload via CSV."
         >
-            <ProfessionalTaxForm />
+            <div className="flex flex-col gap-6">
+                <ProfessionalTaxForm />
+                <BulkUploadPtCard />
+            </div>
         </EntityListShell>
     );
 }

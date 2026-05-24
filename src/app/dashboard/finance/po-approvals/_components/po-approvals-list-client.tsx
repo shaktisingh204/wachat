@@ -23,18 +23,40 @@ import {
   ZoruDropdownMenuTrigger,
   Badge,
 } from '@/components/zoruui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, CheckCircle, XCircle, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createPurchaseOrder, updatePurchaseOrder, deletePurchaseOrder, PurchaseOrder } from '@/app/actions/finance/po-approvals.actions';
 import { toast } from 'sonner';
 
-export function PurchaseOrderListClient({ initialItems, error }: { initialItems: PurchaseOrder[], error?: string }) {
+export function PurchaseOrderListClient({ initialItems }: { initialItems: PurchaseOrder[] }) {
   const router = useRouter();
   const [items, setItems] = useState(initialItems || []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [viewingItem, setViewingItem] = useState<PurchaseOrder | null>(null);
+
+  function exportToCsv() {
+    if (items.length === 0) return;
+    const headers = Object.keys(items[0] || {}).filter(k => k !== '_id' && k !== '__v');
+    const csvContent = [
+      headers.join(','),
+      ...items.map(item => headers.map(h => JSON.stringify((item as any)[h] ?? '')).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'po-approvals_export.csv';
+    link.click();
+  }
+
+  function openView(item: PurchaseOrder) {
+    setViewingItem(item);
+    setIsViewOpen(true);
+  }
 
   const filteredItems = items.filter(item => 
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
@@ -94,6 +116,36 @@ export function PurchaseOrderListClient({ initialItems, error }: { initialItems:
     }
   }
 
+  async function handleApprove(id: string) {
+    try {
+      const res = await updatePurchaseOrder(id, { status: 'approved' });
+      if (res.success) {
+        toast.success('Approved successfully');
+        setItems(items.map(i => i._id === id ? { ...i, status: 'approved' } : i));
+        router.refresh();
+      } else {
+        toast.error(res.error || 'Failed to approve');
+      }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  }
+
+  async function handleReject(id: string) {
+    try {
+      const res = await updatePurchaseOrder(id, { status: 'rejected' });
+      if (res.success) {
+        toast.success('Rejected successfully');
+        setItems(items.map(i => i._id === id ? { ...i, status: 'rejected' } : i));
+        router.refresh();
+      } else {
+        toast.error(res.error || 'Failed to reject');
+      }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  }
+
   function openNew() {
     setEditingId(null);
     setIsDialogOpen(true);
@@ -109,7 +161,11 @@ export function PurchaseOrderListClient({ initialItems, error }: { initialItems:
       title="PO Approvals"
       subtitle="Approve purchase orders from vendors."
       primaryAction={
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportToCsv}>
+            <Download className="mr-2 h-4 w-4" /> Export CSV
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <ZoruDialogTrigger asChild>
             <Button size="sm" onClick={openNew}>
               <Plus className="mr-2 h-4 w-4" /> New Record
@@ -163,11 +219,7 @@ export function PurchaseOrderListClient({ initialItems, error }: { initialItems:
         </Dialog>
       }
     >
-      {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-          {error}
-        </div>
-      )}
+      
 
       <div className="mb-6 flex items-center gap-2">
         <div className="relative flex-1 max-w-sm">
@@ -186,7 +238,7 @@ export function PurchaseOrderListClient({ initialItems, error }: { initialItems:
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead>VendorId</ZoruTableHead><ZoruTableHead>TotalAmount</ZoruTableHead><ZoruTableHead>ApprovedBy</ZoruTableHead><ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead className="w-[80px]"></ZoruTableHead>
+              <ZoruTableHead className="w-[120px] text-right">Actions</ZoruTableHead>
             </ZoruTableRow>
           </ZoruTableHeader>
           <ZoruTableBody>
@@ -199,8 +251,25 @@ export function PurchaseOrderListClient({ initialItems, error }: { initialItems:
             ) : (
               filteredItems.map((item) => (
                 <ZoruTableRow key={item._id}>
-                  <ZoruTableCell>{String(item.vendorId ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.totalAmount ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.approvedBy ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.status ?? '')}</ZoruTableCell>
+                  <ZoruTableCell>{String(item.vendorId ?? '')}</ZoruTableCell>
+                  <ZoruTableCell>{String(item.totalAmount ?? '')}</ZoruTableCell>
+                  <ZoruTableCell>{String(item.approvedBy ?? '')}</ZoruTableCell>
                   <ZoruTableCell>
+                    <Badge variant={item.status === 'approved' ? 'default' : item.status === 'rejected' ? 'destructive' : 'secondary'}>
+                      {String(item.status ?? 'pending')}
+                    </Badge>
+                  </ZoruTableCell>
+                  <ZoruTableCell className="text-right flex items-center justify-end gap-1">
+                    {item.status !== 'approved' && (
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600" onClick={() => handleApprove(item._id as string)} title="Approve">
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {item.status !== 'rejected' && (
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-orange-600" onClick={() => handleReject(item._id as string)} title="Reject">
+                        <XCircle className="h-4 w-4" />
+                      </Button>
+                    )}
                     <DropdownMenu>
                       <ZoruDropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -223,6 +292,22 @@ export function PurchaseOrderListClient({ initialItems, error }: { initialItems:
           </ZoruTableBody>
         </Table>
       </div>
+
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+            {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
+              <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
+                <div className="font-medium text-sm text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="col-span-2 text-sm">{String(value)}</div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </EntityListShell>
   );
 }

@@ -229,6 +229,10 @@ export async function generatePayrollSummaryData(filters: {
             grossSalary: number; pf: number; esi: number; tds: number;
             professionalTax: number; totalDeductions: number; netPay: number;
         };
+        previousTotals?: {
+            grossSalary: number; pf: number; esi: number; tds: number;
+            professionalTax: number; totalDeductions: number; netPay: number;
+        };
         totalEmployees: number;
         totalPayroll: number;
     };
@@ -263,19 +267,36 @@ export async function generatePayrollSummaryData(filters: {
         const periodStart = new Date(year, month - 1, 1);
         const periodEnd = new Date(year, month, 0, 23, 59, 59);
 
-        const payslips = await db.collection('crm_payslips').find({
-            userId,
-            payPeriodStart: { $gte: periodStart, $lte: periodEnd },
-        }).toArray();
+        let prevMonth = month - 1;
+        let prevYear = year;
+        if (prevMonth === 0) {
+            prevMonth = 12;
+            prevYear -= 1;
+        }
+        const prevPeriodStart = new Date(prevYear, prevMonth - 1, 1);
+        const prevPeriodEnd = new Date(prevYear, prevMonth, 0, 23, 59, 59);
+
+        const [payslips, prevPayslips] = await Promise.all([
+            db.collection('crm_payslips').find({
+                userId,
+                payPeriodStart: { $gte: periodStart, $lte: periodEnd },
+            }).toArray(),
+            db.collection('crm_payslips').find({
+                userId,
+                payPeriodStart: { $gte: prevPeriodStart, $lte: prevPeriodEnd },
+            }).toArray()
+        ]);
 
         const payslipMap: Record<string, any> = {};
         payslips.forEach((p: any) => { payslipMap[p.employeeId.toString()] = p; });
 
-        const rows = employees.map((emp: any) => {
-            const payslip = payslipMap[emp._id.toString()];
+        const prevPayslipMap: Record<string, any> = {};
+        prevPayslips.forEach((p: any) => { prevPayslipMap[p.employeeId.toString()] = p; });
+
+        const computeRow = (emp: any, pMap: Record<string, any>) => {
+            const payslip = pMap[emp._id.toString()];
             const grossSalary = payslip?.grossSalary ?? emp.salaryDetails?.grossSalary ?? 0;
 
-            // Standard Indian payroll deduction approximations
             const pf = payslip
                 ? (payslip.deductions?.find((d: any) => /pf|provident/i.test(d.name))?.amount ?? Math.round(grossSalary * 0.12))
                 : Math.round(grossSalary * 0.12);
@@ -303,25 +324,38 @@ export async function generatePayrollSummaryData(filters: {
                 totalDeductions,
                 netPay,
             };
-        });
+        };
 
-        const sum = (key: keyof (typeof rows)[0]) =>
-            rows.reduce((s, r) => s + (r[key] as number), 0);
+        const rows = employees.map((emp: any) => computeRow(emp, payslipMap));
+        const prevRows = employees.map((emp: any) => computeRow(emp, prevPayslipMap));
+
+        const sum = (arr: any[], key: string) => arr.reduce((s, r) => s + (r[key] as number), 0);
 
         const totals = {
-            grossSalary: sum('grossSalary'),
-            pf: sum('pf'),
-            esi: sum('esi'),
-            tds: sum('tds'),
-            professionalTax: sum('professionalTax'),
-            totalDeductions: sum('totalDeductions'),
-            netPay: sum('netPay'),
+            grossSalary: sum(rows, 'grossSalary'),
+            pf: sum(rows, 'pf'),
+            esi: sum(rows, 'esi'),
+            tds: sum(rows, 'tds'),
+            professionalTax: sum(rows, 'professionalTax'),
+            totalDeductions: sum(rows, 'totalDeductions'),
+            netPay: sum(rows, 'netPay'),
+        };
+
+        const previousTotals = {
+            grossSalary: sum(prevRows, 'grossSalary'),
+            pf: sum(prevRows, 'pf'),
+            esi: sum(prevRows, 'esi'),
+            tds: sum(prevRows, 'tds'),
+            professionalTax: sum(prevRows, 'professionalTax'),
+            totalDeductions: sum(prevRows, 'totalDeductions'),
+            netPay: sum(prevRows, 'netPay'),
         };
 
         return {
             data: {
                 rows: JSON.parse(JSON.stringify(rows)),
                 totals,
+                previousTotals,
                 totalEmployees: employees.length,
                 totalPayroll: totals.grossSalary,
             },
@@ -352,6 +386,9 @@ export async function generateSalaryRegisterData(filters: {
         tds: number;
         totalDeductions: number;
         netPay: number;
+        ytdGross: number;
+        ytdDeductions: number;
+        ytdNetPay: number;
     }[];
     summary?: { totalGross: number; totalDeductions: number; totalNetPay: number; totalEmployees: number };
     error?: string;
@@ -386,8 +423,21 @@ export async function generateSalaryRegisterData(filters: {
             payPeriodStart: { $gte: periodStart, $lte: periodEnd },
         }).toArray();
 
+        const ytdPeriodStart = new Date(year, 0, 1);
+        const ytdPayslips = await db.collection('crm_payslips').find({
+            userId,
+            payPeriodStart: { $gte: ytdPeriodStart, $lte: periodEnd },
+        }).toArray();
+
         const payslipMap: Record<string, any> = {};
         payslips.forEach((p: any) => { payslipMap[p.employeeId.toString()] = p; });
+
+        const ytdPayslipMap: Record<string, any[]> = {};
+        ytdPayslips.forEach((p: any) => {
+            const empId = p.employeeId.toString();
+            if (!ytdPayslipMap[empId]) ytdPayslipMap[empId] = [];
+            ytdPayslipMap[empId].push(p);
+        });
 
         const data = employees.map((emp: any) => {
             const payslip = payslipMap[emp._id.toString()];
@@ -419,6 +469,30 @@ export async function generateSalaryRegisterData(filters: {
             const totalDeductions = pf + esi + tds;
             const netPay = totalGross - totalDeductions;
 
+            // Calculate YTD values
+            const empYtdPayslips = ytdPayslipMap[emp._id.toString()] || [];
+            let ytdGross = 0;
+            let ytdDeductions = 0;
+            let ytdNetPay = 0;
+
+            if (empYtdPayslips.length > 0) {
+                empYtdPayslips.forEach((p: any) => {
+                    const pGross = p.grossSalary ?? 0;
+                    const pDeductions = p.deductions?.reduce((s: number, d: any) => s + d.amount, 0) ?? 0;
+                    ytdGross += pGross;
+                    ytdDeductions += pDeductions;
+                    ytdNetPay += (pGross - pDeductions);
+                });
+            } else {
+                // If no payslips exist yet for the year, approximate based on current month's calculated values
+                // This assumes the employee just started or payslips aren't generated yet
+                // For a more accurate YTD, we would multiply by the number of months active, 
+                // but usually YTD is just sum of actuals. We will use the current month's values as YTD for now.
+                ytdGross = totalGross;
+                ytdDeductions = totalDeductions;
+                ytdNetPay = netPay;
+            }
+
             return {
                 employeeId: emp._id.toString(),
                 employeeName: `${emp.firstName} ${emp.lastName}`,
@@ -433,6 +507,9 @@ export async function generateSalaryRegisterData(filters: {
                 tds,
                 totalDeductions,
                 netPay,
+                ytdGross,
+                ytdDeductions,
+                ytdNetPay,
             };
         });
 

@@ -1,0 +1,10 @@
+--- src/app/dashboard/finance/payouts/_components/payouts-list-client.tsx
++++ src/app/dashboard/finance/payouts/_components/payouts-list-client.tsx
+@@ -32,7 +32,7 @@
+ import { toast } from 'sonner';
+ 
+-export function PayoutListClient({ initialItems, error }: { initialItems: Payout[], error?: string }) {
++export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
+   const router = useRouter();
+   const [items, setItems] = useState(initialItems || []);
+   const [isDialogOpen, setIsDialogOpen] = useState(false);

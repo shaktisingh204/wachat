@@ -22,8 +22,13 @@ import {
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
   Badge,
+  Alert,
+  ZoruAlertTitle,
+  ZoruAlertDescription,
+  EmptyState,
+  StatCard
 } from '@/components/zoruui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, DollarSign, Calendar, CreditCard, AlertCircle, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createSubscription, updateSubscription, deleteSubscription, Subscription } from '@/app/actions/finance/subscriptions.actions';
 import { toast } from 'sonner';
@@ -35,10 +40,53 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [viewingItem, setViewingItem] = useState<Subscription | null>(null);
+
+  function exportToCsv() {
+    if (items.length === 0) return;
+    const headers = Object.keys(items[0] || {}).filter(k => k !== '_id' && k !== '__v');
+    const csvContent = [
+      headers.join(','),
+      ...items.map(item => headers.map(h => JSON.stringify((item as any)[h] ?? '')).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'subscriptions_export.csv';
+    link.click();
+  }
+
+  function openView(item: Subscription) {
+    setViewingItem(item);
+    setIsViewOpen(true);
+  }
 
   const filteredItems = items.filter(item => 
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
+
+  const activeItems = items.filter(item => !item.status || String(item.status).toUpperCase() === 'ACTIVE');
+  
+  const mrr = activeItems.reduce((acc, item) => {
+    const amount = Number(item.amount) || 0;
+    const cycle = String(item.billingCycle).toUpperCase();
+    if (cycle === 'YEARLY') return acc + (amount / 12);
+    return acc + amount;
+  }, 0);
+
+  const arr = mrr * 12;
+
+  const now = new Date();
+  const next30Days = new Date();
+  next30Days.setDate(next30Days.getDate() + 30);
+  
+  const upcomingRenewals = activeItems.filter(item => {
+    if (!item.nextBillingDate) return false;
+    const billingDate = new Date(item.nextBillingDate);
+    return billingDate >= now && billingDate <= next30Days;
+  }).length;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -109,7 +157,11 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
       title="Subscriptions Billing"
       subtitle="Manage recurring billing and subscriptions."
       primaryAction={
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportToCsv}>
+            <Download className="mr-2 h-4 w-4" /> Export CSV
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <ZoruDialogTrigger asChild>
             <Button size="sm" onClick={openNew}>
               <Plus className="mr-2 h-4 w-4" /> New Record
@@ -180,65 +232,116 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
       }
     >
       {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-          {error}
-        </div>
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <ZoruAlertTitle>Error Loading Subscriptions</ZoruAlertTitle>
+          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+        </Alert>
       )}
 
-      <div className="mb-6 flex items-center gap-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search records..." 
-            className="pl-8"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-        </div>
-      </div>
+      {!error && items.length === 0 ? (
+        <EmptyState 
+          title="No subscriptions yet"
+          description="Create your first subscription to track recurring revenue."
+          icon={<CreditCard className="h-6 w-6" />}
+          action={
+            <Button size="sm" onClick={openNew}>
+              <Plus className="mr-2 h-4 w-4" /> Add Subscription
+            </Button>
+          }
+        />
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <StatCard 
+              label="MRR" 
+              value={`$${mrr.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} 
+              icon={<DollarSign className="text-zoru-ink-muted" />} 
+            />
+            <StatCard 
+              label="ARR" 
+              value={`$${arr.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} 
+              icon={<DollarSign className="text-zoru-ink-muted" />} 
+            />
+            <StatCard 
+              label="Upcoming Renewals (30 Days)" 
+              value={upcomingRenewals.toString()} 
+              icon={<Calendar className="text-zoru-ink-muted" />} 
+            />
+          </div>
 
-      <div className="rounded-md border bg-white overflow-hidden">
-        <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead>CustomerId</ZoruTableHead><ZoruTableHead>PlanId</ZoruTableHead><ZoruTableHead>BillingCycle</ZoruTableHead><ZoruTableHead>NextBillingDate</ZoruTableHead><ZoruTableHead>Amount</ZoruTableHead><ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead className="w-[80px]"></ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
-            {filteredItems.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell colSpan={7} className="h-24 text-center">
-                  No results.
-                </ZoruTableCell>
-              </ZoruTableRow>
-            ) : (
-              filteredItems.map((item) => (
-                <ZoruTableRow key={item._id}>
-                  <ZoruTableCell>{String(item.customerId ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.planId ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.billingCycle ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.nextBillingDate ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.amount ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.status ?? '')}</ZoruTableCell>
-                  <ZoruTableCell>
-                    <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem onClick={() => openEdit(item._id as string)}>
-                          <Pencil className="mr-2 h-4 w-4" /> Edit
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem className="text-red-600 focus:bg-red-50" onClick={() => handleDelete(item._id as string)}>
-                          <Trash className="mr-2 h-4 w-4" /> Delete
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
-                    </DropdownMenu>
-                  </ZoruTableCell>
+          <div className="mb-6 flex items-center gap-2">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search records..." 
+                className="pl-8"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="rounded-md border bg-white overflow-hidden">
+            <Table>
+              <ZoruTableHeader>
+                <ZoruTableRow>
+                  <ZoruTableHead>CustomerId</ZoruTableHead><ZoruTableHead>PlanId</ZoruTableHead><ZoruTableHead>BillingCycle</ZoruTableHead><ZoruTableHead>NextBillingDate</ZoruTableHead><ZoruTableHead>Amount</ZoruTableHead><ZoruTableHead>Status</ZoruTableHead>
+                  <ZoruTableHead className="w-[80px]"></ZoruTableHead>
                 </ZoruTableRow>
-              ))
-            )}
-          </ZoruTableBody>
-        </Table>
-      </div>
+              </ZoruTableHeader>
+              <ZoruTableBody>
+                {filteredItems.length === 0 ? (
+                  <ZoruTableRow>
+                    <ZoruTableCell colSpan={7} className="h-24 text-center">
+                      No results.
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ) : (
+                  filteredItems.map((item) => (
+                    <ZoruTableRow key={item._id}>
+                      <ZoruTableCell>{String(item.customerId ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.planId ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.billingCycle ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.nextBillingDate ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.amount ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.status ?? '')}</ZoruTableCell>
+                      <ZoruTableCell>
+                        <DropdownMenu>
+                          <ZoruDropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </ZoruDropdownMenuTrigger>
+                          <ZoruDropdownMenuContent align="end">
+                            <ZoruDropdownMenuItem onClick={() => openEdit(item._id as string)}>
+                              <Pencil className="mr-2 h-4 w-4" /> Edit
+                            </ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem className="text-red-600 focus:bg-red-50" onClick={() => handleDelete(item._id as string)}>
+                              <Trash className="mr-2 h-4 w-4" /> Delete
+                            </ZoruDropdownMenuItem>
+                          </ZoruDropdownMenuContent>
+                        </DropdownMenu>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ))
+                )}
+              </ZoruTableBody>
+            </Table>
+          </div>
+        </>
+      )}
+
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
+            {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
+              <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
+                <div className="font-medium text-sm text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="col-span-2 text-sm">{String(value)}</div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </EntityListShell>
   );
 }

@@ -12,6 +12,9 @@ import {
   ZoruSelectValue,
   Textarea,
   useZoruToast,
+  ZoruAlert,
+  ZoruAlertTitle,
+  ZoruAlertDescription,
 } from '@/components/zoruui';
 import {
   useActionState,
@@ -30,6 +33,9 @@ import {
   Lock,
   Unlock,
   SlidersHorizontal,
+  AlertTriangle,
+  ChevronRight,
+  Info,
 } from 'lucide-react';
 
 /**
@@ -42,7 +48,7 @@ import {
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { savePayrollRun } from '@/app/actions/crm-payroll-runs.actions';
-import { generatePayrollData } from '@/app/actions/crm-payroll.actions';
+import { generatePayrollData, getPendingLeavesForPeriod } from '@/app/actions/crm-payroll.actions';
 import type {
   CrmPayrollRunDoc,
   CrmPayrollRunStatus,
@@ -105,9 +111,26 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
   const [isApproved, setIsApproved] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  // Wizard state
+  const [wizardStep, setWizardStep] = useState<number>(isEditing ? 3 : 1);
+  const [pendingLeaves, setPendingLeaves] = useState<any[]>([]);
+  const [isCheckingLeaves, startCheckingLeaves] = useTransition();
+
+  const handleNextToStep2 = () => {
+    startCheckingLeaves(async () => {
+      const res = await getPendingLeavesForPeriod(selectedMonth, selectedYear);
+      setPendingLeaves(res.pendingLeaves || []);
+      setWizardStep(2);
+    });
+  };
+
+  const handleNextToStep3 = () => {
+    setWizardStep(3);
+  };
+
   // Load simulator data
   useEffect(() => {
-    if (!isEditing) {
+    if (!isEditing && wizardStep === 3) {
       startTransition(async () => {
         try {
           const res = await generatePayrollData(selectedMonth, selectedYear);
@@ -122,7 +145,7 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
         }
       });
     }
-  }, [selectedMonth, selectedYear, isEditing]);
+  }, [selectedMonth, selectedYear, isEditing, wizardStep]);
 
   useEffect(() => {
     if (state?.message) {
@@ -158,7 +181,16 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
     <Card className="p-6">
       <form action={formAction} className="flex flex-col gap-6">
         {isEditing ? (
-          <input type="hidden" name="runId" value={initialData!._id} />
+          <>
+            <input type="hidden" name="runId" value={initialData!._id} />
+            <ZoruAlert className="bg-zoru-info/10 border-zoru-info/20 text-zoru-info-ink">
+              <Info className="h-4 w-4 !text-zoru-info-ink" />
+              <ZoruAlertTitle>Payslips are locked</ZoruAlertTitle>
+              <ZoruAlertDescription>
+                You can only update the run's metadata (status, date, notes). The generated payslips and totals for this run are immutable.
+              </ZoruAlertDescription>
+            </ZoruAlert>
+          </>
         ) : null}
 
         {/* Hidden inputs to pass state */}
@@ -241,127 +273,203 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
           />
         </div>
 
-        {/* Dynamic Simulation Console (Creation Path only) */}
+        {/* Dynamic Simulation Console / Wizard (Creation Path only) */}
         {!isEditing && (
-          <Card className="border border-zoru-line overflow-hidden p-0 bg-zoru-surface/20">
-            {/* Simulation Controller Header */}
-            <div className="flex flex-col gap-4 border-b border-zoru-line bg-zoru-surface/50 p-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-zoru-success-ink animate-pulse" />
-                <div>
-                  <h4 className="text-[14px] font-semibold text-zoru-ink">Interactive Simulator Grid</h4>
-                  <p className="text-[11px] text-zoru-ink-muted">Reactively adjust allowancing scales prior to payslip locks</p>
-                </div>
-              </div>
-
-              {/* Slider Controller */}
-              <div className="flex items-center gap-3 bg-zoru-bg border border-zoru-line px-3 py-1.5 rounded-lg">
-                <SlidersHorizontal className="h-4 w-4 text-zoru-ink-muted" />
-                <span className="text-[12px] font-semibold text-zoru-ink-muted uppercase">Multiplier</span>
-                <input
-                  type="range"
-                  min="0.5"
-                  max="2.5"
-                  step="0.1"
-                  value={multiplier}
-                  onChange={(e) => setMultiplier(Number(e.target.value))}
-                  className="w-32 accent-emerald-500 h-1.5 bg-zoru-surface rounded-lg cursor-pointer"
-                />
-                <span className={`text-[12px] font-mono font-bold px-2 py-0.5 rounded ${
-                  multiplier > 1.0 ? 'bg-zoru-success/15 text-zoru-success-ink' : multiplier < 1.0 ? 'bg-zoru-danger/15 text-zoru-danger-ink' : 'bg-zoru-surface-2 text-zoru-ink'
-                }`}>
-                  {multiplier.toFixed(1)}x
-                </span>
-              </div>
+          <div className="flex flex-col gap-6">
+            {/* Wizard Progress Bar */}
+            <div className="flex items-center gap-2 text-[12px] font-medium text-zoru-ink-muted bg-zoru-surface-2/20 p-3 rounded-lg border border-zoru-line">
+              <span className={`px-2 py-1 rounded-md ${wizardStep === 1 ? 'bg-zoru-surface-2 text-zoru-ink font-semibold' : ''}`}>1. Select Period</span>
+              <ChevronRight className="h-4 w-4" />
+              <span className={`px-2 py-1 rounded-md ${wizardStep === 2 ? 'bg-zoru-surface-2 text-zoru-ink font-semibold' : ''}`}>2. Resolve Leaves</span>
+              <ChevronRight className="h-4 w-4" />
+              <span className={`px-2 py-1 rounded-md ${wizardStep === 3 ? 'bg-zoru-surface-2 text-zoru-ink font-semibold' : ''}`}>3. Generate Run</span>
             </div>
 
-            {/* Simulated spreadsheet list */}
-            {isPending ? (
-              <div className="flex flex-col items-center justify-center py-12 gap-3 text-zoru-ink-muted">
-                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-info-ink" />
-                <span className="text-[12px]">Computing live salary ledgers...</span>
-              </div>
-            ) : simulatedRows.length === 0 ? (
-              <div className="text-center py-10 text-[12.5px] text-zoru-ink-muted">
-                No active employee salary structures available for the selected period.
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-[12.5px]">
-                  <thead>
-                    <tr className="bg-zoru-surface-2 text-zoru-ink-muted text-[11px] font-semibold uppercase">
-                      <th className="p-3 text-left">Employee Name</th>
-                      <th className="p-3 text-right">Base CTC Gross</th>
-                      <th className="p-3 text-right">Basic Pay (50%)</th>
-                      <th className="p-3 text-right">Simulated HRA</th>
-                      <th className="p-3 text-right">Simulated Allowances</th>
-                      <th className="p-3 text-right">Deductions</th>
-                      <th className="p-3 text-right">Net Takehome</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-zoru-line">
-                    {simulatedRows.map((row) => {
-                      const { totalEarnings, totalDeductions, netSalary } = getScaledValues(row);
-                      const baseGross = row.grossSalary || 0;
-                      
-                      // Pull raw component amounts
-                      const basicAmt = (row.earnings ?? []).find((e: any) => e.name.toLowerCase().includes('basic'))?.amount || (baseGross * 0.5);
-                      const hraAmt = ((row.earnings ?? []).find((e: any) => e.name.toLowerCase().includes('hra'))?.amount || (baseGross * 0.2)) * multiplier;
-                      const allowanceAmt = ((row.earnings ?? []).find((e: any) => e.name.toLowerCase().includes('allowance'))?.amount || (baseGross * 0.3)) * multiplier;
-
-                      return (
-                        <tr key={row.employeeId} className="hover:bg-zoru-surface-2/10">
-                          <td className="p-3">
-                            <div className="font-medium text-zoru-ink">{row.employeeName}</div>
-                            <div className="text-[10px] font-mono text-zoru-ink-muted mt-0.5">{row.employeeId}</div>
-                          </td>
-                          <td className="p-3 text-right font-mono text-zoru-ink-muted">{inrFormatter.format(baseGross / 12)}</td>
-                          <td className="p-3 text-right font-mono text-zoru-ink">{inrFormatter.format(basicAmt)}</td>
-                          <td className={`p-3 text-right font-mono font-medium transition-colors duration-300 ${multiplier !== 1.0 ? 'text-amber-500 bg-amber-500/5' : 'text-zoru-ink'}`}>
-                            {inrFormatter.format(hraAmt)}
-                          </td>
-                          <td className={`p-3 text-right font-mono font-medium transition-colors duration-300 ${multiplier !== 1.0 ? 'text-amber-500 bg-amber-500/5' : 'text-zoru-ink'}`}>
-                            {inrFormatter.format(allowanceAmt)}
-                          </td>
-                          <td className="p-3 text-right font-mono text-zoru-danger-ink">{inrFormatter.format(totalDeductions)}</td>
-                          <td className="p-3 text-right">
-                            <span className="inline-block px-2.5 py-1 rounded bg-zoru-success/10 text-zoru-success-ink font-mono font-bold shadow-sm">
-                              {inrFormatter.format(netSalary)}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+            {wizardStep === 1 && (
+              <div className="flex justify-end border-t border-zoru-line pt-4 mt-2">
+                <Button type="button" onClick={handleNextToStep2} disabled={isCheckingLeaves}>
+                  {isCheckingLeaves ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin" /> : null}
+                  Next: Check Pending Leaves
+                </Button>
               </div>
             )}
 
-            {/* Safety Switch Box */}
-            {simulatedRows.length > 0 && (
-              <div className="border-t border-zoru-line p-4 flex items-center justify-between gap-4 bg-zoru-surface-2/30">
-                <div className="flex items-center gap-2">
-                  {isApproved ? (
-                    <Lock className="h-4 w-4 text-zoru-success-ink" />
+            {wizardStep === 2 && (
+              <Card className={`border p-6 shadow-sm ${pendingLeaves.length > 0 ? 'border-zoru-warning/50 bg-zoru-warning/5' : 'border-zoru-success/50 bg-zoru-success/5'}`}>
+                <div className="flex items-start gap-4">
+                  {pendingLeaves.length > 0 ? (
+                    <AlertTriangle className="h-6 w-6 text-zoru-warning-ink shrink-0 mt-1" />
                   ) : (
-                    <Unlock className="h-4 w-4 text-zoru-warning-ink" />
+                    <Sparkles className="h-6 w-6 text-zoru-success-ink shrink-0 mt-1" />
                   )}
-                  <span className="text-[12.5px] font-medium text-zoru-ink">
-                    {isApproved ? 'Parameters locked and ready' : 'Unlock run validation before processing'}
-                  </span>
+                  <div className="flex-1 space-y-4">
+                    <div>
+                      <h4 className={`text-sm font-semibold ${pendingLeaves.length > 0 ? 'text-zoru-warning-ink' : 'text-zoru-success-ink'}`}>
+                        {pendingLeaves.length > 0 ? 'Pending Leaves Detected' : 'All clear! No pending leaves.'}
+                      </h4>
+                      <p className="text-xs text-zoru-ink-muted mt-1">
+                        {pendingLeaves.length > 0 
+                          ? `There are ${pendingLeaves.length} pending leave requests for the selected period. Processing payroll now might result in inaccurate deductions.`
+                          : 'There are no pending leave requests for the selected period. You can safely proceed to simulation.'}
+                      </p>
+                    </div>
+                    {pendingLeaves.length > 0 && (
+                      <div className="max-h-40 overflow-y-auto border border-zoru-line rounded bg-zoru-bg shadow-inner">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-zoru-surface-2 text-zoru-ink-muted sticky top-0">
+                            <tr>
+                              <th className="p-2 font-medium">Employee</th>
+                              <th className="p-2 font-medium">Dates</th>
+                              <th className="p-2 font-medium">Type</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-zoru-line">
+                            {pendingLeaves.map(l => (
+                              <tr key={l._id} className="hover:bg-zoru-surface/50">
+                                <td className="p-2">{l.employeeName || 'Unknown'}</td>
+                                <td className="p-2">{new Date(l.startDate).toLocaleDateString()} - {new Date(l.endDate).toLocaleDateString()}</td>
+                                <td className="p-2">{l.leaveType}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                    <div className="flex gap-3 pt-2">
+                      <Button type="button" variant="outline" onClick={() => setWizardStep(1)}>
+                        Back
+                      </Button>
+                      <Button type="button" onClick={handleNextToStep3} className={pendingLeaves.length > 0 ? 'bg-zoru-warning-ink hover:bg-zoru-warning-ink/90 text-white' : ''}>
+                        {pendingLeaves.length > 0 ? 'Ignore & Continue' : 'Continue to Simulation'}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isApproved}
-                    onChange={(e) => setIsApproved(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-zoru-surface-2 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zoru-ink-muted after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-white"></div>
-                </label>
-              </div>
+              </Card>
             )}
-          </Card>
+
+            {wizardStep === 3 && (
+              <Card className="border border-zoru-line overflow-hidden p-0 bg-zoru-surface/20">
+                {/* Simulation Controller Header */}
+                <div className="flex flex-col gap-4 border-b border-zoru-line bg-zoru-surface/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-zoru-success-ink animate-pulse" />
+                    <div>
+                      <h4 className="text-[14px] font-semibold text-zoru-ink">Interactive Simulator Grid</h4>
+                      <p className="text-[11px] text-zoru-ink-muted">Reactively adjust allowancing scales prior to payslip locks</p>
+                    </div>
+                  </div>
+
+                  {/* Slider Controller */}
+                  <div className="flex items-center gap-3 bg-zoru-bg border border-zoru-line px-3 py-1.5 rounded-lg">
+                    <SlidersHorizontal className="h-4 w-4 text-zoru-ink-muted" />
+                    <span className="text-[12px] font-semibold text-zoru-ink-muted uppercase">Multiplier</span>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="2.5"
+                      step="0.1"
+                      value={multiplier}
+                      onChange={(e) => setMultiplier(Number(e.target.value))}
+                      className="w-32 accent-emerald-500 h-1.5 bg-zoru-surface rounded-lg cursor-pointer"
+                    />
+                    <span className={`text-[12px] font-mono font-bold px-2 py-0.5 rounded ${
+                      multiplier > 1.0 ? 'bg-zoru-success/15 text-zoru-success-ink' : multiplier < 1.0 ? 'bg-zoru-danger/15 text-zoru-danger-ink' : 'bg-zoru-surface-2 text-zoru-ink'
+                    }`}>
+                      {multiplier.toFixed(1)}x
+                    </span>
+                  </div>
+                </div>
+
+                {/* Simulated spreadsheet list */}
+                {isPending ? (
+                  <div className="flex flex-col items-center justify-center py-12 gap-3 text-zoru-ink-muted">
+                    <LoaderCircle className="h-8 w-8 animate-spin text-zoru-info-ink" />
+                    <span className="text-[12px]">Computing live salary ledgers...</span>
+                  </div>
+                ) : simulatedRows.length === 0 ? (
+                  <div className="text-center py-10 text-[12.5px] text-zoru-ink-muted">
+                    No active employee salary structures available for the selected period.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-[12.5px]">
+                      <thead>
+                        <tr className="bg-zoru-surface-2 text-zoru-ink-muted text-[11px] font-semibold uppercase">
+                          <th className="p-3 text-left">Employee Name</th>
+                          <th className="p-3 text-right">Base CTC Gross</th>
+                          <th className="p-3 text-right">Basic Pay (50%)</th>
+                          <th className="p-3 text-right">Simulated HRA</th>
+                          <th className="p-3 text-right">Simulated Allowances</th>
+                          <th className="p-3 text-right">Deductions</th>
+                          <th className="p-3 text-right">Net Takehome</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zoru-line">
+                        {simulatedRows.map((row) => {
+                          const { totalEarnings, totalDeductions, netSalary } = getScaledValues(row);
+                          const baseGross = row.grossSalary || 0;
+                          
+                          // Pull raw component amounts
+                          const basicAmt = (row.earnings ?? []).find((e: any) => e.name.toLowerCase().includes('basic'))?.amount || (baseGross * 0.5);
+                          const hraAmt = ((row.earnings ?? []).find((e: any) => e.name.toLowerCase().includes('hra'))?.amount || (baseGross * 0.2)) * multiplier;
+                          const allowanceAmt = ((row.earnings ?? []).find((e: any) => e.name.toLowerCase().includes('allowance'))?.amount || (baseGross * 0.3)) * multiplier;
+
+                          return (
+                            <tr key={row.employeeId} className="hover:bg-zoru-surface-2/10">
+                              <td className="p-3">
+                                <div className="font-medium text-zoru-ink">{row.employeeName}</div>
+                                <div className="text-[10px] font-mono text-zoru-ink-muted mt-0.5">{row.employeeId}</div>
+                              </td>
+                              <td className="p-3 text-right font-mono text-zoru-ink-muted">{inrFormatter.format(baseGross / 12)}</td>
+                              <td className="p-3 text-right font-mono text-zoru-ink">{inrFormatter.format(basicAmt)}</td>
+                              <td className={`p-3 text-right font-mono font-medium transition-colors duration-300 ${multiplier !== 1.0 ? 'text-amber-500 bg-amber-500/5' : 'text-zoru-ink'}`}>
+                                {inrFormatter.format(hraAmt)}
+                              </td>
+                              <td className={`p-3 text-right font-mono font-medium transition-colors duration-300 ${multiplier !== 1.0 ? 'text-amber-500 bg-amber-500/5' : 'text-zoru-ink'}`}>
+                                {inrFormatter.format(allowanceAmt)}
+                              </td>
+                              <td className="p-3 text-right font-mono text-zoru-danger-ink">{inrFormatter.format(totalDeductions)}</td>
+                              <td className="p-3 text-right">
+                                <span className="inline-block px-2.5 py-1 rounded bg-zoru-success/10 text-zoru-success-ink font-mono font-bold shadow-sm">
+                                  {inrFormatter.format(netSalary)}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* Safety Switch Box */}
+                {simulatedRows.length > 0 && (
+                  <div className="border-t border-zoru-line p-4 flex items-center justify-between gap-4 bg-zoru-surface-2/30">
+                    <div className="flex items-center gap-2">
+                      {isApproved ? (
+                        <Lock className="h-4 w-4 text-zoru-success-ink" />
+                      ) : (
+                        <Unlock className="h-4 w-4 text-zoru-warning-ink" />
+                      )}
+                      <span className="text-[12.5px] font-medium text-zoru-ink">
+                        {isApproved ? 'Parameters locked and ready' : 'Unlock run validation before processing'}
+                      </span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isApproved}
+                        onChange={(e) => setIsApproved(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-zoru-surface-2 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zoru-ink-muted after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-white"></div>
+                    </label>
+                  </div>
+                )}
+              </Card>
+            )}
+          </div>
         )}
 
         <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
@@ -372,18 +480,20 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
             </Link>
           </Button>
           
-          <Button
-            type="submit"
-            disabled={!isEditing && !isApproved}
-            className={`shadow-sm transition-all duration-300 ${
-              !isEditing && isApproved
-                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold ring-2 ring-emerald-500/20'
-                : ''
-            }`}
-          >
-            <Save className="mr-2 h-4 w-4" />
-            {isEditing ? 'Save changes' : 'Generate & lock run'}
-          </Button>
+          {(isEditing || wizardStep === 3) && (
+            <Button
+              type="submit"
+              disabled={!isEditing && !isApproved}
+              className={`shadow-sm transition-all duration-300 ${
+                !isEditing && isApproved
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold ring-2 ring-emerald-500/20'
+                  : ''
+              }`}
+            >
+              <Save className="mr-2 h-4 w-4" />
+              {isEditing ? 'Save changes' : 'Generate & lock run'}
+            </Button>
+          )}
         </div>
       </form>
     </Card>

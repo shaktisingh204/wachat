@@ -8,6 +8,7 @@ import {
  */
 
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
+import { PayslipDownloadButton } from './download-button';
 
 import { getSession } from '@/app/actions/user.actions';
 import { getPayslipDoc } from '@/app/actions/crm-payslips.actions';
@@ -44,6 +45,13 @@ function fmtPeriod(p: string | undefined): string {
     return d.toLocaleString('default', { month: 'long', year: 'numeric' });
 }
 
+function FormattedAmount({ amount }: { amount: number | null | undefined }) {
+    if (amount === null || amount === undefined) {
+        return <span className="text-red-500 font-medium">N/A</span>;
+    }
+    return <>{inr.format(amount)}</>;
+}
+
 export default async function PayslipDetailPage({
     params,
 }: {
@@ -60,12 +68,20 @@ export default async function PayslipDetailPage({
     const status = (payslip.status ?? 'draft') as CrmPayslipStatus;
     const tone = STATUS_TONE[status] ?? 'neutral';
 
+    const hasMissingDeductions = [payslip.pf, payslip.esi, payslip.tax, payslip.deductions].some(v => v == null);
+    const totalDeductions = hasMissingDeductions 
+        ? null 
+        : (payslip.pf || 0) + (payslip.esi || 0) + (payslip.tax || 0) + (payslip.deductions || 0);
+
     return (
         <EntityDetailShell
             eyebrow="PAYSLIP"
             title={`Payslip · ${payslip.employeeName ?? payslip.employeeId}`}
             status={{ label: status, tone }}
             back={{ href: BASE, label: 'Payslips' }}
+            actions={
+                <PayslipDownloadButton payslip={payslip} />
+            }
         >
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -114,25 +130,25 @@ export default async function PayslipDetailPage({
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">Basic</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    {inr.format(payslip.basic ?? 0)}
+                                    <FormattedAmount amount={payslip.basic} />
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">HRA</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    {inr.format(payslip.hra ?? 0)}
+                                    <FormattedAmount amount={payslip.hra} />
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">Allowances</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    {inr.format(payslip.allowances ?? 0)}
+                                    <FormattedAmount amount={payslip.allowances} />
                                 </dd>
                             </div>
                             <div className="mt-2 flex items-center justify-between border-t border-zoru-line pt-2">
                                 <dt className="font-medium text-zoru-ink">Gross</dt>
                                 <dd className="font-mono font-medium text-zoru-ink">
-                                    {inr.format(payslip.gross ?? 0)}
+                                    <FormattedAmount amount={payslip.gross} />
                                 </dd>
                             </div>
                         </dl>
@@ -146,36 +162,31 @@ export default async function PayslipDetailPage({
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">PF</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    {inr.format(payslip.pf ?? 0)}
+                                    <FormattedAmount amount={payslip.pf} />
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">ESI</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    {inr.format(payslip.esi ?? 0)}
+                                    <FormattedAmount amount={payslip.esi} />
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">Tax</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    {inr.format(payslip.tax ?? 0)}
+                                    <FormattedAmount amount={payslip.tax} />
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">Other</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    {inr.format(payslip.deductions ?? 0)}
+                                    <FormattedAmount amount={payslip.deductions} />
                                 </dd>
                             </div>
                             <div className="mt-2 flex items-center justify-between border-t border-zoru-line pt-2">
                                 <dt className="font-medium text-zoru-ink">Total deductions</dt>
                                 <dd className="font-mono font-medium text-zoru-ink">
-                                    {inr.format(
-                                        (payslip.pf ?? 0) +
-                                            (payslip.esi ?? 0) +
-                                            (payslip.tax ?? 0) +
-                                            (payslip.deductions ?? 0),
-                                    )}
+                                    <FormattedAmount amount={totalDeductions} />
                                 </dd>
                             </div>
                         </dl>
@@ -187,7 +198,7 @@ export default async function PayslipDetailPage({
                         Net pay
                     </div>
                     <div className="font-mono text-[18px] font-medium text-zoru-ink">
-                        {inr.format(payslip.net ?? 0)}
+                        <FormattedAmount amount={payslip.net} />
                     </div>
                 </div>
             </Card>

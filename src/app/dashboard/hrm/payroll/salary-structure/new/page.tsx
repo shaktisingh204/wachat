@@ -1,13 +1,12 @@
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-
-/**
- * New salary structure page — server wrapper around `<SalaryStructureForm />`.
- */
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 
 import { SalaryStructureForm } from '../_components/salary-structure-form';
+import { LoaderCircle, Upload } from 'lucide-react';
+import { Button } from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,8 +18,16 @@ export default async function NewSalaryStructurePage() {
         <EntityListShell
             title="New salary structure"
             subtitle="Capture an employee's basic / HRA / DA, plus PF, ESI, professional tax."
+            primaryAction={
+                <Button variant="outline" size="sm">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Bulk Upload
+                </Button>
+            }
         >
-            <SalaryStructureForm />
+            <Suspense fallback={<div className="p-8 flex justify-center"><LoaderCircle className="animate-spin text-zoru-ink-muted" /></div>}>
+                <SalaryStructureForm />
+            </Suspense>
         </EntityListShell>
     );
 }
