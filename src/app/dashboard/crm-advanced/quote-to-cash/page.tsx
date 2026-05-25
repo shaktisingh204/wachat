@@ -5,7 +5,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Dialog, Input, Label, Badge, Card } from '@/components/zoruui';
 import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui/dialog';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
-import { getQuoteToCashs, createQuoteToCash, updateQuoteToCash, deleteQuoteToCash, type QuoteToCashType } from '@/app/actions/crm-advanced/quote-to-cash';
+import { getQuoteToCashs, createQuoteToCash, updateQuoteToCash, deleteQuoteToCash } from '@/app/actions/crm-advanced/quote-to-cash';
+import type { QuoteToCashType } from '@/app/actions/crm-advanced/quote-to-cash.schema';
 
 export default function QuoteToCashPage() {
   const [data, setData] = React.useState<QuoteToCashType[]>([]);

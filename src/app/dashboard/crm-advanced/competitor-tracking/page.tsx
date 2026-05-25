@@ -5,7 +5,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Dialog, Input, Label, Badge, Card } from '@/components/zoruui';
 import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui/dialog';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
-import { getCompetitorTrackings, createCompetitorTracking, updateCompetitorTracking, deleteCompetitorTracking, type CompetitorTrackingType } from '@/app/actions/crm-advanced/competitor-tracking';
+import { getCompetitorTrackings, createCompetitorTracking, updateCompetitorTracking, deleteCompetitorTracking } from '@/app/actions/crm-advanced/competitor-tracking';
+import type { CompetitorTrackingType } from '@/app/actions/crm-advanced/competitor-tracking.schema';
 
 export default function CompetitorTrackingPage() {
   const [data, setData] = React.useState<CompetitorTrackingType[]>([]);

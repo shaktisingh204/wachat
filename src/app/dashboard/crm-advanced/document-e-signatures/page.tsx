@@ -5,7 +5,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Dialog, Input, Label, Badge, Card } from '@/components/zoruui';
 import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui/dialog';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
-import { getDocumentESignaturess, createDocumentESignatures, updateDocumentESignatures, deleteDocumentESignatures, type DocumentESignaturesType } from '@/app/actions/crm-advanced/document-e-signatures';
+import { getDocumentESignaturess, createDocumentESignatures, updateDocumentESignatures, deleteDocumentESignatures } from '@/app/actions/crm-advanced/document-e-signatures';
+import type { DocumentESignaturesType } from '@/app/actions/crm-advanced/document-e-signatures.schema';
 
 export default function DocumentESignaturesPage() {
   const [data, setData] = React.useState<DocumentESignaturesType[]>([]);

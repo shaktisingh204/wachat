@@ -5,7 +5,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Dialog, Input, Label, Badge, Card } from '@/components/zoruui';
 import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui/dialog';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
-import { getSalesTerritorys, createSalesTerritory, updateSalesTerritory, deleteSalesTerritory, type SalesTerritoryType } from '@/app/actions/crm-advanced/sales-territory';
+import { getSalesTerritorys, createSalesTerritory, updateSalesTerritory, deleteSalesTerritory } from '@/app/actions/crm-advanced/sales-territory';
+import type { SalesTerritoryType } from '@/app/actions/crm-advanced/sales-territory.schema';
 
 export default function SalesTerritoryPage() {
   const [data, setData] = React.useState<SalesTerritoryType[]>([]);

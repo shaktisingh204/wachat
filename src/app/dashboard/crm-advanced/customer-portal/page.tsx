@@ -5,7 +5,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Dialog, Input, Label, Badge, Card } from '@/components/zoruui';
 import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui/dialog';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
-import { getCustomerPortals, createCustomerPortal, updateCustomerPortal, deleteCustomerPortal, type CustomerPortalType } from '@/app/actions/crm-advanced/customer-portal';
+import { getCustomerPortals, createCustomerPortal, updateCustomerPortal, deleteCustomerPortal } from '@/app/actions/crm-advanced/customer-portal';
+import type { CustomerPortalType } from '@/app/actions/crm-advanced/customer-portal.schema';
 
 export default function CustomerPortalPage() {
   const [data, setData] = React.useState<CustomerPortalType[]>([]);

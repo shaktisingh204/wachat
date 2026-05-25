@@ -5,7 +5,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Dialog, Input, Label, Badge, Card } from '@/components/zoruui';
 import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui/dialog';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
-import { getAutomatedLeadRoutings, createAutomatedLeadRouting, updateAutomatedLeadRouting, deleteAutomatedLeadRouting, type AutomatedLeadRoutingType } from '@/app/actions/crm-advanced/automated-lead-routing';
+import { getAutomatedLeadRoutings, createAutomatedLeadRouting, updateAutomatedLeadRouting, deleteAutomatedLeadRouting } from '@/app/actions/crm-advanced/automated-lead-routing';
+import type { AutomatedLeadRoutingType } from '@/app/actions/crm-advanced/automated-lead-routing.schema';
 
 export default function AutomatedLeadRoutingPage() {
   const [data, setData] = React.useState<AutomatedLeadRoutingType[]>([]);

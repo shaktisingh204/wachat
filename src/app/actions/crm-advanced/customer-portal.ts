@@ -1,16 +1,9 @@
 'use server';
 
-import { z } from 'zod';
+import { customer_portal_schema, type CustomerPortalType } from './customer-portal.schema';
+
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-
-export const customer_portal_schema = z.object({
-  customerId: z.string().min(1, "customerId is required"),
-  portalUrl: z.string().min(1, "portalUrl is required"),
-  status: z.enum(['active', 'suspended'])
-});
-
-export type CustomerPortalType = z.infer<typeof customer_portal_schema> & { _id: string; createdAt: Date; updatedAt: Date };
 
 export async function getCustomerPortals() {
   const { db } = await connectToDatabase();

@@ -5,7 +5,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Dialog, Input, Label, Badge, Card } from '@/components/zoruui';
 import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui/dialog';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
-import { getMeetingSchedulers, createMeetingScheduler, updateMeetingScheduler, deleteMeetingScheduler, type MeetingSchedulerType } from '@/app/actions/crm-advanced/meeting-scheduler';
+import { getMeetingSchedulers, createMeetingScheduler, updateMeetingScheduler, deleteMeetingScheduler } from '@/app/actions/crm-advanced/meeting-scheduler';
+import type { MeetingSchedulerType } from '@/app/actions/crm-advanced/meeting-scheduler.schema';
 
 export default function MeetingSchedulerPage() {
   const [data, setData] = React.useState<MeetingSchedulerType[]>([]);

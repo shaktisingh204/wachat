@@ -1,16 +1,9 @@
 'use server';
 
-import { z } from 'zod';
+import { social_media_listening_schema, type SocialMediaListeningType } from './social-media-listening.schema';
+
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-
-export const social_media_listening_schema = z.object({
-  platform: z.string().min(1, "platform is required"),
-  keyword: z.string().min(1, "keyword is required"),
-  sentiment: z.enum(['positive', 'neutral', 'negative'])
-});
-
-export type SocialMediaListeningType = z.infer<typeof social_media_listening_schema> & { _id: string; createdAt: Date; updatedAt: Date };
 
 export async function getSocialMediaListenings() {
   const { db } = await connectToDatabase();

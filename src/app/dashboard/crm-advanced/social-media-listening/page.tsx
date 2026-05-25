@@ -5,7 +5,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Dialog, Input, Label, Badge, Card } from '@/components/zoruui';
 import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui/dialog';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
-import { getSocialMediaListenings, createSocialMediaListening, updateSocialMediaListening, deleteSocialMediaListening, type SocialMediaListeningType } from '@/app/actions/crm-advanced/social-media-listening';
+import { getSocialMediaListenings, createSocialMediaListening, updateSocialMediaListening, deleteSocialMediaListening } from '@/app/actions/crm-advanced/social-media-listening';
+import type { SocialMediaListeningType } from '@/app/actions/crm-advanced/social-media-listening.schema';
 
 export default function SocialMediaListeningPage() {
   const [data, setData] = React.useState<SocialMediaListeningType[]>([]);

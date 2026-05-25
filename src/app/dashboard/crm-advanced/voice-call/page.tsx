@@ -9,7 +9,8 @@ import {
   DataTable, StatCard
 } from '@/components/zoruui';
 import { Search, Plus, Edit2, Trash2, PhoneCall, Play, Pause, Phone, PhoneMissed } from 'lucide-react';
-import { getVoiceCalls, createVoiceCall, updateVoiceCall, deleteVoiceCall, type VoiceCallType } from '@/app/actions/crm-advanced/voice-call';
+import { getVoiceCalls, createVoiceCall, updateVoiceCall, deleteVoiceCall } from '@/app/actions/crm-advanced/voice-call';
+import type { VoiceCallType } from '@/app/actions/crm-advanced/voice-call.schema';
 import { ColumnDef } from "@tanstack/react-table";
 
 export default function VoiceCallPage() {

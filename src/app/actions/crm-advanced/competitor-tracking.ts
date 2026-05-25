@@ -1,16 +1,9 @@
 'use server';
 
-import { z } from 'zod';
+import { competitor_tracking_schema, type CompetitorTrackingType } from './competitor-tracking.schema';
+
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-
-export const competitor_tracking_schema = z.object({
-  competitorName: z.string().min(1, "competitorName is required"),
-  marketShare: z.coerce.number(),
-  threatLevel: z.enum(['low', 'medium', 'high'])
-});
-
-export type CompetitorTrackingType = z.infer<typeof competitor_tracking_schema> & { _id: string; createdAt: Date; updatedAt: Date };
 
 export async function getCompetitorTrackings() {
   const { db } = await connectToDatabase();

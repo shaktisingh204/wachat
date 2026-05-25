@@ -1,16 +1,9 @@
 'use server';
 
-import { z } from 'zod';
+import { document_e_signatures_schema, type DocumentESignaturesType } from './document-e-signatures.schema';
+
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-
-export const document_e_signatures_schema = z.object({
-  documentName: z.string().min(1, "documentName is required"),
-  signerEmail: z.string().min(1, "signerEmail is required"),
-  status: z.enum(['pending', 'signed', 'declined'])
-});
-
-export type DocumentESignaturesType = z.infer<typeof document_e_signatures_schema> & { _id: string; createdAt: Date; updatedAt: Date };
 
 export async function getDocumentESignaturess() {
   const { db } = await connectToDatabase();

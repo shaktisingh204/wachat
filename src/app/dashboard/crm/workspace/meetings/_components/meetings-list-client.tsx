@@ -38,8 +38,8 @@ import {
     updateMeetingScheduler,
     deleteMeetingScheduler,
     getMeetingSchedulers,
-    type MeetingSchedulerType,
 } from '@/app/actions/crm-advanced/meeting-scheduler';
+import type { MeetingSchedulerType } from '@/app/actions/crm-advanced/meeting-scheduler.schema';
 
 import { getAvailability } from '@/lib/crm-depth/meetings';
 

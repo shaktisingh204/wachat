@@ -267,7 +267,7 @@ export class Expression {
 			// legacy engine continues to work.
 			let mod: typeof import('@n8n/expression-runtime') | undefined;
 			try {
-				mod = await import('@n8n/expression-runtime');
+				mod = await import(/* webpackIgnore: true */ /* turbopackIgnore: true */ '@n8n/expression-runtime');
 			} catch (err) {
 				LoggerProxy.warn(
 					'@n8n/expression-runtime is not installed; falling back to the legacy expression engine.',

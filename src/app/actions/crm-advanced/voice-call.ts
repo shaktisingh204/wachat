@@ -1,16 +1,9 @@
 'use server';
 
-import { z } from 'zod';
+import { voice_call_schema, type VoiceCallType } from './voice-call.schema';
+
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-
-export const voice_call_schema = z.object({
-  caller: z.string().min(1, "caller is required"),
-  durationSeconds: z.coerce.number(),
-  status: z.enum(['completed', 'missed', 'voicemail'])
-});
-
-export type VoiceCallType = z.infer<typeof voice_call_schema> & { _id: string; createdAt: Date; updatedAt: Date };
 
 export async function getVoiceCalls() {
   const { db } = await connectToDatabase();

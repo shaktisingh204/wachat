@@ -1,16 +1,9 @@
 'use server';
 
-import { z } from 'zod';
+import { automated_lead_routing_schema, type AutomatedLeadRoutingType } from './automated-lead-routing.schema';
+
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-
-export const automated_lead_routing_schema = z.object({
-  name: z.string().min(1, "name is required"),
-  status: z.enum(['active', 'inactive']),
-  logic: z.string().min(1, "logic is required")
-});
-
-export type AutomatedLeadRoutingType = z.infer<typeof automated_lead_routing_schema> & { _id: string; createdAt: Date; updatedAt: Date };
 
 export async function getAutomatedLeadRoutings() {
   const { db } = await connectToDatabase();

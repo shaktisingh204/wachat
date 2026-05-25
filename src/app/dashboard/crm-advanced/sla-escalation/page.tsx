@@ -5,7 +5,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Dialog, Input, Label, Badge, Card } from '@/components/zoruui';
 import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui/dialog';
 import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
-import { getSlaEscalations, createSlaEscalation, updateSlaEscalation, deleteSlaEscalation, type SlaEscalationType } from '@/app/actions/crm-advanced/sla-escalation';
+import { getSlaEscalations, createSlaEscalation, updateSlaEscalation, deleteSlaEscalation } from '@/app/actions/crm-advanced/sla-escalation';
+import type { SlaEscalationType } from '@/app/actions/crm-advanced/sla-escalation.schema';
 
 export default function SlaEscalationPage() {
   const [data, setData] = React.useState<SlaEscalationType[]>([]);
