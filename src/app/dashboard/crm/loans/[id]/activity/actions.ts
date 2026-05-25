@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { writeAuditEntry } from '@/lib/audit-log';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/app/actions/user.actions';
 
 export async function addManualLogEntry(loanId: string, message: string, actionType: string = 'comment') {
     const session = await getSession();

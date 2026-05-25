@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { connectToDatabase } from "@/lib/mongodb";
-import { resolveWorkspace } from "@/lib/server-cache";
+import { resolveWorkspace } from '@/lib/server-cache';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -15,7 +15,7 @@ export async function GET(request: Request) {
       };
 
       try {
-        const ws = await resolveWorkspace();
+        const ws = await getWorkspace();
         if (!ws.ok) throw new Error("Unauthorized");
 
         const { db } = await connectToDatabase();

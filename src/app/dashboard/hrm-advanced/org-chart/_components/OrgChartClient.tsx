@@ -10,7 +10,7 @@ import { saveOrgChartNode, deleteOrgChartNode } from '@/app/actions/hrm-advanced
 import { Download, MoreVertical, Trash, Edit, RefreshCw } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { FixedSizeList as List } from 'react-window';
+import { List, type RowComponentProps } from 'react-window';
 
 interface OrgChartClientProps {
   initialData: OrgChartNode[];
@@ -185,7 +185,7 @@ export function OrgChartClient({ initialData }: OrgChartClientProps) {
   };
 
   // Virtualized row component for list view
-  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+  const Row = ({ index, style }: RowComponentProps<object>) => {
     const row = filteredData[index];
     if (!row) return null;
     return (
@@ -283,13 +283,12 @@ export function OrgChartClient({ initialData }: OrgChartClientProps) {
             <div className="w-24 text-right">Actions</div>
           </div>
           <List
-            height={500}
-            itemCount={filteredData.length}
-            itemSize={56}
-            width="100%"
-          >
-            {Row}
-          </List>
+            defaultHeight={500}
+            rowCount={filteredData.length}
+            rowHeight={56}
+            rowComponent={Row}
+            rowProps={{}}
+          />
         </div>
       )}
 

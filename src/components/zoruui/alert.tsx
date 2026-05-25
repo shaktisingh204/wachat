@@ -61,3 +61,8 @@ export const ZoruAlertDescription = React.forwardRef<
   />
 ));
 ZoruAlertDescription.displayName = "ZoruAlertDescription";
+
+export {
+  ZoruAlertTitle as AlertTitle,
+  ZoruAlertDescription as AlertDescription,
+};

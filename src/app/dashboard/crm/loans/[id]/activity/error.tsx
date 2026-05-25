@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/ui/card';
+import { Card, CardContent as ZoruCardContent, CardHeader as ZoruCardHeader, CardTitle as ZoruCardTitle } from '@/components/ui/card';
 import { AlertTriangle } from 'lucide-react';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 

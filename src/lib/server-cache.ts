@@ -91,3 +91,14 @@ export function invalidateProjectsCache(userId?: string | null) {
     }
     projectsCache.delete(userId);
 }
+
+export type ResolvedWorkspace =
+    | { ok: true; workspaceId: string }
+    | { ok: false; error: string };
+
+export async function resolveWorkspace(): Promise<ResolvedWorkspace> {
+    const session = await getCachedSession();
+    const userId = (session?.user as { _id?: unknown } | undefined)?._id;
+    if (!userId) return { ok: false, error: 'unauthorized' };
+    return { ok: true, workspaceId: String(userId) };
+}

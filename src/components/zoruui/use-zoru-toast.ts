@@ -129,3 +129,5 @@ export function useZoruToast() {
       dispatch({ type: actionTypes.DISMISS_TOAST, toastId }),
   };
 }
+
+export { useZoruToast as useToast };

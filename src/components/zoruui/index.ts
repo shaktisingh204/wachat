@@ -40,7 +40,7 @@ export {
 } from "./select";
 export { Separator } from "./separator";
 export { Skeleton, type ZoruSkeletonProps } from "./skeleton";
-export { Avatar, ZoruAvatarImage, ZoruAvatarFallback } from "./avatar";
+export { Avatar, ZoruAvatarImage, ZoruAvatarFallback, AvatarImage, AvatarFallback } from "./avatar";
 export { Badge, zoruBadgeVariants, type ZoruBadgeProps } from "./badge";
 export { ZoruKbd, type ZoruKbdProps } from "./kbd";
 export { Progress, type ZoruProgressProps } from "./progress";
@@ -108,6 +108,10 @@ export {
   ZoruPopoverAnchor,
   ZoruPopoverPortal,
   ZoruPopoverContent,
+  PopoverTrigger,
+  PopoverAnchor,
+  PopoverPortal,
+  PopoverContent,
 } from "./popover";
 export {
   DropdownMenu,
@@ -178,6 +182,8 @@ export {
   Alert,
   ZoruAlertTitle,
   ZoruAlertDescription,
+  AlertTitle,
+  AlertDescription,
   type ZoruAlertProps,
 } from "./alert";
 export {
@@ -194,6 +200,11 @@ export {
   ZoruCardDescription,
   ZoruCardContent,
   ZoruCardFooter,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
   zoruCardVariants,
   type ZoruCardProps,
 } from "./card";

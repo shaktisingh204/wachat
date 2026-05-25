@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Button, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, Label, Textarea, DatePicker } from '@/components/zoruui';
-import { useToast } from '@/components/zoruui/use-zoru-toast';
+import { useZoruToast as useToast } from '@/components/zoruui/use-zoru-toast';
 import { cancelBooking, rescheduleBooking } from '@/app/actions/crm/bookings.actions';
 import { Loader2 } from 'lucide-react';
 

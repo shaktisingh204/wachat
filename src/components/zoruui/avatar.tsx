@@ -46,3 +46,8 @@ export const ZoruAvatarFallback = React.forwardRef<
   />
 ));
 ZoruAvatarFallback.displayName = "ZoruAvatarFallback";
+
+export {
+  ZoruAvatarImage as AvatarImage,
+  ZoruAvatarFallback as AvatarFallback,
+};

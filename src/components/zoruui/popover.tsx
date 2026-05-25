@@ -34,3 +34,10 @@ export const ZoruPopoverContent = React.forwardRef<
   </ZoruPopoverPortal>
 ));
 ZoruPopoverContent.displayName = "ZoruPopoverContent";
+
+export {
+  ZoruPopoverTrigger as PopoverTrigger,
+  ZoruPopoverAnchor as PopoverAnchor,
+  ZoruPopoverPortal as PopoverPortal,
+  ZoruPopoverContent as PopoverContent,
+};

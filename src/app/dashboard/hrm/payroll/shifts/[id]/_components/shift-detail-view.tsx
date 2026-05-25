@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useOptimistic } from 'react';
 import { useRouter } from 'next/navigation';
-import { useZoruToast, Button, Badge, StatusPill } from '@/components/zoruui';
+import { useZoruToast, Button, Badge } from '@/components/zoruui';
 import { Edit, ArrowLeft, Clock, Users, Calendar, Info, BellRing } from 'lucide-react';
 import type { CrmShiftDoc, CrmShiftStatus } from '@/lib/rust-client/crm-shifts';
 import { useShiftWebsocket } from './use-shift-websocket';
@@ -59,7 +59,7 @@ export function ShiftDetailView({ initialShift }: { initialShift: CrmShiftDoc })
           </Button>
           <div className="flex flex-1 items-center gap-3">
             <h1 className="text-2xl font-semibold text-zoru-ink">{optimisticShift.name}</h1>
-            <StatusPill label={status} tone={status === 'active' ? 'green' : 'neutral'} />
+            <Badge variant={status === 'active' ? 'success' : 'secondary'}>{status}</Badge>
             {isConnected && (
               <Badge variant="success" className="ml-2 animate-pulse">
                 Live

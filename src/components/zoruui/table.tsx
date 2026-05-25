@@ -115,3 +115,13 @@ export const ZoruTableCaption = React.forwardRef<
   />
 ));
 ZoruTableCaption.displayName = "ZoruTableCaption";
+
+export {
+  ZoruTableHeader as TableHeader,
+  ZoruTableBody as TableBody,
+  ZoruTableFooter as TableFooter,
+  ZoruTableRow as TableRow,
+  ZoruTableHead as TableHead,
+  ZoruTableCell as TableCell,
+  ZoruTableCaption as TableCaption,
+};

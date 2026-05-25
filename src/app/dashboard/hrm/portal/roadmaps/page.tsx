@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useCallback, useEffect, useState, useTransition, useMemo, useRef, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, Archive, Download, Map, Search, FileText } from 'lucide-react';
-import { FixedSizeList as List } from 'react-window';
+import { List, type RowComponentProps } from 'react-window';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -306,7 +306,7 @@ function RoadmapsClient() {
     });
   }
 
-  const VirtualizedRow = useCallback(({ index, style }: { index: number; style: React.CSSProperties }) => {
+  const VirtualizedRow = useCallback(({ index, style }: RowComponentProps<object>) => {
     const row = filteredRows[index];
     if (!row) return null;
     const { phaseCount, totalTasks, doneTasks, pct } = phaseSummary(row);
@@ -466,13 +466,12 @@ function RoadmapsClient() {
                 {/* List Body */}
                 {filteredRows.length > 50 ? (
                   <List
-                    height={600}
-                    itemCount={filteredRows.length}
-                    itemSize={60}
-                    width="100%"
-                  >
-                    {VirtualizedRow}
-                  </List>
+                    defaultHeight={600}
+                    rowCount={filteredRows.length}
+                    rowHeight={60}
+                    rowComponent={VirtualizedRow}
+                    rowProps={{}}
+                  />
                 ) : (
                   <div>
                     {filteredRows.map((_, i) => (

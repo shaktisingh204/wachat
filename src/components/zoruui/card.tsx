@@ -92,3 +92,11 @@ export const ZoruCardFooter = React.forwardRef<
   />
 ));
 ZoruCardFooter.displayName = "ZoruCardFooter";
+
+export {
+  ZoruCardHeader as CardHeader,
+  ZoruCardTitle as CardTitle,
+  ZoruCardDescription as CardDescription,
+  ZoruCardContent as CardContent,
+  ZoruCardFooter as CardFooter,
+};

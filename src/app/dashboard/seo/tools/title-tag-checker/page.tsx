@@ -4,7 +4,7 @@ import { Button, Input, Card, ZoruCardContent, cn } from '@/components/zoruui';
 import { useState, useEffect, useMemo } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
-import { LuWand2, LuAlertTriangle, LuCheckCircle2, LuInfo } from 'react-icons/lu';
+import { LuWand as LuWand2, LuTriangleAlert as LuAlertTriangle, LuCircleCheck as LuCheckCircle2, LuInfo } from 'react-icons/lu';
 
 const getPixelWidth = (() => {
   let canvas: HTMLCanvasElement | null = null;

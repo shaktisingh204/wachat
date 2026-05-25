@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getLoanById } from '@/app/actions/crm-loans.actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/app/actions/user.actions';
 import { LoanActivityClient } from './_components/loan-activity-client';
 
 interface PageProps {

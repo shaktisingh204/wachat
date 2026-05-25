@@ -127,3 +127,10 @@ const CardFooter = React.forwardRef<
 CardFooter.displayName = "CardFooter"
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+export {
+  CardHeader as ZoruCardHeader,
+  CardFooter as ZoruCardFooter,
+  CardTitle as ZoruCardTitle,
+  CardDescription as ZoruCardDescription,
+  CardContent as ZoruCardContent,
+}
