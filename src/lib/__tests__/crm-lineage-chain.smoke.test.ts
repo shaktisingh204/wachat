@@ -1,3 +1,4 @@
+ * Re-declared here to avoid importing a `'use client'` TSX module under
 /**
  * Smoke test for the CRM canonical sales chain lineage rail
  * (Lead → Deal → Quote → SO → DC → Inv → Receipt).
@@ -37,7 +38,6 @@ import type { LineageKind, LineageRef } from '../definitions';
 
 /**
  * Mirror of `SALES_CHAIN` from `src/components/crm/lineage-rail.tsx`.
- * Re-declared here to avoid importing a `'use client'` TSX module under
  * `tsx --test` (which would drag in Next.js + JSX runtime). The chain
  * test below asserts these two stay aligned.
  */

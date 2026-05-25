@@ -1,5 +1,5 @@
-import { fmtDate } from '@/lib/utils';
 'use client';
+import { fmtDate } from '@/lib/utils';
 
 import { Badge, Button, Card, Input, Skeleton } from '@/components/zoruui';
 import {

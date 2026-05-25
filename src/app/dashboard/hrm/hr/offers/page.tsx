@@ -1,5 +1,5 @@
-import { fmtDate, fmtINR } from '@/lib/utils';
 'use client';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 import {
   ZoruAlertDialog,

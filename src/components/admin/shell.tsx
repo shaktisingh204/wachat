@@ -1,3 +1,4 @@
+/*  Server-component-safe (no 'use client' here).                      */
 import React from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -7,7 +8,6 @@ import { Button } from '@/components/zoruui';
 /*  Shared admin page primitives                                       */
 /*                                                                     */
 /*  Theme: light (slate / amber) — matches the rest of /admin/dashboard*/
-/*  Server-component-safe (no 'use client' here).                      */
 /* ------------------------------------------------------------------ */
 
 export function AdminPageHeader({

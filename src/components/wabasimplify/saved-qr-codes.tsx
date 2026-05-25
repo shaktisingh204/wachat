@@ -1,3 +1,4 @@
+'use client';
 import {
   Card,
   ZoruCardContent,
@@ -35,7 +36,6 @@ type QrCode = any;
 type QrCodeWithShortUrl = any;
 import { QrCodeDialog } from './qr-code-dialog';
 
-'use client';
 
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';

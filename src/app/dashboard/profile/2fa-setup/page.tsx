@@ -1,5 +1,5 @@
-import { fmtDate } from "@/lib/utils";
 'use client';
+import { fmtDate } from "@/lib/utils";
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { LoaderCircle, Mail, ShieldCheck, ShieldOff, Smartphone } from 'lucide-react';

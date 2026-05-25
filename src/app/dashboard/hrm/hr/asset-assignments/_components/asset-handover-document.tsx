@@ -1,6 +1,6 @@
+'use client';
 import { fmtDate } from '@/lib/utils';
 import React from "react";
-'use client';
 
 import { useState, useRef } from 'react';
 import { Button, Card } from '@/components/zoruui';

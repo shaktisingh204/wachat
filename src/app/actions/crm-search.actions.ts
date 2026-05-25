@@ -1,3 +1,4 @@
+/* palette) so this server file stays free of `'use client'` imports.  */
 'use server';
 
 /**
@@ -54,7 +55,6 @@ const PER_GROUP_LIMIT = 10;
 
 /* ------------------------------------------------------------------ */
 /* Static maps — kept here (instead of importing from the Cmd-K        */
-/* palette) so this server file stays free of `'use client'` imports.  */
 /* ------------------------------------------------------------------ */
 
 const ENTITY_LABEL: Record<EntityKey, string> = {

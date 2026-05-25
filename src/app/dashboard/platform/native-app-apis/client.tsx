@@ -1,5 +1,5 @@
-import { fmtDate } from "@/lib/utils";
 'use client';
+import { fmtDate } from "@/lib/utils";
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';

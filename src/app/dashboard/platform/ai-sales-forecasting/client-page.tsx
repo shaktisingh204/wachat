@@ -1,5 +1,5 @@
-import { fmtINR } from "@/lib/utils";
 'use client';
+import { fmtINR } from "@/lib/utils";
 
 import { useState, useTransition } from 'react';
 import useSWR from 'swr';

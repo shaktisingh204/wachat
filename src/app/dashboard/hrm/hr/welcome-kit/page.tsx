@@ -1,5 +1,5 @@
-import { fmtDate } from '@/lib/utils';
 'use client';
+import { fmtDate } from '@/lib/utils';
 
 import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;

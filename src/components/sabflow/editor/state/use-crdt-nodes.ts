@@ -1,3 +1,4 @@
+'use client';
 /**
  * SabFlow editor — `useCrdtNodes` React hook.
  *
@@ -21,7 +22,6 @@
  * Yjs is forward-declared via the {@link YDocLike} shape re-used from
  * `./crdt-nodes.ts` — no static `yjs` import in this file.
  */
-'use client';
 
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { Block } from '@/lib/sabflow/types';

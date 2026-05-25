@@ -1,5 +1,5 @@
-import { fmtDate } from '@/lib/utils';
 'use client';
+import { fmtDate } from '@/lib/utils';
 
 import React from 'react';
 import { Card, Badge, Button, Progress, Avatar } from '@/components/zoruui';

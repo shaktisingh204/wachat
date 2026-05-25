@@ -1,6 +1,6 @@
+'use client';
 import { fmtDate } from '@/lib/utils';
 
-'use client';
 
 import {
   ZoruAlertDialog,

@@ -1,5 +1,5 @@
-import { fmtDate } from '@/lib/utils';
 'use client';
+import { fmtDate } from '@/lib/utils';
 
 import { useZoruToast, Avatar, ZoruAvatarFallback } from '@/components/zoruui';
 import {

@@ -1,5 +1,5 @@
-import { fmtINR } from "@/lib/utils";
 'use client';
+import { fmtINR } from "@/lib/utils";
 
 import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
