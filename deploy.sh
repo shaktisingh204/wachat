@@ -136,6 +136,20 @@ NODE_ENV=production npx next build
 
 # ── 2) Rust workspace --------------------------------------------------
 step "Building Rust workspace (sabnode-api + sabnode-broadcast-worker)"
+# rustup installs cargo into ~/.cargo/bin but doesn't put it on PATH for
+# non-interactive shells. Source the rustup env if available, then add
+# the standard cargo bin dir as a fallback.
+if [ -f "$HOME/.cargo/env" ]; then
+  # shellcheck disable=SC1091
+  . "$HOME/.cargo/env"
+fi
+export PATH="$HOME/.cargo/bin:$PATH"
+
+if ! command -v cargo >/dev/null 2>&1; then
+  echo "✖ cargo not found. Install Rust with: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh" >&2
+  exit 1
+fi
+
 (
   cd "$REPO_DIR/rust"
   cargo build --release --jobs "$USE_CORES"
