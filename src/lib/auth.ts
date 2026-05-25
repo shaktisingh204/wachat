@@ -4,8 +4,32 @@ import { SignJWT, jwtVerify } from 'jose';
 import { nanoid } from 'nanoid';
 import type { SessionPayload, AdminSessionPayload } from './definitions';
 import * as admin from 'firebase-admin';
-const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT) : {};
+import { readFileSync } from 'node:fs';
 import { cookies } from 'next/headers';
+
+// Resolve the Firebase Admin service account from either env var:
+//   FIREBASE_SERVICE_ACCOUNT       — inline JSON blob
+//   FIREBASE_ADMIN_SDK_CONFIG      — inline JSON blob OR absolute path to a JSON file
+// File path is detected by a leading "/" — the JSON itself always starts with "{".
+function loadFirebaseServiceAccount(): Record<string, any> {
+    const raw = process.env.FIREBASE_SERVICE_ACCOUNT || process.env.FIREBASE_ADMIN_SDK_CONFIG || '';
+    if (!raw) return {};
+    if (raw.startsWith('/')) {
+        try {
+            return JSON.parse(readFileSync(raw, 'utf8'));
+        } catch (e) {
+            console.error(`[AUTH_LIB] Failed to read Firebase service account file at ${raw}:`, e);
+            return {};
+        }
+    }
+    try {
+        return JSON.parse(raw);
+    } catch (e) {
+        console.error('[AUTH_LIB] Failed to parse Firebase service account JSON from env:', e);
+        return {};
+    }
+}
+const serviceAccount = loadFirebaseServiceAccount();
 
 const SALT_ROUNDS = 10;
 const FIREBASE_APP_NAME = 'sabnode-admin-app'; // Named app
