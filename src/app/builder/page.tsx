@@ -8,6 +8,8 @@ import { PageHeader } from '@/components/ui/page-header';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LayoutDashboard, Plus } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function BuilderRootPage() {
     const session = await getSession();
     if (!session?.user) {

@@ -30,7 +30,7 @@ import {
   ZoruCardHeader,
   ZoruCardTitle,
 } from '@/components/zoruui';
-import type { WidgetKey } from '@/app/actions/dashboard-widgets.actions';
+import type { WidgetKey } from '@/app/actions/dashboard-widgets.config';
 
 /* ─────────────────────────────────────────────────────────────────────
  * Widget registry — maps a `WidgetKey` to a React component.

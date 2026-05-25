@@ -17,10 +17,12 @@ import {
   getMyWidgets,
   reorderWidgets,
   toggleWidget,
-  type DashboardType,
-  type WidgetKey,
-  type WidgetPref,
 } from '@/app/actions/dashboard-widgets.actions';
+import type {
+  DashboardType,
+  WidgetKey,
+  WidgetPref,
+} from '@/app/actions/dashboard-widgets.config';
 import { cn } from '@/components/zoruui/lib/cn';
 
 export interface WidgetConfigDrawerProps {

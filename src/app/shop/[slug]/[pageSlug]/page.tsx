@@ -7,20 +7,30 @@ import { ObjectId } from 'mongodb';
 import { CartOverlay } from '@/components/wabasimplify/website-builder/cart-overlay';
 import { Suspense } from 'react';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateStaticParams() {
-    const { db } = await connectToDatabase();
-    const shops = await db.collection('ecomm_shops').find({}).toArray();
-    
-    let params: { slug: string, pageSlug: string }[] = [];
-    
-    for (const shop of shops) {
-        const pages = await db.collection<EcommPage>('ecomm_pages').find({ shopId: shop._id, isPublished: true }).toArray();
-        for (const page of pages) {
-            params.push({ slug: shop.slug, pageSlug: page.slug });
+    try {
+        const { db } = await connectToDatabase();
+        const shops = await db.collection('ecomm_shops').find({}).toArray();
+
+        const params: { slug: string; pageSlug: string }[] = [];
+        for (const shop of shops) {
+            if (!shop?.slug) continue;
+            const pages = await db
+                .collection<EcommPage>('ecomm_pages')
+                .find({ shopId: shop._id, isPublished: true })
+                .toArray();
+            for (const page of pages) {
+                if (!page?.slug) continue;
+                params.push({ slug: shop.slug, pageSlug: page.slug });
+            }
         }
+        return params;
+    } catch (e) {
+        console.warn('[shop/[slug]/[pageSlug]] generateStaticParams skipped:', e);
+        return [];
     }
-    
-    return params;
 }
 
 async function getPageBySlug(shopSlug: string, pageSlug: string) {

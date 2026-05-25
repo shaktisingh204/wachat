@@ -24,11 +24,8 @@ import { useRouter } from 'next/navigation';
 
 import { getCrmDashboardStats } from '@/app/actions/crm.actions';
 import { getPinnedQuickList } from '@/app/actions/worksuite/dashboard.actions';
-import {
-  getMyWidgets,
-  type WidgetKey,
-  type WidgetPref,
-} from '@/app/actions/dashboard-widgets.actions';
+import { getMyWidgets } from '@/app/actions/dashboard-widgets.actions';
+import type { WidgetKey, WidgetPref } from '@/app/actions/dashboard-widgets.config';
 import type { WsPinnedItem } from '@/lib/worksuite/dashboard-types';
 import { useT } from '@/lib/i18n/client';
 
