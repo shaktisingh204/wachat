@@ -3,7 +3,7 @@
 import React from "react";
 import { SnippetDemo } from "../components/SnippetDemo";
 import { Section } from "../components/Section";
-import { Field, DemoDatePicker, DemoDateRange } from "../components/local";
+import { Field, DemoDatePicker, DemoDateRange, CommandAndToastDemo } from "../components/local";
 import {
   ZORU_CHART_PALETTE,
   Accordion,
