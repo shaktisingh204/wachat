@@ -145,28 +145,41 @@ $SUDO env NODE_ENV=production npx next build
 
 # ── 2) Rust workspace --------------------------------------------------
 step "Building Rust workspace (sabnode-api + sabnode-broadcast-worker)"
-# rustup installs cargo into ~/.cargo/bin but doesn't put it on PATH for
-# non-interactive shells. Source the rustup env if available, then add
-# the standard cargo bin dir as a fallback. Resolve via root's HOME so
-# the sudo'd cargo invocation sees the toolchain rustup installed for
-# whichever account owns the rust toolchain on the box.
+# `sudo -E` preserves most env vars but `sudoers` typically resets PATH
+# via `secure_path`, so we can't rely on PATH propagating through sudo.
+# Instead, resolve the absolute path to cargo in the parent shell (which
+# we control) and invoke it absolutely under sudo.
+#
+# rustup installs into ~/.cargo/bin for whichever account ran the
+# installer. On this box the installer was run via sudo so the toolchain
+# lives under root's HOME — but we also check the operator's HOME and
+# /usr/local for completeness.
 ROOT_HOME=$($SUDO sh -c 'echo "$HOME"')
-if $SUDO test -f "$ROOT_HOME/.cargo/env"; then
-  # Re-export PATH so cargo is visible to the current shell too (e.g.
-  # for `command -v cargo` below). The sudo'd call gets PATH preserved
-  # by sudo -E.
-  export PATH="$ROOT_HOME/.cargo/bin:$PATH"
-fi
-export PATH="$HOME/.cargo/bin:$PATH"
+CARGO_BIN=""
+for candidate in \
+  "$ROOT_HOME/.cargo/bin/cargo" \
+  "$HOME/.cargo/bin/cargo" \
+  "/usr/local/cargo/bin/cargo" \
+  "/usr/local/bin/cargo" \
+  "/usr/bin/cargo"; do
+  if $SUDO test -x "$candidate"; then
+    CARGO_BIN="$candidate"
+    break
+  fi
+done
 
-if ! $SUDO sh -c 'command -v cargo >/dev/null 2>&1'; then
-  echo "✖ cargo not found. Install Rust with: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh" >&2
+if [ -z "$CARGO_BIN" ]; then
+  echo "✖ cargo not found in any standard location." >&2
+  echo "  Searched: $ROOT_HOME/.cargo/bin, $HOME/.cargo/bin, /usr/local/cargo/bin, /usr/local/bin, /usr/bin" >&2
+  echo "  Install Rust with: sudo curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sudo sh -s -- -y" >&2
   exit 1
 fi
 
+echo "  using cargo at: $CARGO_BIN"
+
 (
   cd "$REPO_DIR/rust"
-  $SUDO cargo build --release --jobs "$USE_CORES"
+  $SUDO "$CARGO_BIN" build --release --jobs "$USE_CORES"
 )
 
 # Sanity-check the produced binaries so PM2 doesn't reload onto missing
