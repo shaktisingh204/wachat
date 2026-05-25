@@ -11,11 +11,20 @@
 #
 # Idempotent — safe to re-run. Any failed step aborts the deploy
 # (`set -euo pipefail`) so PM2 never reloads against a broken binary.
+#
+# Every external command is invoked through `sudo -E` so the script
+# can be run by a non-root operator on a server where the source tree,
+# PM2 daemon, and toolchain are root-owned. `-E` preserves the env
+# vars exported below (NODE_OPTIONS, NEXT_TELEMETRY_DISABLED, etc.).
 # ─────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
 REPO_DIR="/var/www/sabnode"
 cd "$REPO_DIR"
+
+# Single knob for the sudo invocation; swap to "" to run as the current
+# user, or to "doas -E" / "sudo -EH" to tweak behavior in one place.
+SUDO="sudo -E"
 
 if command -v nproc >/dev/null 2>&1; then
   CORES=$(nproc)
@@ -57,16 +66,16 @@ require_bin() {
 
 # ── 0) Sync source ------------------------------------------------------
 step "Pulling latest from main"
-git pull origin main
+$SUDO git pull origin main
 
 # ── 1) Next.js web -----------------------------------------------------
 # `--include=dev` is load-bearing: tsx / typescript / @types/* are in
 # devDependencies and are required by api:gen, api:test and next build.
 step "Installing root deps (npm ci, incl. dev)"
 if [ -f package-lock.json ]; then
-  npm ci --no-audit --no-fund --include=dev
+  $SUDO npm ci --no-audit --no-fund --include=dev
 else
-  npm install --no-audit --no-fund --include=dev
+  $SUDO npm install --no-audit --no-fund --include=dev
 fi
 
 require_bin tsx
@@ -81,20 +90,20 @@ require_bin next
 # Also prunes orphan @generated route files (e.g. after a spec is
 # removed) so stale paths can't reappear and clash with current ones.
 step "Regenerating /api/v1 surface (api:gen)"
-npm run api:gen
+$SUDO npm run api:gen
 
 # ── 1b) Drift-tests + collision guard ----------------------------------
 # Cheap sanity checks: every manifest endpoint has a matching file, every
 # generated file maps back to a manifest entry, the OpenAPI doc is in
 # sync. Fails the deploy fast if codegen is broken.
 step "Running api drift tests"
-npm run api:test
+$SUDO npm run api:test
 
 # Next.js 16 rejects same-name dynamic slugs in one path and ambiguous
 # sibling [a]/[b] patterns. Catch both classes BEFORE next build so the
 # error surfaces with context instead of a one-liner inside turbopack.
 step "Sanity-checking route patterns"
-python3 - <<'PY'
+$SUDO python3 - <<'PY'
 import os, sys
 from collections import defaultdict
 
@@ -132,33 +141,38 @@ PY
 # Set NODE_ENV only for the build itself so Next produces a prod bundle,
 # but devDependencies stay on disk for any post-build scripts.
 step "Building Next.js app (sabnode-web)"
-NODE_ENV=production npx next build
+$SUDO env NODE_ENV=production npx next build
 
 # ── 2) Rust workspace --------------------------------------------------
 step "Building Rust workspace (sabnode-api + sabnode-broadcast-worker)"
 # rustup installs cargo into ~/.cargo/bin but doesn't put it on PATH for
 # non-interactive shells. Source the rustup env if available, then add
-# the standard cargo bin dir as a fallback.
-if [ -f "$HOME/.cargo/env" ]; then
-  # shellcheck disable=SC1091
-  . "$HOME/.cargo/env"
+# the standard cargo bin dir as a fallback. Resolve via root's HOME so
+# the sudo'd cargo invocation sees the toolchain rustup installed for
+# whichever account owns the rust toolchain on the box.
+ROOT_HOME=$($SUDO sh -c 'echo "$HOME"')
+if $SUDO test -f "$ROOT_HOME/.cargo/env"; then
+  # Re-export PATH so cargo is visible to the current shell too (e.g.
+  # for `command -v cargo` below). The sudo'd call gets PATH preserved
+  # by sudo -E.
+  export PATH="$ROOT_HOME/.cargo/bin:$PATH"
 fi
 export PATH="$HOME/.cargo/bin:$PATH"
 
-if ! command -v cargo >/dev/null 2>&1; then
+if ! $SUDO sh -c 'command -v cargo >/dev/null 2>&1'; then
   echo "✖ cargo not found. Install Rust with: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh" >&2
   exit 1
 fi
 
 (
   cd "$REPO_DIR/rust"
-  cargo build --release --jobs "$USE_CORES"
+  $SUDO cargo build --release --jobs "$USE_CORES"
 )
 
 # Sanity-check the produced binaries so PM2 doesn't reload onto missing
 # artefacts.
 for bin in sabnode-api broadcast-worker; do
-  if [ ! -x "$REPO_DIR/rust/target/release/$bin" ]; then
+  if ! $SUDO test -x "$REPO_DIR/rust/target/release/$bin"; then
     echo "✖ Missing Rust binary: rust/target/release/$bin" >&2
     exit 1
   fi
@@ -172,14 +186,14 @@ step "Building SabWa Node.js engine (sabwa-node)"
   # Use npm — pnpm isn't guaranteed on PATH in production.
   # `--include=dev` so tsc / type defs are present for `npm run build`.
   if [ -f package-lock.json ]; then
-    npm ci --no-audit --no-fund --include=dev
+    $SUDO npm ci --no-audit --no-fund --include=dev
   else
-    npm install --no-audit --no-fund --include=dev
+    $SUDO npm install --no-audit --no-fund --include=dev
   fi
 
-  NODE_ENV=production npm run build
+  $SUDO env NODE_ENV=production npm run build
 
-  if [ ! -f dist/index.js ]; then
+  if ! $SUDO test -f dist/index.js; then
     echo "✖ sabwa-node build did not produce dist/index.js" >&2
     exit 1
   fi
@@ -188,20 +202,20 @@ step "Building SabWa Node.js engine (sabwa-node)"
 # ── 4) PM2 reload ------------------------------------------------------
 step "Stopping deprecated processes (best-effort)"
 # Legacy SabWa Rust crate sidecar — replaced by services/sabwa-node.
-pm2 delete sabwa-engine >/dev/null 2>&1 || true
+$SUDO pm2 delete sabwa-engine >/dev/null 2>&1 || true
 # Legacy webhook dispatcher worker — replaced by the Vercel-style cron
 # handler at /api/cron/webhook-dispatcher fired by ops cron.
-pm2 delete webhook-worker >/dev/null 2>&1 || true
+$SUDO pm2 delete webhook-worker >/dev/null 2>&1 || true
 
 step "Reloading PM2 apps with fresh env + new binaries"
-pm2 startOrReload ecosystem.config.js --update-env
+$SUDO pm2 startOrReload ecosystem.config.js --update-env
 
 step "Persisting PM2 state"
-pm2 save
+$SUDO pm2 save
 
 # ── 5) Done ------------------------------------------------------------
 printf "\n\033[1;32m✅ Deploy complete.\033[0m\n"
-pm2 status
+$SUDO pm2 status
 
 cat <<'EOF'
 
