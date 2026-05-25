@@ -1,17 +1,18 @@
-import { Button } from '@/components/zoruui';
+import { Suspense } from 'react';
+import Link from 'next/link';
 import { ObjectId } from 'mongodb';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-
-export const dynamic = 'force-dynamic';
+import { LoaderCircle } from 'lucide-react';
 
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import Link from 'next/link';
+import { Button } from '@/components/zoruui';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
-import { Suspense } from 'react';
 import { BudgetsListClient } from './_components/budgets-list-client';
 import type { BudgetRow } from './_components/budgets-types';
-import { LoaderCircle } from 'lucide-react';
+import { ImportCsvButton } from './_components/import-csv-button';
+
+export const dynamic = 'force-dynamic';
 
 type AnyBudget = {
   _id?: { toString(): string } | string;
@@ -79,17 +80,11 @@ async function BudgetsListAsync() {
   }
 
   if (loadError) {
-    return (
-      <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
-        Could not load budgets.
-      </div>
-    );
+    throw new Error('Could not load budgets.'); // Trigger error boundary
   }
 
   return <BudgetsListClient budgets={budgets} />;
 }
-
-import { ImportCsvButton } from './_components/import-csv-button';
 
 export default function BudgetsPage() {
   return (
@@ -109,8 +104,8 @@ export default function BudgetsPage() {
     >
       <Suspense
         fallback={
-          <div className="flex h-32 w-full items-center justify-center rounded-lg border border-border">
-            <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+          <div className="flex h-32 w-full items-center justify-center rounded-lg border border-zoru-line border-dashed bg-zoru-surface/50">
+            <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
           </div>
         }
       >

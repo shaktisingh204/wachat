@@ -8,13 +8,17 @@ import { AdminUserFilter } from '@/components/wabasimplify/admin-user-filter';
 import { useEffect,
   useState,
   useTransition,
-  useCallback } from 'react';
+  useCallback,
+  Suspense } from 'react';
 import type { WithId } from 'mongodb';
 import type { Project,
   User } from '@/lib/definitions';
 import { usePathname,
+  useRouter,
   useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
 
 import { MessageSquare, LoaderCircle, Archive } from 'lucide-react';
 import { AdminArchiveProjectButton } from '@/components/wabasimplify/admin-archive-project-button';
@@ -25,17 +29,29 @@ const STATUS_STYLES: Record<string, string> = {
     approved: 'bg-emerald-100 text-emerald-600 border-emerald-200',
     verified: 'bg-emerald-100 text-emerald-600 border-emerald-200',
     pending: 'bg-amber-100 text-amber-600 border-amber-200',
+    failed: 'bg-red-100 text-red-600 border-red-200',
+    rejected: 'bg-red-100 text-red-600 border-red-200',
+    'partial failure': 'bg-amber-100 text-amber-600 border-amber-200',
     unknown: 'bg-slate-200 text-slate-500 border-slate-300',
 };
 
 function statusStyle(status?: string) {
-    const key = (status || '').toLowerCase().split(' ')[0];
-    return STATUS_STYLES[key] ?? STATUS_STYLES['unknown'];
+    if (!status) return STATUS_STYLES.unknown;
+    const key = status.toLowerCase();
+    
+    if (STATUS_STYLES[key]) return STATUS_STYLES[key];
+    if (key.includes('partial failure') || key.includes('partial')) return STATUS_STYLES['partial failure'];
+    if (key.includes('fail') || key.includes('reject')) return STATUS_STYLES.failed;
+    if (key.includes('pend') || key.includes('review')) return STATUS_STYLES.pending;
+    if (key.includes('approv') || key.includes('verif')) return STATUS_STYLES.approved;
+    
+    return STATUS_STYLES.unknown;
 }
 
-export default function WhatsAppProjectsPage() {
+function WhatsAppProjectsContent() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
+    const router = useRouter();
 
     const [projects, setProjects] = useState<WithId<Project & { owner: { name: string; email: string }; isArchived?: boolean }>[]>([]);
     const [users, setUsers] = useState<WithId<User>[]>([]);
@@ -44,17 +60,24 @@ export default function WhatsAppProjectsPage() {
 
     const query = searchParams.get('query') || '';
     const userId = searchParams.get('userId');
+    const statusParam = searchParams.get('status') || 'all';
     const currentPage = Number(searchParams.get('page')) || 1;
     const totalPages = Math.ceil(totalProjects / PROJECTS_PER_PAGE);
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const data = await getWhatsAppProjectsForAdmin(currentPage, PROJECTS_PER_PAGE, query, userId || undefined);
+            const data = await getWhatsAppProjectsForAdmin(
+                currentPage, 
+                PROJECTS_PER_PAGE, 
+                query, 
+                userId || undefined, 
+                statusParam === 'all' ? undefined : statusParam
+            );
             setProjects(data.projects);
             setTotalProjects(data.total);
             setUsers(data.users);
         });
-    }, [currentPage, query, userId]);
+    }, [currentPage, query, userId, statusParam]);
 
     useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -83,6 +106,32 @@ export default function WhatsAppProjectsPage() {
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
+                        <Select
+                            value={statusParam}
+                            onValueChange={(val) => {
+                                const params = new URLSearchParams(searchParams);
+                                if (val && val !== 'all') {
+                                    params.set('status', val);
+                                } else {
+                                    params.delete('status');
+                                }
+                                params.set('page', '1');
+                                router.push(`${pathname}?${params.toString()}`);
+                            }}
+                        >
+                            <SelectTrigger className="w-[150px] h-9">
+                                <SelectValue placeholder="Filter by status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Statuses</SelectItem>
+                                <SelectItem value="approved">Approved</SelectItem>
+                                <SelectItem value="verified">Verified</SelectItem>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="rejected">Rejected</SelectItem>
+                                <SelectItem value="failed">Failed</SelectItem>
+                                <SelectItem value="partial_failure">Partial Failure</SelectItem>
+                            </SelectContent>
+                        </Select>
                         <AdminUserSearch placeholder="Search by project name…" />
                         <AdminUserFilter users={users} />
                     </div>
@@ -110,15 +159,20 @@ export default function WhatsAppProjectsPage() {
                                 projects.map(project => (
                                     <tr key={project._id.toString()} className={`hover:bg-slate-50 transition-colors ${project.isArchived ? 'opacity-60' : ''}`}>
                                         <td className="px-6 py-3.5 font-medium text-slate-900">
-                                            <span className="inline-flex items-center gap-2">
-                                                {project.name}
+                                            <div className="flex items-center gap-2">
+                                                <Link 
+                                                    href={`/wachat?projectId=${project._id}`}
+                                                    className="hover:underline text-slate-900 font-medium"
+                                                >
+                                                    {project.name}
+                                                </Link>
                                                 {project.isArchived && (
                                                     <span className="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
                                                         <Archive className="h-3 w-3" />
                                                         Archived
                                                     </span>
                                                 )}
-                                            </span>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-3.5">
                                             <p className="font-medium text-slate-900">{project.owner?.name || '—'}</p>
@@ -166,5 +220,13 @@ export default function WhatsAppProjectsPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function WhatsAppProjectsPage() {
+    return (
+        <Suspense fallback={<div className="p-8 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-slate-500" /></div>}>
+            <WhatsAppProjectsContent />
+        </Suspense>
     );
 }

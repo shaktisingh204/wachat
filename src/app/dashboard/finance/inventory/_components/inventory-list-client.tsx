@@ -167,6 +167,8 @@ export function InventoryItemListClient({ initialItems, error }: { initialItems:
               <Label>TotalQty</Label>
               <Input 
                 name="totalQty" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.totalQty : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("totalQty")} 
               />

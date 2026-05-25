@@ -53,8 +53,10 @@ export default function NewWebhookPage() {
     const [submitting, setSubmitting] = React.useState(false);
     const [secret, setSecret] = React.useState<string | null>(null);
     const [copied, setCopied] = React.useState(false);
+    const [isMounted, setIsMounted] = React.useState(false);
 
     React.useEffect(() => {
+        setIsMounted(true);
         let mounted = true;
         (async () => {
             const list = await listKnownEvents();
@@ -64,6 +66,14 @@ export default function NewWebhookPage() {
             mounted = false;
         };
     }, []);
+
+    if (!isMounted) {
+        return (
+            <div className="flex h-60 items-center justify-center">
+                <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+            </div>
+        );
+    }
 
     const toggle = (e: string) => {
         setSelected((prev) => {

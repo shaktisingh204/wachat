@@ -5,6 +5,9 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import AutomateClient from './components/automate-client';
 import AutomateLoading from './loading';
 
+export const dynamic = 'force-dynamic';
+
+
 export const metadata = {
   title: 'Automate Shift | SabNode',
 };

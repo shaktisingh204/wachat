@@ -42,13 +42,15 @@ export function CustomReportBuilderClient({ initialData }: CustomReportBuilderCl
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure?')) return;
-    try {
-      await deleteCustomReport(id);
-      toast({ title: 'Report deleted', variant: 'success' });
-      router.refresh();
-    } catch (err) {
-      toast({ title: 'Error deleting report', variant: 'destructive' });
-    }
+    startTransition(async () => {
+      try {
+        await deleteCustomReport(id);
+        toast({ title: 'Report deleted', variant: 'success' });
+        router.refresh();
+      } catch (err) {
+        toast({ title: 'Error deleting report', variant: 'destructive' });
+      }
+    });
   };
 
   const filteredData = initialData.filter(d => d.name.toLowerCase().includes(query.toLowerCase()));

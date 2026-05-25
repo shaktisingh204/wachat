@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 'use client';
 
 import {
@@ -37,7 +38,7 @@ import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 import {
-    deleteDocumentTemplate,
+  deleteDocumentTemplate,
     getDocumentTemplates,
     type CrmDocumentTemplateDoc,
     type CrmDocumentTemplateStatus,
@@ -58,7 +59,7 @@ function statusLabel(s: string): string {
 function fmtDate(value: unknown): string {
     if (!value) return '—';
     const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    return Number.isNaN(d.getTime()) ? '—' : fmtDate(d);
 }
 
 export default function DocumentTemplatesListPage() {

@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 import React from "react";
 'use client';
 
@@ -84,7 +85,7 @@ export function AssetHandoverDocument({ assignment }: { assignment: any }) {
     const fmtDate = (value: unknown) => {
         if (!value) return '—';
         const d = new Date(value as string);
-        return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+        return Number.isNaN(d.getTime()) ? '—' : fmtDate(d);
     };
 
     return (
@@ -96,7 +97,7 @@ export function AssetHandoverDocument({ assignment }: { assignment: any }) {
                 <div ref={documentRef} className="min-w-[600px] text-black">
                     <div className="text-center mb-8 border-b pb-4">
                         <h2 className="text-2xl font-bold uppercase tracking-wider">Asset Handover Form</h2>
-                        <p className="text-sm text-gray-500 mt-1">Generated on {new Date().toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-500 mt-1">Generated on {fmtDate()}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-8 mb-8">

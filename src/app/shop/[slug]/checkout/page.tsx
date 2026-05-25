@@ -1,19 +1,18 @@
-'use client';
-
-import { CheckoutForm } from '@/components/wabasimplify/website-builder/checkout-form';
 import { Suspense } from 'react';
 import { CartProvider } from '@/context/cart-context';
+import { CheckoutContent } from './components/checkout-content';
+import { CheckoutPageSkeleton } from './components/skeletons';
 
-function CheckoutPageSkeleton() {
-    return <div>Loading checkout...</div>;
-}
+export const dynamic = 'force-dynamic';
 
-export default function CheckoutPage() {
+export default async function CheckoutPage(props: { params: Promise<{ slug: string }> }) {
+    const params = await props.params;
+
     return (
         <CartProvider>
             <div className="container mx-auto px-4 py-8 max-w-4xl">
                  <Suspense fallback={<CheckoutPageSkeleton />}>
-                    <CheckoutForm />
+                    <CheckoutContent slug={params.slug} />
                 </Suspense>
             </div>
         </CartProvider>

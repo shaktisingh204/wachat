@@ -11,12 +11,14 @@
  * of the canonical Quotations module.
  */
 
+import React, { Suspense } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listRfqs } from '@/app/actions/crm/rfqs.actions';
 import type { CrmRfqDoc } from '@/lib/rust-client/crm-rfqs';
 
 import { RfqListClient } from './_components/rfq-list-client';
 import type { RfqKpiSummary, RfqListRow } from './_components/types';
+import PurchasesLoading from '../loading';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,9 +44,6 @@ function isDeadlinePassed(doc: CrmRfqDoc): boolean {
 function toRow(doc: CrmRfqDoc): RfqListRow {
   const rawStatus = (typeof doc.status === 'string' ? doc.status : 'draft').toLowerCase();
   const invited = Array.isArray(doc.vendorsInvited) ? doc.vendorsInvited.length : 0;
-  // Owner / currency / estimated value aren't first-class on the RFQ
-  // wire shape yet — read them out of audit/identity + a customFields
-  // bag when present so the new columns can hydrate gradually.
   const anyDoc = doc as unknown as Record<string, unknown>;
   const customFields = (anyDoc.customFields ?? {}) as Record<string, unknown>;
   const estimatedRaw = customFields._estimatedValue;
@@ -66,14 +65,14 @@ function toRow(doc: CrmRfqDoc): RfqListRow {
     _id: String(doc._id),
     title: doc.title || '',
     vendorsInvitedCount: invited,
-    deadline: doc.deadline,
-    requiredBy: doc.requiredBy,
+    deadline: doc.deadline ? new Date(doc.deadline).toISOString() : undefined,
+    requiredBy: doc.requiredBy ? new Date(doc.requiredBy).toISOString() : undefined,
     currency,
     estimatedValue,
     status: rawStatus,
     ownerId,
-    createdAt: doc.createdAt ?? doc.audit?.createdAt,
-    updatedAt: doc.updatedAt ?? doc.audit?.updatedAt,
+    createdAt: (doc.createdAt ?? doc.audit?.createdAt) ? new Date(doc.createdAt ?? doc.audit?.createdAt).toISOString() : undefined,
+    updatedAt: (doc.updatedAt ?? doc.audit?.updatedAt) ? new Date(doc.updatedAt ?? doc.audit?.updatedAt).toISOString() : undefined,
     deadlinePassed: isDeadlinePassed(doc),
   };
 }
@@ -93,15 +92,9 @@ function computeKpi(rows: RfqListRow[]): RfqKpiSummary {
     else if (r.status === 'closed') closed += 1;
     else if (r.status === 'awarded') awarded += 1;
     else if (r.status === 'cancelled') cancelled += 1;
-    // "Awaiting responses" = open RFQs with an unexpired deadline. If
-    // the deadline isn't set, count it (vendors are still expected to
-    // respond) — matches the open-list semantics.
     if (r.status === 'open' && !r.deadlinePassed) {
       awaitingResponses += 1;
     }
-    // Avg response time proxy: hours between createdAt and updatedAt for
-    // rows that have moved off draft. Skips rows still in draft and rows
-    // missing either timestamp.
     if (
       r.status !== 'draft' &&
       r.createdAt &&
@@ -129,6 +122,36 @@ function computeKpi(rows: RfqListRow[]): RfqKpiSummary {
   };
 }
 
+/* ─── Server Container ────────────────────────────────────────────── */
+
+async function RfqListContainer({ page, limit, q }: { page: number; limit: number; q: string }) {
+  const { rfqs, hasMore, error } = await listRfqs({
+    page,
+    limit,
+    q: q || undefined,
+  });
+
+  if (error) {
+    throw new Error(error);
+  }
+
+  const rows = rfqs.map(toRow);
+  const kpi = computeKpi(rows);
+
+  return (
+    <RfqListClient
+      rfqs={rows}
+      page={page}
+      limit={limit}
+      hasMore={hasMore}
+      initialQuery={q}
+      kpi={kpi}
+      defaultCurrency="INR"
+      error={error}
+    />
+  );
+}
+
 /* ─── Page ────────────────────────────────────────────────────────── */
 
 export default async function RfqsPage({ searchParams }: PageProps) {
@@ -137,30 +160,14 @@ export default async function RfqsPage({ searchParams }: PageProps) {
   const limit = Math.min(Math.max(1, Number(sp.limit) || 50), 200);
   const q = (sp.q ?? '').trim();
 
-  const { rfqs, hasMore, error } = await listRfqs({
-    page,
-    limit,
-    q: q || undefined,
-  });
-
-  const rows = rfqs.map(toRow);
-  const kpi = computeKpi(rows);
-
   return (
     <EntityListShell
       title="Request for Quotations"
       subtitle="Issue RFQs to vendors and award the winning bid — draft, open, closed, awarded, cancelled."
     >
-      <RfqListClient
-        rfqs={rows}
-        page={page}
-        limit={limit}
-        hasMore={hasMore}
-        initialQuery={q}
-        kpi={kpi}
-        defaultCurrency="INR"
-        error={error}
-      />
+      <Suspense fallback={<PurchasesLoading />}>
+        <RfqListContainer page={page} limit={limit} q={q} />
+      </Suspense>
     </EntityListShell>
   );
 }

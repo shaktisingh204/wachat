@@ -12,8 +12,6 @@ import { useRouter } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { savePurchaseLead } from '@/app/actions/crm-hire.actions';
 
-export const dynamic = 'force-dynamic';
-
 const initialState: { message?: string; error?: string; id?: string } = {};
 
 function SubmitButton() {

@@ -20,10 +20,12 @@ import { logExportHistory } from './export-history.actions';
 
 interface Props {
     entityKind: string;
+    canImport: boolean;
+    canExport: boolean;
     onExportSuccess?: () => void;
 }
 
-export function ImportExportClient({ entityKind, onExportSuccess }: Props): React.ReactElement {
+export function ImportExportClient({ entityKind, canImport, canExport, onExportSuccess }: Props): React.ReactElement {
     const { toast } = useZoruToast();
     const router = useRouter();
     const [busy, setBusy] = React.useState(false);
@@ -70,7 +72,8 @@ export function ImportExportClient({ entityKind, onExportSuccess }: Props): Reac
 
     return (
         <div className="flex w-full flex-col gap-4">
-            <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
+            {canExport && (
+                <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div>
                     <h2 className="text-sm font-medium text-zoru-ink">Export</h2>
                     <p className="text-[12.5px] text-zoru-ink-muted">
@@ -91,8 +94,15 @@ export function ImportExportClient({ entityKind, onExportSuccess }: Props): Reac
                     Download CSV
                 </Button>
             </Card>
+            )}
 
-            <BulkImportWizard entityKind={entityKind} />
+            {canImport ? (
+                <BulkImportWizard entityKind={entityKind} />
+            ) : (
+                <Card className="p-4 text-center">
+                    <p className="text-sm text-zoru-ink-muted">You do not have permission to run bulk imports.</p>
+                </Card>
+            )}
         </div>
     );
 }

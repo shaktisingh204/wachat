@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Input, Button, Badge } from '@/components/zoruui';
-import { Download, FileSpreadsheet, Search } from 'lucide-react';
+import { Input, Button, Badge, Checkbox, useZoruToast } from '@/components/zoruui';
+import { Download, FileSpreadsheet, Search, Trash } from 'lucide-react';
 
 interface Employee {
   id: string;
@@ -15,19 +15,26 @@ interface Employee {
 
 // Generate large dummy dataset for virtualization demo
 const generateDummyEmployees = (count: number, shiftId: string): Employee[] => {
-  return Array.from({ length: count }).map((_, i) => ({
-    id: `EMP-${shiftId}-${1000 + i}`,
-    name: `Employee ${i + 1}`,
-    department: ['Engineering', 'Sales', 'HR', 'Support'][i % 4],
-    role: ['Staff', 'Manager', 'Lead', 'Associate'][i % 4],
-    joinedDate: new Date(2020 + (i % 4), i % 12, (i % 28) + 1).toISOString(),
-  }));
+  return Array.from({ length: count }).map((_, i) => {
+    const year = 2020 + (i % 4);
+    const month = String((i % 12) + 1).padStart(2, '0');
+    const day = String((i % 28) + 1).padStart(2, '0');
+    return {
+      id: `EMP-${shiftId}-${1000 + i}`,
+      name: `Employee ${i + 1}`,
+      department: ['Engineering', 'Sales', 'HR', 'Support'][i % 4],
+      role: ['Staff', 'Manager', 'Lead', 'Associate'][i % 4],
+      joinedDate: `${year}-${month}-${day}`, // Deterministic format to avoid hydration mismatch
+    };
+  });
 };
 
 export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
   const [employees] = React.useState(() => generateDummyEmployees(5000, shiftId));
   const [search, setSearch] = React.useState('');
   const [deptFilter, setDeptFilter] = React.useState<string>('All');
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const { toast } = useZoruToast();
   
   const parentRef = React.useRef<HTMLDivElement>(null);
 
@@ -50,7 +57,7 @@ export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
 
   const exportToCsv = () => {
     const headers = ['ID', 'Name', 'Department', 'Role', 'Joined Date'];
-    const rows = filteredEmployees.map(e => [e.id, e.name, e.department, e.role, e.joinedDate.split('T')[0]]);
+    const rows = filteredEmployees.map(e => [e.id, e.name, e.department, e.role, e.joinedDate]);
     const csvContent = [
       headers.join(','),
       ...rows.map(r => r.join(','))
@@ -71,6 +78,30 @@ export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
     window.print();
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(filteredEmployees.map(e => e.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleSelectOne = (id: string, checked: boolean) => {
+    const next = new Set(selectedIds);
+    if (checked) next.add(id);
+    else next.delete(id);
+    setSelectedIds(next);
+  };
+
+  const handleRemoveSelected = () => {
+    // In a real app, this would call an API
+    toast({
+      title: 'Success',
+      description: `Removed ${selectedIds.size} employees from shift`,
+    });
+    setSelectedIds(new Set());
+  };
+
   return (
     <div className="flex flex-col gap-4 rounded-lg border border-zoru-line bg-zoru-bg p-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -81,6 +112,11 @@ export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {selectedIds.size > 0 && (
+            <Button variant="destructive" onClick={handleRemoveSelected}>
+              <Trash className="mr-2 h-4 w-4" /> Remove ({selectedIds.size})
+            </Button>
+          )}
           <Button variant="outline" onClick={exportToCsv}>
             <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
           </Button>
@@ -116,10 +152,16 @@ export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
 
       <div className="rounded-md border border-zoru-line">
         <div className="flex bg-zoru-subtle px-4 py-3 text-sm font-medium text-zoru-ink-muted">
-          <div className="w-1/4">ID</div>
-          <div className="w-1/4">Name</div>
-          <div className="w-1/4">Department</div>
-          <div className="w-1/4 text-right">Joined</div>
+          <div className="w-[40px]">
+            <Checkbox 
+              checked={filteredEmployees.length > 0 && selectedIds.size === filteredEmployees.length}
+              onCheckedChange={(c) => handleSelectAll(Boolean(c))}
+            />
+          </div>
+          <div className="flex-1">ID</div>
+          <div className="flex-1">Name</div>
+          <div className="flex-1">Department</div>
+          <div className="flex-1 text-right">Joined</div>
         </div>
         
         <div 
@@ -148,12 +190,18 @@ export function AssignedEmployeesList({ shiftId }: { shiftId: string }) {
                   }}
                   className="flex items-center border-b border-zoru-line px-4 text-sm hover:bg-zoru-subtle"
                 >
-                  <div className="w-1/4 font-mono">{emp.id}</div>
-                  <div className="w-1/4">{emp.name}</div>
-                  <div className="w-1/4">{emp.department}</div>
-                  {/* Hydration safe rendering using client-only formatting if needed, but here it's already a string format */}
-                  <div className="w-1/4 text-right text-zoru-ink-muted">
-                    {emp.joinedDate.split('T')[0]}
+                  <div className="w-[40px]">
+                    <Checkbox 
+                      checked={selectedIds.has(emp.id)}
+                      onCheckedChange={(c) => handleSelectOne(emp.id, Boolean(c))}
+                    />
+                  </div>
+                  <div className="flex-1 font-mono">{emp.id}</div>
+                  <div className="flex-1">{emp.name}</div>
+                  <div className="flex-1">{emp.department}</div>
+                  {/* Hydration safe rendering with deterministic string */}
+                  <div className="flex-1 text-right text-zoru-ink-muted">
+                    {emp.joinedDate}
                   </div>
                 </div>
               );

@@ -135,7 +135,7 @@ function CreateAdForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { toast } = useToast();
-    const { activeAccount } = useAdManager();
+    const { activeAccount, isLoading: accountLoading } = useAdManager();
 
     const [step, setStep] = React.useState<Step>(1);
     const [maxStep, setMaxStep] = React.useState<Step>(1);
@@ -443,6 +443,14 @@ function CreateAdForm() {
             setSubmitting(false);
         }
     };
+
+    if (accountLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+        );
+    }
 
     if (!activeAccount) {
         return (

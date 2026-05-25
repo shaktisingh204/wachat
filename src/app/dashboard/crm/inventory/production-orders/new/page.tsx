@@ -5,10 +5,16 @@
  * server-side prefill helper.
  */
 
+import { Suspense } from 'react';
 import { PoForm } from '../_components/po-form';
+import NewProductionOrderLoading from './loading';
 
 export const dynamic = 'force-dynamic';
 
 export default function NewProductionOrderPage() {
-  return <PoForm />;
+  return (
+    <Suspense fallback={<NewProductionOrderLoading />}>
+      <PoForm />
+    </Suspense>
+  );
 }

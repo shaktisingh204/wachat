@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 'use client';
 
 import {
@@ -572,7 +573,7 @@ export function RecruitmentListShell<T extends { _id: string }>({
 function asNode(value: unknown): React.ReactNode {
   if (value === null || value === undefined || value === '') return '—';
   if (typeof value === 'string' || typeof value === 'number') return value;
-  if (value instanceof Date) return value.toLocaleDateString();
+  if (value instanceof Date) return fmtDate(value);
   if (Array.isArray(value)) return String(value.length);
   return String(value);
 }

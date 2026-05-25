@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 'use client';
 
 import { Badge, Button, Card, Input, Skeleton } from '@/components/zoruui';
@@ -57,7 +58,7 @@ function fmtDate(v: unknown): string {
   if (!v) return '';
   const d = new Date(v as any);
   if (isNaN(d.getTime())) return '';
-  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  return fmtDate(d);
 }
 
 // Stable avatar color per employee based on first letter

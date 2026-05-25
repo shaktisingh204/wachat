@@ -54,14 +54,14 @@ function toRow(doc: WithId<CrmProduct>): ItemListRow {
   // meaningful to render.
   const d = doc as WithId<CrmProduct> & {
     barcode?: string;
-    vendorIds?: unknown;
-    taxRateId?: unknown;
+    vendorIds?: string[];
+    taxRateId?: string;
     status?: 'active' | 'archived';
     reorderPoint?: number;
     images?: string[];
   };
   const vendorIds = Array.isArray(d.vendorIds)
-    ? (d.vendorIds as string[]).map((id) => String(id))
+    ? d.vendorIds.map((id) => String(id))
     : [];
   const inventory = (d.inventory ?? []).map((row) => ({
     warehouseId: String(row.warehouseId),

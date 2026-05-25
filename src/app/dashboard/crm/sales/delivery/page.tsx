@@ -5,6 +5,7 @@
  * and hands off to `<DeliveryListClient>` which composes EntityListShell.
  */
 
+import { Suspense } from 'react';
 import {
   getDeliveryChallanKpis,
   getDeliveryChallans,
@@ -14,6 +15,7 @@ import {
   type DcStatus,
 } from './_components/delivery-list-client';
 import type { LineageRef } from '@/lib/definitions';
+import { Skeleton } from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 
@@ -104,19 +106,37 @@ export default async function DeliveryChallansPage({
   });
 
   return (
-    <DeliveryListClient
-      rows={rows}
-      page={page}
-      limit={limit}
-      hasMore={hasMore}
-      initialQuery={q}
-      initialStatus={status}
-      initialClientId={clientId}
-      initialTransporterId={transporterId}
-      initialDateFrom={dateFrom}
-      initialDateTo={dateTo}
-      initialWarehouseId={warehouseId}
-      kpis={kpis}
-    />
+    <Suspense fallback={<DeliveryPageLoader />}>
+      <DeliveryListClient
+        rows={rows}
+        page={page}
+        limit={limit}
+        hasMore={hasMore}
+        initialQuery={q}
+        initialStatus={status}
+        initialClientId={clientId}
+        initialTransporterId={transporterId}
+        initialDateFrom={dateFrom}
+        initialDateTo={dateTo}
+        initialWarehouseId={warehouseId}
+        kpis={kpis}
+      />
+    </Suspense>
   );
 }
+
+function DeliveryPageLoader() {
+  return (
+    <div className="space-y-4 p-6">
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-4 w-96" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-6">
+        {[...Array(6)].map((_, i) => (
+          <Skeleton key={i} className="h-20 w-full" />
+        ))}
+      </div>
+      <Skeleton className="h-64 w-full" />
+    </div>
+  );
+}
+

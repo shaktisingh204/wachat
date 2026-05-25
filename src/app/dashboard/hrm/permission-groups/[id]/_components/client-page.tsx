@@ -10,11 +10,11 @@ import {
   type HrmPermissionGroup,
   type ModulePermission,
 } from '@/app/actions/hrm-permission-groups.actions';
-import { PermissionMatrix } from '../_components/permission-matrix';
 import { GroupDetailsCard } from './group-details-card';
 import { AssignedEmployeesTable } from './assigned-employees-table';
+import { EditGroupForm } from './edit-group-form';
 
-interface AssignedEmployee {
+export interface AssignedEmployee {
   employeeId: string;
   name: string;
   email?: string;
@@ -27,6 +27,8 @@ interface ClientPageProps {
   initialEmpAssignments: { employeeId: string; assignedAt: string }[];
   allEmployees: { _id: string; name: string; email?: string }[];
 }
+
+import { useGroupWebsocket } from './use-group-websocket';
 
 export function ClientPage({
   id,
@@ -50,6 +52,14 @@ export function ClientPage({
   const [saving, startSaveTransition] = React.useTransition();
   const [removingId, setRemovingId] = React.useState<string | null>(null);
 
+  // Real-time collaborative editing hook
+  const { notifyUpdate } = useGroupWebsocket(id, React.useCallback((updatedFields) => {
+    setGroup((prev) => prev ? { ...prev, ...updatedFields } : null);
+    if (updatedFields.name !== undefined) setName(updatedFields.name);
+    if (updatedFields.description !== undefined) setDescription(updatedFields.description);
+    if (updatedFields.permissions !== undefined) setPermissions(updatedFields.permissions);
+  }, []));
+
   // Initialize assigned employees
   React.useEffect(() => {
     const empMap = new Map(allEmployees.map((e) => [e._id, e]));
@@ -65,18 +75,6 @@ export function ClientPage({
       })
     );
   }, [initialEmpAssignments, allEmployees]);
-
-  // Simulate WebSockets real-time collaborative editing
-  React.useEffect(() => {
-    // In a real app, this would be: const ws = new WebSocket('ws://...');
-    // We mock real-time updates for demonstration
-    const interval = setInterval(() => {
-      // Dummy check or connection ping
-      // If someone else edits the group, we would receive an event here
-      // e.g. ws.onmessage = (event) => { const data = JSON.parse(event.data); ... }
-    }, 15000);
-    return () => clearInterval(interval);
-  }, [id]);
 
   /* ── Save ────────────────────────────────────────────────────────────── */
 
@@ -99,6 +97,7 @@ export function ClientPage({
             ? { ...prev, name: name.trim(), description: description.trim(), permissions, updatedAt: new Date().toISOString() }
             : null
         );
+        notifyUpdate({ name: name.trim(), description: description.trim(), permissions });
       } else {
         toast({ title: res.error ?? 'Save failed', variant: 'destructive' });
       }
@@ -147,9 +146,11 @@ export function ClientPage({
         const hasErrors = results.some((r) => !r.success);
         
         if (hasErrors) {
-          toast({ title: 'Some assignments could not be removed', variant: 'destructive' });
-          // In a real scenario, we might want to refetch to get accurate state
-          // For now, we leave the successful ones removed and maybe show error
+          toast({ 
+            title: 'Partial Removal Failure', 
+            description: 'Some employee assignments could not be removed. Please refresh the page and try again.',
+            variant: 'destructive' 
+          });
         } else {
           toast({ title: 'Bulk removal successful' });
         }
@@ -204,30 +205,20 @@ export function ClientPage({
             </p>
           </div>
         </div>
-        <Button onClick={handleSave} disabled={saving}>
-          {saving ? <LoaderCircle className="h-4 w-4 animate-spin mr-2" /> : null}
-          {saving ? 'Saving…' : 'Save Changes'}
-        </Button>
       </div>
 
-      <GroupDetailsCard
+      <EditGroupForm
         name={name}
         description={description}
+        permissions={permissions}
         onNameChange={setName}
         onDescriptionChange={setDescription}
+        onPermissionsChange={setPermissions}
+        onSave={handleSave}
+        saving={saving}
         group={group}
         assignedCount={assignedEmployees.length}
       />
-
-      <Card className="flex flex-col gap-4 p-5 print:hidden">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-zoru-ink">Module Permissions</h2>
-          <Badge variant="secondary">
-            {permissions.filter((p) => p.actions.length > 0).length} modules active
-          </Badge>
-        </div>
-        <PermissionMatrix value={permissions} onChange={setPermissions} />
-      </Card>
 
       <AssignedEmployeesTable
         employees={assignedEmployees}

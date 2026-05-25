@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import { useState, useTransition } from 'react';
@@ -79,7 +80,7 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
                     {item.scopes.map(s => <span key={s} className="bg-zoru-neutral-hover px-2 py-0.5 rounded text-xs">{s}</span>)}
                   </div>
                 </ZoruTableCell>
-                <ZoruTableCell className="text-sm text-zoru-ink-light">{new Date(item.createdAt).toLocaleDateString()}</ZoruTableCell>
+                <ZoruTableCell className="text-sm text-zoru-ink-light">{fmtDate(item.createdAt)}</ZoruTableCell>
                 <ZoruTableCell className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} disabled={isPending}>
                     <Trash2 className="w-4 h-4 text-red-500" />

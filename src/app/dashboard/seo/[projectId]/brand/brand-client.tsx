@@ -6,58 +6,17 @@ import { Radar, RefreshCw, Link2, Unlink } from 'lucide-react';
 import { AlertsDialog } from './alerts-dialog';
 import { useEffect, useState } from 'react';
 
-// Mock API call to real backend that handles Social Listening integration
-async function fetchBrandMentions(projectId: string) {
-  // Try to connect to real backend, fallback to mock data on error/empty
-  try {
-    const res = await fetch(`/api/v1/seo/brand/mentions?projectId=${projectId}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) return data;
-    }
-  } catch (e) {
-    // Ignore and fallback
-  }
-
-  // Fallback to simulate social listening API integration data
-  return [
-    { id: '1', title: 'Top 10 SEO Tools for 2026', source: 'TechCrunch', sentiment: 'positive', unlinked: true, date: new Date().toISOString() },
-    { id: '2', title: 'Review: Is Project Titan worth it?', source: 'SEOMaster', sentiment: 'neutral', unlinked: false, date: new Date(Date.now() - 86400000).toISOString() },
-    { id: '3', title: 'Why I switched from Ahrefs', source: 'IndieHackers', sentiment: 'positive', unlinked: true, date: new Date(Date.now() - 172800000).toISOString() },
-    { id: '4', title: 'Bug report: App crashing on launch', source: 'Twitter / X', sentiment: 'negative', unlinked: true, date: new Date(Date.now() - 3600000).toISOString() },
-  ];
-}
-
-async function fetchBrandSentiment(projectId: string) {
-  try {
-    const res = await fetch(`/api/v1/seo/brand/sentiment?projectId=${projectId}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.score) return data;
-    }
-  } catch (e) {
-    // Ignore and fallback
-  }
-
-  return {
-    score: 87,
-    positiveSentiment: '87%',
-    newMentions: 24,
-    mentionsDiff: '+5',
-    shareOfVoice: '21%',
-    rankText: 'Rank 2nd in niche',
-  };
-}
+import { fetchRealBrandMentions, fetchRealBrandSentiment } from './actions';
 
 export function BrandDashboardClient({ projectId }: { projectId: string }) {
   const { data: mentions, isLoading: mentionsLoading, refetch: refetchMentions, isFetching: mentionsFetching } = useQuery({
     queryKey: ['brand-mentions', projectId],
-    queryFn: () => fetchBrandMentions(projectId),
+    queryFn: () => fetchRealBrandMentions(projectId),
   });
 
   const { data: sentiment, isLoading: sentimentLoading, refetch: refetchSentiment } = useQuery({
     queryKey: ['brand-sentiment', projectId],
-    queryFn: () => fetchBrandSentiment(projectId),
+    queryFn: () => fetchRealBrandSentiment(projectId),
   });
 
   const handleRefresh = () => {
@@ -147,7 +106,7 @@ export function BrandDashboardClient({ projectId }: { projectId: string }) {
             </div>
           ) : (
             <div className="space-y-4">
-              {mentions?.map((m: { id: string; title: string; source: string; unlinked: boolean; date: string; sentiment: string; }) => (
+              {mentions?.map((m: { id: string; title: string; source: string; unlinked: boolean; date: string; sentiment: string; url?: string; }) => (
                 <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line p-4 gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
@@ -180,8 +139,10 @@ export function BrandDashboardClient({ projectId }: { projectId: string }) {
                     >
                       {m.sentiment}
                     </span>
-                    <Button variant="outline" size="sm">
-                      View
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={m.url || '#'} target="_blank" rel="noopener noreferrer">
+                        View
+                      </a>
                     </Button>
                   </div>
                 </div>

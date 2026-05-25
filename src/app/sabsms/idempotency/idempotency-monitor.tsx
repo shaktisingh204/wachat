@@ -13,7 +13,8 @@ import {
   RefreshCcw, 
   Save, 
   ShieldAlert, 
-  Trash2 
+  Trash2,
+  Settings
 } from "lucide-react";
 
 import {
@@ -31,6 +32,13 @@ import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-sh
 import { SabsmsFilterBar, type SabsmsFacet } from "@/components/sabsms/page-toolkit/sabsms-filter-bar";
 import { SabsmsDataTable, type SabsmsColumn } from "@/components/sabsms/page-toolkit/sabsms-data-table";
 
+import { 
+  fetchIdempotencyKeys, 
+  configureRetentionPolicy, 
+  invalidateIdempotencyKeys,
+  seedMockDataIfEmpty 
+} from "./actions";
+
 interface IdempotencyKey {
   id: string;
   key: string;
@@ -43,45 +51,6 @@ interface IdempotencyKey {
   ttl: string;
   failures: number;
 }
-
-const mockData: IdempotencyKey[] = [
-  {
-    id: "idk_1",
-    key: "req_xyz789",
-    route: "POST /v1/messages",
-    apiKey: "pk_test_123",
-    firstSeen: "2026-05-22T10:00:00Z",
-    lastSeen: "2026-05-22T10:00:05Z",
-    hash: "sha256:abc123def456",
-    cached: true,
-    ttl: "23h 59m",
-    failures: 0,
-  },
-  {
-    id: "idk_2",
-    key: "req_abc456",
-    route: "POST /v1/campaigns",
-    apiKey: "pk_prod_999",
-    firstSeen: "2026-05-22T09:15:00Z",
-    lastSeen: "2026-05-22T09:15:00Z",
-    hash: "sha256:fed654cba321",
-    cached: false,
-    ttl: "23h 14m",
-    failures: 2,
-  },
-  {
-    id: "idk_3",
-    key: "req_foo123",
-    route: "POST /v1/messages",
-    apiKey: "pk_prod_999",
-    firstSeen: "2026-05-22T08:30:00Z",
-    lastSeen: "2026-05-22T08:31:00Z",
-    hash: "sha256:111222333444",
-    cached: true,
-    ttl: "22h 30m",
-    failures: 0,
-  },
-];
 
 const facets: SabsmsFacet[] = [
   {
@@ -107,7 +76,45 @@ const facets: SabsmsFacet[] = [
 
 export function IdempotencyMonitor() {
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  const [data, setData] = React.useState<IdempotencyKey[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [searchQuery, setSearchQuery] = React.useState("");
   
+  React.useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      await seedMockDataIfEmpty();
+      const keys = await fetchIdempotencyKeys(searchQuery);
+      setData(keys);
+      setLoading(false);
+    }
+    loadData();
+  }, [searchQuery]);
+
+  const handleConfigureTTL = async () => {
+    const ttlStr = prompt("Enter retention policy TTL in seconds (e.g., 86400 for 24 hours):", "86400");
+    if (!ttlStr) return;
+    const ttl = parseInt(ttlStr, 10);
+    if (isNaN(ttl) || ttl <= 0) {
+      alert("Invalid TTL value");
+      return;
+    }
+    try {
+      await configureRetentionPolicy(ttl);
+      alert(`Successfully configured strict TTL index to ${ttl} seconds to prevent database bloat.`);
+    } catch (e) {
+      alert("Failed to configure retention policy");
+    }
+  };
+
+  const handleInvalidate = async (ids: string[]) => {
+    if (!confirm(`Are you sure you want to invalidate ${ids.length} key(s)?`)) return;
+    await invalidateIdempotencyKeys(ids);
+    const keys = await fetchIdempotencyKeys(searchQuery);
+    setData(keys);
+    setSelectedIds([]);
+  };
+
   const columns: SabsmsColumn<IdempotencyKey>[] = [
     {
       id: "key",
@@ -180,8 +187,9 @@ export function IdempotencyMonitor() {
       helpTitle="What is this page?"
       helpBody="This monitor tracks all requests bearing an Idempotency-Key header. It caches the original request hash and response to prevent duplicate executions (e.g. double-sends on network retry)."
       primaryAction={{
-        label: "AI: Find Risky Patterns",
-        onClick: () => alert("Analysing idempotency patterns..."),
+        label: "Configure Retention",
+        icon: <Settings className="h-4 w-4" />,
+        onClick: handleConfigureTTL,
       }}
       secondaryActions={[
         { label: "Export CSV", icon: <Download className="h-4 w-4" /> },
@@ -199,12 +207,13 @@ export function IdempotencyMonitor() {
             { value: "failures", label: "Most Failures" },
           ]}
           defaultSort="newest"
+          onSearchChange={(val) => setSearchQuery(val)}
         />
       }
     >
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4 mb-6">
         <StatCard label="Hit / Miss Ratio" value="94.2%" period="Last 24h" />
-        <StatCard label="Active Keys" value="14,239" period="TTL active" />
+        <StatCard label="Active Keys" value={data.length.toString()} period="TTL active" />
         <StatCard label="Storage Utilisation" value="84 MB" period="Redis cache" />
         <StatCard label="Replay Blocks" value="128" period="Failures prevented" />
       </div>
@@ -250,7 +259,7 @@ export function IdempotencyMonitor() {
       </div>
 
       <SabsmsDataTable
-        rows={mockData}
+        rows={data}
         columns={columns}
         rowKey={(r) => r.id}
         selectable
@@ -261,7 +270,7 @@ export function IdempotencyMonitor() {
             label: "Bulk Invalidate",
             icon: <Trash2 className="h-4 w-4" />,
             destructive: true,
-            onSelect: () => alert("Invalidated selected keys"),
+            onSelect: () => handleInvalidate(selectedIds),
           },
         ]}
         rowActions={[
@@ -284,12 +293,12 @@ export function IdempotencyMonitor() {
             label: "Invalidate Key",
             icon: <RefreshCcw className="h-4 w-4" />,
             destructive: true,
-            onSelect: (r) => alert(`Invalidated ${r.key}`),
+            onSelect: (r) => handleInvalidate([r.id]),
           },
         ]}
         page={1}
         pageSize={25}
-        total={mockData.length}
+        total={data.length}
       />
     </SabsmsPageShell>
   );

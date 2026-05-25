@@ -96,8 +96,16 @@ export default function KanbanPage() {
   const [projectFilter, setProjectFilter] = useState<string>('all');
   const [swimlaneBy, setSwimlaneBy] = useState<'none' | 'assignee' | 'project'>('none');
   const [isLoading, startLoading] = useTransition();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (typeof window === 'undefined') return;
+
     // Real-time Kanban board updates via WebSockets
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/api/realtime/kanban`;
@@ -129,7 +137,7 @@ export default function KanbanPage() {
         ws.close();
       }
     };
-  }, []);
+  }, [mounted]);
 
   const refresh = useCallback(() => {
     startLoading(async () => {
@@ -275,7 +283,7 @@ export default function KanbanPage() {
           </div>
           <Link href="/dashboard/crm/projects/taskboard-columns">
             <Button variant="outline" size="sm">
-              <Columns3 className="h-4 w-4" />
+              <Columns3 className="mr-1.5 h-3.5 w-3.5" />
               Columns
             </Button>
           </Link>
@@ -309,7 +317,7 @@ export default function KanbanPage() {
                     ? effectiveColumns[idx + 1]
                     : null;
                 return (
-                  <Card key={col._id} className="flex flex-col p-4 bg-zoru-bg border-zoru-line">
+                  <Card key={col._id} className="flex flex-col p-4">
                     <div className="mb-3 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span
@@ -332,7 +340,7 @@ export default function KanbanPage() {
                         </div>
                       ) : (
                         colTasks.map((task) => (
-                          <Card key={task._id} className="p-3 shadow-sm hover:shadow-md transition-shadow">
+                          <Card key={task._id} interactive className="p-3">
                             <p className="text-[13px] font-medium text-zoru-ink">
                               {task.heading}
                             </p>

@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState, useTransition, Suspense, useCallback } from 'react';
+import React, { useState, useTransition, Suspense, useCallback, useEffect } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getPayslips } from '@/app/actions/crm-payroll.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { startOfMonth, format } from 'date-fns';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, AlertCircle } from 'lucide-react';
 import { TdsPeriodSelector } from './period-selector';
 import { TdsDataView } from './tds-client-view';
+import { ZoruEmptyState, ZoruButton } from '@/components/zoruui';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
@@ -19,7 +20,7 @@ const months = [
 ];
 
 function fetchTdsData(year: number, month: number) {
-    const period = startOfMonth(new Date(year, month));
+    const period = startOfMonth(new Date(Date.UTC(year, month, 1))); // Use UTC to prevent hydration mismatch for dates
     return Promise.all([
         getPayslips(period),
         getCrmEmployees(),
@@ -27,7 +28,7 @@ function fetchTdsData(year: number, month: number) {
         const employeeMap = new Map(employeesData.map((e: any) => [e._id.toString(), e]));
         return payslipsData.map((slip: any) => {
             const emp = employeeMap.get(slip.employeeId.toString());
-            const tds = slip.deductions.find((d: any) => d.name?.includes('Tax') || d.name?.includes('TDS'))?.amount ?? 0;
+            const tds = slip.deductions?.find((d: any) => d.name?.includes('Tax') || d.name?.includes('TDS'))?.amount ?? 0;
             return {
                 ...slip,
                 employee: emp,
@@ -40,12 +41,57 @@ function fetchTdsData(year: number, month: number) {
     });
 }
 
+class TdsErrorBoundary extends React.Component<{ children: React.ReactNode, onReset: () => void }, { hasError: boolean, error: Error | null }> {
+    constructor(props: any) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+    static getDerivedStateFromError(error: Error) {
+        return { hasError: true, error };
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="flex justify-center p-24">
+                    <ZoruEmptyState
+                        icon={AlertCircle}
+                        title="Error Loading TDS Data"
+                        description={this.state.error?.message || "Something went wrong while fetching data."}
+                        action={
+                            <ZoruButton onClick={() => {
+                                this.setState({ hasError: false, error: null });
+                                this.props.onReset();
+                            }}>
+                                Retry
+                            </ZoruButton>
+                        }
+                    />
+                </div>
+            );
+        }
+        return this.props.children;
+    }
+}
+
 export default function TdsPage() {
-    const [month, setMonth] = useState(new Date().getMonth());
+    const [isMounted, setIsMounted] = useState(false);
+    
+    // We keep state local but initialize with a fixed default or handle after mount
+    // to prevent hydration issues with new Date()
+    const [month, setMonth] = useState(0); 
     const [year, setYear] = useState(currentYear);
     const [isPending, startTransition] = useTransition();
 
-    const [dataPromise, setDataPromise] = useState(() => fetchTdsData(year, month));
+    const [dataPromise, setDataPromise] = useState<Promise<any[]> | null>(null);
+
+    useEffect(() => {
+        const currentMonth = new Date().getMonth();
+        const currentY = new Date().getFullYear();
+        setMonth(currentMonth);
+        setYear(currentY);
+        setDataPromise(fetchTdsData(currentY, currentMonth));
+        setIsMounted(true);
+    }, []);
 
     const handleMonthChange = useCallback((val: number) => {
         setMonth(val);
@@ -60,9 +106,23 @@ export default function TdsPage() {
             setDataPromise(fetchTdsData(val, month));
         });
     }, [month]);
+    
+    const handleReset = useCallback(() => {
+        setDataPromise(fetchTdsData(year, month));
+    }, [year, month]);
 
     const monthLabel = months.find(m => m.value === month)?.label ?? '';
     const periodLabel = `${monthLabel} ${year}`;
+
+    if (!isMounted) {
+        return (
+            <EntityListShell title="TDS Management" subtitle="Tax Deducted at Source tracking">
+                <div className="flex justify-center p-24">
+                    <LoaderCircle className="h-8 w-8 animate-spin text-zoru-brand" />
+                </div>
+            </EntityListShell>
+        );
+    }
 
     return (
         <EntityListShell
@@ -80,13 +140,15 @@ export default function TdsPage() {
             }
         >
             <div className={isPending ? 'opacity-50 transition-opacity' : 'transition-opacity'}>
-                <Suspense fallback={
-                    <div className="flex justify-center p-24">
-                        <LoaderCircle className="h-8 w-8 animate-spin text-zoru-brand" />
-                    </div>
-                }>
-                    <TdsDataView dataPromise={dataPromise} periodLabel={periodLabel} />
-                </Suspense>
+                <TdsErrorBoundary onReset={handleReset}>
+                    <Suspense fallback={
+                        <div className="flex justify-center p-24">
+                            <LoaderCircle className="h-8 w-8 animate-spin text-zoru-brand" />
+                        </div>
+                    }>
+                        {dataPromise && <TdsDataView dataPromise={dataPromise} periodLabel={periodLabel} />}
+                    </Suspense>
+                </TdsErrorBoundary>
             </div>
         </EntityListShell>
     );

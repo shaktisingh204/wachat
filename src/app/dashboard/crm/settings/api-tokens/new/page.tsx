@@ -126,6 +126,17 @@ export default function NewCrmApiTokenPage() {
         }
     };
 
+    React.useEffect(() => {
+        if (!issuedToken) return;
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            e.preventDefault();
+            e.returnValue = 'You have not copied your token. Once you leave, you cannot retrieve it!';
+            return e.returnValue;
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [issuedToken]);
+
     if (issuedToken) {
         return (
             <div className="flex min-h-full flex-col gap-6">

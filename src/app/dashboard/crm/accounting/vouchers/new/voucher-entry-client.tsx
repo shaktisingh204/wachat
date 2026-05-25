@@ -24,8 +24,9 @@ import {
  * is now the default at `/new`; this entry form lives under `?mode=entry`.
  */
 
-import { useState, useEffect, useActionState } from 'react';
+import { useState, useEffect, useActionState, startTransition } from 'react';
 import { useFormStatus } from 'react-dom';
+import { z } from 'zod';
 
 import { Trash2, ArrowLeft, Save, LoaderCircle, AlertCircle, Wand2 } from 'lucide-react';
 import Link from 'next/link';
@@ -34,10 +35,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { getCrmChartOfAccounts } from '@/app/actions/crm-accounting.actions';
 import { getCrmPaymentAccounts } from '@/app/actions/crm-payment-accounts.actions';
-import { saveVoucherEntry, getVoucherBooks } from '@/app/actions/crm-vouchers.actions';
+import { saveVoucherEntry } from '@/app/actions/crm-vouchers.actions';
 import type { WithId } from 'mongodb';
-import type { CrmChartOfAccount, CrmVoucherBook, CrmPaymentAccount } from '@/lib/definitions';
-import { getSession } from '@/app/actions/user.actions';
+import type { CrmVoucherBook } from '@/lib/definitions';
 
 import { EntityPicker } from '@/components/crm/entity-picker';
 
@@ -176,16 +176,18 @@ function LineItemsSection({ title, items, setItems, baseCurrency }: LineItemsSec
 
 interface NewVoucherEntryClientProps {
     presetBookId?: string;
+    initialUser: { businessProfile?: { name?: string } } | null;
+    initialVoucherBooks: WithId<CrmVoucherBook>[];
 }
 
-export function NewVoucherEntryClient({ presetBookId }: NewVoucherEntryClientProps) {
+export function NewVoucherEntryClient({ presetBookId, initialUser, initialVoucherBooks }: NewVoucherEntryClientProps) {
     const [state, formAction] = useActionState(saveVoucherEntry, initialState);
     const router = useRouter();
     const { toast } = useZoruToast();
 
-    const [user, setUser] = useState<{ businessProfile?: { name?: string } } | null>(null);
-    const [voucherBooks, setVoucherBooks] = useState<WithId<CrmVoucherBook>[]>([]);
-    const [voucherDate, setVoucherDate] = useState<Date | undefined>(new Date());
+    const [user] = useState<{ businessProfile?: { name?: string } } | null>(initialUser);
+    const [voucherBooks] = useState<WithId<CrmVoucherBook>[]>(initialVoucherBooks);
+    const [voucherDate, setVoucherDate] = useState<Date | undefined>();
     const [baseCurrency, setBaseCurrency] = useState('INR');
     const [bookId, setBookId] = useState(presetBookId ?? '');
     
@@ -203,13 +205,11 @@ export function NewVoucherEntryClient({ presetBookId }: NewVoucherEntryClientPro
     ]);
 
     useEffect(() => {
-        // server-only hot paths are kicked off in parallel — see async-parallel.
-        Promise.all([getSession(), getCrmChartOfAccounts(), getCrmPaymentAccounts(), getVoucherBooks()]).then(
-            ([session, _chart, _payment, books]) => {
-                setUser((session?.user as { businessProfile?: { name?: string } }) ?? null);
-                setVoucherBooks(books);
-            },
-        );
+        setVoucherDate(new Date());
+        
+        // Prefetch these actions in the background for EntityPicker client cache
+        getCrmChartOfAccounts().catch(console.error);
+        getCrmPaymentAccounts().catch(console.error);
     }, []);
 
     useEffect(() => {
@@ -241,20 +241,68 @@ export function NewVoucherEntryClient({ presetBookId }: NewVoucherEntryClientPro
         }, 1200);
     };
 
+    const handleAction = (formData: FormData) => {
+        try {
+            const debits = JSON.parse(formData.get('debitEntries') as string || '[]');
+            const credits = JSON.parse(formData.get('creditEntries') as string || '[]');
+            
+            const schema = z.object({
+                voucherBookId: z.string().min(1, 'Voucher Book is required.'),
+                voucherNumber: z.string().min(1, 'Voucher Number is required.'),
+                date: z.string().min(1, 'Date is required.'),
+            });
+
+            const parsed = schema.safeParse({
+                voucherBookId: formData.get('voucherBookId') || '',
+                voucherNumber: formData.get('voucherNumber') || '',
+                date: formData.get('date') || ''
+            });
+
+            if (!parsed.success) {
+                toast({ title: 'Validation Error', description: parsed.error.errors[0].message, variant: 'destructive' });
+                return;
+            }
+
+            const totalDebits = debits.reduce((sum: number, entry: any) => sum + (Number(entry.amount) * (Number(entry.exchangeRate) || 1)), 0);
+            const totalCredits = credits.reduce((sum: number, entry: any) => sum + (Number(entry.amount) * (Number(entry.exchangeRate) || 1)), 0);
+            
+            if (Math.abs(totalDebits - totalCredits) > 0.01) {
+                toast({ title: 'Validation Error', description: 'Total debits must equal total credits.', variant: 'destructive' });
+                return;
+            }
+
+            if (debits.some((d: any) => !d.accountId)) {
+                toast({ title: 'Validation Error', description: 'All debit lines must have an account selected.', variant: 'destructive' });
+                return;
+            }
+            
+            if (credits.some((c: any) => !c.accountId)) {
+                toast({ title: 'Validation Error', description: 'All credit lines must have an account selected.', variant: 'destructive' });
+                return;
+            }
+
+            startTransition(() => {
+                formAction(formData);
+            });
+        } catch (e) {
+            toast({ title: 'Validation Error', description: 'Failed to process form data.', variant: 'destructive' });
+        }
+    };
+
     const totalDebits = debitEntries.reduce((sum, entry) => sum + (Number(entry.amount) * (Number(entry.exchangeRate) || 1)), 0);
     const totalCredits = creditEntries.reduce((sum, entry) => sum + (Number(entry.amount) * (Number(entry.exchangeRate) || 1)), 0);
     const difference = totalDebits - totalCredits;
     const businessProfile = user?.businessProfile;
 
     return (
-        <form action={formAction}>
+        <form action={handleAction}>
             <input type="hidden" name="debitEntries" value={JSON.stringify(debitEntries)} />
             <input type="hidden" name="creditEntries" value={JSON.stringify(creditEntries)} />
-            <input type="hidden" name="date" value={voucherDate?.toISOString()} />
+            <input type="hidden" name="date" value={voucherDate?.toISOString() || ""} />
             <input type="hidden" name="baseCurrency" value={baseCurrency} />
             <input type="hidden" name="isRecurring" value={isRecurring.toString()} />
             <input type="hidden" name="recurringFrequency" value={recurringFrequency} />
-            <input type="hidden" name="recurringEndDate" value={recurringEndDate?.toISOString()} />
+            <input type="hidden" name="recurringEndDate" value={recurringEndDate?.toISOString() || ""} />
 
             <div className="max-w-6xl mx-auto flex flex-col gap-6">
                 <header className="flex justify-between items-center">

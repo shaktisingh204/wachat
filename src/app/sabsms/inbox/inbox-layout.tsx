@@ -213,6 +213,24 @@ export function InboxLayout({
     void refresh();
   }, [refresh]);
 
+  React.useEffect(() => {
+    let ws: WebSocket;
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://echo.websocket.events';
+    try {
+      ws = new WebSocket(wsUrl);
+      ws.onmessage = (event) => {
+        // In a real implementation we would inspect the event and selectively update
+        // but for now we refresh the data when a message is received.
+        onRefresh();
+      };
+    } catch (err) {
+      console.warn('Failed to establish WebSocket', err);
+    }
+    return () => {
+      if (ws) ws.close();
+    };
+  }, [onRefresh]);
+
   const filterBar = (
     <div className="space-y-2">
       <SabsmsFilterBar

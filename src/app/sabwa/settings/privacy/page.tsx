@@ -61,6 +61,13 @@ const VISIBILITY_OPTIONS: { value: SabwaVisibility; label: string }[] = [
   { value: 'nobody', label: 'Nobody' },
 ];
 
+const TIMER_OPTIONS: { value: number; label: string }[] = [
+  { value: 0, label: 'Off' },
+  { value: 86400, label: '24 hours' },
+  { value: 604800, label: '7 days' },
+  { value: 7776000, label: '90 days' },
+];
+
 const DEFAULT_SETTINGS: SabwaPrivacySettings = {
   twoFactorEnabled: false,
   readReceipts: true,
@@ -69,6 +76,7 @@ const DEFAULT_SETTINGS: SabwaPrivacySettings = {
   profilePicVisibility: 'contacts',
   statusVisibility: 'contacts',
   blocked: [],
+  disappearingTimer: 0,
 };
 
 export default function PrivacySettingsPage() {
@@ -394,6 +402,41 @@ export default function PrivacySettingsPage() {
       {visibilityRow('Who can add you to groups', 'Choose who is allowed to add you to WhatsApp groups.', 'groupAddPolicy')}
       {visibilityRow('Profile picture visibility', 'Who can see your profile picture.', 'profilePicVisibility')}
       {visibilityRow('Status visibility', 'Who can see your status updates.', 'statusVisibility')}
+
+      {/* Disappearing messages default timer */}
+      <Card>
+        <ZoruCardHeader>
+          <ZoruCardTitle className="text-base">Default message timer</ZoruCardTitle>
+          <ZoruCardDescription>
+            Start new chats with disappearing messages turned on.
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent className="flex flex-wrap items-center gap-3 justify-between">
+          <Select
+            value={settings.disappearingTimer?.toString() || '0'}
+            onValueChange={(v) => setSettings((s) => ({ ...s, disappearingTimer: parseInt(v, 10) }))}
+            disabled={loading || pending}
+          >
+            <ZoruSelectTrigger className="w-56">
+              <ZoruSelectValue />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              {TIMER_OPTIONS.map((o) => (
+                <ZoruSelectItem key={o.value} value={o.value.toString()}>
+                  {o.label}
+                </ZoruSelectItem>
+              ))}
+            </ZoruSelectContent>
+          </Select>
+          <Button
+            size="sm"
+            onClick={() => save({ disappearingTimer: settings.disappearingTimer }, 'Default message timer')}
+            disabled={pending}
+          >
+            Save
+          </Button>
+        </ZoruCardContent>
+      </Card>
 
       {/* E2EE disclaimer */}
       <Card>

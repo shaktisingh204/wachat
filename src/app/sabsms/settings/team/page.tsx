@@ -1,3 +1,4 @@
+import React, { Suspense } from "react";
 import { getCachedSession } from "@/lib/server-cache";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 import { TeamTable } from "./team-table";
@@ -5,24 +6,17 @@ import { loadTeamMembers } from "./actions";
 import { RbacMatrixClient } from "./rbac-matrix-client";
 import { StatCard } from "@/components/zoruui";
 import { Users, ShieldCheck, MailWarning, Activity } from "lucide-react";
+import { fmtQty } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function TeamSettingsPage() {
+async function TeamDataLoader() {
   const session = await getCachedSession();
   const user = session?.user as { _id?: unknown; name?: string; workspaceName?: string } | undefined;
   const workspaceId = String(user?._id ?? "");
 
   if (!workspaceId) {
-    return (
-      <SabsmsPageShell
-        title="Team Settings"
-        description="Sign in to manage your workspace team."
-        breadcrumbs={[{ label: "Settings", href: "/sabsms/settings" }, { label: "Team" }]}
-      >
-        <div className="text-sm text-slate-500">Please sign in to continue.</div>
-      </SabsmsPageShell>
-    );
+    return <div className="text-sm text-slate-500">Please sign in to continue.</div>;
   }
 
   const { rows, total } = await loadTeamMembers(workspaceId);
@@ -30,6 +24,52 @@ export default async function TeamSettingsPage() {
   const adminCount = rows.filter((r) => r.role === "sabsms_admin").length;
   const totalApiUsage = rows.reduce((acc, r) => acc + (r.apiKeyUsage || 0), 0);
 
+  return (
+    <div className="space-y-10 pb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          label="Total Members"
+          value={total}
+          delta={12}
+          period="vs last month"
+          icon={<Users className="w-4 h-4" />}
+        />
+        <StatCard
+          label="Active Admins"
+          value={adminCount}
+          icon={<ShieldCheck className="w-4 h-4" />}
+        />
+        <StatCard
+          label="Pending Invites"
+          value={total - activeCount}
+          delta={-2}
+          period="vs last month"
+          icon={<MailWarning className="w-4 h-4" />}
+          invertDelta
+        />
+        <StatCard
+          label="Total API Usage"
+          value={fmtQty(totalApiUsage)}
+          delta={24}
+          period="vs last month"
+          icon={<Activity className="w-4 h-4" />}
+        />
+      </div>
+
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+        <div className="mb-6">
+          <h3 className="text-xl font-semibold tracking-tight text-slate-900">Workspace Members</h3>
+          <p className="text-sm text-slate-500 mt-1">View and manage the people who have access to this workspace.</p>
+        </div>
+        <TeamTable initialRows={rows} total={total} />
+      </div>
+
+      <RbacMatrixClient />
+    </div>
+  );
+}
+
+export default function TeamSettingsPage() {
   return (
     <SabsmsPageShell
       title="Team"
@@ -52,47 +92,9 @@ export default async function TeamSettingsPage() {
         { label: "Billing", onSelectHref: "/sabsms/settings/billing" },
       ]}
     >
-      <div className="space-y-10 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            label="Total Members"
-            value={total}
-            delta={12}
-            period="vs last month"
-            icon={<Users className="w-4 h-4" />}
-          />
-          <StatCard
-            label="Active Admins"
-            value={adminCount}
-            icon={<ShieldCheck className="w-4 h-4" />}
-          />
-          <StatCard
-            label="Pending Invites"
-            value={total - activeCount}
-            delta={-2}
-            period="vs last month"
-            icon={<MailWarning className="w-4 h-4" />}
-            invertDelta
-          />
-          <StatCard
-            label="Total API Usage"
-            value={totalApiUsage.toLocaleString()}
-            delta={24}
-            period="vs last month"
-            icon={<Activity className="w-4 h-4" />}
-          />
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold tracking-tight text-slate-900">Workspace Members</h3>
-            <p className="text-sm text-slate-500 mt-1">View and manage the people who have access to this workspace.</p>
-          </div>
-          <TeamTable initialRows={rows} total={total} />
-        </div>
-
-        <RbacMatrixClient />
-      </div>
+      <Suspense fallback={<div className="h-64 w-full bg-slate-100 animate-pulse rounded-xl" />}>
+        <TeamDataLoader />
+      </Suspense>
     </SabsmsPageShell>
   );
 }

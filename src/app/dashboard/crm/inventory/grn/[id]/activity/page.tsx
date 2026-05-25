@@ -1,4 +1,6 @@
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/zoruui';
 
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
@@ -22,7 +24,9 @@ export default async function GrnActivityPage({ params }: PageProps) {
                 label: 'Back to GRN',
             }}
         >
-            <EntityAuditTimeline entityKind="grn" entityId={id} />
+            <Suspense fallback={<Skeleton className="w-full h-48" />}>
+                <EntityAuditTimeline entityKind="grn" entityId={id} />
+            </Suspense>
         </EntityDetailShell>
     );
 }

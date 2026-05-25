@@ -240,7 +240,7 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
         </Button>
       </div>
 
-      {sabwaProjects.length > 0 && (
+      {sabwaProjects.length >= 5 && (
         <div className="mt-5 max-w-md">
           <Input
             leadingSlot={<Search />}

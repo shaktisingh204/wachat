@@ -1,7 +1,5 @@
-"use client";
-
 import React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Rocket, ArrowRight, CircleCheck, CircleDashed } from "lucide-react";
 import { Button, cn } from "@/components/zoruui";
 
@@ -17,7 +15,6 @@ export function OnboardingBanner({
 }: {
   status: "profile" | "business" | "requirements" | "plan" | "complete";
 }) {
-  const router = useRouter();
   const statusOrder = ["profile", "business", "requirements", "plan", "complete"];
   const currentIdx = statusOrder.indexOf(status);
   const completedCount = currentIdx;
@@ -38,8 +35,10 @@ export function OnboardingBanner({
             </p>
           </div>
         </div>
-        <Button onClick={() => router.push("/onboarding")}>
-          Continue setup <ArrowRight />
+        <Button asChild>
+          <Link href="/onboarding">
+            Continue setup <ArrowRight />
+          </Link>
         </Button>
       </div>
 

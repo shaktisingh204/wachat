@@ -48,8 +48,9 @@ import {
 import {
   getScheduledPosts,
   publishScheduledPost,
-  } from "@/app/actions/facebook.actions";
+} from "@/app/actions/facebook.actions";
 import type { FacebookPost } from "@/lib/definitions";
+import { useProject } from "@/context/project-context";
 
 /**
  * /dashboard/facebook/scheduled — Scheduled posts queue, ZoruUI rebuild.
@@ -189,11 +190,15 @@ export default function ScheduledPostsPage() {
   const [projectIdReady, setProjectIdReady] = useState(false);
   const [view, setView] = useState<"table" | "calendar">("table");
 
+  const { activeProjectId } = useProject();
+
   useEffect(() => {
     document.title = "Scheduled · Meta Suite · SabNode";
-    setProjectId(localStorage.getItem("activeProjectId"));
-    setProjectIdReady(true);
-  }, []);
+    if (activeProjectId !== undefined) {
+      setProjectId(activeProjectId);
+      setProjectIdReady(true);
+    }
+  }, [activeProjectId]);
 
   const fetchPosts = useCallback(() => {
     if (!projectId) return;

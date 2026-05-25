@@ -1,8 +1,9 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { m, AnimatePresence } from "motion/react"
 import { 
+
   Megaphone, 
   Users, 
   CalendarClock, 
@@ -19,10 +20,15 @@ import {
   CheckCircle2,
   Clock,
   Globe2,
-  Zap
+  Zap,
+  Info,
+  AlertTriangle,
+  ExternalLink
 } from "lucide-react"
 
 import { PageHeader } from "@/components/ui/page-header"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import Link from "next/link"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
@@ -60,6 +66,54 @@ export default function CreateCampaignPage() {
   const [scheduleType, setScheduleType] = useState("now")
   const [smartRouting, setSmartRouting] = useState(true)
   const [abTest, setAbTest] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Load from local storage
+  useEffect(() => {
+    setIsMounted(true)
+    const saved = localStorage.getItem("sabsms_quick_campaign_draft")
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        if (parsed.step) setStep(parsed.step)
+        if (parsed.campaignName !== undefined) setCampaignName(parsed.campaignName)
+        if (parsed.senderId) setSenderId(parsed.senderId)
+        if (parsed.campaignType) setCampaignType(parsed.campaignType)
+        if (parsed.selectedSegment) setSelectedSegment(parsed.selectedSegment)
+        if (parsed.message !== undefined) setMessage(parsed.message)
+        if (parsed.scheduleType) setScheduleType(parsed.scheduleType)
+        if (parsed.smartRouting !== undefined) setSmartRouting(parsed.smartRouting)
+        if (parsed.abTest !== undefined) setAbTest(parsed.abTest)
+      } catch (e) {
+        console.error("Failed to parse quick campaign draft", e)
+      }
+    }
+  }, [])
+
+  // Auto-save to local storage
+  useEffect(() => {
+    if (!isMounted) return
+    const draft = {
+      step, campaignName, senderId, campaignType, selectedSegment, message, scheduleType, smartRouting, abTest
+    }
+    localStorage.setItem("sabsms_quick_campaign_draft", JSON.stringify(draft))
+  }, [isMounted, step, campaignName, senderId, campaignType, selectedSegment, message, scheduleType, smartRouting, abTest])
+
+  // Template Variable Validation
+  const ALLOWED_VARIABLES = ["first_name", "last_name", "order_id", "opt_out_link", "company"]
+  const extractVariables = (text: string) => {
+    const matches = text.match(/{{([^}]+)}}/g) || []
+    return matches.map(m => m.replace(/^{{|}}$/g, ''))
+  }
+  
+  const usedVariables = extractVariables(message)
+  const invalidVariables = [...new Set(usedVariables.filter(v => !ALLOWED_VARIABLES.includes(v)))]
+
+  // Cost Estimation
+  const segmentCount = Math.ceil(message.length / 160) || 1
+  const targetUsers = MOCK_SEGMENTS.find(s => s.id === selectedSegment)?.count || 0
+  const costPerSegment = 0.012
+  const estimatedCost = (targetUsers * segmentCount * costPerSegment).toFixed(2)
 
   const handleNext = () => setStep(s => Math.min(4, s + 1))
   const handlePrev = () => setStep(s => Math.max(1, s - 1))
@@ -71,17 +125,30 @@ export default function CreateCampaignPage() {
     <div className="container mx-auto p-4 md:p-8 max-w-7xl min-h-screen">
       <PageHeader
         title="Create Campaign"
-        subtitle="Configure your SMS broadcast targeting, messaging, and delivery schedule."
+        subtitle="Configure your quick SMS broadcast. For advanced multi-step automation, use the new Advanced Campaign builder."
         icon={Zap}
-        breadcrumb={<span className="text-muted-foreground">SAB SMS / Campaigns / Create</span>}
+        breadcrumb={<span className="text-muted-foreground">SAB SMS / Campaigns / Quick Create</span>}
         mesh
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline">Save Draft</Button>
+            <Link href="/sabsms/campaigns/new">
+              <Button variant="outline" className="gap-2">
+                Switch to Advanced Builder <ExternalLink className="h-4 w-4" />
+              </Button>
+            </Link>
+            <Button variant="secondary" onClick={() => localStorage.removeItem("sabsms_quick_campaign_draft")}>Clear Draft</Button>
             {isLastStep && <Button variant="premium">Launch Campaign <Send className="ml-2 h-4 w-4" /></Button>}
           </div>
         }
       />
+
+      <Alert className="mb-8 border-[hsl(var(--prism-indigo)/0.5)] bg-[hsl(var(--prism-indigo)/0.05)]">
+        <Info className="h-4 w-4 text-[hsl(var(--prism-indigo))]" />
+        <AlertTitle className="text-[hsl(var(--prism-indigo))] font-semibold">Quick Broadcast Mode</AlertTitle>
+        <AlertDescription className="text-muted-foreground">
+          You are using the quick broadcast tool, designed for fast, single-segment announcements. Your progress is auto-saved locally. For multi-segment workflows, drips, and full CRM integration, switch to the <Link href="/sabsms/campaigns/new" className="text-[hsl(var(--prism-indigo))] hover:underline font-medium">Advanced Builder</Link>.
+        </AlertDescription>
+      </Alert>
 
       {/* Progress Indicator */}
       <div className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -294,8 +361,19 @@ export default function CreateCampaignPage() {
                       />
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>Encoding: <strong className="text-foreground">GSM-7</strong></span>
-                        <span>{message.length} characters • {Math.ceil(message.length / 160)} segment(s)</span>
+                        <span>{message.length} characters • {segmentCount} segment(s)</span>
                       </div>
+                      
+                      {invalidVariables.length > 0 && (
+                        <Alert variant="destructive" className="mt-2 py-2 px-3">
+                          <AlertTriangle className="h-4 w-4" />
+                          <AlertTitle className="text-sm font-semibold mb-1">Invalid Variables Detected</AlertTitle>
+                          <AlertDescription className="text-xs">
+                            Unknown variables: <strong>{invalidVariables.map(v => `{{${v}}}`).join(', ')}</strong>. 
+                            Allowed variables are: {ALLOWED_VARIABLES.map(v => `{{${v}}}`).join(', ')}.
+                          </AlertDescription>
+                        </Alert>
+                      )}
                     </div>
 
                     <div className="rounded-lg border bg-muted/40 p-4">
@@ -393,7 +471,10 @@ export default function CreateCampaignPage() {
                         </div>
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">Estimated Cost</span>
-                          <span className="font-medium text-[hsl(var(--prism-emerald))]">~$45.20</span>
+                          <div className="text-right">
+                            <span className="font-medium text-[hsl(var(--prism-emerald))] block">~${estimatedCost}</span>
+                            <span className="text-[10px] text-muted-foreground">{segmentCount} segment(s) × {targetUsers.toLocaleString()} users @ ${costPerSegment}/seg</span>
+                          </div>
                         </div>
                       </div>
                     </div>

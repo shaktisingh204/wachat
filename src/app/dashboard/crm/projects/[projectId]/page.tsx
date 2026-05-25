@@ -101,9 +101,21 @@ import type {
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import dynamic from 'next/dynamic';
-const BurndownChart = dynamic(() => import('../_components/burndown-chart').then(m => m.BurndownChart));
+const BurndownChart = dynamic(
+  () => import('../_components/burndown-chart').then((m) => m.BurndownChart),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-64 w-full" />,
+  }
+);
 import { PinButton } from '@/components/crm/pin-button';
-import { ProjectPublicSharePanel } from '../_components/project-public-share-panel';
+const ProjectPublicSharePanel = dynamic(
+  () => import('../_components/project-public-share-panel').then((m) => m.ProjectPublicSharePanel),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-32 w-full" />,
+  }
+);
 
 type Task = WsTask & { _id: string };
 type Project = WsProject & { _id: string };
@@ -150,7 +162,12 @@ type TabId =
 function fmtDate(v: unknown): string {
   if (!v) return '—';
   const d = new Date(v as any);
-  return isValid(d) ? format(d, 'MMM d, yyyy') : '—';
+  if (!isValid(d)) return '—';
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const day = d.getUTCDate();
+  const month = months[d.getUTCMonth()];
+  const year = d.getUTCFullYear();
+  return `${month} ${day}, ${year}`;
 }
 
 export default function ProjectDetailPage(props: {
@@ -158,6 +175,11 @@ export default function ProjectDetailPage(props: {
 }) {
   const { projectId } = use(props.params);
   const { toast } = useZoruToast();
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -533,7 +555,11 @@ export default function ProjectDetailPage(props: {
       />
 
       {/* Public Share */}
-      <ProjectPublicSharePanel projectId={projectId} />
+      {mounted ? (
+        <ProjectPublicSharePanel projectId={projectId} />
+      ) : (
+        <Skeleton className="h-32 w-full" />
+      )}
 
       {/* Tabs */}
       <Card className="p-6">
@@ -929,7 +955,13 @@ export default function ProjectDetailPage(props: {
         )}
 
         {/* ── Burndown ── */}
-        {activeTab === 'burndown' && <BurndownChart projectId={projectId} />}
+        {activeTab === 'burndown' && (
+          mounted ? (
+            <BurndownChart projectId={projectId} />
+          ) : (
+            <Skeleton className="h-64 w-full" />
+          )
+        )}
 
         {/* ── Gantt (simple task + dependency count view) ── */}
         {activeTab === 'gantt' && (

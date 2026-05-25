@@ -35,10 +35,11 @@ export type PublicEstimateView = {
     signatureDataUrl: string;
   } | null;
   declineReason?: string | null;
+  invoiceHash?: string | null;
 } | null;
 
 export type PublicActionResult =
-  | { success: true; message?: string }
+  | { success: true; message?: string; invoiceHash?: string }
   | { success: false; error: string };
 
 async function clientMeta(): Promise<{ ip: string | null; userAgent: string | null }> {
@@ -64,7 +65,15 @@ export async function getPublicEstimate(hash: string): Promise<PublicEstimateVie
       signedAt: string;
       signatureDataUrl: string;
     } | null = null;
+    let invoiceHash: string | null = null;
     if (estimate.status === 'accepted') {
+      const invoice = await db.collection('crm_invoices').findOne(
+        { sourceEstimateId: estimate._id },
+        { sort: { createdAt: -1 } }
+      );
+      if (invoice && invoice.publicHash) {
+        invoiceHash = invoice.publicHash;
+      }
       const sig = await db
         .collection('accept_estimates')
         .findOne({ estimateId: estimate._id }, { sort: { signedAt: -1 } });
@@ -100,6 +109,7 @@ export async function getPublicEstimate(hash: string): Promise<PublicEstimateVie
         : [],
       signature,
       declineReason: (estimate.declineReason as string) || null,
+      invoiceHash,
     };
   } catch (e) {
     console.error('[getPublicEstimate] failed:', e);
@@ -146,7 +156,9 @@ export async function acceptEstimate(
     // Auto-create invoice. We mirror essential estimate fields so the
     // generated invoice is usable from /dashboard immediately. A
     // lineage ref is set so the invoice tracks back to the estimate.
+    let invoiceHash: string | undefined = undefined;
     try {
+      invoiceHash = generatePublicHash();
       await db.collection('crm_invoices').insertOne({
         userId: estimate.userId,
         accountId: estimate.accountId,
@@ -158,7 +170,7 @@ export async function acceptEstimate(
         total: Number(estimate.total ?? 0),
         notes: estimate.notes || '',
         status: 'Unpaid',
-        publicHash: generatePublicHash(),
+        publicHash: invoiceHash,
         lineage: [
           {
             kind: 'estimate',
@@ -176,7 +188,7 @@ export async function acceptEstimate(
     }
 
     revalidatePath(`/share/estimate/${hash}`);
-    return { success: true, message: 'Estimate accepted. An invoice has been generated.' };
+    return { success: true, message: 'Estimate accepted. An invoice has been generated.', invoiceHash };
   } catch (e) {
     console.error('[acceptEstimate] failed:', e);
     return { success: false, error: 'Could not accept estimate.' };

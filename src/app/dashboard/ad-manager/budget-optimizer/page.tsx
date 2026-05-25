@@ -26,7 +26,6 @@ import {
   TrendingDown,
   Pause,
   History,
-  CheckAll,
   Minus } from 'lucide-react';
 
 import * as React from 'react';
@@ -55,24 +54,147 @@ const recStyles: Record<string, { variant: 'default' | 'danger' | 'outline' | 's
     maintain: { variant: 'outline', icon: Minus },
 };
 
+function CampaignBudgetCard({ 
+    rec, 
+    onApply, 
+    onBudgetChange 
+}: { 
+    rec: Rec; 
+    onApply: (r: Rec, newBudget: number) => void;
+    onBudgetChange: (id: string, newBudget: number) => void;
+}) {
+    // Local state for the slider to prevent parent re-renders while dragging
+    const [budget, setBudget] = React.useState(rec.dailyBudget);
+
+    React.useEffect(() => {
+        setBudget(rec.dailyBudget);
+    }, [rec.dailyBudget]);
+
+    const handleReset = () => {
+        setBudget(rec.dailyBudget);
+        onBudgetChange(rec.campaignId, rec.dailyBudget);
+    };
+
+    const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setBudget(Number(e.target.value));
+    };
+
+    const handleSliderMouseUp = () => {
+        onBudgetChange(rec.campaignId, budget);
+    };
+
+    // Calculate outcomes based on historical ROAS
+    const historicalRoas = rec.spend > 0 ? (rec.clicks * 12.5) / rec.spend : 2.0; 
+    const projectedRev = budget * historicalRoas;
+    const projectedClicks = rec.cpc > 0 ? Math.floor(budget / rec.cpc) : 0;
+
+    const style = recStyles[rec.recommendation] || recStyles.maintain;
+    const Icon = style.icon;
+
+    return (
+        <Card className="flex flex-col">
+            <ZoruCardHeader className="pb-2">
+                <ZoruCardTitle className="text-sm font-medium flex items-center justify-between">
+                    <span className="truncate mr-2">{rec.campaignName}</span>
+                    <Badge variant={style.variant} className="capitalize shrink-0">
+                        <Icon className="h-3 w-3 mr-1" />{rec.recommendation}
+                    </Badge>
+                </ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent className="space-y-4 text-sm flex-1 flex flex-col">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-muted-foreground">
+                    <span>Spend</span><span className="text-foreground tabular-nums">${rec.spend.toFixed(2)}</span>
+                    <span>Clicks</span><span className="text-foreground tabular-nums">{rec.clicks}</span>
+                    <span>CPC</span><span className="text-foreground tabular-nums">${rec.cpc.toFixed(2)}</span>
+                    <span>Hist. ROAS</span><span className="text-foreground tabular-nums">{historicalRoas.toFixed(2)}x</span>
+                </div>
+                
+                <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                        <span className="font-medium text-foreground">Daily budget</span>
+                        <span className="font-bold text-primary tabular-nums">${budget.toFixed(2)}</span>
+                    </div>
+                    <input 
+                        type="range"
+                        min={1}
+                        max={Math.max(rec.dailyBudget * 3, 100)}
+                        step={1}
+                        value={budget}
+                        onChange={handleSliderChange}
+                        onMouseUp={handleSliderMouseUp}
+                        onTouchEnd={handleSliderMouseUp}
+                        className="w-full accent-primary h-2 bg-secondary rounded-lg appearance-none cursor-pointer"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>$1</span>
+                        <span>${Math.max(rec.dailyBudget * 3, 100).toFixed(0)}</span>
+                    </div>
+                </div>
+
+                <div className="p-3 bg-secondary/30 rounded-md border border-border/50 space-y-1">
+                    <div className="text-xs font-medium text-foreground mb-2">Projected Daily Outcomes</div>
+                    <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">Clicks</span>
+                        <span className="font-medium">~{projectedClicks}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">Revenue</span>
+                        <span className="font-medium text-green-600">~${projectedRev.toFixed(2)}</span>
+                    </div>
+                </div>
+
+                <p className="text-xs text-muted-foreground italic flex-1">{rec.reason}</p>
+                
+                <div className="flex gap-2 mt-auto pt-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={handleReset}
+                        disabled={budget === rec.dailyBudget}
+                    >
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        Reset
+                    </Button>
+                    <Button
+                        size="sm"
+                        className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                        onClick={() => onApply(rec, budget)}
+                    >
+                        Apply
+                    </Button>
+                </div>
+            </ZoruCardContent>
+        </Card>
+    );
+}
+
 export default function BudgetOptimizerPage() {
     const { activeAccount } = useAdManager();
     const { toast } = useToast();
     const [loading, setLoading] = React.useState(true);
     const [recs, setRecs] = React.useState<Rec[]>([]);
+    const [modifiedBudgets, setModifiedBudgets] = React.useState<Record<string, number>>({});
     const [history, setHistory] = React.useState<{ date: string; action: string; campaignName: string; }[]>([]);
     const [tab, setTab] = React.useState<'recommendations' | 'history'>('recommendations');
 
-    const handleApply = (r: Rec) => {
-        setHistory(prev => [{ date: new Date().toLocaleString(), action: `Applied ${r.recommendation} budget`, campaignName: r.campaignName }, ...prev]);
+    const handleBudgetChange = React.useCallback((id: string, newBudget: number) => {
+        setModifiedBudgets(prev => ({ ...prev, [id]: newBudget }));
+    }, []);
+
+    const handleApply = React.useCallback((r: Rec, newBudget: number) => {
+        setHistory(prev => [{ date: new Date().toLocaleString(), action: `Updated budget to $${newBudget.toFixed(2)}`, campaignName: r.campaignName }, ...prev]);
         setRecs(prev => prev.filter(rec => rec.campaignId !== r.campaignId));
-        toast({ title: 'Applied', description: `Recommendation for "${r.campaignName}" applied.` });
-    };
+        toast({ title: 'Applied', description: `Budget updated for "${r.campaignName}".` });
+    }, [toast]);
 
     const handleApplyAll = () => {
-        const newHist = recs.map(r => ({ date: new Date().toLocaleString(), action: `Applied ${r.recommendation} budget`, campaignName: r.campaignName }));
+        const newHist = recs.map(r => {
+            const finalBudget = modifiedBudgets[r.campaignId] || r.dailyBudget;
+            return { date: new Date().toLocaleString(), action: `Updated budget to $${finalBudget.toFixed(2)}`, campaignName: r.campaignName };
+        });
         setHistory(prev => [...newHist, ...prev]);
-        toast({ title: 'Applied All', description: `${recs.length} recommendations applied.` });
+        toast({ title: 'Applied All', description: `${recs.length} budget updates applied.` });
         setRecs([]);
     };
 
@@ -86,6 +208,7 @@ export default function BudgetOptimizerPage() {
             setRecs([]);
         } else {
             setRecs(res.recommendations || []);
+            setModifiedBudgets({});
         }
         setLoading(false);
     }, [activeAccount, toast]);
@@ -199,39 +322,14 @@ export default function BudgetOptimizerPage() {
                         <Card><ZoruCardContent className="p-8 text-center text-muted-foreground">No active campaigns with insights found.</ZoruCardContent></Card>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {recs.map((r) => {
-                                const style = recStyles[r.recommendation] || recStyles.maintain;
-                                const Icon = style.icon;
-                                return (
-                                    <Card key={r.campaignId}>
-                                        <ZoruCardHeader className="pb-2">
-                                            <ZoruCardTitle className="text-sm font-medium flex items-center justify-between">
-                                                <span className="truncate mr-2">{r.campaignName}</span>
-                                                <Badge variant={style.variant} className="capitalize shrink-0">
-                                                    <Icon className="h-3 w-3 mr-1" />{r.recommendation}
-                                                </Badge>
-                                            </ZoruCardTitle>
-                                        </ZoruCardHeader>
-                                        <ZoruCardContent className="space-y-2 text-sm">
-                                            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-muted-foreground">
-                                                <span>Spend</span><span className="text-foreground tabular-nums">${r.spend.toFixed(2)}</span>
-                                                <span>Clicks</span><span className="text-foreground tabular-nums">{r.clicks}</span>
-                                                <span>CPC</span><span className="text-foreground tabular-nums">${r.cpc.toFixed(2)}</span>
-                                                <span>CTR</span><span className="text-foreground tabular-nums">{r.ctr.toFixed(2)}%</span>
-                                                <span>Daily budget</span><span className="text-foreground tabular-nums">${r.dailyBudget.toFixed(2)}</span>
-                                            </div>
-                                            <p className="text-xs text-muted-foreground italic">{r.reason}</p>
-                                            <Button
-                                                size="sm"
-                                                className="w-full mt-1"
-                                                onClick={() => handleApply(r)}
-                                            >
-                                                Apply
-                                            </Button>
-                                        </ZoruCardContent>
-                                    </Card>
-                                );
-                            })}
+                            {recs.map((r) => (
+                                <CampaignBudgetCard 
+                                    key={r.campaignId} 
+                                    rec={r} 
+                                    onApply={handleApply} 
+                                    onBudgetChange={handleBudgetChange} 
+                                />
+                            ))}
                         </div>
                     )}
                 </>

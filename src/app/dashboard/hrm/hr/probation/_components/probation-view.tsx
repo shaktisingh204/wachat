@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 'use client';
 
 import { useZoruToast } from '@/components/zoruui';
@@ -250,7 +251,7 @@ export function ProbationView({ initial }: { initial: Probation[] }) {
 function fmtDate(d?: string | Date | null) {
   if (!d) return '—';
   try {
-    return new Date(d).toLocaleDateString();
+    return fmtDate(d);
   } catch {
     return '—';
   }

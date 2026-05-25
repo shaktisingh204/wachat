@@ -41,10 +41,10 @@ import {
   Input,
   Label,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useZoruToast,
 } from '@/components/zoruui';
 
@@ -416,17 +416,17 @@ export default function ClientDocumentsPage() {
                 setTypeFilter(v as typeof typeFilter)
               }
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Type" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All types</ZoruSelectItem>
+              <SelectTrigger>
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All types</SelectItem>
                 {DOC_TYPES.map((t) => (
-                  <ZoruSelectItem key={t} value={t}>
+                  <SelectItem key={t} value={t}>
                     {t}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="w-56">
@@ -436,17 +436,17 @@ export default function ClientDocumentsPage() {
                 setClientFilter(v === 'all' ? '' : v)
               }
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Client" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All clients</ZoruSelectItem>
+              <SelectTrigger>
+                <SelectValue placeholder="Client" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All clients</SelectItem>
                 {clientOptions.map((c) => (
-                  <ZoruSelectItem key={c.id} value={c.id}>
+                  <SelectItem key={c.id} value={c.id}>
                     {c.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="flex items-center gap-2">
@@ -799,16 +799,16 @@ export default function ClientDocumentsPage() {
                     setDocType(v as WsClientDocumentType)
                   }
                 >
-                  <ZoruSelectTrigger className="mt-1.5">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
+                  <SelectTrigger className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
                     {DOC_TYPES.map((t) => (
-                      <ZoruSelectItem key={t} value={t}>
+                      <SelectItem key={t} value={t}>
                         {t}
-                      </ZoruSelectItem>
+                      </SelectItem>
                     ))}
-                  </ZoruSelectContent>
+                  </SelectContent>
                 </Select>
               </div>
               <div>

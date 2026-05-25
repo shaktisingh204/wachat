@@ -22,6 +22,7 @@ import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getDocumentById } from '@/app/actions/crm-documents.actions';
 import type { CrmDocumentStatus } from '@/lib/rust-client/crm-documents';
+import { fmtDate } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,11 +36,6 @@ const STATUS_TONE: Record<CrmDocumentStatus, StatusTone> = {
     archived: 'neutral',
 };
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
 
 function pretty(s?: string): string {
     if (!s) return '—';
@@ -148,19 +144,27 @@ export default async function DocumentDetailPage({
             </Card>
 
             {doc.fileUrl ? (
-                <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
+                <Card className="flex flex-col gap-4 p-4 mt-6">
                     <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
                         <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
-                        Attached file
+                        <span>Attached file: </span>
+                        <a
+                            href={doc.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="max-w-full truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
+                        >
+                            {doc.fileUrl}
+                        </a>
                     </div>
-                    <a
-                        href={doc.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="max-w-full truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
-                    >
-                        {doc.fileUrl}
-                    </a>
+                    <div className="w-full rounded-md border border-zoru-line overflow-hidden" style={{ height: '600px' }}>
+                        <iframe
+                            src={doc.fileUrl}
+                            title="Document Preview"
+                            className="w-full h-full border-none"
+                            loading="lazy"
+                        />
+                    </div>
                 </Card>
             ) : null}
         </EntityListShell>

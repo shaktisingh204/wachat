@@ -76,7 +76,8 @@ const STATUS_TONE: Record<CrmAnnouncementStatus, StatusTone> = {
 function fmtDate(v: string | undefined): string {
     if (!v) return '—';
     const d = new Date(v);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toISOString().slice(0, 10);
 }
 
 export function AnnouncementsListClient({

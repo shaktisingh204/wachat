@@ -13,6 +13,7 @@
  */
 
 import * as React from "react";
+import { formatUTC } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
@@ -65,6 +66,9 @@ import {
   approveTemplate,
   assignReviewer,
   bulkApproveByCategory,
+  bulkApproveSelected,
+  bulkRejectSelected,
+  runAutomatedApprovals,
   exportApprovedBundle,
   exportDecisionLog,
   flagForCompliance,
@@ -93,6 +97,7 @@ interface RotationConfig {
 interface AutoApproveConfig {
   /** Per-category toggle for the rule-based auto-approve advisory. */
   enabled: Partial<Record<ApprovalRow["category"], boolean>>;
+  regexes: Partial<Record<ApprovalRow["category"], string>>;
 }
 
 const ROTATION_KEY = "sabsms:approvals:rotation";
@@ -169,13 +174,16 @@ export function ApprovalsTable({
   const [bulkCategory, setBulkCategory] = React.useState<
     ApprovalRow["category"] | null
   >(null);
+  const [bulkAction, setBulkAction] = React.useState<"approve" | "reject" | null>(null);
   const [bulkNotes, setBulkNotes] = React.useState("");
+  const [bulkReasonCode, setBulkReasonCode] = React.useState("");
   const [rotation, setRotation] = React.useState<RotationConfig>({
     reviewers: ["reviewer.alice", "reviewer.bob", "reviewer.carol"],
     nextIndex: 0,
   });
   const [autoApprove, setAutoApprove] = React.useState<AutoApproveConfig>({
     enabled: {},
+    regexes: {},
   });
   const [reasons, setReasons] = React.useState(DEFAULT_REJECT_REASONS);
   const [rotationOpen, setRotationOpen] = React.useState(false);
@@ -192,7 +200,7 @@ export function ApprovalsTable({
       }),
     );
     setAutoApprove(
-      loadJson<AutoApproveConfig>(AUTO_APPROVE_KEY, { enabled: {} }),
+      loadJson<AutoApproveConfig>(AUTO_APPROVE_KEY, { enabled: {}, regexes: {} }),
     );
     setReasons(loadJson(TAXONOMY_KEY, DEFAULT_REJECT_REASONS));
   }, []);
@@ -308,6 +316,31 @@ export function ApprovalsTable({
     setBulkNotes("");
   }
 
+  async function executeBulkSelectedAction() {
+    if (!bulkAction || selectedIds.length === 0) return;
+    const isApprove = bulkAction === "approve";
+    const res = isApprove
+      ? await bulkApproveSelected({ ids: selectedIds, notes: bulkNotes })
+      : await bulkRejectSelected({ ids: selectedIds, notes: bulkNotes, reasonCode: bulkReasonCode });
+      
+    if (res.ok) {
+      toast({
+        title: `${isApprove ? "Approved" : "Rejected"} ${res.count ?? 0} templates`,
+      });
+      setSelectedIds([]);
+      router.refresh();
+    } else {
+      toast({
+        title: `Bulk ${bulkAction} failed`,
+        description: res.error,
+        variant: "destructive",
+      });
+    }
+    setBulkAction(null);
+    setBulkNotes("");
+    setBulkReasonCode("");
+  }
+
   function addReason() {
     const label = newReasonLabel.trim();
     if (!label) return;
@@ -346,6 +379,7 @@ export function ApprovalsTable({
 
   function toggleAutoApprove(category: ApprovalRow["category"]) {
     const next = {
+      ...autoApprove,
       enabled: {
         ...autoApprove.enabled,
         [category]: !autoApprove.enabled[category],
@@ -353,6 +387,37 @@ export function ApprovalsTable({
     };
     setAutoApprove(next);
     saveJson(AUTO_APPROVE_KEY, next);
+  }
+
+  function updateAutoApproveRegex(category: ApprovalRow["category"], regex: string) {
+    const next = {
+      ...autoApprove,
+      regexes: {
+        ...autoApprove.regexes,
+        [category]: regex,
+      },
+    };
+    setAutoApprove(next);
+    saveJson(AUTO_APPROVE_KEY, next);
+  }
+
+  async function runAutoRules() {
+    const activeRegexes = Object.fromEntries(
+      Object.entries(autoApprove.regexes).filter(
+        ([cat, pattern]) => autoApprove.enabled[cat as ApprovalRow["category"]] && pattern
+      )
+    );
+    if (Object.keys(activeRegexes).length === 0) {
+      toast({ title: "No active regex rules configured" });
+      return;
+    }
+    const res = await runAutomatedApprovals(activeRegexes);
+    if (res.ok) {
+      toast({ title: `Auto-approved ${res.count} templates` });
+      router.refresh();
+    } else {
+      toast({ title: "Auto-approve failed", description: res.error, variant: "destructive" });
+    }
   }
 
   const columns: SabsmsColumn<ApprovalRow>[] = [
@@ -461,7 +526,7 @@ export function ApprovalsTable({
       render: (row) => (
         <span className="text-xs text-slate-500">
           {row.submittedAt
-            ? new Date(row.submittedAt).toLocaleString()
+            ? formatUTC(row.submittedAt, true)
             : "—"}
         </span>
       ),
@@ -578,22 +643,32 @@ export function ApprovalsTable({
           gated behind an admin RBAC helper (not yet shipped).
         </span>
         <div className="ml-auto flex items-center gap-3">
+          <Button variant="outline" size="sm" onClick={runAutoRules} className="h-7 text-xs">
+            <Sparkles className="mr-1.5 h-3 w-3" /> Run auto-rules
+          </Button>
           {CATEGORY_OPTIONS.map((c) => (
-            <label
-              key={c.value}
-              className="flex items-center gap-1.5 text-xs text-slate-600"
-            >
-              <Switch
-                checked={
-                  autoApprove.enabled[c.value as ApprovalRow["category"]] ?? false
-                }
-                onCheckedChange={() =>
-                  toggleAutoApprove(c.value as ApprovalRow["category"])
-                }
-                aria-label={`Auto-approve ${c.label}`}
-              />
-              <span>Auto-approve {c.label}</span>
-            </label>
+            <div key={c.value} className="flex items-center gap-1.5">
+              <label className="flex items-center gap-1.5 text-xs text-slate-600">
+                <Switch
+                  checked={
+                    autoApprove.enabled[c.value as ApprovalRow["category"]] ?? false
+                  }
+                  onCheckedChange={() =>
+                    toggleAutoApprove(c.value as ApprovalRow["category"])
+                  }
+                  aria-label={`Auto-approve ${c.label}`}
+                />
+                <span>{c.label}</span>
+              </label>
+              {autoApprove.enabled[c.value as ApprovalRow["category"]] && (
+                <Input
+                  className="h-6 w-24 text-[10px]"
+                  placeholder="Regex..."
+                  value={autoApprove.regexes[c.value as ApprovalRow["category"]] ?? ""}
+                  onChange={(e) => updateAutoApproveRegex(c.value as ApprovalRow["category"], e.target.value)}
+                />
+              )}
+            </div>
           ))}
         </div>
       </div>
@@ -619,6 +694,23 @@ export function ApprovalsTable({
                 const [cat] = Array.from(cats);
                 setBulkCategory(cat);
                 setBulkNotes("Bulk approve via reviewer queue");
+              },
+            },
+            {
+              label: "Bulk approve selected",
+              icon: <CheckCircle2 className="h-4 w-4 text-emerald-600" />,
+              onSelect: () => {
+                setBulkAction("approve");
+                setBulkNotes("");
+              },
+            },
+            {
+              label: "Bulk reject selected",
+              icon: <XCircle className="h-4 w-4 text-rose-600" />,
+              onSelect: () => {
+                setBulkAction("reject");
+                setBulkNotes("");
+                setBulkReasonCode(reasons[0]?.code ?? "");
               },
             },
           ]}
@@ -837,6 +929,72 @@ export function ApprovalsTable({
         </ZoruDialogContent>
       </Dialog>
 
+      {/* Bulk action dialog */}
+      <Dialog
+        open={bulkAction !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setBulkAction(null);
+            setBulkNotes("");
+            setBulkReasonCode("");
+          }
+        }}
+      >
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
+              Bulk {bulkAction} {selectedIds.length} templates
+            </ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Applies the same reviewer notes to all selected templates.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          
+          <div className="space-y-4 py-2">
+            <div className="space-y-1">
+              <Label>Reviewer notes</Label>
+              <Textarea
+                value={bulkNotes}
+                onChange={(e) => setBulkNotes(e.target.value)}
+                placeholder="Required notes for the decision..."
+                className="min-h-[100px]"
+              />
+            </div>
+            
+            {bulkAction === "reject" && (
+              <div className="space-y-1">
+                <Label>Reason code</Label>
+                <Select value={bulkReasonCode} onValueChange={setBulkReasonCode}>
+                  <ZoruSelectTrigger>
+                    <ZoruSelectValue placeholder="Select a reason..." />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    {reasons.map((r) => (
+                      <ZoruSelectItem key={r.code} value={r.code}>
+                        {r.label}
+                      </ZoruSelectItem>
+                    ))}
+                  </ZoruSelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+          
+          <ZoruDialogFooter>
+            <Button variant="outline" onClick={() => setBulkAction(null)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={executeBulkSelectedAction} 
+              disabled={!bulkNotes.trim() || (bulkAction === "reject" && !bulkReasonCode)}
+              variant={bulkAction === "reject" ? "destructive" : "default"}
+            >
+              {bulkAction === "approve" ? "Approve all" : "Reject all"}
+            </Button>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </Dialog>
+
       {/* Rotation config */}
       <Dialog open={rotationOpen} onOpenChange={setRotationOpen}>
         <ZoruDialogContent>
@@ -949,7 +1107,7 @@ function DecisionList({ decisions }: { decisions: ApprovalDecisionRecord[] }) {
               {d.kind}
             </Badge>
             <span className="text-xs text-slate-500">
-              {new Date(d.at).toLocaleString()} · {d.reviewerId}
+              {formatUTC(d.at, true)} · {d.reviewerId}
             </span>
           </div>
           <p className="mt-1 text-slate-700">{d.notes}</p>

@@ -32,7 +32,7 @@ import type { CrmProduct } from '@/lib/definitions';
 
 interface ItemDetailBodyProps {
   defaultTab?: string;
-  product: WithId<CrmProduct> & Record<string, unknown>;
+  product: WithId<CrmProduct> & { status?: string; reorderPoint?: number };
   productId: string;
 }
 

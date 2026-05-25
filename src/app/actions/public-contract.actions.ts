@@ -24,13 +24,13 @@ export type PublicContractView = {
   endDate: string | null;
   contractDetail: string;
   signed: boolean;
-  signedBy?: {
+  signatures: Array<{
     fullName: string;
     email: string;
     place: string;
     signedAt: string;
     signatureDataUrl: string;
-  } | null;
+  }>;
 } | null;
 
 export type PublicActionResult =
@@ -62,27 +62,19 @@ export async function getPublicContract(hash: string): Promise<PublicContractVie
     const contract = await db.collection('crm_contracts').findOne({ publicHash: hash });
     if (!contract) return null;
 
-    let signedBy: {
-      fullName: string;
-      email: string;
-      place: string;
-      signedAt: string;
-      signatureDataUrl: string;
-    } | null = null;
-    if (contract.signed) {
-      const sig = await db
-        .collection('contract_signs')
-        .findOne({ contractId: contract._id }, { sort: { signedAt: -1 } });
-      if (sig) {
-        signedBy = {
-          fullName: (sig.fullName as string) || '',
-          email: (sig.email as string) || '',
-          place: (sig.place as string) || '',
-          signedAt: sig.signedAt ? new Date(sig.signedAt).toISOString() : '',
-          signatureDataUrl: (sig.signatureDataUrl as string) || '',
-        };
-      }
-    }
+    const sigs = await db
+      .collection('contract_signs')
+      .find({ contractId: contract._id })
+      .sort({ signedAt: 1 })
+      .toArray();
+
+    const signatures = sigs.map((sig) => ({
+      fullName: (sig.fullName as string) || '',
+      email: (sig.email as string) || '',
+      place: (sig.place as string) || '',
+      signedAt: sig.signedAt ? new Date(sig.signedAt as Date).toISOString() : '',
+      signatureDataUrl: (sig.signatureDataUrl as string) || '',
+    }));
 
     return {
       _id: contract._id.toString(),
@@ -98,8 +90,8 @@ export async function getPublicContract(hash: string): Promise<PublicContractVie
         (contract.contractDetail as string) ||
         (contract.body as string) ||
         '',
-      signed: Boolean(contract.signed),
-      signedBy,
+      signed: Boolean(contract.signed) || signatures.length > 0,
+      signatures,
     };
   } catch (e) {
     console.error('[getPublicContract] failed:', e);
@@ -124,7 +116,6 @@ export async function signContract(
     const { db } = await connectToDatabase();
     const contract = await db.collection('crm_contracts').findOne({ publicHash: hash });
     if (!contract) return { success: false, error: 'Contract not found.' };
-    if (contract.signed) return { success: false, error: 'This contract is already signed.' };
 
     const meta = await clientMeta();
     const now = new Date();

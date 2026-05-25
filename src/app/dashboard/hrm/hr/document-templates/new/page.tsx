@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 
 /**
@@ -11,7 +12,7 @@ import { DocumentTemplateForm } from '../_components/document-template-form';
 
 export const dynamic = 'force-dynamic';
 
-export default async function NewDocumentTemplatePage() {
+async function NewDocumentTemplatePageContainer() {
     const session = await getSession();
     if (!session?.user) redirect('/login');
 
@@ -23,4 +24,12 @@ export default async function NewDocumentTemplatePage() {
             <DocumentTemplateForm />
         </EntityListShell>
     );
+}
+
+export default function NewDocumentTemplatePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewDocumentTemplatePageContainer  />
+    </Suspense>
+  );
 }

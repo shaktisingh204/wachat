@@ -45,9 +45,16 @@ export function PaymentAccountFormClient({
         initial?.bankDetails ?? {},
     );
     const [openingBalanceDate, setOpeningBalanceDate] = React.useState<Date | undefined>(
-        initial?.openingBalanceDate ? new Date(initial.openingBalanceDate) : new Date(),
+        initial?.openingBalanceDate ? new Date(initial.openingBalanceDate) : undefined
     );
+    const [mounted, setMounted] = React.useState(false);
 
+    React.useEffect(() => {
+        setMounted(true);
+        if (!initial?.openingBalanceDate) {
+            setOpeningBalanceDate(new Date());
+        }
+    }, [initial?.openingBalanceDate]);
     React.useEffect(() => {
         if (state.message) {
             toast({ title: 'Saved', description: state.message });
@@ -263,7 +270,7 @@ export function PaymentAccountFormClient({
                             </div>
                             <div className="space-y-2">
                                 <Label>As of *</Label>
-                                <DatePicker value={openingBalanceDate} onChange={setOpeningBalanceDate} />
+                                {mounted ? <DatePicker value={openingBalanceDate} onChange={setOpeningBalanceDate} /> : <div className="h-10 w-full animate-pulse rounded-md bg-secondary" />}
                             </div>
                         </div>
                     ),

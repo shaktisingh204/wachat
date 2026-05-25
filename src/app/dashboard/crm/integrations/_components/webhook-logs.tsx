@@ -8,6 +8,7 @@ function fmtDate(value: unknown): string {
     return new Intl.DateTimeFormat('en-US', {
         dateStyle: 'short',
         timeStyle: 'medium',
+        timeZone: 'UTC'
     }).format(d);
 }
 

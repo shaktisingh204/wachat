@@ -1,9 +1,7 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { Wallet } from 'lucide-react';
+import { fmtDate, fmtINR } from '@/lib/utils';
 import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
 import {
   getExpenseClaims,
@@ -20,12 +18,7 @@ const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red' | 'blue
   reimbursed: 'blue',
 };
 
-function formatDate(value: unknown): React.ReactNode {
-  if (!value) return <span className="text-muted-foreground">—</span>;
-  const d = new Date(value as any);
-  if (isNaN(d.getTime())) return <span className="text-muted-foreground">—</span>;
-  return d.toISOString().slice(0, 10);
-}
+
 
 export default function ExpenseClaimsPage() {
   return (
@@ -66,11 +59,7 @@ export default function ExpenseClaimsPage() {
               0,
             );
             if (!total) return '—';
-            return new Intl.NumberFormat('en-IN', {
-              style: 'currency',
-              currency: 'INR',
-              maximumFractionDigits: 0,
-            }).format(total);
+            return fmtINR(total, 'INR');
           },
         },
         {
@@ -82,11 +71,7 @@ export default function ExpenseClaimsPage() {
               0,
             );
             if (!total) return '—';
-            return new Intl.NumberFormat('en-IN', {
-              style: 'currency',
-              currency: 'INR',
-              maximumFractionDigits: 0,
-            }).format(total / rows.length);
+            return fmtINR(total / rows.length, 'INR');
           },
         },
       ]}
@@ -104,7 +89,7 @@ export default function ExpenseClaimsPage() {
         {
           key: 'incurredAt',
           label: 'Incurred',
-          render: (row) => formatDate(row.incurredAt),
+          render: (row) => fmtDate(row.incurredAt),
         },
         { key: 'category', label: 'Category' },
         {

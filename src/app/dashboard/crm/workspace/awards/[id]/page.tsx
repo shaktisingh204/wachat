@@ -9,6 +9,7 @@ import { Activity,
   Trophy } from 'lucide-react';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { fmtINR } from '@/lib/utils';
 
 /**
  * Award detail — §1D.2 bar.
@@ -31,7 +32,7 @@ export const dynamic = 'force-dynamic';
 function fmtDate(v: unknown) {
     if (!v) return '—';
     const d = new Date(v as string);
-    return Number.isFinite(d.getTime()) ? d.toLocaleDateString() : '—';
+    return Number.isFinite(d.getTime()) ? d.toISOString().slice(0, 10) : '—';
 }
 
 export default async function AwardDetailPage({
@@ -94,7 +95,9 @@ export default async function AwardDetailPage({
                                 {new Set(linked.map((x) => x.given_to_user_id)).size}
                             </dd>
                             <dt className="text-zoru-ink-muted">Prize</dt>
-                            <dd className="text-zoru-ink">{a.prize || '—'}</dd>
+                            <dd className="text-zoru-ink">
+                                {a.prize && !isNaN(Number(a.prize)) ? fmtINR(Number(a.prize)) : (a.prize || '—')}
+                            </dd>
                         </dl>
                     </Card>
                 }

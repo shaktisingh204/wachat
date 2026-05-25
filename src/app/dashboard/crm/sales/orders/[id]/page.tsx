@@ -1,6 +1,5 @@
 import { Button, Card } from '@/components/zoruui';
-import {
-  notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import {
   Pencil,
   Truck,
@@ -12,27 +11,12 @@ import {
   Archive,
   Activity,
   Trash2,
-  } from 'lucide-react';
-
-/**
- * Sales Order detail — `/dashboard/crm/sales/orders/[id]`.
- *
- * §1D detail surface. Renders:
- *   - Header card (status pill via `statusToTone`, eyebrow, action group
- *     with 10 buttons: Edit · Convert→DC · Convert→Invoice · Email ·
- *     Print · Share · Duplicate · Archive · Activity · Delete)
- *   - Overview card with every header field
- *   - Line-items table with per-line fulfillment progress
- *     (delivered/invoiced) via `<SalesOrdersDetailFulfillment>`
- *   - Totals card (sub-total, shipping, discount, adjustment, total)
- *   - Notes / shipping address breakouts
- *   - Right rail: LineageRail (sales chain — Lead → Deal → Quotation →
- *     Sales Order [current] → Delivery Challan → Invoice → Receipt)
- *
- * Sales orders skip worksuite custom fields.
- */
+  ArrowLeft,
+} from 'lucide-react';
 
 import Link from 'next/link';
+import { Suspense } from 'react';
+import * as React from 'react';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
@@ -41,8 +25,6 @@ import { LineageRail } from '@/components/crm/lineage-rail';
 import { RelatedRail } from '@/components/crm/RelatedRail';
 import { SplitBackorderedButton } from '../_components/split-backordered-button';
 
-// `<StatusPill>` is rendered inside `<SalesOrderInlineStatus>` — no
-// direct import needed here anymore.
 import {
   getCrmSalesOrderRelatedCounts,
   getSalesOrder,
@@ -50,27 +32,9 @@ import {
 import { SalesOrdersDetailFulfillment } from '../_components/sales-orders-detail-fulfillment';
 import { SalesOrderInlineStatus } from '../_components/sales-orders-detail-status';
 import type { LineageRef } from '@/lib/definitions';
+import { fmtINR, fmtDate } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-
-function fmtMoney(value: number | undefined, currency?: string): string {
-  if (typeof value !== 'number') return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: currency || 'INR',
-      maximumFractionDigits: 2,
-    }).format(value);
-  } catch {
-    return `${currency || 'INR'} ${value.toFixed(2)}`;
-  }
-}
-
-function fmtDate(v?: string): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
 
 function Field({
   label,
@@ -89,16 +53,39 @@ function Field({
   );
 }
 
+/* ──────────────────────────────────────────────────────────────────────
+ * Asynchronous Sub-components for Suspense Blocks
+ * ──────────────────────────────────────────────────────────────────── */
+
+async function RelatedRailSection({ id }: { id: string }) {
+  const relatedCounts = await getCrmSalesOrderRelatedCounts(id);
+  return (
+    <RelatedRail
+      items={[
+        {
+          label: 'Delivery challans',
+          count: relatedCounts.deliveryChallans,
+          icon: <Truck className="h-3.5 w-3.5" />,
+          href: `/dashboard/crm/sales/delivery-challans?salesOrderId=${id}`,
+        },
+        {
+          label: 'Invoices',
+          count: relatedCounts.invoices,
+          icon: <Receipt className="h-3.5 w-3.5" />,
+          href: `/dashboard/crm/sales/invoices?salesOrderId=${id}`,
+        },
+      ]}
+    />
+  );
+}
+
 export default async function SalesOrderDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [{ order, error }, relatedCounts] = await Promise.all([
-    getSalesOrder(id),
-    getCrmSalesOrderRelatedCounts(id),
-  ]);
+  const { order, error } = await getSalesOrder(id);
 
   if (!order) {
     if (error) {
@@ -308,38 +295,38 @@ export default async function SalesOrderDetailPage({
             <div className="flex flex-col gap-3 text-[13px]">
               <div className="flex justify-between text-zoru-ink-muted">
                 <span>Sub-total</span>
-                <span className="tabular-nums text-zoru-ink">
-                  {fmtMoney(order.totals?.subTotal, currency)}
+                <span className="tabular-nums text-zoru-ink font-mono">
+                  {fmtINR(order.totals?.subTotal, currency)}
                 </span>
               </div>
               {order.totals?.shippingCharge != null ? (
                 <div className="flex justify-between text-zoru-ink-muted">
                   <span>Shipping</span>
-                  <span className="tabular-nums text-zoru-ink">
-                    {fmtMoney(order.totals.shippingCharge, currency)}
+                  <span className="tabular-nums text-zoru-ink font-mono">
+                    {fmtINR(order.totals.shippingCharge, currency)}
                   </span>
                 </div>
               ) : null}
               {order.totals?.discountOverall != null ? (
                 <div className="flex justify-between text-zoru-ink-muted">
                   <span>Discount</span>
-                  <span className="tabular-nums text-zoru-ink">
-                    − {fmtMoney(order.totals.discountOverall, currency)}
+                  <span className="tabular-nums text-zoru-ink font-mono">
+                    − {fmtINR(order.totals.discountOverall, currency)}
                   </span>
                 </div>
               ) : null}
               {order.totals?.adjustment != null ? (
                 <div className="flex justify-between text-zoru-ink-muted">
                   <span>Adjustment</span>
-                  <span className="tabular-nums text-zoru-ink">
-                    {fmtMoney(order.totals.adjustment, currency)}
+                  <span className="tabular-nums text-zoru-ink font-mono">
+                    {fmtINR(order.totals.adjustment, currency)}
                   </span>
                 </div>
               ) : null}
               <div className="mt-2 flex justify-between border-t border-zoru-line pt-2 text-[14px] font-semibold text-zoru-ink">
                 <span>Total ({currency})</span>
-                <span className="tabular-nums">
-                  {fmtMoney(order.totals?.total, currency)}
+                <span className="tabular-nums font-mono">
+                  {fmtINR(order.totals?.total, currency)}
                 </span>
               </div>
             </div>
@@ -355,22 +342,13 @@ export default async function SalesOrderDetailPage({
             lineage={lineage}
           />
 
-          <RelatedRail
-            items={[
-              {
-                label: 'Delivery challans',
-                count: relatedCounts.deliveryChallans,
-                icon: <Truck className="h-3.5 w-3.5" />,
-                href: `/dashboard/crm/sales/delivery-challans?salesOrderId=${id}`,
-              },
-              {
-                label: 'Invoices',
-                count: relatedCounts.invoices,
-                icon: <Receipt className="h-3.5 w-3.5" />,
-                href: `/dashboard/crm/sales/invoices?salesOrderId=${id}`,
-              },
-            ]}
-          />
+          <Suspense fallback={
+            <div className="animate-pulse space-y-4">
+              <div className="h-32 bg-zinc-100 rounded-lg dark:bg-zinc-800/40"></div>
+            </div>
+          }>
+            <RelatedRailSection id={id} />
+          </Suspense>
 
           <Card className="p-4 text-[11.5px] text-zoru-ink-muted">
             Created {fmtDate(order.createdAt || order.audit?.createdAt)}
@@ -380,7 +358,17 @@ export default async function SalesOrderDetailPage({
         </div>
       </div>
 
-      <EntityAuditTimeline entityKind="salesOrder" entityId={id} />
+      <Suspense fallback={
+        <div className="animate-pulse mt-8 space-y-4">
+          <div className="h-6 bg-zinc-100 rounded w-1/4 dark:bg-zinc-800/40"></div>
+          <div className="space-y-3">
+            <div className="h-4 bg-zinc-100 rounded dark:bg-zinc-800/40"></div>
+            <div className="h-4 bg-zinc-100 rounded w-5/6 dark:bg-zinc-800/40"></div>
+          </div>
+        </div>
+      }>
+        <EntityAuditTimeline entityKind="salesOrder" entityId={id} />
+      </Suspense>
     </EntityDetailShell>
   );
 }

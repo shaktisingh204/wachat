@@ -49,6 +49,7 @@ import type {
     CrmDocumentDoc,
     CrmDocumentStatus,
 } from '@/lib/rust-client/crm-documents';
+import { fmtDate } from '@/lib/utils';
 
 const BASE = '/dashboard/hrm/hr/documents';
 
@@ -69,11 +70,6 @@ function categoryLabel(c?: string): string {
     return c.replace(/_/g, ' ');
 }
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
 
 export default function DocumentsListPage() {
     const [documents, setDocuments] = React.useState<CrmDocumentDoc[]>([]);

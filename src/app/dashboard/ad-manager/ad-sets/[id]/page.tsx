@@ -24,6 +24,13 @@ import {
   ZoruDialogDescription,
   ZoruDialogFooter,
   Input,
+  Textarea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Label,
 } from '@/components/zoruui';
 import {
   useState,
@@ -45,7 +52,9 @@ import { getAds,
   updateAd,
   duplicateAd,
   deleteAd,
-  getAdSet } from '@/app/actions/ad-manager.actions';
+  getAdSet,
+  getFacebookPagesForAdCreation,
+  createAd } from '@/app/actions/ad-manager.actions';
 import { useAdManager } from '@/context/ad-manager-context';
 import { Plus } from 'lucide-react';
 
@@ -76,6 +85,61 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
     const [editingAdId, setEditingAdId] = useState<string | null>(null);
     const [editingName, setEditingName] = useState('');
 
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [createName, setCreateName] = useState('');
+    const [createStatus, setCreateStatus] = useState('PAUSED');
+    const [createMessage, setCreateMessage] = useState('');
+    const [createLink, setCreateLink] = useState('https://');
+    const [selectedPageId, setSelectedPageId] = useState('');
+    const [pages, setPages] = useState<any[]>([]);
+    const [isCreating, startCreatingTransition] = useTransition();
+
+    useEffect(() => {
+        if (isCreateOpen && pages.length === 0) {
+            getFacebookPagesForAdCreation().then(res => {
+                if (res.pages) {
+                    setPages(res.pages);
+                    if (res.pages.length > 0) setSelectedPageId(res.pages[0].id);
+                }
+            });
+        }
+    }, [isCreateOpen]);
+
+    const handleCreateAd = () => {
+        if (!createName || !selectedPageId || !createMessage || !createLink) {
+            toast({ title: 'Validation Error', description: 'Please fill in all fields.', variant: 'destructive' });
+            return;
+        }
+        startCreatingTransition(async () => {
+            const payload = {
+                name: createName,
+                adset_id: adSetId,
+                status: createStatus as 'ACTIVE' | 'PAUSED',
+                creative: {
+                    name: `Creative for ${createName}`,
+                    object_story_spec: {
+                        page_id: selectedPageId,
+                        link_data: {
+                            link: createLink,
+                            message: createMessage,
+                        }
+                    }
+                }
+            };
+            const result = await createAd(activeAccount!.account_id, payload);
+            if (result.error) {
+                toast({ title: 'Create Failed', description: result.error, variant: 'destructive' });
+            } else {
+                toast({ title: 'Ad Created successfully' });
+                setIsCreateOpen(false);
+                setCreateName('');
+                setCreateMessage('');
+                setCreateLink('https://');
+                fetchAds();
+            }
+        });
+    };
+
     const fetchAds = () => {
         if (!activeAccount) {
             router.push('/dashboard/ad-manager/ad-accounts');
@@ -87,8 +151,15 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                 setError(adSetRes.error);
                 return;
             }
-            if (adSetRes.data?.account_id && activeAccount.account_id && adSetRes.data.account_id !== activeAccount.account_id.replace(/^act_/, '')) {
-                setError('Ad Set does not belong to active account.');
+            if (!adSetRes.data) {
+                setError('Failed to fetch Ad Set details.');
+                return;
+            }
+            const actualAccountId = String(adSetRes.data.account_id || '').replace(/^act_/, '');
+            const expectedAccountId = activeAccount.account_id.replace(/^act_/, '');
+            if (actualAccountId !== expectedAccountId) {
+                setError(`Ad Set does not belong to the currently active Ad Account. Expected: ${expectedAccountId}, Found: ${actualAccountId}`);
+                setAds([]);
                 return;
             }
             const result = await getAds(adSetId);
@@ -173,7 +244,7 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                         <Button variant="outline" size="icon" onClick={fetchAds} disabled={isLoading} aria-label="Refresh">
                             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
                         </Button>
-                        <Button variant="default" size="sm" onClick={() => toast({ title: 'Coming soon' })}>
+                        <Button variant="default" size="sm" onClick={() => setIsCreateOpen(true)}>
                             <Plus className="h-4 w-4 mr-1" />
                             Create Ad
                         </Button>
@@ -300,6 +371,85 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                     ))}
                 </div>
             )}
+
+            {/* Create Ad Dialog */}
+            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                <ZoruDialogContent className="max-w-md">
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>Create New Ad</ZoruDialogTitle>
+                        <ZoruDialogDescription>Build a new ad creative directly into this Ad Set.</ZoruDialogDescription>
+                    </ZoruDialogHeader>
+                    
+                    <div className="flex flex-col gap-4 py-4">
+                        <div className="space-y-2">
+                            <Label>Ad Name</Label>
+                            <Input 
+                                placeholder="My New Ad" 
+                                value={createName} 
+                                onChange={(e) => setCreateName(e.target.value)} 
+                            />
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <Label>Facebook Page</Label>
+                            <Select value={selectedPageId} onValueChange={setSelectedPageId}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a page" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {pages.map((p) => (
+                                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label>Ad Status</Label>
+                            <Select value={createStatus} onValueChange={setCreateStatus}>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="PAUSED">Paused</SelectItem>
+                                    <SelectItem value="ACTIVE">Active</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <Label>Link URL</Label>
+                            <Input 
+                                type="url"
+                                placeholder="https://example.com" 
+                                value={createLink} 
+                                onChange={(e) => setCreateLink(e.target.value)} 
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label>Primary Text</Label>
+                            <Textarea 
+                                placeholder="Tell people what your ad is about..." 
+                                value={createMessage} 
+                                onChange={(e) => setCreateMessage(e.target.value)}
+                                className="resize-none"
+                                rows={3}
+                            />
+                        </div>
+                    </div>
+
+                    <ZoruDialogFooter>
+                        <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
+                        <Button 
+                            onClick={handleCreateAd} 
+                            disabled={isCreating || !createName || !selectedPageId || !createMessage || !createLink}
+                        >
+                            {isCreating ? 'Creating...' : 'Create Ad'}
+                        </Button>
+                    </ZoruDialogFooter>
+                </ZoruDialogContent>
+            </Dialog>
 
             {/* Delete confirmation */}
             <Dialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>

@@ -1,8 +1,20 @@
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import { trackClickAndGetUrl } from '@/app/actions/url-shortener.actions';
+import { Metadata } from 'next';
+import PasswordForm from './components/PasswordForm';
+import ErrorState from './components/ErrorState';
+import RedirectScript from './components/RedirectScript';
+
+export const dynamic = 'force-dynamic';
 
 type Props = { params: Promise<{ shortCode: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    return {
+        title: 'Opening app…'
+    };
+}
 
 export default async function DeepLinkPage({ params }: Props) {
     const { shortCode } = await params;
@@ -14,34 +26,28 @@ export default async function DeepLinkPage({ params }: Props) {
     const requestHost = hostHeader ? hostHeader.split(':')[0] : null;
     const lookupHost = (mainAppHost && requestHost === mainAppHost) ? null : requestHost;
 
-    const { originalUrl } = await trackClickAndGetUrl(shortCode, lookupHost);
+    const { originalUrl, error, passwordHash, isExpired } = await trackClickAndGetUrl(shortCode, lookupHost);
+
+    if (error) {
+        return <ErrorState title="Link Error" message={error} />;
+    }
+
+    if (isExpired) {
+        return <ErrorState title="Link Expired" message="This link is no longer active." />;
+    }
+
+    if (passwordHash) {
+        return <PasswordForm shortCode={shortCode} />;
+    }
+
     if (!originalUrl) notFound();
 
     const isIos = /iPhone|iPad|iPod/.test(ua);
     const isAndroid = /Android/.test(ua);
 
     return (
-        <html>
-            <head>
-                <title>Opening app…</title>
-            </head>
-            <body>
-                <script
-                    dangerouslySetInnerHTML={{
-                        __html: `
-                            var isIos = ${isIos};
-                            var isAndroid = ${isAndroid};
-                            var fallback = ${JSON.stringify(originalUrl)};
-                            // Deep link URIs would be injected here from ShortUrl.deepLink
-                            // For now, fall through to web URL after 500ms
-                            setTimeout(function(){ window.location.href = fallback; }, 500);
-                        `,
-                    }}
-                />
-                <noscript>
-                    <meta httpEquiv="refresh" content={`0;url=${originalUrl}`} />
-                </noscript>
-            </body>
-        </html>
+        <main className="min-h-screen bg-background text-foreground font-sans antialiased">
+            <RedirectScript originalUrl={originalUrl} isIos={isIos} isAndroid={isAndroid} />
+        </main>
     );
 }

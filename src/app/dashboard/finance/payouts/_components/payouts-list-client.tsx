@@ -28,6 +28,7 @@ import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'luci
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createPayout, updatePayout, deletePayout, Payout } from '@/app/actions/finance/payouts.actions';
 import { toast } from 'sonner';
+import { fmtINR, fmtDate } from '@/lib/utils';
 
 export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
   const router = useRouter();
@@ -204,6 +205,8 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
               <Label>Amount</Label>
               <Input 
                 name="amount" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.amount : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("amount")} 
               />
@@ -220,7 +223,8 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
               <Label>ExecutionDate</Label>
               <Input 
                 name="executionDate" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.executionDate : ''} 
+                type="date"
+                defaultValue={editingId ? (items.find(i => i._id === editingId)?.executionDate ? new Date(items.find(i => i._id === editingId)!.executionDate!).toISOString().split('T')[0] : '') : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("executionDate")} 
               />
             </div>
@@ -306,7 +310,7 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
             ) : (
               filteredItems.map((item) => (
                 <TableRow key={item._id}>
-                  <TableCell>{String(item.recipientId ?? '')}</TableCell><TableCell>{String(item.recipientType ?? '')}</TableCell><TableCell>{String(item.amount ?? '')}</TableCell><TableCell>{String(item.paymentMethod ?? '')}</TableCell><TableCell>{String(item.executionDate ?? '')}</TableCell><TableCell>{String(item.status ?? '')}</TableCell>
+                  <TableCell>{String(item.recipientId ?? '')}</TableCell><TableCell>{String(item.recipientType ?? '')}</TableCell><TableCell>{fmtINR(item.amount)}</TableCell><TableCell>{String(item.paymentMethod ?? '')}</TableCell><TableCell>{item.executionDate ? fmtDate(item.executionDate.toString()) : ''}</TableCell><TableCell>{String(item.status ?? '')}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

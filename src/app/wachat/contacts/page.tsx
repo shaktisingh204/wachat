@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -331,7 +332,7 @@ export default function ContactsPage() {
     },
     {
       header: 'Last activity',
-      cell: (c: WithId<Contact>) => <span className="text-[12px] text-zoru-ink-muted">{c.lastMessageTimestamp ? new Date(c.lastMessageTimestamp).toLocaleString() : '—'}</span>,
+      cell: (c: WithId<Contact>) => <span className="text-[12px] text-zoru-ink-muted">{c.lastMessageTimestamp ? fmtDate(c.lastMessageTimestamp) : '—'}</span>,
     },
     {
       header: 'Actions',

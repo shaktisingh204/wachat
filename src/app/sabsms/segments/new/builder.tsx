@@ -451,23 +451,33 @@ export function SegmentBuilder({
 
         <Card>
           <ZoruCardHeader>
-            <ZoruCardTitle>Predicate</ZoruCardTitle>
-            <ZoruCardDescription>
-              Combine rules with AND / OR groups.
-              {leafCount > 0 && (
-                <Badge variant="secondary" className="ml-2 text-[10px]">
-                  {leafCount} rule{leafCount === 1 ? "" : "s"}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <ZoruCardTitle>Predicate</ZoruCardTitle>
+                <ZoruCardDescription>
+                  Combine rules with AND / OR groups.
+                  {leafCount > 0 && (
+                    <Badge variant="secondary" className="ml-2 text-[10px]">
+                      {leafCount} rule{leafCount === 1 ? "" : "s"}
+                    </Badge>
+                  )}
+                  {draft.category === "marketing" && (
+                    <Badge
+                      variant={consentOk ? "default" : "destructive"}
+                      className="ml-1 text-[10px]"
+                    >
+                      {consentOk ? "Consent gate OK" : "Consent gate missing"}
+                    </Badge>
+                  )}
+                </ZoruCardDescription>
+              </div>
+              {matchedCount !== null && (
+                <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200">
+                  <Calculator className="mr-1 h-3 w-3" />
+                  ~{matchedCount.toLocaleString()} matching
                 </Badge>
               )}
-              {draft.category === "marketing" && (
-                <Badge
-                  variant={consentOk ? "default" : "destructive"}
-                  className="ml-1 text-[10px]"
-                >
-                  {consentOk ? "Consent gate OK" : "Consent gate missing"}
-                </Badge>
-              )}
-            </ZoruCardDescription>
+            </div>
           </ZoruCardHeader>
           <ZoruCardContent>
             <PredicateCanvas

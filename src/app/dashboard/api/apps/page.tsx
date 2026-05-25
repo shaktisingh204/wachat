@@ -10,10 +10,7 @@ import {
   ZoruBreadcrumbLink,
   ZoruBreadcrumbSeparator,
   ZoruBreadcrumbPage,
-  Alert,
-  ZoruAlertDescription,
 } from '@/components/zoruui';
-import { AlertCircle } from 'lucide-react';
 import { AppsClient } from './_AppsClient';
 
 import { Suspense } from 'react';
@@ -67,18 +64,13 @@ async function AppsLoader() {
     listOAuthApps(),
     getUsageByKey()
   ]);
-  const initial = res.success ? res.apps : [];
-  const loadError = res.success ? null : res.error;
-  const usageData = usageRes.success ? usageRes.rows : [];
   
-  if (loadError) {
-      return (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <ZoruAlertDescription>Failed to load apps: {loadError}</ZoruAlertDescription>
-        </Alert>
-      );
+  if (!res.success) {
+    throw new Error(res.error || 'Failed to load apps');
   }
+
+  const initial = res.apps;
+  const usageData = usageRes.success ? usageRes.rows : [];
   
   return <AppsClient initialApps={initial} usageData={usageData} />;
 }

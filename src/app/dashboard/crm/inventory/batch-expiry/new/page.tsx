@@ -1,5 +1,4 @@
-import {
-  redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 /**
  * New batch — server wrapper that gates auth and renders <BatchExpiryForm />.

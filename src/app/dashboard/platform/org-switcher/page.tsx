@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getOrganizations } from '@/app/actions/platform/org-switcher.actions';
 import OrgSwitcherClient from './client';
 

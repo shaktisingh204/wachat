@@ -23,6 +23,13 @@ export function PosSessionNewForm() {
         initial,
     );
 
+    const terminalInputRef = React.useRef<HTMLInputElement>(null);
+
+    React.useEffect(() => {
+        // Safe client-side focus to avoid hydration mismatches with autoFocus attribute
+        terminalInputRef.current?.focus();
+    }, []);
+
     React.useEffect(() => {
         if (state.id) {
             zoruSonnerToast.success(state.message ?? 'Session opened.');
@@ -33,17 +40,17 @@ export function PosSessionNewForm() {
     }, [state, router]);
 
     return (
-        <Card>
+        <Card className="p-0">
             <ZoruCardContent className="p-5">
                 <form action={formAction} className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="terminalId">Terminal</Label>
                         <Input
+                            ref={terminalInputRef}
                             id="terminalId"
                             name="terminalId"
                             placeholder="e.g. Counter-1, Kiosk-A"
                             required
-                            autoFocus
                         />
                         <p className="text-[12px] text-zoru-ink-muted">
                             Free-text identifier for this checkout point.
@@ -96,3 +103,4 @@ export function PosSessionNewForm() {
         </Card>
     );
 }
+

@@ -238,6 +238,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                     Created
                                 </span>
                                 <span
+                                    suppressHydrationWarning
                                     title={
                                         account.createdAt
                                             ? new Date(
@@ -506,15 +507,20 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         <ZoruCardTitle>Organization Chart</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <div className="flex flex-wrap gap-4 pt-2">
+                        <div className="flex flex-wrap items-stretch gap-4 pt-2">
                             {orgChart.map((c: any) => (
-                                <div key={String(c._id)} className="rounded-lg border border-zoru-line p-3 min-w-[200px] flex flex-col items-center text-center shadow-sm">
-                                    <div className="h-10 w-10 rounded-full bg-zoru-surface-2 flex items-center justify-center text-zoru-ink font-bold mb-2">
+                                <div key={String(c._id)} className="flex min-w-[220px] flex-col items-center rounded-xl border border-zoru-line bg-zoru-surface p-4 text-center shadow-sm transition-all hover:shadow-md">
+                                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
                                         {c.name.charAt(0).toUpperCase()}
                                     </div>
-                                    <span className="text-[13px] font-medium text-zoru-ink">{c.name}</span>
-                                    {c.jobTitle && <span className="text-[11px] text-zoru-ink-muted">{c.jobTitle}</span>}
-                                    {c.email && <span className="text-[11px] text-zoru-ink-muted mt-1">{c.email}</span>}
+                                    <span className="text-[14px] font-semibold text-zoru-ink">{c.name}</span>
+                                    {c.jobTitle && <span className="mt-1 text-[12px] font-medium text-zoru-ink-muted">{c.jobTitle}</span>}
+                                    {c.email && (
+                                        <div className="mt-2 flex items-center gap-1 text-[11px] text-zoru-ink-muted">
+                                            <Mail className="h-3 w-3" />
+                                            <span>{c.email}</span>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>

@@ -1,7 +1,7 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import {
-  notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 
 /**
  * Booking detail — `/dashboard/crm/bookings/[id]`.
@@ -14,8 +14,6 @@ import { ArrowLeft } from 'lucide-react';
  *     Related entities (recurring bookings, payments).
  *   - Audit footer via EntityDetailShell `audit` prop.
  */
-
-import Link from 'next/link';
 
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
@@ -41,12 +39,12 @@ function fmtDate(v?: string): string {
 
 function computeDuration(start?: string, end?: string): string {
   if (!start || !end) return '—';
-  const s = new Date(start.endsWith('Z') ? start : start + 'Z');
-  const e = new Date(end.endsWith('Z') ? end : end + 'Z');
+  const s = new Date(start);
+  const e = new Date(end);
   if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime())) return '—';
   const diffMs = e.getTime() - s.getTime();
   if (diffMs <= 0) return '—';
-  const mins = Math.round(diffMs / 60_000);
+  const mins = Math.floor(diffMs / 60000);
   if (mins < 60) return `${mins} min`;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
@@ -163,7 +161,7 @@ export default async function BookingDetailPage({
             </ZoruCardHeader>
             <ZoruCardContent>
               {booking.resourceId ? (
-                <EntityPickerChip entity="user" id={booking.resourceId} />
+                <EntityPickerChip entity="user" id={booking.resourceId} fallback="Deleted resource" />
               ) : (
                 <span className="text-[12.5px] text-zoru-ink-muted">
                   No resource
@@ -178,7 +176,7 @@ export default async function BookingDetailPage({
             </ZoruCardHeader>
             <ZoruCardContent>
               {booking.customerId ? (
-                <EntityPickerChip entity="client" id={booking.customerId} />
+                <EntityPickerChip entity="client" id={booking.customerId} fallback="Deleted customer" />
               ) : (
                 <span className="text-[12.5px] text-zoru-ink-muted">
                   No customer
@@ -278,14 +276,14 @@ export default async function BookingDetailPage({
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Customer">
               {booking.customerId ? (
-                <EntityPickerChip entity="client" id={booking.customerId} />
+                <EntityPickerChip entity="client" id={booking.customerId} fallback="Deleted customer" />
               ) : (
                 '—'
               )}
             </Field>
             <Field label="Resource / staff">
               {booking.resourceId ? (
-                <EntityPickerChip entity="user" id={booking.resourceId} />
+                <EntityPickerChip entity="user" id={booking.resourceId} fallback="Deleted resource" />
               ) : (
                 '—'
               )}

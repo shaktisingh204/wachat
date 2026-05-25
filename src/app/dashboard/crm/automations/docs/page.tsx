@@ -8,31 +8,47 @@
  *   3. Templates — grid of pre-built automation templates
  */
 
+import * as React from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getCrmAutomationKpis,
   listCrmAutomations,
 } from '@/app/actions/crm-automations.actions';
 import { AutomationsDocsClient } from './_components/automations-docs-client';
+import { Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-export default async function CrmAutomationDocsPage() {
+async function AutomationsDocsData() {
   const [kpis, { items, total }] = await Promise.all([
     getCrmAutomationKpis(),
     listCrmAutomations(1, 20),
   ]);
 
   return (
+    <AutomationsDocsClient
+      kpis={kpis}
+      initialAutomations={items}
+      initialTotal={total}
+    />
+  );
+}
+
+export default function CrmAutomationDocsPage() {
+  return (
     <EntityListShell
       title="Automations"
       subtitle="Manage, document and discover pre-built automations for your CRM workflows."
     >
-      <AutomationsDocsClient
-        kpis={kpis}
-        initialAutomations={items}
-        initialTotal={total}
-      />
+      <React.Suspense
+        fallback={
+          <div className="flex items-center justify-center p-12">
+            <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+          </div>
+        }
+      >
+        <AutomationsDocsData />
+      </React.Suspense>
     </EntityListShell>
   );
 }

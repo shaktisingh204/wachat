@@ -9,6 +9,7 @@ import {
   GitBranch,
   Inbox,
   KeyRound,
+  Layers,
   LayoutDashboard,
   Megaphone,
   MessageSquare,
@@ -143,6 +144,13 @@ export function buildSabsmsSidebarGroups(
           icon: React.createElement(Phone),
           href: "/sabsms/numbers",
           active: isActive("/sabsms/numbers"),
+        },
+        {
+          id: "pool",
+          label: "Sender Pools",
+          icon: React.createElement(Layers),
+          href: "/sabsms/pool",
+          active: isActive("/sabsms/pool"),
         },
         {
           id: "providers",

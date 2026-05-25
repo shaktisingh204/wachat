@@ -15,11 +15,10 @@ import {
   ZoruAlertDescription,
   Card,
   ZoruCardContent,
-  Button,
-  Input,
-  Badge,
 } from '@/components/zoruui';
-import { AlertCircle, Filter } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import { LogFilter } from './components/log-filter';
+import { LogTimeline } from './components/log-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -77,39 +76,14 @@ export default async function LogsPage({
         <ZoruPageHeading>
           <ZoruPageTitle>Request log</ZoruPageTitle>
           <ZoruPageDescription>
-            Last 30 days. Filter via query string:{' '}
-            <code className="font-mono">?keyId=…</code>,{' '}
-            <code className="font-mono">?path=…</code>,{' '}
-            <code className="font-mono">?minStatus=400</code>.
+            Last 30 days. Filter logs by providing specific criteria.
           </ZoruPageDescription>
         </ZoruPageHeading>
       </PageHeader>
 
       <Card>
         <ZoruCardContent className="pt-4">
-          <form method="get" className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
-            <Input
-              name="path"
-              defaultValue={params.path ?? ''}
-              placeholder="path (e.g. /api/v1/me)"
-              className="font-mono"
-            />
-            <Input
-              name="keyId"
-              defaultValue={params.keyId ?? ''}
-              placeholder="key id"
-              className="font-mono"
-            />
-            <Input
-              name="minStatus"
-              type="number"
-              defaultValue={params.minStatus ?? ''}
-              placeholder="min status (e.g. 400)"
-            />
-            <Button type="submit">
-              <Filter className="h-4 w-4 mr-1" /> Filter
-            </Button>
-          </form>
+          <LogFilter />
         </ZoruCardContent>
       </Card>
 
@@ -122,51 +96,7 @@ export default async function LogsPage({
         <>
           <Card>
             <ZoruCardContent className="pt-6">
-                {res.rows.length === 0 ? (
-                  <div className="text-center text-zoru-ink-muted py-8 text-sm">
-                    No requests match the current filter.
-                  </div>
-                ) : (
-                  <ol className="relative space-y-6 border-l border-zinc-200 pl-6 dark:border-zinc-800">
-                    {res.rows.map((r) => (
-                        <li key={r._id} className="relative">
-                            <span
-                                className="absolute -left-[29px] top-1.5 inline-block size-3 rounded-full border border-white dark:border-zinc-950 bg-zinc-300 dark:bg-zinc-700"
-                                aria-hidden
-                            />
-                            <div className="flex flex-wrap items-baseline gap-2 text-sm mb-1">
-                                <Badge variant="outline" className="font-mono text-[10px] uppercase">
-                                    {r.method}
-                                </Badge>
-                                <span className="font-mono text-zoru-ink">{r.path}</span>
-                                <span
-                                    className={
-                                      r.status >= 500
-                                        ? 'text-zoru-danger text-xs font-semibold px-1.5 py-0.5 rounded bg-red-500/10'
-                                        : r.status >= 400
-                                          ? 'text-zoru-warning text-xs font-semibold px-1.5 py-0.5 rounded bg-amber-500/10'
-                                          : r.status >= 300
-                                            ? 'text-blue-500 text-xs font-semibold px-1.5 py-0.5 rounded bg-blue-500/10'
-                                            : 'text-zoru-success text-xs font-semibold px-1.5 py-0.5 rounded bg-green-500/10'
-                                    }
-                                >
-                                    {r.status}
-                                </span>
-                                <span className="ml-auto text-xs text-zoru-ink-muted">
-                                    {new Date(r.ts).toLocaleString()}
-                                </span>
-                            </div>
-                            <div className="flex flex-wrap items-center gap-4 text-xs text-zoru-ink-muted">
-                                <span>Latency: <span className="font-mono">{r.latencyMs} ms</span></span>
-                                <span>Key ID: <span className="font-mono text-zoru-ink-subtle">{r.keyId.slice(0, 10)}…</span></span>
-                                {r.errorType && (
-                                    <span className="text-zoru-danger">Error: {r.errorType}</span>
-                                )}
-                            </div>
-                        </li>
-                    ))}
-                  </ol>
-                )}
+              <LogTimeline logs={res.rows} />
             </ZoruCardContent>
           </Card>
 

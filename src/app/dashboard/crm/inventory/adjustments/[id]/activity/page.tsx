@@ -5,14 +5,15 @@
  * <EntityAuditTimeline> for `entityKind: 'stock_adjustment'`.
  */
 
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 
 import { FilteredAuditTimeline } from '../../_components/filtered-audit-timeline';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
-import { redirect } from 'next/navigation';
 import { mapToStockAdjustmentDto } from '../../types';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmStockAdjustmentById } from '@/app/actions/crm-inventory.actions';
+import { ActivityFilter } from './activity-filter';
+import { Skeleton } from '@/components/zoruui';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -25,12 +26,14 @@ export default async function StockAdjustmentActivityPage({ params, searchParams
   const { eventType } = resolvedSearch;
   const { id } = resolvedParams;
   const rawAdj = await getCrmStockAdjustmentById(id);
-  const adj = mapToStockAdjustmentDto(rawAdj);
   if (!rawAdj) notFound();
+  
+  const adj = mapToStockAdjustmentDto(rawAdj);
 
   const productName = adj.productName as string | undefined;
+  const quantity = adj.quantity ?? 0;
   const title = productName
-    ? `${productName} (${adj.quantity > 0 ? '+' : ''}${adj.quantity})`
+    ? `${productName} (${quantity > 0 ? '+' : ''}${quantity})`
     : `Adjustment #${id.slice(-6)}`;
 
   return (
@@ -43,23 +46,19 @@ export default async function StockAdjustmentActivityPage({ params, searchParams
       }}
     >
       <div className="mb-4 flex items-center justify-end">
-        <form className="flex items-center gap-2">
-          <label htmlFor="eventType" className="text-sm text-zinc-500">Filter by event:</label>
-          <select 
-            id="eventType" 
-            name="eventType" 
-            className="rounded-md border border-zinc-200 px-3 py-1 text-sm dark:border-zinc-800"
-            defaultValue={eventType || ''}
-          >
-            <option value="">All events</option>
-            <option value="create">Created</option>
-            <option value="update">Updated</option>
-            <option value="status_change">Status Changed</option>
-          </select>
-          <button type="submit" className="rounded bg-zinc-100 px-3 py-1 text-sm hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700">Filter</button>
-        </form>
+        <Suspense fallback={<div className="h-9 w-[260px] animate-pulse rounded-md bg-zinc-100 dark:bg-zinc-800" />}>
+          <ActivityFilter />
+        </Suspense>
       </div>
-      <FilteredAuditTimeline entityKind="stock_adjustment" entityId={id} eventType={eventType} />
+      <Suspense fallback={
+        <div className="space-y-4 py-4">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+      }>
+        <FilteredAuditTimeline entityKind="stock_adjustment" entityId={id} eventType={eventType} />
+      </Suspense>
     </EntityDetailShell>
   );
 }

@@ -106,12 +106,21 @@ async function upsert(
   const patch = buildDocPatch(input, status) as Record<string, unknown>;
   if (reviewerNotes !== undefined) patch.reviewerNotes = reviewerNotes;
 
+  const now = new Date();
+  const historyEntry = {
+    id: new ObjectId().toString(),
+    timestamp: now.toISOString(),
+    status,
+    bodies: input.bodies,
+    variableDefaults: input.variableDefaults,
+  };
+
   if (!input.id || input.id === "new") {
-    const now = new Date();
     const insert = {
       ...patch,
       workspaceId: ws.workspaceId,
       createdAt: now,
+      history: [historyEntry],
     } as unknown as SabsmsTemplate;
     const res = await cols.templates.insertOne(insert);
     revalidatePath("/sabsms/templates");
@@ -130,7 +139,10 @@ async function upsert(
   }
   await cols.templates.updateOne(
     { _id: oid, workspaceId: ws.workspaceId },
-    { $set: patch },
+    { 
+      $set: patch,
+      $push: { history: { $each: [historyEntry], $position: 0 } }
+    } as any,
   );
   revalidatePath(`/sabsms/templates/${input.id}`);
   revalidatePath("/sabsms/templates");

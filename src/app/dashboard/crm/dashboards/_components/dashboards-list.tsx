@@ -11,6 +11,8 @@ import {
     ZoruTableHeader,
     ZoruTableRow,
 } from '@/components/zoruui';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 import { LayoutDashboard, Lock, Plus, Search, Share2, Star } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
@@ -35,7 +37,13 @@ function formatDateTime(value: string | undefined | null): string {
     if (!value) return '—';
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return '—';
-    return d.toLocaleString();
+    return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+    }).format(d);
 }
 
 function renderSharedWith(value: unknown, scope?: string): string {
@@ -88,6 +96,7 @@ export function DashboardsList({
     loadError: boolean;
 }) {
     const [search, setSearch] = React.useState('');
+    const tableBodyRef = React.useRef<HTMLTableSectionElement>(null);
 
     const filtered = React.useMemo(() => {
         const q = search.trim().toLowerCase();
@@ -98,6 +107,25 @@ export function DashboardsList({
             return title.includes(q) || owner.includes(q);
         });
     }, [dashboards, search]);
+
+    useGSAP(() => {
+        if (!tableBodyRef.current) return;
+        const rows = tableBodyRef.current.querySelectorAll('.dashboard-row');
+        if (rows.length > 0) {
+            gsap.fromTo(
+                rows,
+                { opacity: 0, y: 10 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.3,
+                    stagger: 0.05,
+                    ease: 'power2.out',
+                    clearProps: 'all',
+                }
+            );
+        }
+    }, [filtered, loadError]);
 
     const totalShared = dashboards.filter(isShared).length;
     const totalPrivate = dashboards.length - totalShared;
@@ -169,7 +197,7 @@ export function DashboardsList({
                                 <ZoruTableHead className="text-zoru-ink-muted">Updated</ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
-                        <ZoruTableBody>
+                        <ZoruTableBody ref={tableBodyRef}>
                             {loadError ? (
                                 <ZoruTableRow className="border-zoru-line">
                                     <ZoruTableCell
@@ -184,7 +212,7 @@ export function DashboardsList({
                                     const owner = d.ownerName || d.ownerId || '—';
                                     const widgetCount = Array.isArray(d.widgets) ? d.widgets.length : 0;
                                     return (
-                                        <ZoruTableRow key={d._id} className="border-zoru-line">
+                                        <ZoruTableRow key={d._id} className="dashboard-row border-zoru-line">
                                             <ZoruTableCell className="text-zoru-ink">
                                                 <EntityRowLink
                                                     href={`/dashboard/crm/dashboards/${d._id}`}
@@ -199,7 +227,7 @@ export function DashboardsList({
                                                 {renderSharedWith(d.sharedWith, d.shareScope)}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-zoru-ink">
-                                                {formatDateTime(d.updatedAt)}
+                                                <span suppressHydrationWarning>{formatDateTime(d.updatedAt)}</span>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     );

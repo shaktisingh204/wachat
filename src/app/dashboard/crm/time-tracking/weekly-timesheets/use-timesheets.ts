@@ -175,41 +175,57 @@ export function useTimesheets() {
   // Bulk Actions
   const handleBulkSubmit = React.useCallback(() => {
     if (selected.size === 0) return;
-    setBulkPending(true);
-    bulkSubmitTimesheets(Array.from(selected)).then((res) => {
-      setBulkPending(false);
-      if (res.ok) { toast({ title: `${res.count} timesheet(s) submitted` }); setSelected(new Set()); refresh(); }
-      else toast({ title: 'Error submitting', description: res.error, variant: 'destructive' });
+    startBulkTransition(async () => {
+      const res = await bulkSubmitTimesheets(Array.from(selected));
+      if (res.ok) {
+        toast({ title: `${res.count} timesheet(s) submitted` });
+        setSelected(new Set());
+        refresh();
+      } else {
+        toast({ title: 'Error submitting', description: res.error, variant: 'destructive' });
+      }
     });
   }, [selected, refresh, toast]);
 
   const handleBulkApprove = React.useCallback(() => {
     if (selected.size === 0) return;
-    setBulkPending(true);
-    bulkApproveTimesheets(Array.from(selected)).then((res) => {
-      setBulkPending(false);
-      if (res.ok) { toast({ title: `${res.count} timesheet(s) approved` }); setSelected(new Set()); refresh(); }
-      else toast({ title: 'Error approving', description: res.error, variant: 'destructive' });
+    startBulkTransition(async () => {
+      const res = await bulkApproveTimesheets(Array.from(selected));
+      if (res.ok) {
+        toast({ title: `${res.count} timesheet(s) approved` });
+        setSelected(new Set());
+        refresh();
+      } else {
+        toast({ title: 'Error approving', description: res.error, variant: 'destructive' });
+      }
     });
   }, [selected, refresh, toast]);
 
   const handleBulkReject = React.useCallback(() => {
     if (selected.size === 0) return;
-    setBulkPending(true);
-    bulkRejectTimesheets(Array.from(selected)).then((res) => {
-      setBulkPending(false);
-      if (res.ok) { toast({ title: `${res.count} timesheet(s) rejected` }); setSelected(new Set()); refresh(); }
-      else toast({ title: 'Error rejecting', description: res.error, variant: 'destructive' });
+    startBulkTransition(async () => {
+      const res = await bulkRejectTimesheets(Array.from(selected), '');
+      if (res.ok) {
+        toast({ title: `${res.count} timesheet(s) rejected` });
+        setSelected(new Set());
+        refresh();
+      } else {
+        toast({ title: 'Error rejecting', description: res.error, variant: 'destructive' });
+      }
     });
   }, [selected, refresh, toast]);
 
   const handleBulkDelete = React.useCallback(() => {
     if (selected.size === 0) return;
-    setBulkPending(true);
-    bulkDeleteTimesheets(Array.from(selected)).then((res) => {
-      setBulkPending(false);
-      if (res.ok) { toast({ title: `${res.count} timesheet(s) deleted` }); setSelected(new Set()); refresh(); }
-      else { toast({ title: 'Error', description: res.error, variant: 'destructive' }); }
+    startBulkTransition(async () => {
+      const res = await bulkDeleteTimesheets(Array.from(selected));
+      if (res.ok) {
+        toast({ title: `${res.count} timesheet(s) deleted` });
+        setSelected(new Set());
+        refresh();
+      } else {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      }
       setBulkDeleteOpen(false);
     });
   }, [selected, refresh, toast]);

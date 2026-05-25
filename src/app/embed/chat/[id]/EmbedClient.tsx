@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { SabFlowChat } from '@/components/sabflow/chat/SabFlowChat';
+import { ChatHeader } from './components/ChatHeader';
+import { ChatGreeting } from './components/ChatGreeting';
+import { EmptyFlowFallback } from './components/EmptyFlowFallback';
 
 interface Props {
   flowId?: string;
@@ -20,6 +23,8 @@ export default function EmbedClient({
   greeting,
   primaryColor,
 }: Props) {
+  const [isOnline, setIsOnline] = useState(true);
+
   useEffect(() => {
     try {
       window.parent?.postMessage({ type: 'sabnode:ready' }, '*');
@@ -34,7 +39,19 @@ export default function EmbedClient({
       }
     }
     window.addEventListener('message', onMessage);
-    return () => window.removeEventListener('message', onMessage);
+
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    setIsOnline(navigator.onLine);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('message', onMessage);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, []);
 
   function handleClose() {
@@ -47,60 +64,26 @@ export default function EmbedClient({
 
   return (
     <>
-      <header
-        style={{
-          padding: '12px 16px',
-          background: primaryColor,
-          color: '#fff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <strong style={{ fontSize: 14 }}>{widgetName}</strong>
-        <button
-          type="button"
-          aria-label="Close chat"
-          onClick={handleClose}
-          style={{
-            background: 'transparent',
-            color: '#fff',
-            border: 0,
-            fontSize: 18,
-            cursor: 'pointer',
-            lineHeight: 1,
-          }}
-        >
-          {'×'}
-        </button>
-      </header>
+      <ChatHeader
+        widgetName={widgetName}
+        primaryColor={primaryColor}
+        onClose={handleClose}
+        isOnline={isOnline}
+      />
+      
+      {!isOnline && (
+        <div style={{ padding: '8px 16px', background: '#fee2e2', color: '#991b1b', fontSize: 12, textAlign: 'center' }}>
+          You are currently offline. Reconnecting...
+        </div>
+      )}
 
-      <p
-        style={{
-          padding: '12px 16px',
-          margin: 0,
-          fontSize: 13,
-          color: '#475569',
-          borderBottom: '1px solid #e2e8f0',
-        }}
-      >
-        {greeting}
-      </p>
+      <ChatGreeting greeting={greeting} />
 
       <section style={{ flex: 1, overflow: 'hidden' }}>
         {flowId ? (
           <SabFlowChat flowId={flowId} />
         ) : (
-          <div
-            style={{
-              padding: 24,
-              fontSize: 13,
-              color: '#475569',
-              textAlign: 'center',
-            }}
-          >
-            No flow connected to this widget yet.
-          </div>
+          <EmptyFlowFallback />
         )}
       </section>
     </>

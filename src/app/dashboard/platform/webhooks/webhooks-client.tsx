@@ -15,6 +15,7 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
   const { toast } = useZoruToast();
   const router = useRouter();
 
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', url: '', events: '' });
 
   const handleCreate = async () => {
@@ -37,13 +38,17 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure?')) return;
-    try {
-      await deleteWebhook(id);
-      toast({ title: 'Webhook deleted', variant: 'success' });
-      router.refresh();
-    } catch (err) {
-      toast({ title: 'Error deleting webhook', variant: 'destructive' });
-    }
+    setDeletingId(id);
+    startTransition(async () => {
+      try {
+        await deleteWebhook(id);
+        toast({ title: 'Webhook deleted', variant: 'success' });
+        router.refresh();
+      } catch (err) {
+        toast({ title: 'Error deleting webhook', variant: 'destructive' });
+        setDeletingId(null);
+      }
+    });
   };
 
   const filteredData = initialData.filter(d => d.name.toLowerCase().includes(query.toLowerCase()));
@@ -84,8 +89,8 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
                   }}>
                     <Key className="w-4 h-4 text-zoru-ink-light" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
-                    <Trash2 className="w-4 h-4 text-red-500" />
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} disabled={deletingId === item.id}>
+                    {deletingId === item.id ? <LoaderCircle className="w-4 h-4 text-red-500 animate-spin" /> : <Trash2 className="w-4 h-4 text-red-500" />}
                   </Button>
                 </ZoruTableCell>
               </ZoruTableRow>

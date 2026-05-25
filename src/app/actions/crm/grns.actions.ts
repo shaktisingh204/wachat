@@ -564,18 +564,23 @@ export async function getGrnSeedFromPo(poId: string): Promise<GrnSeed | null> {
     // full purchaseOrders crate. The PO doc shape carries `vendorId`,
     // `warehouseId`, and `items[]` with `qty` / `itemId`.
     const mod = await import('@/app/actions/crm-purchase-orders.actions');
-    const po: any = await mod.getPurchaseOrderById(poId);
-    if (!po) return null;
+    const poRaw = await mod.getPurchaseOrderById(poId);
+    if (!poRaw) return null;
+    
+    // Cast to CrmPurchaseOrderDoc from the Rust client for type safety
+    // since the runtime shape often includes `items` instead of legacy `lineItems`.
+    const po = poRaw as unknown as import('@/lib/rust-client/crm-purchase-orders').CrmPurchaseOrderDoc;
+    
     return {
       poId,
       vendorId: po.vendorId ? String(po.vendorId) : undefined,
       warehouseId: po.warehouseId ? String(po.warehouseId) : undefined,
       items: Array.isArray(po.items)
         ? po.items
-            .filter((it: any) => it?.itemId)
-            .map((it: any) => ({
+            .filter((it) => it?.itemId)
+            .map((it) => ({
               itemId: String(it.itemId),
-              orderedQty: Number(it.qty ?? it.orderedQty ?? 0),
+              orderedQty: Number(it.qty ?? (it as any).orderedQty ?? 0),
             }))
         : [],
     };

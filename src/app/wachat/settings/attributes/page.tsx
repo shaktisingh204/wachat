@@ -26,8 +26,6 @@ import { UserAttributesSettingsTab } from '@/components/wabasimplify/user-attrib
 
 import * as React from 'react';
 
-export const dynamic = 'force-dynamic';
-
 export default function AttributesSettingsPage() {
   const router = useRouter();
   const { activeProject, isLoadingProject } = useProject();

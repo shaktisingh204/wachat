@@ -60,48 +60,49 @@ function toIso(v: string | Date | undefined | null): string | null {
   return Number.isNaN(t.getTime()) ? null : t.toISOString();
 }
 
-export default async function PettyCashPage() {
+import React from 'react';
+
+async function PettyCashContent() {
   const session = await getSession();
   let floats: PettyCashRow[] = [];
-  let loadError = false;
 
   if (session?.user?._id) {
-    try {
-      const { db } = await connectToDatabase();
-      const userObjectId = new ObjectId(session.user._id as string);
-      const docs = (await db
-        .collection('crm_petty_cash_floats')
-        .find({ userId: userObjectId } as Record<string, unknown>)
-        .sort({ createdAt: -1 })
-        .limit(200)
-        .toArray()) as unknown as AnyFloat[];
-      floats = docs.map((f, idx) => ({
-        _id: toId(f._id, String(idx)),
-        branchId: toIdMaybe(f.branchId),
-        branchName: f.branchName,
-        custodianId: toIdMaybe(f.custodianId),
-        custodianName: f.custodianName,
-        openingBalance:
-          typeof f.openingBalance === 'number' ? f.openingBalance : undefined,
-        totalTopUps:
-          typeof f.totalTopUps === 'number' ? f.totalTopUps : undefined,
-        totalSpent:
-          typeof f.totalSpent === 'number' ? f.totalSpent : undefined,
-        balance: typeof f.balance === 'number' ? f.balance : undefined,
-        topUpDueAt: toIso(f.topUpDueAt),
-        pendingIous:
-          typeof f.pendingIous === 'number' ? f.pendingIous : undefined,
-        lastReconciledAt: toIso(f.lastReconciledAt),
-        lastToppedUpAt: toIso(f.lastToppedUpAt),
-        status: f.status,
-        createdAt: toIso(f.createdAt),
-      }));
-    } catch (e) {
-      console.error('Failed to load crm_petty_cash_floats:', e);
-      loadError = true;
-    }
+    const { db } = await connectToDatabase();
+    const userObjectId = new ObjectId(session.user._id as string);
+    const docs = (await db
+      .collection('crm_petty_cash_floats')
+      .find({ userId: userObjectId } as Record<string, unknown>)
+      .sort({ createdAt: -1 })
+      .limit(200)
+      .toArray()) as unknown as AnyFloat[];
+    
+    floats = docs.map((f, idx) => ({
+      _id: toId(f._id, String(idx)),
+      branchId: toIdMaybe(f.branchId),
+      branchName: f.branchName,
+      custodianId: toIdMaybe(f.custodianId),
+      custodianName: f.custodianName,
+      openingBalance:
+        typeof f.openingBalance === 'number' ? f.openingBalance : undefined,
+      totalTopUps:
+        typeof f.totalTopUps === 'number' ? f.totalTopUps : undefined,
+      totalSpent:
+        typeof f.totalSpent === 'number' ? f.totalSpent : undefined,
+      balance: typeof f.balance === 'number' ? f.balance : undefined,
+      topUpDueAt: toIso(f.topUpDueAt),
+      pendingIous:
+        typeof f.pendingIous === 'number' ? f.pendingIous : undefined,
+      lastReconciledAt: toIso(f.lastReconciledAt),
+      lastToppedUpAt: toIso(f.lastToppedUpAt),
+      status: f.status,
+      createdAt: toIso(f.createdAt),
+    }));
   }
 
+  return <PettyCashListClient floats={floats} />;
+}
+
+export default function PettyCashPage() {
   return (
     <EntityListShell
       title="Petty Cash"
@@ -114,14 +115,9 @@ export default async function PettyCashPage() {
         </Button>
       }
     >
-
-      {loadError ? (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
-          Could not load petty cash floats. Please try again.
-        </div>
-      ) : null}
-
-      <PettyCashListClient floats={floats} />
+      <React.Suspense fallback={<div className="h-64 w-full animate-pulse bg-zoru-surface-2 rounded-md" />}>
+        <PettyCashContent />
+      </React.Suspense>
     </EntityListShell>
   );
 }

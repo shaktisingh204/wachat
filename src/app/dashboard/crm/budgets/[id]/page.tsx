@@ -1,4 +1,5 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, EmptyState, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/zoruui';
+import { PieChart } from 'lucide-react';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -64,7 +65,7 @@ function fmtMoney(value: unknown): string {
 function fmtDate(value: unknown): string {
   if (!value) return '—';
   const d = new Date(value as string);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-IN', { timeZone: 'UTC' });
 }
 
 function Field({
@@ -240,11 +241,12 @@ export default async function BudgetDetailPage({ params }: PageProps) {
           <ZoruCardTitle>Allocation breakdown</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
-          {/* TODO 1D.2: cost-center allocation table needs a child schema */}
-          <p className="text-[13px] text-zoru-ink-muted">
-            No allocation breakdown yet. Allocation rules are configured per
-            cost center on the edit page.
-          </p>
+          <EmptyState
+            icon={<PieChart />}
+            title="No allocation breakdown"
+            description="Allocation rules are configured per cost center on the edit page."
+            compact
+          />
         </ZoruCardContent>
       </Card>
 
@@ -253,36 +255,36 @@ export default async function BudgetDetailPage({ params }: PageProps) {
           <ZoruCardTitle>Actual vs Planned</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted">
-                <th className="py-2">Metric</th>
-                <th className="py-2 text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b border-zoru-line/40">
-                <td className="py-2 text-zoru-ink-muted">Planned</td>
-                <td className="py-2 text-right font-mono tabular-nums">
+          <Table className="text-[13px]">
+            <TableHeader>
+              <TableRow className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted hover:bg-transparent">
+                <TableHead className="py-2">Metric</TableHead>
+                <TableHead className="py-2 text-right">Amount</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow className="border-b border-zoru-line/40">
+                <TableCell className="py-2 text-zoru-ink-muted">Planned</TableCell>
+                <TableCell className="py-2 text-right font-mono tabular-nums">
                   {fmtMoney(budget.planAmount)}
-                </td>
-              </tr>
-              <tr className="border-b border-zoru-line/40">
-                <td className="py-2 text-zoru-ink-muted">Actual</td>
-                <td className="py-2 text-right font-mono tabular-nums">
+                </TableCell>
+              </TableRow>
+              <TableRow className="border-b border-zoru-line/40">
+                <TableCell className="py-2 text-zoru-ink-muted">Actual</TableCell>
+                <TableCell className="py-2 text-right font-mono tabular-nums">
                   {fmtMoney(budget.actual)}
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 font-medium">Variance</td>
-                <td
+                </TableCell>
+              </TableRow>
+              <TableRow className="border-0">
+                <TableCell className="py-2 font-medium">Variance</TableCell>
+                <TableCell
                   className={`py-2 text-right font-mono font-medium tabular-nums ${overrun ? 'text-zoru-danger-ink' : ''}`}
                 >
                   {fmtMoney(budget.variance)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </ZoruCardContent>
       </Card>
 
@@ -292,32 +294,33 @@ export default async function BudgetDetailPage({ params }: PageProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {actualLog.length === 0 ? (
-            <p className="text-[13px] text-zoru-ink-muted">
-              No actuals posted yet. Use <strong>Record actual</strong> to
-              capture spend against this budget.
-            </p>
+            <EmptyState
+              title="No actuals posted yet"
+              description={<>Use <strong>Record actual</strong> to capture spend against this budget.</>}
+              compact
+            />
           ) : (
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted">
-                  <th className="py-2">Posted at</th>
-                  <th className="py-2 text-right">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table className="text-[13px]">
+              <TableHeader>
+                <TableRow className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted hover:bg-transparent">
+                  <TableHead className="py-2">Posted at</TableHead>
+                  <TableHead className="py-2 text-right">Amount</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {actualLog.map((row, idx) => (
-                  <tr
+                  <TableRow
                     key={row._id ?? `${row.postedAt}-${idx}`}
                     className="border-b border-zoru-line/40 last:border-0"
                   >
-                    <td className="py-2">{fmtDate(row.postedAt)}</td>
-                    <td className="py-2 text-right font-mono tabular-nums">
+                    <TableCell className="py-2">{fmtDate(row.postedAt)}</TableCell>
+                    <TableCell className="py-2 text-right font-mono tabular-nums">
                       {fmtMoney(row.amount)}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           )}
         </ZoruCardContent>
       </Card>

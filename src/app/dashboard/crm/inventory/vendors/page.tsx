@@ -110,8 +110,8 @@ export default function VendorsPage() {
             setVendorTypes(
                 (types ?? [])
                     .map((t) => ({
-                        value: String((t as { name?: string }).name ?? ''),
-                        label: String((t as { name?: string }).name ?? ''),
+                        value: t.name ?? '',
+                        label: t.name ?? '',
                     }))
                     .filter((t) => t.value.length > 0),
             );

@@ -205,8 +205,10 @@ export const wachatFeaturesApi = {
     // ---- messaging: quick-reply categories --------------------------------
     getQuickReplyCategories: (projectId: string) =>
         get<{ categories: any[] }>(`/projects/${enc(projectId)}/quick-reply-categories`),
-    saveQuickReplyCategory: (projectId: string, name: string) =>
-        post<MessageEnvelope>(`/projects/${enc(projectId)}/quick-reply-categories`, { name }),
+    saveQuickReplyCategory: (projectId: string, body: { categoryId?: string; name: string; parentId?: string | null }) =>
+        post<MessageEnvelope>(`/projects/${enc(projectId)}/quick-reply-categories`, body),
+    deleteQuickReplyCategory: (categoryId: string) =>
+        del<OkEnvelope>(`/quick-reply-categories/${enc(categoryId)}`),
 
     // ---- messaging: tags --------------------------------------------------
     getMessageTags: (projectId: string) =>

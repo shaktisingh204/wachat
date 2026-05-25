@@ -37,9 +37,11 @@ interface SeoProjectData {
 
 interface SeoProjectCardProps {
     project: SeoProjectData;
+    onToggleFavorite?: (id: string, isFavorite: boolean) => void;
+    onDelete?: (id: string) => void;
 }
 
-export const SeoProjectCard = React.memo(function SeoProjectCard({ project }: SeoProjectCardProps) {
+export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onToggleFavorite, onDelete }: SeoProjectCardProps) {
     const router = useRouter();
 
     // Handle differences between main Project type and SeoProject type
@@ -93,12 +95,16 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project }: Se
                         onClick={async (e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            try {
-                                const { toggleSeoProjectFavorite } = await import('@/app/actions/seo.actions');
-                                await toggleSeoProjectFavorite(String(project._id), !project.isFavorite);
-                                window.location.reload(); // Simple reload for now, or trigger parent refresh
-                            } catch (e) {
-                                console.error(e);
+                            if (onToggleFavorite) {
+                                onToggleFavorite(String(project._id), !!project.isFavorite);
+                            } else {
+                                try {
+                                    const { toggleSeoProjectFavorite } = await import('@/app/actions/seo.actions');
+                                    await toggleSeoProjectFavorite(String(project._id), !project.isFavorite);
+                                    window.location.reload(); // Fallback if no callback provided
+                                } catch (e) {
+                                    console.error(e);
+                                }
                             }
                         }}
                     >
@@ -118,11 +124,16 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project }: Se
                                 onSelect={async (e) => {
                                     e.preventDefault();
                                     if (!window.confirm(`Delete "${displayName}"? This cannot be undone.`)) return;
-                                    const res = await deleteSeoProject(String(project._id));
-                                    if (res?.error) {
-                                        window.alert(res.error);
+                                    
+                                    if (onDelete) {
+                                        onDelete(String(project._id));
                                     } else {
-                                        window.location.reload();
+                                        const res = await deleteSeoProject(String(project._id));
+                                        if (res?.error) {
+                                            window.alert(res.error);
+                                        } else {
+                                            window.location.reload();
+                                        }
                                     }
                                 }}
                             >

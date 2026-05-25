@@ -331,6 +331,18 @@ export function NumberDetailClient({ detail }: Props) {
           />
         </div>
       </div>
+      
+      {/* Predictive billing alerting */}
+      {detail.projectedUsageCost > 50 && (
+        <Alert variant="default" className="border-amber-200 bg-amber-50/50">
+          <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <ZoruAlertTitle className="text-amber-800">High projected volume cost</ZoruAlertTitle>
+          <ZoruAlertDescription className="text-amber-700">
+            Based on the last 30 days of traffic, this number is projected to incur an additional{" "}
+            <span className="font-semibold">${detail.projectedUsageCost.toFixed(2)}</span> in usage charges this month.
+          </ZoruAlertDescription>
+        </Alert>
+      )}
 
       {/* Compliance + capabilities banner */}
       <Card>
@@ -507,6 +519,66 @@ export function NumberDetailClient({ detail }: Props) {
                   strokeWidth={2}
                   dot={false}
                   name="Revenue"
+                />
+              </ZoruChart.LineChart>
+            </ZoruChartContainer>
+          </ZoruCardContent>
+        </Card>
+      </div>
+
+      {/* Deliverability & Bounces charts */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Deliverability (30d)</ZoruCardTitle>
+            <ZoruCardDescription>Percentage of messages successfully delivered.</ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <ZoruChartContainer height={220}>
+              <ZoruChart.LineChart data={detail.health}>
+                <ZoruChart.CartesianGrid
+                  strokeDasharray="3 3"
+                  className="stroke-zoru-line"
+                />
+                <ZoruChart.XAxis dataKey="date" fontSize={10} />
+                <ZoruChart.YAxis fontSize={10} unit="%" />
+                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
+                <ZoruChart.Line
+                  type="monotone"
+                  dataKey="dlrRate"
+                  stroke={ZORU_CHART_PALETTE[1]}
+                  strokeWidth={2}
+                  dot={false}
+                  name="Deliverability %"
+                />
+              </ZoruChart.LineChart>
+            </ZoruChartContainer>
+          </ZoruCardContent>
+        </Card>
+        <Card>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Bounce Rate (30d)</ZoruCardTitle>
+            <ZoruCardDescription>Percentage of messages that failed to deliver.</ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <ZoruChartContainer height={220}>
+              <ZoruChart.LineChart data={detail.health}>
+                <ZoruChart.CartesianGrid
+                  strokeDasharray="3 3"
+                  className="stroke-zoru-line"
+                />
+                <ZoruChart.XAxis dataKey="date" fontSize={10} />
+                <ZoruChart.YAxis fontSize={10} unit="%" />
+                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
+                <ZoruChart.Line
+                  type="monotone"
+                  dataKey="complaintRate"
+                  stroke={ZORU_CHART_PALETTE[3]}
+                  strokeWidth={2}
+                  dot={false}
+                  name="Bounce Rate %"
                 />
               </ZoruChart.LineChart>
             </ZoruChartContainer>

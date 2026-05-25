@@ -4,7 +4,16 @@ import { notFound } from 'next/navigation';
 import { Card, ZoruCardContent } from '@/components/zoruui';
 import { type DashboardWidget, resolveWidgetData } from '@/app/actions/crm-dashboards.actions';
 import React from 'react';
-import { WidgetRenderer } from '../../_components/widget-renderer';
+import dynamic from 'next/dynamic';
+
+const DashboardGrid = dynamic(() => import('../dashboard-grid').then((mod) => mod.DashboardGrid), {
+    ssr: false,
+    loading: () => (
+        <div className="mt-4 flex h-64 items-center justify-center text-sm text-zoru-ink-muted">
+            Loading public dashboard widgets...
+        </div>
+    ),
+});
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -85,28 +94,7 @@ export default async function PublicDashboardPage({ params }: PageProps) {
                         </ZoruCardContent>
                     </Card>
                 ) : (
-                    <div className="grid grid-cols-12 gap-3">
-                        {widgets.map((w, i) => (
-                            <Card
-                                key={w.id}
-                                className="overflow-hidden p-0"
-                                style={{
-                                    gridColumn: `span ${Math.max(1, Math.min(12, w.w))} / span ${Math.max(
-                                        1,
-                                        Math.min(12, w.w),
-                                    )}`,
-                                    minHeight: `${Math.max(1, Math.min(6, w.h)) * 90}px`,
-                                }}
-                            >
-                                <div className="border-b border-zoru-line px-4 py-2 text-[12.5px] font-medium text-zoru-ink">
-                                    {w.title}
-                                </div>
-                                <div className="h-[calc(100%-33px)] min-h-[80px]">
-                                    <WidgetRenderer widget={w} data={resolved[i]} />
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
+                    <DashboardGrid widgets={widgets} resolvedData={resolved} />
                 )}
             </div>
         </div>

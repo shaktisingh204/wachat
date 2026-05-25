@@ -37,6 +37,7 @@ type Props = {
   thankYouMessage: string;
   consentEnabled: boolean;
   consentText?: string;
+  recaptchaSiteKey?: string;
 };
 
 type FieldValue = string | boolean;
@@ -47,6 +48,7 @@ export function LeadFormClient({
   thankYouMessage,
   consentEnabled,
   consentText,
+  recaptchaSiteKey,
 }: Props) {
   const initial = React.useMemo<Record<string, FieldValue>>(() => {
     const seed: Record<string, FieldValue> = {};
@@ -70,12 +72,33 @@ export function LeadFormClient({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     startTransition(async () => {
-      const result = await submitPublicLead(formId, values);
+      let token: string | undefined;
+      if (recaptchaSiteKey) {
+        // @ts-ignore
+        if (typeof window !== 'undefined' && window.grecaptcha) {
+          // @ts-ignore
+          token = window.grecaptcha.getResponse();
+          if (!token) {
+            setBanner({ kind: 'error', message: 'Please complete the reCAPTCHA.' });
+            return;
+          }
+        } else {
+          setBanner({ kind: 'error', message: 'reCAPTCHA failed to load.' });
+          return;
+        }
+      }
+
+      const result = await submitPublicLead(formId, values, token);
       if (result.success) {
         setSubmitted(true);
         setBanner(null);
       } else {
         setBanner({ kind: 'error', message: result.error });
+        // @ts-ignore
+        if (recaptchaSiteKey && typeof window !== 'undefined' && window.grecaptcha) {
+          // @ts-ignore
+          window.grecaptcha.reset();
+        }
       }
     });
   };
@@ -116,6 +139,10 @@ export function LeadFormClient({
           />
           <span>{consentText || 'I consent to the storage and processing of my data.'}</span>
         </label>
+      ) : null}
+      
+      {recaptchaSiteKey ? (
+        <div className="g-recaptcha" data-sitekey={recaptchaSiteKey}></div>
       ) : null}
 
       <Button type="submit" disabled={pending}>

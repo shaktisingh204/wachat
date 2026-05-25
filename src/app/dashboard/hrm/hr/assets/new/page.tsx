@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 
 /**
@@ -11,7 +12,7 @@ import { AssetForm } from '../_components/asset-form';
 
 export const dynamic = 'force-dynamic';
 
-export default async function NewAssetPage() {
+async function NewAssetPageContainer() {
     const session = await getSession();
     if (!session?.user) redirect('/login');
 
@@ -23,4 +24,12 @@ export default async function NewAssetPage() {
             <AssetForm />
         </EntityListShell>
     );
+}
+
+export default function NewAssetPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewAssetPageContainer  />
+    </Suspense>
+  );
 }

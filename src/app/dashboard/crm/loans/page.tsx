@@ -2,6 +2,7 @@ import { Button } from '@/components/zoruui';
 import { Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import Link from 'next/link';
+import * as React from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
@@ -111,7 +112,9 @@ export default async function LoansPage() {
         </Button>
       }
     >
-      <LoansListClient loans={loans} />
+      <React.Suspense fallback={null}>
+        <LoansListClient loans={loans} />
+      </React.Suspense>
     </EntityListShell>
   );
 }

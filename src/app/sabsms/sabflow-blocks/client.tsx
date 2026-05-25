@@ -25,8 +25,9 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogDescription,
+  Textarea,
 } from "@/components/zoruui";
-import { Sparkles, Copy, Plus, Activity, AlertTriangle, Workflow, Settings, FileCode2 } from "lucide-react";
+import { Sparkles, Copy, Plus, Activity, AlertTriangle, Workflow, Settings, FileCode2, Code, Download, Upload } from "lucide-react";
 import { MOCK_BLOCKS, MOCK_TEMPLATES, type SabflowBlock, type SabflowTemplate } from "./mock-data";
 
 export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
@@ -38,9 +39,71 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
   const [selectedBlock, setSelectedBlock] = React.useState<SabflowBlock | null>(null);
   const [selectedTemplate, setSelectedTemplate] = React.useState<SabflowTemplate | null>(null);
 
+  const [viewMode, setViewMode] = React.useState<"local" | "marketplace">("local");
+  const [isFlowBuilderOpen, setIsFlowBuilderOpen] = React.useState(false);
+  
+  const [flowJson, setFlowJson] = React.useState('{\n  "nodes": [\n    {"id": "Trigger1", "next": ["Action1"]},\n    {"id": "Action1", "next": ["Action2"]},\n    {"id": "Action2", "next": ["Action1"]}\n  ]\n}');
+  const [analysis, setAnalysis] = React.useState<{ valid: boolean; message: string; cycles?: string[][] } | null>(null);
+
+  const analyzeFlow = () => {
+    try {
+      const data = JSON.parse(flowJson);
+      if (!data.nodes || !Array.isArray(data.nodes)) {
+        throw new Error("Invalid format. Must have a 'nodes' array.");
+      }
+
+      // Build graph
+      const adjList: Record<string, string[]> = {};
+      data.nodes.forEach((n: any) => {
+        adjList[n.id] = n.next || [];
+      });
+
+      // DFS cycle detection
+      const visited = new Set<string>();
+      const recStack = new Set<string>();
+      const cycles: string[][] = [];
+      const path: string[] = [];
+
+      const dfs = (node: string) => {
+        visited.add(node);
+        recStack.add(node);
+        path.push(node);
+
+        const neighbors = adjList[node] || [];
+        for (const neighbor of neighbors) {
+          if (!visited.has(neighbor)) {
+            dfs(neighbor);
+          } else if (recStack.has(neighbor)) {
+            const cycleStart = path.indexOf(neighbor);
+            if (cycleStart !== -1) {
+              cycles.push([...path.slice(cycleStart), neighbor]);
+            }
+          }
+        }
+
+        recStack.delete(node);
+        path.pop();
+      };
+
+      for (const node of Object.keys(adjList)) {
+        if (!visited.has(node)) {
+          dfs(node);
+        }
+      }
+
+      if (cycles.length > 0) {
+        setAnalysis({ valid: false, message: "Infinite loop detected! Please fix before saving.", cycles });
+      } else {
+        setAnalysis({ valid: true, message: "Flow is valid. No infinite loops detected." });
+      }
+    } catch (e: any) {
+      setAnalysis({ valid: false, message: `Parse error: ${e.message}` });
+    }
+  };
+
   // Filter blocks
   const filteredBlocks = React.useMemo(() => {
-    let result = MOCK_BLOCKS;
+    let result = MOCK_BLOCKS.filter(b => viewMode === "marketplace" ? b.isMarketplace : !b.isMarketplace);
     if (urlState.search) {
       const q = urlState.search.toLowerCase();
       result = result.filter(
@@ -101,6 +164,16 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
       ),
       align: "right",
     },
+    ...(viewMode === "marketplace" ? [{
+      id: "downloads",
+      header: "Downloads",
+      render: (b: SabflowBlock) => (
+        <span className="text-sm text-slate-600 flex items-center gap-1">
+          <Download className="h-3 w-3" /> {b.downloads || 0}
+        </span>
+      ),
+      align: "right" as const,
+    }] : []),
     {
       id: "usage",
       header: "Usage",
@@ -147,8 +220,13 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
       description="Reference for all SabSMS triggers and actions available in the SabFlow visual builder."
       breadcrumbs={[{ label: "Developer", href: "/sabsms/api-docs" }, { label: "SabFlow Blocks" }]}
       helpTitle="What are SabFlow blocks?"
-      helpBody="Blocks are the atomic units of SabFlow. Triggers start a flow, and actions perform tasks like sending SMS or checking compliance."
+      helpBody="Blocks are the atomic units of SabFlow. Triggers start a flow, and actions perform tasks like sending SMS or checking compliance. Use the static analyzer to detect infinite loops in your block configurations."
       secondaryActions={[
+        {
+          label: "Analyze Configuration",
+          icon: <Code className="h-4 w-4" />,
+          onClick: () => setIsFlowBuilderOpen(true),
+        },
         {
           label: "AI: Pick blocks for me",
           icon: <Sparkles className="h-4 w-4" />,
@@ -156,14 +234,32 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
         }
       ]}
       toolbar={
-        <SabsmsFilterBar
-          searchPlaceholder="Search blocks..."
-          search={urlState.search}
-          onSearchChange={urlState.setSearch}
-          facets={facets}
-          activeFacets={urlState.facets}
-          onFacetChange={urlState.setFacet}
-        />
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div className="flex bg-slate-100 p-1 rounded-md">
+            <button
+              onClick={() => setViewMode("local")}
+              className={`px-3 py-1.5 text-sm font-medium rounded ${viewMode === "local" ? "bg-white shadow-sm text-slate-900" : "text-slate-600 hover:text-slate-900"}`}
+            >
+              My Workspace
+            </button>
+            <button
+              onClick={() => setViewMode("marketplace")}
+              className={`px-3 py-1.5 text-sm font-medium rounded ${viewMode === "marketplace" ? "bg-white shadow-sm text-slate-900" : "text-slate-600 hover:text-slate-900"}`}
+            >
+              Marketplace
+            </button>
+          </div>
+          <div className="flex-1 w-full">
+            <SabsmsFilterBar
+              searchPlaceholder="Search blocks..."
+              search={urlState.search}
+              onSearchChange={urlState.setSearch}
+              facets={facets}
+              activeFacets={urlState.facets}
+              onFacetChange={urlState.setFacet}
+            />
+          </div>
+        </div>
       }
     >
       <div className="space-y-8">
@@ -172,16 +268,27 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
           columns={columns}
           rowKey={(b) => b.id}
           onRowClick={setSelectedBlock}
-          rowActions={[
+          rowActions={viewMode === "local" ? [
             {
               label: "Add to SabFlow",
               icon: <Plus className="h-4 w-4" />,
               onSelect: (b) => alert(`Deep-linking to add ${b.name} to flow...`),
             },
             {
+              label: "Publish to Marketplace",
+              icon: <Upload className="h-4 w-4" />,
+              onSelect: (b) => alert(`Publishing ${b.name} to marketplace...`),
+            },
+            {
               label: "Change Icon (Admin)",
               icon: <Settings className="h-4 w-4" />,
               onSelect: (b) => alert(`Opening icon picker for ${b.id}...`),
+            }
+          ] : [
+            {
+              label: "Install Block",
+              icon: <Download className="h-4 w-4" />,
+              onSelect: (b) => alert(`Installing ${b.name} to your workspace...`),
             }
           ]}
           page={urlState.page}
@@ -223,11 +330,17 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
         description={`Block ID: ${selectedBlock?.id}`}
         open={!!selectedBlock}
         onOpenChange={(open) => !open && setSelectedBlock(null)}
-        actions={[
-          <Button key="add" size="sm" onClick={() => alert("Added to flow")}>
-            <Plus className="mr-2 h-4 w-4" /> Add to SabFlow
-          </Button>
-        ]}
+        actions={
+          viewMode === "local" ? [
+            <Button key="add" size="sm" onClick={() => alert("Added to flow")}>
+              <Plus className="mr-2 h-4 w-4" /> Add to SabFlow
+            </Button>
+          ] : [
+            <Button key="install" size="sm" onClick={() => alert("Installing block")}>
+              <Download className="mr-2 h-4 w-4" /> Install to Workspace
+            </Button>
+          ]
+        }
       >
         {selectedBlock && (
           <div className="space-y-6">
@@ -326,6 +439,42 @@ export function SabflowBlocksClient({ workspaceId }: { workspaceId: string }) {
               </div>
             </div>
           )}
+        </ZoruDialogContent>
+      </Dialog>
+
+      <Dialog open={isFlowBuilderOpen} onOpenChange={setIsFlowBuilderOpen}>
+        <ZoruDialogContent className="max-w-2xl">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Block Configuration Static Analyzer</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Test your flow configuration logic for infinite loops before deploying.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="space-y-4">
+            <Textarea
+              value={flowJson}
+              onChange={(e) => setFlowJson(e.target.value)}
+              className="font-mono text-sm h-48 bg-slate-50 border-slate-200"
+              placeholder="Enter JSON block configuration..."
+            />
+            <Button onClick={analyzeFlow} className="w-full">
+              <Code className="mr-2 h-4 w-4" /> Analyze Logic
+            </Button>
+            
+            {analysis && (
+              <div className={`p-4 rounded-md border ${analysis.valid ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'}`}>
+                <div className="font-semibold flex items-center gap-2">
+                  {!analysis.valid && <AlertTriangle className="h-4 w-4" />}
+                  {analysis.message}
+                </div>
+                {analysis.cycles && analysis.cycles.length > 0 && (
+                  <div className="mt-2 text-sm bg-white/50 p-2 rounded">
+                    <strong>Cycle Path:</strong> {analysis.cycles.map(c => c.join(" → ")).join(" | ")}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </ZoruDialogContent>
       </Dialog>
     </SabsmsPageShell>

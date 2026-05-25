@@ -20,6 +20,7 @@ import {
   ZoruAvatarImage,
   ZoruAvatarFallback,
   Separator,
+  Switch,
 } from '@/components/zoruui';
 import {
   useState,
@@ -28,7 +29,7 @@ import {
   useEffect } from 'react';
 import type { WithId,
   Project } from '@/lib/definitions';
-import { Code, Save, LoaderCircle, Palette, Text, MessageSquare, Code2 } from 'lucide-react';
+import { Code, Save, LoaderCircle, Palette, Text, MessageSquare, Code2, Settings, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { WhatsAppIcon } from './custom-sidebar-components';
 import { CodeBlock } from './code-block';
@@ -92,10 +93,31 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
         setSettings(prev => ({ ...prev, [field]: value }));
     }
 
+    // --- Advanced Settings (Local State for Embed Code only) ---
+    const [advancedSettings, setAdvancedSettings] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem(`widget_adv_${project._id}`);
+            if (saved) return JSON.parse(saved);
+        }
+        return { autoOpenDelay: 0, abTestEnabled: false, styleVariant: 'classic' };
+    });
+
+    useEffect(() => {
+        localStorage.setItem(`widget_adv_${project._id}`, JSON.stringify(advancedSettings));
+    }, [advancedSettings, project._id]);
+
+    const handleAdvancedSettingChange = (field: keyof typeof advancedSettings, value: string | number | boolean) => {
+        setAdvancedSettings((prev: any) => ({ ...prev, [field]: value }));
+    }
+
     const embedCode = useMemo(() => {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
-        return `<script src="${appUrl}/api/widget/${project._id.toString()}" async defer></script>`;
-    }, [project._id]);
+        let attrs = "";
+        if (advancedSettings.autoOpenDelay > 0) attrs += ` data-auto-open="${advancedSettings.autoOpenDelay}"`;
+        if (advancedSettings.abTestEnabled) attrs += ` data-ab-test="true"`;
+        if (advancedSettings.styleVariant && advancedSettings.styleVariant !== 'classic') attrs += ` data-style="${advancedSettings.styleVariant}"`;
+        return `<script src="${appUrl}/api/widget/${project._id.toString()}"${attrs} async defer></script>`;
+    }, [project._id, advancedSettings]);
 
     return (
         <Card className="card-gradient card-gradient-blue">
@@ -165,25 +187,69 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                     </div>
                                 </ZoruCardContent>
                             </Card>
+                            <Card>
+                                <ZoruCardHeader><ZoruCardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" />Behavior & Testing</ZoruCardTitle></ZoruCardHeader>
+                                <ZoruCardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Auto-Open Delay (seconds)</Label>
+                                        <Input type="number" min="0" value={advancedSettings.autoOpenDelay} onChange={e => handleAdvancedSettingChange('autoOpenDelay', parseInt(e.target.value) || 0)} placeholder="0 for disabled" />
+                                        <p className="text-xs text-muted-foreground">Set to 0 to disable auto-open. (e.g. 5 means open after 5 seconds)</p>
+                                    </div>
+                                    <Separator />
+                                    <div className="space-y-2 flex items-center justify-between">
+                                        <div>
+                                            <Label>A/B Test Variants</Label>
+                                            <p className="text-xs text-muted-foreground">Test classic vs alternative widget styles on your site</p>
+                                        </div>
+                                        <Switch checked={advancedSettings.abTestEnabled} onCheckedChange={v => handleAdvancedSettingChange('abTestEnabled', v)} />
+                                    </div>
+                                    {advancedSettings.abTestEnabled && (
+                                        <div className="space-y-2">
+                                            <Label>Style Variant to Preview</Label>
+                                            <Select value={advancedSettings.styleVariant} onValueChange={(v) => handleAdvancedSettingChange('styleVariant', v)}>
+                                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                                                <ZoruSelectContent>
+                                                    <ZoruSelectItem value="classic">Classic</ZoruSelectItem>
+                                                    <ZoruSelectItem value="modern">Modern (Floating Box)</ZoruSelectItem>
+                                                </ZoruSelectContent>
+                                            </Select>
+                                        </div>
+                                    )}
+                                </ZoruCardContent>
+                            </Card>
                         </div>
                         {/* Preview and Code Panel */}
                         <div className="space-y-4">
                             <Label>Live Preview</Label>
-                            <div className="relative h-[500px] bg-muted rounded-lg overflow-hidden flex items-end" style={{ [settings.position.includes('right') ? 'justifyContent' : '']: settings.position.includes('right') ? 'flex-end' : 'flex-start', padding: '20px' }}>
-                                <div id="sabnode-widget-container-preview" className="static">
-                                    <Button
-                                        id="sabnode-widget-button-preview"
-                                        style={{ backgroundColor: settings.buttonColor }}
-                                        onClick={() => {
-                                            setShowWidget(!showWidget);
-                                            toast({ title: 'Widget Saved', description: 'Widget is saved' });
-                                        }}
-                                        className="relative h-16 w-16"
-                                    >
-                                        <WhatsAppIcon className="h-8 w-8" style={{ color: settings.buttonTextColor }} />
-                                    </Button>
+                            <div className="relative h-[500px] bg-white rounded-lg overflow-hidden border">
+                                {/* Dummy Webpage Background */}
+                                <div className="absolute inset-0 pointer-events-none opacity-50 flex flex-col">
+                                    <div className="h-12 border-b flex items-center px-6 gap-4 bg-gray-50">
+                                        <div className="h-4 w-24 bg-gray-300 rounded-md"></div>
+                                        <div className="ml-auto flex gap-4">
+                                            <div className="h-2 w-12 bg-gray-200 rounded"></div>
+                                            <div className="h-2 w-12 bg-gray-200 rounded"></div>
+                                            <div className="h-2 w-12 bg-gray-200 rounded"></div>
+                                        </div>
+                                    </div>
+                                    <div className="p-8 space-y-6 flex-1 overflow-hidden">
+                                        <div className="space-y-3 max-w-lg">
+                                            <div className="h-8 w-3/4 bg-gray-300 rounded-md"></div>
+                                            <div className="h-4 w-full bg-gray-200 rounded-sm"></div>
+                                            <div className="h-4 w-5/6 bg-gray-200 rounded-sm"></div>
+                                            <div className="h-4 w-4/6 bg-gray-200 rounded-sm"></div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4 max-w-lg mt-8">
+                                            <div className="h-32 bg-gray-100 rounded-lg"></div>
+                                            <div className="h-32 bg-gray-100 rounded-lg"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* Widget Container */}
+                                <div className="absolute inset-0 flex items-end pointer-events-none" style={{ [settings.position.includes('right') ? 'justifyContent' : '']: settings.position.includes('right') ? 'flex-end' : 'flex-start', padding: '20px' }}>
+                                <div id="sabnode-widget-container-preview" className="relative pointer-events-auto">
                                     {showWidget && (
-                                        <div id="sabnode-widget-chatbox-preview" className="absolute" style={{ bottom: '96px', right: '0', width: '350px', backgroundColor: 'white', borderRadius: `${settings.borderRadius}px`, overflow: 'hidden', boxShadow: '0 5px 20px rgba(0,0,0,0.2)' }}>
+                                        <div id="sabnode-widget-chatbox-preview" className="absolute" style={{ bottom: advancedSettings.styleVariant === 'modern' ? '80px' : '96px', right: advancedSettings.styleVariant === 'modern' ? '-10px' : '0', width: advancedSettings.styleVariant === 'modern' ? '320px' : '350px', backgroundColor: 'white', borderRadius: `${settings.borderRadius}px`, overflow: 'hidden', boxShadow: advancedSettings.styleVariant === 'modern' ? '0 10px 25px rgba(0,0,0,0.1)' : '0 5px 20px rgba(0,0,0,0.2)' }}>
                                             <div className="sabnode-chat-header" style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor, padding: `${settings.padding}px`, display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                 <Avatar className="w-10 h-10">
                                                     {settings.headerAvatarUrl && <ZoruAvatarImage src={settings.headerAvatarUrl} />}
@@ -191,14 +257,14 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                                 </Avatar>
                                                 <div><div className="title font-bold">{settings.headerTitle}</div><div className="subtitle text-xs opacity-90">{settings.headerSubtitle}</div></div>
                                             </div>
-                                            <div className="sabnode-chat-body" style={{ padding: `${settings.padding}px`, backgroundColor: '#E5DDD5' }}>
+                                            <div className="sabnode-chat-body" style={{ padding: `${settings.padding}px`, backgroundColor: advancedSettings.styleVariant === 'modern' ? '#f3f4f6' : '#E5DDD5' }}>
                                                 <div className="sabnode-welcome-msg" style={{ background: 'white', color: settings.textColor, padding: '12px', borderRadius: '8px', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>{settings.welcomeMessage}</div>
                                             </div>
-                                            <div className="sabnode-chat-footer" style={{ padding: `${settings.padding}px`, background: '#f9f9f9', borderTop: '1px solid #eee' }}>
+                                            <div className="sabnode-chat-footer" style={{ padding: `${settings.padding}px`, background: 'white', borderTop: '1px solid #eee' }}>
                                                 <Button
-                                                    className="sabnode-cta-button w-full h-12 rounded-full"
-                                                    style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor }}
-                                                    onClick={() => toast({ title: 'Widget Saved', description: 'Widget is saved' })}
+                                                    className="sabnode-cta-button w-full h-12"
+                                                    style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor, borderRadius: advancedSettings.styleVariant === 'modern' ? '8px' : '9999px' }}
+                                                    onClick={() => toast({ title: 'Widget Clicked', description: 'Action recorded' })}
                                                 >
                                                     <WhatsAppIcon className="h-4 w-4 mr-2" />
                                                     {settings.ctaText}
@@ -206,6 +272,15 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                             </div>
                                         </div>
                                     )}
+                                    <Button
+                                        id="sabnode-widget-button-preview"
+                                        style={{ backgroundColor: settings.buttonColor, borderRadius: advancedSettings.styleVariant === 'modern' ? '16px' : '9999px' }}
+                                        onClick={() => setShowWidget(!showWidget)}
+                                        className={`relative ${advancedSettings.styleVariant === 'modern' ? 'h-14 w-14' : 'h-16 w-16'} shadow-lg`}
+                                    >
+                                        <WhatsAppIcon className={advancedSettings.styleVariant === 'modern' ? 'h-6 w-6' : 'h-8 w-8'} style={{ color: settings.buttonTextColor }} />
+                                    </Button>
+                                </div>
                                 </div>
                             </div>
                             <div className="space-y-2">

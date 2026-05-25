@@ -1,26 +1,7 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import {
-  notFound } from 'next/navigation';
-import { ArrowLeft,
-  ClipboardList } from 'lucide-react';
-
-/**
- * Vendor Bid detail — `/dashboard/crm/purchases/vendor-bids/[id]`
- * (P1.1B Wave 3 — Purchases rebuild · §1D.2).
- *
- * Server component. Lifted onto the canonical `<EntityDetailShell>` so
- * the header / body / right-rail / audit-footer composition matches the
- * Invoices template.
- *
- * Header: back link + eyebrow + status pill + action group
- * (Edit · Accept · Reject · Counter-offer · Convert to PO · Print ·
- * Archive · Activity — see <VendorBidDetailActions>).
- * Body: overview, line items, pricing summary, terms, attachments.
- * Right rail: status-flow visualizer (submitted → shortlisted →
- * awarded) · at-a-glance dates · LineageRail (RFQ → bid).
- * Audit footer: <EntityAuditTimeline entityKind="vendorBid">.
- */
-
+import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/zoruui';
+import { notFound } from 'next/navigation';
+import { ArrowLeft, ClipboardList } from 'lucide-react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
@@ -29,6 +10,8 @@ import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { LineageRail } from '@/components/crm/lineage-rail';
 import { statusToTone } from '@/components/crm/status-pill';
 import { getVendorBid } from '@/app/actions/crm/vendor-bids.actions';
+import { fmtINR, fmtDate } from '@/lib/utils';
+import PurchasesLoading from '../../loading';
 
 import { VendorBidDetailActions } from '../_components/vendor-bid-detail-actions';
 
@@ -36,27 +19,6 @@ export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{ id: string }>;
-}
-
-/* ─── Helpers (module-level hoist) ────────────────────────────────── */
-
-function fmtMoney(value?: number | null, currency = 'INR'): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 2,
-    }).format(value);
-  } catch {
-    return `${currency} ${value}`;
-  }
-}
-
-function fmtDate(v?: string | Date | null): string {
-  if (!v) return '—';
-  const d = v instanceof Date ? v : new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
 const STATUS_FLOW = ['submitted', 'shortlisted', 'awarded'] as const;
@@ -191,7 +153,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-zoru-ink-muted">Total</span>
                   <span className="font-mono tabular-nums">
-                    {fmtMoney(totals.total, currency)}
+                    {fmtINR(totals.total, currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
@@ -226,10 +188,14 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
           </Button>
         </>
       }
-      audit={<EntityAuditTimeline entityKind="vendorBid" entityId={bidId} />}
+      audit={
+        <Suspense fallback={<Skeleton className="h-48 w-full rounded-xl" />}>
+          <EntityAuditTimeline entityKind="vendorBid" entityId={bidId} />
+        </Suspense>
+      }
     >
       <p className="text-[12.5px] text-zoru-ink-muted">
-        {fmtMoney(totals.total, currency)}
+        {fmtINR(totals.total, currency)}
       </p>
 
       {/* Overview */}
@@ -321,7 +287,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
                         </td>
                         <td className="p-2 text-right tabular-nums">{qty}</td>
                         <td className="p-2 text-right tabular-nums">
-                          {fmtMoney(rate, currency)}
+                          {fmtINR(rate, currency)}
                         </td>
                         <td className="p-2 text-right tabular-nums text-zoru-ink-muted">
                           {typeof it.leadTimeDays === 'number'
@@ -332,7 +298,7 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
                           {it.notes || '—'}
                         </td>
                         <td className="p-2 text-right font-medium tabular-nums">
-                          {fmtMoney(total, currency)}
+                          {fmtINR(total, currency)}
                         </td>
                       </tr>
                     );
@@ -354,13 +320,13 @@ export default async function VendorBidDetailPage({ params }: PageProps) {
             <div className="flex justify-between md:col-start-2">
               <span className="text-zoru-ink-muted">Sub-total</span>
               <span className="font-mono tabular-nums text-zoru-ink">
-                {fmtMoney(totals.subTotal, currency)}
+                {fmtINR(totals.subTotal, currency)}
               </span>
             </div>
             <div className="flex justify-between border-t border-zoru-line pt-2 md:col-start-2">
               <span className="font-medium text-zoru-ink">Total</span>
               <span className="font-medium font-mono tabular-nums text-zoru-ink">
-                {fmtMoney(totals.total, currency)}
+                {fmtINR(totals.total, currency)}
               </span>
             </div>
           </dl>

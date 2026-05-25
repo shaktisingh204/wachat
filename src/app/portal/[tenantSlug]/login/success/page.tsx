@@ -1,3 +1,4 @@
+import React from "react";
 /**
  * Magic-link request acknowledgement. Intentionally generic — we never
  * confirm whether an account exists for the supplied email (anti
@@ -5,7 +6,7 @@
  */
 
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { SuccessClient } from './success-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,48 +19,30 @@ interface PageProps {
     params: Promise<{ tenantSlug: string }>;
 }
 
-export default async function PortalLoginSuccessPage({ params }: PageProps) {
+async function PortalLoginSuccessPageContent({ params }: PageProps) {
     const { tenantSlug } = await params;
+    
     return (
-        <main
-            style={{
-                minHeight: '100vh',
-                background: '#f9fafb',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 24,
-                fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif',
-            }}
-        >
-            <section
-                style={{
-                    width: '100%',
-                    maxWidth: 420,
-                    background: 'white',
-                    borderRadius: 16,
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.04)',
-                    padding: 32,
-                    textAlign: 'center',
-                }}
-            >
-                <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0f172a', margin: 0 }}>
+        <main className="flex min-h-screen items-center justify-center bg-gray-50 p-6 font-sans">
+            <section className="w-full max-w-[420px] rounded-2xl bg-white p-8 text-center shadow-[0_1px_3px_rgba(0,0,0,0.08),0_8px_24px_rgba(0,0,0,0.04)]">
+                <h1 className="m-0 text-[22px] font-bold text-slate-900">
                     Check your email
                 </h1>
-                <p style={{ fontSize: 14, color: '#475569', marginTop: 12 }}>
+                <p className="mt-3 text-sm text-slate-600">
                     If your address is on file, we&apos;ve sent you a sign-in link. It will
                     expire in 15 minutes and can only be used once.
                 </p>
-                <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 24 }}>
-                    Didn&apos;t get it?{' '}
-                    <Link
-                        href={`/portal/${encodeURIComponent(tenantSlug)}/login`}
-                        style={{ color: '#0f172a', fontWeight: 600 }}
-                    >
-                        Request a new link
-                    </Link>
-                </p>
+                <SuccessClient tenantSlug={tenantSlug} />
             </section>
         </main>
     );
+}
+
+
+export default function PortalLoginSuccessPage({ params }: PageProps) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <PortalLoginSuccessPageContent params={params} />
+    </React.Suspense>
+  );
 }

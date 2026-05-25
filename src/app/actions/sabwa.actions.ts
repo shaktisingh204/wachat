@@ -38,6 +38,7 @@ import type {
   SabwaSessionStatus,
   SabwaTemplate,
   SabwaWebhookEvent,
+  SabwaDeviceMeta,
 } from '@/lib/sabwa/types';
 import { engineFetch, SabwaEngineError } from '@/lib/sabwa/engine-client';
 import { getSession } from '@/app/actions/user.actions';
@@ -194,6 +195,7 @@ export interface SabwaScheduledDraft {
   timezone: string;
   targets: SabwaScheduled['targets'];
   payload: SabwaScheduledPayload;
+  status?: SabwaScheduledStatus;
 }
 
 export interface SabwaBulkCampaignDraft {
@@ -1568,6 +1570,22 @@ export async function listTemplates(
 }
 
 /** Create or update a message template. */
+export async function syncTemplates(
+  sessionId: IdLike,
+): Promise<SabwaActionResult<{ synced: number }>> {
+  try {
+    const data = await engineFetch<{ synced: number }>(`/v1/templates/sync`, {
+      method: 'POST',
+      json: { sessionId: String(sessionId) },
+    });
+    return { ok: true, synced: data.synced };
+  } catch (err) {
+    if (err instanceof SabwaEngineError) return { ok: false, error: err.message };
+    return { ok: false, error: 'Failed to sync templates' };
+  }
+}
+
+/** Upsert a message template. */
 export async function upsertTemplate(
   args: UpsertTemplateArgs,
 ): Promise<SabwaActionResult<{ templateId: string }>> {
@@ -2469,6 +2487,7 @@ export interface SabwaProfile {
   phoneE164?: string;
   status?: SabwaSessionStatus;
   lastConnectedAt?: string;
+  deviceMeta?: SabwaDeviceMeta;
 }
 
 /** Fetch the WhatsApp profile (push name / about / picture) for a session. */
@@ -2588,6 +2607,31 @@ export async function setWarmupEnabled(
   }
 }
 
+export interface SabwaRateLimitSettings {
+  profile: SabwaRateLimitProfile;
+  warmupEnabled: boolean;
+  dailyResetTimezone: string;
+  overrides: Record<string, number>;
+  sessionAgeDays?: number;
+}
+
+export async function getRateLimitProfile(
+  sessionId: IdLike,
+): Promise<SabwaActionResult<{ settings: SabwaRateLimitSettings }>> {
+  const sid = idStr(sessionId);
+  if (!sid) return { ok: false, error: 'sessionId is required.' };
+  const auth = await requireAuth();
+  if (!auth.ok) return auth;
+  try {
+    const res = await engineGet<{ settings: SabwaRateLimitSettings }>(
+      `/v1/sessions/${encodeURIComponent(sid)}/rate-limits`,
+    );
+    return { ok: true, settings: res.settings };
+  } catch (err) {
+    return engineFailure('getRateLimitProfile', err);
+  }
+}
+
 // ─── Privacy & security ────────────────────────────────────────────────────
 
 export type SabwaVisibility = 'everyone' | 'contacts' | 'nobody';
@@ -2600,6 +2644,7 @@ export interface SabwaPrivacySettings {
   profilePicVisibility: SabwaVisibility;
   statusVisibility: SabwaVisibility;
   blocked: Array<{ jid: string; name?: string; blockedAt?: string }>;
+  disappearingTimer?: number;
 }
 
 /** Fetch privacy & security settings for a session. */
@@ -2685,6 +2730,11 @@ export interface SabwaNotificationPrefs {
   push: { enabled: boolean };
   incomingSound: string;
   muteSchedules: SabwaMuteWindow[];
+  events?: {
+    groupMentions: boolean;
+    directMessages: boolean;
+    systemAlerts: boolean;
+  };
 }
 
 /** Fetch notification preferences for a SabWa project. */
@@ -2975,3 +3025,61 @@ export async function getStreamToken(
   }
 }
 
+
+// ─── STATUSES ───────────────────────────────────────────────────────────────
+
+export async function listMyStatuses(sessionId: IdLike): Promise<SabwaActionResult<any[]>> {
+  try {
+    const { auth } = await import('@/lib/crm-auth');
+    const user = await auth();
+    if (!user) throw new Error('Unauthorized');
+
+    const { connectToDatabase } = await import('@/lib/mongodb');
+    const { db } = await connectToDatabase();
+    
+    const sid = typeof sessionId === 'string' ? new (require('mongodb').ObjectId)(sessionId) : sessionId;
+    
+    const statuses = await db.collection('sabwa_statuses').find({
+      projectId: user.projectId,
+      sessionId: sid,
+    }).sort({ ts: -1 }).toArray();
+
+    return { ok: true, data: JSON.parse(JSON.stringify(statuses)) };
+  } catch (err: any) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function postMyStatus(sessionId: IdLike, data: any): Promise<SabwaActionResult<any>> {
+  try {
+    const { auth } = await import('@/lib/crm-auth');
+    const user = await auth();
+    if (!user) throw new Error('Unauthorized');
+
+    const { connectToDatabase } = await import('@/lib/mongodb');
+    const { db } = await connectToDatabase();
+    
+    const sid = typeof sessionId === 'string' ? new (require('mongodb').ObjectId)(sessionId) : sessionId;
+
+    const doc = {
+      projectId: user.projectId,
+      sessionId: sid,
+      kind: data.kind,
+      body: data.body,
+      bgColour: data.bgColour,
+      mediaUrl: data.mediaUrl,
+      mediaName: data.mediaName,
+      audience: data.audience,
+      viewers: [],
+      reposters: [],
+      ts: new Date(),
+    };
+
+    const res = await db.collection('sabwa_statuses').insertOne(doc);
+    const newDoc = { ...doc, _id: res.insertedId };
+    
+    return { ok: true, data: JSON.parse(JSON.stringify(newDoc)) };
+  } catch (err: any) {
+    return { ok: false, error: err.message };
+  }
+}

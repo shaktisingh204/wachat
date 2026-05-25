@@ -19,6 +19,7 @@ import {
   Lightbulb } from 'lucide-react';
 
 import Link from 'next/link';
+import { Blocks } from 'lucide-react';
 
 const commonPatterns = [
   {
@@ -50,6 +51,38 @@ const commonPatterns = [
       'Use `CheckboxGroup` for multiple-choice questions.',
       'Add a `TextInput` for open-ended comments or suggestions.',
       'The final button submits the survey data.',
+    ],
+  },
+];
+
+const availableComponents = [
+  {
+    category: 'Text & Layout',
+    items: [
+      { name: 'TextHeading', description: 'Large, prominent text for screen titles.' },
+      { name: 'TextSubheading', description: 'Medium text for section headings.' },
+      { name: 'TextBody', description: 'Standard text for descriptions and instructions.' },
+      { name: 'TextCaption', description: 'Small text for hints or disclaimers.' },
+    ],
+  },
+  {
+    category: 'Form Inputs',
+    items: [
+      { name: 'TextInput', description: 'Single-line text field (supports text, email, phone, number).' },
+      { name: 'TextArea', description: 'Multi-line text input for longer responses.' },
+      { name: 'DatePicker', description: 'Interactive calendar widget for selecting dates.' },
+      { name: 'Dropdown', description: 'Collapsible list for selecting one option from many.' },
+      { name: 'RadioButtons', description: 'List of options where only one can be selected.' },
+      { name: 'CheckboxGroup', description: 'List of options where multiple can be selected.' },
+      { name: 'OptIn', description: 'Checkbox specialized for consent or terms agreement.' },
+    ],
+  },
+  {
+    category: 'Media & Advanced',
+    items: [
+      { name: 'Image', description: 'Static image display within the flow.' },
+      { name: 'PhotoPicker', description: 'Allows users to capture or select and upload images.' },
+      { name: 'DocumentPicker', description: 'Allows users to upload documents (PDFs, etc).' },
     ],
   },
 ];
@@ -128,6 +161,35 @@ export default function FlowsUserGuidePage() {
                   <li key={index}>{step}</li>
                 ))}
               </ol>
+            </ZoruCardContent>
+          </Card>
+        ))}
+      </div>
+      <Separator />
+
+      <div>
+        <h2 className="text-2xl text-zoru-ink flex items-center gap-2">
+          <Blocks className="h-6 w-6 text-zoru-brand" />
+          Available flow components
+        </h2>
+        <p className="mt-1 text-zoru-ink-muted">
+          These are the official building blocks available in the Meta Flows API. Combine them to build rich user experiences.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {availableComponents.map((category) => (
+          <Card key={category.category} className="flex flex-col">
+            <ZoruCardHeader>
+              <ZoruCardTitle>{category.category}</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent className="flex-grow space-y-4">
+              {category.items.map((item) => (
+                <div key={item.name} className="flex flex-col">
+                  <span className="font-medium text-zoru-ink text-sm font-mono bg-zoru-surface-hover w-fit px-1.5 py-0.5 rounded-[var(--zoru-radius)]">{item.name}</span>
+                  <span className="text-sm text-zoru-ink-muted mt-1">{item.description}</span>
+                </div>
+              ))}
             </ZoruCardContent>
           </Card>
         ))}

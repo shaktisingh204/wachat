@@ -226,10 +226,7 @@ export default function SelectProjectPage() {
   } = useProject();
   const [, startHealthTransition] = useTransition();
 
-  const projects = useMemo(
-    () => allProjects.filter((p) => !!p.wabaId),
-    [allProjects],
-  );
+  const projects = allProjects;
 
   const [search, setSearch] = useState(searchParams.get('query') || '');
   const [page, setPage] = useState(1);
@@ -256,6 +253,7 @@ export default function SelectProjectPage() {
       const results: Record<string, string> = {};
       await Promise.allSettled(
         projects.map(async (p) => {
+          if (!p.wabaId) return;
           try {
             const { healthStatus } = await getWabaHealthStatus(p._id.toString());
             if (healthStatus?.can_send_message) {
@@ -296,6 +294,21 @@ export default function SelectProjectPage() {
   );
 
   const handleSelect = (projectId: string) => {
+    const project = projects.find((p) => p._id.toString() === projectId);
+    if (!project) return;
+
+    if (!project.wabaId) {
+      setActiveProjectId(projectId);
+      router.push('/dashboard/wachat/setup');
+      return;
+    }
+
+    if (!project.phoneNumbers || project.phoneNumbers.length === 0) {
+      setActiveProjectId(projectId);
+      router.push('/wachat/numbers');
+      return;
+    }
+
     const updated = [
       projectId,
       ...recentIds.filter((id) => id !== projectId),

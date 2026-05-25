@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function SabwaAllProjectsPage() {
+async function AllProjectsContainer() {
   const session = await getCachedSession();
   if (!session?.user) {
     redirect('/login');
@@ -41,16 +41,21 @@ export default async function SabwaAllProjectsPage() {
     projects: projects.map((p) => ({
       id: p._id.toString(),
       name: p.name ?? 'Untitled project',
-      groupName: (p as any).groupName ?? null,
-      wabaId: (p as any).wabaId ?? null,
-      facebookPageId: (p as any).facebookPageId ?? null,
-      kind: (p as any).kind ?? null,
-      phoneNumber:
-        ((p as any).phoneNumbers?.[0]?.display_phone_number as
-          | string
-          | undefined) ?? null,
+      groupName: p.groupName ?? null,
+      wabaId: p.wabaId ?? null,
+      facebookPageId: p.facebookPageId ?? null,
+      kind: p.kind ?? null,
+      phoneNumber: p.phoneNumbers?.[0]?.display_phone_number ?? null,
     })),
   };
 
   return <AllProjectsClient bootstrap={bootstrap} />;
+}
+
+export default async function SabwaAllProjectsPage() {
+  return (
+    <React.Suspense fallback={<div className="flex h-[60vh] items-center justify-center">Loading projects...</div>}>
+      <AllProjectsContainer />
+    </React.Suspense>
+  );
 }

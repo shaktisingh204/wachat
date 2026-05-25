@@ -45,6 +45,8 @@ export interface BankTransactionFormProps {
     accounts: PaymentAccountOption[];
     /** Optionally pre-select an account (used by `/new`). */
     presetAccountId?: string;
+    /** Server-provided default date to prevent hydration mismatch */
+    defaultDate?: string;
 }
 
 function isoToDateInput(iso: string | undefined): string {
@@ -59,6 +61,7 @@ export function BankTransactionForm({
     initial,
     accounts,
     presetAccountId,
+    defaultDate: serverDefaultDate,
 }: BankTransactionFormProps): React.JSX.Element {
     const router = useRouter();
     const { toast } = useZoruToast();
@@ -71,8 +74,10 @@ export function BankTransactionForm({
         initial?.sourceFileUrl ?? '',
     );
     const [sourceFileName, setSourceFileName] = useState<string>('');
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
+        setIsMounted(true);
         if (state?.message) {
             toast({ title: 'Saved', description: state.message });
             const target = state.id
@@ -91,9 +96,13 @@ export function BankTransactionForm({
 
     const defaultAccountId =
         initial?.accountId ?? presetAccountId ?? accounts[0]?._id ?? '';
-    const defaultDate =
-        isoToDateInput(initial?.transactionDate) ??
-        new Date().toISOString().slice(0, 10);
+    
+    // For hydration stability: use server default if provided, fallback to client-side date only after mount, 
+    // or use initial date if editing.
+    const initialDateStr = initial?.transactionDate ? isoToDateInput(initial.transactionDate) : undefined;
+    const computedDefaultDate =
+        initialDateStr || serverDefaultDate || (isMounted ? new Date().toISOString().slice(0, 10) : '');
+    
     const defaultType: CrmBankTransactionType = initial?.type ?? 'debit';
     const defaultStatus: CrmBankTransactionStatus = initial?.status ?? 'pending';
 
@@ -152,7 +161,7 @@ export function BankTransactionForm({
                                     name="transactionDate"
                                     type="date"
                                     required
-                                    defaultValue={defaultDate}
+                                    defaultValue={computedDefaultDate}
                                     className="mt-1.5 h-10"
                                 />
                             </div>

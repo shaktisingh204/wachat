@@ -27,7 +27,7 @@ import * as React from 'react';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import { listCampaigns } from '@/app/actions/ad-manager.actions';
 import { compareCampaigns } from '@/app/actions/ad-manager-features.actions';
 
@@ -46,12 +46,17 @@ const METRICS: { key: keyof ComparisonRow; label: string; format: (v: string) =>
 
 export default function CampaignComparePage() {
     const { activeAccount } = useAdManager();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
+    const [isClient, setIsClient] = React.useState(false);
     const [campaigns, setCampaigns] = React.useState<Campaign[]>([]);
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
     const [results, setResults] = React.useState<ComparisonRow[]>([]);
     const [loadingList, setLoadingList] = React.useState(true);
     const [comparing, setComparing] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     React.useEffect(() => {
         if (!activeAccount) return;
@@ -90,6 +95,18 @@ export default function CampaignComparePage() {
     };
 
     const clearAll = () => { setSelected(new Set()); setResults([]); };
+
+    if (!isClient) {
+        return (
+            <div className="space-y-6">
+                <AmBreadcrumb page="Compare" />
+                <div className="space-y-4">
+                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-[300px] w-full" />
+                </div>
+            </div>
+        );
+    }
 
     if (!activeAccount) {
         return (

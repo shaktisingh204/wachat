@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 /**
  * Interviews list — §1D.1 rebuild.
  *

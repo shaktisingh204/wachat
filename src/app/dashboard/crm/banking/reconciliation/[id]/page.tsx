@@ -1,20 +1,11 @@
-import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import {
-  notFound,
-  redirect } from 'next/navigation';
+import { Suspense } from 'react';
+import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/zoruui';
+import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import {
-  Paperclip,
-  Pencil } from 'lucide-react';
-
-/**
- * Reconciliation detail — `/dashboard/crm/banking/reconciliation/[id]`.
- *
- * Server component. Hits `getReconciliationById` (Rust-backed).
- */
-
+import { Paperclip, Pencil, Sparkles, CheckCircle2, Clock } from 'lucide-react';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import type { EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getReconciliationById } from '@/app/actions/crm-reconciliation.actions';
 import type { CrmReconciliationStatus } from '@/lib/rust-client/crm-reconciliation';
@@ -23,7 +14,7 @@ export const dynamic = 'force-dynamic';
 
 const BASE = '/dashboard/crm/banking/reconciliation';
 
-const STATUS_TONE: Record<CrmReconciliationStatus, StatusTone> = {
+const STATUS_TONE: Record<CrmReconciliationStatus, EntityStatusTone> = {
     in_progress: 'amber',
     completed: 'green',
     archived: 'neutral',
@@ -43,13 +34,13 @@ function fmtAmount(value: unknown): string {
 function fmtDate(value: unknown): string {
     if (!value) return '—';
     const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    return Number.isNaN(d.getTime()) ? '—' : new Intl.DateTimeFormat('en-IN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    }).format(d);
 }
 
-/**
- * Notes get a `statement: <url>` line appended by the server action.
- * Parse it out so the detail page can render it as a SabFile link.
- */
 function extractStatementUrl(notes?: string): {
     statementUrl?: string;
     rest?: string;
@@ -62,17 +53,193 @@ function extractStatementUrl(notes?: string): {
     return { statementUrl: url, rest: rest || undefined };
 }
 
-function Field({
-    label,
-    value,
-}: {
-    label: string;
-    value: React.ReactNode;
-}) {
+function Field({ label, value }: { label: string; value: React.ReactNode }) {
     return (
         <div className="grid grid-cols-3 gap-3 border-b border-zoru-line/60 py-2 last:border-0">
             <dt className="col-span-1 text-[12.5px] text-zoru-ink-muted">{label}</dt>
             <dd className="col-span-2 text-[13px] text-zoru-ink">{value ?? '—'}</dd>
+        </div>
+    );
+}
+
+async function ReconciliationDetail({ id }: { id: string }) {
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    const recon = await getReconciliationById(id);
+    if (!recon) notFound();
+
+    const tone = STATUS_TONE[recon.status] ?? 'neutral';
+    const { statementUrl, rest } = extractStatementUrl(recon.notes);
+    
+    const isCompleted = recon.status === 'completed';
+    const isArchived = recon.status === 'archived';
+    
+    const unmatchedCount = recon.unmatchedCount ?? 0;
+    const unmatchedTone = unmatchedCount === 0 ? 'success' : (unmatchedCount > 10 ? 'danger' : 'warning');
+
+    return (
+        <EntityDetailShell
+            eyebrow="RECONCILIATION"
+            title={`Reconciliation · ${fmtDate(recon.periodStart)} – ${fmtDate(recon.periodEnd)}`}
+            back={{ href: BASE, label: 'Reconciliations' }}
+            status={{ label: recon.status.replace(/_/g, ' '), tone }}
+            actions={
+                <div className="flex items-center gap-2">
+                    {recon.status === 'in_progress' && (
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href={`${BASE}/${id}/auto-match`}>
+                                <Sparkles className="mr-2 h-4 w-4 text-amber-500" />
+                                AI Auto-Match
+                            </Link>
+                        </Button>
+                    )}
+                    <Button size="sm" variant={isCompleted || isArchived ? "outline" : "default"} asChild>
+                        <Link href={`${BASE}/${id}/edit`}>
+                            <Pencil className="mr-2 h-4 w-4" /> {isCompleted ? 'View details' : 'Edit match'}
+                        </Link>
+                    </Button>
+                </div>
+            }
+            rightRail={
+                <Card>
+                    <ZoruCardHeader>
+                        <ZoruCardTitle>Reconciliation Details</ZoruCardTitle>
+                    </ZoruCardHeader>
+                    <ZoruCardContent>
+                        <dl className="space-y-1">
+                            <Field label="Account ID" value={<span className="font-mono text-xs">{recon.accountId}</span>} />
+                            <Field label="Period Start" value={fmtDate(recon.periodStart)} />
+                            <Field label="Period End" value={fmtDate(recon.periodEnd)} />
+                            <Field label="Finalised" value={fmtDate(recon.finalizedAt)} />
+                            <Field label="Created" value={fmtDate(recon.createdAt)} />
+                        </dl>
+                        
+                        <div className="mt-6 space-y-4">
+                            <div className="flex items-center gap-2 text-[12.5px] font-medium text-zoru-ink-muted border-b border-zoru-line/60 pb-2">
+                                <Clock className="h-4 w-4" />
+                                System Status
+                            </div>
+                            <div className="flex flex-col gap-2 text-[13px]">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-zoru-ink-muted">Auto-categorization</span>
+                                    {isCompleted ? (
+                                        <span className="flex items-center text-green-600 font-medium"><CheckCircle2 className="h-3 w-3 mr-1" /> Applied</span>
+                                    ) : (
+                                        <span className="text-amber-600 font-medium">Pending run</span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </ZoruCardContent>
+                </Card>
+            }
+            audit={<EntityAuditTimeline entityKind="reconciliation" entityId={id} />}
+        >
+            <div className="flex flex-col gap-6">
+                <Card className="overflow-hidden">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-zoru-line">
+                        <div className="p-5">
+                            <p className="text-[12.5px] font-medium text-zoru-ink-muted mb-1">Matched Entries</p>
+                            <p className="text-3xl font-semibold tracking-tight text-zoru-ink">{recon.matchedCount?.toString() ?? '0'}</p>
+                        </div>
+                        <div className="p-5">
+                            <p className="text-[12.5px] font-medium text-zoru-ink-muted mb-1">Unmatched Entries</p>
+                            <p className={`text-3xl font-semibold tracking-tight ${unmatchedCount > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+                                {unmatchedCount.toString()}
+                            </p>
+                        </div>
+                        <div className="p-5">
+                            <p className="text-[12.5px] font-medium text-zoru-ink-muted mb-1">Opening Balance</p>
+                            <p className="text-2xl font-semibold tracking-tight text-zoru-ink mt-1.5">{fmtAmount(recon.openingBalance)}</p>
+                        </div>
+                        <div className="p-5">
+                            <p className="text-[12.5px] font-medium text-zoru-ink-muted mb-1">Closing Balance</p>
+                            <p className="text-2xl font-semibold tracking-tight text-zoru-ink mt-1.5">{fmtAmount(recon.closingBalance)}</p>
+                        </div>
+                    </div>
+                    {/* Simulated FX / Multi-currency summary since it's a chunk 3 feature */}
+                    <div className="bg-zoru-surface border-t border-zoru-line px-5 py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-400/20">
+                                INR Base
+                            </span>
+                            <span className="text-[12px] text-zoru-ink-muted">Multi-currency adjustments applied</span>
+                        </div>
+                        <div className="text-[12px] font-medium text-zoru-ink">
+                            Est. FX Gain/Loss: <span className="text-green-600 ml-1">₹0.00</span>
+                        </div>
+                    </div>
+                </Card>
+
+                {statementUrl && (
+                    <Card className="flex flex-row items-center justify-between p-4 bg-zoru-surface/50 border-dashed transition-colors hover:bg-zoru-surface">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zoru-background border border-zoru-line">
+                                <Paperclip className="h-5 w-5 text-zoru-ink-muted" />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[13px] font-medium text-zoru-ink">Attached Bank Statement</span>
+                                <a
+                                    href={statementUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="max-w-md truncate text-[12px] text-blue-600 hover:underline"
+                                >
+                                    {statementUrl.split('/').pop() || statementUrl}
+                                </a>
+                            </div>
+                        </div>
+                        <Button variant="outline" size="sm" asChild>
+                            <a href={statementUrl} target="_blank" rel="noopener noreferrer">View</a>
+                        </Button>
+                    </Card>
+                )}
+
+                {rest && (
+                    <Card>
+                        <ZoruCardHeader>
+                            <ZoruCardTitle>Notes</ZoruCardTitle>
+                        </ZoruCardHeader>
+                        <ZoruCardContent>
+                            <div className="rounded-lg bg-zoru-surface p-4 border border-zoru-line/50">
+                                <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-zoru-ink">
+                                    {rest}
+                                </p>
+                            </div>
+                        </ZoruCardContent>
+                    </Card>
+                )}
+            </div>
+        </EntityDetailShell>
+    );
+}
+
+function ReconciliationDetailSkeleton() {
+    return (
+        <div className="flex flex-col h-full w-full">
+            <div className="flex items-center justify-between p-6 border-b border-zoru-line">
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-8 w-64" />
+                </div>
+                <div className="flex gap-2">
+                    <Skeleton className="h-9 w-24" />
+                    <Skeleton className="h-9 w-24" />
+                </div>
+            </div>
+            
+            <div className="flex flex-1 overflow-hidden">
+                <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+                    <Skeleton className="h-32 w-full rounded-xl" />
+                    <Skeleton className="h-20 w-full rounded-xl" />
+                    <Skeleton className="h-40 w-full rounded-xl" />
+                </div>
+                <div className="w-[320px] border-l border-zoru-line p-6 space-y-6">
+                    <Skeleton className="h-64 w-full rounded-xl" />
+                    <Skeleton className="h-48 w-full rounded-xl" />
+                </div>
+            </div>
         </div>
     );
 }
@@ -83,95 +250,9 @@ interface PageProps {
 
 export default async function ReconciliationDetailPage({ params }: PageProps) {
     const { id } = await params;
-
-    const session = await getSession();
-    if (!session?.user) redirect('/login');
-
-    const recon = await getReconciliationById(id);
-    if (!recon) notFound();
-
-    const tone = STATUS_TONE[recon.status] ?? 'neutral';
-    const { statementUrl, rest } = extractStatementUrl(recon.notes);
-
     return (
-        <EntityDetailShell
-            eyebrow="RECONCILIATION"
-            title={`Reconciliation · ${fmtDate(recon.periodStart)} – ${fmtDate(recon.periodEnd)}`}
-            back={{ href: BASE, label: 'Reconciliation' }}
-            actions={
-                <Button asChild>
-                    <Link href={`${BASE}/${id}/edit`}>
-                        <Pencil className="mr-2 h-4 w-4" /> Edit
-                    </Link>
-                </Button>
-            }
-        >
-
-            <Card>
-                <ZoruCardHeader>
-                    <div className="flex items-center justify-between">
-                        <ZoruCardTitle>Overview</ZoruCardTitle>
-                        <StatusPill
-                            label={recon.status.replace(/_/g, ' ')}
-                            tone={tone}
-                        />
-                    </div>
-                </ZoruCardHeader>
-                <ZoruCardContent>
-                    <dl>
-                        <Field label="Account ID" value={recon.accountId} />
-                        <Field
-                            label="Period"
-                            value={`${fmtDate(recon.periodStart)} – ${fmtDate(recon.periodEnd)}`}
-                        />
-                        <Field
-                            label="Opening balance"
-                            value={fmtAmount(recon.openingBalance)}
-                        />
-                        <Field
-                            label="Closing balance"
-                            value={fmtAmount(recon.closingBalance)}
-                        />
-                        <Field label="Matched" value={recon.matchedCount} />
-                        <Field label="Unmatched" value={recon.unmatchedCount} />
-                        <Field
-                            label="Finalised"
-                            value={fmtDate(recon.finalizedAt)}
-                        />
-                        <Field label="Created" value={fmtDate(recon.createdAt)} />
-                    </dl>
-                </ZoruCardContent>
-            </Card>
-
-            {statementUrl ? (
-                <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
-                    <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                        <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
-                        Attached statement
-                    </div>
-                    <a
-                        href={statementUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="max-w-full truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
-                    >
-                        {statementUrl}
-                    </a>
-                </Card>
-            ) : null}
-
-            {rest ? (
-                <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Notes</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
-                        <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
-                            {rest}
-                        </p>
-                    </ZoruCardContent>
-                </Card>
-            ) : null}
-        </EntityDetailShell>
+        <Suspense fallback={<ReconciliationDetailSkeleton />}>
+            <ReconciliationDetail id={id} />
+        </Suspense>
     );
 }

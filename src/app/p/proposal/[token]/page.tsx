@@ -1,3 +1,5 @@
+import { fmtINR } from '@/lib/utils';
+import React from "react";
 import { resolvePublicToken } from '@/app/actions/worksuite/public.actions';
 import {
   Card,
@@ -12,7 +14,7 @@ import {
   ZoruTableHead,
   ZoruTableCell,
 } from '@/components/zoruui';
-import { fmtCurrency, fmtDate, fmtDateTime } from '@/lib/worksuite/format';
+import { fmtDate, fmtDateTime } from '@/lib/worksuite/format';
 import { InvalidLinkCard } from '../../_components/invalid-link';
 import { ProposalSignForm } from './_form';
 import { FileText, Database, Layers } from 'lucide-react';
@@ -23,7 +25,7 @@ interface PageProps {
   params: Promise<{ token: string }>;
 }
 
-export default async function PublicProposalPage({ params }: PageProps) {
+async function PublicProposalPageContent({ params }: PageProps) {
   const { token } = await params;
   const result = await resolvePublicToken(token);
   if (!result || result.resource.type !== 'proposal') {
@@ -92,17 +94,17 @@ export default async function PublicProposalPage({ params }: PageProps) {
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">tax_rate</ZoruTableCell>
                   <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">currency</ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[12.5px] font-medium">{fmtCurrency(Number(proposal.tax || 0), currency)}</ZoruTableCell>
+                  <ZoruTableCell className="text-right text-[12.5px] font-medium">{fmtINR(Number(proposal.tax || 0), currency)}</ZoruTableCell>
                 </ZoruTableRow>
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">subtotal</ZoruTableCell>
                   <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">currency</ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[12.5px] font-medium">{fmtCurrency(Number(proposal.subtotal || 0), currency)}</ZoruTableCell>
+                  <ZoruTableCell className="text-right text-[12.5px] font-medium">{fmtINR(Number(proposal.subtotal || 0), currency)}</ZoruTableCell>
                 </ZoruTableRow>
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">proposal_total</ZoruTableCell>
                   <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">currency</ZoruTableCell>
-                  <ZoruTableCell className="text-right text-[13px] font-bold text-foreground bg-secondary/40">{fmtCurrency(Number(proposal.total || 0), currency)}</ZoruTableCell>
+                  <ZoruTableCell className="text-right text-[13px] font-bold text-foreground bg-secondary/40">{fmtINR(Number(proposal.total || 0), currency)}</ZoruTableCell>
                 </ZoruTableRow>
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">proposal_status</ZoruTableCell>
@@ -150,10 +152,10 @@ export default async function PublicProposalPage({ params }: PageProps) {
                         {Number(it.quantity || 0)}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right align-top py-3.5 font-mono text-[12.5px] text-muted-foreground">
-                        {fmtCurrency(Number(it.unit_price || 0), currency)}
+                        {fmtINR(Number(it.unit_price || 0), currency)}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right align-top py-3.5 font-mono text-[12.5px] font-bold text-foreground">
-                        {fmtCurrency(Number(it.total || 0), currency)}
+                        {fmtINR(Number(it.total || 0), currency)}
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))}
@@ -274,5 +276,14 @@ export default async function PublicProposalPage({ params }: PageProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+
+export default function PublicProposalPage({ params }: PageProps) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <PublicProposalPageContent params={params} />
+    </React.Suspense>
   );
 }

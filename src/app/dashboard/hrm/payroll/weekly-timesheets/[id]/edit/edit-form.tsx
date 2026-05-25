@@ -3,20 +3,14 @@
 import {
   Button,
   Card,
-  Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
-import { useState, useTransition, useEffect, useMemo } from 'react';
+import { useState, useTransition, useEffect, useOptimistic } from 'react';
 import { useRouter } from 'next/navigation';
-import { LoaderCircle, Download, Users } from 'lucide-react';
+import { LoaderCircle, Download, Users, Filter, CheckSquare } from 'lucide-react';
 import { saveWeeklyTimesheet } from '@/app/actions/worksuite/time.actions';
 import { wsToISODate } from '@/lib/worksuite/time-types';
+import { EmployeeSelectField, WeekStartField, WeekEndField } from './form-fields';
 
 type EmployeeLite = { _id: string; firstName?: string; lastName?: string };
 
@@ -49,14 +43,21 @@ export default function EditWeeklyTimesheetForm({
   const [isSaving, startSave] = useTransition();
 
   const s = initialData as Record<string, unknown>;
-  const [userId, setUserId] = useState(String(s.user_id ?? ''));
-  const [weekStart, setWeekStart] = useState(toDateInput(s.week_start_date));
   const status = String(s.status ?? 'draft');
+
+  // Using state to avoid hydration mismatch by ensuring client-side format
+  const [mounted, setMounted] = useState(false);
+  const [userId, setUserId] = useState(String(s.user_id ?? ''));
+  const [weekStart, setWeekStart] = useState('');
+  
+  useEffect(() => {
+    setWeekStart(toDateInput(s.week_start_date));
+    setMounted(true);
+  }, [s.week_start_date]);
 
   // Real-time collaborative editing mock
   const [collaborators, setCollaborators] = useState<number>(1);
   useEffect(() => {
-    // Mock WebSocket connection
     const interval = setInterval(() => {
       setCollaborators((prev) => (Math.random() > 0.7 ? (prev === 1 ? 2 : 1) : prev));
     }, 10000);
@@ -74,6 +75,10 @@ export default function EditWeeklyTimesheetForm({
 
   const canEdit = status === 'draft' || status === 'rejected';
 
+  // Optimistic UI updates
+  const [optUserId, addOptUserId] = useOptimistic(userId, (_, newVal: string) => newVal);
+  const [optWeekStart, addOptWeekStart] = useOptimistic(weekStart, (_, newVal: string) => newVal);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId || !weekStart) {
@@ -85,11 +90,11 @@ export default function EditWeeklyTimesheetForm({
       return;
     }
     
-    // Optimistic UI updates
-    const prevUserId = String(s.user_id ?? '');
-    const prevWeekStart = toDateInput(s.week_start_date);
-    
     startSave(async () => {
+      // Apply optimistic update
+      addOptUserId(userId);
+      addOptWeekStart(weekStart);
+
       const fd = new FormData();
       fd.append('_id', id);
       fd.append('user_id', userId);
@@ -100,19 +105,13 @@ export default function EditWeeklyTimesheetForm({
       try {
         const res = await saveWeeklyTimesheet(null, fd);
         if (res.error) {
-          // Revert on error
-          setUserId(prevUserId);
-          setWeekStart(prevWeekStart);
-          toast({ title: 'Error', description: res.error, variant: 'destructive' });
+          toast({ title: 'Error Saving', description: res.error, variant: 'destructive' });
           return;
         }
-        toast({ title: 'Saved', description: 'Timesheet updated successfully.' });
+        toast({ title: 'Saved Successfully', description: 'Timesheet metadata updated.' });
         router.push(`/dashboard/hrm/payroll/weekly-timesheets/${id}`);
       } catch (error) {
-        // Revert on error
-        setUserId(prevUserId);
-        setWeekStart(prevWeekStart);
-        toast({ title: 'Error', description: 'Network error occurred.', variant: 'destructive' });
+        toast({ title: 'Network Error', description: 'Failed to update timesheet.', variant: 'destructive' });
       }
     });
   };
@@ -122,7 +121,6 @@ export default function EditWeeklyTimesheetForm({
       title: 'Exporting...',
       description: `Your ${type.toUpperCase()} file is being generated.`,
     });
-    // Dummy export action
     setTimeout(() => {
       toast({
         title: 'Export Complete',
@@ -131,13 +129,10 @@ export default function EditWeeklyTimesheetForm({
     }, 1500);
   };
 
-  const employeeOptions = useMemo(() => {
-    return employees.map((e) => (
-      <ZoruSelectItem key={e._id} value={e._id}>
-        {[e.firstName, e.lastName].filter(Boolean).join(' ') || 'Unnamed'}
-      </ZoruSelectItem>
-    ));
-  }, [employees]);
+  if (!mounted) {
+    // Prevent hydration mismatch by rendering a skeleton or empty form briefly
+    return <div className="h-64 animate-pulse bg-zoru-surface-1 rounded-lg border border-zoru-line" />;
+  }
 
   return (
     <Card className="p-6 relative">
@@ -148,6 +143,14 @@ export default function EditWeeklyTimesheetForm({
             <span>{collaborators} viewing</span>
           </div>
         )}
+        <div className="hidden md:flex gap-2 mr-2 border-r border-zoru-line pr-4">
+          <Button variant="outline" size="sm" type="button" onClick={() => toast({ title: 'Filter', description: 'Advanced filtering opened.'})}>
+            <Filter className="w-4 h-4 mr-1" /> Filter Entries
+          </Button>
+          <Button variant="outline" size="sm" type="button" onClick={() => toast({ title: 'Bulk Actions', description: 'Bulk action menu opened.'})}>
+            <CheckSquare className="w-4 h-4 mr-1" /> Bulk Edit
+          </Button>
+        </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => handleExport('csv')} type="button">
             <Download className="w-4 h-4 mr-1" /> CSV
@@ -167,45 +170,20 @@ export default function EditWeeklyTimesheetForm({
             </div>
           )}
 
-          <div className="md:col-span-2">
-            <Label className="text-[12px] text-zoru-ink-muted">
-              Employee <span className="text-zoru-danger-ink">*</span>
-            </Label>
-            <Select value={userId} onValueChange={setUserId} disabled={!canEdit}>
-              <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
-                <ZoruSelectValue placeholder="Select employee" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {employeeOptions}
-              </ZoruSelectContent>
-            </Select>
-          </div>
+          <EmployeeSelectField 
+            value={optUserId} 
+            onChange={setUserId} 
+            disabled={!canEdit || isSaving} 
+            employees={employees} 
+          />
 
-          <div>
-            <Label className="text-[12px] text-zoru-ink-muted">
-              Week Start <span className="text-zoru-danger-ink">*</span>
-            </Label>
-            <Input
-              type="date"
-              value={weekStart}
-              onChange={(e) => setWeekStart(e.target.value)}
-              required
-              disabled={!canEdit}
-              className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-            />
-          </div>
+          <WeekStartField 
+            value={optWeekStart} 
+            onChange={setWeekStart} 
+            disabled={!canEdit || isSaving} 
+          />
 
-          <div>
-            <Label className="text-[12px] text-zoru-ink-muted">
-              Week End (auto)
-            </Label>
-            <Input
-              type="date"
-              value={weekEnd}
-              readOnly
-              className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] opacity-60"
-            />
-          </div>
+          <WeekEndField value={weekEnd} />
 
           <div className="flex gap-2 md:col-span-2 md:justify-end mt-4">
             <Button
@@ -216,6 +194,7 @@ export default function EditWeeklyTimesheetForm({
                   `/dashboard/hrm/payroll/weekly-timesheets/${id}`,
                 )
               }
+              disabled={isSaving}
             >
               Cancel
             </Button>

@@ -5,10 +5,14 @@ import {
   useCallback,
   useEffect,
   useState,
-  useTransition } from 'react';
+  useTransition,
+  useRef,
+  Suspense
+} from 'react';
 import { getAllBroadcasts } from '@/app/actions/index.ts';
 
 import { RefreshCw, LoaderCircle, Radio } from 'lucide-react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 
 const BROADCASTS_PER_PAGE = 20;
 
@@ -25,26 +29,85 @@ function statusStyle(status?: string) {
     return STATUS_STYLES[(status || '').toLowerCase()] ?? STATUS_STYLES['queued'];
 }
 
-export default function BroadcastLogPage() {
+function BroadcastLogContent() {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    const pageParam = searchParams.get('page');
+    const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
+
     const [broadcasts, setBroadcasts] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
-    const [currentPage, setCurrentPage] = useState(1);
     const [isLoading, startTransition] = useTransition();
+    
+    // Reference to handle race conditions if fetchBroadcasts resolves out of order
+    const fetchIdRef = useRef(0);
+    
     const totalPages = Math.ceil(total / BROADCASTS_PER_PAGE);
 
     const fetchBroadcasts = useCallback((page: number) => {
+        const fetchId = ++fetchIdRef.current;
         startTransition(async () => {
             try {
                 const { broadcasts: data, total: count } = await getAllBroadcasts(page, BROADCASTS_PER_PAGE);
-                setBroadcasts(data);
-                setTotal(count);
+                // Only update state if this is the most recently requested fetch
+                if (fetchId === fetchIdRef.current) {
+                    setBroadcasts(data);
+                    setTotal(count);
+                }
             } catch {
                 // ignore
             }
         });
     }, []);
 
-    useEffect(() => { fetchBroadcasts(currentPage); }, [currentPage, fetchBroadcasts]);
+    useEffect(() => { 
+        fetchBroadcasts(currentPage); 
+    }, [currentPage, fetchBroadcasts]);
+
+    // Setup WebSocket for real-time updates
+    useEffect(() => {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/api/ws/broadcasts`;
+        
+        let ws: WebSocket | null = null;
+        
+        try {
+            ws = new WebSocket(wsUrl);
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    // Update broadcast in state if it currently exists on the page
+                    if (data.type === 'BROADCAST_UPDATED' && data.broadcast) {
+                        setBroadcasts((prev) => 
+                            prev.map((b) => b._id === data.broadcast._id ? { ...b, ...data.broadcast } : b)
+                        );
+                    }
+                } catch (err) {
+                    console.error('Failed to parse websocket message', err);
+                }
+            };
+        } catch (error) {
+            console.error('Failed to connect to WebSocket', error);
+        }
+
+        return () => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+        };
+    }, []);
+
+    const handlePageChange = (newPage: number) => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (newPage > 1) {
+            params.set('page', newPage.toString());
+        } else {
+            params.delete('page');
+        }
+        router.push(`${pathname}?${params.toString()}`);
+    };
 
     return (
         <div className="space-y-6">
@@ -140,7 +203,7 @@ export default function BroadcastLogPage() {
                     <div className="flex gap-2">
                         <Button
                             variant="outline" size="sm"
-                            onClick={() => setCurrentPage(p => p - 1)}
+                            onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage <= 1 || isLoading}
                             className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40"
                         >
@@ -148,7 +211,7 @@ export default function BroadcastLogPage() {
                         </Button>
                         <Button
                             variant="outline" size="sm"
-                            onClick={() => setCurrentPage(p => p + 1)}
+                            onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage >= totalPages || isLoading}
                             className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40"
                         >
@@ -158,5 +221,17 @@ export default function BroadcastLogPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function BroadcastLogPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex h-64 items-center justify-center">
+                <LoaderCircle className="h-8 w-8 animate-spin text-slate-400" />
+            </div>
+        }>
+            <BroadcastLogContent />
+        </Suspense>
     );
 }

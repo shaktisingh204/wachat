@@ -7,11 +7,11 @@ import {
   Input,
   Label,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   Textarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -50,11 +50,7 @@ const STATUS_VARIANT: Record<WsEstimateRequestStatus, Variant> = {
   declined: 'danger',
 };
 
-function fmtDate(v: unknown): string {
-  if (!v) return '—';
-  const d = new Date(v as any);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+import { fmtDate } from '@/lib/utils';
 
 export default function EstimateRequestsPage() {
   const router = useRouter();
@@ -182,70 +178,70 @@ export default function EstimateRequestsPage() {
       <Card className="p-6">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Description</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Requester</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Desired Date</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Created</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <TableHeader>
+              <TableRow className="border-zoru-line hover:bg-transparent">
+                <TableHead className="text-zoru-ink-muted">Description</TableHead>
+                <TableHead className="text-zoru-ink-muted">Requester</TableHead>
+                <TableHead className="text-zoru-ink-muted">Desired Date</TableHead>
+                <TableHead className="text-zoru-ink-muted">Status</TableHead>
+                <TableHead className="text-zoru-ink-muted">Created</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {isLoading ? (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell colSpan={5} className="h-24 text-center">
+                <TableRow className="border-zoru-line">
+                  <TableCell colSpan={5} className="h-24 text-center">
                     <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </TableCell>
+                </TableRow>
               ) : rows.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell
+                <TableRow className="border-zoru-line">
+                  <TableCell
                     colSpan={5}
                     className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No estimate requests yet.
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </TableCell>
+                </TableRow>
               ) : (
                 rows.map((r) => (
-                  <ZoruTableRow
+                  <TableRow
                     key={r._id}
                     className="cursor-pointer border-zoru-line hover:bg-zoru-surface-2"
                     onClick={() =>
                       router.push(`/dashboard/crm/sales/estimate-requests/${r._id}`)
                     }
                   >
-                    <ZoruTableCell className="max-w-[320px] truncate text-zoru-ink">
+                    <TableCell className="max-w-[320px] truncate text-zoru-ink">
                       <EntityRowLink
                         href={`/dashboard/crm/sales/estimate-requests/${r._id}`}
                         label={r.description}
                         subtitle={r.status ? `Status: ${r.status}` : undefined}
                       />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">
+                    </TableCell>
+                    <TableCell className="text-zoru-ink">
                       {r.requester_name || '—'}
                       {r.requester_email ? (
                         <span className="block text-[11.5px] text-zoru-ink-muted">
                           {r.requester_email}
                         </span>
                       ) : null}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">
+                    </TableCell>
+                    <TableCell className="text-zoru-ink">
                       {fmtDate(r.desired_date)}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </TableCell>
+                    <TableCell>
                       <Badge variant={STATUS_VARIANT[r.status] || 'ghost'}>
                         {r.status}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">
+                    </TableCell>
+                    <TableCell className="text-zoru-ink">
                       {fmtDate(r.createdAt)}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </ZoruTableBody>
+            </TableBody>
           </Table>
         </div>
       </Card>

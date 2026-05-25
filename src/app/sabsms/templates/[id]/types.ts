@@ -61,6 +61,14 @@ export interface VariableDefault {
   defaultValue: string;
 }
 
+export interface TemplateHistoryEntry {
+  id: string;
+  timestamp: string;
+  status: SabsmsTemplateStatus;
+  bodies: SabsmsTemplateBody[];
+  variableDefaults: VariableDefault[];
+}
+
 export interface TemplateEditorViewModel {
   /** Empty string when creating (id === "new"). */
   id: string;
@@ -74,6 +82,7 @@ export interface TemplateEditorViewModel {
   /** Last-published body cached for diff'ing — `null` if no prior
    *  published version exists. */
   lastPublishedBodies: SabsmsTemplateBody[] | null;
+  history: TemplateHistoryEntry[];
 }
 
 export function emptyViewModel(): TemplateEditorViewModel {
@@ -97,6 +106,7 @@ export function emptyViewModel(): TemplateEditorViewModel {
       },
     },
     lastPublishedBodies: null,
+    history: [],
   };
 }
 
@@ -108,6 +118,7 @@ export function fromTemplateDoc(
     autoLinkWrap?: boolean;
     footerInjection?: boolean;
     variableDefaults?: VariableDefault[];
+    history?: TemplateHistoryEntry[];
   }) ?? {};
   return {
     id: doc._id ? String(doc._id) : "",
@@ -134,5 +145,6 @@ export function fromTemplateDoc(
       },
     },
     lastPublishedBodies,
+    history: meta.history ?? [],
   };
 }

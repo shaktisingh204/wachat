@@ -4,6 +4,36 @@ import * as React from 'react';
 import { History, RotateCcw, Eye, ArrowLeft, CheckCircle2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/zoruui';
 
+const fmtVerDateTime = (ts: string | Date) => {
+    const date = new Date(ts);
+    if (Number.isNaN(date.getTime())) return '—';
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getUTCMonth()];
+    const year = date.getUTCFullYear();
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    return `${day} ${month} ${year} ${hours}:${minutes} UTC`;
+};
+
+const fmtVerTime = (ts: string | Date) => {
+    const date = new Date(ts);
+    if (Number.isNaN(date.getTime())) return '—';
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    return `${hours}:${minutes} UTC`;
+};
+
+const fmtVerDate = (ts: string | Date) => {
+    const date = new Date(ts);
+    if (Number.isNaN(date.getTime())) return '—';
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getUTCMonth()];
+    const year = date.getUTCFullYear();
+    return `${day} ${month} ${year}`;
+};
+
 interface VersionHistory {
     versionId: string;
     timestamp: string | Date;
@@ -71,7 +101,7 @@ export function VersionHistoryPanel({ history = [], currentContent, currentSubje
                     <div>
                         <h3 className="font-semibold text-sm">Compare Snapshot</h3>
                         <p className="text-[10px] text-zoru-ink-muted">
-                            {new Date(selectedVersion.timestamp).toLocaleString()}
+                            {fmtVerDateTime(selectedVersion.timestamp)}
                         </p>
                     </div>
                 </div>
@@ -153,12 +183,12 @@ export function VersionHistoryPanel({ history = [], currentContent, currentSubje
                                         Snapshot #{history.length - idx}
                                     </span>
                                     <span className="text-[9px] text-zoru-ink-subtle">
-                                        {new Date(ver.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        {fmtVerTime(ver.timestamp)}
                                     </span>
                                 </div>
                                 <p className="text-xs text-zoru-ink font-medium mt-0.5">{ver.description}</p>
                                 <p className="text-[9px] text-zoru-ink-muted">
-                                    {new Date(ver.timestamp).toLocaleDateString()}
+                                    {fmtVerDate(ver.timestamp)}
                                 </p>
                                 
                                 <div className="mt-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">

@@ -1,3 +1,4 @@
+import { fmtDate, fmtINR } from '@/lib/utils';
 import { HrDetailPage } from '../../_components/hr-detail-page';
 import {
   getTrainingPrograms,
@@ -58,17 +59,17 @@ export default async function TrainingDetailPage({
           fields: [
             {
               label: 'Start',
-              value: row.startDate ? new Date(row.startDate).toLocaleDateString() : null,
+              value: row.startDate ? fmtDate(row.startDate) : null,
             },
             {
               label: 'End',
-              value: row.endDate ? new Date(row.endDate).toLocaleDateString() : null,
+              value: row.endDate ? fmtDate(row.endDate) : null,
             },
             { label: 'Duration (hours)', value: row.durationHours },
             {
               label: 'Registration deadline',
               value: row.registrationDeadline
-                ? new Date(row.registrationDeadline).toLocaleDateString()
+                ? fmtDate(row.registrationDeadline)
                 : null,
             },
             { label: 'Max participants', value: row.maxParticipants },
@@ -83,7 +84,7 @@ export default async function TrainingDetailPage({
               label: 'Cost per participant',
               value:
                 row.costPerParticipant != null
-                  ? `${row.currency ?? ''} ${row.costPerParticipant}`.trim()
+                  ? fmtINR(row.costPerParticipant, row.currency)
                   : null,
             },
             { label: 'Materials URL', value: row.materialsUrl },

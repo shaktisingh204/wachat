@@ -416,6 +416,9 @@ export function ReconciliationListClient({
 
   const [isLoading, startLoading] = React.useTransition();
 
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
   // Auto-save draft effect
   React.useEffect(() => {
     if (!isDraftUnsaved || !selectedAccountId || !reconciliationData) return;
@@ -728,6 +731,14 @@ export function ReconciliationListClient({
   }, [reconciliationData, matchedBookEntries, matchedStatementEntries]);
 
   const difference = clearedBookAmount - clearedStatementAmount;
+
+  if (!mounted) {
+    return (
+      <div className="flex h-40 items-center justify-center">
+        <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+      </div>
+    );
+  }
 
   const handleExportRecords = React.useCallback(() => {
     downloadCsv(

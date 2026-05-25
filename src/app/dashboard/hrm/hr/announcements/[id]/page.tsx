@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 import { Badge, Button, Card } from '@/components/zoruui';
 import {
   notFound,
@@ -50,11 +51,7 @@ const PRIORITY_TONE: Record<string, StatusTone> = {
     urgent: 'red',
 };
 
-function fmtDateTime(v: unknown): string {
-    if (!v) return '—';
-    const d = new Date(v as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
-}
+
 
 function titleCase(s?: string | null): string {
     if (!s) return '—';
@@ -228,25 +225,25 @@ export default async function AnnouncementDetailPage({
                     <div>
                         <div className="text-zoru-ink-muted">Publish at</div>
                         <div className="text-zoru-ink">
-                            {fmtDateTime(announcement.publishAt)}
+                            {fmtDate(announcement.publishAt)}
                         </div>
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Expires at</div>
                         <div className="text-zoru-ink">
-                            {fmtDateTime(announcement.expiresAt)}
+                            {fmtDate(announcement.expiresAt)}
                         </div>
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Published at</div>
                         <div className="text-zoru-ink">
-                            {fmtDateTime(announcement.publishedAt)}
+                            {fmtDate(announcement.publishedAt)}
                         </div>
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Updated</div>
                         <div className="text-zoru-ink">
-                            {fmtDateTime(announcement.updatedAt)}
+                            {fmtDate(announcement.updatedAt)}
                         </div>
                     </div>
                 </div>

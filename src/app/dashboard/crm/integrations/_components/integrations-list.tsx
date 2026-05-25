@@ -12,6 +12,7 @@ import {
   Badge,
   Button,
   Card,
+  EmptyState,
   Switch,
   useZoruToast,
 } from '@/components/zoruui';
@@ -77,6 +78,7 @@ function fmtDateTime(value: unknown): string {
     return new Intl.DateTimeFormat('en-US', {
         dateStyle: 'medium',
         timeStyle: 'short',
+        timeZone: 'UTC', // Ensure deterministic dates for hydration
     }).format(d);
 }
 
@@ -125,24 +127,18 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
 
     if (items.length === 0) {
         return (
-            <Card className="flex flex-col items-center gap-3 px-6 py-12 text-center">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-foreground">
-                    <Webhook className="h-5 w-5" strokeWidth={1.75} />
-                </div>
-                <div>
-                    <div className="text-[14px] font-medium text-zoru-ink">
-                        No custom integrations yet
-                    </div>
-                    <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
-                        Wire up a Slack channel, a webhook, or a third-party API key.
-                    </p>
-                </div>
-                <Button variant="outline" size="sm" asChild>
-                    <Link href={`${BASE}/new`}>
-                        <Plus className="h-4 w-4" /> Add integration
-                    </Link>
-                </Button>
-            </Card>
+            <EmptyState
+                icon={<Webhook strokeWidth={1.75} />}
+                title="No custom integrations yet"
+                description="Wire up a Slack channel, a webhook, or a third-party API key."
+                action={
+                    <Button variant="outline" size="sm" asChild>
+                        <Link href={`${BASE}/new`}>
+                            <Plus className="mr-1 h-4 w-4" /> Add integration
+                        </Link>
+                    </Button>
+                }
+            />
         );
     }
 
@@ -182,7 +178,7 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
                                         {item.syncStatus ? (
                                             <span>sync: {item.syncStatus}</span>
                                         ) : null}
-                                        <span>last sync: {fmtDateTime(item.lastSyncAt)}</span>
+                                        <span suppressHydrationWarning>last sync: {fmtDateTime(item.lastSyncAt)}</span>
                                     </div>
                                 </div>
 

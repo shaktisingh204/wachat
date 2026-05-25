@@ -4,9 +4,9 @@ import { useState, useTransition } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, useZoruToast, ZoruSelect, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/zoruui';
-import { createRedactionPolicy, deleteRedactionPolicy } from '@/app/actions/platform/data-redaction.actions';
+import { createRedactionPolicy, deleteRedactionPolicy, updateRedactionPolicy } from '@/app/actions/platform/data-redaction.actions';
 import type { RedactionPolicy } from '@/types/platform';
-import { LoaderCircle, Plus, Trash2, Filter, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { LoaderCircle, Plus, Trash2, Filter, ChevronLeft, ChevronRight, X, Pencil } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface DataRedactionClientProps {
@@ -22,6 +22,7 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
   const searchParams = useSearchParams();
   
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const { toast } = useZoruToast();
 
@@ -50,22 +51,41 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const handleCreate = async () => {
+  const handleSave = async () => {
     if (!form.name) return;
     startTransition(async () => {
       try {
-        await createRedactionPolicy({
+        const payload = {
           ...form,
           targetFields: form.targetFields.split(',').map(f => f.trim()).filter(Boolean)
-        });
-        toast({ title: 'Policy created', variant: 'success' });
+        };
+        
+        if (editingId) {
+          await updateRedactionPolicy(editingId, payload);
+          toast({ title: 'Policy updated', variant: 'success' });
+        } else {
+          await createRedactionPolicy(payload);
+          toast({ title: 'Policy created', variant: 'success' });
+        }
         setDialogOpen(false);
+        setEditingId(null);
         setForm({ name: '', targetFields: '', maskPattern: '***', status: 'active' });
         router.refresh();
       } catch (err) {
-        toast({ title: 'Error creating policy', variant: 'destructive' });
+        toast({ title: `Error ${editingId ? 'updating' : 'creating'} policy`, variant: 'destructive' });
       }
     });
+  };
+
+  const handleEdit = (item: RedactionPolicy) => {
+    setForm({
+      name: item.name,
+      targetFields: item.targetFields.join(', '),
+      maskPattern: item.maskPattern,
+      status: item.status,
+    });
+    setEditingId(item.id);
+    setDialogOpen(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -83,7 +103,7 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
     <EntityListShell
       title="Data Redaction Policies"
       subtitle="Automatically mask sensitive fields across the platform."
-      primaryAction={<Button onClick={() => setDialogOpen(true)}><Plus className="w-4 h-4 mr-2" />New Policy</Button>}
+      primaryAction={<Button onClick={() => { setEditingId(null); setForm({ name: '', targetFields: '', maskPattern: '***', status: 'active' }); setDialogOpen(true); }}><Plus className="w-4 h-4 mr-2" />New Policy</Button>}
       search={{ 
         value: search, 
         onChange: (v) => updateFilters('search', v), 
@@ -180,9 +200,14 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
                   </span>
                 </ZoruTableCell>
                 <ZoruTableCell className="text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </Button>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
+                      <Pencil className="w-4 h-4 text-blue-500" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </Button>
+                  </div>
                 </ZoruTableCell>
               </ZoruTableRow>
             ))}
@@ -221,10 +246,16 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
         )}
       </Card>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => {
+        setDialogOpen(open);
+        if (!open) {
+          setEditingId(null);
+          setForm({ name: '', targetFields: '', maskPattern: '***', status: 'active' });
+        }
+      }}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
-            <ZoruDialogTitle>New Redaction Policy</ZoruDialogTitle>
+            <ZoruDialogTitle>{editingId ? 'Edit Redaction Policy' : 'New Redaction Policy'}</ZoruDialogTitle>
           </ZoruDialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -252,8 +283,8 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
           </div>
           <ZoruDialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreate} disabled={isPending}>
-              {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null} Create
+            <Button onClick={handleSave} disabled={isPending}>
+              {isPending ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null} {editingId ? 'Save Changes' : 'Create'}
             </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>

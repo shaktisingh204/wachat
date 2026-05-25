@@ -23,9 +23,15 @@ export default async function EditGrnPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { grn } = await getGrn(id);
+  const { grn, error } = await getGrn(id);
 
-  if (!grn) notFound();
+  if (error) {
+    throw new Error(error);
+  }
+
+  if (!grn) {
+    notFound();
+  }
 
   return (
     <EntityDetailShell

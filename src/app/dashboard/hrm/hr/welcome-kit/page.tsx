@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 'use client';
 
 import { cn as _zoruCn } from '@/components/zoruui';
@@ -43,7 +44,7 @@ export default function WelcomeKitPage() {
           label: 'Sent Date',
           render: (row) => {
             const d = (row as any).sent_date;
-            return d ? new Date(d).toLocaleDateString() : '—';
+            return d ? fmtDate(d) : '—';
           },
         },
         {

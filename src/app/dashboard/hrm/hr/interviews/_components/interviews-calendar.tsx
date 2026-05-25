@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 'use client';
 
 import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
@@ -62,11 +63,7 @@ export function InterviewsCalendar({
             {sortedKeys.map((day) => (
               <li key={day}>
                 <h4 className="mb-1.5 text-[12px] font-medium uppercase tracking-wide text-zoru-ink-muted">
-                  {new Date(day).toLocaleDateString(undefined, {
-                    weekday: 'long',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
+                  {fmtDate(day)}
                 </h4>
                 <div className="grid gap-1.5 md:grid-cols-2 lg:grid-cols-3">
                   {(byDate.get(day) || []).map((i) => (

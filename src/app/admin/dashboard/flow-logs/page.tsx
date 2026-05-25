@@ -6,14 +6,13 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import { getFlowLogsForAdmin, getFlowLogPayloadForAdmin } from '@/app/actions/admin-hardening.actions';
-import type { FlowLog } from '@/lib/definitions';
+import { getFlowLogsForAdmin, getFlowLogPayloadForAdmin, replayFlowLog } from '@/app/actions/admin-hardening.actions';
+import type { FlowLog, FlowLogEntry } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
 import { useDebouncedCallback } from 'use-debounce';
-import { Eye, Search, LoaderCircle, GitFork, Copy, X } from 'lucide-react';
+import { Eye, Search, LoaderCircle, GitFork, Copy, X, RefreshCw } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
 const LOGS_PER_PAGE = 20;
 
 export default function FlowLogsPage() {
@@ -53,10 +52,24 @@ export default function FlowLogsPage() {
         setLoadingPayload(false);
     };
 
-    const handleCopy = (data: any) => {
+    const handleCopy = (data: FlowLogEntry[]) => {
         navigator.clipboard.writeText(JSON.stringify(data, null, 2)).then(() =>
             toast({ title: 'Copied!', description: 'Log data copied to clipboard.' })
         );
+    };
+
+    const handleRetry = async (logId: string) => {
+        try {
+            const res = await replayFlowLog(logId);
+            if (res.success) {
+                toast({ title: 'Success', description: 'Flow queued for replay.' });
+                fetchLogs(currentPage, searchQuery);
+            } else {
+                toast({ title: 'Error', description: res.error || 'Failed to replay flow.', variant: 'destructive' });
+            }
+        } catch {
+            toast({ title: 'Error', description: 'Failed to replay flow.', variant: 'destructive' });
+        }
     };
 
     return (
@@ -115,13 +128,22 @@ export default function FlowLogsPage() {
                                             <td className="px-6 py-3.5 font-mono text-xs text-slate-500">{log.contactId?.toString()}</td>
                                             <td className="px-6 py-3.5 font-mono text-xs text-slate-500">{log.projectId?.toString()}</td>
                                             <td className="px-6 py-3.5 text-right">
-                                                <button
-                                                    onClick={() => handleViewLog(log)}
-                                                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 hover:text-slate-900 transition-all"
-                                                >
-                                                    <Eye className="h-3.5 w-3.5" />
-                                                    View
-                                                </button>
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => handleViewLog(log)}
+                                                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 hover:text-slate-900 transition-all"
+                                                    >
+                                                        <Eye className="h-3.5 w-3.5" />
+                                                        View
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleRetry(log._id.toString())}
+                                                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 hover:text-slate-900 transition-all"
+                                                    >
+                                                        <RefreshCw className="h-3.5 w-3.5" />
+                                                        Retry
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))

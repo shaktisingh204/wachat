@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 import { HrDetailPage } from '../../_components/hr-detail-page';
 import { getOneOnOnes, deleteOneOnOne } from '@/app/actions/hr.actions';
 import type { HrOneOnOne } from '@/lib/hr-types';
@@ -52,7 +53,7 @@ export default async function OneOnOneDetailPage({
             { label: 'Employee', value: String(row.employeeId ?? '—') },
             {
               label: 'Scheduled',
-              value: scheduled ? new Date(scheduled).toLocaleString() : null,
+              value: scheduled ? fmtDate(scheduled, true) : null,
             },
             {
               label: 'Duration',

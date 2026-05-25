@@ -1,0 +1,66 @@
+src/app/dashboard/ad-manager/pixels/page.tsx(165,25): error TS2657: JSX expressions must have one parent element.
+src/app/dashboard/ad-manager/pixels/page.tsx(187,100): error TS1127: Invalid character.
+src/app/dashboard/ad-manager/pixels/page.tsx(187,123): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(188,45): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(188,46): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(190,41): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(192,43): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/app/dashboard/ad-manager/pixels/page.tsx(194,35): error TS17002: Expected corresponding JSX closing tag for 'ZoruCardContent'.
+src/app/dashboard/ad-manager/pixels/page.tsx(205,53): error TS1127: Invalid character.
+src/app/dashboard/ad-manager/pixels/page.tsx(205,108): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(205,109): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(208,43): error TS17002: Expected corresponding JSX closing tag for 'Button'.
+src/app/dashboard/ad-manager/pixels/page.tsx(209,39): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/app/dashboard/ad-manager/pixels/page.tsx(228,2): error TS1127: Invalid character.
+src/app/dashboard/ad-manager/pixels/page.tsx(228,5): error TS1003: Identifier expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(228,27): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(231,2): error TS1109: Expression expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(236,31): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(244,2): error TS1003: Identifier expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(244,28): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(244,31): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(250,74): error TS1127: Invalid character.
+src/app/dashboard/ad-manager/pixels/page.tsx(250,77): error TS1003: Identifier expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(250,99): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(250,142): error TS1109: Expression expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(250,190): error TS1127: Invalid character.
+src/app/dashboard/ad-manager/pixels/page.tsx(250,248): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(250,431): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(250,638): error TS1127: Invalid character.
+src/app/dashboard/ad-manager/pixels/page.tsx(250,713): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(250,729): error TS1003: Identifier expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(250,755): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(252,74): error TS1005: '}' expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(252,103): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(253,57): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(253,58): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(254,53): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(256,55): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/app/dashboard/ad-manager/pixels/page.tsx(258,47): error TS17002: Expected corresponding JSX closing tag for 'ZoruDialogContent'.
+src/app/dashboard/ad-manager/pixels/page.tsx(259,43): error TS17002: Expected corresponding JSX closing tag for 'Dialog'.
+src/app/dashboard/ad-manager/pixels/page.tsx(260,39): error TS17002: Expected corresponding JSX closing tag for 'Card'.
+src/app/dashboard/ad-manager/pixels/page.tsx(270,94): error TS1127: Invalid character.
+src/app/dashboard/ad-manager/pixels/page.tsx(270,94): error TS1005: ')' expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(270,142): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(271,45): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(272,41): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(272,42): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(273,37): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/ad-manager/pixels/page.tsx(275,39): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/app/dashboard/ad-manager/pixels/page.tsx(276,33): error TS1005: ')' expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(277,29): error TS1005: ')' expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(278,25): error TS1109: Expression expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(279,21): error TS1109: Expression expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(279,22): error TS1128: Declaration or statement expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(280,17): error TS1128: Declaration or statement expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(281,13): error TS1109: Expression expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(281,14): error TS1128: Declaration or statement expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(282,9): error TS1128: Declaration or statement expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(283,5): error TS1109: Expression expected.
+src/app/dashboard/ad-manager/pixels/page.tsx(284,1): error TS1128: Declaration or statement expected.
+src/app/dashboard/crm/settings/api-tokens/new/page.tsx(121,5): error TS1472: 'catch' or 'finally' expected.
+src/app/dashboard/hrm/payroll/leave/new/client.tsx(30,1): error TS1109: Expression expected.
+src/app/dashboard/hrm/payroll/leave/new/client.tsx(30,3): error TS1434: Unexpected keyword or identifier.
+src/app/dashboard/hrm/payroll/reports/payroll-summary/page.tsx(355,61): error TS2657: JSX expressions must have one parent element.
+src/app/dashboard/hrm/payroll/reports/payroll-summary/page.tsx(363,61): error TS2657: JSX expressions must have one parent element.
+src/app/dashboard/hrm/payroll/reports/payroll-summary/page.tsx(367,61): error TS2657: JSX expressions must have one parent element.

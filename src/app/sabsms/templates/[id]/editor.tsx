@@ -11,8 +11,8 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  CalendarClock,
   GitCompareArrows,
+  History,
   Plus,
   Save,
   SendHorizontal,
@@ -110,13 +110,22 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const [sampleOpen, setSampleOpen] = useState(false);
+
   const [varsHelpOpen, setVarsHelpOpen] = useState(false);
   const [diffOpen, setDiffOpen] = useState(false);
   const [diffData, setDiffData] = useState<DiffActionResult | null>(null);
   const [piiOpen, setPiiOpen] = useState(false);
   const [reviewerNotes, setReviewerNotes] = useState(initial.reviewerNotes);
-  const [sampleVars, setSampleVars] = useState<Record<string, string>>({});
+  const [payloadJson, setPayloadJson] = useState("{\n\n}");
+  const sampleVars = useMemo(() => {
+    try {
+      const parsed = JSON.parse(payloadJson);
+      return typeof parsed === "object" && parsed !== null ? parsed : {};
+    } catch {
+      return {};
+    }
+  }, [payloadJson]);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [varSuggestOpen, setVarSuggestOpen] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -889,6 +898,23 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
         {/* ── Right column — preview + toolbar ──────────────────────── */}
         <div className="space-y-4">
           <div className="sticky top-4 space-y-4">
+            <Card>
+              <ZoruCardHeader>
+                <ZoruCardTitle>Test Payload</ZoruCardTitle>
+                <ZoruCardDescription>
+                  Supply JSON to test variable rendering.
+                </ZoruCardDescription>
+              </ZoruCardHeader>
+              <ZoruCardContent>
+                <Textarea
+                  value={payloadJson}
+                  onChange={(e) => setPayloadJson(e.target.value)}
+                  className="font-mono text-xs"
+                  rows={6}
+                />
+              </ZoruCardContent>
+            </Card>
+
             <TemplatePreview
               body={activeBody}
               category={vm.category}
@@ -916,10 +942,10 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setSampleOpen(true)}
+                  onClick={() => setHistoryOpen(true)}
                 >
-                  <CalendarClock className="mr-1.5 h-3.5 w-3.5" />
-                  Test with contact
+                  <History className="mr-1.5 h-3.5 w-3.5" />
+                  History
                 </Button>
                 <Button
                   variant="ghost"
@@ -959,38 +985,6 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
         </div>
       </div>
 
-      {/* ── Test with contact dialog (#8) ─────────────────────────── */}
-      <Dialog open={sampleOpen} onOpenChange={setSampleOpen}>
-        <ZoruDialogContent className="max-w-md">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Test with a sample contact</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Set values for each variable and watch the preview update
-              live. These values aren&rsquo;t persisted.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <div className="space-y-3">
-            {detectedVars.length === 0 && (
-              <p className="text-sm text-slate-500">
-                This template has no variables yet.
-              </p>
-            )}
-            {detectedVars.map((v) => (
-              <div key={v} className="space-y-1">
-                <Label htmlFor={`sample-${v}`}>{v}</Label>
-                <Input
-                  id={`sample-${v}`}
-                  value={sampleVars[v] ?? ""}
-                  onChange={(e) =>
-                    setSampleVars((p) => ({ ...p, [v]: e.target.value }))
-                  }
-                />
-              </div>
-            ))}
-          </div>
-        </ZoruDialogContent>
-      </Dialog>
-
       {/* ── Diff drawer (#18) ─────────────────────────────────────── */}
       <SabsmsDetailDrawer
         open={diffOpen}
@@ -1027,6 +1021,52 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
             })}
           </div>
         )}
+      </SabsmsDetailDrawer>
+
+      {/* ── Version history drawer ─────────────────────────────────────── */}
+      <SabsmsDetailDrawer
+        open={historyOpen}
+        onOpenChange={setHistoryOpen}
+        title="Version history"
+        description="View past saves and restore bodies & variables."
+      >
+        <div className="space-y-4">
+          {!vm.history || vm.history.length === 0 ? (
+            <p className="text-sm text-slate-500">No version history yet.</p>
+          ) : (
+            vm.history.map((entry) => (
+              <div
+                key={entry.id}
+                className="rounded border border-slate-200 bg-white p-3 space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-medium">
+                    {formatUTC(entry.timestamp, true)}
+                  </div>
+                  <Badge variant="outline">{entry.status}</Badge>
+                </div>
+                <div className="text-xs text-slate-500">
+                  {entry.bodies.length} locale(s), {entry.variableDefaults.length} variable(s)
+                </div>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    setVm((p) => ({
+                      ...p,
+                      bodies: entry.bodies,
+                      variableDefaults: entry.variableDefaults,
+                    }));
+                    setHistoryOpen(false);
+                  }}
+                >
+                  Restore this version
+                </Button>
+              </div>
+            ))
+          )}
+        </div>
       </SabsmsDetailDrawer>
 
       {/* ── PII scrub preview drawer (#14) ────────────────────────── */}

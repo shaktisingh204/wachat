@@ -1,3 +1,6 @@
+import React from "react";
+import { fmtDate } from "@/lib/utils";
+
 import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
@@ -74,7 +77,7 @@ async function loadCapacityData(): Promise<CapacityData[]> {
   }));
 }
 
-export default async function SabsmsNumbersAnalyticsPage() {
+async function SabsmsNumbersAnalyticsPageContent() {
   const session = await getCachedSession();
   const workspaceId = String((session?.user as any)?._id ?? "");
   const rows = workspaceId ? await loadNumberScorecards(workspaceId) : [];
@@ -82,5 +85,14 @@ export default async function SabsmsNumbersAnalyticsPage() {
 
   return (
     <NumbersAnalyticsClient rows={rows} capacityData={capacityData} />
+  );
+}
+
+
+export default function SabsmsNumbersAnalyticsPage() {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <SabsmsNumbersAnalyticsPageContent  />
+    </React.Suspense>
   );
 }

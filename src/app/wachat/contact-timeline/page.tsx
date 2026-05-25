@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -222,7 +223,7 @@ export default function ContactTimelinePage() {
                         </Badge>
                         <span className="whitespace-nowrap text-[11px] text-zoru-ink-muted">
                           {ev.timestamp
-                            ? new Date(ev.timestamp).toLocaleString()
+                            ? fmtDate(ev.timestamp)
                             : ''}
                         </span>
                       </div>

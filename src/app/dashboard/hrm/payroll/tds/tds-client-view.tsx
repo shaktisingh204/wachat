@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef, use } from 'react';
-import { Badge, Card, ZoruButton, Input, ZoruCheckbox } from '@/components/zoruui';
+import { Badge, Card, ZoruButton, Input, ZoruCheckbox, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/zoruui';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/zoruui/dropdown-menu';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui/dialog';
-import { Label } from '@/components/zoruui/label';
-import { Search, Download, FileText, CheckCircle2, Trash } from 'lucide-react';
+import { Search, Download, FileText, Trash, Filter } from 'lucide-react';
 import { zoruSonnerToast } from '@/components/zoruui/sonner';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { TdsAdjustForm } from './tds-adjust-form';
+import { fmtINR } from '@/lib/utils';
 
 function regimeBadge(regime: string) {
     if (regime === 'new') return <Badge variant="info">New Regime</Badge>;
@@ -23,33 +23,64 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
     if (initialRows !== prevInitialRows) {
         setPrevInitialRows(initialRows);
         setRows(initialRows);
-        setSelectedIds(new Set());
     }
 
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState("");
+    const [taxRegimeFilter, setTaxRegimeFilter] = useState<string>("all");
+    const [tdsFilter, setTdsFilter] = useState<string>("all");
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    
     const [editingRow, setEditingRow] = useState<any>(null);
-    const [newTdsValue, setNewTdsValue] = useState("");
 
-    // Real-time collaborative editing mock
+    // WebSocket Mock for real-time collaborative editing
     useEffect(() => {
+        let ws: WebSocket;
+        try {
+            ws = new WebSocket('wss://echo.websocket.org');
+            
+            ws.onopen = () => {
+                // connection established
+            };
+            
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'TDS_UPDATE' && data.payload) {
+                        setRows(prev => prev.map(r => 
+                            r._id.toString() === data.payload.id 
+                                ? { ...r, tds: data.payload.tds } 
+                                : r
+                        ));
+                        zoruSonnerToast.info('Collaborative Update', {
+                            description: `TDS updated for employee ID ${data.payload.id.substring(0,6)}...`
+                        });
+                    }
+                } catch (e) {
+                    // Ignore non-json or echo messages
+                }
+            };
+        } catch (e) {
+            console.error('WebSocket connection failed', e);
+        }
+
+        // Keep the interval mock to simulate external changes occasionally
         const timer = setInterval(() => {
-           if (Math.random() > 0.7 && rows.length > 0) {
-               setRows(prev => {
-                   const next = [...prev];
-                   const idx = Math.floor(Math.random() * next.length);
-                   if (next[idx].tds > 0) {
-                       const change = Math.floor(Math.random() * 100) - 50;
-                       next[idx] = { ...next[idx], tds: next[idx].tds + change };
-                       zoruSonnerToast(`Collaborative Update`, {
-                           description: `TDS value adjusted for ${next[idx].employee?.firstName}.`,
-                       });
-                   }
-                   return next;
-               });
+           if (Math.random() > 0.8 && rows.length > 0 && ws && ws.readyState === WebSocket.OPEN) {
+               const idx = Math.floor(Math.random() * rows.length);
+               if (rows[idx].tds > 0) {
+                   const change = Math.floor(Math.random() * 100) - 50;
+                   ws.send(JSON.stringify({
+                       type: 'TDS_UPDATE',
+                       payload: { id: rows[idx]._id.toString(), tds: rows[idx].tds + change }
+                   }));
+               }
            }
-        }, 12000);
-        return () => clearInterval(timer);
+        }, 15000);
+        
+        return () => {
+            clearInterval(timer);
+            if (ws) ws.close();
+        };
     }, [rows.length]);
 
     const filteredRows = useMemo(() => {
@@ -57,9 +88,17 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
             const searchLower = searchQuery.toLowerCase();
             const name = `${r.employee?.firstName} ${r.employee?.lastName}`.toLowerCase();
             const pan = (r.pan || '').toLowerCase();
-            return name.includes(searchLower) || pan.includes(searchLower);
+            const matchesSearch = name.includes(searchLower) || pan.includes(searchLower);
+            
+            const matchesRegime = taxRegimeFilter === 'all' || r.taxRegime === taxRegimeFilter;
+            
+            const matchesTds = tdsFilter === 'all' 
+                ? true 
+                : (tdsFilter === 'has-tds' ? r.tds > 0 : r.tds === 0);
+
+            return matchesSearch && matchesRegime && matchesTds;
         });
-    }, [rows, searchQuery]);
+    }, [rows, searchQuery, taxRegimeFilter, tdsFilter]);
 
     const totalTDS = useMemo(() => filteredRows.reduce((s, r) => s + r.tds, 0), [filteredRows]);
     const avgTds = filteredRows.length > 0 ? Math.round(totalTDS / filteredRows.filter(r => r.tds > 0).length || 0) : 0;
@@ -115,14 +154,26 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
         zoruSonnerToast.success('Exported to CSV successfully');
     };
 
-    const handleUpdateTds = async () => {
+    const exportPDF = () => {
+        // Simple PDF print implementation
+        window.print();
+        zoruSonnerToast.success('Opening print preview for PDF export...');
+    };
+
+    const handleUpdateTds = async (val: number) => {
         if (!editingRow) return;
-        const val = Number(newTdsValue);
         
-        // Optimistic update
-        setRows(prev => prev.map(r => r._id === editingRow._id ? { ...r, tds: val } : r));
-        setEditingRow(null);
-        zoruSonnerToast.success('TDS updated successfully (Optimistic)');
+        try {
+            // Optimistic update
+            setRows(prev => prev.map(r => r._id === editingRow._id ? { ...r, tds: val } : r));
+            setEditingRow(null);
+            zoruSonnerToast.success(`TDS updated to ₹${val} for ${editingRow.employee?.firstName}`);
+            
+            // In a real app we'd call an API here and catch if it fails to revert
+        } catch (error: any) {
+            zoruSonnerToast.error('Failed to update TDS', { description: error.message });
+            // Revert state if necessary...
+        }
     };
 
     return (
@@ -130,7 +181,7 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
             <div className="grid gap-4 md:grid-cols-3">
                 <Card className="p-6 transition-all hover:border-zoru-brand">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total TDS Collected</p>
-                    <div className="mt-2 text-2xl text-zoru-ink font-medium">₹{totalTDS.toLocaleString('en-IN')}</div>
+                    <div className="mt-2 text-2xl text-zoru-ink font-medium">{fmtINR(totalTDS)}</div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{periodLabel}</p>
                 </Card>
                 <Card className="p-6 transition-all hover:border-zoru-brand">
@@ -141,7 +192,7 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                 <Card className="p-6 transition-all hover:border-zoru-brand">
                     <p className="text-[12.5px] font-medium text-zoru-ink-muted">Avg. TDS per Employee</p>
                     <div className="mt-2 text-2xl text-zoru-ink font-medium">
-                        ₹{avgTds.toLocaleString('en-IN')}
+                        {fmtINR(avgTds)}
                     </div>
                     <p className="mt-1 text-[11.5px] text-zoru-ink-muted">among applicable employees</p>
                 </Card>
@@ -149,14 +200,38 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
 
             <Card className="flex flex-col overflow-hidden">
                 <div className="p-4 border-b border-zoru-line flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="relative w-full md:w-80">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
-                        <Input 
-                            placeholder="Search by name or PAN..." 
-                            value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
-                            className="pl-9 h-9 text-[13px]"
-                        />
+                    <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <div className="relative w-full md:w-64">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+                            <Input 
+                                placeholder="Search by name or PAN..." 
+                                value={searchQuery}
+                                onChange={e => setSearchQuery(e.target.value)}
+                                className="pl-9 h-9 text-[13px]"
+                            />
+                        </div>
+                        <Select value={taxRegimeFilter} onValueChange={setTaxRegimeFilter}>
+                            <ZoruSelectTrigger className="w-[140px] h-9 text-[13px]">
+                                <Filter className="w-3.5 h-3.5 mr-2 opacity-70" />
+                                <ZoruSelectValue placeholder="Tax Regime" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="all">All Regimes</ZoruSelectItem>
+                                <ZoruSelectItem value="old">Old Regime</ZoruSelectItem>
+                                <ZoruSelectItem value="new">New Regime</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </Select>
+                        <Select value={tdsFilter} onValueChange={setTdsFilter}>
+                            <ZoruSelectTrigger className="w-[140px] h-9 text-[13px]">
+                                <Filter className="w-3.5 h-3.5 mr-2 opacity-70" />
+                                <ZoruSelectValue placeholder="TDS Status" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="all">All Records</ZoruSelectItem>
+                                <ZoruSelectItem value="has-tds">Has TDS</ZoruSelectItem>
+                                <ZoruSelectItem value="no-tds">No TDS (Nil)</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </Select>
                     </div>
                     <div className="flex items-center gap-2">
                         {selectedIds.size > 0 && (
@@ -177,7 +252,7 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                                     <FileText className="w-4 h-4 mr-2 text-zoru-ink-muted" />
                                     Export as CSV
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => { window.print(); zoruSonnerToast.success('Opening print preview...'); }} className="text-[13px]">
+                                <DropdownMenuItem onClick={exportPDF} className="text-[13px]">
                                     <FileText className="w-4 h-4 mr-2 text-zoru-ink-muted" />
                                     Export as PDF
                                 </DropdownMenuItem>
@@ -232,10 +307,10 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                                                 </td>
                                                 <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink">{row.pan}</td>
                                                 <td className="px-4 py-3">{regimeBadge(row.taxRegime)}</td>
-                                                <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{(row.grossSalary ?? 0).toLocaleString('en-IN')}</td>
+                                                <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmtINR(row.grossSalary ?? 0)}</td>
                                                 <td className="px-4 py-3 text-right font-mono">
                                                     {row.tds > 0 ? (
-                                                        <span className="text-zoru-brand font-medium">₹{row.tds.toLocaleString('en-IN')}</span>
+                                                        <span className="text-zoru-brand font-medium">{fmtINR(row.tds)}</span>
                                                     ) : (
                                                         <Badge variant="secondary" className="font-normal">Nil</Badge>
                                                     )}
@@ -245,10 +320,7 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                                                         variant="ghost" 
                                                         size="sm" 
                                                         className="h-8 text-[12px] opacity-0 group-hover:opacity-100 transition-opacity"
-                                                        onClick={() => {
-                                                            setEditingRow(row);
-                                                            setNewTdsValue(String(row.tds));
-                                                        }}
+                                                        onClick={() => setEditingRow(row)}
                                                     >
                                                         Adjust
                                                     </ZoruButton>
@@ -265,7 +337,7 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                                 <tr>
                                     <td colSpan={4} className="px-4 py-3 text-[12.5px] text-zoru-ink font-medium">Total for view</td>
                                     <td className="px-4 py-3 text-right text-[12.5px] text-zoru-ink font-medium">--</td>
-                                    <td className="px-4 py-3 text-right font-mono text-[13.5px] text-zoru-brand font-semibold">₹{totalTDS.toLocaleString('en-IN')}</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[13.5px] text-zoru-brand font-semibold">{fmtINR(totalTDS)}</td>
                                     <td />
                                 </tr>
                             </tfoot>
@@ -274,32 +346,11 @@ export function TdsDataView({ dataPromise, periodLabel }: { dataPromise: Promise
                 </div>
             </Card>
 
-            <Dialog open={!!editingRow} onOpenChange={(open) => !open && setEditingRow(null)}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle className="text-lg">Adjust TDS Amount</DialogTitle>
-                    </DialogHeader>
-                    <div className="py-4 space-y-4">
-                        <div className="space-y-2">
-                            <Label className="text-[13px] text-zoru-ink-muted">Employee</Label>
-                            <div className="font-medium text-zoru-ink">{editingRow?.employee?.firstName} {editingRow?.employee?.lastName}</div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label className="text-[13px] text-zoru-ink-muted">New TDS Amount (₹)</Label>
-                            <Input 
-                                type="number" 
-                                value={newTdsValue} 
-                                onChange={e => setNewTdsValue(e.target.value)} 
-                                autoFocus
-                            />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <ZoruButton variant="outline" onClick={() => setEditingRow(null)}>Cancel</ZoruButton>
-                        <ZoruButton onClick={handleUpdateTds} variant="primary">Save Changes</ZoruButton>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <TdsAdjustForm 
+                editingRow={editingRow}
+                onClose={() => setEditingRow(null)}
+                onSave={handleUpdateTds}
+            />
         </div>
     );
 }

@@ -11,6 +11,8 @@ import {
   deleteWorkflow as dbDeleteWorkflow,
   setWorkflowActive,
   saveExecution,
+  getExecutions,
+  countExecutions,
 } from '@/lib/n8n/db';
 import type { N8NWorkflow, WorkflowExecution } from '@/lib/n8n/types';
 
@@ -26,9 +28,25 @@ async function requireUser(): Promise<string> {
 
 /* ── List workflows ──────────────────────────────────────────── */
 
-export async function listN8NWorkflows(): Promise<N8NWorkflow[]> {
+export async function listN8NWorkflows(): Promise<any[]> {
   const userId = await requireUser();
-  return listWorkflows(userId);
+  const workflows = await listWorkflows(userId);
+
+  return Promise.all(
+    workflows.map(async (wf) => {
+      const [latest] = await getExecutions(wf.id, { limit: 1 });
+      const counts = await countExecutions(wf.id);
+      const totalExecutions = Object.values(counts).reduce((a, b) => a + b, 0);
+
+      return {
+        ...wf,
+        _id: wf._id?.toString() || wf.id,
+        lastRunAt: latest ? (latest.startedAt || latest.finishedAt) : undefined,
+        lastRunStatus: latest ? latest.status : null,
+        executionsCount: totalExecutions,
+      };
+    })
+  );
 }
 
 /* ── Get single workflow ─────────────────────────────────────── */

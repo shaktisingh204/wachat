@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getRedactionPolicies } from '@/app/actions/platform/data-redaction.actions';
 import { DataRedactionClient } from './client';
 

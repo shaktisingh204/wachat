@@ -1,235 +1,32 @@
-'use client';
+import { Suspense } from 'react';
+import { GridTrackingClient } from './_components/grid-tracking-client';
+import { getSeoProject } from '@/app/actions/seo.actions';
+import { Skeleton } from '@/components/zoruui';
 
-import {
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Input,
-  Label,
-  useZoruToast,
-} from '@/components/zoruui';
-import { useState, use } from 'react';
-import { MapPin, Play, Search, Map as MapIcon } from 'lucide-react';
-import { startGridTracking } from '@/app/actions/seo.actions';
-import GoogleMapReact from 'google-map-react';
+export const dynamic = 'force-dynamic';
 
-const Marker = ({ rank, lat, lng }: { rank: number; lat: number; lng: number }) => {
-    const color =
-        rank === 0
-            ? 'bg-zoru-ink-muted'
-            : rank <= 3
-              ? 'bg-zoru-success'
-              : rank <= 10
-                ? 'bg-zoru-warning'
-                : 'bg-zoru-danger';
-
-    return (
-        <div
-            className={`absolute h-10 w-10 -translate-x-1/2 -translate-y-1/2 transform cursor-pointer rounded-full border-2 border-zoru-bg text-white flex items-center justify-center text-sm shadow-[var(--zoru-shadow-sm)] transition-all hover:scale-110 ${color}`}
-            title={`Rank: ${rank || '>20'}`}
-        >
-            {rank || '-'}
-        </div>
-    );
+export const metadata = {
+  title: 'Local Geo-Grid | SabNode',
 };
 
-function GridMap({ points, center, loading }: { points: any[], center: { lat: number, lng: number }, loading: boolean }) {
-    if (loading) {
-        return (
-            <div className="flex h-[500px] w-full items-center justify-center rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2/50 text-zoru-ink-muted">
-                Scanning grid area...
-            </div>
-        );
-    }
-
-    if (!points || points.length === 0)
-        return (
-            <div className="flex h-[500px] w-full items-center justify-center rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2/50 text-zoru-ink-muted">
-                Enter keyword and location to generate grid.
-            </div>
-        );
-
-    return (
-        <div className="relative h-[500px] w-full overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2">
-            <GoogleMapReact
-                bootstrapURLKeys={{ key: '' }}
-                defaultCenter={center}
-                defaultZoom={11}
-                center={center}
-            >
-                {points.map((p, i) => (
-                    <Marker key={i} lat={p.lat} lng={p.lng} rank={p.rank} />
-                ))}
-            </GoogleMapReact>
-            
-            <div className="absolute bottom-4 right-4 flex flex-col gap-1 rounded bg-zoru-bg p-3 text-xs shadow-[var(--zoru-shadow-sm)]">
-                <div className="mb-1 font-semibold text-zoru-ink">Rank Legend</div>
-                <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-zoru-success"></div> 1-3 (Dominating)
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-zoru-warning"></div> 4-10 (Visible)
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-zoru-danger"></div> 11+ (Invisible)
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-zoru-ink-muted"></div> Not Found
-                </div>
-            </div>
-        </div>
-    );
+async function GridTrackingData({ projectId }: { projectId: string }) {
+  const project = await getSeoProject(projectId);
+  return <GridTrackingClient projectId={projectId} initialProj={project} />;
 }
 
-export default function GridTrackingPage({ params }: { params: Promise<{ projectId: string }> }) {
-    const { projectId } = use(params);
-    const { toast } = useZoruToast();
-    
-    // Dynamic settings states
-    const [keyword, setKeyword] = useState('');
-    const [lat, setLat] = useState(40.7128);
-    const [lng, setLng] = useState(-74.006);
-    const [radius, setRadius] = useState(10);
-    const [gridSize, setGridSize] = useState(3);
-    
-    const [loading, setLoading] = useState(false);
-    const [points, setPoints] = useState<any[]>([]);
-
-    async function handleScan() {
-        if (!keyword) return;
-        setLoading(true);
-        // Call updated startGridTracking with radius and gridSize
-        const result = await startGridTracking(projectId, keyword, lat, lng, radius, gridSize);
-
-        if (result.success) {
-            setPoints(result.points);
-            toast({ title: 'Scan Complete', description: 'Local geo-grid updated successfully.' });
-        } else {
-            toast({ title: 'Scan Failed', description: result.error || 'Failed to scan.', variant: 'destructive' });
-        }
-        setLoading(false);
-    }
-
-    return (
-        <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl text-zoru-ink flex items-center gap-3">
-                        <MapPin className="h-8 w-8 text-zoru-ink" />
-                        Local Geo-Grid
-                    </h1>
-                    <p className="text-zoru-ink-muted mt-1">Visualize and track your local rankings across specific neighborhoods.</p>
-                </div>
-                <Button onClick={handleScan} disabled={loading || !keyword}>
-                    <Search className="mr-2 h-4 w-4" />
-                    New Scan
-                </Button>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-[350px_1fr]">
-                <div className="flex flex-col gap-6">
-                    <Card className="h-fit">
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>Scan Configuration</ZoruCardTitle>
-                            <ZoruCardDescription>Setup your local grid parameters.</ZoruCardDescription>
-                        </ZoruCardHeader>
-                        <ZoruCardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>Target Keyword</Label>
-                                <Input
-                                    placeholder="e.g. coffee shop near me"
-                                    value={keyword}
-                                    onChange={(e) => setKeyword(e.target.value)}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Grid Size</Label>
-                                    <Input 
-                                        type="number" 
-                                        min={3} 
-                                        max={15} 
-                                        step={2} 
-                                        value={gridSize} 
-                                        onChange={(e) => setGridSize(parseInt(e.target.value) || 3)} 
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Radius (km)</Label>
-                                    <Input 
-                                        type="number" 
-                                        min={1} 
-                                        max={100} 
-                                        value={radius} 
-                                        onChange={(e) => setRadius(parseInt(e.target.value) || 10)} 
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Latitude</Label>
-                                    <Input 
-                                        type="number" 
-                                        step="any" 
-                                        value={lat} 
-                                        onChange={(e) => setLat(parseFloat(e.target.value) || 0)} 
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Longitude</Label>
-                                    <Input 
-                                        type="number" 
-                                        step="any" 
-                                        value={lng} 
-                                        onChange={(e) => setLng(parseFloat(e.target.value) || 0)} 
-                                    />
-                                </div>
-                            </div>
-
-                            <Button className="w-full" onClick={handleScan} disabled={loading || !keyword}>
-                                {loading ? (
-                                    'Scanning...'
-                                ) : (
-                                    <>
-                                        <Play className="h-4 w-4 mr-2" />
-                                        Start Scan
-                                    </>
-                                )}
-                            </Button>
-                        </ZoruCardContent>
-                    </Card>
-
-                    <Card>
-                        <ZoruCardHeader>
-                            <ZoruCardTitle>How it works</ZoruCardTitle>
-                        </ZoruCardHeader>
-                        <ZoruCardContent>
-                            <p className="text-sm text-zoru-ink-muted">
-                                We simulate GPS coordinates at multiple points around your business location in a grid pattern. This reveals exactly where you rank in local search results across different neighborhoods.
-                            </p>
-                        </ZoruCardContent>
-                    </Card>
-                </div>
-
-                <Card>
-                    <ZoruCardHeader>
-                        <ZoruCardTitle>Rank Map</ZoruCardTitle>
-                    </ZoruCardHeader>
-                    <ZoruCardContent>
-                        <GridMap 
-                            points={points} 
-                            center={{ lat, lng }} 
-                            loading={loading} 
-                        />
-                    </ZoruCardContent>
-                </Card>
-            </div>
+export default async function GridTrackingPage({ params }: { params: Promise<{ projectId: string }> }) {
+  const { projectId } = await params;
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col gap-6">
+        <Skeleton className="h-12 w-1/3" />
+        <div className="grid gap-6 md:grid-cols-[350px_1fr]">
+          <Skeleton className="h-[600px] w-full" />
+          <Skeleton className="h-[600px] w-full" />
         </div>
-    );
+      </div>
+    }>
+      <GridTrackingData projectId={projectId} />
+    </Suspense>
+  );
 }
-

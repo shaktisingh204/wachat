@@ -69,7 +69,8 @@ interface AwardsListClientProps {
 function fmtDate(v: unknown): string {
     if (!v) return '—';
     const d = new Date(v as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toISOString().slice(0, 10);
 }
 
 export function AwardsListClient({

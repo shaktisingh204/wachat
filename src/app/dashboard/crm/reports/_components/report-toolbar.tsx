@@ -130,16 +130,10 @@ export function BarRow({
 }
 
 /** Format currency using INR by default. */
+import { fmtINR } from '@/lib/utils';
+
 export function fmtMoney(n: number, currency = 'INR'): string {
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(n || 0);
-  } catch {
-    return `${currency} ${Math.round(n || 0).toLocaleString('en-IN')}`;
-  }
+  return fmtINR(n, currency);
 }
 
 export function fmtNumber(n: number): string {

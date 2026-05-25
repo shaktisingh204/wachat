@@ -17,6 +17,8 @@ import {
   Input,
   Skeleton,
   cn,
+  ZoruCheckbox,
+  zoruSonnerToast,
 } from '@/components/zoruui';
 import {
   ChevronDown,
@@ -24,7 +26,9 @@ import {
   ExternalLink,
   Search,
   Smartphone,
-  Star } from "lucide-react";
+  Star,
+  StarOff
+} from "lucide-react";
 
 /**
  * /sabwa/starred — Cross-chat starred-message view.
@@ -48,7 +52,7 @@ import Link from "next/link";
 import { MessageBubble } from "@/app/sabwa/_components/message-bubble";
 import { useStarred } from "@/lib/sabwa/use-sabwa-data";
 import { useSabwaSession } from "@/lib/sabwa/session-context";
-import type { SabwaStarredEntry } from "@/app/actions/sabwa.actions";
+import { updateMessage, type SabwaStarredEntry } from "@/app/actions/sabwa.actions";
 
 const PREVIEW_LIMIT = 3;
 
@@ -98,6 +102,66 @@ export default function SabWaStarredPage() {
   const { data: items, loading, error, refetch } = useStarred(sessionId);
   const [query, setQuery] = React.useState("");
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
+
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const [isBulkUnstarring, setIsBulkUnstarring] = React.useState(false);
+
+  const handleSelect = React.useCallback((messageId: string, sel: boolean) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (sel) next.add(messageId);
+      else next.delete(messageId);
+      return next;
+    });
+  }, []);
+
+  const handleUnstar = React.useCallback(async (chatJid: string, messageId: string) => {
+    if (!sessionId) return;
+    try {
+      const res = await updateMessage(sessionId, chatJid, messageId, { op: 'star', starred: false });
+      if (!res.ok) throw new Error(res.error);
+      zoruSonnerToast.success('Message unstarred');
+      
+      setSelectedIds((prev) => {
+        if (prev.has(messageId)) {
+          const next = new Set(prev);
+          next.delete(messageId);
+          return next;
+        }
+        return prev;
+      });
+      
+      await refetch();
+    } catch (err: any) {
+      zoruSonnerToast.error(err.message || 'Failed to unstar message');
+    }
+  }, [sessionId, refetch]);
+
+  const handleBulkUnstar = React.useCallback(async () => {
+    if (!sessionId || selectedIds.size === 0) return;
+    setIsBulkUnstarring(true);
+    let successCount = 0;
+    try {
+      const entriesToUnstar = items.filter(entry => selectedIds.has(entry.message.messageId));
+      
+      await Promise.all(entriesToUnstar.map(async (entry) => {
+        const res = await updateMessage(sessionId, entry.chatJid, entry.message.messageId, { op: 'star', starred: false });
+        if (res.ok) successCount++;
+      }));
+      
+      if (successCount > 0) {
+         zoruSonnerToast.success(`Unstarred ${successCount} message${successCount > 1 ? 's' : ''}`);
+         setSelectedIds(new Set());
+         await refetch();
+      } else {
+         zoruSonnerToast.error('Failed to unstar messages');
+      }
+    } catch (err: any) {
+      zoruSonnerToast.error(err.message || 'Failed to bulk unstar');
+    } finally {
+      setIsBulkUnstarring(false);
+    }
+  }, [sessionId, selectedIds, items, refetch]);
 
   const groups = React.useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -178,16 +242,43 @@ export default function SabWaStarredPage() {
         </div>
       </header>
 
-      <div className="relative max-w-xl">
-        <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-        <Input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search starred messages"
-          className="h-9 pl-8"
-          aria-label="Search starred messages"
-        />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between max-w-2xl">
+        <div className="relative max-w-xl flex-1">
+          <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+          <Input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search starred messages"
+            className="h-9 pl-8"
+            aria-label="Search starred messages"
+          />
+        </div>
+        {selectedIds.size > 0 && (
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[13px] text-zoru-ink-muted">{selectedIds.size} selected</span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-9"
+              onClick={() => setSelectedIds(new Set())}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="h-9"
+              onClick={handleBulkUnstar}
+              disabled={isBulkUnstarring}
+            >
+              <StarOff className="mr-2 h-4 w-4" />
+              {isBulkUnstarring ? "Unstarring..." : "Unstar"}
+            </Button>
+          </div>
+        )}
       </div>
 
       {error ? (
@@ -256,9 +347,15 @@ export default function SabWaStarredPage() {
                       </Button>
                     ) : null}
                   </ZoruCardHeader>
-                  <ZoruCardContent className="space-y-3">
+                  <ZoruCardContent className="space-y-4">
                     {visible.map((entry) => (
-                      <StarredPreview key={entry.message.messageId} entry={entry} />
+                      <StarredPreview
+                        key={entry.message.messageId}
+                        entry={entry}
+                        selected={selectedIds.has(entry.message.messageId)}
+                        onSelect={(sel) => handleSelect(entry.message.messageId, sel)}
+                        onUnstar={() => handleUnstar(entry.chatJid, entry.message.messageId)}
+                      />
                     ))}
                   </ZoruCardContent>
                 </Card>
@@ -273,29 +370,62 @@ export default function SabWaStarredPage() {
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function StarredPreview({ entry }: { entry: SabwaStarredEntry }) {
+function StarredPreview({
+  entry,
+  selected,
+  onSelect,
+  onUnstar
+}: {
+  entry: SabwaStarredEntry;
+  selected?: boolean;
+  onSelect?: (sel: boolean) => void;
+  onUnstar?: () => void;
+}) {
   const { message, chatJid } = entry;
   const jumpHref = `/sabwa/inbox?chat=${encodeURIComponent(
     chatJid,
   )}&message=${encodeURIComponent(message.messageId)}`;
 
   return (
-    <div className="space-y-1.5">
-      <div
-        className={cn(
-          "max-w-2xl",
-          message.fromMe ? "ml-auto" : "mr-auto",
-        )}
-      >
-        <MessageBubble message={message} fromMe={message.fromMe} />
-      </div>
-      <div className="flex justify-end">
-        <Button asChild variant="link" size="sm" className="h-6 px-1">
-          <Link href={jumpHref}>
-            <ExternalLink className="mr-1 h-3 w-3" />
-            Jump to message
-          </Link>
-        </Button>
+    <div className="flex items-start gap-3 group">
+      {onSelect && (
+        <div className="pt-2 shrink-0">
+          <ZoruCheckbox
+            checked={selected}
+            onCheckedChange={(checked) => onSelect(checked === true)}
+            aria-label={`Select message ${message.messageId}`}
+          />
+        </div>
+      )}
+      <div className="flex-1 space-y-1.5 min-w-0">
+        <div
+          className={cn(
+            "max-w-2xl",
+            message.fromMe ? "ml-auto" : "mr-auto",
+          )}
+        >
+          <MessageBubble message={message} fromMe={message.fromMe} />
+        </div>
+        <div className="flex justify-end items-center gap-1">
+          {onUnstar && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-zoru-ink-muted hover:text-zoru-danger hover:bg-zoru-danger/10"
+              onClick={onUnstar}
+            >
+              <StarOff className="mr-1.5 h-3.5 w-3.5" />
+              <span className="text-[12px] font-medium">Unstar</span>
+            </Button>
+          )}
+          <Button asChild variant="ghost" size="sm" className="h-7 px-2 text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-hover">
+            <Link href={jumpHref}>
+              <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+              <span className="text-[12px] font-medium">Jump to message</span>
+            </Link>
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -69,7 +70,7 @@ function WACatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
       </div>
 
       <div className="mt-4 text-[11px] text-zoru-ink-muted">
-        Created {new Date(catalog.createdAt).toLocaleDateString()}
+        Created {fmtDate(catalog.createdAt)}
       </div>
 
       <div className="mt-auto pt-5">

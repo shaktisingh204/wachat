@@ -13,58 +13,142 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/zoruui/button';
 import { Input } from '@/components/zoruui/input';
 import { Label } from '@/components/zoruui/label';
+import { Switch } from '@/components/zoruui/switch';
+import { Checkbox } from '@/components/zoruui/checkbox';
+import { Avatar, ZoruAvatarFallback as AvatarFallback, ZoruAvatarImage as AvatarImage } from '@/components/zoruui/avatar';
 import { updateClientProfile } from '@/app/actions/client-portal.actions';
 
 export interface ProfileFormProps {
     initialName: string;
     email: string;
     initialMobile: string;
+    initialAvatarUrl: string;
+    initialTwoFactorEnabled: boolean;
+    initialNotificationPreferences: { email: boolean; sms: boolean };
 }
 
-export function ProfileForm({ initialName, email, initialMobile }: ProfileFormProps) {
+export function ProfileForm({
+    initialName,
+    email,
+    initialMobile,
+    initialAvatarUrl,
+    initialTwoFactorEnabled,
+    initialNotificationPreferences,
+}: ProfileFormProps) {
     const router = useRouter();
     const [name, setName] = React.useState(initialName);
     const [mobile, setMobile] = React.useState(initialMobile);
     const [password, setPassword] = React.useState('');
+    const [avatarUrl, setAvatarUrl] = React.useState(initialAvatarUrl);
+    const [twoFactorEnabled, setTwoFactorEnabled] = React.useState(initialTwoFactorEnabled);
+    const [notifEmail, setNotifEmail] = React.useState(initialNotificationPreferences.email);
+    const [notifSms, setNotifSms] = React.useState(initialNotificationPreferences.sms);
+
     const [submitting, setSubmitting] = React.useState(false);
     const [message, setMessage] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
+
+    // Inline validation states
+    const [nameError, setNameError] = React.useState<string | null>(null);
+    const [mobileError, setMobileError] = React.useState<string | null>(null);
+    const [passwordError, setPasswordError] = React.useState<string | null>(null);
+
+    const validateName = (val: string) => {
+        if (!val.trim()) return 'Name is required.';
+        return null;
+    };
+    const validateMobile = (val: string) => {
+        if (val && !/^\+?[0-9\s\-()]+$/.test(val)) return 'Invalid mobile format.';
+        return null;
+    };
+    const validatePassword = (val: string) => {
+        if (val && val.length < 8) return 'Password must be at least 8 characters.';
+        return null;
+    };
+
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setName(e.target.value);
+        setNameError(validateName(e.target.value));
+    };
+
+    const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setMobile(e.target.value);
+        setMobileError(validateMobile(e.target.value));
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value);
+        setPasswordError(validatePassword(e.target.value));
+    };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setError(null);
         setMessage(null);
-        if (password && password.length < 8) {
-            setError('New password must be at least 8 characters.');
+
+        const nErr = validateName(name);
+        const mErr = validateMobile(mobile);
+        const pErr = validatePassword(password);
+        
+        setNameError(nErr);
+        setMobileError(mErr);
+        setPasswordError(pErr);
+
+        if (nErr || mErr || pErr) {
             return;
         }
+
         setSubmitting(true);
         const res = await updateClientProfile({
             name,
             mobile,
             password: password || undefined,
+            avatarUrl,
+            twoFactorEnabled,
+            notificationPreferences: { email: notifEmail, sms: notifSms },
         });
         setSubmitting(false);
+
         if (res.error) {
             setError(res.error);
             return;
         }
-        setMessage('Profile updated.');
+        setMessage('Profile updated successfully.');
         setPassword('');
         router.refresh();
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <div className="flex items-center gap-4">
+                <Avatar className="h-16 w-16 shadow-[var(--zoru-shadow-sm)] border border-zoru-line">
+                    <AvatarImage src={avatarUrl} alt={name} />
+                    <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col flex-1 gap-1.5">
+                    <Label htmlFor="pf-avatar">Avatar URL</Label>
+                    <Input
+                        id="pf-avatar"
+                        value={avatarUrl}
+                        onChange={(e) => setAvatarUrl(e.target.value)}
+                        placeholder="https://example.com/avatar.png"
+                    />
+                    <p className="text-xs text-zoru-ink-muted">Enter a URL for your profile picture.</p>
+                </div>
+            </div>
+
             <div className="flex flex-col gap-1.5">
                 <Label htmlFor="pf-name">Name</Label>
                 <Input
                     id="pf-name"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
+                    onChange={handleNameChange}
+                    onBlur={() => setNameError(validateName(name))}
+                    aria-invalid={!!nameError}
                 />
+                {nameError && <p className="text-xs text-zoru-danger-ink">{nameError}</p>}
             </div>
+
             <div className="flex flex-col gap-1.5">
                 <Label htmlFor="pf-email">Email</Label>
                 <Input id="pf-email" value={email} readOnly disabled />
@@ -72,40 +156,82 @@ export function ProfileForm({ initialName, email, initialMobile }: ProfileFormPr
                     Contact support to change your sign-in email.
                 </p>
             </div>
+
             <div className="flex flex-col gap-1.5">
                 <Label htmlFor="pf-mobile">Mobile</Label>
                 <Input
                     id="pf-mobile"
                     value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
+                    onChange={handleMobileChange}
+                    onBlur={() => setMobileError(validateMobile(mobile))}
                     type="tel"
                     autoComplete="tel"
+                    aria-invalid={!!mobileError}
                 />
+                {mobileError && <p className="text-xs text-zoru-danger-ink">{mobileError}</p>}
             </div>
+
             <div className="flex flex-col gap-1.5">
                 <Label htmlFor="pf-password">New password</Label>
                 <Input
                     id="pf-password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={handlePasswordChange}
+                    onBlur={() => setPasswordError(validatePassword(password))}
                     type="password"
                     placeholder="Leave blank to keep current password"
                     autoComplete="new-password"
-                    minLength={8}
+                    aria-invalid={!!passwordError}
                 />
+                {passwordError && <p className="text-xs text-zoru-danger-ink">{passwordError}</p>}
             </div>
+
+            <div className="flex flex-col gap-3 py-2 border-t border-b border-zoru-line">
+                <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-0.5">
+                        <Label>Two-Factor Authentication</Label>
+                        <p className="text-xs text-zoru-ink-muted">Require an extra step to sign in.</p>
+                    </div>
+                    <Switch
+                        checked={twoFactorEnabled}
+                        onCheckedChange={setTwoFactorEnabled}
+                    />
+                </div>
+                
+                <div className="flex flex-col gap-2 mt-2">
+                    <Label>Notification Preferences</Label>
+                    <div className="flex items-center gap-2">
+                        <Checkbox 
+                            id="notif-email" 
+                            checked={notifEmail} 
+                            onCheckedChange={(c) => setNotifEmail(c === true)} 
+                        />
+                        <Label htmlFor="notif-email" className="font-normal text-sm">Email notifications</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Checkbox 
+                            id="notif-sms" 
+                            checked={notifSms} 
+                            onCheckedChange={(c) => setNotifSms(c === true)} 
+                        />
+                        <Label htmlFor="notif-sms" className="font-normal text-sm">SMS notifications</Label>
+                    </div>
+                </div>
+            </div>
+
             {error ? (
-                <div className="text-sm text-zoru-danger-ink" role="alert">
+                <div className="text-sm text-zoru-danger-ink bg-zoru-danger-bg p-2 rounded border border-zoru-danger-line" role="alert">
                     {error}
                 </div>
             ) : null}
             {message ? (
-                <div className="text-sm text-zoru-ink-muted" role="status">
+                <div className="text-sm text-zoru-success-ink bg-zoru-success-bg p-2 rounded border border-zoru-success-line" role="status">
                     {message}
                 </div>
             ) : null}
+
             <div className="flex justify-end">
-                <Button type="submit" disabled={submitting}>
+                <Button type="submit" disabled={submitting || !!nameError || !!mobileError || !!passwordError}>
                     {submitting ? 'Saving…' : 'Save changes'}
                 </Button>
             </div>

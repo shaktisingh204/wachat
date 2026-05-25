@@ -1,3 +1,4 @@
+import { fmtDate, fmtINR } from '@/lib/utils';
 import { Card } from '@/components/zoruui';
 import {
   Award } from 'lucide-react';
@@ -57,7 +58,7 @@ export default async function RecognitionDetailPage({
             </p>
             {row.monetaryReward != null ? (
               <p className="mt-0.5 text-xs text-amber-800">
-                {row.currency ?? ''} {row.monetaryReward}
+                {fmtINR(row.monetaryReward, row.currency)}
               </p>
             ) : null}
           </div>
@@ -73,7 +74,7 @@ export default async function RecognitionDetailPage({
             { label: 'Linked value', value: row.linkedValue },
             {
               label: 'Awarded',
-              value: row.givenAt ? new Date(row.givenAt).toLocaleDateString() : null,
+              value: row.givenAt ? fmtDate(row.givenAt) : null,
             },
             { label: 'Message', value: row.message, fullWidth: true },
           ],

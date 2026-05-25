@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import {
   notFound,
   redirect } from 'next/navigation';
@@ -14,6 +15,7 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getRoleById } from '@/app/actions/worksuite/rbac.actions';
 import type { WsRole } from '@/lib/worksuite/rbac-types';
+import { LoaderCircle } from 'lucide-react';
 
 import { RoleForm } from '../../_components/role-form';
 
@@ -21,13 +23,7 @@ export const dynamic = 'force-dynamic';
 
 const BASE = '/dashboard/crm/settings/roles';
 
-export default async function EditRolePage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-
+async function EditRoleFormContainer({ id }: { id: string }) {
   const session = await getSession();
   if (!session?.user) redirect('/login');
 
@@ -44,5 +40,25 @@ export default async function EditRolePage({
     >
       <RoleForm initialData={role} />
     </EntityDetailShell>
+  );
+}
+
+export default async function EditRolePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-60 items-center justify-center">
+          <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+        </div>
+      }
+    >
+      <EditRoleFormContainer id={id} />
+    </Suspense>
   );
 }

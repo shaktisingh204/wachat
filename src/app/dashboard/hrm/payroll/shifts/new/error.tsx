@@ -1,7 +1,8 @@
 'use client';
 
-import * as React from 'react';
-import { Button, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription } from '@/components/zoruui';
+import { useEffect } from 'react';
+import { Button } from '@/components/zoruui';
+import { AlertCircle } from 'lucide-react';
 
 export default function ErrorBoundary({
     error,
@@ -10,21 +11,20 @@ export default function ErrorBoundary({
     error: Error & { digest?: string };
     reset: () => void;
 }) {
-    React.useEffect(() => {
-        console.error('Error in new shift workspace:', error);
+    useEffect(() => {
+        console.error(error);
     }, [error]);
 
     return (
-        <div className="flex h-full flex-col items-center justify-center p-6 text-center">
-            <ZoruPageHeading className="mb-2 justify-center">
-                <ZoruPageTitle>Something went wrong</ZoruPageTitle>
-            </ZoruPageHeading>
-            <ZoruPageDescription className="mb-6">
-                An unexpected error occurred in the shift creation workspace.
-                <br />
-                {error.message}
-            </ZoruPageDescription>
-            <Button onClick={() => reset()}>Try again</Button>
+        <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
+            <AlertCircle className="h-10 w-10 text-destructive" />
+            <div className="text-center">
+                <h2 className="text-lg font-semibold">Something went wrong!</h2>
+                <p className="text-sm text-zoru-ink-muted">Failed to load or save shift drafts.</p>
+            </div>
+            <Button onClick={() => reset()} variant="outline">
+                Try again
+            </Button>
         </div>
     );
 }

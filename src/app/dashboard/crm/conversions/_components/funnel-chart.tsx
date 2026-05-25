@@ -1,6 +1,10 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
+import { gsap } from 'gsap';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(useGSAP);
 
 interface FunnelStep {
     id: string;
@@ -11,6 +15,7 @@ interface FunnelStep {
 
 export function FunnelChart({ data }: { data: FunnelStep[] }) {
     const [hovered, setHovered] = useState<string | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const maxVal = Math.max(...data.map(d => d.value));
     
@@ -43,8 +48,39 @@ export function FunnelChart({ data }: { data: FunnelStep[] }) {
         });
     }, [data, maxVal, width, rowHeight]);
 
+    useGSAP(() => {
+        gsap.from('.funnel-polygon', {
+            duration: 0.8,
+            scaleY: 0,
+            transformOrigin: 'top center',
+            stagger: 0.15,
+            ease: 'power3.out',
+            clearProps: 'all'
+        });
+        
+        gsap.from('.funnel-text', {
+            duration: 0.6,
+            opacity: 0,
+            y: -10,
+            stagger: 0.15,
+            delay: 0.3,
+            ease: 'power2.out',
+            clearProps: 'all'
+        });
+
+        gsap.from('.funnel-dropoff', {
+            duration: 0.4,
+            opacity: 0,
+            x: -20,
+            stagger: 0.15,
+            delay: 0.5,
+            ease: 'back.out(1.5)',
+            clearProps: 'all'
+        });
+    }, { scope: containerRef, dependencies: [data] });
+
     return (
-        <div className="flex flex-col items-center w-full">
+        <div ref={containerRef} className="flex flex-col items-center w-full">
             <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible font-sans drop-shadow-sm">
                 {polygons.map((p, i) => {
                     const prevValue = i > 0 ? data[i - 1].value : null;
@@ -61,7 +97,7 @@ export function FunnelChart({ data }: { data: FunnelStep[] }) {
                                 <polygon 
                                     points={p.points} 
                                     fill={p.color} 
-                                    className="transition-all duration-300 hover:brightness-110"
+                                    className="funnel-polygon transition-all duration-300 hover:brightness-110"
                                 />
                                 <text 
                                     x={width / 2} 
@@ -71,14 +107,14 @@ export function FunnelChart({ data }: { data: FunnelStep[] }) {
                                     fill="white"
                                     fontSize="14"
                                     fontWeight="600"
-                                    className="pointer-events-none drop-shadow-md"
+                                    className="funnel-text pointer-events-none drop-shadow-md"
                                 >
                                     {p.label} - {p.value}
                                 </text>
                             </g>
                             
                             {dropOffRate !== null && (
-                                <g className="pointer-events-none">
+                                <g className="funnel-dropoff pointer-events-none">
                                     <rect 
                                         x={width - 60} 
                                         y={p.midY - rowHeight / 2 - 12} 

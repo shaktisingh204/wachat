@@ -4,6 +4,7 @@ import { Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelec
 import * as React from 'react';
 
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
+import { useAccountingStore } from '../../_components/accounting-store';
 import type { CoaNature } from './types';
 
 export interface CoaFilterState {
@@ -32,6 +33,13 @@ interface CoaFiltersProps {
 }
 
 export function CoaFilters({ value, onChange, groups, subNatures, currencies }: CoaFiltersProps) {
+    const { standard, setStandard, fiscalYear, setFiscalYear } = useAccountingStore();
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     const visibleGroups = value.nature === 'all'
         ? groups
         : groups.filter((g) => g.type === value.nature);
@@ -95,6 +103,38 @@ export function CoaFilters({ value, onChange, groups, subNatures, currencies }: 
                 allLabel="All statuses"
                 placeholder="Status"
             />
+
+            <div className="ml-auto flex items-center gap-2">
+                {isMounted ? (
+                    <>
+                        <Select value={standard} onValueChange={(v: any) => setStandard(v)}>
+                            <ZoruSelectTrigger className="h-9 w-[100px] border-dashed">
+                                <ZoruSelectValue placeholder="Standard" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="GAAP">GAAP</ZoruSelectItem>
+                                <ZoruSelectItem value="IFRS">IFRS</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </Select>
+
+                        <Select value={fiscalYear} onValueChange={(v: any) => setFiscalYear(v)}>
+                            <ZoruSelectTrigger className="h-9 w-[130px] border-dashed">
+                                <ZoruSelectValue placeholder="Fiscal Year" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="current">Current FY</ZoruSelectItem>
+                                <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
+                                <ZoruSelectItem value="custom">Custom</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </Select>
+                    </>
+                ) : (
+                    <>
+                        <div className="h-9 w-[100px] animate-pulse rounded-md bg-secondary" />
+                        <div className="h-9 w-[130px] animate-pulse rounded-md bg-secondary" />
+                    </>
+                )}
+            </div>
         </div>
     );
 }

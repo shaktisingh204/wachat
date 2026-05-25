@@ -8,6 +8,8 @@ interface PageProps {
     params: Promise<{ id: string }>;
 }
 
+import React from 'react';
+
 export default async function PortalActivityPage({ params }: PageProps) {
     const { id } = await params;
     const user = await getPortalUserById(id);
@@ -19,7 +21,9 @@ export default async function PortalActivityPage({ params }: PageProps) {
             eyebrow="PORTAL ACTIVITY"
             back={{ href: `/dashboard/crm/portal/${id}`, label: 'Back to portal user' }}
         >
-            <EntityAuditTimeline entityKind="portal" entityId={id} />
+            <React.Suspense fallback={<div className="h-64 w-full animate-pulse bg-zoru-surface-2 rounded-md" />}>
+                <EntityAuditTimeline entityKind="portal_user" entityId={id} />
+            </React.Suspense>
         </EntityDetailShell>
     );
 }

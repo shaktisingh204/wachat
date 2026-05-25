@@ -46,7 +46,7 @@ export type SabwaMessageStatus =
 
 export type SabwaScheduledKind = 'one_off' | 'recurring';
 
-export type SabwaScheduledStatus = 'pending' | 'sent' | 'failed' | 'cancelled';
+export type SabwaScheduledStatus = 'pending' | 'paused' | 'sent' | 'failed' | 'cancelled';
 
 export type SabwaScheduledTargetType = 'individual' | 'group' | 'broadcast';
 
@@ -259,6 +259,8 @@ export interface SabwaScheduled {
 
 // ─── sabwa_templates ────────────────────────────────────────────────────────
 
+export type SabwaTemplateApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'PAUSED' | 'UNMAPPED';
+
 export interface SabwaTemplate {
   _id: ObjectId;
   projectId: ObjectId;
@@ -269,6 +271,7 @@ export interface SabwaTemplate {
   variables: string[];
   mediaSabFileId?: string;
   usageCount: number;
+  approvalStatus?: SabwaTemplateApprovalStatus;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -423,3 +426,21 @@ export interface SabwaApiKey {
   createdAt: Date;
   updatedAt: Date;
 }
+
+
+// ─── sabwa_statuses ────────────────────────────────────────────────────────
+export interface SabwaStatus {
+  _id: import('mongodb').ObjectId;
+  projectId: import('mongodb').ObjectId;
+  sessionId: import('mongodb').ObjectId;
+  kind: 'text' | 'media';
+  body?: string;
+  bgColour?: string;
+  mediaUrl?: string;
+  mediaName?: string;
+  audience: 'everyone' | 'except' | 'only';
+  viewers: { jid: string; name: string; ts: Date }[];
+  reposters: { jid: string; name: string }[];
+  ts: Date;
+}
+

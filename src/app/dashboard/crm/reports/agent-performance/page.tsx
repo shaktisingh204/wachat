@@ -1,6 +1,4 @@
-export const dynamic = 'force-dynamic';
-
-import * as React from 'react';
+import React, { Suspense } from 'react';
 
 import {
   Badge,
@@ -27,6 +25,9 @@ import {
   getHrReportDepartments,
   getSalesAgentPerformance,
 } from '@/app/actions/crm-reports.actions';
+import ReportsLoading from '../loading';
+
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   searchParams: Promise<{
@@ -38,14 +39,19 @@ interface PageProps {
   }>;
 }
 
-export default async function AgentPerformancePage(props: PageProps) {
-  const sp = await props.searchParams;
-  const page = Math.max(1, sp.page ? parseInt(sp.page, 10) : 1);
-  const limit = Math.min(100, Math.max(5, sp.limit ? parseInt(sp.limit, 10) : 20));
+/* ─── Server Container ────────────────────────────────────────────── */
+
+async function AgentPerformanceContainer({
+  searchParams,
+}: {
+  searchParams: Awaited<PageProps['searchParams']>;
+}) {
+  const page = Math.max(1, searchParams.page ? parseInt(searchParams.page, 10) : 1);
+  const limit = Math.min(100, Math.max(5, searchParams.limit ? parseInt(searchParams.limit, 10) : 20));
 
   const [departments, report] = await Promise.all([
     getHrReportDepartments(),
-    getSalesAgentPerformance(sp.from, sp.to, sp.departmentId),
+    getSalesAgentPerformance(searchParams.from, searchParams.to, searchParams.departmentId),
   ]);
 
   const { rows, totals } = report;
@@ -84,9 +90,9 @@ export default async function AgentPerformancePage(props: PageProps) {
       subtitle="Per-agent leads handled, deals closed and revenue."
       primaryAction={
         <HrReportToolbar
-          from={sp.from}
-          to={sp.to}
-          departmentId={sp.departmentId}
+          from={searchParams.from}
+          to={searchParams.to}
+          departmentId={searchParams.departmentId}
           departments={departments}
           exportProps={{
             filename: 'agent-performance',
@@ -202,5 +208,15 @@ export default async function AgentPerformancePage(props: PageProps) {
         </div>
       </Card>
     </EntityListShell>
+  );
+}
+
+export default async function AgentPerformancePage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+
+  return (
+    <Suspense fallback={<ReportsLoading />}>
+      <AgentPerformanceContainer searchParams={sp} />
+    </Suspense>
   );
 }

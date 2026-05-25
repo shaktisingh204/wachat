@@ -15,31 +15,130 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  Switch,
   useZoruToast,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Badge,
+  Label,
 } from '@/components/zoruui';
-import {
-  useState } from 'react';
-import { ArrowRight,
-  Layers,
-  MessageSquare,
-  Phone,
-  Shield,
-  Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Edit2, Trash2, Phone, Bot, User } from 'lucide-react';
 
-/**
- * Wachat Two-Line — ZoruUI migration.
- * Concept overview + activate dialog. The "live preview" is now a
- * neutral inline mock of the two-line shell — no legacy sidebar
- * dependency.
- */
+type Team = { id: string; name: string };
+type RouteType = 'bot' | 'agent';
 
-import * as React from 'react';
+interface PhoneNumber {
+  id: string;
+  number: string;
+  label: string;
+  teamId: string;
+  defaultRoute: RouteType;
+}
 
-export default function TwoLineSidebarDemoPage() {
+const TEAMS: Team[] = [
+  { id: 'team_1', name: 'Sales Team' },
+  { id: 'team_2', name: 'Support Team' },
+  { id: 'team_3', name: 'Marketing' },
+  { id: 'team_4', name: 'Global Ops' },
+];
+
+const INITIAL_NUMBERS: PhoneNumber[] = [
+  {
+    id: 'num_1',
+    number: '+1 (415) 555-0142',
+    label: 'Primary Sales',
+    teamId: 'team_1',
+    defaultRoute: 'agent',
+  },
+  {
+    id: 'num_2',
+    number: '+1 (415) 555-0177',
+    label: 'Support Bot',
+    teamId: 'team_2',
+    defaultRoute: 'bot',
+  },
+];
+
+export default function MultiNumberManagementPage() {
   const { toast } = useZoruToast();
-  const [activateOpen, setActivateOpen] = useState(false);
-  const [enabled, setEnabled] = useState(false);
+  const [numbers, setNumbers] = useState<PhoneNumber[]>(INITIAL_NUMBERS);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Dialog states
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  // Form states
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Partial<PhoneNumber>>({});
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) return null; // Prevent hydration mismatch
+
+  const handleOpenAdd = () => {
+    setFormData({
+      number: '',
+      label: '',
+      teamId: TEAMS[0].id,
+      defaultRoute: 'bot',
+    });
+    setIsAddOpen(true);
+  };
+
+  const handleOpenEdit = (num: PhoneNumber) => {
+    setEditingId(num.id);
+    setFormData({ ...num });
+    setIsEditOpen(true);
+  };
+
+  const handleSaveAdd = () => {
+    if (!formData.number || !formData.label) {
+      toast({ title: 'Error', description: 'Please fill in all required fields.' });
+      return;
+    }
+    const newNumber: PhoneNumber = {
+      id: `num_${Date.now()}`,
+      number: formData.number,
+      label: formData.label,
+      teamId: formData.teamId || TEAMS[0].id,
+      defaultRoute: (formData.defaultRoute as RouteType) || 'bot',
+    };
+    setNumbers([...numbers, newNumber]);
+    setIsAddOpen(false);
+    toast({ title: 'Number added', description: `${newNumber.number} has been added.` });
+  };
+
+  const handleSaveEdit = () => {
+    if (!formData.number || !formData.label) {
+      toast({ title: 'Error', description: 'Please fill in all required fields.' });
+      return;
+    }
+    setNumbers(
+      numbers.map((n) =>
+        n.id === editingId ? ({ ...n, ...formData } as PhoneNumber) : n
+      )
+    );
+    setIsEditOpen(false);
+    toast({ title: 'Number updated', description: 'Your changes have been saved.' });
+  };
+
+  const handleDelete = (id: string) => {
+    setNumbers(numbers.filter((n) => n.id !== id));
+    toast({ title: 'Number deleted', description: 'The phone number has been removed.' });
+  };
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
@@ -54,7 +153,7 @@ export default function TwoLineSidebarDemoPage() {
           </ZoruBreadcrumbItem>
           <ZoruBreadcrumbSeparator />
           <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Two-line</ZoruBreadcrumbPage>
+            <ZoruBreadcrumbPage>Numbers & Routing</ZoruBreadcrumbPage>
           </ZoruBreadcrumbItem>
         </ZoruBreadcrumbList>
       </Breadcrumb>
@@ -62,171 +161,236 @@ export default function TwoLineSidebarDemoPage() {
       <div className="mt-5 flex items-end justify-between gap-6">
         <div className="min-w-0">
           <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Two-line workspace
+            Numbers & Routing
           </h1>
           <p className="mt-1.5 max-w-[680px] text-[13px] text-zoru-ink-muted">
-            Run two distinct WhatsApp lines side-by-side — keep sales and
-            support inboxes isolated while sharing one team and one billing
-            plan.
+            Manage your WhatsApp Business API (WABA) numbers. Bind numbers to specific
+            teams and configure their default routing behavior.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
-            <Switch
-              checked={enabled}
-              onCheckedChange={setEnabled}
-              aria-label="Two-line preview"
-            />
-            {enabled ? 'Preview on' : 'Preview off'}
-          </span>
-          <Button onClick={() => setActivateOpen(true)}>
-            Activate two-line <ArrowRight />
+          <Button onClick={handleOpenAdd}>
+            <Plus className="mr-2 h-4 w-4" /> Add number
           </Button>
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <FeatureCard
-          icon={<Layers />}
-          title="Two inboxes, one team"
-          description="Each line keeps its own conversation history, labels, and templates — agents toggle in a click."
-        />
-        <FeatureCard
-          icon={<Shield />}
-          title="Tighter access control"
-          description="Scope agents and bots to a single line. Compliance teams see exactly who can act on which number."
-        />
-        <FeatureCard
-          icon={<Sparkles />}
-          title="Independent quality"
-          description="Each line keeps its own Meta quality score, so a bad campaign on one number can't drag the other down."
-        />
-      </div>
-
       <Card className="mt-6 overflow-hidden p-0">
-        <div className="border-b border-zoru-line px-5 py-3">
-          <p className="text-[12px] uppercase tracking-wide text-zoru-ink-muted">
-            Live preview
-          </p>
-        </div>
-        <div className="p-6">
-          <TwoLinePreview />
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Phone Number</TableHead>
+              <TableHead>Label</TableHead>
+              <TableHead>Assigned Team</TableHead>
+              <TableHead>Default Route</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {numbers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="py-8 text-center text-zoru-ink-muted">
+                  No phone numbers configured. Click "Add number" to get started.
+                </TableCell>
+              </TableRow>
+            ) : (
+              numbers.map((num) => {
+                const team = TEAMS.find((t) => t.id === num.teamId);
+                return (
+                  <TableRow key={num.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-zoru-ink-subtle" />
+                        {num.number}
+                      </div>
+                    </TableCell>
+                    <TableCell>{num.label}</TableCell>
+                    <TableCell>
+                      {team ? (
+                        <Badge
+                          variant="secondary"
+                          className="rounded-[var(--zoru-radius-sm)] font-normal text-[11px]"
+                        >
+                          {team.name}
+                        </Badge>
+                      ) : (
+                        <span className="text-zoru-ink-muted">Unassigned</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5">
+                        {num.defaultRoute === 'bot' ? (
+                          <Bot className="h-3.5 w-3.5 text-zoru-primary" />
+                        ) : (
+                          <User className="h-3.5 w-3.5 text-zoru-warning" />
+                        )}
+                        <span className="capitalize text-sm">{num.defaultRoute}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenEdit(num)}
+                          className="h-8 w-8"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(num.id)}
+                          className="h-8 w-8 text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
       </Card>
 
-      <Dialog open={activateOpen} onOpenChange={setActivateOpen}>
+      {/* Add Dialog */}
+      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
-            <ZoruDialogTitle>Activate two-line workspace?</ZoruDialogTitle>
+            <ZoruDialogTitle>Add New Number</ZoruDialogTitle>
             <ZoruDialogDescription>
-              Two-line is billed per active line. Once activated, your
-              second number will be visible to all teammates with project
-              access.
+              Register a new WhatsApp number and configure its routing rules.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="number">Phone Number</Label>
+              <Input
+                id="number"
+                placeholder="+1 (555) 000-0000"
+                value={formData.number || ''}
+                onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="label">Internal Label</Label>
+              <Input
+                id="label"
+                placeholder="e.g. US Sales Team"
+                value={formData.label || ''}
+                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Assigned Team</Label>
+              <Select
+                value={formData.teamId}
+                onValueChange={(val) => setFormData({ ...formData, teamId: val })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a team" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TEAMS.map((team) => (
+                    <SelectItem key={team.id} value={team.id}>
+                      {team.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label>Default Route</Label>
+              <Select
+                value={formData.defaultRoute}
+                onValueChange={(val) =>
+                  setFormData({ ...formData, defaultRoute: val as RouteType })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select routing" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bot">AI Bot</SelectItem>
+                  <SelectItem value="agent">Human Agent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           <ZoruDialogFooter>
-            <Button variant="ghost" onClick={() => setActivateOpen(false)}>
+            <Button variant="ghost" onClick={() => setIsAddOpen(false)}>
               Cancel
             </Button>
-            <Button
-              onClick={() => {
-                toast({
-                  title: 'Two-line activated',
-                  description: 'Your workspace now supports two WhatsApp lines.',
-                });
-                setActivateOpen(false);
-                setEnabled(true);
-              }}
-            >
-              Activate
-            </Button>
+            <Button onClick={handleSaveAdd}>Add Number</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </Dialog>
 
-      <div className="h-6" />
-    </div>
-  );
-}
-
-function FeatureCard({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <Card className="p-5">
-      <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
-        {icon}
-      </span>
-      <h3 className="mt-3 text-[15px] text-zoru-ink leading-tight">{title}</h3>
-      <p className="mt-1 text-[12.5px] text-zoru-ink-muted leading-relaxed">
-        {description}
-      </p>
-    </Card>
-  );
-}
-
-/* ── Two-line preview mock ─────────────────────────────────────────
-   Neutral, zoru-token-only mock of the two-line workspace. Two stacked
-   conversation rows, each labelled with its line. Replaces the legacy
-   Frame760 phone-frame preview. */
-
-function TwoLinePreview() {
-  const lines = [
-    {
-      id: 'a',
-      number: '+1 415 555 0142',
-      label: 'Sales line',
-      preview: 'New invoice posted for Acme Co.',
-      time: '2m',
-      unread: 3,
-    },
-    {
-      id: 'b',
-      number: '+1 415 555 0177',
-      label: 'Support line',
-      preview: 'Closed ticket #4218 — refund issued',
-      time: '14m',
-      unread: 0,
-    },
-  ];
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {lines.map((line) => (
-        <div
-          key={line.id}
-          className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-4"
-        >
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-bg text-zoru-ink-muted">
-              <Phone className="h-4 w-4" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[12px] text-zoru-ink">{line.label}</p>
-              <p className="truncate text-[10px] text-zoru-ink-muted">
-                {line.number}
-              </p>
+      {/* Edit Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Edit Number Configuration</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Update routing rules and team assignment for {formData.number}.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="edit-label">Internal Label</Label>
+              <Input
+                id="edit-label"
+                placeholder="e.g. US Sales Team"
+                value={formData.label || ''}
+                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+              />
             </div>
-            {line.unread > 0 && (
-              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-zoru-ink px-1.5 text-[10px] text-zoru-on-primary">
-                {line.unread}
-              </span>
-            )}
-          </div>
-          <div className="mt-3 flex items-start gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
-            <MessageSquare className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[12px] text-zoru-ink">{line.preview}</p>
-              <p className="mt-0.5 text-[10px] text-zoru-ink-muted">{line.time} ago</p>
+            <div className="grid gap-2">
+              <Label>Assigned Team</Label>
+              <Select
+                value={formData.teamId}
+                onValueChange={(val) => setFormData({ ...formData, teamId: val })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a team" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TEAMS.map((team) => (
+                    <SelectItem key={team.id} value={team.id}>
+                      {team.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label>Default Route</Label>
+              <Select
+                value={formData.defaultRoute}
+                onValueChange={(val) =>
+                  setFormData({ ...formData, defaultRoute: val as RouteType })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select routing" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bot">AI Bot</SelectItem>
+                  <SelectItem value="agent">Human Agent</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
-        </div>
-      ))}
+          <ZoruDialogFooter>
+            <Button variant="ghost" onClick={() => setIsEditOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEdit}>Save Changes</Button>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </Dialog>
     </div>
   );
 }

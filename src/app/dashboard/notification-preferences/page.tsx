@@ -94,9 +94,9 @@ const NOTIF_DEFS: NotifDef[] = [
 ];
 
 export default function NotificationPreferencesPage() {
-  const { activeProject } = useProject();
+  const { activeProjectId } = useProject();
   const { toast } = useZoruToast();
-  const projectId = activeProject?._id?.toString();
+  const projectId = activeProjectId;
   const [prefs, setPrefs] = useState<Record<string, boolean>>({});
   const [dirty, setDirty] = useState(false);
   const [isLoading, startTransition] = useTransition();

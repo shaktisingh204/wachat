@@ -10,9 +10,11 @@
  */
 
 import 'server-only';
+import * as React from 'react';
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import { connectToDatabase } from '@/lib/mongodb';
+import { headers } from 'next/headers';
 
 type CompanyBrand = {
   name: string;
@@ -23,9 +25,45 @@ type CompanyBrand = {
 async function loadCompanyBrand(): Promise<CompanyBrand> {
   try {
     const { db } = await connectToDatabase();
-    const company = await db
-      .collection('companies')
-      .findOne({}, { sort: { createdAt: 1 } });
+    
+    let query: any = {};
+    const headersList = await headers();
+    const hostHeader = headersList.get('host');
+    
+    if (hostHeader) {
+      const cleanHost = hostHeader.split(':')[0];
+      const isCanonical = [
+        'sabnode.com',
+        'vercel.app',
+        'localhost',
+        '127.0.0.1',
+      ].some(
+        (suffix) => cleanHost === suffix || cleanHost.endsWith(`.${suffix}`)
+      );
+      
+      if (!isCanonical) {
+        query = {
+          $or: [
+            { customDomain: cleanHost },
+            { domain: cleanHost },
+            { 'settings.customDomain': cleanHost },
+            { 'settings.domain': cleanHost },
+          ],
+        };
+      }
+    }
+
+    let company = null;
+    if (Object.keys(query).length > 0) {
+      company = await db.collection('companies').findOne(query);
+    }
+    
+    if (!company) {
+      company = await db
+        .collection('companies')
+        .findOne({}, { sort: { createdAt: 1 } });
+    }
+
     if (!company) {
       return { name: 'SabNode', logo: null, address: null };
     }
@@ -39,50 +77,68 @@ async function loadCompanyBrand(): Promise<CompanyBrand> {
   }
 }
 
-export default async function ShareLayout({ children }: { children: ReactNode }) {
+async function BrandHeader() {
+  const brand = await loadCompanyBrand();
+  return (
+    <header className="border-b border-zinc-200 bg-white">
+      <div className="mx-auto flex max-w-5xl items-center gap-4 px-6 py-4">
+        {brand.logo ? (
+          <Image
+            src={brand.logo}
+            alt={`${brand.name} logo`}
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-md object-contain"
+            unoptimized
+          />
+        ) : (
+          <div
+            aria-hidden
+            className="grid h-10 w-10 place-items-center rounded-md bg-zinc-900 text-sm font-semibold text-white"
+          >
+            {brand.name.slice(0, 1).toUpperCase()}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-base font-semibold">{brand.name}</div>
+          {brand.address ? (
+            <div className="truncate text-xs text-zinc-500">{brand.address}</div>
+          ) : null}
+        </div>
+      </div>
+    </header>
+  );
+}
+
+async function BrandFooter() {
   const brand = await loadCompanyBrand();
   const year = new Date().getFullYear();
-
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900 antialiased">
-      <header className="border-b border-zinc-200 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center gap-4 px-6 py-4">
-          {brand.logo ? (
-            <Image
-              src={brand.logo}
-              alt={`${brand.name} logo`}
-              width={40}
-              height={40}
-              className="h-10 w-10 rounded-md object-contain"
-              unoptimized
-            />
-          ) : (
-            <div
-              aria-hidden
-              className="grid h-10 w-10 place-items-center rounded-md bg-zinc-900 text-sm font-semibold text-white"
-            >
-              {brand.name.slice(0, 1).toUpperCase()}
-            </div>
-          )}
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-base font-semibold">{brand.name}</div>
-            {brand.address ? (
-              <div className="truncate text-xs text-zinc-500">{brand.address}</div>
-            ) : null}
-          </div>
-        </div>
-      </header>
+    <footer className="mt-auto border-t border-zinc-200 bg-white">
+      <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-6 py-4 text-xs text-zinc-500 sm:flex-row">
+        <span>
+          &copy; {year} {brand.name}. All rights reserved.
+        </span>
+        <span>Powered by SabNode</span>
+      </div>
+    </footer>
+  );
+}
 
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">{children}</main>
+export default function ShareLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className="min-h-screen flex flex-col bg-zinc-50 text-zinc-900 antialiased">
+      <React.Suspense fallback={<div className="h-[73px] border-b border-zinc-200 bg-white" />}>
+        <BrandHeader />
+      </React.Suspense>
 
-      <footer className="mt-auto border-t border-zinc-200 bg-white">
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-6 py-4 text-xs text-zinc-500 sm:flex-row">
-          <span>
-            &copy; {year} {brand.name}. All rights reserved.
-          </span>
-          <span>Powered by SabNode</span>
-        </div>
-      </footer>
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
+        {children}
+      </main>
+
+      <React.Suspense fallback={<div className="h-[53px] border-t border-zinc-200 bg-white" />}>
+        <BrandFooter />
+      </React.Suspense>
     </div>
   );
 }

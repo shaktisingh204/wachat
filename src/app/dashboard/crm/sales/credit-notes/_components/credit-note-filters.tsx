@@ -5,10 +5,10 @@ import {
   Button,
   ZoruDateRangePicker,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/zoruui';
 import {
   X } from 'lucide-react';
@@ -70,16 +70,16 @@ export function CreditNoteFiltersRow(props: CreditNoteFiltersRowProps) {
                     value={props.statusFilter}
                     onValueChange={(v) => props.onStatusChange(v as CreditNoteKpiFilter)}
                 >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Status" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
                         {STATUSES.map((s) => (
-                            <ZoruSelectItem key={s.value} value={s.value}>
+                            <SelectItem key={s.value} value={s.value}>
                                 {s.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
             <div className="w-56">
@@ -97,17 +97,17 @@ export function CreditNoteFiltersRow(props: CreditNoteFiltersRowProps) {
                     value={props.reasonFilter || 'all'}
                     onValueChange={(v) => props.onReasonChange(v === 'all' ? '' : v)}
                 >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Reason" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All reasons</ZoruSelectItem>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Reason" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All reasons</SelectItem>
                         {REASONS.map((r) => (
-                            <ZoruSelectItem key={r.value} value={r.value}>
+                            <SelectItem key={r.value} value={r.value}>
                                 {r.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
             <div className="w-44">
@@ -116,17 +116,17 @@ export function CreditNoteFiltersRow(props: CreditNoteFiltersRowProps) {
                     value={props.refundModeFilter || 'all'}
                     onValueChange={(v) => props.onRefundModeChange(v === 'all' ? '' : v)}
                 >
-                    <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Refund mode" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All modes</ZoruSelectItem>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Refund mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All modes</SelectItem>
                         {REFUND_MODES.map((r) => (
-                            <ZoruSelectItem key={r.value} value={r.value}>
+                            <SelectItem key={r.value} value={r.value}>
                                 {r.label}
-                            </ZoruSelectItem>
+                            </SelectItem>
                         ))}
-                    </ZoruSelectContent>
+                    </SelectContent>
                 </Select>
             </div>
             <div className="w-72">

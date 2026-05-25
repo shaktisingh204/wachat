@@ -24,6 +24,17 @@ import { Zap, Bell, Settings2, RefreshCw, BarChart2, List, Shield, Download, Fil
 
 export default function RateLimitsClient({ workspaceId }: { workspaceId: string }) {
   const [activeView, setActiveView] = useState<"overview" | "throttled" | "overrides" | "routes">("overview");
+  const [dynamicScaling, setDynamicScaling] = useState(false);
+  const [balance, setBalance] = useState(150.00);
+  const [isPurging, setIsPurging] = useState(false);
+
+  const handlePurgeCache = () => {
+    setIsPurging(true);
+    setTimeout(() => {
+      setIsPurging(false);
+      alert("Rate limit cache purged successfully! Limits applied immediately.");
+    }, 1000);
+  };
 
   // Mock data for throttled request log
   const throttledLog = [
@@ -78,9 +89,9 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
           </Button>
           <div className="ml-auto flex items-center gap-2">
             <Badge variant="outline" className="bg-white">Saved View: Default</Badge>
-            <Button variant="outline" size="sm" onClick={() => alert("Refresh")}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh
+            <Button variant="outline" size="sm" onClick={handlePurgeCache} disabled={isPurging}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${isPurging ? "animate-spin" : ""}`} />
+              {isPurging ? "Purging Cache..." : "Purge Cache"}
             </Button>
           </div>
         </div>
@@ -104,6 +115,31 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
             <StatCard label="429 Responses (1h)" value="142" period="2.4% of total traffic" />
           </div>
 
+          <Card>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Dynamic Limit Scaling</ZoruCardTitle>
+              <ZoruCardDescription>Automatically adjust rate limits based on your account balance to prevent unexpected overage.</ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <div className="flex items-center justify-between p-4 border rounded-md">
+                <div>
+                  <p className="font-medium text-sm">Enable Balance-Based Limits</p>
+                  <p className="text-xs text-slate-500">Current Balance: ${balance.toFixed(2)}</p>
+                </div>
+                <Switch checked={dynamicScaling} onCheckedChange={setDynamicScaling} />
+              </div>
+              {dynamicScaling && (
+                <div className="mt-4 p-3 bg-indigo-50 border border-indigo-100 rounded-md text-sm text-indigo-800 flex items-start gap-2">
+                  <Zap className="h-4 w-4 mt-0.5" />
+                  <div>
+                    <span className="font-semibold block mb-1">Dynamic Scaling is Active</span>
+                    If balance drops below $50.00, your global limit will be reduced by 50% to conserve credits.
+                  </div>
+                </div>
+              )}
+            </ZoruCardContent>
+          </Card>
+
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <Card>
               <ZoruCardHeader>
@@ -111,14 +147,19 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
                 <ZoruCardDescription>API requests over the last 60 minutes</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent>
-                <div className="flex h-[200px] items-end gap-1 px-2">
+                <div className="relative flex h-[200px] items-end gap-1 px-2 pt-8">
+                  {/* Visual limit line */}
+                  <div className="absolute left-0 right-0 border-t-2 border-dashed border-rose-400 z-10 flex items-center pointer-events-none" style={{ bottom: "75%" }}>
+                    <span className="absolute -top-6 right-2 text-xs font-semibold text-rose-600 bg-white px-1 py-0.5 rounded border border-rose-100 shadow-sm">Limit (10k/s)</span>
+                  </div>
                   {/* Mock bar chart */}
                   {Array.from({ length: 30 }).map((_, i) => {
-                    const height = Math.random() * 80 + 20;
+                    const height = Math.random() * 80 + 10;
+                    const isOverLimit = height > 75;
                     return (
                       <div
                         key={i}
-                        className="w-full rounded-t-sm bg-indigo-500/80 hover:bg-indigo-600 transition-colors"
+                        className={`w-full rounded-t-sm transition-colors ${isOverLimit ? "bg-rose-500" : "bg-indigo-500/80 hover:bg-indigo-600"}`}
                         style={{ height: height + "%" }}
                       />
                     );

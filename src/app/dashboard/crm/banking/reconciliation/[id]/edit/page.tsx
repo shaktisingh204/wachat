@@ -1,6 +1,6 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { Metadata } from 'next';
+import { Suspense } from 'react';
 
 /**
  * Edit reconciliation — server wrapper around `<ReconciliationForm
@@ -9,11 +9,17 @@ import {
  */
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { Skeleton } from '@/components/zoruui';
 import { getSession } from '@/app/actions/user.actions';
 import { getReconciliationById } from '@/app/actions/crm-reconciliation.actions';
 import type { CrmReconciliationDoc } from '@/lib/rust-client/crm-reconciliation';
 
 import { ReconciliationForm } from '../../_components/reconciliation-form';
+
+export const metadata: Metadata = {
+    title: 'Edit Reconciliation | SabNode',
+    description: 'Edit an existing reconciliation',
+};
 
 export const dynamic = 'force-dynamic';
 
@@ -33,6 +39,45 @@ function splitStatement(
     };
 }
 
+function FormSkeleton() {
+    return (
+        <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6 space-y-6">
+            <div className="grid gap-4 sm:grid-cols-3">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+            </div>
+            <Skeleton className="h-24 w-full" />
+            <div className="flex justify-between pt-2">
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-40" />
+            </div>
+        </div>
+    );
+}
+
+async function EditFormContent({ id }: { id: string }) {
+    const fetched = await getReconciliationById(id);
+    if (!fetched) notFound();
+    const { recon, statementUrl } = splitStatement(fetched);
+
+    return (
+        <ReconciliationForm
+            initialData={recon}
+            initialStatementUrl={statementUrl}
+        />
+    );
+}
+
 interface PageProps {
     params: Promise<{ id: string }>;
 }
@@ -43,20 +88,15 @@ export default async function EditReconciliationPage({ params }: PageProps) {
     const session = await getSession();
     if (!session?.user) redirect('/login');
 
-    const fetched = await getReconciliationById(id);
-    if (!fetched) notFound();
-    const { recon, statementUrl } = splitStatement(fetched);
-
     return (
         <EntityDetailShell
             eyebrow="RECONCILIATION"
             title="Edit reconciliation"
             back={{ href: `${BASE}/${id}`, label: 'Back to detail' }}
         >
-            <ReconciliationForm
-                initialData={recon}
-                initialStatementUrl={statementUrl}
-            />
+            <Suspense fallback={<FormSkeleton />}>
+                <EditFormContent id={id} />
+            </Suspense>
         </EntityDetailShell>
     );
 }

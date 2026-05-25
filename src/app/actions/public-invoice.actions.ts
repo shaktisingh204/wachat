@@ -217,6 +217,20 @@ async function recordGatewayPayment(args: {
     },
   );
 
+  const updatedInvoice = await db.collection('crm_invoices').findOne({ _id: args.invoiceId, userId: args.userId });
+  if (updatedInvoice) {
+    try {
+      const { dispatchWebhookEvent } = await import('@/lib/webhooks/dispatch');
+      void dispatchWebhookEvent(
+        String(args.userId),
+        'invoice.updated',
+        { invoice: updatedInvoice }
+      );
+    } catch (e) {
+      console.error('[recordGatewayPayment] webhook dispatch failed:', e);
+    }
+  }
+
   await db.collection('crm_invoice_payment_details').insertOne({
     userId: args.userId,
     invoice_id: args.invoiceId,
@@ -329,6 +343,20 @@ export async function recordOfflinePayment(
         },
       },
     );
+
+    const updatedInvoice = await db.collection('crm_invoices').findOne({ _id: invoice._id });
+    if (updatedInvoice && invoice.userId) {
+      try {
+        const { dispatchWebhookEvent } = await import('@/lib/webhooks/dispatch');
+        void dispatchWebhookEvent(
+          String(invoice.userId),
+          'invoice.updated',
+          { invoice: updatedInvoice }
+        );
+      } catch (e) {
+        console.error('[recordOfflinePayment] webhook dispatch failed:', e);
+      }
+    }
 
     revalidatePath(`/share/invoice/${hash}`);
     return {

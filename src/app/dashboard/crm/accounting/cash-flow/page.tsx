@@ -16,16 +16,16 @@ import { ArrowDownCircle, ArrowUpCircle, Banknote, Wallet } from 'lucide-react';
 
 import {
     Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
     Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from '@/components/zoruui';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -54,9 +54,14 @@ function previousFyRange(now: Date): DateRange {
 const HEADERS = ['Month', 'Operating', 'Investing', 'Financing', 'Inflow', 'Outflow', 'Net'];
 
 export default function CashFlowPage(): React.JSX.Element {
-    const now = React.useMemo(() => new Date(), []);
     const [fyChoice, setFyChoice] = React.useState<FiscalChoice>('current');
-    const [range, setRange] = React.useState<DateRange | undefined>(() => currentFyRange(now));
+    const [range, setRange] = React.useState<DateRange | undefined>();
+    const [mounted, setMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setMounted(true);
+        setRange(currentFyRange(new Date()));
+    }, []);
     const [period, setPeriod] = React.useState<'monthly' | 'quarterly'>('monthly');
     const [monthly, setMonthly] = React.useState<CashFlowCategoryEntry[]>([]);
     const [opening, setOpening] = React.useState(0);
@@ -93,6 +98,10 @@ export default function CashFlowPage(): React.JSX.Element {
         void load();
     }, [load]);
 
+    if (!mounted) {
+        return null;
+    }
+
     const aggregated = React.useMemo(() => {
         if (period === 'monthly') return monthly;
         // Quarterly aggregation
@@ -121,8 +130,8 @@ export default function CashFlowPage(): React.JSX.Element {
 
     const handleFyChange = (value: string) => {
         setFyChoice(value as FiscalChoice);
-        if (value === 'current') setRange(currentFyRange(now));
-        else if (value === 'previous') setRange(previousFyRange(now));
+        if (value === 'current') setRange(currentFyRange(new Date()));
+        else if (value === 'previous') setRange(previousFyRange(new Date()));
     };
 
     const handleDateRangeChange = (next: DateRange | undefined) => {
@@ -182,23 +191,23 @@ export default function CashFlowPage(): React.JSX.Element {
     const filters = (
         <div className="flex flex-wrap items-center gap-2">
             <Select value={fyChoice} onValueChange={handleFyChange}>
-                <ZoruSelectTrigger className="w-[180px]">
-                    <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="current">Current FY (Apr–Mar)</ZoruSelectItem>
-                    <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
-                    <ZoruSelectItem value="custom">Custom range</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="w-[180px]">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="current">Current FY (Apr–Mar)</SelectItem>
+                    <SelectItem value="previous">Previous FY</SelectItem>
+                    <SelectItem value="custom">Custom range</SelectItem>
+                </SelectContent>
             </Select>
             <Select value={period} onValueChange={(v) => setPeriod(v as typeof period)}>
-                <ZoruSelectTrigger className="w-[150px]">
-                    <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
-                    <ZoruSelectItem value="quarterly">Quarterly</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="w-[150px]">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                </SelectContent>
             </Select>
         </div>
     );
@@ -239,52 +248,52 @@ export default function CashFlowPage(): React.JSX.Element {
 
     const table = (
         <Table>
-            <ZoruTableHeader>
-                <ZoruTableRow className="border-border hover:bg-transparent">
-                    <ZoruTableHead className="text-muted-foreground">Period</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground text-right">Operating</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground text-right">Investing</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground text-right">Financing</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground text-right">Inflow</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground text-right">Outflow</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground text-right">Net</ZoruTableHead>
-                </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <TableHeader>
+                <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground">Period</TableHead>
+                    <TableHead className="text-muted-foreground text-right">Operating</TableHead>
+                    <TableHead className="text-muted-foreground text-right">Investing</TableHead>
+                    <TableHead className="text-muted-foreground text-right">Financing</TableHead>
+                    <TableHead className="text-muted-foreground text-right">Inflow</TableHead>
+                    <TableHead className="text-muted-foreground text-right">Outflow</TableHead>
+                    <TableHead className="text-muted-foreground text-right">Net</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
                 {pageRows.length === 0 ? (
-                    <ZoruTableRow className="border-border">
-                        <ZoruTableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                    <TableRow className="border-border">
+                        <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                             No data in this range.
-                        </ZoruTableCell>
-                    </ZoruTableRow>
+                        </TableCell>
+                    </TableRow>
                 ) : (
                     pageRows.map((m) => (
-                        <ZoruTableRow key={m.month} className="border-border">
-                            <ZoruTableCell className="font-medium text-foreground">{m.month}</ZoruTableCell>
-                            <ZoruTableCell className="text-right font-mono text-foreground">
+                        <TableRow key={m.month} className="border-border">
+                            <TableCell className="font-medium text-foreground">{m.month}</TableCell>
+                            <TableCell className="text-right font-mono text-foreground">
                                 {fmtMoney(m.operating)}
-                            </ZoruTableCell>
-                            <ZoruTableCell className="text-right font-mono text-foreground">
+                            </TableCell>
+                            <TableCell className="text-right font-mono text-foreground">
                                 {fmtMoney(m.investing)}
-                            </ZoruTableCell>
-                            <ZoruTableCell className="text-right font-mono text-foreground">
+                            </TableCell>
+                            <TableCell className="text-right font-mono text-foreground">
                                 {fmtMoney(m.financing)}
-                            </ZoruTableCell>
-                            <ZoruTableCell className="text-right font-mono text-emerald-500">
+                            </TableCell>
+                            <TableCell className="text-right font-mono text-emerald-500">
                                 {fmtMoney(m.inflow)}
-                            </ZoruTableCell>
-                            <ZoruTableCell className="text-right font-mono text-destructive">
+                            </TableCell>
+                            <TableCell className="text-right font-mono text-destructive">
                                 {fmtMoney(m.outflow)}
-                            </ZoruTableCell>
-                            <ZoruTableCell
+                            </TableCell>
+                            <TableCell
                                 className={`text-right font-mono font-semibold ${m.net >= 0 ? 'text-emerald-500' : 'text-destructive'}`}
                             >
                                 {fmtMoney(m.net)}
-                            </ZoruTableCell>
-                        </ZoruTableRow>
+                            </TableCell>
+                        </TableRow>
                     ))
                 )}
-            </ZoruTableBody>
+            </TableBody>
         </Table>
     );
 

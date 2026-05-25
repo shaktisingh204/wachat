@@ -132,3 +132,32 @@ export async function handlePaymentRequest(prevState: any, formData: FormData): 
 
     return { message: 'Payment link sent successfully.' };
 }
+
+export async function getRazorpayLogs(projectId: string) {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found' };
+
+    const razorpayConfig = project.razorpaySettings;
+    if (!razorpayConfig?.keyId || !razorpayConfig.keySecret) {
+        return { paymentLinks: [], transactions: [] };
+    }
+
+    try {
+        const instance = new Razorpay({
+            key_id: razorpayConfig.keyId,
+            key_secret: razorpayConfig.keySecret,
+        });
+
+        const [paymentLinksRes, transactionsRes] = await Promise.all([
+            instance.paymentLink.all({ count: 10 } as any),
+            instance.payments.all({ count: 10 } as any)
+        ]);
+
+        return { 
+            paymentLinks: (paymentLinksRes as any).items || (paymentLinksRes as any).payment_links || [], 
+            transactions: (transactionsRes as any).items || [] 
+        };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}

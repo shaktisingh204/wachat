@@ -1,0 +1,119 @@
+import React, { memo } from 'react';
+import { Trash, LoaderCircle, CheckCircle2, AlertCircle } from 'lucide-react';
+import {
+  Input,
+  Select,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  Button,
+  ZoruCheckbox,
+} from '@/components/zoruui';
+
+export type EmployeeLite = { _id: string; firstName?: string; lastName?: string };
+
+type TimesheetEntry = {
+  id: string;
+  userId: string;
+  weekStart: string;
+  weekEnd: string;
+  status?: 'saving' | 'saved' | 'error';
+};
+
+interface TimesheetRowProps {
+  entry: TimesheetEntry;
+  employees: EmployeeLite[];
+  isSelected: boolean;
+  virtualItem: any;
+  onToggleSelect: (id: string) => void;
+  onUpdate: (id: string, field: keyof TimesheetEntry, value: string) => void;
+  onRemove: (id: string) => void;
+}
+
+export const TimesheetRow = memo(({
+  entry,
+  employees,
+  isSelected,
+  virtualItem,
+  onToggleSelect,
+  onUpdate,
+  onRemove
+}: TimesheetRowProps) => {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: `${virtualItem.size}px`,
+        transform: `translateY(${virtualItem.start}px)`,
+      }}
+      className={`flex items-center gap-4 px-4 border-b border-zoru-line/50 transition-colors ${entry.status === 'saving' ? 'opacity-70 bg-zoru-surface' : 'hover:bg-zoru-bg/50'}`}
+    >
+      <ZoruCheckbox 
+        checked={isSelected}
+        onCheckedChange={() => onToggleSelect(entry.id)}
+        disabled={entry.status === 'saving'}
+      />
+      
+      <div className="w-[25%]">
+        <Select 
+          value={entry.userId} 
+          onValueChange={(val) => onUpdate(entry.id, 'userId', val)}
+          disabled={entry.status === 'saving'}
+        >
+          <ZoruSelectTrigger className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+            <ZoruSelectValue placeholder="Select employee" />
+          </ZoruSelectTrigger>
+          <ZoruSelectContent>
+            {employees.map((e) => (
+              <ZoruSelectItem key={e._id} value={e._id}>
+                {[e.firstName, e.lastName].filter(Boolean).join(' ') || 'Unnamed'}
+              </ZoruSelectItem>
+            ))}
+          </ZoruSelectContent>
+        </Select>
+      </div>
+
+      <div className="w-[25%]">
+        <Input
+          type="date"
+          value={entry.weekStart}
+          onChange={(e) => onUpdate(entry.id, 'weekStart', e.target.value)}
+          required
+          disabled={entry.status === 'saving'}
+          className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+        />
+      </div>
+
+      <div className="w-[25%]">
+        <Input
+          type="date"
+          value={entry.weekEnd}
+          readOnly
+          className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px] opacity-60"
+        />
+      </div>
+
+      <div className="w-[15%] flex justify-end items-center gap-2">
+        {entry.status === 'saving' && <LoaderCircle className="h-4 w-4 animate-spin text-zoru-ink-muted" />}
+        {entry.status === 'saved' && <CheckCircle2 className="h-4 w-4 text-green-500" />}
+        {entry.status === 'error' && <AlertCircle className="h-4 w-4 text-red-500" />}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="text-zoru-danger-ink hover:bg-zoru-danger-bg hover:text-zoru-danger-ink"
+          onClick={() => onRemove(entry.id)}
+          disabled={entry.status === 'saving'}
+        >
+          <Trash className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+});
+
+TimesheetRow.displayName = 'TimesheetRow';

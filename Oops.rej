@@ -1,0 +1,16 @@
+@@ -75,6 +95,7 @@
+ 
+   return (
+     <ToolShell title="CSS Minifier" description="Strip comments and whitespace from CSS.">
++      <ErrorBoundary>
+         <div className="flex gap-2 mb-4">
+           <Button variant={mode === 'raw' ? 'default' : 'outline'} onClick={() => setMode('raw')}>Raw CSS</Button>
+           <Button variant={mode === 'url' ? 'default' : 'outline'} onClick={() => setMode('url')}>Fetch from URL</Button>
+@@ -148,6 +169,7 @@
+             </Card>
+           )}
+         </div>
++      </ErrorBoundary>
+     </ToolShell>
+   );
+ }

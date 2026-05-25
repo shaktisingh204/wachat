@@ -12,6 +12,8 @@ import { getCrmProductById } from '@/app/actions/crm-products.actions';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { ItemForm } from '../_components/item-form';
+import type { CrmProduct } from '@/lib/definitions';
+import type { WithId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,22 +42,19 @@ interface PageProps {
 export default async function NewItemPage({ searchParams }: PageProps) {
   const sp = await searchParams;
   // ?fromKind=product&fromId=<id> duplicates an existing item.
-  let initial = null;
+  let initial: WithId<CrmProduct> | null = null;
   if (sp.fromKind === 'product' && sp.fromId) {
     const source = await fetchWithTimeout(getCrmProductById(sp.fromId), 8000, null);
     if (source) {
-      const { _id: _omit, sku: sourceSku, ...rest } = source as {
-        _id: unknown;
-        sku?: string;
-      } & Record<string, unknown>;
+      const { _id: _omit, sku: sourceSku, ...rest } = source;
       void _omit;
       // Drop the id (so the action creates a new doc) and bump SKU so it
       // doesn't collide with the source.
       initial = {
         ...rest,
         sku: sourceSku ? `${sourceSku}-COPY` : '',
-        name: `${(source.name as string) ?? 'Item'} (copy)`,
-      } as never;
+        name: `${source.name ?? 'Item'} (copy)`,
+      } as unknown as WithId<CrmProduct>;
     }
   }
 

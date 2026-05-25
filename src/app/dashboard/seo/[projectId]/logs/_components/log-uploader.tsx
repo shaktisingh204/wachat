@@ -3,27 +3,39 @@
 import { useState, useCallback, useRef } from 'react';
 import { Upload, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/zoruui';
-import { uploadLogFile } from '../actions';
+import { uploadLogFile, saveLogReport } from '../actions';
+import { useRouter } from 'next/navigation';
 
-export function LogUploader() {
+export function LogUploader({ projectId }: { projectId: string }) {
     const [isDragging, setIsDragging] = useState(false);
     const [file, setFile] = useState<File | null>(null);
-    const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+    const [status, setStatus] = useState<'idle' | 'uploading' | 'parsing' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
+    const [progress, setProgress] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const router = useRouter();
 
     const onDragOver = useCallback((e: React.DragEvent) => {
         e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    }, []);
+
+    const onDragEnter = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
         setIsDragging(true);
     }, []);
 
     const onDragLeave = useCallback((e: React.DragEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         setIsDragging(false);
     }, []);
 
     const onDrop = useCallback((e: React.DragEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         setIsDragging(false);
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
             handleFileSelect(e.dataTransfer.files[0]);
@@ -40,6 +52,7 @@ export function LogUploader() {
         setFile(selectedFile);
         setStatus('idle');
         setErrorMessage('');
+        setProgress(0);
     };
 
     const handleUpload = async () => {
@@ -50,13 +63,37 @@ export function LogUploader() {
         formData.append('file', file);
 
         try {
-            const result = await uploadLogFile(formData);
-            if (result.success) {
-                setStatus('success');
-            } else {
+            const result = await uploadLogFile(projectId, formData);
+            if (!result.success) {
                 setStatus('error');
                 setErrorMessage(result.error || 'Upload failed');
+                return;
             }
+
+            setStatus('parsing');
+            
+            // Trigger background worker for parsing
+            const worker = new Worker(new URL('./worker.ts', import.meta.url));
+            worker.postMessage({ file });
+            
+            worker.onmessage = async (e) => {
+                if (e.data.type === 'progress') {
+                    setProgress(e.data.progress);
+                } else if (e.data.type === 'done') {
+                    await saveLogReport(projectId, e.data.result);
+                    worker.terminate();
+                    setStatus('success');
+                    router.refresh(); // Refresh the page to show the new data
+                }
+            };
+            
+            worker.onerror = (e) => {
+                console.error("Worker error:", e);
+                setStatus('error');
+                setErrorMessage('Error during background parsing.');
+                worker.terminate();
+            };
+            
         } catch (error) {
             setStatus('error');
             setErrorMessage('An unexpected error occurred during upload.');
@@ -67,6 +104,7 @@ export function LogUploader() {
         setFile(null);
         setStatus('idle');
         setErrorMessage('');
+        setProgress(0);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -78,6 +116,7 @@ export function LogUploader() {
                 <div 
                     className={`flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-[var(--zoru-radius)] border-2 border-dashed transition-colors ${isDragging ? 'border-zoru-primary bg-zoru-surface-2/80' : 'border-zoru-line hover:bg-zoru-surface-2/50'}`}
                     onDragOver={onDragOver}
+                    onDragEnter={onDragEnter}
                     onDragLeave={onDragLeave}
                     onDrop={onDrop}
                     onClick={() => fileInputRef.current?.click()}
@@ -99,7 +138,7 @@ export function LogUploader() {
                 </div>
             )}
 
-            {(file && (status === 'idle' || status === 'uploading')) && (
+            {(file && (status === 'idle' || status === 'uploading' || status === 'parsing')) && (
                 <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2/30 p-6">
                     <FileText className="mb-4 h-12 w-12 text-zoru-primary" />
                     <div className="mb-2 text-center text-zoru-ink font-medium">{file.name}</div>
@@ -108,7 +147,20 @@ export function LogUploader() {
                     {status === 'uploading' ? (
                         <div className="flex flex-col items-center gap-2">
                             <Loader2 className="h-6 w-6 animate-spin text-zoru-primary" />
-                            <span className="text-sm text-zoru-ink-muted">Streaming to backend...</span>
+                            <span className="text-sm text-zoru-ink-muted">Streaming to S3...</span>
+                        </div>
+                    ) : status === 'parsing' ? (
+                        <div className="flex w-full max-w-xs flex-col items-center gap-3">
+                            <div className="flex items-center gap-2">
+                                <Loader2 className="h-5 w-5 animate-spin text-zoru-primary" />
+                                <span className="text-sm text-zoru-ink-muted">Parsing via Web Worker... {progress}%</span>
+                            </div>
+                            <div className="h-2 w-full overflow-hidden rounded-full bg-zoru-surface-2">
+                                <div 
+                                    className="h-full bg-zoru-primary transition-all duration-300" 
+                                    style={{ width: `${progress}%` }}
+                                />
+                            </div>
                         </div>
                     ) : (
                         <div className="flex gap-4">
@@ -123,7 +175,7 @@ export function LogUploader() {
                 <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--zoru-radius)] border border-zoru-success-line bg-zoru-success-surface/20 p-6 text-center">
                     <CheckCircle className="mb-4 h-12 w-12 text-zoru-success-ink" />
                     <h3 className="mb-2 text-lg text-zoru-success-ink font-medium">Upload Complete!</h3>
-                    <p className="mb-6 text-sm text-zoru-success-ink/80">Log file has been queued for background parsing.</p>
+                    <p className="mb-6 text-sm text-zoru-success-ink/80">Log file has been streamed and parsed successfully.</p>
                     <Button variant="outline" onClick={reset}>Upload Another</Button>
                 </div>
             )}

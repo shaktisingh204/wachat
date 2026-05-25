@@ -148,11 +148,18 @@ function GroupNode({ node, path, depth, onUpdate }: GroupNodeProps) {
     );
   }
 
-  const indentClass = depth === 0 ? "" : "ml-4 border-l-2 border-slate-200 pl-4";
+  const depthColors = [
+    "border-slate-200 bg-white",
+    "border-blue-100 bg-blue-50/30",
+    "border-indigo-100 bg-indigo-50/30",
+    "border-violet-100 bg-violet-50/30",
+    "border-purple-100 bg-purple-50/30",
+  ];
+  const colorClass = depthColors[Math.min(depth, depthColors.length - 1)];
 
   return (
-    <div className={`space-y-3 ${indentClass}`}>
-      <div className="flex flex-wrap items-center gap-2 rounded-md border border-slate-200 bg-slate-50 p-2">
+    <div className={`space-y-3 rounded-lg border p-3 ${colorClass} ${!isRoot ? "shadow-sm" : ""}`}>
+      <div className="flex flex-wrap items-center gap-2">
         <Select
           value={node.op}
           onValueChange={(v) => {
@@ -163,7 +170,7 @@ function GroupNode({ node, path, depth, onUpdate }: GroupNodeProps) {
             }
           }}
         >
-          <ZoruSelectTrigger className="w-[100px]">
+          <ZoruSelectTrigger className="w-[100px] h-8 bg-white font-medium">
             <ZoruSelectValue />
           </ZoruSelectTrigger>
           <ZoruSelectContent>
@@ -171,34 +178,35 @@ function GroupNode({ node, path, depth, onUpdate }: GroupNodeProps) {
             <ZoruSelectItem value="or">Any of</ZoruSelectItem>
           </ZoruSelectContent>
         </Select>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-slate-500 font-medium">
           {node.op === "and"
             ? "Contacts matching every rule below."
             : "Contacts matching at least one rule below."}
         </span>
         <div className="ml-auto flex items-center gap-1">
-          <Button variant="outline" size="sm" onClick={addLeaf}>
+          <Button variant="outline" size="sm" className="h-8 bg-white" onClick={addLeaf}>
             <Plus className="mr-1 h-3.5 w-3.5" /> Rule
           </Button>
-          <Button variant="outline" size="sm" onClick={addGroup}>
+          <Button variant="outline" size="sm" className="h-8 bg-white" onClick={addGroup}>
             <Plus className="mr-1 h-3.5 w-3.5" /> Group
           </Button>
           {!isRoot && (
             <Button
               variant="ghost"
               size="sm"
+              className="h-8 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
               onClick={removeSelf}
               aria-label="Remove group"
             >
-              <Trash2 className="h-3.5 w-3.5 text-rose-500" />
+              <Trash2 className="h-3.5 w-3.5" />
             </Button>
           )}
           <Button
             variant="ghost"
             size="sm"
+            className="h-8 text-[10px] uppercase font-bold"
             onClick={flipOp}
             aria-label="Swap operator"
-            className="text-[10px] uppercase"
           >
             ⇄
           </Button>
@@ -206,13 +214,14 @@ function GroupNode({ node, path, depth, onUpdate }: GroupNodeProps) {
       </div>
 
       {node.children.length === 0 ? (
-        <p className="ml-2 text-xs italic text-slate-500">
+        <div className="flex items-center justify-center rounded-md border border-dashed border-slate-300 bg-slate-50/50 p-4 text-xs italic text-slate-500">
           No rules yet — click "Rule" to add one.
-        </p>
+        </div>
       ) : (
-        <ul className="space-y-3">
+        <div className="space-y-3 pl-2">
           {node.children.map((child, i) => (
-            <li key={i} className="relative">
+            <div key={i} className="relative">
+              {/* Optional connector line for deep levels could go here, but the nested boxes are clearer */}
               {child.kind === "leaf" ? (
                 <LeafNode
                   node={child}
@@ -238,9 +247,9 @@ function GroupNode({ node, path, depth, onUpdate }: GroupNodeProps) {
                   onUpdate={onUpdate}
                 />
               )}
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

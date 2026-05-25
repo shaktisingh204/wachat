@@ -3,6 +3,7 @@
  * off to the canonical §1D client orchestrator.
  */
 
+import * as React from 'react';
 import { getCrmBoms, getCrmBomKpis } from '@/app/actions/crm-bom.actions';
 import type { CrmBomDoc } from '@/app/actions/crm-bom.actions';
 import { BomListClient } from './_components/bom-list-client';
@@ -23,5 +24,9 @@ export default async function BomPage() {
         : b.finishedGoodId,
   }));
 
-  return <BomListClient initialBoms={boms} initialKpis={kpis} />;
+  return (
+    <React.Suspense fallback={<div className="p-8 text-center text-sm text-zoru-ink-muted">Loading BOM list...</div>}>
+      <BomListClient initialBoms={boms} initialKpis={kpis} />
+    </React.Suspense>
+  );
 }

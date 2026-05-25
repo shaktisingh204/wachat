@@ -6,45 +6,60 @@ import {
   getRotationSequences,
   getEmployeeShifts,
 } from '@/app/actions/worksuite/shifts.actions';
+import { notFound } from 'next/navigation';
+import { Skeleton } from '@/components/zoruui';
 
-export default async function ShiftRotationDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const rotationId = params.id;
+export const dynamic = 'force-dynamic';
 
-  // We await these in the Server Component. Suspense at the layout level (or our custom loading boundary if we had one wrapping this page) will show a loading state.
-  // The error.tsx boundary will catch any failures here.
-  const [rotation, sequences, shifts] = await Promise.all([
-    getShiftRotation(rotationId),
-    getRotationSequences(rotationId),
-    getEmployeeShifts(),
-  ]);
 
-  if (!rotation) {
+async function ShiftRotationDataFetcher({ id }: { id: string }) {
+  try {
+    const [rotation, sequences, shifts] = await Promise.all([
+      getShiftRotation(id),
+      getRotationSequences(id),
+      getEmployeeShifts(),
+    ]);
+
+    if (!rotation) {
+      notFound();
+    }
+
     return (
-      <EntityListShell title="Rotation Not Found" subtitle="The requested shift rotation does not exist.">
-        <div className="p-8 text-center text-[13px] text-zoru-ink-muted">
-          Rotation not found.
-        </div>
-      </EntityListShell>
-    );
-  }
-
-  return (
-    <EntityListShell
-      title={rotation.name ?? 'Rotation Details'}
-      subtitle={rotation.description || 'Build the repeating sequence of shifts.'}
-    >
-      <Suspense fallback={<div className="p-8 text-center text-zoru-ink-muted text-[13px]">Loading workspace data...</div>}>
+      <EntityListShell
+        title={rotation.name ?? 'Rotation Details'}
+        subtitle={rotation.description || 'Build the repeating sequence of shifts.'}
+      >
         <ShiftRotationClient 
-          id={rotationId}
+          id={id}
           initialRotation={rotation}
           initialSequences={sequences}
           shifts={shifts}
         />
-      </Suspense>
-    </EntityListShell>
+      </EntityListShell>
+    );
+  } catch (error) {
+    // Re-throw so the error.tsx boundary handles it (explicit error boundary)
+    throw error;
+  }
+}
+
+export default function ShiftRotationDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  return (
+    <Suspense 
+      fallback={
+        <EntityListShell title="Loading Rotation..." subtitle="Fetching details...">
+          <div className="space-y-4 p-4">
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        </EntityListShell>
+      }
+    >
+      <ShiftRotationDataFetcher id={params.id} />
+    </Suspense>
   );
 }

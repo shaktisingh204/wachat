@@ -1,51 +1,86 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
+import { 
+  Button, 
+  Input, 
+  Card, 
+  ZoruCardContent, 
+  Alert, 
+  ZoruAlertTitle, 
+  ZoruAlertDescription,
+  Skeleton,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+  Badge,
+} from '@/components/zoruui';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon, Search, ExternalLink, Activity } from 'lucide-react';
 
-function hashString(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = (h << 5) - h + s.charCodeAt(i);
-    h |= 0;
-  }
-  return Math.abs(h);
+import { analyzeKeywordDifficultyAction } from './actions';
+
+interface SearchResult {
+  title: string;
+  url: string;
+  domainAuthority: number;
 }
 
-function difficultyFor(kw: string): number {
-  const base = hashString(kw.toLowerCase()) % 100;
-  const lengthBoost = Math.max(0, 30 - kw.split(/\s+/).length * 6);
-  return Math.min(99, Math.max(1, Math.round(base * 0.7 + lengthBoost)));
+interface KDResult {
+  score: number;
+  results: SearchResult[];
 }
 
-function label(score: number): { text: string; color: string } {
-  if (score < 25) return { text: 'Easy', color: 'text-green-600' };
-  if (score < 50) return { text: 'Moderate', color: 'text-yellow-600' };
-  if (score < 75) return { text: 'Hard', color: 'text-orange-600' };
-  return { text: 'Very Hard', color: 'text-red-600' };
+type Tone = "green" | "amber" | "red" | "obsidian";
+
+function label(score: number): { text: string; color: string; tone: Tone } {
+  if (score < 30) return { text: 'Easy', color: 'text-green-600', tone: 'green' };
+  if (score < 55) return { text: 'Moderate', color: 'text-yellow-600', tone: 'amber' };
+  if (score < 80) return { text: 'Hard', color: 'text-orange-600', tone: 'red' };
+  return { text: 'Very Hard', color: 'text-red-600', tone: 'red' };
+}
+
+function getBarColor(score: number): string {
+  if (score < 30) return 'bg-zoru-success';
+  if (score < 55) return 'bg-zoru-warning';
+  return 'bg-zoru-danger';
 }
 
 export default function KeywordDifficultyPage() {
   const [kw, setKw] = useState('');
-  const [score, setScore] = useState<number | null>(null);
+  const [result, setResult] = useState<KDResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const run = () => {
+  const run = async () => {
     const s = kw.trim();
-    if (!s) return;
-    setScore(difficultyFor(s));
+    if (!s || loading) return;
+    
+    setLoading(true);
+    setResult(null);
+    setError(null);
+    try {
+      const data = await analyzeKeywordDifficultyAction(s);
+      setResult(data);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch search results.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const l = score !== null ? label(score) : null;
+  const l = result !== null ? label(result.score) : null;
 
   return (
-    <ToolShell title="Keyword Difficulty" description="Estimate how hard it will be to rank for a keyword (heuristic score).">
+    <ToolShell title="Keyword Difficulty" description="Estimate how hard it will be to rank for a keyword based on top 10 search results.">
       <Alert variant="info" className="mb-6">
         <InfoIcon className="h-4 w-4" />
-        <ZoruAlertTitle>Demo Environment</ZoruAlertTitle>
+        <ZoruAlertTitle>Heuristic DA Estimation</ZoruAlertTitle>
         <ZoruAlertDescription>
-          This tool is currently running in a demonstration mode. The keyword difficulty scores provided are generated using a deterministic hashing algorithm rather than real-world SERP (Search Engine Results Page) data. In a production environment, this would integrate with an external SEO data provider (e.g., Ahrefs, Semrush, or DataForSEO API) to fetch accurate ranking difficulty metrics.
+          This tool fetches real Search Engine Results Page (SERP) competitors via DuckDuckGo. However, the Domain Authority (DA) values are estimated using a heuristic algorithm since live indexing APIs are not integrated in this demo environment.
         </ZoruAlertDescription>
       </Alert>
 
@@ -53,27 +88,127 @@ export default function KeywordDifficultyPage() {
         <Input
           value={kw}
           onChange={(e) => setKw(e.target.value)}
-          placeholder="Enter a keyword"
+          placeholder="Enter a keyword (e.g., 'React hooks')"
           onKeyDown={(e) => e.key === 'Enter' && run()}
+          className="max-w-md"
         />
-        <Button onClick={run}>Check</Button>
+        <Button onClick={run} disabled={loading || !kw.trim()}>
+          {loading ? (
+            <Activity className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Search className="h-4 w-4 mr-2" />
+          )}
+          Analyze SERP
+        </Button>
       </div>
-      {score !== null && l && (
+
+      {error && (
+        <Alert variant="destructive" className="mt-6">
+          <ZoruAlertTitle>Error</ZoruAlertTitle>
+          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+        </Alert>
+      )}
+
+      {loading && (
         <Card className="mt-6">
-          <ZoruCardContent className="p-6 space-y-4">
-            <div className="flex items-baseline gap-3">
-              <div className="text-5xl font-bold">{score}</div>
-              <div className="text-sm text-muted-foreground">/ 100</div>
-              <div className={`ml-auto text-xl font-semibold ${l.color}`}>{l.text}</div>
+          <ZoruCardContent className="p-6 space-y-6">
+            <div className="space-y-4">
+              <Skeleton className="h-12 w-48" />
+              <Skeleton className="h-4 w-full" />
             </div>
-            <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-primary" style={{ width: `${score}%` }} />
+            <div className="space-y-2 mt-8">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
-            <p className="text-sm text-muted-foreground">
-              Shorter, broader keywords tend to be more competitive. Long-tail keywords are easier to rank for but have less search volume.
-            </p>
           </ZoruCardContent>
         </Card>
+      )}
+
+      {result !== null && l && (
+        <div className="mt-6 space-y-6">
+          <Card>
+            <ZoruCardContent className="p-6">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">Keyword Difficulty</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Based on the average Domain Authority of the top 10 ranking pages.
+                  </p>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <div className="flex flex-col items-end">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-bold">{result.score}</span>
+                      <span className="text-sm text-muted-foreground">/ 100</span>
+                    </div>
+                  </div>
+                  <Badge tone={l.tone} className="text-sm px-3 py-1">
+                    {l.text}
+                  </Badge>
+                </div>
+              </div>
+              
+              <div className="w-full h-3 bg-zoru-surface-2 rounded-full overflow-hidden mt-6 relative">
+                <div 
+                  className={`h-full transition-all duration-1000 ease-out absolute top-0 left-0 ${getBarColor(result.score)}`}
+                  style={{ width: `${result.score}%` }} 
+                />
+              </div>
+            </ZoruCardContent>
+          </Card>
+
+          <Card>
+            <ZoruCardContent className="p-0">
+              <div className="p-6 pb-2">
+                <h3 className="text-lg font-semibold text-foreground">Top 10 Search Results</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Simulated SERP analysis for "{kw.trim()}"
+                </p>
+              </div>
+              
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12 text-center">Rank</TableHead>
+                    <TableHead>Page Title & URL</TableHead>
+                    <TableHead className="text-right">Domain Authority</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {result.results.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="text-center font-medium text-muted-foreground">
+                        {index + 1}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <span className="font-medium text-foreground line-clamp-1">{item.title}</span>
+                          <a 
+                            href="#" 
+                            onClick={(e) => e.preventDefault()}
+                            className="text-xs text-muted-foreground hover:text-primary hover:underline flex items-center gap-1 line-clamp-1"
+                          >
+                            {item.url}
+                            <ExternalLink className="h-3 w-3 inline-block opacity-50" />
+                          </a>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Badge tone={item.domainAuthority > 70 ? "red" : item.domainAuthority > 40 ? "amber" : "green"}>
+                          {item.domainAuthority} DA
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ZoruCardContent>
+          </Card>
+        </div>
       )}
     </ToolShell>
   );

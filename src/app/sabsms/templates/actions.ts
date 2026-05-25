@@ -42,7 +42,10 @@ export interface TemplateListFilters {
   status?: string[];
   category?: string[];
   locale?: string[];
+  tags?: string[];
   sort?: "newest" | "name" | "usage" | "updated";
+  page?: number;
+  limit?: number;
 }
 
 function escapeRegex(s: string): string {
@@ -59,7 +62,7 @@ function toIso(d?: Date | string | null): string | null {
 export async function loadTemplates(
   workspaceId: string,
   filters: TemplateListFilters,
-): Promise<TemplateRow[]> {
+): Promise<{ rows: TemplateRow[]; total: number }> {
   const { cols } = await getSabsmsCollections();
   const filter: Filter<SabsmsTemplate> = { workspaceId };
 
@@ -83,6 +86,9 @@ export async function loadTemplates(
       { "bodies.body": rx },
     ];
   }
+  if (filters.tags && filters.tags.length > 0) {
+    filter.tags = { $all: filters.tags };
+  }
 
   const sortMap: Record<
     NonNullable<TemplateListFilters["sort"]>,
@@ -95,16 +101,48 @@ export async function loadTemplates(
   };
   const sort = sortMap[filters.sort ?? "newest"];
 
-  const docs = (await cols.templates
-    .find(filter)
-    .sort(sort)
-    .limit(500)
-    .toArray()) as TemplateDocExt[];
+  const limit = filters.limit ?? 50;
+  const page = filters.page ?? 1;
+  const skip = (page - 1) * limit;
 
-  return docs.map(projectTemplate);
+  const [docs, total] = await Promise.all([
+    cols.templates
+      .find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .toArray() as Promise<TemplateDocExt[]>,
+    cols.templates.countDocuments(filter),
+  ]);
+
+  return { rows: docs.map(projectTemplate), total };
 }
 
 // ─── Mutations ───────────────────────────────────────────────────────────
+
+export async function getTemplateKpis(workspaceId: string) {
+  const { cols } = await getSabsmsCollections();
+  
+  const [approvedCount, pendingCount, usageResult] = await Promise.all([
+    cols.templates.countDocuments({ workspaceId, status: "approved" }),
+    cols.templates.countDocuments({ workspaceId, status: "submitted" }),
+    cols.templates.aggregate([
+      { $match: { workspaceId } },
+      { $group: { _id: null, totalUsage: { $sum: "$usageCount" } } }
+    ]).toArray()
+  ]);
+
+  return {
+    approvedCount,
+    pendingCount,
+    totalUsage: usageResult[0]?.totalUsage ?? 0,
+  };
+}
+
+export async function getAvailableTags(workspaceId: string): Promise<string[]> {
+  const { cols } = await getSabsmsCollections();
+  return cols.templates.distinct("tags", { workspaceId }) as Promise<string[]>;
+}
 
 export type TemplateActionResult =
   | { ok: true; id?: string }

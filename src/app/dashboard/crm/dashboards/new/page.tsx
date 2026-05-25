@@ -12,6 +12,7 @@ import {
   ZoruSelectValue,
   Textarea,
   useZoruToast,
+  Checkbox,
 } from '@/components/zoruui';
 import {
   useActionState,
@@ -22,8 +23,6 @@ import {
   LoaderCircle,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
-export const dynamic = 'force-dynamic';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { saveDashboard } from '@/app/actions/crm-dashboards.actions';
@@ -165,11 +164,9 @@ export default function NewDashboardPage() {
 
           {/* Set as default */}
           <div className="flex items-center gap-2">
-            <input
+            <Checkbox
               id="isDefault"
               name="isDefault"
-              type="checkbox"
-              className="h-4 w-4 rounded border-zoru-border accent-zoru-ink"
             />
             <Label htmlFor="isDefault" className="cursor-pointer text-zoru-ink">
               Set as default dashboard

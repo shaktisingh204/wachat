@@ -30,7 +30,11 @@ import {
 } from '@/components/zoruui';
 import {
   useState } from 'react';
-import { Lightbulb,
+import { Cloud,
+  Code as CodeIcon,
+  Copy,
+  Lightbulb,
+  Loader2,
   Plus,
   Send,
   Trash2,
@@ -39,6 +43,83 @@ import { Lightbulb,
 import { WebhookInfo } from '@/app/wachat/_components/webhook-info';
 import { WebhookLogs } from '@/app/wachat/_components/webhook-logs';
 import { useProject } from '@/context/project-context';
+import { pingWebhookUrl } from './actions';
+
+const VERCEL_TEMPLATE = `export async function POST(req: Request) {
+  try {
+    const body = await req.text();
+    const signature = req.headers.get('x-hub-signature-256');
+    
+    // Verify signature if secret is provided
+    if (process.env.WEBHOOK_SECRET && signature) {
+      const crypto = require('crypto');
+      const expected = crypto
+        .createHmac('sha256', process.env.WEBHOOK_SECRET)
+        .update(body)
+        .digest('hex');
+        
+      if (\`sha256=\${expected}\` !== signature) {
+        return new Response('Invalid signature', { status: 401 });
+      }
+    }
+
+    const payload = JSON.parse(body);
+    
+    // Handle ping event for validation
+    if (payload.event === 'ping') {
+      return new Response(JSON.stringify({ success: true }), { 
+        status: 200, 
+        headers: { 'Content-Type': 'application/json' } 
+      });
+    }
+    
+    // Process your webhook events here...
+    console.log('Received event:', payload);
+    
+    return new Response('OK', { status: 200 });
+  } catch (error) {
+    return new Response('Error processing webhook', { status: 500 });
+  }
+}`;
+
+const AWS_TEMPLATE = `const crypto = require('crypto');
+
+exports.handler = async (event) => {
+  try {
+    const body = event.body;
+    const signature = event.headers['x-hub-signature-256'] || event.headers['X-Hub-Signature-256'];
+    
+    // Verify signature if secret is provided
+    if (process.env.WEBHOOK_SECRET && signature) {
+      const expected = crypto
+        .createHmac('sha256', process.env.WEBHOOK_SECRET)
+        .update(body)
+        .digest('hex');
+        
+      if (\`sha256=\${expected}\` !== signature) {
+        return { statusCode: 401, body: 'Invalid signature' };
+      }
+    }
+
+    const payload = JSON.parse(body);
+    
+    // Handle ping event for validation
+    if (payload.event === 'ping') {
+      return { 
+        statusCode: 200, 
+        body: JSON.stringify({ success: true }),
+        headers: { 'Content-Type': 'application/json' }
+      };
+    }
+    
+    // Process your webhook events here...
+    console.log('Received event:', payload);
+    
+    return { statusCode: 200, body: 'OK' };
+  } catch (error) {
+    return { statusCode: 500, body: 'Error processing webhook' };
+  }
+};`;
 
 /**
  * Wachat Webhooks — ZoruUI migration.
@@ -46,8 +127,6 @@ import { useProject } from '@/context/project-context';
  */
 
 import * as React from 'react';
-
-export const dynamic = 'force-dynamic';
 
 type EndpointDraft = {
   id?: string;
@@ -63,6 +142,7 @@ export default function WebhooksPage() {
   const webhookPath = '/api/webhooks/meta';
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
   const [draft, setDraft] = useState<EndpointDraft>({
     name: '',
     url: '',
@@ -73,6 +153,10 @@ export default function WebhooksPage() {
   const [testPayload, setTestPayload] = useState('{\n  "event": "ping"\n}');
 
   const [deleteOpen, setDeleteOpen] = useState(false);
+  
+  const [templateOpen, setTemplateOpen] = useState(false);
+  const [templateCode, setTemplateCode] = useState('');
+  const [templateTitle, setTemplateTitle] = useState('');
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
@@ -208,6 +292,65 @@ export default function WebhooksPage() {
         </div>
       </Card>
 
+      {/* ── Deployment Templates Card ── */}
+      <Card className="mt-6 p-6">
+        <div className="flex items-center gap-2.5 mb-5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
+            <Cloud className="h-4 w-4" />
+          </span>
+          <div>
+            <div className="text-[15px] text-zoru-ink leading-tight">
+              Deployment templates
+            </div>
+            <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+              Pre-configured boilerplates to quickly deploy your custom endpoint.
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* Vercel Next.js template */}
+          <div className="flex flex-col rounded-[var(--zoru-radius)] border border-zoru-line p-4">
+            <div className="mb-2 text-[14px] font-medium text-zoru-ink">Vercel / Next.js</div>
+            <div className="mb-4 text-[12px] text-zoru-ink-muted">
+              A ready-to-use Next.js App Router API route to receive SabNode events.
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-auto w-max"
+              onClick={() => {
+                setTemplateCode(VERCEL_TEMPLATE);
+                setTemplateTitle('Next.js API Route (App Router)');
+                setTemplateOpen(true);
+              }}
+            >
+              <CodeIcon className="mr-1.5 h-3.5 w-3.5" /> View code
+            </Button>
+          </div>
+
+          {/* AWS Lambda Node.js template */}
+          <div className="flex flex-col rounded-[var(--zoru-radius)] border border-zoru-line p-4">
+            <div className="mb-2 text-[14px] font-medium text-zoru-ink">AWS Lambda</div>
+            <div className="mb-4 text-[12px] text-zoru-ink-muted">
+              Serverless Node.js handler configured for AWS API Gateway.
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-auto w-max"
+              onClick={() => {
+                setTemplateCode(AWS_TEMPLATE);
+                setTemplateTitle('AWS Lambda (Node.js)');
+                setTemplateOpen(true);
+              }}
+            >
+              <CodeIcon className="mr-1.5 h-3.5 w-3.5" /> View code
+            </Button>
+          </div>
+        </div>
+      </Card>
+
       {/* Recent events */}
       <Card className="mt-6 p-6">
         <div className="mb-4">
@@ -266,21 +409,78 @@ export default function WebhooksPage() {
             </div>
           </div>
           <ZoruDialogFooter>
-            <Button variant="ghost" onClick={() => setCreateOpen(false)}>
+            <Button variant="ghost" onClick={() => setCreateOpen(false)} disabled={isValidating}>
               Cancel
             </Button>
             <Button
-              onClick={() => {
-                toast({
-                  title: 'Endpoint created',
-                  description: `${draft.name || draft.url} is now receiving events.`,
-                });
-                setCreateOpen(false);
-                setDraft({ name: '', url: '', secret: '' });
+              onClick={async () => {
+                setIsValidating(true);
+                try {
+                  const res = await pingWebhookUrl(draft.url, draft.secret);
+                  if (!res.success) {
+                    toast({
+                      title: 'Validation failed',
+                      description: res.error || 'Could not verify endpoint.',
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+                  toast({
+                    title: 'Endpoint created',
+                    description: `${draft.name || draft.url} is now receiving events.`,
+                  });
+                  setCreateOpen(false);
+                  setDraft({ name: '', url: '', secret: '' });
+                } catch (error: any) {
+                  toast({
+                    title: 'Error',
+                    description: error.message || 'Something went wrong',
+                    variant: 'destructive',
+                  });
+                } finally {
+                  setIsValidating(false);
+                }
               }}
-              disabled={!draft.url.trim()}
+              disabled={!draft.url.trim() || isValidating}
             >
+              {isValidating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Save endpoint
+            </Button>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </Dialog>
+
+      {/* ── Template Dialog ── */}
+      <Dialog open={templateOpen} onOpenChange={setTemplateOpen}>
+        <ZoruDialogContent className="max-w-3xl">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>{templateTitle}</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Copy this boilerplate to bootstrap your custom endpoint.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="relative mt-2">
+            <Textarea
+              readOnly
+              value={templateCode}
+              rows={16}
+              className="font-mono text-[11.5px] bg-zoru-surface-2"
+            />
+            <Button
+              size="sm"
+              variant="secondary"
+              className="absolute top-2 right-4 h-7 px-2"
+              onClick={() => {
+                navigator.clipboard.writeText(templateCode);
+                toast({ title: 'Copied to clipboard' });
+              }}
+            >
+              <Copy className="mr-1.5 h-3.5 w-3.5" /> Copy
+            </Button>
+          </div>
+          <ZoruDialogFooter>
+            <Button variant="ghost" onClick={() => setTemplateOpen(false)}>
+              Close
             </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>

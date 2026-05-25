@@ -30,6 +30,9 @@ export default async function PublicGdprPage({ params }: PageProps) {
           Review the purposes below and choose what you&apos;re comfortable with.
           Your preferences will be recorded against {ctx.lead.email}.
         </p>
+        <p className="mt-2 text-[12.5px] text-muted-foreground/80">
+          Note: You can continue to view your invoices, estimates, and other shared documents through the secure links provided in your emails.
+        </p>
       </ClayCard>
       <ConsentForm leadEmail={leadEmail} purposes={ctx.purposes} />
     </div>

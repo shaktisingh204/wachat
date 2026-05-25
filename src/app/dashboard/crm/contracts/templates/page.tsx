@@ -61,8 +61,12 @@ import {
   X,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState, useTransition, useActionState } from 'react';
+import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+
+gsap.registerPlugin(useGSAP);
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -99,6 +103,8 @@ export default function ContractTemplatesPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [bulkPending, startBulkTransition] = useTransition();
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   /* Filters */
   const [search, setSearch] = useState('');
@@ -143,6 +149,19 @@ export default function ContractTemplatesPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [saveState]);
+
+  useGSAP(
+    () => {
+      if (!isLoading && filtered.length > 0) {
+        gsap.fromTo(
+          '.gsap-row',
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, stagger: 0.05, duration: 0.3, ease: 'power2.out' }
+        );
+      }
+    },
+    { dependencies: [filtered, isLoading], scope: containerRef }
+  );
 
   /* KPI */
   const kpi = React.useMemo(() => {
@@ -361,8 +380,9 @@ export default function ContractTemplatesPage() {
           ) : null
         }
       >
-        {/* KPI strip */}
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div ref={containerRef} className="flex flex-col gap-4">
+          {/* KPI strip */}
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {(
             [
               { label: 'Total', value: kpi.total },
@@ -433,7 +453,7 @@ export default function ContractTemplatesPage() {
                   </ZoruTableRow>
                 ) : (
                   filtered.map((row) => (
-                    <ZoruTableRow key={row._id} className="border-zoru-line">
+                    <ZoruTableRow key={row._id} className="border-zoru-line gsap-row">
                       <ZoruTableCell className="pl-3">
                         <Checkbox
                           checked={selected.has(row._id)}
@@ -455,6 +475,16 @@ export default function ContractTemplatesPage() {
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            aria-label="Generate Contract"
+                            onClick={() => {
+                              toast({ title: 'Generate Contract', description: 'Generating contract from template...' });
+                            }}
+                          >
+                            <FileText className="h-3.5 w-3.5" />
+                          </Button>
                           <Link href={`/dashboard/crm/contracts/templates/${row._id}`}>
                             <Button variant="ghost" size="sm" aria-label="View">
                               <ExternalLink className="h-3.5 w-3.5" />
@@ -488,6 +518,7 @@ export default function ContractTemplatesPage() {
             </Table>
           </div>
         </Card>
+        </div>
       </EntityListShell>
 
       {/* Add / Edit dialog */}

@@ -71,7 +71,7 @@ export function AlertsDialog({ projectId }: { projectId: string }) {
       <DialogTrigger asChild>
         <Button variant="outline" className="relative">
           <Bell className="mr-2 h-4 w-4" />
-          Alerts
+          Configure Alerts
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-zoru-danger text-[10px] text-white">
               {unreadCount}

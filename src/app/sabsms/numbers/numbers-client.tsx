@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Activity, Trash, UserX, Star, Phone, History, ScrollText } from "lucide-react";
+import { Activity, Trash, UserX, Star, Phone, History, ScrollText, RefreshCw, Link2 } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   SabsmsPageShell,
@@ -18,6 +19,7 @@ import {
 } from "@/components/sabsms/page-toolkit";
 
 import { Badge, Button } from "@/components/zoruui";
+import { syncNumbersWithProvider, bulkUpdateNumbersConfig } from "./actions";
 
 export interface NumberRow {
   id: string;
@@ -31,6 +33,8 @@ export interface NumberRow {
   healthDlr?: number;
   healthComplaint?: number;
   monthlyCost?: number;
+  webhookUrl?: string;
+  routingUrl?: string;
   lastUsedAt?: string;
   sendVolume24h?: number;
 }
@@ -167,7 +171,41 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
     },
   ];
 
+  const handleSyncProvider = async (numberIds: string[]) => {
+    try {
+      await syncNumbersWithProvider(numberIds);
+      toast.success(`Successfully synced ${numberIds.length} number(s) with provider.`);
+      router.refresh();
+    } catch (err) {
+      toast.error("Failed to sync numbers with provider.");
+    }
+  };
+
+  const handleBulkUpdateConfig = async (numberIds: string[]) => {
+    const webhookUrl = window.prompt("Enter new Webhook URL (leave empty to skip):") || undefined;
+    const routingUrl = window.prompt("Enter new Routing URL (leave empty to skip):") || undefined;
+
+    if (webhookUrl === undefined && routingUrl === undefined) return;
+    if (webhookUrl?.trim() === "" && routingUrl?.trim() === "") return;
+
+    try {
+      await bulkUpdateNumbersConfig(numberIds, { 
+        webhookUrl: webhookUrl?.trim(), 
+        routingUrl: routingUrl?.trim() 
+      });
+      toast.success(`Successfully updated routing/webhooks for ${numberIds.length} number(s).`);
+      router.refresh();
+    } catch (err) {
+      toast.error("Failed to update config.");
+    }
+  };
+
   const rowActions: SabsmsRowAction<NumberRow>[] = [
+    {
+      label: "Sync with Provider",
+      icon: <RefreshCw className="h-4 w-4" />,
+      onSelect: (r) => handleSyncProvider([r.id]),
+    },
     {
       label: "Set as default sender",
       icon: <Star className="h-4 w-4" />,
@@ -314,6 +352,14 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
             emptyIcon={<Phone className="h-8 w-8 text-slate-400" />}
             bulkActions={[
               {
+                label: "Bulk sync with provider",
+                onAction: (rows) => handleSyncProvider(rows.map(r => r.id))
+              },
+              {
+                label: "Bulk update routing / webhooks",
+                onAction: (rows) => handleBulkUpdateConfig(rows.map(r => r.id))
+              },
+              {
                 label: "Bulk port numbers",
                 onAction: (rows) => console.log("Porting", rows.map(r => r.id))
               },
@@ -334,6 +380,24 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
         title={detailRow?.e164 ?? "Number details"}
         subtitle={`${detailRow?.country} ${detailRow?.type}`}
         tabs={[
+          {
+            value: "config",
+            label: "Routing & Webhooks",
+            icon: <Link2 className="h-4 w-4" />,
+            content: (
+              <div className="p-4 text-sm text-slate-500">
+                <h4 className="font-medium text-slate-900 mb-2">Routing & Webhooks</h4>
+                <div className="flex flex-col gap-2">
+                  <div>
+                    <span className="font-medium">Webhook URL:</span> {detailRow?.webhookUrl || "Not configured"}
+                  </div>
+                  <div>
+                    <span className="font-medium">Routing URL:</span> {detailRow?.routingUrl || "Not configured"}
+                  </div>
+                </div>
+              </div>
+            )
+          },
           {
             value: "history",
             label: "Rental History",

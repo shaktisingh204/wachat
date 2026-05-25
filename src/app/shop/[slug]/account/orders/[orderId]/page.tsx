@@ -1,28 +1,26 @@
-'use client';
-
+import { fmtDate } from "@/lib/utils";
 import { Button, Card, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, Separator } from '@/components/zoruui';
-import {
-  getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';
-
-import type { WithId, EcommOrder } from '@/lib/definitions';
-import { CheckCircle, Package } from 'lucide-react';
+import { getEcommOrderById, getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { notFound, useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { formatPrice } from '@/lib/utils';
 
-export default function OrderDetailsPage() {
-    const params = useParams();
-    const [order, setOrder] = useState<WithId<EcommOrder> | null>(null);
+// Next.js handles layout and loading internally when loading.tsx is present
+// but since the requirement says "Implement proper suspense boundaries", 
+// leaving it as page component that is just async works natively with loading.tsx.
+// We can just rely on loading.tsx for the Suspense fallback.
 
-    useEffect(() => {
-        if(params.orderId) {
-            getEcommOrderById(params.orderId as string).then(setOrder);
-        }
-    }, [params.orderId]);
+export default async function OrderDetailsPage({ params }: { params: { slug: string, orderId: string } }) {
+    const [order, shop] = await Promise.all([
+        getEcommOrderById(params.orderId),
+        getEcommShopBySlug(params.slug)
+    ]);
 
     if (!order) {
-        return <div>Loading...</div>; // Add skeleton loader here
+        notFound();
     }
+
+    const currency = shop?.currency || 'INR';
 
     return (
         <div className="space-y-4">
@@ -35,7 +33,7 @@ export default function OrderDetailsPage() {
                 <ZoruCardHeader>
                     <ZoruCardTitle className="text-2xl">Order Details</ZoruCardTitle>
                     <ZoruCardDescription>
-                        Order #{order._id.toString()} - Placed on {new Date(order.createdAt).toLocaleDateString()}
+                        Order #{order._id.toString()} - Placed on {fmtDate(order.createdAt)}
                     </ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-6">
@@ -63,18 +61,18 @@ export default function OrderDetailsPage() {
                         <h3 className="font-semibold text-lg mb-2">Order Items</h3>
                         <ul className="space-y-3">
                             {order.items.map(item => (
-                                 <li key={item.productId} className="flex justify-between items-center text-sm">
+                                 <li key={item.productId.toString()} className="flex justify-between items-center text-sm">
                                     <span>{item.productName} &times; {item.quantity}</span>
-                                    <span className="font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price * item.quantity)}</span>
+                                    <span className="font-medium">{formatPrice(item.price * item.quantity, currency)}</span>
                                  </li>
                             ))}
                         </ul>
                     </div>
                      <Separator />
                      <div className="space-y-2">
-                        <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.subtotal)}</span></div>
-                        <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.shipping)}</span></div>
-                        <div className="flex justify-between font-bold text-lg"><span className="text-foreground">Total</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.total)}</span></div>
+                        <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatPrice(order.subtotal, currency)}</span></div>
+                        <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{formatPrice(order.shipping, currency)}</span></div>
+                        <div className="flex justify-between font-bold text-lg"><span className="text-foreground">Total</span><span>{formatPrice(order.total, currency)}</span></div>
                     </div>
                 </ZoruCardContent>
             </Card>

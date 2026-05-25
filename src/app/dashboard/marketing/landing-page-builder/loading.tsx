@@ -1,9 +1,13 @@
+import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 export default function Loading() {
   return (
-    <div className="flex h-[400px] items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    <div className="flex h-[400px] w-full items-center justify-center">
+      <div className="flex flex-col items-center space-y-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">Loading campaign data...</p>
+      </div>
     </div>
   );
 }

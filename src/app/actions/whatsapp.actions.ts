@@ -657,11 +657,11 @@ export async function getTransactionsForProject(projectId: string): Promise<With
     }
 }
 
-export async function refundTransaction(projectId: string, transactionId: string): Promise<{ success: boolean; message?: string; error?: string }> {
+export async function refundTransaction(projectId: string, transactionId: string, idempotencyKey?: string): Promise<{ success: boolean; message?: string; error?: string }> {
     if (!projectId || !transactionId) return { success: false, error: 'Missing parameters.' };
     try {
         const { rustClient } = await import('@/lib/rust-client');
-        const r = await rustClient.wachatPay.refundTransaction(projectId, transactionId);
+        const r = await rustClient.wachatPay.refundTransaction(projectId, transactionId, idempotencyKey);
         revalidatePath('/wachat/whatsapp-pay');
         return { success: r.success, message: r.message, error: r.error };
     } catch (e: any) {

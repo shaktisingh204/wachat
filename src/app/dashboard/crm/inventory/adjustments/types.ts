@@ -1,3 +1,5 @@
+import type { CrmStockAdjustment, CrmStockAdjustmentLine as CoreLine } from '@/lib/definitions';
+
 export interface StockAdjustmentLine {
     productId: string;
     qtyBefore?: number;
@@ -30,8 +32,8 @@ export interface StockAdjustment {
     attachments?: string[];
 }
 
-export function mapToStockAdjustmentDto(adj: any): StockAdjustment {
-    if (!adj) return adj;
+export function mapToStockAdjustmentDto(adj: Partial<CrmStockAdjustment> & Record<string, any>): StockAdjustment {
+    if (!adj) return adj as any;
     return {
         _id: String(adj._id),
         date: adj.date ? new Date(adj.date).toISOString() : new Date().toISOString(),
@@ -46,7 +48,7 @@ export function mapToStockAdjustmentDto(adj: any): StockAdjustment {
         status: adj.status || 'pending',
         costPerUnit: Number(adj.costPerUnit || 0),
         adjustmentNumber: adj.adjustmentNumber,
-        lines: Array.isArray(adj.lines) ? adj.lines.map((l: any) => ({
+        lines: Array.isArray(adj.lines) ? adj.lines.map((l: CoreLine & Record<string, any>) => ({
             productId: String(l.productId),
             qtyBefore: typeof l.qtyBefore === 'number' ? l.qtyBefore : undefined,
             qtyAfter: typeof l.qtyAfter === 'number' ? l.qtyAfter : undefined,

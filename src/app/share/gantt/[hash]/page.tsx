@@ -6,6 +6,7 @@
  * (or 1); any other state returns 404 so disabled links 404 cleanly.
  */
 
+import * as React from 'react';
 import { notFound } from 'next/navigation';
 import {
   Badge,
@@ -16,20 +17,12 @@ import {
 } from '@/components/zoruui';
 import { getPublicGantt } from '@/app/actions/public-gantt.actions';
 import { PublicGanttChart } from './_components/public-gantt-chart';
+import { PdfExportButton } from './_components/pdf-export-button';
+import { fmtDate } from '@/lib/utils';
+
+export const dynamic = 'force-dynamic';
 
 type Params = Promise<{ hash: string }>;
-
-function formatDate(iso: string | null): string {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? '—'
-    : d.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-}
 
 const STATUS_VARIANT: Record<
   string,
@@ -45,8 +38,7 @@ const STATUS_VARIANT: Record<
   canceled: 'destructive',
 };
 
-export default async function PublicGanttPage({ params }: { params: Params }) {
-  const { hash } = await params;
+async function PublicGanttContainer({ hash }: { hash: string }) {
   const data = await getPublicGantt(hash);
   if (!data) notFound();
 
@@ -62,8 +54,8 @@ export default async function PublicGanttPage({ params }: { params: Params }) {
             </p>
             <ZoruCardTitle className="mt-1">{project.name}</ZoruCardTitle>
             <p className="mt-1 text-sm text-zinc-500">
-              {formatDate(project.startDate)} &middot;{' '}
-              {formatDate(project.deadline)}
+              {fmtDate(project.startDate)} &middot;{' '}
+              {fmtDate(project.deadline)}
             </p>
             {project.description ? (
               <p className="mt-2 max-w-2xl text-sm text-zinc-600">
@@ -84,9 +76,10 @@ export default async function PublicGanttPage({ params }: { params: Params }) {
         </ZoruCardContent>
       </Card>
 
-      <Card>
-        <ZoruCardHeader>
+      <Card id="gantt-chart-container">
+        <ZoruCardHeader className="flex flex-row items-center justify-between">
           <ZoruCardTitle>Gantt</ZoruCardTitle>
+          <PdfExportButton targetId="gantt-chart-container" filename={`${project.name.replace(/\s+/g, '-').toLowerCase()}-timeline.pdf`} />
         </ZoruCardHeader>
         <ZoruCardContent>
           <PublicGanttChart
@@ -97,6 +90,16 @@ export default async function PublicGanttPage({ params }: { params: Params }) {
         </ZoruCardContent>
       </Card>
     </div>
+  );
+}
+
+export default async function PublicGanttPage({ params }: { params: Params }) {
+  const { hash } = await params;
+  
+  return (
+    <React.Suspense fallback={<div>Loading timeline...</div>}>
+      <PublicGanttContainer hash={hash} />
+    </React.Suspense>
   );
 }
 

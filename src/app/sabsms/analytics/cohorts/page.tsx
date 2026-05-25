@@ -1,3 +1,4 @@
+import React from "react";
 /**
  * SabSMS — `/sabsms/analytics/cohorts` (Page 40).
  *
@@ -18,7 +19,7 @@ function asOne(v: string | string[] | undefined): string | undefined {
   return Array.isArray(v) ? v[0] : v;
 }
 
-export default async function SabsmsCohortsPage({
+async function SabsmsCohortsPageContent({
   searchParams,
 }: {
   searchParams: Promise<RawSearchParams>;
@@ -82,5 +83,18 @@ export default async function SabsmsCohortsPage({
         options={options}
       />
     </SabsmsPageShell>
+  );
+}
+
+
+export default function SabsmsCohortsPage({
+  searchParams,
+}: {
+  searchParams: Promise<RawSearchParams>;
+}) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <SabsmsCohortsPageContent searchParams={searchParams} />
+    </React.Suspense>
   );
 }

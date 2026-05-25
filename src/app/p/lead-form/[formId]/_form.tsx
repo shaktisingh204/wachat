@@ -2,19 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, ZoruCardContent, Button, Input, Label, Select } from '@/components/zoruui';
+import { Card, ZoruCardContent, Button } from '@/components/zoruui';
 import { LoaderCircle, Send, Terminal } from 'lucide-react';
 import { submitPublicLead } from '@/app/actions/worksuite/public.actions';
+import { FieldInput } from './_components/field-input';
+import { CurlSample } from './_components/curl-sample';
+import type { LeadFormField } from './types';
 
-interface Field {
-  _id: string;
-  field_name: string;
-  field_type: string;
-  field_values?: string[];
-  is_required?: boolean;
-}
-
-const BASE_FIELDS: Field[] = [
+const BASE_FIELDS: LeadFormField[] = [
   { _id: 'name', field_name: 'name', field_type: 'text', is_required: true },
   { _id: 'email', field_name: 'email', field_type: 'text', is_required: true },
   { _id: 'phone', field_name: 'phone', field_type: 'text' },
@@ -27,7 +22,7 @@ export function LeadFormRenderer({
   fields,
 }: {
   formId: string;
-  fields: Field[];
+  fields: LeadFormField[];
 }) {
   const router = useRouter();
   const [values, setValues] = useState<Record<string, string>>({});
@@ -48,7 +43,10 @@ export function LeadFormRenderer({
     setError(null);
     for (const f of allFields) {
       if (f.is_required && !String(values[f.field_name] || '').trim()) {
-        setError(`${labelize(f.field_name)} is required.`);
+        const labelText = f.field_name
+          .replace(/[_-]+/g, ' ')
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+        setError(`${labelText} is required.`);
         return;
       }
     }
@@ -57,13 +55,18 @@ export function LeadFormRenderer({
       return;
     }
     setBusy(true);
-    const res = await submitPublicLead(formId, values);
-    setBusy(false);
-    if (!res.success) {
-      setError(res.error);
-      return;
+    try {
+      const res = await submitPublicLead(formId, values);
+      setBusy(false);
+      if (!res.success) {
+        setError(res.error);
+        return;
+      }
+      router.push('/p/thanks?type=lead');
+    } catch (err: any) {
+      setBusy(false);
+      setError(err.message || 'An unexpected API error occurred.');
     }
-    router.push('/p/thanks?type=lead');
   };
 
   return (
@@ -118,102 +121,8 @@ export function LeadFormRenderer({
           </Button>
         </div>
 
-        {/* CURL SAMPLE */}
-        <div className="mt-2 rounded-lg bg-secondary/40 border border-border p-3">
-          <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1.5">// Curl representation</p>
-          <pre className="text-[10.5px] font-mono text-foreground whitespace-pre-wrap leading-tight bg-secondary/80 p-2.5 rounded border border-border/50">
-            {`curl -X POST https://api.sabnode.com/v1/leads/${formId.slice(0, 6)}/submit \\
-  -H "Content-Type: application/json" \\
-  -d '${JSON.stringify(values, null, 2).replace(/\n/g, '\n  ')}'`}
-          </pre>
-        </div>
+        <CurlSample formId={formId} values={values} />
       </ZoruCardContent>
     </Card>
   );
-}
-
-function FieldInput({
-  field,
-  value,
-  onChange,
-  disabled,
-}: {
-  field: Field;
-  value: string;
-  onChange: (v: string) => void;
-  disabled?: boolean;
-}) {
-  const labelText = labelize(field.field_name);
-  const label = (
-    <Label htmlFor={field._id} className="text-[12px] font-mono uppercase tracking-tight text-muted-foreground">
-      {labelText}
-      {field.is_required ? (
-        <span className="text-danger"> *</span>
-      ) : null}
-    </Label>
-  );
-
-  if (field.field_type === 'textarea') {
-    return (
-      <div className="flex flex-col gap-1.5">
-        {label}
-        <textarea
-          id={field._id}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-          className="flex min-h-[100px] w-full rounded-md border border-border bg-background px-3 py-2 text-[12.5px] font-mono shadow-inner ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          rows={4}
-        />
-      </div>
-    );
-  }
-
-  if (field.field_type === 'select' && field.field_values?.length) {
-    return (
-      <div className="flex flex-col gap-1.5">
-        {label}
-        <Select
-          id={field._id}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-          options={[
-            { value: '', label: 'Select option...' },
-            ...field.field_values.map((v) => ({ value: v, label: v })),
-          ]}
-          className="font-mono text-[12.5px]"
-        />
-      </div>
-    );
-  }
-
-  const inputType =
-    field.field_type === 'date'
-      ? 'date'
-      : field.field_type === 'number'
-        ? 'number'
-        : field.field_name === 'email'
-          ? 'email'
-          : 'text';
-
-  return (
-    <div className="flex flex-col gap-1.5">
-      {label}
-      <Input
-        id={field._id}
-        type={inputType}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        disabled={disabled}
-        className="font-mono text-[12.5px]"
-      />
-    </div>
-  );
-}
-
-function labelize(name: string): string {
-  return name
-    .replace(/[_-]+/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
 }

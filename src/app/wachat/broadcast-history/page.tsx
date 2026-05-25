@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -263,7 +264,7 @@ export default function BroadcastHistoryPage() {
                       </td>
                       <td className="px-5 py-3 whitespace-nowrap text-[12px] text-zoru-ink-muted">
                         {b.createdAt
-                          ? new Date(b.createdAt).toLocaleString()
+                          ? fmtDate(b.createdAt)
                           : '--'}
                       </td>
                       <td
@@ -302,7 +303,7 @@ export default function BroadcastHistoryPage() {
                                   Completed:
                                 </span>{' '}
                                 <span className="text-zoru-ink">
-                                  {new Date(b.completedAt).toLocaleString()}
+                                  {fmtDate(b.completedAt)}
                                 </span>
                               </div>
                             )}

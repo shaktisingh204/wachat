@@ -92,6 +92,25 @@ export function providerLabel(id: SabsmsProviderId): string {
   return map[id];
 }
 
+export function getRecommendedProvider(country: string): { provider: SabsmsProviderId; reason: string } {
+  switch (country.toUpperCase()) {
+    case "IN":
+      return { provider: "msg91", reason: "Best delivery rates and DLT integration for India." };
+    case "US":
+    case "CA":
+      return { provider: "twilio", reason: "Highest throughput and 10DLC compliance for NA." };
+    case "GB":
+    case "DE":
+    case "FR":
+      return { provider: "vonage", reason: "Optimized direct-to-carrier routes in Europe." };
+    case "SG":
+    case "AU":
+      return { provider: "messagebird", reason: "Superior APAC connectivity and latency." };
+    default:
+      return { provider: "twilio", reason: "Reliable global fallback." };
+  }
+}
+
 export function listProviders(): Array<{
   id: SabsmsProviderId;
   label: string;

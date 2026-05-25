@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { notFound } from 'next/navigation';
 
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';

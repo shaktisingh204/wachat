@@ -54,7 +54,7 @@ export async function GET(
                 
                 transactionsHtml += `
                     <tr>
-                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${new Date(entry.date).toLocaleDateString()}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${new Date(entry.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
                         <td style="padding: 8px; border-bottom: 1px solid #ddd; font-family: monospace;">${entry.voucherNumber}</td>
                         <td style="padding: 8px; border-bottom: 1px solid #ddd;">${entry.note || ''}</td>
                         <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">${debit > 0 ? debit.toFixed(2) : '-'}</td>

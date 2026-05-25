@@ -73,6 +73,7 @@ type WorkflowItem = {
   tags?: string[];
   lastRunAt?: Date;
   lastRunStatus?: 'success' | 'error' | 'running' | null;
+  executionsCount?: number;
   updatedAt: Date;
   createdAt: Date;
 };
@@ -466,6 +467,9 @@ export default function N8NWorkflowListPage() {
                   Nodes
                 </th>
                 <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                  Executions
+                </th>
+                <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                   Last run
                 </th>
                 <th className="px-4 py-3 text-left text-[11px] uppercase tracking-wide text-zoru-ink-muted">
@@ -517,6 +521,7 @@ export default function N8NWorkflowListPage() {
                     </button>
                   </td>
                   <td className="px-4 py-3 text-zoru-ink-muted">{wf.nodes?.length ?? 0}</td>
+                  <td className="px-4 py-3 text-zoru-ink-muted">{wf.executionsCount ?? 0}</td>
                   <td className="px-4 py-3">
                     <Badge variant={runStatusVariant(wf.lastRunStatus)}>
                       {runStatusLabel(wf.lastRunStatus)}

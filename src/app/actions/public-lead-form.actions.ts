@@ -112,10 +112,37 @@ export async function getPublicLeadForm(formId: string): Promise<PublicLeadForm>
 export async function submitPublicLead(
   formId: string,
   data: Record<string, string | boolean>,
+  recaptchaToken?: string
 ): Promise<PublicActionResult> {
   if (!formId || !ObjectId.isValid(formId)) {
     return { success: false, error: 'Invalid form.' };
   }
+  
+  if (process.env.RECAPTCHA_SECRET_KEY) {
+    if (!recaptchaToken) {
+      return { success: false, error: 'Please complete the reCAPTCHA.' };
+    }
+    try {
+      const verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
+      const params = new URLSearchParams();
+      params.append('secret', process.env.RECAPTCHA_SECRET_KEY);
+      params.append('response', recaptchaToken);
+      
+      const recaptchaRes = await fetch(verifyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+      });
+      const recaptchaData = await recaptchaRes.json();
+      if (!recaptchaData.success) {
+        return { success: false, error: 'reCAPTCHA verification failed.' };
+      }
+    } catch (e) {
+      console.error('[submitPublicLead] reCAPTCHA verification error:', e);
+      return { success: false, error: 'Failed to verify reCAPTCHA.' };
+    }
+  }
+
   try {
     const { db } = await connectToDatabase();
     const form = await db

@@ -8,6 +8,8 @@ interface PageProps {
     params: Promise<{ id: string }>;
 }
 
+import React from 'react';
+
 export default async function PettyCashActivityPage({ params }: PageProps) {
     const { id } = await params;
     const float = await getPettyCashFloatById(id);
@@ -19,7 +21,9 @@ export default async function PettyCashActivityPage({ params }: PageProps) {
             eyebrow="PETTY CASH ACTIVITY"
             back={{ href: `/dashboard/crm/petty-cash/${id}`, label: 'Back to float' }}
         >
-            <EntityAuditTimeline entityKind="petty_cash" entityId={id} />
+            <React.Suspense fallback={<div className="h-64 w-full animate-pulse bg-zoru-surface-2 rounded-md" />}>
+                <EntityAuditTimeline entityKind="petty_cash" entityId={id} />
+            </React.Suspense>
         </EntityDetailShell>
     );
 }

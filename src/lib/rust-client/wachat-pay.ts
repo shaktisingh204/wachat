@@ -202,10 +202,14 @@ export const wachatPayApi = {
             `${BASE}/projects/${encodeURIComponent(projectId)}/transactions`,
         ),
 
-    refundTransaction: (projectId: string, transactionId: string) =>
+    refundTransaction: (projectId: string, transactionId: string, idempotencyKey?: string) =>
         rustFetch<{ success: boolean; message?: string; error?: string }>(
             `${BASE}/projects/${encodeURIComponent(projectId)}/transactions/${encodeURIComponent(transactionId)}/refund`,
-            { method: 'POST' }
+            { 
+                method: 'POST',
+                body: idempotencyKey ? JSON.stringify({ idempotencyKey }) : undefined,
+                headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
+            }
         ),
 };
 

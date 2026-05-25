@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { fmtDate } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import {
   Activity,
@@ -128,6 +129,85 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
 
 
 
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [formData, setFormData] = React.useState<any>({});
+
+  React.useEffect(() => {
+    function handleHashChange() {
+      if (window.location.hash === "#new-webhook") {
+        setDetailId("new");
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
+    }
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  React.useEffect(() => {
+    if (detailId === "new") {
+      setFormData({
+        url: "",
+        urlAlias: "",
+        hmacAlgorithm: "sha256",
+        events: ["message.delivered", "message.failed"],
+        retryConfig: {
+          maxRetries: 5,
+          backoffStrategy: "exponential",
+          baseDelayMs: 1000,
+        },
+        dlqUrl: "",
+        skipValidation: false,
+      });
+    } else if (selectedRow) {
+      setFormData({
+        id: selectedRow.id,
+        url: selectedRow.url,
+        urlAlias: selectedRow.urlAlias || "",
+        hmacAlgorithm: selectedRow.hmacAlgorithm || "sha256",
+        events: selectedRow.events || [],
+        retryConfig: selectedRow.retryConfig || {
+          maxRetries: 5,
+          backoffStrategy: "exponential",
+          baseDelayMs: 1000,
+        },
+        dlqUrl: selectedRow.dlqUrl || "",
+        skipValidation: true, // Typically skip on edit unless forced
+      });
+    }
+  }, [detailId, selectedRow]);
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const { saveWebhook } = await import("./actions");
+      const res = await saveWebhook(formData);
+      if (res.ok) {
+        toast({ title: "Webhook saved successfully" });
+        setDetailId(null);
+        router.refresh();
+      } else {
+        toast({
+          title: "Failed to save webhook",
+          description: res.error,
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  function handleEventToggle(event: string) {
+    setFormData((prev: any) => ({
+      ...prev,
+      events: prev.events.includes(event)
+        ? prev.events.filter((e: string) => e !== event)
+        : [...prev.events, event],
+    }));
+  }
+
   return (
     <div className="space-y-4">
       <SabsmsFilterBar
@@ -198,7 +278,7 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
                     ))}
                   </div>
                   <div className="text-xs text-slate-500 font-mono">
-                    HMAC: {row.hmacAlgorithm} • Updated: {row.updatedAt ? new Date(row.updatedAt).toLocaleDateString() : "—"}
+                    HMAC: {row.hmacAlgorithm} • Updated: {row.updatedAt ? fmtDate(row.updatedAt) : "—"}
                   </div>
                 </div>
 
@@ -246,74 +326,135 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
         )}
       </div>
 
-      {/* Webhook detail drawer */}
       <SabsmsDetailDrawer
         open={detailId !== null}
         onOpenChange={(open) => !open && setDetailId(null)}
-        title={selectedRow ? `Webhook Config` : "Config"}
-        description="View and manage detailed configuration for this endpoint."
+        title={detailId === "new" ? "Add Webhook" : "Webhook Config"}
+        description={detailId === "new" ? "Configure a new endpoint to receive events." : "View and update detailed configuration for this endpoint."}
       >
-        {selectedRow && (
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label>URL</Label>
-              <Input value={selectedRow.url} readOnly />
+        {formData && (
+          <form onSubmit={handleSave} className="space-y-6 flex flex-col h-full">
+            <div className="space-y-4 flex-1 overflow-y-auto pb-4">
+              <div className="space-y-2">
+                <Label>Endpoint URL</Label>
+                <Input
+                  value={formData.url || ""}
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                  placeholder="https://api.example.com/webhooks/sabsms"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Alias (e.g., Staging/Prod)</Label>
+                  <Input
+                    value={formData.urlAlias || ""}
+                    onChange={(e) => setFormData({ ...formData, urlAlias: e.target.value })}
+                    placeholder="Production Endpoint"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>HMAC Algorithm</Label>
+                  <select
+                    value={formData.hmacAlgorithm || "sha256"}
+                    onChange={(e) => setFormData({ ...formData, hmacAlgorithm: e.target.value })}
+                    className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="sha256">HMAC-SHA256</option>
+                    <option value="sha512">HMAC-SHA512</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Subscribed Events</Label>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {EVENT_OPTIONS.map((opt) => (
+                    <label key={opt.value} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={(formData.events || []).includes(opt.value)}
+                        onChange={() => handleEventToggle(opt.value)}
+                        className="rounded border-gray-300 text-slate-900 focus:ring-slate-900"
+                      />
+                      <span className="text-sm">{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4 border-t pt-4">
+                <h4 className="text-sm font-medium">Retry Policy & Error Handling</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Max Retries</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={10}
+                      value={formData.retryConfig?.maxRetries ?? 5}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        retryConfig: { ...formData.retryConfig, maxRetries: parseInt(e.target.value) }
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Backoff Strategy</Label>
+                    <select
+                      value={formData.retryConfig?.backoffStrategy || "exponential"}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        retryConfig: { ...formData.retryConfig, backoffStrategy: e.target.value }
+                      })}
+                      className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2"
+                    >
+                      <option value="exponential">Exponential</option>
+                      <option value="linear">Linear</option>
+                      <option value="fixed">Fixed</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Dead Letter Queue (DLQ) URL</Label>
+                  <Input
+                    value={formData.dlqUrl || ""}
+                    onChange={(e) => setFormData({ ...formData, dlqUrl: e.target.value })}
+                    placeholder="https://api.example.com/webhooks/dlq"
+                  />
+                  <p className="text-xs text-slate-500">Failed events after max retries will be pushed here.</p>
+                </div>
+              </div>
+
+              <div className="space-y-2 border-t pt-4">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.skipValidation || false}
+                    onChange={(e) => setFormData({ ...formData, skipValidation: e.target.checked })}
+                    className="rounded border-gray-300 text-slate-900 focus:ring-slate-900"
+                  />
+                  <span className="text-sm font-medium">Skip endpoint validation</span>
+                </label>
+                <p className="text-xs text-slate-500 ml-6">
+                  Check this if your server is slow to respond or not fully deployed yet.
+                </p>
+              </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Alias (Staging/Prod)</Label>
-                <Input value={selectedRow.urlAlias || ""} readOnly />
-              </div>
-              <div className="space-y-2">
-                <Label>HMAC Algorithm</Label>
-                <Input value={selectedRow.hmacAlgorithm} readOnly />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Retry Config & DLQ</Label>
-              <div className="flex gap-2">
-                <Input value="Max retries: 5" readOnly className="w-1/2" />
-                <Input value="DLQ: https://example.com/dlq" readOnly className="w-1/2" />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>mTLS Client Cert</Label>
-              <Badge variant="outline">Not uploaded</Badge>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Custom Headers</Label>
-              <Textarea value='{"X-Custom-Auth": "bearer..."}' readOnly className="h-16 font-mono text-xs" />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Sample Payload Preview</Label>
-              <pre className="bg-slate-950 text-slate-50 p-3 rounded-md font-mono text-xs overflow-x-auto">
-{`{
-  "event": "message.delivered",
-  "data": {
-    "messageId": "msg_123",
-    "status": "delivered",
-    "deliveredAt": "2026-05-23T12:00:00Z"
-  }
-}`}
-              </pre>
-            </div>
-
-            <div className="space-y-2">
-              <Label>JSON Schema for Events</Label>
-              <Button variant="outline" size="sm" className="w-full justify-start">
-                <FileJson className="mr-2 h-4 w-4" /> View full schema
+            <div className="pt-4 border-t flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setDetailId(null)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save Config"}
               </Button>
             </div>
-          </div>
+          </form>
         )}
       </SabsmsDetailDrawer>
 
-      {/* Import dialog */}
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>

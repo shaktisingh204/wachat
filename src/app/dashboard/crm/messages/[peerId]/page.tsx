@@ -1,6 +1,7 @@
-import { ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
-import {
-  MessageSquare } from 'lucide-react';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { Card } from '@/components/zoruui';
+import { MessageSquare } from 'lucide-react';
+import React from 'react';
 
 import {
   listConversations,
@@ -13,38 +14,15 @@ import { ConversationsPane } from '../_components/conversations-pane';
 import { ChatThread } from '../_components/chat-thread';
 import type { WsUserChat, WsUserchatFile } from '@/lib/worksuite/chat-types';
 
-/**
- * Conversation detail — loads the full thread with a given peer on the
- * server, then hands it to a client component that handles the input
- * form and light polling for fresh messages.
- */
-export default async function ConversationPage({
-  params,
-}: {
-  params: Promise<{ peerId: string }>;
-}) {
-  const { peerId } = await params;
+async function ConversationContent({ peerId }: { peerId: string }) {
   const session = await getSession();
   
   if (!ObjectId.isValid(peerId)) {
     return (
-      <div className="flex w-full flex-col gap-6">
-        <PageHeader>
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
-              <MessageSquare className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
-            </div>
-            <ZoruPageHeading>
-              <ZoruPageTitle>Messages</ZoruPageTitle>
-              <ZoruPageDescription>Chat directly with your teammates.</ZoruPageDescription>
-            </ZoruPageHeading>
-          </div>
-        </PageHeader>
-        <div className="flex flex-col items-center justify-center p-12 text-center border border-border rounded-lg bg-card">
-          <MessageSquare className="h-10 w-10 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium">Invalid User ID</h3>
-          <p className="text-sm text-muted-foreground mt-1">The user you are trying to message does not exist or the ID is invalid.</p>
-        </div>
+      <div className="flex flex-col items-center justify-center p-12 text-center border border-border rounded-lg bg-card">
+        <MessageSquare className="h-10 w-10 text-muted-foreground mb-4" />
+        <h3 className="text-lg font-medium">Invalid User ID</h3>
+        <p className="text-sm text-muted-foreground mt-1">The user you are trying to message does not exist or the ID is invalid.</p>
       </div>
     );
   }
@@ -59,27 +37,39 @@ export default async function ConversationPage({
   const initialMessages = thread as unknown as ThreadMessage[];
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <PageHeader>
-        <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
-            <MessageSquare className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
-          </div>
-          <ZoruPageHeading>
-            <ZoruPageTitle>Messages</ZoruPageTitle>
-            <ZoruPageDescription>Chat directly with your teammates.</ZoruPageDescription>
-          </ZoruPageHeading>
-        </div>
-      </PageHeader>
-
-      <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-        <ConversationsPane conversations={conversations} activePeerId={peerId} />
-        <ChatThread
-          peerUserId={peerId}
-          currentUserId={currentUserId}
-          initialMessages={initialMessages}
-        />
-      </div>
+    <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
+      <ConversationsPane conversations={conversations} activePeerId={peerId} />
+      <ChatThread
+        peerUserId={peerId}
+        currentUserId={currentUserId}
+        initialMessages={initialMessages}
+      />
     </div>
+  );
+}
+
+export default async function ConversationPage({
+  params,
+}: {
+  params: Promise<{ peerId: string }>;
+}) {
+  const { peerId } = await params;
+
+  return (
+    <EntityListShell
+      title="Messages"
+      subtitle="Chat directly with your teammates."
+    >
+      <React.Suspense fallback={
+        <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
+          <div className="space-y-2 animate-pulse bg-zoru-surface-2 rounded-md h-[480px]"></div>
+          <Card className="flex min-h-[480px] items-center justify-center p-6">
+            <p className="text-[13px] text-zoru-ink-muted">Loading...</p>
+          </Card>
+        </div>
+      }>
+        <ConversationContent peerId={peerId} />
+      </React.Suspense>
+    </EntityListShell>
   );
 }

@@ -10,6 +10,8 @@ import { notFound } from 'next/navigation';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmWarehouseById } from '@/app/actions/crm-warehouses.actions';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/zoruui';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -29,7 +31,9 @@ export default async function WarehouseActivityPage({ params }: PageProps) {
         label: 'Back to warehouse',
       }}
     >
-      <EntityAuditTimeline entityKind="warehouse" entityId={id} />
+      <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+        <EntityAuditTimeline entityKind="warehouse" entityId={id} />
+      </Suspense>
     </EntityDetailShell>
   );
 }

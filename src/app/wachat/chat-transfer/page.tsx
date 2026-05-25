@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -262,7 +263,7 @@ export default function ChatTransferPage() {
                   </ZoruTableCell>
                   <ZoruTableCell className="whitespace-nowrap text-[12px] text-zoru-ink-muted">
                     {t.transferredAt
-                      ? new Date(t.transferredAt).toLocaleString()
+                      ? fmtDate(t.transferredAt)
                       : '--'}
                   </ZoruTableCell>
                 </ZoruTableRow>

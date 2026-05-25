@@ -1,5 +1,4 @@
-import {
-  redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 /**
  * New stock transfer — server wrapper around `<StockTransferForm />`.
@@ -9,12 +8,18 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 
 import { StockTransferForm } from '../_components/stock-transfer-form';
+import { Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 
 const BASE = '/dashboard/crm/inventory/stock-transfers';
 
-export default async function NewStockTransferPage() {
+type Props = {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default async function NewStockTransferPage(props: Props) {
+    const searchParams = await props.searchParams;
     const session = await getSession();
     if (!session?.user) redirect('/login');
 
@@ -24,7 +29,9 @@ export default async function NewStockTransferPage() {
             title="New stock transfer"
             back={{ href: BASE, label: 'Stock transfers' }}
         >
-            <StockTransferForm initial={undefined} />
+            <Suspense fallback={<div className="h-[500px] rounded-lg border border-border bg-card p-6 animate-pulse" />}>
+                <StockTransferForm initial={undefined} />
+            </Suspense>
         </EntityDetailShell>
     );
 }

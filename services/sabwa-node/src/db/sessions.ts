@@ -65,6 +65,9 @@ export interface SabwaSessionDoc {
   workerNodeId?: string;
   banSignals?: BanSignal[];
   rateLimitProfile: RateProfile;
+  warmupEnabled?: boolean;
+  dailyResetTimezone?: string;
+  overrides?: Record<string, number>;
   /** Optional human label set by the operator. */
   label?: string;
   createdAt: Date;
@@ -264,6 +267,9 @@ export async function updateAuthState(
 export interface UpdateMetadataInput {
   label?: string;
   rateLimitProfile?: RateProfile;
+  warmupEnabled?: boolean;
+  dailyResetTimezone?: string;
+  overrides?: Record<string, number>;
 }
 
 /** Patch label and/or rate-limit profile. No-op if neither field provided. */
@@ -281,6 +287,9 @@ export async function updateMetadata(
   const set: Partial<SabwaSessionDoc> = { updatedAt: new Date() };
   if (input.label !== undefined) set.label = input.label;
   if (input.rateLimitProfile !== undefined) set.rateLimitProfile = input.rateLimitProfile;
+  if (input.warmupEnabled !== undefined) set.warmupEnabled = input.warmupEnabled;
+  if (input.dailyResetTimezone !== undefined) set.dailyResetTimezone = input.dailyResetTimezone;
+  if (input.overrides !== undefined) set.overrides = input.overrides;
   if (Object.keys(set).length <= 1) return;
   await col(db).updateOne({ _id: oid }, { $set: set });
 }

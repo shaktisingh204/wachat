@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 
 export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
   const [config, setConfig] = useState(initialConfig);
+  const [expandedEvent, setExpandedEvent] = useState<number | null>(null);
 
   const breadcrumbs = [
     { label: 'Settings', href: '/sabsms/settings' },
@@ -178,6 +179,25 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                   <div className="pt-4 border-t space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
+                        <Label>Alert Debouncing (Anti-Fatigue)</Label>
+                        <p className="text-sm text-muted-foreground">Summarize repeating alerts (e.g., &quot;15 errors in 1 hour&quot;).</p>
+                      </div>
+                      <Switch 
+                        checked={config.debouncing?.enabled || false} 
+                        onCheckedChange={(val) => setConfig({...config, debouncing: {...(config.debouncing || {}), enabled: val}})} 
+                      />
+                    </div>
+                    {config.debouncing?.enabled && (
+                      <div className="flex gap-2 items-center text-sm">
+                        <span>Window (mins):</span>
+                        <Input type="number" min={1} value={config.debouncing?.windowMinutes || 60} onChange={(e) => setConfig({...config, debouncing: {...config.debouncing, windowMinutes: parseInt(e.target.value) || 60}})} className="w-24" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="pt-4 border-t space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
                         <Label>Quiet Hours</Label>
                         <p className="text-sm text-muted-foreground">Pause non-critical alerts during this window.</p>
                       </div>
@@ -208,33 +228,59 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
               <CardContent className="p-0">
                 <div className="divide-y border rounded-md">
                   {config.events.map((evt: any, i: number) => (
-                    <div key={evt.id} className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-card">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm">{evt.name}</span>
-                          {evt.critical && <Badge variant="destructive" className="h-5 text-[10px]">Critical</Badge>}
-                          {evt.threshold && <Badge variant="secondary" className="h-5 text-[10px]">Threshold: {evt.threshold}</Badge>}
+                    <div key={evt.id} className="bg-card flex flex-col border-b last:border-b-0">
+                      <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm">{evt.name}</span>
+                            {evt.critical && <Badge variant="destructive" className="h-5 text-[10px]">Critical</Badge>}
+                            {evt.threshold && <Badge variant="secondary" className="h-5 text-[10px]">Threshold: {evt.threshold}</Badge>}
+                            {evt.debounceMinutes > 0 && <Badge variant="outline" className="h-5 text-[10px]">Debounced: {evt.debounceMinutes}m</Badge>}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 font-mono">{evt.id}</p>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1 font-mono">{evt.id}</p>
+                        <div className="flex flex-wrap gap-2 items-center">
+                          {config.channels.filter((c: any) => c.enabled).map((ch: any) => {
+                            const isActive = evt.channels.includes(ch.id);
+                            return (
+                              <Badge 
+                                key={ch.id} 
+                                variant={isActive ? 'default' : 'outline'}
+                                className="cursor-pointer transition-colors"
+                                onClick={() => handleEventChannelToggle(i, ch.id)}
+                              >
+                                {ch.name}
+                              </Badge>
+                            );
+                          })}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 ml-2" onClick={() => setExpandedEvent(expandedEvent === i ? null : i)}>
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2 items-center">
-                        {config.channels.filter((c: any) => c.enabled).map((ch: any) => {
-                          const isActive = evt.channels.includes(ch.id);
-                          return (
-                            <Badge 
-                              key={ch.id} 
-                              variant={isActive ? 'default' : 'outline'}
-                              className="cursor-pointer transition-colors"
-                              onClick={() => handleEventChannelToggle(i, ch.id)}
-                            >
-                              {ch.name}
-                            </Badge>
-                          );
-                        })}
-                        <Button variant="ghost" size="icon" className="h-8 w-8 ml-2">
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      {expandedEvent === i && (
+                        <div className="px-4 pb-4 pt-2 border-t bg-muted/20 space-y-4">
+                          <div className="space-y-1">
+                            <Label className="text-sm">Event-Specific Debouncing</Label>
+                            <p className="text-xs text-muted-foreground">Summarize multiple occurrences of this event into a single notification.</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm">Window (mins):</span>
+                            <Input 
+                              type="number" 
+                              min={0} 
+                              value={evt.debounceMinutes || 0} 
+                              onChange={(e) => {
+                                const newEvents = [...config.events];
+                                newEvents[i].debounceMinutes = parseInt(e.target.value) || 0;
+                                setConfig({ ...config, events: newEvents });
+                              }} 
+                              className="w-24 h-8 text-sm" 
+                            />
+                            <span className="text-xs text-muted-foreground ml-2">(Set to 0 to disable)</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -256,6 +302,22 @@ export function NotificationsClient({ initialConfig }: { initialConfig: any }) {
                     <p className="text-xs text-muted-foreground capitalize">
                       Type: {ch.type}
                     </p>
+                    {(ch.type === 'slack' || ch.type === 'discord') && (
+                      <div className="space-y-2">
+                        <Label className="text-xs">Webhook URL</Label>
+                        <Input 
+                          type="url" 
+                          placeholder="https://..." 
+                          value={ch.webhookUrl || ''} 
+                          onChange={(e) => {
+                            const newChannels = [...config.channels];
+                            newChannels[i].webhookUrl = e.target.value;
+                            setConfig({ ...config, channels: newChannels });
+                          }} 
+                          className="h-8 text-xs" 
+                        />
+                      </div>
+                    )}
                     {ch.type === 'webhook' && (
                       <div className="space-y-2">
                         <Label className="text-xs">Signing Secret</Label>

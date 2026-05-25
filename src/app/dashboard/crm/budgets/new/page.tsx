@@ -19,8 +19,6 @@ import {
   useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
-export const dynamic = 'force-dynamic';
-
 import { Save, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
@@ -93,6 +91,7 @@ export default function NewBudgetPage() {
                 Budget Head <span className="text-zoru-danger-ink">*</span>
               </Label>
               <EntityFormField
+                key={headType}
                 entity={headType as EntityKey}
                 name="budgetHeadId"
                 dualWriteName="budgetHead"
@@ -116,6 +115,7 @@ export default function NewBudgetPage() {
                 name="period"
                 placeholder="e.g. FY2026-Q1, Apr 2026"
                 maxLength={50}
+                required
               />
             </div>
             <div />
@@ -150,6 +150,7 @@ export default function NewBudgetPage() {
                 min={0}
                 step="0.01"
                 placeholder="0.00"
+                required
               />
             </div>
           </div>

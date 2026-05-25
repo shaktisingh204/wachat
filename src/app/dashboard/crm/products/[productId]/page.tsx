@@ -10,21 +10,67 @@
  * Per CRM_REBUILD_PLAN §1D.3.
  */
 
+import * as React from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { WithId } from 'mongodb';
 import { Copy, Pencil } from 'lucide-react';
+import dynamic from 'next/dynamic';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Button } from '@/components/zoruui';
+import { Button, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Skeleton } from '@/components/zoruui';
 import { getCrmProductById } from '@/app/actions/crm-products.actions';
 import type { CrmProduct } from '@/lib/definitions';
 
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/zoruui';
 import { ItemDetailBody } from '../../inventory/items/_components/item-detail-body';
-import { ProductHistoryGraph } from '../_components/product-history-graph';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
+
+// Dynamic import with ssr: false for zero hydration discrepancies in ProductHistoryGraph
+const ProductHistoryGraph = dynamic(
+  () => import('../_components/product-history-graph').then((m) => m.ProductHistoryGraph),
+  { ssr: false, loading: () => <ProductHistoryGraphSkeleton /> }
+);
+
+function ProductHistoryGraphSkeleton() {
+  return (
+    <Card className="mt-6">
+      <ZoruCardHeader>
+        <ZoruCardTitle className="text-lg">Price & Stock History</ZoruCardTitle>
+      </ZoruCardHeader>
+      <ZoruCardContent className="h-64 flex items-center justify-center bg-zinc-50 dark:bg-zinc-900/50">
+        <div className="flex flex-col items-center gap-2">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-400 border-t-transparent" />
+          <span className="text-sm text-zinc-500">Loading chart history...</span>
+        </div>
+      </ZoruCardContent>
+    </Card>
+  );
+}
+
+function ActivityTimelineSkeleton() {
+  return (
+    <Card className="mt-6">
+      <ZoruCardHeader>
+        <ZoruCardTitle className="text-lg">Activity</ZoruCardTitle>
+      </ZoruCardHeader>
+      <ZoruCardContent>
+        <div className="space-y-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex gap-4">
+              <Skeleton className="h-8 w-8 rounded-full shrink-0" />
+              <div className="flex-1 space-y-2 py-1">
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </ZoruCardContent>
+    </Card>
+  );
+}
 
 interface PageProps {
   params: Promise<{ productId: string }>;
@@ -79,6 +125,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </Button>
         </div>
       }
+      audit={
+        <React.Suspense fallback={<ActivityTimelineSkeleton />}>
+          <EntityAuditTimeline entityKind="item" entityId={productId} />
+        </React.Suspense>
+      }
     >
       <ItemDetailBody product={product} productId={productId} />
       
@@ -110,7 +161,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
       </Card>
 
       {/* History Graph */}
-      <ProductHistoryGraph />
+      <React.Suspense fallback={<ProductHistoryGraphSkeleton />}>
+        <ProductHistoryGraph />
+      </React.Suspense>
     </EntityDetailShell>
   );
 }

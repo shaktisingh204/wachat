@@ -88,7 +88,7 @@ export default function FacebookAdsIntegrationPage() {
       id?: string;
     },
   );
-
+  const [mounted, setMounted] = useState(false);
   const refresh = useCallback(() => {
     startLoading(async () => {
       const [d, ev, st, accs] = await Promise.all([
@@ -109,6 +109,7 @@ export default function FacebookAdsIntegrationPage() {
   }, []);
 
   useEffect(() => {
+    setMounted(true);
     refresh();
   }, [refresh]);
 
@@ -184,6 +185,14 @@ export default function FacebookAdsIntegrationPage() {
       refresh();
     });
   };
+
+  if (!mounted) {
+    return (
+      <div className="flex h-60 items-center justify-center">
+        <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+      </div>
+    );
+  }
 
   return (
     <EntityListShell

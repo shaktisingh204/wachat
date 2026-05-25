@@ -19,7 +19,7 @@ import { ItcSummaryChart } from './_components/itc-summary-chart';
 
 function currentPeriod(): string {
     const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
 function PeriodForm({ period }: { period: string }) {

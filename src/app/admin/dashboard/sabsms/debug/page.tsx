@@ -13,12 +13,25 @@ import {
   ZoruPageTitle,
 } from '@/components/zoruui';
 import { SabsmsDebugSendForm } from './debug-form';
+import { sabsmsEngine } from '@/lib/sabsms/engine-client';
 
 export const dynamic = 'force-dynamic';
 
 export default async function SabsmsAdminDebugPage() {
   const { isAdmin } = await getAdminSession();
   if (!isAdmin) redirect('/admin-login');
+
+  let engineHealthy = false;
+  let engineVersion = undefined;
+  let engineError = null;
+
+  try {
+    const health = await sabsmsEngine.health();
+    engineHealthy = health.ok;
+    engineVersion = health.version;
+  } catch (e: any) {
+    engineError = e.message || 'Unknown error connecting to SabSMS engine';
+  }
 
   return (
     <div className="space-y-6">
@@ -42,7 +55,13 @@ export default async function SabsmsAdminDebugPage() {
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <SabsmsDebugSendForm />
+          {!engineHealthy && (
+            <div className="mb-4 rounded border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+              <strong className="font-semibold">Engine Unavailable: </strong>
+              {engineError || 'The SabSMS engine is currently down or disabled.'}
+            </div>
+          )}
+          <SabsmsDebugSendForm engineHealthy={engineHealthy} />
         </ZoruCardContent>
       </Card>
     </div>

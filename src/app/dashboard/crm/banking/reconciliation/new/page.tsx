@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import type { Metadata } from 'next';
 
 /**
  * New bank reconciliation — server wrapper around `<ReconciliationForm />`.
@@ -10,6 +11,11 @@ import { getSession } from '@/app/actions/user.actions';
 import { ReconciliationForm } from '../_components/reconciliation-form';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+    title: 'New Reconciliation | Banking',
+    description: 'Create a new bank reconciliation record',
+};
 
 const BASE = '/dashboard/crm/banking/reconciliation';
 

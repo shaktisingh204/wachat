@@ -1,33 +1,25 @@
-'use client';
+import React, { Suspense } from 'react';
+import { getPerformanceReviews } from '@/app/actions/hrm-advanced/performance-reviews';
+import { PerformanceReviewsClient } from './client-page';
+import Loading from './loading';
 
-import React from 'react';
-import { EntityCrudPage } from '@/components/crm/entity-crud-page';
-import { getPerformanceReviews, savePerformanceReview, deletePerformanceReview } from '@/app/actions/hrm-advanced/performance-reviews';
-import { PerformanceReview } from '@/lib/hrm-advanced-types';
+export const dynamic = 'force-dynamic';
+
+
+export const metadata = {
+  title: 'Performance 360 Reviews | HRM Advanced',
+  description: 'Manage and evaluate employee performance reviews',
+};
+
+async function PerformanceReviewsData() {
+  const data = await getPerformanceReviews();
+  return <PerformanceReviewsClient initialData={data} />;
+}
 
 export default function Page() {
   return (
-    <EntityCrudPage<PerformanceReview>
-      title="Performance 360 Reviews"
-      description="Manage employee performance reviews"
-      entityName="Review"
-      fetchFn={getPerformanceReviews}
-      saveFn={savePerformanceReview}
-      deleteFn={deletePerformanceReview}
-      formFields={[
-      { name: 'employeeId', label: 'Employee ID', type: 'text' },
-      { name: 'reviewerId', label: 'Reviewer ID', type: 'text' },
-      { name: 'score', label: 'Score (0-5)', type: 'number' },
-      { name: 'comments', label: 'Comments', type: 'text' },
-      { name: 'reviewDate', label: 'Review Date', type: 'date' }
-    ]}
-      columns={[
-      { header: 'Employee ID', accessorKey: 'employeeId' },
-      { header: 'Reviewer ID', accessorKey: 'reviewerId' },
-      { header: 'Score', accessorKey: 'score' },
-      { header: 'Date', accessorKey: 'reviewDate' }
-    ]}
-      defaultValues={{ score: 5 }}
-    />
+    <Suspense fallback={<Loading />}>
+      <PerformanceReviewsData />
+    </Suspense>
   );
 }

@@ -1,42 +1,13 @@
-'use client';
+import { Suspense } from 'react';
+import ClientPage from './page.client';
+import Loading from './loading';
 
-import { Skeleton } from '@/components/zoruui';
-import {
-  EmbeddedForm } from '@/components/wabasimplify/embedded-form';
-import { getCrmFormById } from '@/app/actions/crm-forms.actions';
-import { useEffect,
-  useState,
-  use } from 'react';
-import type { WithId,
-  CrmForm } from '@/lib/definitions';
+export const dynamic = 'force-dynamic';
 
-// This file is deprecated and no longer used for embedding.
-// It is kept for historical purposes or if a direct link to the form is needed in the future.
-
-export default function EmbeddedFormPage(props: { params: Promise<{ formId: string }> }) {
-    const params = use(props.params);
-    const [form, setForm] = useState<WithId<CrmForm> | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        setIsLoading(true);
-        getCrmFormById(params.formId).then(data => {
-            setForm(data);
-            setIsLoading(false);
-        });
-    }, [params.formId]);
-
-    if (isLoading) {
-        return <div className="p-4"><Skeleton className="h-96 w-full max-w-lg mx-auto" /></div>;
-    }
-
-    if (!form) {
-        return <div className="p-4 text-center">Form not found.</div>;
-    }
-
-    return (
-        <main className="min-h-screen bg-transparent p-0">
-            <EmbeddedForm form={form} />
-        </main>
-    )
+export default function Page(props: any) {
+  return (
+    <Suspense fallback={<Loading />}>
+      <ClientPage {...props} />
+    </Suspense>
+  );
 }

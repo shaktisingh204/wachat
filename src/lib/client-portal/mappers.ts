@@ -127,6 +127,7 @@ export function mapTicket(doc: Document): ClientTicket {
         lastReplyAt?: Date;
         updatedAt?: Date;
         createdAt?: Date;
+        dueBy?: Date;
     };
     return {
         _id: String(d._id),
@@ -137,6 +138,7 @@ export function mapTicket(doc: Document): ClientTicket {
         description: d.description,
         lastReplyAt: toIso(d.lastReplyAt ?? d.updatedAt),
         createdAt: toIso(d.createdAt),
+        dueBy: toIso(d.dueBy),
     };
 }
 

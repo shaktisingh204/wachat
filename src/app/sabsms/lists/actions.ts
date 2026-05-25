@@ -26,6 +26,7 @@ import { rowsToCsv } from "@/components/sabsms/page-toolkit";
 import { getSabsmsCollections } from "@/lib/sabsms/db/collections";
 
 import { computeOverlap, normalisePhone } from "./helpers";
+import { type SegmentNode, evaluatePredicate, type SegmentContact } from "../segments/new/evaluate";
 
 // ─── Types ────────────────────────────────────────────────────────────────
 
@@ -45,6 +46,9 @@ export interface ListRecord {
   workspaceId: string;
   name: string;
   description?: string;
+  kind: "static" | "dynamic";
+  predicate?: SegmentNode;
+  isLocked?: boolean;
   tags: string[];
   members: string[];
   memberCount: number;
@@ -59,6 +63,9 @@ interface ListDoc {
   workspaceId: string;
   name: string;
   description?: string;
+  kind: "static" | "dynamic";
+  predicate?: SegmentNode;
+  isLocked?: boolean;
   tags: string[];
   members: string[];
   memberCount: number;
@@ -114,6 +121,9 @@ function project(doc: WithId<ListDoc>): ListRecord {
     workspaceId: doc.workspaceId,
     name: doc.name,
     description: doc.description,
+    kind: doc.kind ?? "static",
+    predicate: doc.predicate,
+    isLocked: doc.isLocked,
     tags: doc.tags ?? [],
     members: doc.members ?? [],
     memberCount: doc.memberCount ?? (doc.members?.length ?? 0),
@@ -221,6 +231,8 @@ export async function loadCampaignsUsingList(
 export interface CreateListInput {
   name: string;
   description?: string;
+  kind?: "static" | "dynamic";
+  predicate?: SegmentNode;
   tags?: string[];
   expiresAt?: string;
   initialMembers?: string[];
@@ -230,7 +242,7 @@ export async function createList(
   input: CreateListInput,
 ): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const ws = await resolveWorkspace();
-  if (!ws.ok) return ws;
+  if (!ws.ok) return { ok: false, error: ws.error };
   if (!input.name?.trim()) return { ok: false, error: "Name is required." };
 
   const members = (input.initialMembers ?? [])
@@ -242,6 +254,9 @@ export async function createList(
     workspaceId: ws.workspaceId,
     name: input.name.trim(),
     description: input.description?.trim(),
+    kind: input.kind ?? "static",
+    predicate: input.predicate,
+    isLocked: false,
     tags: input.tags ?? [],
     members,
     memberCount: members.length,
@@ -250,7 +265,7 @@ export async function createList(
       {
         at: now.toISOString(),
         kind: "created",
-        message: `List created with ${members.length} member(s).`,
+        message: input.kind === "dynamic" ? "Created dynamic list." : `Created static list with ${members.length} contact(s).`,
         actorId: ws.userId,
         delta: members.length,
       },
@@ -263,12 +278,105 @@ export async function createList(
   return { ok: true, id: String(res.insertedId) };
 }
 
+export async function updateList(
+  input: {
+    listId: string;
+    name: string;
+    description?: string;
+    kind?: "static" | "dynamic";
+    predicate?: SegmentNode;
+    tags?: string[];
+    expiresAt?: string;
+  }
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return { ok: false, error: ws.error };
+  if (!ObjectId.isValid(input.listId)) return { ok: false, error: "Invalid list id." };
+  if (!input.name?.trim()) return { ok: false, error: "Name is required." };
+
+  const col = await listsCollection();
+  const existing = await col.findOne({ _id: new ObjectId(input.listId), workspaceId: ws.workspaceId });
+  if (!existing) return { ok: false, error: "List not found." };
+  if (existing.isLocked) return { ok: false, error: "List is locked and cannot be edited." };
+
+  const now = new Date();
+  await col.updateOne(
+    { _id: new ObjectId(input.listId), workspaceId: ws.workspaceId },
+    {
+      $set: {
+        name: input.name.trim(),
+        description: input.description?.trim(),
+        kind: input.kind ?? existing.kind,
+        predicate: input.predicate,
+        tags: input.tags ?? existing.tags,
+        expiresAt: input.expiresAt ? new Date(input.expiresAt) : existing.expiresAt,
+        updatedAt: now,
+      },
+      $push: {
+        audit: {
+          at: now.toISOString(),
+          kind: "updated",
+          message: "Updated list configuration.",
+          actorId: ws.userId,
+        },
+      },
+    }
+  );
+  return { ok: true };
+}
+
+export async function snapshotList(listId: string): Promise<{ ok: true; contactIds: string[] } | { ok: false; error: string }> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return { ok: false, error: ws.error };
+  if (!ObjectId.isValid(listId)) return { ok: false, error: "Invalid list id." };
+  
+  const col = await listsCollection();
+  const list = await col.findOne({ _id: new ObjectId(listId), workspaceId: ws.workspaceId });
+  if (!list) return { ok: false, error: "List not found." };
+
+  if (list.kind === "static") {
+    return { ok: true, contactIds: list.members || [] };
+  } else {
+    if (!list.predicate) return { ok: true, contactIds: [] };
+    const { db } = await connectToDatabase();
+    const raw = await db.collection("sabsms_contacts").find({ workspaceId: ws.workspaceId }).toArray();
+    const contacts = raw as unknown as SegmentContact[];
+    const matched = contacts.filter((c) => evaluatePredicate(list.predicate!, c));
+    return { ok: true, contactIds: matched.map((c) => c.phone) };
+  }
+}
+
+export async function toggleListLock(listId: string, isLocked: boolean): Promise<{ ok: true } | { ok: false; error: string }> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return { ok: false, error: ws.error };
+  if (!ObjectId.isValid(listId)) return { ok: false, error: "Invalid list id." };
+  
+  const col = await listsCollection();
+  const now = new Date();
+  const res = await col.updateOne(
+    { _id: new ObjectId(listId), workspaceId: ws.workspaceId },
+    {
+      $set: { isLocked, updatedAt: now },
+      $push: {
+        audit: {
+          at: now.toISOString(),
+          kind: isLocked ? "locked" : "unlocked",
+          message: isLocked ? "List locked for campaign sending." : "List unlocked.",
+          actorId: ws.userId,
+        },
+      },
+    }
+  );
+  if (res.matchedCount === 0) return { ok: false, error: "List not found." };
+  return { ok: true };
+}
+
 export async function addContactsToList(input: {
   listId: string;
   phones: string[];
 }): Promise<{ ok: true; added: number } | { ok: false; error: string }> {
   const ws = await resolveWorkspace();
-  if (!ws.ok) return ws;
+  if (!ws.ok) return { ok: false, error: ws.error };
   if (!ObjectId.isValid(input.listId)) {
     return { ok: false, error: "Invalid list id." };
   }
@@ -320,7 +428,7 @@ export async function removeContactsFromList(input: {
   phones: string[];
 }): Promise<{ ok: true; removed: number } | { ok: false; error: string }> {
   const ws = await resolveWorkspace();
-  if (!ws.ok) return ws;
+  if (!ws.ok) return { ok: false, error: ws.error };
   if (!ObjectId.isValid(input.listId)) {
     return { ok: false, error: "Invalid list id." };
   }
@@ -365,7 +473,7 @@ export async function removeContactsFromList(input: {
 
 export async function deleteList(listId: string): Promise<ListsActionResult> {
   const ws = await resolveWorkspace();
-  if (!ws.ok) return ws;
+  if (!ws.ok) return { ok: false, error: ws.error };
   if (!ObjectId.isValid(listId)) {
     return { ok: false, error: "Invalid list id." };
   }
@@ -384,7 +492,7 @@ export async function duplicateList(
   listId: string,
 ): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const ws = await resolveWorkspace();
-  if (!ws.ok) return ws;
+  if (!ws.ok) return { ok: false, error: ws.error };
   if (!ObjectId.isValid(listId)) {
     return { ok: false, error: "Invalid list id." };
   }
@@ -400,6 +508,9 @@ export async function duplicateList(
     workspaceId: ws.workspaceId,
     name: `${src.name} (copy)`,
     description: src.description,
+    kind: src.kind ?? "static",
+    predicate: src.predicate,
+    isLocked: false,
     tags: src.tags ?? [],
     members: src.members ?? [],
     memberCount: src.memberCount ?? 0,
@@ -423,7 +534,7 @@ export async function tagList(input: {
   tags: string[];
 }): Promise<ListsActionResult> {
   const ws = await resolveWorkspace();
-  if (!ws.ok) return ws;
+  if (!ws.ok) return { ok: false, error: ws.error };
   if (!ObjectId.isValid(input.listId)) {
     return { ok: false, error: "Invalid list id." };
   }
@@ -450,7 +561,7 @@ export async function convertListToSuppression(
   listId: string,
 ): Promise<{ ok: true; added: number } | { ok: false; error: string }> {
   const ws = await resolveWorkspace();
-  if (!ws.ok) return ws;
+  if (!ws.ok) return { ok: false, error: ws.error };
   if (!ObjectId.isValid(listId)) {
     return { ok: false, error: "Invalid list id." };
   }
@@ -502,7 +613,7 @@ export async function setListShareToken(input: {
   enable: boolean;
 }): Promise<{ ok: true; token: string | null } | { ok: false; error: string }> {
   const ws = await resolveWorkspace();
-  if (!ws.ok) return ws;
+  if (!ws.ok) return { ok: false, error: ws.error };
   if (!ObjectId.isValid(input.listId)) {
     return { ok: false, error: "Invalid list id." };
   }
@@ -552,7 +663,7 @@ export async function compareLists(
   | { ok: false; error: string }
 > {
   const ws = await resolveWorkspace();
-  if (!ws.ok) return ws;
+  if (!ws.ok) return { ok: false, error: ws.error };
   const a = await loadListById(ws.workspaceId, listIdA);
   const b = await loadListById(ws.workspaceId, listIdB);
   if (!a || !b) return { ok: false, error: "List not found." };
@@ -575,4 +686,20 @@ export async function exportListCsv(
     rec.members.map((p) => ({ phone: p })),
     [{ key: "phone", header: "Phone" }],
   );
+}
+
+export async function estimateDynamicListSize(
+  predicate: SegmentNode,
+): Promise<{ ok: true; matched: number; scanned: number } | { ok: false; error: string }> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return { ok: false, error: ws.error };
+  const { db } = await connectToDatabase();
+  const raw = await db
+    .collection("sabsms_contacts")
+    .find({ workspaceId: ws.workspaceId })
+    .toArray();
+  const contacts = raw as unknown as SegmentContact[];
+  const scanned = contacts.length;
+  const matched = contacts.filter((c) => evaluatePredicate(predicate, c)).length;
+  return { ok: true, matched, scanned };
 }

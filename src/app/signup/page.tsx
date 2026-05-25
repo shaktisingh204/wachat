@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState, useTransition, useRef } from 'react';
 import Link from 'next/link';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import {
   Button,
   Card,
@@ -18,7 +21,6 @@ import {
 import {
   getPublicSignupSettings,
   submitClientSignup,
-  type ClientSignupInput,
   type SignupSettings,
 } from '@/app/actions/client-signup.actions';
 
@@ -41,47 +43,106 @@ const COUNTRIES = [
   'Other',
 ];
 
-const EMPTY_FORM: ClientSignupInput = {
-  company_name: '',
-  contact_name: '',
-  email: '',
-  password: '',
-  mobile: '',
-  country: 'United States',
-  website: '',
-  agree_to_terms: false,
-};
+const signupSchema = z.object({
+  company_name: z.string().min(1, 'Company name is required'),
+  contact_name: z.string().min(1, 'Contact name is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  mobile: z.string().min(1, 'Mobile number is required'),
+  country: z.string().min(1, 'Country is required'),
+  website: z.string().url('Invalid URL format').optional().or(z.literal('')),
+  agree_to_terms: z.boolean().refine((val) => val === true, {
+    message: 'You must agree to the terms',
+  }),
+});
+
+type SignupFormData = z.infer<typeof signupSchema>;
 
 export default function ClientSignupPage() {
   const { toast } = useZoruToast();
-  const [form, setForm] = useState<ClientSignupInput>(EMPTY_FORM);
   const [settings, setSettings] = useState<SignupSettings | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    getPublicSignupSettings()
-      .then(setSettings)
-      .catch(() => setSettings(null));
-  }, []);
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      company_name: '',
+      contact_name: '',
+      email: '',
+      password: '',
+      mobile: '',
+      country: 'United States',
+      website: '',
+      agree_to_terms: false,
+    },
+  });
 
-  const update = <K extends keyof ClientSignupInput>(key: K, value: ClientSignupInput[K]) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+  // Handle form state reset if token/session times out (idle for 30 mins)
+  const idleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const resetIdleTimeout = () => {
+    if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
+    idleTimeoutRef.current = setTimeout(() => {
+      reset();
+      toast({
+        title: 'Session Expired',
+        description: 'For your security, your form has been reset due to inactivity.',
+        variant: 'destructive',
+      });
+    }, 30 * 60 * 1000); // 30 minutes
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!form.agree_to_terms) {
-      toast({ title: 'Please agree to the Terms', variant: 'destructive' });
-      return;
-    }
+  useEffect(() => {
+    let mounted = true;
+    getPublicSignupSettings()
+      .then((s) => {
+        if (mounted) setSettings(s);
+      })
+      .catch(() => {
+        if (mounted) setSettings(null);
+      });
+
+    resetIdleTimeout();
+
+    const events = ['mousemove', 'keydown', 'scroll', 'touchstart'];
+    const handleActivity = () => resetIdleTimeout();
+
+    events.forEach((event) => window.addEventListener(event, handleActivity));
+
+    return () => {
+      mounted = false;
+      events.forEach((event) => window.removeEventListener(event, handleActivity));
+      if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
+    };
+  }, [reset, toast]);
+
+  const onSubmit = (data: SignupFormData) => {
     startTransition(async () => {
-      const res = await submitClientSignup(form);
-      if (res.error) {
-        toast({ title: 'Signup failed', description: res.error, variant: 'destructive' });
-        return;
+      try {
+        const res = await submitClientSignup({
+          ...data,
+          website: data.website || undefined,
+        });
+
+        if (res.error) {
+          toast({ title: 'Signup failed', description: res.error, variant: 'destructive' });
+          if (res.error.toLowerCase().includes('timeout') || res.error.toLowerCase().includes('token')) {
+             reset();
+          }
+          return;
+        }
+
+        setSubmitted(true);
+        reset();
+      } catch (err: any) {
+        toast({ title: 'Signup failed', description: err.message || 'An error occurred', variant: 'destructive' });
       }
-      setSubmitted(true);
     });
   };
 
@@ -104,7 +165,9 @@ export default function ClientSignupPage() {
         <Card className="mx-auto max-w-lg p-8 text-center">
           <h1 className="text-2xl text-zoru-ink">Account created</h1>
           <p className="mt-3 text-sm text-zoru-ink-muted">
-            Your account is awaiting admin approval. You will receive an email when activated.
+            {settings?.requireAdminApproval
+              ? 'Your account is awaiting admin approval. You will receive an email when activated.'
+              : 'Your account has been created and is ready to use. You will receive a welcome email shortly.'}
           </p>
           <div className="mt-6 flex justify-center">
             <Link href="/login">
@@ -122,29 +185,27 @@ export default function ClientSignupPage() {
         <header className="mb-6">
           <h1 className="text-2xl text-zoru-ink">Create a client account</h1>
           <p className="mt-1 text-sm text-zoru-ink-muted">
-            Tell us about your business. An admin will review your request before activation.
+            {settings?.requireAdminApproval
+              ? 'Tell us about your business. An admin will review your request before activation.'
+              : 'Tell us about your business to get started.'}
           </p>
         </header>
 
-        <form onSubmit={handleSubmit} className="grid gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="company_name">Company name</Label>
-            <Input
-              id="company_name"
-              required
-              value={form.company_name}
-              onChange={(e) => update('company_name', e.target.value)}
-            />
+            <Input id="company_name" {...register('company_name')} />
+            {errors.company_name && (
+              <span className="text-xs text-red-500">{errors.company_name.message}</span>
+            )}
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="contact_name">Contact name</Label>
-            <Input
-              id="contact_name"
-              required
-              value={form.contact_name}
-              onChange={(e) => update('contact_name', e.target.value)}
-            />
+            <Input id="contact_name" {...register('contact_name')} />
+            {errors.contact_name && (
+              <span className="text-xs text-red-500">{errors.contact_name.message}</span>
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -153,23 +214,24 @@ export default function ClientSignupPage() {
               <Input
                 id="email"
                 type="email"
-                required
                 autoComplete="email"
-                value={form.email}
-                onChange={(e) => update('email', e.target.value)}
+                {...register('email')}
               />
+              {errors.email && (
+                <span className="text-xs text-red-500">{errors.email.message}</span>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
-                required
-                minLength={8}
                 autoComplete="new-password"
-                value={form.password}
-                onChange={(e) => update('password', e.target.value)}
+                {...register('password')}
               />
+              {errors.password && (
+                <span className="text-xs text-red-500">{errors.password.message}</span>
+              )}
             </div>
           </div>
 
@@ -179,28 +241,35 @@ export default function ClientSignupPage() {
               <Input
                 id="mobile"
                 type="tel"
-                required
-                value={form.mobile}
-                onChange={(e) => update('mobile', e.target.value)}
+                {...register('mobile')}
               />
+              {errors.mobile && (
+                <span className="text-xs text-red-500">{errors.mobile.message}</span>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="country">Country</Label>
-              <Select
-                value={form.country}
-                onValueChange={(v) => update('country', v)}
-              >
-                <ZoruSelectTrigger id="country">
-                  <ZoruSelectValue placeholder="Select country" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {COUNTRIES.map((c) => (
-                    <ZoruSelectItem key={c} value={c}>
-                      {c}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </Select>
+              <Controller
+                control={control}
+                name="country"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <ZoruSelectTrigger id="country">
+                      <ZoruSelectValue placeholder="Select country" />
+                    </ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                      {COUNTRIES.map((c) => (
+                        <ZoruSelectItem key={c} value={c}>
+                          {c}
+                        </ZoruSelectItem>
+                      ))}
+                    </ZoruSelectContent>
+                  </Select>
+                )}
+              />
+              {errors.country && (
+                <span className="text-xs text-red-500">{errors.country.message}</span>
+              )}
             </div>
           </div>
 
@@ -210,30 +279,43 @@ export default function ClientSignupPage() {
               id="website"
               type="url"
               placeholder="https://"
-              value={form.website ?? ''}
-              onChange={(e) => update('website', e.target.value)}
+              {...register('website')}
             />
+            {errors.website && (
+              <span className="text-xs text-red-500">{errors.website.message}</span>
+            )}
           </div>
 
-          <label className="mt-2 flex items-start gap-2 text-sm text-zoru-ink">
-            <Checkbox
-              checked={form.agree_to_terms}
-              onCheckedChange={(c) => update('agree_to_terms', Boolean(c))}
-              aria-label="Agree to terms"
-            />
-            <span>
-              {settings?.termsText ??
-                'I agree to the Terms of Service and Privacy Policy.'}{' '}
-              <Link
-                href={settings?.termsLink ?? '/terms'}
-                className="underline"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Read terms
-              </Link>
-            </span>
-          </label>
+          <div className="mt-2 grid gap-1">
+            <label className="flex items-start gap-2 text-sm text-zoru-ink">
+              <Controller
+                control={control}
+                name="agree_to_terms"
+                render={({ field }) => (
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    aria-label="Agree to terms"
+                  />
+                )}
+              />
+              <span>
+                {settings?.termsText ??
+                  'I agree to the Terms of Service and Privacy Policy.'}{' '}
+                <Link
+                  href={settings?.termsLink ?? '/terms'}
+                  className="underline"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Read terms
+                </Link>
+              </span>
+            </label>
+            {errors.agree_to_terms && (
+              <span className="text-xs text-red-500">{errors.agree_to_terms.message}</span>
+            )}
+          </div>
 
           <div className="mt-2 flex items-center justify-between gap-3">
             <Link href="/login" className="text-sm text-zoru-ink-muted underline">

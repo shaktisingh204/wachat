@@ -54,3 +54,4 @@ export type {
 
 export { onInstall, onUninstall } from './lifecycle';
 export type { LifecycleResult } from './lifecycle';
+export { submitReview, getReview } from './reviews';

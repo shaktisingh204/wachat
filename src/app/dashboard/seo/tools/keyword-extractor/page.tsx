@@ -10,7 +10,9 @@ const STOPWORDS: Record<string, Set<string>> = {
   en: new Set(['a','an','the','is','are','was','were','be','been','being','of','to','in','on','at','by','for','with','about','as','from','and','or','but','if','then','so','than','it','this','that','these','those','i','you','he','she','we','they','his','her','its','their','our','my','your','do','does','did','have','has','had','will','would','could','should','can','may','might','must','not','no','yes','also','very']),
   es: new Set(['el','la','los','las','un','una','unos','unas','y','o','pero','si','entonces','como','porque','de','a','en','con','por','para','sobre','sin','yo','tu','el','ella','nosotros','vosotros','ellos','ellas','mi','tu','su','nuestro','vuestro','este','esta','estos','estas','ese','esa','esos','esas','aquel','aquella','aquellos','aquellas','que','lo','al','del','se','me','te','le','les','nos','os','ha','han','hay','he','hemos','es','son','fue','fueron','ser','estar','estoy','esta','estamos','estan','muy','mas','ya']),
   fr: new Set(['le','la','les','un','une','des','et','ou','mais','si','alors','comme','parce','de','a','en','avec','par','pour','sur','sans','je','tu','il','elle','nous','vous','ils','elles','mon','ton','son','notre','votre','leur','ce','cet','cette','ces','qui','que','quoi','dont','ou','au','aux','du','des','se','me','te','lui','leur','nous','vous','est','sont','a','ont','ete','suis','es','sommes','etes','tres','plus','deja']),
-  de: new Set(['der','die','das','den','dem','des','ein','eine','einer','eines','einem','einen','und','oder','aber','wenn','dann','wie','weil','von','zu','in','mit','durch','fur','auf','ohne','ich','du','er','sie','es','wir','ihr','sie','mein','dein','sein','unser','euer','ihr','dieser','diese','dieses','welcher','welche','welches','wer','was','wo','wie','warum','am','im','zum','zur','vom','sich','mich','dich','ihn','uns','euch','ist','sind','war','waren','sein','bin','bist','sehr','mehr','schon'])
+  de: new Set(['der','die','das','den','dem','des','ein','eine','einer','eines','einem','einen','und','oder','aber','wenn','dann','wie','weil','von','zu','in','mit','durch','fur','auf','ohne','ich','du','er','sie','es','wir','ihr','sie','mein','dein','sein','unser','euer','ihr','dieser','diese','dieses','welcher','welche','welches','wer','was','wo','wie','warum','am','im','zum','zur','vom','sich','mich','dich','ihn','uns','euch','ist','sind','war','waren','sein','bin','bist','sehr','mehr','schon']),
+  it: new Set(['il','lo','la','i','gli','le','un','uno','una','e','o','ma','se','allora','come','perche','di','a','da','in','con','su','per','tra','fra','io','tu','lui','lei','noi','voi','loro','mio','tuo','suo','nostro','vostro','questo','questa','questi','queste','quello','quella','quelli','quelle','che','chi','cui','quale','mi','ti','ci','vi','si','ne','ha','hanno','ho','abbiamo','e','sono','era','erano','essere','stare','sto','sta','stiamo','stanno','molto','piu','gia']),
+  pt: new Set(['o','a','os','as','um','uma','uns','umas','e','ou','mas','se','entao','como','porque','de','a','em','com','por','para','sobre','sem','eu','tu','ele','ela','nos','vos','eles','elas','meu','teu','seu','nosso','vosso','este','esta','estes','estas','esse','essa','esses','essas','aquele','aquela','aqueles','aquelas','que','quem','qual','me','te','se','lhe','lhes','nos','vos','ha','hao','hei','havemos','e','sao','era','eram','ser','estar','estou','esta','estamos','estao','muito','mais','ja'])
 };
 
 export default function KeywordExtractorPage() {
@@ -23,14 +25,14 @@ export default function KeywordExtractorPage() {
     const stopwords = STOPWORDS[language] || STOPWORDS['en'];
     
     // Split text into sentences for our corpus to calculate IDF
-    const sentences = text.match(/[^.!?\n]+[.!?]+/g) || [text];
+    const sentences = text.split(/[.!?\n]+/).map(s => s.trim()).filter(s => s.length > 0);
     const N = sentences.length;
 
     const tfMap = new Map<string, number>();
     const dfMap = new Map<string, number>();
 
     for (const sentence of sentences) {
-      const words = sentence.toLowerCase().match(/\p{L}{3,}/gu) || [];
+      const words = sentence.toLocaleLowerCase(language).match(/\p{L}{3,}/gu) || [];
       const sentenceWords = new Set<string>();
       
       for (const w of words) {
@@ -69,6 +71,8 @@ export default function KeywordExtractorPage() {
             <SelectItem value="es">Spanish</SelectItem>
             <SelectItem value="fr">French</SelectItem>
             <SelectItem value="de">German</SelectItem>
+            <SelectItem value="it">Italian</SelectItem>
+            <SelectItem value="pt">Portuguese</SelectItem>
           </SelectContent>
         </Select>
       </div>

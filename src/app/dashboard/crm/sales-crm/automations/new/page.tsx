@@ -19,9 +19,6 @@ import { useRouter } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { saveCrmAutomation } from '@/app/actions/crm-automations.actions';
 
-export const dynamic = 'force-dynamic';
-
-
 export default function NewAutomationPage() {
   const router = useRouter();
   const { toast } = useZoruToast();

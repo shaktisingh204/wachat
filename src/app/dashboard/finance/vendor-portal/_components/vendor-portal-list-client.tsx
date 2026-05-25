@@ -227,6 +227,7 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
             </form>
           </ZoruDialogContent>
         </Dialog>
+        </div>
       }
     >
       {error && (
@@ -344,10 +345,10 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
       </div>
 
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>View Details</DialogTitle>
-          </DialogHeader>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>View Details</ZoruDialogTitle>
+          </ZoruDialogHeader>
           <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
               <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
@@ -356,7 +357,7 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
               </div>
             ))}
           </div>
-        </DialogContent>
+        </ZoruDialogContent>
       </Dialog>
     </EntityListShell>
   );

@@ -1,8 +1,7 @@
 'use client';
 
-import { Card, ZoruCardContent } from '@/components/zoruui';
-import { Facebook, Briefcase, Wallet, Bell, Shield } from 'lucide-react';
-
+import { ZoruCard, ZoruCardContent, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui';
+import { Briefcase, Wallet, Bell, Shield } from 'lucide-react';
 import Link from 'next/link';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
@@ -27,18 +26,18 @@ export default function AdManagerSettingsPage() {
                 {ITEMS.map((i) => {
                     const Icon = i.icon;
                     return (
-                        <Link key={i.href} href={i.href}>
-                            <Card className="hover:border-[#1877F2]/50 transition-colors cursor-pointer h-full">
-                                <ZoruCardContent className="p-4 flex gap-3">
-                                    <div className="h-10 w-10 rounded-lg bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2]">
+                        <Link key={i.href} href={i.href} className="block h-full">
+                            <ZoruCard interactive variant="soft" className="h-full">
+                                <ZoruCardContent className="p-4 pt-4 sm:p-4 sm:pt-4 flex gap-3 h-full items-center">
+                                    <div className="h-10 w-10 shrink-0 rounded-lg bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2]">
                                         <Icon className="h-5 w-5" />
                                     </div>
-                                    <div>
-                                        <div className="font-medium">{i.title}</div>
-                                        <div className="text-xs text-muted-foreground">{i.desc}</div>
+                                    <div className="flex flex-col gap-0.5">
+                                        <ZoruCardTitle className="text-sm font-medium">{i.title}</ZoruCardTitle>
+                                        <ZoruCardDescription className="text-xs">{i.desc}</ZoruCardDescription>
                                     </div>
                                 </ZoruCardContent>
-                            </Card>
+                            </ZoruCard>
                         </Link>
                     );
                 })}

@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 'use client';
 
 import {
@@ -63,7 +64,7 @@ function statusLabel(s: string): string {
 function fmtDate(value: unknown): string {
     if (!value) return '—';
     const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    return Number.isNaN(d.getTime()) ? '—' : fmtDate(d);
 }
 
 function rowId(p: CrmProbationDoc & { _id?: unknown }): string {

@@ -1,32 +1,22 @@
-'use client';
+import React, { Suspense } from 'react';
+import { getTrainingCourses } from '@/app/actions/hrm-advanced/lms-training';
+import TrainingCoursesClient from './components/TrainingCoursesClient';
+import Loading from './loading';
 
-import React from 'react';
-import { EntityCrudPage } from '@/components/crm/entity-crud-page';
-import { getTrainingCourses, saveTrainingCourse, deleteTrainingCourse } from '@/app/actions/hrm-advanced/lms-training';
-import { TrainingCourse } from '@/lib/hrm-advanced-types';
+export const dynamic = 'force-dynamic';
 
-export default function Page() {
+
+export const metadata = {
+  title: 'LMS & Training | Dashboard',
+  description: 'Manage corporate training courses, monitor enrollments, and track progress.',
+};
+
+export default async function LMSTrainingPage() {
+  const initialCourses = await getTrainingCourses();
+
   return (
-    <EntityCrudPage<TrainingCourse>
-      title="LMS & Training"
-      description="Manage corporate training courses"
-      entityName="Course"
-      fetchFn={getTrainingCourses}
-      saveFn={saveTrainingCourse}
-      deleteFn={deleteTrainingCourse}
-      formFields={[
-      { name: 'title', label: 'Title', type: 'text' },
-      { name: 'description', label: 'Description', type: 'text' },
-      { name: 'enrolledCount', label: 'Enrolled Count', type: 'number' },
-      { name: 'durationHours', label: 'Duration (hrs)', type: 'number' }
-    ]}
-      columns={[
-      { header: 'Title', accessorKey: 'title' },
-      { header: 'Description', accessorKey: 'description' },
-      { header: 'Enrolled', accessorKey: 'enrolledCount' },
-      { header: 'Duration (hrs)', accessorKey: 'durationHours' }
-    ]}
-      defaultValues={{ enrolledCount: 0, durationHours: 1 }}
-    />
+    <Suspense fallback={<Loading />}>
+      <TrainingCoursesClient initialCourses={initialCourses} />
+    </Suspense>
   );
 }

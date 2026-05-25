@@ -1,13 +1,54 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge, cn } from '@/components/zoruui';
-import { cn as _zoruCn, useState } from 'react';
+import { Button, Input, Card, ZoruCardContent, Badge } from '@/components/zoruui';
+import { useState, Component, ErrorInfo, ReactNode } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Download } from 'lucide-react';
+import { Download, Copy, AlertCircle } from 'lucide-react';
 
-void _zoruCn;
 
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('ErrorBoundary caught an error', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Card className="border-red-500/50 mt-4">
+          <ZoruCardContent className="p-4 text-sm text-red-500 flex flex-col gap-2">
+            <div className="flex items-center gap-2 font-semibold">
+              <AlertCircle className="w-4 h-4" />
+              Something went wrong rendering the results
+            </div>
+            <p>{this.state.error?.message}</p>
+          </ZoruCardContent>
+        </Card>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 export default function AnchorTextAnalyzerPage() {
   const [url, setUrl] = useState('');
@@ -35,9 +76,10 @@ export default function AnchorTextAnalyzerPage() {
       }
       const arr = Array.from(map.entries())
         .map(([anchor, count]) => ({ anchor, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 20);
+        .sort((a, b) => b.count - a.count);
       setRows(arr);
+    } catch (err: any) {
+      setError(err.message || 'An error occurred while fetching the URL. Check CORS or network.');
     } finally {
       setLoading(false);
     }
@@ -59,6 +101,16 @@ export default function AnchorTextAnalyzerPage() {
     URL.revokeObjectURL(u);
   };
 
+  const copyToClipboard = async () => {
+    if (!rows || rows.length === 0) return;
+    const text = rows.map((r) => `${r.anchor}\t${r.count}`).join('\n');
+    try {
+      await navigator.clipboard.writeText(`Anchor Text\tCount\n${text}`);
+    } catch (err) {
+      console.error('Failed to copy', err);
+    }
+  };
+
   return (
     <ToolShell title="Anchor Text Analyzer" description="Group links by anchor text and show the most common ones.">
       <div className="flex gap-2">
@@ -74,30 +126,41 @@ export default function AnchorTextAnalyzerPage() {
 
       {error && (
         <Card className="border-red-500/50">
-          <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
+          <ZoruCardContent className="p-4 text-sm text-red-500 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4" />
+            {error}
+          </ZoruCardContent>
         </Card>
       )}
 
       {rows && (
-        <Card>
-          <ZoruCardContent className="p-4 space-y-3">
-            <div className="flex items-center justify-between text-sm font-semibold">
-              <span>Top {rows.length} anchors</span>
-              <Button variant="outline" size="sm" onClick={exportCsv}>
-                <Download className="w-4 h-4 mr-2" />
-                Export CSV
-              </Button>
-            </div>
-            <div className="space-y-2">
-              {rows.map((r, i) => (
-                <div key={i} className="flex items-center justify-between text-sm border-b pb-2">
-                  <div className="truncate pr-3">{r.anchor}</div>
-                  <Badge variant="secondary">{r.count}</Badge>
+        <ErrorBoundary>
+          <Card>
+            <ZoruCardContent className="p-4 space-y-3">
+              <div className="flex items-center justify-between text-sm font-semibold">
+                <span>Top {rows.length} anchors</span>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={copyToClipboard}>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={exportCsv}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Export CSV
+                  </Button>
                 </div>
-              ))}
-            </div>
-          </ZoruCardContent>
-        </Card>
+              </div>
+              <div className="space-y-2">
+                {rows.map((r, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm border-b pb-2">
+                    <div className="truncate pr-3">{r.anchor}</div>
+                    <Badge variant="secondary">{r.count}</Badge>
+                  </div>
+                ))}
+              </div>
+            </ZoruCardContent>
+          </Card>
+        </ErrorBoundary>
       )}
     </ToolShell>
   );

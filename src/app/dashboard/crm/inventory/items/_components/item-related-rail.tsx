@@ -22,6 +22,7 @@ import {
  */
 
 import Link from 'next/link';
+import { fmtDate } from '@/lib/utils';
 
 interface ItemRelatedRailProps {
   productId: string;
@@ -31,11 +32,7 @@ interface ItemRelatedRailProps {
   lastUpdated?: string;
 }
 
-function fmtDate(v?: string): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 export function ItemRelatedRail({
   productId,

@@ -29,66 +29,58 @@ import {
   Textarea,
   useZoruToast,
 } from '@/components/zoruui';
-import {
-  useFormState,
-  useFormStatus } from 'react-dom';
-import { Copy,
-  Lightbulb,
-  Loader2,
-  Sparkles,
-  Send } from 'lucide-react';
-
-import { getSuggestions } from '@/app/actions/ai-actions';
+import { Copy, Lightbulb, Loader2, Sparkles, Send, Facebook, MessageCircle } from 'lucide-react';
 import { mockFacebookDataString } from '@/lib/mock-data';
-
-/**
- * Wachat Post Generator (ZoruUI).
- *
- * AI-powered Facebook post idea generator. Form on the left, AI
- * suggestions on the right with a publish-confirm dialog before
- * marking a suggestion as the post to use.
- */
-
 import * as React from 'react';
-
-type SuggestionsState = { suggestions: string[]; errors?: { facebookData?: string[] } };
-
-const INITIAL_STATE: SuggestionsState = { suggestions: [], errors: {} };
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" size="lg" disabled={pending}>
-      {pending ? (
-        <>
-          <Loader2 className="animate-spin" />
-          Generating…
-        </>
-      ) : (
-        <>
-          <Sparkles />
-          Generate Suggestions
-        </>
-      )}
-    </Button>
-  );
-}
+import { useChat } from '@ai-sdk/react';
 
 export default function PostGeneratorPage() {
-  const [state, dispatch] = useFormState(
-    getSuggestions as unknown as (
-      prev: SuggestionsState,
-      fd: FormData,
-    ) => Promise<SuggestionsState>,
-    INITIAL_STATE,
-  );
   const { toast } = useZoruToast();
   const [publishTarget, setPublishTarget] = React.useState<string | null>(null);
+
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+    api: '/wachat/post-generator/api',
+    initialInput: mockFacebookDataString,
+    onError: (error) => {
+      toast({
+        title: 'Error generating suggestions',
+        description: error.message || 'The AI provider might be slow or unavailable.',
+        variant: 'destructive',
+      });
+    },
+  });
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({ title: 'Copied to clipboard' });
   };
+
+  const handlePublishWhatsApp = () => {
+    if (publishTarget) {
+      toast({
+        title: 'Published to WhatsApp Status',
+        description: 'Your status has been updated (Simulated - API coming soon).',
+      });
+    }
+    setPublishTarget(null);
+  };
+
+  const handlePublishFacebook = () => {
+    if (publishTarget) {
+      toast({
+        title: 'Published to Facebook Page',
+        description: 'Your post has been published to your page (Simulated).',
+      });
+    }
+    setPublishTarget(null);
+  };
+
+  const lastMessage = messages[messages.length - 1];
+  
+  // Extract suggestions from the assistant's message. We split by "---" as instructed in the system prompt.
+  const suggestions = lastMessage?.role === 'assistant' 
+    ? lastMessage.content.split('---').map(s => s.trim()).filter(Boolean)
+    : [];
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
@@ -132,7 +124,7 @@ export default function PostGeneratorPage() {
             </ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <form action={dispatch} className="flex flex-col gap-6">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="facebookData">Facebook Page Data</Label>
                 <Textarea
@@ -140,17 +132,25 @@ export default function PostGeneratorPage() {
                   name="facebookData"
                   placeholder="Paste your data here…"
                   className="min-h-[250px]"
-                  defaultValue={mockFacebookDataString}
+                  value={input}
+                  onChange={handleInputChange}
                   required
                 />
-                {state.errors?.facebookData ? (
-                  <p className="text-sm text-zoru-danger">
-                    {state.errors.facebookData[0]}
-                  </p>
-                ) : null}
               </div>
               <div className="flex items-center justify-between">
-                <SubmitButton />
+                <Button type="submit" size="lg" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin" />
+                      Generating…
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles />
+                      Generate Suggestions
+                    </>
+                  )}
+                </Button>
               </div>
             </form>
           </ZoruCardContent>
@@ -160,15 +160,15 @@ export default function PostGeneratorPage() {
           <h2 className="text-[18px] tracking-tight text-zoru-ink">
             Suggestions
           </h2>
-          {state.suggestions && state.suggestions.length > 0 ? (
+          {suggestions.length > 0 ? (
             <div className="flex flex-col gap-3">
-              {state.suggestions.map((suggestion, index) => (
+              {suggestions.map((suggestion, index) => (
                 <Card
                   key={index}
                   className="transition-shadow hover:shadow-[var(--zoru-shadow-md)]"
                 >
                   <ZoruCardContent className="p-4">
-                    <p className="text-[13px] leading-relaxed text-zoru-ink">
+                    <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-zoru-ink">
                       {suggestion}
                     </p>
                     <div className="mt-4 flex justify-end gap-2">
@@ -176,6 +176,7 @@ export default function PostGeneratorPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleCopy(suggestion)}
+                        disabled={isLoading}
                       >
                         <Copy />
                         Copy
@@ -184,6 +185,7 @@ export default function PostGeneratorPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setPublishTarget(suggestion)}
+                        disabled={isLoading}
                       >
                         Use Post
                       </Button>
@@ -191,6 +193,12 @@ export default function PostGeneratorPage() {
                   </ZoruCardContent>
                 </Card>
               ))}
+              {isLoading && (
+                <div className="flex items-center justify-center p-4 text-zoru-ink-muted">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <span className="ml-2">AI is thinking...</span>
+                </div>
+              )}
             </div>
           ) : (
             <EmptyState
@@ -213,38 +221,58 @@ export default function PostGeneratorPage() {
           <ZoruDialogHeader>
             <ZoruDialogTitle>Use this post?</ZoruDialogTitle>
             <ZoruDialogDescription>
-              We&apos;ll copy the suggestion to your clipboard so you can paste
-              it into a broadcast or campaign composer.
+              Choose where you want to publish this suggestion or copy it to your clipboard.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           {publishTarget ? (
-            <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4 text-[13px] leading-relaxed text-zoru-ink">
-              {publishTarget}
+            <div className="max-h-[200px] overflow-y-auto rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4 text-[13px] leading-relaxed text-zoru-ink">
+              <p className="whitespace-pre-wrap">{publishTarget}</p>
             </div>
           ) : null}
-          <ZoruDialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setPublishTarget(null)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                if (publishTarget) {
-                  navigator.clipboard.writeText(publishTarget);
-                  toast({
-                    title: 'Ready to use',
-                    description:
-                      'Suggestion copied. Paste it into a broadcast or campaign.',
-                  });
-                }
-                setPublishTarget(null);
-              }}
-            >
-              <Send />
-              Copy &amp; use
-            </Button>
+          <ZoruDialogFooter className="flex-col gap-2 sm:flex-col">
+            <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-end">
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={handlePublishFacebook}
+              >
+                <Facebook className="mr-2 h-4 w-4" />
+                Facebook Page
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={handlePublishWhatsApp}
+              >
+                <MessageCircle className="mr-2 h-4 w-4" />
+                WhatsApp Status
+              </Button>
+            </div>
+            <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-end mt-2 sm:mt-0">
+              <Button
+                variant="ghost"
+                className="w-full sm:w-auto"
+                onClick={() => setPublishTarget(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="w-full sm:w-auto"
+                onClick={() => {
+                  if (publishTarget) {
+                    navigator.clipboard.writeText(publishTarget);
+                    toast({
+                      title: 'Ready to use',
+                      description: 'Suggestion copied. Paste it into a broadcast or campaign.',
+                    });
+                  }
+                  setPublishTarget(null);
+                }}
+              >
+                <Copy className="mr-2 h-4 w-4" />
+                Copy &amp; Use
+              </Button>
+            </div>
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </Dialog>

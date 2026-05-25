@@ -51,9 +51,10 @@ const STATUS_OPTIONS = [
 
 interface TicketDetailClientProps {
     ticket: CrmTicketDoc;
+    children?: React.ReactNode;
 }
 
-export function TicketDetailClient({ ticket }: TicketDetailClientProps) {
+export function TicketDetailClient({ ticket, children }: TicketDetailClientProps) {
     const router = useRouter();
     const { toast } = useZoruToast();
     const [mode, setMode] = React.useState<'reply' | 'forward' | 'note'>('note');
@@ -155,7 +156,9 @@ export function TicketDetailClient({ ticket }: TicketDetailClientProps) {
                 />
             </div>
 
-            <TicketConversation ticket={ticket} mode={mode} onModeChange={setMode} />
+            <TicketConversation ticket={ticket} mode={mode} onModeChange={setMode}>
+                {children}
+            </TicketConversation>
 
             <Dialog
                 open={mergeOpen}

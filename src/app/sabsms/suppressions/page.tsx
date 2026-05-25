@@ -9,8 +9,10 @@
  * Catalog reference: `plans/sabsms-pages-catalog.md` Page 20 §B.3.
  */
 
+import React, { Suspense } from "react";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 import { getCachedSession } from "@/lib/server-cache";
+import { fmtQty } from "@/lib/utils";
 
 import {
   type SuppressionFilters,
@@ -43,9 +45,7 @@ function asArray(v: string | string[] | undefined): string[] | undefined {
   return Array.isArray(v) ? v : [v];
 }
 
-export default async function SabsmsSuppressionsPage({
-  searchParams,
-}: SuppressionsPageProps) {
+async function SuppressionsDataLoader({ searchParams }: SuppressionsPageProps) {
   const sp = await searchParams;
   const session = await getCachedSession();
   const workspaceId = String(
@@ -57,15 +57,7 @@ export default async function SabsmsSuppressionsPage({
   const isAdmin = role === "admin";
 
   if (!workspaceId) {
-    return (
-      <SabsmsPageShell
-        title="Suppressions"
-        description="Sign in to view your workspace's suppression list."
-        breadcrumbs={[{ label: "Compliance" }, { label: "Suppressions" }]}
-      >
-        <></>
-      </SabsmsPageShell>
-    );
+    return <></>;
   }
 
   const page = Math.max(0, parseInt(sp.page ?? "0", 10) || 0);
@@ -101,6 +93,23 @@ export default async function SabsmsSuppressionsPage({
   ]);
 
   return (
+    <SuppressionsTable
+      rows={rows}
+      total={total}
+      page={page}
+      pageSize={pageSize}
+      coverage={coverage}
+      costAvoidedUsd={costAvoidedUsd}
+      campaigns={campaigns}
+      autoRules={autoRules}
+      reasonTaxonomy={reasonTaxonomy}
+      isAdmin={isAdmin}
+    />
+  );
+}
+
+export default function SabsmsSuppressionsPage(props: SuppressionsPageProps) {
+  return (
     <SabsmsPageShell
       eyebrow="Compliance"
       title="Suppressions"
@@ -108,9 +117,6 @@ export default async function SabsmsSuppressionsPage({
         <>
           Phone hashes that the engine will never send to. STOP replies,
           carrier complaints, and manual blocks all land here.{" "}
-          <span className="text-slate-500">
-            · {total.toLocaleString()} entries
-          </span>
         </>
       }
       breadcrumbs={[
@@ -127,18 +133,9 @@ export default async function SabsmsSuppressionsPage({
         </>
       }
     >
-      <SuppressionsTable
-        rows={rows}
-        total={total}
-        page={page}
-        pageSize={pageSize}
-        coverage={coverage}
-        costAvoidedUsd={costAvoidedUsd}
-        campaigns={campaigns}
-        autoRules={autoRules}
-        reasonTaxonomy={reasonTaxonomy}
-        isAdmin={isAdmin}
-      />
+      <Suspense fallback={<div className="h-96 w-full animate-pulse bg-slate-100 rounded-xl" />}>
+        <SuppressionsDataLoader {...props} />
+      </Suspense>
     </SabsmsPageShell>
   );
 }

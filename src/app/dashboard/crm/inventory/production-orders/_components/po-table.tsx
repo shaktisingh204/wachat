@@ -29,7 +29,7 @@ import Link from 'next/link';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-import { fmtDate } from '@/lib/utils';
+
 
 import type { CrmProductionOrderDoc } from '@/app/actions/crm-production-orders.actions';
 
@@ -162,10 +162,10 @@ export function PoTable({
                                         {fmtNum(o.scrap)}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                                        {fmtDate(o.plannedStart)}
+                                        {o.plannedStart ? new Date(o.plannedStart).toLocaleDateString('en-GB', { timeZone: 'UTC' }) : '—'}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                                        {fmtDate(o.plannedEnd)}
+                                        {o.plannedEnd ? new Date(o.plannedEnd).toLocaleDateString('en-GB', { timeZone: 'UTC' }) : '—'}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         <StatusPill label={o.status} tone={statusToTone(o.status)} />

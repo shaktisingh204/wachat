@@ -433,13 +433,16 @@ export default function TeamHubPage() {
                                     const status = deriveStatus(m, pendingEmails);
                                     const dept = deriveDepartment(m);
                                     const isSelf = currentUserId && id === currentUserId;
-                                    const joined = m.createdAt
-                                        ? new Date(m.createdAt).toLocaleDateString(undefined, {
-                                              year: 'numeric',
-                                              month: 'short',
-                                              day: 'numeric',
-                                          })
-                                        : '—';
+                                    const joined = (() => {
+                                        if (!m.createdAt) return '—';
+                                        const date = new Date(m.createdAt);
+                                        if (Number.isNaN(date.getTime())) return '—';
+                                        const day = String(date.getUTCDate()).padStart(2, '0');
+                                        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                                        const month = months[date.getUTCMonth()];
+                                        const year = date.getUTCFullYear();
+                                        return `${day} ${month} ${year}`;
+                                    })();
                                     return (
                                         <li
                                             key={id}

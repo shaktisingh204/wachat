@@ -20,11 +20,11 @@ import {
   Checkbox,
   Input,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   useZoruToast,
 } from '@/components/zoruui';
 import { Archive, Download, FileText, LayoutTemplate, Plus, Trash2, X } from 'lucide-react';
@@ -38,6 +38,7 @@ import { bulkArchiveProposals } from '@/app/actions/crm-proposals.actions';
 import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
 import type { WsProposal, WsProposalStatus } from '@/lib/worksuite/proposals-types';
 import { WS_PROPOSAL_STATUSES } from '@/lib/worksuite/proposals-types';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 /* ─── Types ────────────────────────────────────────────────────────── */
 
@@ -103,23 +104,7 @@ function KpiCard({ label, value, active, onClick, tone = 'neutral' }: KpiCardPro
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
 
-function fmtDate(v: unknown): string {
-  if (!v) return '—';
-  const d = new Date(v as string);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-IN');
-}
 
-function fmtCurrency(value: number, currency?: string): string {
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: currency || 'INR',
-      maximumFractionDigits: 0,
-    }).format(value || 0);
-  } catch {
-    return `${currency || ''} ${(value || 0).toFixed(0)}`;
-  }
-}
 
 function toCsv(rows: ProposalRow[]): string {
   const head = [
@@ -495,7 +480,7 @@ export function ProposalListClient({
             ))}
             <div className="flex flex-col gap-0.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-4 py-3">
               <span className="text-xl font-semibold tabular-nums text-zoru-ink">
-                {fmtCurrency(
+                {fmtINR(
                   kpi.totalValue,
                   serverRows[0]?.currency,
                 )}
@@ -506,81 +491,81 @@ export function ProposalListClient({
 
           <Card className="overflow-hidden p-0">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead className="w-[36px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[36px]">
                     <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead>Number</ZoruTableHead>
-                  <ZoruTableHead>Title</ZoruTableHead>
-                  <ZoruTableHead>Issued</ZoruTableHead>
-                  <ZoruTableHead>Valid until</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Total</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </TableHead>
+                  <TableHead>Number</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Issued</TableHead>
+                  <TableHead>Valid until</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filtered.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <TableRow>
+                    <TableCell
                       colSpan={7}
                       className="h-24 text-center text-[13px] text-zoru-ink-muted"
                     >
                       {filtersActive || query
                         ? 'No proposals match these filters.'
                         : 'No proposals yet — click "New proposal" to add one.'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   filtered.map((p) => {
                     const id = String(p._id);
                     const isSelected = selected.has(id);
                     return (
-                      <ZoruTableRow
+                      <TableRow
                         key={id}
                         data-state={isSelected ? 'selected' : undefined}
                       >
-                        <ZoruTableCell>
+                        <TableCell>
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleRow(id)}
                             aria-label={`Select ${p.proposal_number}`}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </TableCell>
+                        <TableCell>
                           <EntityRowLink
                             href={`/dashboard/crm/sales/proposals/${id}`}
                             label={p.proposal_number}
                             subtitle={p.title || undefined}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                        </TableCell>
+                        <TableCell className="text-[12.5px] text-zoru-ink">
                           {p.title || '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        </TableCell>
+                        <TableCell className="text-[12.5px] text-zoru-ink-muted">
                           {fmtDate(p.issue_date)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        </TableCell>
+                        <TableCell className="text-[12.5px] text-zoru-ink-muted">
                           {fmtDate(p.valid_until)}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </TableCell>
+                        <TableCell>
                           <StatusPill
                             label={p.status}
                             tone={STATUS_TONE[p.status] ?? 'neutral'}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
-                          {fmtCurrency(p.total || 0, p.currency)}
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </TableCell>
+                        <TableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
+                          {fmtINR(p.total || 0, p.currency)}
+                        </TableCell>
+                      </TableRow>
                     );
                   })
                 )}
-              </ZoruTableBody>
+              </TableBody>
             </Table>
           </Card>
         </div>

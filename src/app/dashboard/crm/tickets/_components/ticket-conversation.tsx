@@ -60,10 +60,17 @@ function readNotes(t: CrmTicketDoc): ConversationNote[] {
 
 function fmtDate(ts: string): string {
     const d = new Date(ts);
-    return Number.isNaN(d.getTime()) ? ts : d.toLocaleString();
+    if (Number.isNaN(d.getTime())) return ts;
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[d.getUTCMonth()];
+    const year = d.getUTCFullYear();
+    const hours = String(d.getUTCHours()).padStart(2, '0');
+    const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+    return `${day} ${month} ${year} ${hours}:${minutes} UTC`;
 }
 
-export function TicketConversation({ ticket, mode, onModeChange }: TicketConversationProps) {
+export function TicketConversation({ ticket, mode, onModeChange, children }: TicketConversationProps) {
     const router = useRouter();
     const { toast } = useZoruToast();
     const [body, setBody] = React.useState('');
@@ -125,34 +132,7 @@ export function TicketConversation({ ticket, mode, onModeChange }: TicketConvers
                 Conversation
             </h3>
 
-            <ul className="flex flex-col gap-2">
-                {notes.length === 0 ? (
-                    <li className="rounded-md border border-dashed border-zoru-line p-3 text-center text-[12.5px] text-zoru-ink-muted">
-                        No replies yet.
-                    </li>
-                ) : (
-                    notes.map((n) => (
-                        <li
-                            key={n.id}
-                            className="rounded-md border border-zoru-line bg-zoru-surface-2/50 p-3"
-                        >
-                            <div className="mb-1 flex items-center gap-2">
-                                <Badge
-                                    variant={n.kind === 'internal' ? 'warning' : 'info'}
-                                >
-                                    {n.kind === 'internal' ? 'Internal' : 'Public'}
-                                </Badge>
-                                <span className="text-[11.5px] text-zoru-ink-muted">
-                                    {fmtDate(n.createdAt)}
-                                </span>
-                            </div>
-                            <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
-                                {n.body}
-                            </p>
-                        </li>
-                    ))
-                )}
-            </ul>
+            {children}
 
             <div className="flex flex-col gap-2">
                 <div className="inline-flex rounded-md border border-zoru-line p-0.5 self-start">

@@ -134,9 +134,13 @@ function downloadVendorsCsv(rows: VendorRow[]): void {
   URL.revokeObjectURL(url);
 }
 
-export function VendorsListClient() {
+interface VendorsListClientProps {
+  initialVendors?: VendorRow[];
+}
+
+export function VendorsListClient({ initialVendors = [] }: VendorsListClientProps) {
   const { toast } = useZoruToast();
-  const [vendors, setVendors] = React.useState<VendorRow[]>([]);
+  const [vendors, setVendors] = React.useState<VendorRow[]>(initialVendors);
   const [isLoading, startLoading] = React.useTransition();
   const [search, setSearch] = React.useState('');
   const [typeFilter, setTypeFilter] = React.useState<string>('all');
@@ -156,8 +160,10 @@ export function VendorsListClient() {
   }, []);
 
   React.useEffect(() => {
-    refresh();
-  }, [refresh]);
+    if (initialVendors.length === 0) {
+      refresh();
+    }
+  }, [refresh, initialVendors.length]);
 
   React.useEffect(() => {
     bulky.setData(vendors);

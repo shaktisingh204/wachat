@@ -97,6 +97,35 @@ export function fmtDate(v?: string | Date | number): string {
     if (isNaN(d.getTime())) return String(v);
     return new Intl.DateTimeFormat('en-IN', {
         dateStyle: 'medium',
+        timeZone: 'UTC',
+    }).format(d);
+  } catch {
+    return String(v);
+  }
+}
+
+export function formatUTC(v?: string | Date | number, includeTime = false): string {
+  if (!v) return '—';
+  try {
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return String(v);
+    if (includeTime) {
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZone: 'UTC',
+        hour12: false
+      }).format(d);
+    }
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      timeZone: 'UTC'
     }).format(d);
   } catch {
     return String(v);
@@ -114,4 +143,43 @@ export function fmtINR(value: number | undefined, currency: string = 'INR'): str
   } catch {
     return `${currency} ${value}`;
   }
+}
+
+export function fmtQty(n?: number): string {
+  if (typeof n !== 'number' || !Number.isFinite(n)) return '—';
+  try {
+    return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 3 }).format(n);
+  } catch {
+    return String(n);
+  }
+}
+
+export function formatPrice(amount: number, currency: string = 'INR'): string {
+  if (typeof amount !== 'number' || Number.isNaN(amount)) return '—';
+  try {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency,
+    }).format(amount);
+  } catch {
+    return `${currency} ${amount}`;
+  }
+}
+
+export function serializeMongoDoc<T>(doc: any): T {
+    if (doc === null || doc === undefined) return doc;
+    if (Array.isArray(doc)) return doc.map(serializeMongoDoc) as any;
+    // Next.js Server Actions support Date objects natively, but if we need strict JSON serialization,
+    // we can leave Date or convert to ISO string. For now, let's convert to string to match JSON.parse(JSON.stringify()) behavior.
+    if (doc instanceof Date) return doc.toISOString() as any;
+    if (typeof doc === 'object') {
+        if (doc.toHexString) return doc.toHexString();
+        if (doc._bsontype === 'ObjectId') return doc.toString();
+        const newDoc: any = {};
+        for (const key in doc) {
+            newDoc[key] = serializeMongoDoc(doc[key]);
+        }
+        return newDoc;
+    }
+    return doc;
 }

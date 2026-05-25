@@ -63,10 +63,21 @@ export function RunsListClient({ definitionId, runs }: RunsListClientProps) {
     // Prepare chart data (reverse for chronological order)
     const chartData = React.useMemo(() => {
         return runs
-            .map((r) => ({
-                date: new Date(r.startedAt).toLocaleDateString(),
-                rows: r.rowCount || 0,
-            }))
+            .map((r) => {
+                const d = new Date(r.startedAt);
+                const dateStr = isNaN(d.getTime())
+                    ? '—'
+                    : new Intl.DateTimeFormat('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        timeZone: 'UTC'
+                      }).format(d);
+                return {
+                    date: dateStr,
+                    rows: r.rowCount || 0,
+                };
+            })
             .reverse();
     }, [runs]);
 

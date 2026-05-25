@@ -80,8 +80,8 @@ export function VoucherBooksTable({
                         <ZoruTableHead className="text-muted-foreground text-right">Actions</ZoruTableHead>
                     </ZoruTableRow>
                 </ZoruTableHeader>
-                <ZoruTableBody>
-                    {loading ? (
+                <ZoruTableBody className={loading ? 'opacity-50 pointer-events-none' : ''}>
+                    {loading && rows.length === 0 ? (
                         <ZoruTableRow className="border-border">
                             <ZoruTableCell colSpan={10} className="h-24 text-center">
                                 <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />

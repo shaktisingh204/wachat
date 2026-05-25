@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components/zoruui';
+import { Button, Card, Input, Label, Textarea, useZoruToast, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
 import {
   useActionState,
   useEffect,
@@ -57,7 +57,23 @@ export function EditLoanForm({ loan, loanId }: Props) {
     const [state, formAction] = useActionState(updateLoan as any, initialState);
     const { toast } = useZoruToast();
     const formRef = useRef<HTMLFormElement>(null);
+    
     const [loanType, setLoanType] = useState<string>(loan?.type ?? 'customer_loan');
+    const [principal, setPrincipal] = useState<number>(Number(loan?.principal) || 0);
+    const [interestRate, setInterestRate] = useState<number>(Number(loan?.interestRate) || 0);
+    const [tenureMonths, setTenureMonths] = useState<number>(Number(loan?.tenureMonths) || 1);
+
+    // Amortization calculation
+    let monthlyPayment = 0;
+    if (principal > 0 && tenureMonths > 0) {
+        if (interestRate > 0) {
+            const r = (interestRate / 100) / 12;
+            monthlyPayment = principal * (r * Math.pow(1 + r, tenureMonths)) / (Math.pow(1 + r, tenureMonths) - 1);
+        } else {
+            monthlyPayment = principal / tenureMonths;
+        }
+    }
+
 
     useEffect(() => {
         if (state?.message) {
@@ -83,13 +99,16 @@ export function EditLoanForm({ loan, loanId }: Props) {
                             <Label htmlFor="type" className="text-[12.5px] text-zoru-ink-muted">
                                 Type
                             </Label>
-                            <Input
-                                id="type"
-                                name="type"
-                                value={loanType}
-                                onChange={(e) => setLoanType(e.target.value)}
-                                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                            />
+                            <Select name="type" value={loanType} onValueChange={setLoanType}>
+                                <SelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                                    <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="customer_loan">Customer Loan</SelectItem>
+                                    <SelectItem value="employee_advance">Employee Advance</SelectItem>
+                                    <SelectItem value="vendor_advance">Vendor Advance</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="space-y-2">
                             <Label className="text-[12.5px] text-zoru-ink-muted">
@@ -119,7 +138,8 @@ export function EditLoanForm({ loan, loanId }: Props) {
                                     type="number"
                                     step="0.01"
                                     required
-                                    defaultValue={loan.principal ?? 0}
+                                    value={principal}
+                                    onChange={(e) => setPrincipal(e.target.value === '' ? 0 : Number(e.target.value))}
                                     className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                                 />
                             </div>
@@ -128,14 +148,15 @@ export function EditLoanForm({ loan, loanId }: Props) {
                                     htmlFor="interestRate"
                                     className="text-[12.5px] text-zoru-ink-muted"
                                 >
-                                    Interest %
+                                    Interest % (Annual)
                                 </Label>
                                 <Input
                                     id="interestRate"
                                     name="interestRate"
                                     type="number"
                                     step="0.01"
-                                    defaultValue={loan.interestRate ?? 0}
+                                    value={interestRate}
+                                    onChange={(e) => setInterestRate(e.target.value === '' ? 0 : Number(e.target.value))}
                                     className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                                 />
                             </div>
@@ -152,7 +173,8 @@ export function EditLoanForm({ loan, loanId }: Props) {
                                     id="tenureMonths"
                                     name="tenureMonths"
                                     type="number"
-                                    defaultValue={loan.tenureMonths ?? 1}
+                                    value={tenureMonths}
+                                    onChange={(e) => setTenureMonths(e.target.value === '' ? 0 : Number(e.target.value))}
                                     className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                                 />
                             </div>
@@ -179,12 +201,17 @@ export function EditLoanForm({ loan, loanId }: Props) {
                             >
                                 Status
                             </Label>
-                            <Input
-                                id="status"
-                                name="status"
-                                defaultValue={loan.status ?? 'active'}
-                                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                            />
+                            <Select name="status" defaultValue={loan.status ?? 'active'}>
+                                <SelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="active">Active</SelectItem>
+                                    <SelectItem value="paid">Paid</SelectItem>
+                                    <SelectItem value="defaulted">Defaulted</SelectItem>
+                                    <SelectItem value="pending">Pending</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="space-y-2">
                             <Label
@@ -199,6 +226,24 @@ export function EditLoanForm({ loan, loanId }: Props) {
                                 defaultValue={loan.notes ?? ''}
                                 className="min-h-24 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                             />
+                        </div>
+
+                        {/* Schedule Preview */}
+                        <div className="rounded-lg border border-zoru-line bg-zoru-bg-muted p-4 mt-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h4 className="text-[13px] font-medium text-zoru-ink">Estimated Monthly Repayment</h4>
+                                    <p className="text-[12px] text-zoru-ink-muted mt-0.5">Calculated using amortized schedule</p>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-lg font-semibold text-zoru-ink">
+                                        ${monthlyPayment.toFixed(2)}
+                                    </div>
+                                    <div className="text-[12px] text-zoru-ink-muted mt-0.5">
+                                        Total: ${(monthlyPayment * tenureMonths).toFixed(2)}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div className="mt-6 flex justify-end border-t border-zoru-line pt-4">

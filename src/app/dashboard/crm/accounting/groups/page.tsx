@@ -9,22 +9,22 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  Button,
-  Checkbox,
-  Dialog,
+  ZoruButton,
+  ZoruCheckbox,
+  ZoruDialog,
   ZoruDialogContent,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  Input,
-  Label,
-  Select,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  StatCard,
-  Table,
+  ZoruStatCard,
+  ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
@@ -138,10 +138,10 @@ const saveInitialState: { message?: string; error?: string } = {};
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
+        <ZoruButton type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             {isEditing ? 'Save changes' : 'Create group'}
-        </Button>
+        </ZoruButton>
     );
 }
 
@@ -179,7 +179,7 @@ function AccountGroupDialog({
     }, [state, toast, onSave, onOpenChange]);
 
     return (
-        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent>
                 <form action={formAction}>
                     {isEditing ? (
@@ -192,8 +192,8 @@ function AccountGroupDialog({
                     </ZoruDialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name">Group name *</Label>
-                            <Input
+                            <ZoruLabel htmlFor="name">Group name *</ZoruLabel>
+                            <ZoruInput
                                 id="name"
                                 name="name"
                                 placeholder="e.g. Bank Accounts"
@@ -202,7 +202,7 @@ function AccountGroupDialog({
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="type">Nature *</Label>
+                            <ZoruLabel htmlFor="type">Nature *</ZoruLabel>
                             <EnumFormField
                                 name="type"
                                 enumName="accountNature"
@@ -216,8 +216,8 @@ function AccountGroupDialog({
                         </div>
                         {selectedType ? (
                             <div className="space-y-2">
-                                <Label htmlFor="category">Parent / sub-nature *</Label>
-                                <Select
+                                <ZoruLabel htmlFor="category">Parent / sub-nature *</ZoruLabel>
+                                <ZoruSelect
                                     name="category"
                                     required
                                     defaultValue={initialData?.category}
@@ -232,19 +232,19 @@ function AccountGroupDialog({
                                             </ZoruSelectItem>
                                         ))}
                                     </ZoruSelectContent>
-                                </Select>
+                                </ZoruSelect>
                             </div>
                         ) : null}
                     </div>
                     <ZoruDialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+                        <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>
                             Cancel
-                        </Button>
+                        </ZoruButton>
                         <SubmitButton isEditing={isEditing} />
                     </ZoruDialogFooter>
                 </form>
             </ZoruDialogContent>
-        </Dialog>
+        </ZoruDialog>
     );
 }
 
@@ -383,10 +383,10 @@ export default function AccountGroupsPage() {
 
             {/* KPI strip */}
             <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-                <StatCard label="Total groups" value={kpi.total.toLocaleString()} />
-                <StatCard label="Asset groups" value={(kpi.byNature['Asset'] ?? 0).toLocaleString()} />
-                <StatCard label="Liability groups" value={(kpi.byNature['Liability'] ?? 0).toLocaleString()} />
-                <StatCard label="Avg accounts / group" value={kpi.avgAccounts.toFixed(1)} />
+                <ZoruStatCard label="Total groups" value={kpi.total.toLocaleString()} />
+                <ZoruStatCard label="Asset groups" value={(kpi.byNature['Asset'] ?? 0).toLocaleString()} />
+                <ZoruStatCard label="Liability groups" value={(kpi.byNature['Liability'] ?? 0).toLocaleString()} />
+                <ZoruStatCard label="Avg accounts / group" value={kpi.avgAccounts.toFixed(1)} />
             </div>
 
             <EntityListShell
@@ -394,17 +394,17 @@ export default function AccountGroupsPage() {
                 subtitle="Group your chart-of-accounts by nature and sub-nature."
                 primaryAction={
                     <>
-                        <Button variant="outline" onClick={handleExport}>
+                        <ZoruButton variant="outline" onClick={handleExport}>
                             Export CSV
-                        </Button>
-                        <Button onClick={() => handleOpenDialog(null)}>
+                        </ZoruButton>
+                        <ZoruButton onClick={() => handleOpenDialog(null)}>
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> New Group
-                        </Button>
+                        </ZoruButton>
                     </>
                 }
                 search={{ value: search, onChange: setSearch, placeholder: 'Search groups…' }}
                 filters={
-                    <Select
+                    <ZoruSelect
                         value={natureFilter}
                         onValueChange={(v) => setNatureFilter(v as typeof natureFilter)}
                     >
@@ -419,7 +419,7 @@ export default function AccountGroupsPage() {
                                 </ZoruSelectItem>
                             ))}
                         </ZoruSelectContent>
-                    </Select>
+                    </ZoruSelect>
                 }
                 bulkBar={
                     selection.size > 0 ? (
@@ -427,14 +427,14 @@ export default function AccountGroupsPage() {
                             <span className="font-medium text-foreground">
                                 {selection.size} selected
                             </span>
-                            <Button
+                            <ZoruButton
                                 variant="outline"
                                 size="sm"
                                 onClick={handleExport}
                             >
                                 Export
-                            </Button>
-                            <Button
+                            </ZoruButton>
+                            <ZoruButton
                                 variant="outline"
                                 size="sm"
                                 className="text-destructive"
@@ -442,25 +442,25 @@ export default function AccountGroupsPage() {
                                 disabled={bulkPending}
                             >
                                 <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
-                            </Button>
-                            <Button
+                            </ZoruButton>
+                            <ZoruButton
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => setSelection(new Set())}
                             >
                                 <X className="h-3.5 w-3.5" />
-                            </Button>
+                            </ZoruButton>
                         </div>
                     ) : null
                 }
                 loading={isLoading && groups.length === 0}
             >
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
+                    <ZoruTable>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <ZoruTableHead className="w-10">
-                                    <Checkbox
+                                    <ZoruCheckbox
                                         checked={allChecked || (someChecked ? 'indeterminate' : false)}
                                         onCheckedChange={(v) => handleToggleAll(!!v)}
                                         aria-label="Select all"
@@ -492,7 +492,7 @@ export default function AccountGroupsPage() {
                                     return (
                                         <ZoruTableRow key={id} className="border-border">
                                             <ZoruTableCell>
-                                                <Checkbox
+                                                <ZoruCheckbox
                                                     checked={selection.has(id)}
                                                     onCheckedChange={() => handleToggle(id)}
                                                     aria-label={`Select ${g.name}`}
@@ -515,27 +515,27 @@ export default function AccountGroupsPage() {
                                                 {g.accountCount ?? 0}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
-                                                <Button
+                                                <ZoruButton
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => handleOpenDialog(g)}
                                                 >
                                                     <Edit className="h-4 w-4" />
-                                                </Button>
-                                                <Button
+                                                </ZoruButton>
+                                                <ZoruButton
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => setPendingDelete(g)}
                                                 >
                                                     <Trash2 className="h-4 w-4 text-destructive" />
-                                                </Button>
+                                                </ZoruButton>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     );
                                 })
                             )}
                         </ZoruTableBody>
-                    </Table>
+                    </ZoruTable>
                 </div>
             </EntityListShell>
 

@@ -9,17 +9,26 @@ import { EditHeaderActions } from './edit-actions';
 
 export const dynamic = 'force-dynamic';
 
-async function EditFormContent({ id }: { id: string }) {
-    const doc = await getSalaryStructureDoc(id);
-    if (!doc) notFound();
 
-    return (
-        <SalaryStructureForm initialData={doc} />
-    );
-}
 
 async function EditShell({ id }: { id: string }) {
-    const doc = await getSalaryStructureDoc(id);
+    let doc;
+    try {
+        doc = await getSalaryStructureDoc(id);
+    } catch (err) {
+        return (
+            <EntityListShell
+                title="Error"
+                subtitle="Failed to load structure"
+            >
+                <div className="flex flex-col items-center justify-center p-8 space-y-4 rounded-xl border border-red-200 bg-red-50 text-red-600">
+                    <p className="font-medium text-lg">Data fetching failed.</p>
+                    <p className="text-sm">We could not retrieve the requested salary structure. It might not exist or there is a network issue.</p>
+                </div>
+            </EntityListShell>
+        );
+    }
+    
     if (!doc) notFound();
     
     const label = doc.employeeName ?? doc.employeeId ?? id;

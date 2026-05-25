@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, ZoruCardContent, Input, Label, Badge, cn } from '@/components/zoruui';
+import { Button, Card, ZoruCardContent, Input, Textarea, Label, Badge, cn } from '@/components/zoruui';
 import { cn as _zoruCn, useState } from 'react';
 
 void _zoruCn;
@@ -11,7 +11,9 @@ import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
 type ImageData = { src: string; alt: string; hasAlt?: boolean; type?: 'img' | 'bg' };
 
 export default function ImageAltCheckerPage() {
+  const [inputType, setInputType] = useState<'url' | 'html'>('url');
   const [url, setUrl] = useState('');
+  const [htmlContent, setHtmlContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<ImageData[]>([]);
   const [err, setErr] = useState('');
@@ -19,24 +21,41 @@ export default function ImageAltCheckerPage() {
   async function run() {
     setErr('');
     setImages([]);
-    if (!url.trim()) return;
+    
+    if (inputType === 'url' && !url.trim()) return;
+    if (inputType === 'html' && !htmlContent.trim()) return;
+    
     setLoading(true);
     try {
-      const res = await apiFetchUrl(url.trim());
-      if (res.error) throw new Error(res.error);
-      const parsed = parseHtml(res.body || '');
+      let rawHtml = '';
+      if (inputType === 'url') {
+        const res = await apiFetchUrl(url.trim());
+        if (res.error) throw new Error(res.error);
+        rawHtml = res.body || '';
+      } else {
+        rawHtml = htmlContent;
+      }
+      
+      const parsed = parseHtml(rawHtml);
       
       const imgs: ImageData[] = (parsed.images || []).map(img => ({ ...img, type: 'img' }));
       
-      // Check background images in CSS (advanced)
+      // Extract <style> contents and inline style attributes for background image check
+      const styleTags = rawHtml.match(/<style[^>]*>([\s\S]*?)<\/style>/gi) || [];
+      const inlineStyles = rawHtml.match(/style\s*=\s*["']([^"']*)["']/gi) || [];
+      const cssContent = styleTags.join(' ') + ' ' + inlineStyles.join(' ');
+      
       const bgRegex = /url\(\s*['"]?(.*?)['"]?\s*\)/gi;
       let match;
       const bgImagesSet = new Set<string>();
-      while ((match = bgRegex.exec(res.body || '')) !== null) {
+      while ((match = bgRegex.exec(cssContent)) !== null) {
         let bgUrl = match[1];
         if (bgUrl && !bgUrl.startsWith('data:')) {
           bgUrl = bgUrl.replace(/\\['"]/g, '').replace(/&quot;/g, '').trim();
-          if (bgUrl) bgImagesSet.add(bgUrl);
+          // Filter out things that are definitely not images (e.g. #id, about:blank)
+          if (bgUrl && !bgUrl.startsWith('#') && !bgUrl.startsWith('about:')) {
+            bgImagesSet.add(bgUrl);
+          }
         }
       }
       
@@ -46,7 +65,7 @@ export default function ImageAltCheckerPage() {
 
       setImages(imgs);
     } catch (e: any) {
-      setErr(e?.message || 'Failed to fetch URL');
+      setErr(`Failed to fetch URL: ${e?.message || 'Unknown error'}. Some websites block automated requests. Try pasting the HTML Source instead.`);
     } finally {
       setLoading(false);
     }
@@ -57,17 +76,31 @@ export default function ImageAltCheckerPage() {
   
   const missingAlt = imgTags.filter((i) => !i.hasAlt).length;
   const decorativeAlt = imgTags.filter((i) => i.hasAlt && !i.alt.trim()).length;
-  const goodAlt = imgTags.filter((i) => i.hasAlt && i.alt.trim()).length;
+  const longAlt = imgTags.filter((i) => i.hasAlt && i.alt.trim().length > 125).length;
+  const goodAlt = imgTags.filter((i) => i.hasAlt && i.alt.trim().length > 0 && i.alt.trim().length <= 125).length;
 
   return (
     <ToolShell title="Image Alt Checker" description="Audit a page for images missing descriptive alt text, decorative images, and background images.">
       <Card>
         <ZoruCardContent className="p-4 space-y-4">
-          <div>
-            <Label>Page URL</Label>
-            <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+          <div className="flex gap-2">
+            <Button variant={inputType === 'url' ? 'default' : 'outline'} onClick={() => setInputType('url')} size="sm">URL</Button>
+            <Button variant={inputType === 'html' ? 'default' : 'outline'} onClick={() => setInputType('html')} size="sm">HTML Source</Button>
           </div>
-          <Button onClick={run} disabled={loading || !url.trim()}>
+          <div>
+            {inputType === 'url' ? (
+              <>
+                <Label>Page URL</Label>
+                <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+              </>
+            ) : (
+              <>
+                <Label>HTML Source</Label>
+                <Textarea value={htmlContent} onChange={(e) => setHtmlContent(e.target.value)} placeholder="Paste HTML code here..." className="font-mono min-h-[150px]" />
+              </>
+            )}
+          </div>
+          <Button onClick={run} disabled={loading || (inputType === 'url' ? !url.trim() : !htmlContent.trim())}>
             {loading ? 'Checking…' : 'Check'}
           </Button>
           {err && <div className="text-sm text-destructive">{err}</div>}
@@ -82,6 +115,7 @@ export default function ImageAltCheckerPage() {
               {bgTags.length > 0 && <Badge variant="outline">{bgTags.length} background images</Badge>}
               <Badge variant={missingAlt ? 'destructive' : 'default'}>{missingAlt} missing alt attr</Badge>
               <Badge variant="secondary">{decorativeAlt} decorative (empty alt)</Badge>
+              {longAlt > 0 && <Badge variant="warning">{longAlt} excessively long</Badge>}
               <Badge variant="default">{goodAlt} with alt text</Badge>
             </div>
             
@@ -90,12 +124,13 @@ export default function ImageAltCheckerPage() {
                 const isBg = img.type === 'bg';
                 const isMissingAlt = !isBg && !img.hasAlt;
                 const isDecorative = !isBg && img.hasAlt && !img.alt.trim();
-                const isGood = !isBg && img.hasAlt && img.alt.trim();
+                const isLongAlt = !isBg && img.hasAlt && img.alt.trim().length > 125;
+                const isGood = !isBg && img.hasAlt && img.alt.trim().length > 0 && !isLongAlt;
                 
                 let borderColor = 'border-border';
                 let bgColor = '';
                 let statusText = '';
-                let badgeVariant: 'default' | 'destructive' | 'secondary' | 'outline' = 'default';
+                let badgeVariant: any = 'default';
                 
                 if (isBg) {
                   borderColor = 'border-muted';
@@ -111,11 +146,16 @@ export default function ImageAltCheckerPage() {
                   bgColor = 'bg-yellow-500/10';
                   statusText = 'Decorative (empty alt)';
                   badgeVariant = 'secondary';
+                } else if (isLongAlt) {
+                  borderColor = 'border-orange-500/50';
+                  bgColor = 'bg-orange-500/10';
+                  statusText = 'Excessively long alt';
+                  badgeVariant = 'warning';
                 } else if (isGood) {
                   borderColor = 'border-green-500/50';
                   bgColor = 'bg-green-500/10';
                   statusText = 'Good alt text';
-                  badgeVariant = 'default';
+                  badgeVariant = 'success';
                 }
 
                 return (
@@ -131,10 +171,20 @@ export default function ImageAltCheckerPage() {
                     </div>
                     
                     {!isBg && (
-                      <div className="text-xs text-muted-foreground font-mono">
-                        alt="{img.hasAlt ? img.alt : ''}"
+                      <div className="text-xs text-muted-foreground font-mono mt-2">
+                        alt="
+                        {isLongAlt ? (
+                          <>
+                            <span>{img.alt.substring(0, 125)}</span>
+                            <span className="bg-destructive/20 text-destructive font-bold" title="Excessively long text (over 125 chars)">{img.alt.substring(125)}</span>
+                          </>
+                        ) : (
+                          <>{img.hasAlt ? img.alt : ''}</>
+                        )}
+                        "
                         {!img.hasAlt && <span className="text-destructive font-semibold ml-2">(attribute missing)</span>}
-                        {isDecorative && <span className="text-yellow-600 dark:text-yellow-400 font-semibold ml-2">(decorative)</span>}
+                        {isDecorative && <span className="text-yellow-600 dark:text-yellow-400 font-semibold ml-2">(decorative: alt=&quot;&quot;)</span>}
+                        {isLongAlt && <span className="text-orange-600 dark:text-orange-400 font-semibold ml-2">({img.alt.trim().length} chars, over 125 limit)</span>}
                       </div>
                     )}
                   </div>

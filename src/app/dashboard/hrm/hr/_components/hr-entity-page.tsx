@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 'use client';
 
 import {
@@ -182,7 +183,7 @@ function toNode(value: unknown): React.ReactNode {
     return value;
   }
   if (React.isValidElement(value)) return value;
-  if (value instanceof Date) return value.toLocaleDateString();
+  if (value instanceof Date) return fmtDate(value);
   if (Array.isArray(value)) return String(value.length);
   if (typeof value === 'object') {
     // ObjectId or other — stringify

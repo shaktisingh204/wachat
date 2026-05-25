@@ -13,6 +13,12 @@ import { getTimeLogs, startTimer, stopTimer, approveTimeLog, rejectTimeLog, bulk
 import { wsFormatDuration } from '@/lib/worksuite/time-types';
 import type { WsProjectTimeLog } from '@/lib/worksuite/time-types';
 import { ManualEntryDialog } from './manual-entry-dialog';
+import { useTimeLogsWebsocket } from './use-time-logs-websocket';
+import { StartTimerCard } from './start-timer-card';
+import { TimeLogsFilter } from './time-logs-filter';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { fmtDate } from '@/lib/utils';
 
 function formatTs(ts?: string | Date | null): string {
   if (!ts) return '—';
@@ -55,8 +61,8 @@ function exportToCSV(logs: WsProjectTimeLog[]) {
     const isRunning = !log.end_time;
     return [
       log.user_id || 'Unknown',
-      log.start_time ? new Date(log.start_time).toLocaleString() : '',
-      isRunning ? 'Running' : (log.end_time ? new Date(log.end_time).toLocaleString() : ''),
+      log.start_time ? fmtDate(log.start_time) : '',
+      isRunning ? 'Running' : (log.end_time ? fmtDate(log.end_time) : ''),
       isRunning ? 'Running' : wsFormatDuration(log.start_time, log.end_time),
       (log.memo || '').replace(/,/g, ';'),
       log.status || 'pending'
@@ -71,6 +77,32 @@ function exportToCSV(logs: WsProjectTimeLog[]) {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+function exportToPDF(logs: WsProjectTimeLog[]) {
+  const doc = new jsPDF();
+  
+  const headers = [['Employee', 'Start Time', 'End Time', 'Duration', 'Memo', 'Status']];
+  const rows = logs.map(log => {
+    const isRunning = !log.end_time;
+    return [
+      log.user_id || 'Unknown',
+      log.start_time ? fmtDate(log.start_time) : '',
+      isRunning ? 'Running' : (log.end_time ? fmtDate(log.end_time) : ''),
+      isRunning ? 'Running' : wsFormatDuration(log.start_time, log.end_time),
+      log.memo || '',
+      log.status || 'pending'
+    ];
+  });
+
+  autoTable(doc, {
+    head: headers,
+    body: rows,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [41, 128, 185] },
+  });
+
+  doc.save(`time-logs-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 }
 
 export function TimeLogsClient({
@@ -128,19 +160,14 @@ export function TimeLogsClient({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  /* ── Collaborative Editing / Real-time mock ── */
-  useEffect(() => {
-    // Mock WebSocket for real-time collaborative updates (Polling in background)
-    const interval = setInterval(async () => {
-      try {
-        const data = await getTimeLogs();
-        setLogs(data); // Sync silently
-      } catch (e) {
-        // fail silently
-      }
-    }, 15000);
-    return () => clearInterval(interval);
+  /* ── Collaborative Editing / Real-time ── */
+  const handleWebsocketUpdate = useCallback((newLogs: WsProjectTimeLog[]) => {
+    // Only update if it's a newer set or merging logic required.
+    // Assuming WS payload is the full updated list or we simply replace.
+    setLogs(newLogs);
   }, []);
+
+  useTimeLogsWebsocket(handleWebsocketUpdate);
 
   /* ── Reload / Filter ── */
   const load = useCallback(() => {
@@ -330,7 +357,11 @@ export function TimeLogsClient({
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => exportToCSV(filteredLogs)}>
             <Download className="h-4 w-4 mr-1.5" strokeWidth={1.75} />
-            Export CSV
+            CSV
+          </Button>
+          <Button variant="outline" onClick={() => exportToPDF(filteredLogs)}>
+            <Download className="h-4 w-4 mr-1.5" strokeWidth={1.75} />
+            PDF
           </Button>
           <Button variant="outline" onClick={() => setManualOpen(true)}>
             <Plus className="h-4 w-4 mr-1.5" strokeWidth={1.75} />
@@ -363,24 +394,12 @@ export function TimeLogsClient({
 
       {/* ── Start Timer Card ── */}
       {(!runningLog || !mounted) && (
-        <Card className="p-6">
-          <div className="flex flex-wrap items-center gap-3">
-            <Timer className="h-5 w-5 shrink-0 text-zoru-ink-muted" strokeWidth={1.75} />
-            <Input
-              placeholder="What are you working on? (optional memo)"
-              className="h-9 min-w-[220px] flex-1 rounded-lg border-zoru-line bg-zoru-bg text-[13px] placeholder:text-zoru-ink-muted focus-visible:ring-primary"
-              value={memo}
-              onChange={(e) => setMemo(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleStartTimer();
-              }}
-            />
-            <Button disabled={isPending} onClick={handleStartTimer}>
-              <Play className="h-4 w-4 fill-current mr-1.5" strokeWidth={1.75} />
-              Start Timer
-            </Button>
-          </div>
-        </Card>
+        <StartTimerCard
+          memo={memo}
+          setMemo={setMemo}
+          isPending={isPending}
+          onStartTimer={handleStartTimer}
+        />
       )}
 
       {/* ── Logs Table Card ── */}
@@ -396,45 +415,16 @@ export function TimeLogsClient({
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="h-9 w-[130px] text-[13px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="running">Running</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Filter className="h-4 w-4 shrink-0 text-zoru-ink-muted ml-2" />
-            <Input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="h-9 w-[140px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-              aria-label="From date"
-            />
-            <span className="text-[12px] text-zoru-ink-muted">to</span>
-            <Input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="h-9 w-[140px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-              aria-label="To date"
-            />
-            <Button variant="outline" onClick={load} disabled={isPending}>
-              Apply
-            </Button>
-            {(fromDate || toDate || statusFilter !== 'all') && (
-              <Button variant="outline" onClick={() => { setFromDate(''); setToDate(''); setStatusFilter('all'); }}>
-                Clear
-              </Button>
-            )}
-          </div>
+          <TimeLogsFilter
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            fromDate={fromDate}
+            setFromDate={setFromDate}
+            toDate={toDate}
+            setToDate={setToDate}
+            onApply={load}
+            isPending={isPending}
+          />
         </div>
 
         {/* Bulk Actions Banner */}

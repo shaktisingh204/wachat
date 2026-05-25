@@ -19,6 +19,7 @@ export interface CohortCell {
   period: number; // e.g. 0 for week 0, 1 for week 1
   value: number; // percentage or absolute value
   absoluteValue: number;
+  ltv: number; // cumulative LTV over time
 }
 
 export interface CohortRow {
@@ -45,16 +46,23 @@ export async function loadCohorts(
     const size = Math.floor(Math.random() * 5000) + 1000;
     const cells: CohortCell[] = [];
     let currentVal = size;
+    let currentLtv = 0;
 
     for (let period = 0; period < 6 - i; period++) {
       if (period > 0) {
         // Dropoff simulation
         currentVal = Math.floor(currentVal * (Math.random() * 0.4 + 0.3));
       }
+      
+      // Simulate LTV incrementing over time (cumulative value per user)
+      const ltvIncrement = Math.random() * 5 + 2; 
+      currentLtv += ltvIncrement;
+      
       cells.push({
         period,
         value: period === 0 ? 100 : Math.round((currentVal / size) * 100),
         absoluteValue: currentVal,
+        ltv: parseFloat(currentLtv.toFixed(2)),
       });
     }
 

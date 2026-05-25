@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -216,7 +217,7 @@ export default function ContactNotesPage() {
                       {note.text}
                     </p>
                     <p className="mt-1.5 text-[11px] text-zoru-ink-muted">
-                      {new Date(note.createdAt).toLocaleString()}
+                      {fmtDate(note.createdAt)}
                     </p>
                   </div>
                   <ZoruAlertDialog>

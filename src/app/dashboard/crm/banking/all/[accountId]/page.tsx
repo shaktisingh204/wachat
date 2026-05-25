@@ -161,7 +161,11 @@ export default async function PaymentAccountDetailPage(props: {
                             label="As of"
                             value={
                                 account.openingBalanceDate
-                                    ? new Date(account.openingBalanceDate).toLocaleDateString()
+                                    ? new Date(account.openingBalanceDate).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric'
+                                      })
                                     : '—'
                             }
                         />

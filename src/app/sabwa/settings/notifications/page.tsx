@@ -72,6 +72,11 @@ const DEFAULT_PREFS: SabwaNotificationPrefs = {
   push: { enabled: false },
   incomingSound: 'chime',
   muteSchedules: [],
+  events: {
+    groupMentions: true,
+    directMessages: true,
+    systemAlerts: true,
+  },
 };
 
 function newWindow(): SabwaMuteWindow {
@@ -101,10 +106,15 @@ export default function NotificationsSettingsPage() {
     getNotificationPrefs(activeProjectId)
       .then((res) => {
         if (cancelled) return;
-        if (res.ok) setPrefs(res.prefs);
+        if (res.ok) {
+          // Merge with defaults in case of missing fields
+          setPrefs({ ...DEFAULT_PREFS, ...res.prefs, events: { ...DEFAULT_PREFS.events, ...res.prefs.events } });
+        } else {
+          toast.error(res.error || 'Failed to fetch notification preferences');
+        }
       })
-      .catch(() => {
-        /* Phase 1 stub */
+      .catch((e: any) => {
+        if (!cancelled) toast.error(e?.message || 'Error connecting to notifications API');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -201,6 +211,74 @@ export default function NotificationsSettingsPage() {
         </div>
       </div>
       <SettingsTabs />
+
+      {/* Event triggers */}
+      <Card>
+        <ZoruCardHeader>
+          <ZoruCardTitle className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            Events to notify
+          </ZoruCardTitle>
+          <ZoruCardDescription>
+            Choose exactly what events should trigger a notification.
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent className="space-y-4">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={prefs.events?.directMessages ?? true}
+                onCheckedChange={(v) =>
+                  setPrefs((p) => ({
+                    ...p,
+                    events: { ...p.events, directMessages: v } as typeof p.events,
+                  }))
+                }
+                disabled={loading || pending}
+                aria-label="Toggle direct messages"
+              />
+              <Label className="text-sm">Direct messages</Label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={prefs.events?.groupMentions ?? true}
+                onCheckedChange={(v) =>
+                  setPrefs((p) => ({
+                    ...p,
+                    events: { ...p.events, groupMentions: v } as typeof p.events,
+                  }))
+                }
+                disabled={loading || pending}
+                aria-label="Toggle group mentions"
+              />
+              <Label className="text-sm">Group mentions (@mentions)</Label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={prefs.events?.systemAlerts ?? true}
+                onCheckedChange={(v) =>
+                  setPrefs((p) => ({
+                    ...p,
+                    events: { ...p.events, systemAlerts: v } as typeof p.events,
+                  }))
+                }
+                disabled={loading || pending}
+                aria-label="Toggle system alerts"
+              />
+              <Label className="text-sm">System alerts</Label>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button
+              size="sm"
+              onClick={() => persist({ events: prefs.events }, 'Events to notify')}
+              disabled={pending}
+            >
+              Save
+            </Button>
+          </div>
+        </ZoruCardContent>
+      </Card>
 
       {/* Desktop notifications */}
       <Card>

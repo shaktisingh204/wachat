@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -51,8 +52,6 @@ import { getBlockedContacts, blockContact, unblockContact } from '@/app/actions/
  */
 
 import * as React from 'react';
-
-export const dynamic = 'force-dynamic';
 
 export default function BlockedContactsPage() {
   const { activeProject, activeProjectId } = useProject();
@@ -238,7 +237,7 @@ export default function BlockedContactsPage() {
                   </td>
                   <td className="px-5 py-3 text-[13px] text-zoru-ink-muted">
                     {c.blockedAt
-                      ? new Date(c.blockedAt).toLocaleDateString()
+                      ? fmtDate(c.blockedAt)
                       : '—'}
                   </td>
                   <td className="px-5 py-3 text-right">

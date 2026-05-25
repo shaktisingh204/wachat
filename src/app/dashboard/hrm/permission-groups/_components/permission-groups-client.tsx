@@ -116,6 +116,19 @@ export default function PermissionGroupsClient({
   const [kpis, setKpis] = React.useState<Kpi[]>(initialKpis);
   const [employees, setEmployees] = React.useState<Employee[]>(initialEmployees);
   const [assignments, setAssignments] = React.useState<Assignment[]>(initialAssignments);
+
+  React.useEffect(() => {
+    setAssignments(initialAssignments);
+  }, [initialAssignments]);
+
+  React.useEffect(() => {
+    setKpis(initialKpis);
+  }, [initialKpis]);
+
+  React.useEffect(() => {
+    setEmployees(initialEmployees);
+  }, [initialEmployees]);
+
   
   const [search, setSearch] = React.useState('');
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -124,6 +137,7 @@ export default function PermissionGroupsClient({
   const [deleting, startDeleteTransition] = React.useTransition();
   const [bulkDeleting, startBulkTransition] = React.useTransition();
   const [minModules, setMinModules] = React.useState<number | ''>('');
+  const [hasEmployees, setHasEmployees] = React.useState<string>('all'); // 'all', 'yes', 'no'
 
   const refresh = React.useCallback(async () => {
     // Only refresh KPIs, the Server Component and WebSocket handle the rest, but 
@@ -154,8 +168,17 @@ export default function PermissionGroupsClient({
       res = res.filter(g => moduleCount(g) >= minModules);
     }
     
+    if (hasEmployees !== 'all') {
+      res = res.filter(g => {
+        const count = assignments.filter(a => a.groupId === g._id).length;
+        if (hasEmployees === 'yes') return count > 0;
+        if (hasEmployees === 'no') return count === 0;
+        return true;
+      });
+    }
+    
     return res;
-  }, [groups, search, minModules]);
+  }, [groups, search, minModules, hasEmployees, assignments]);
 
   const parentRef = React.useRef<HTMLDivElement>(null);
   
@@ -351,8 +374,12 @@ export default function PermissionGroupsClient({
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleExport}>
-              <FileDown className="h-3.5 w-3.5" />
-              Export
+              <FileDown className="h-3.5 w-3.5 mr-2" />
+              CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportPdf}>
+              <FileText className="h-3.5 w-3.5 mr-2" />
+              PDF
             </Button>
             <Button
               variant="destructive"
@@ -382,11 +409,20 @@ export default function PermissionGroupsClient({
           onChange={(e) => setMinModules(e.target.value === '' ? '' : Number(e.target.value))}
           className="max-w-[150px]"
         />
-        {(search || minModules !== '') && (
+        <select
+          value={hasEmployees}
+          onChange={(e) => setHasEmployees(e.target.value)}
+          className="h-9 rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-ink/20 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <option value="all">All Assignments</option>
+          <option value="yes">Has Employees</option>
+          <option value="no">No Employees</option>
+        </select>
+        {(search || minModules !== '' || hasEmployees !== 'all') && (
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => { setSearch(''); setMinModules(''); }}
+            onClick={() => { setSearch(''); setMinModules(''); setHasEmployees('all'); }}
             className="text-zoru-ink-muted hover:text-zoru-ink"
           >
             Clear Filters

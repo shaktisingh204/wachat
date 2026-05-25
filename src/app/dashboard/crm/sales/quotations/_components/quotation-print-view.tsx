@@ -26,7 +26,7 @@ function fmtMoney(value?: number | null, currency = 'INR'): string {
 function fmtDate(v?: string | Date | null): string {
   if (!v) return '—';
   const d = v instanceof Date ? v : new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US', { timeZone: 'UTC' });
 }
 
 function PrintField({ label, value }: { label: string; value: React.ReactNode }) {

@@ -37,8 +37,6 @@ import type { WithId } from 'mongodb';
 import { ChevronLeft, LoaderCircle, Save } from 'lucide-react';
 import { planFeatureMap } from '@/lib/plans';
 
-export const dynamic = 'force-dynamic';
-
 const initialState = { message: null, error: null };
 
 function SubmitButton() {

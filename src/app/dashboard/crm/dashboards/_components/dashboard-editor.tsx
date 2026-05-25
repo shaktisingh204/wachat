@@ -268,7 +268,7 @@ export function DashboardEditor({ dashboardId, initialWidgets }: DashboardEditor
             absolute: true,
             zIndex: 1,
         });
-    }, { dependencies: [widgets.map(w => `${w.id}-${w.w}`).join(',')], scope: containerRef });
+    }, { dependencies: [widgets.map(w => `${w.id}-${w.w}-${w.h}`).join(',')], scope: containerRef });
 
     function handleDragEnd(event: DragEndEvent) {
         const { active, over } = event;

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Badge, Button, Card } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
@@ -34,13 +35,15 @@ import {
 } from '@/app/actions/hr-status.actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
     params: Promise<{ id: string }>;
 }
 
 const BASE = '/dashboard/hrm/hr/document-templates';
 
-export default async function DocumentTemplateDetailPage({ params }: PageProps) {
+async function DocumentTemplateDetailPageContainer({ params }: PageProps) {
     const { id } = await params;
     const doc = await getHrEntityById('hr_document_templates', id);
     if (!doc) notFound();
@@ -143,4 +146,12 @@ export default async function DocumentTemplateDetailPage({ params }: PageProps) 
             <ClipboardList className="hidden" />
         </EntityDetailShell>
     );
+}
+
+export default function DocumentTemplateDetailPage({ params }: PageProps) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DocumentTemplateDetailPageContainer params={params} />
+    </Suspense>
+  );
 }

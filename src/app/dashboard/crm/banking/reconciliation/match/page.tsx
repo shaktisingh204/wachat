@@ -8,17 +8,18 @@ import {
   Input,
   Label,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   useZoruToast,
+  StatCard,
 } from '@/components/zoruui';
 import {
   Check,
@@ -47,16 +48,6 @@ type ReconciliationData = {
     statementEntries: any[];
 };
 
-const StatCard = ({ title, value }: { title: string; value: string | number }) => (
-    <div className="rounded-lg border border-border bg-secondary p-3">
-        <p className="text-[12.5px] text-muted-foreground">{title}</p>
-        <p className="text-[18px] font-bold text-foreground">
-            {typeof value === 'number'
-                ? `₹${value.toLocaleString('en-IN')}`
-                : value}
-        </p>
-    </div>
-);
 
 export default function BankReconciliationMatchPage() {
     const [accounts, setAccounts] = useState<WithId<CrmPaymentAccount>[]>([]);
@@ -319,19 +310,19 @@ export default function BankReconciliationMatchPage() {
                             value={selectedAccountId}
                             onValueChange={setSelectedAccountId}
                         >
-                            <ZoruSelectTrigger>
-                                <ZoruSelectValue placeholder="Select Account…" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select Account…" />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {accounts.map((a) => (
-                                    <ZoruSelectItem
+                                    <SelectItem
                                         key={a._id.toString()}
                                         value={a._id.toString()}
                                     >
                                         {a.accountName}
-                                    </ZoruSelectItem>
+                                    </SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-2">
@@ -356,43 +347,43 @@ export default function BankReconciliationMatchPage() {
                 </div>
 
                 {csvColumns.length > 0 && (
-                    <div className="mt-6 border border-border p-4 rounded-lg bg-secondary/30">
-                        <h4 className="mb-4 text-sm font-semibold">Map CSV Columns</h4>
+                    <div className="mt-6 border border-zoru-line p-5 rounded-[var(--zoru-radius-lg)] bg-zoru-surface-1">
+                        <h4 className="mb-4 text-sm font-semibold text-zoru-ink">Map CSV Columns</h4>
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
                                 <Label>Date Column</Label>
                                 <Select value={dateCol} onValueChange={setDateCol}>
-                                    <ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {csvColumns.map(c => <ZoruSelectItem key={c} value={c}>{c}</ZoruSelectItem>)}
-                                    </ZoruSelectContent>
+                                    <SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger>
+                                    <SelectContent>
+                                        {csvColumns.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div>
                                 <Label>Description</Label>
                                 <Select value={descCol} onValueChange={setDescCol}>
-                                    <ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {csvColumns.map(c => <ZoruSelectItem key={c} value={c}>{c}</ZoruSelectItem>)}
-                                    </ZoruSelectContent>
+                                    <SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger>
+                                    <SelectContent>
+                                        {csvColumns.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div>
                                 <Label>Debit (Withdrawal)</Label>
                                 <Select value={debitCol} onValueChange={setDebitCol}>
-                                    <ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {csvColumns.map(c => <ZoruSelectItem key={c} value={c}>{c}</ZoruSelectItem>)}
-                                    </ZoruSelectContent>
+                                    <SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger>
+                                    <SelectContent>
+                                        {csvColumns.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                                    </SelectContent>
                                 </Select>
                             </div>
                             <div>
                                 <Label>Credit (Deposit)</Label>
                                 <Select value={creditCol} onValueChange={setCreditCol}>
-                                    <ZoruSelectTrigger><ZoruSelectValue placeholder="Select..."/></ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        {csvColumns.map(c => <ZoruSelectItem key={c} value={c}>{c}</ZoruSelectItem>)}
-                                    </ZoruSelectContent>
+                                    <SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger>
+                                    <SelectContent>
+                                        {csvColumns.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                                    </SelectContent>
                                 </Select>
                             </div>
                         </div>
@@ -435,28 +426,30 @@ export default function BankReconciliationMatchPage() {
             {reconciliationData && (
                 <>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <StatCard title="Cleared in Books" value={clearedBookAmount} />
+                        <StatCard label="Cleared in Books" value={`₹${clearedBookAmount.toLocaleString('en-IN')}`} />
                         <StatCard
-                            title="Cleared in Bank"
-                            value={clearedStatementAmount}
+                            label="Cleared in Bank"
+                            value={`₹${clearedStatementAmount.toLocaleString('en-IN')}`}
                         />
                         <StatCard
-                            title="Uncleared Amount"
-                            value={unclearedBookAmount}
+                            label="Uncleared Amount"
+                            value={`₹${unclearedBookAmount.toLocaleString('en-IN')}`}
                         />
-                        <div className="rounded-lg border border-border bg-secondary p-3 flex flex-col justify-between">
-                            <div>
-                                <p className="text-[12.5px] text-muted-foreground">Difference</p>
-                                <p className={`text-[18px] font-bold ${difference !== 0 ? 'text-destructive' : 'text-foreground'}`}>
+                        <Card className="flex flex-col justify-between h-full p-0 overflow-hidden">
+                            <div className="p-6 pb-2">
+                                <p className="text-xs font-medium uppercase tracking-wide text-zoru-ink-subtle">Difference</p>
+                                <p className={`text-2xl font-semibold tracking-tight ${difference !== 0 ? 'text-zoru-danger' : 'text-zoru-ink'}`}>
                                     ₹{difference.toLocaleString('en-IN')}
                                 </p>
                             </div>
                             {difference !== 0 && (
-                                <Button size="sm" variant="outline" className="mt-2 h-7 text-xs" onClick={() => handleAddFxAdjustment(difference)}>
-                                    Add FX Adjustment
-                                </Button>
+                                <div className="px-6 pb-6 pt-2">
+                                    <Button size="sm" variant="outline" className="w-full text-xs" onClick={() => handleAddFxAdjustment(difference)}>
+                                        Add FX Adjustment
+                                    </Button>
+                                </div>
                             )}
-                        </div>
+                        </Card>
                     </div>
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <TransactionTable
@@ -503,21 +496,21 @@ const TransactionTable = ({
     isBankStatement?: boolean;
 }) => (
     <Card>
-        <h3 className="mb-4 text-[15px] font-semibold text-foreground">{title}</h3>
-        <div className="max-h-96 overflow-x-auto overflow-y-auto rounded-lg border border-border">
+        <h3 className="mb-4 text-[15px] font-semibold text-zoru-ink">{title}</h3>
+        <div className="max-h-96 overflow-x-auto overflow-y-auto rounded-[var(--zoru-radius)] border border-zoru-line">
             <Table>
-                <ZoruTableHeader className="sticky top-0 bg-card">
-                    <ZoruTableRow className="border-border hover:bg-transparent">
-                        <ZoruTableHead className="w-10 text-muted-foreground">
+                <TableHeader className="sticky top-0 bg-zoru-surface-1 z-10">
+                    <TableRow className="border-zoru-line hover:bg-transparent">
+                        <TableHead className="w-10 text-zoru-ink-muted">
                             <Check className="h-4 w-4" />
-                        </ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Description</ZoruTableHead>
-                        <ZoruTableHead className="text-right text-muted-foreground">Debit</ZoruTableHead>
-                        <ZoruTableHead className="text-right text-muted-foreground">Credit</ZoruTableHead>
-                    </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                        </TableHead>
+                        <TableHead className="text-zoru-ink-muted">Date</TableHead>
+                        <TableHead className="text-zoru-ink-muted">Description</TableHead>
+                        <TableHead className="text-right text-zoru-ink-muted">Debit</TableHead>
+                        <TableHead className="text-right text-zoru-ink-muted">Credit</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
                     {entries.map((e) => {
                         const debit = isBankStatement
                             ? e.amount > 0
@@ -534,36 +527,36 @@ const TransactionTable = ({
                               ? e.amount
                               : 0;
                         return (
-                            <ZoruTableRow
+                            <TableRow
                                 key={e._id}
-                                className="border-border"
+                                className="border-zoru-line"
                                 data-state={matchedIds.has(e._id) ? 'selected' : ''}
                             >
-                                <ZoruTableCell>
+                                <TableCell>
                                     <Checkbox
                                         checked={matchedIds.has(e._id)}
                                         onCheckedChange={() => onMatchToggle(e._id)}
                                     />
-                                </ZoruTableCell>
-                                <ZoruTableCell className="text-xs text-foreground">
+                                </TableCell>
+                                <TableCell className="text-xs text-zoru-ink">
                                     {e.date ? format(new Date(e.date), 'dd MMM') : ''}
-                                </ZoruTableCell>
-                                <ZoruTableCell className="text-xs text-foreground">
+                                </TableCell>
+                                <TableCell className="text-xs text-zoru-ink">
                                     {e.description}
-                                </ZoruTableCell>
-                                <ZoruTableCell className="text-right font-mono text-xs text-foreground">
+                                </TableCell>
+                                <TableCell className="text-right font-mono text-xs text-zoru-ink">
                                     {debit > 0 ? debit.toFixed(2) : ''}
-                                </ZoruTableCell>
-                                <ZoruTableCell className="text-right font-mono text-xs text-foreground">
+                                </TableCell>
+                                <TableCell className="text-right font-mono text-xs text-zoru-ink">
                                     {credit > 0 ? credit.toFixed(2) : ''}
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </TableCell>
+                            </TableRow>
                         );
                     })}
-                </ZoruTableBody>
+                </TableBody>
             </Table>
         </div>
-        <div className="mt-4 flex justify-end gap-6 border-t border-border pt-2 text-[13px] font-semibold text-foreground">
+        <div className="mt-4 flex justify-end gap-6 border-t border-zoru-line pt-4 text-[13px] font-semibold text-zoru-ink">
             <div className="text-right">
                 Debit: <span className="font-mono">₹{totalDebit.toFixed(2)}</span>
             </div>

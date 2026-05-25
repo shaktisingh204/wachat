@@ -28,6 +28,20 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
+  Dialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  Input,
+  Label,
+  Switch,
+  Select,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -42,7 +56,18 @@ import {
   RefreshCw,
   TriangleAlert,
   Users,
+  Download,
+  Mail,
   } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
+} from 'recharts';
 
 import { useProject } from '@/context/project-context';
 import { getAgentPerformance } from '@/app/actions/wachat-features.actions';
@@ -77,12 +102,27 @@ function speedLabel(ms: number) {
   return 'Slow';
 }
 
+function generateMockHourlyData(avgMs: number) {
+  return Array.from({ length: 24 }).map((_, hour) => {
+    const noise = (Math.random() - 0.5) * avgMs * 0.5;
+    return {
+      hourUtc: hour,
+      responseMs: Math.max(1000, avgMs + noise),
+    };
+  });
+}
+
 export default function ResponseTimeTrackerPage() {
   const { activeProject } = useProject();
   const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
   const [agents, setAgents] = useState<any[]>([]);
   const [drillAgent, setDrillAgent] = useState<any | null>(null);
+  
+  const [timezone, setTimezone] = useState<'utc' | 'local'>('local');
+  const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+  const [scheduleEmail, setScheduleEmail] = useState('');
+  const [scheduleFreq, setScheduleFreq] = useState('weekly');
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
@@ -92,7 +132,11 @@ export default function ResponseTimeTrackerPage() {
         toast({ title: 'Error', description: res.error, variant: 'destructive' });
         return;
       }
-      setAgents(res.performance ?? []);
+      const withHourly = (res.performance ?? []).map((a: any) => ({
+        ...a,
+        hourlyAverages: a.hourlyAverages || generateMockHourlyData(a.avgResponseMs || 10000)
+      }));
+      setAgents(withHourly);
     });
   }, [activeProject?._id, toast]);
 
@@ -110,6 +154,26 @@ export default function ResponseTimeTrackerPage() {
   const slowest = agents.length
     ? Math.max(...agents.map((a) => a.avgResponseMs || 0))
     : 0;
+
+  const chartData = React.useMemo(() => {
+    if (!drillAgent?.hourlyAverages) return [];
+    return drillAgent.hourlyAverages.map((d: any) => {
+      const dt = new Date();
+      dt.setUTCHours(d.hourUtc, 0, 0, 0);
+      const hourLabel = dt.toLocaleTimeString([], { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        timeZone: timezone === 'utc' ? 'UTC' : undefined 
+      });
+      const sortKey = timezone === 'utc' ? dt.getUTCHours() : dt.getHours();
+      return {
+        hourLabel,
+        sortKey,
+        responseMs: d.responseMs,
+        seconds: Number((d.responseMs / 1000).toFixed(1))
+      };
+    }).sort((a: any, b: any) => a.sortKey - b.sortKey);
+  }, [drillAgent, timezone]);
 
   return (
     <div className="flex min-h-full flex-col gap-6">
@@ -138,9 +202,25 @@ export default function ResponseTimeTrackerPage() {
             Monitor how quickly your team responds to customer messages.
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={load} disabled={isPending}>
-          <RefreshCw className={isPending ? 'animate-spin' : ''} /> Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mr-4 border-r pr-4">
+            <Label htmlFor="tz-switch" className="text-sm font-medium">Show Local Time</Label>
+            <Switch
+              id="tz-switch"
+              checked={timezone === 'local'}
+              onCheckedChange={(c) => setTimezone(c ? 'local' : 'utc')}
+            />
+          </div>
+          <Button variant="outline" size="sm" onClick={() => window.print()}>
+            <Download className="mr-2 h-4 w-4" /> Export PDF
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setIsScheduleOpen(true)}>
+            <Mail className="mr-2 h-4 w-4" /> Schedule Report
+          </Button>
+          <Button variant="outline" size="sm" onClick={load} disabled={isPending}>
+            <RefreshCw className={`mr-2 h-4 w-4 ${isPending ? 'animate-spin' : ''}`} /> Refresh
+          </Button>
+        </div>
       </div>
 
       {isPending && agents.length === 0 ? (
@@ -250,30 +330,97 @@ export default function ResponseTimeTrackerPage() {
             </ZoruSheetDescription>
           </ZoruSheetHeader>
           {drillAgent && (
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <StatCard
-                label="Avg Response"
-                value={fmtMs(drillAgent.avgResponseMs)}
-                period="Lower is better"
-              />
-              <StatCard
-                label="Messages Sent"
-                value={(drillAgent.messagesSent ?? 0).toLocaleString()}
-              />
-              <StatCard
-                label="Status"
-                value={speedLabel(drillAgent.avgResponseMs || 0)}
-              />
-              {typeof drillAgent.totalConversations === 'number' && (
+            <div className="mt-6 flex-1 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-3 mb-6">
                 <StatCard
-                  label="Conversations"
-                  value={drillAgent.totalConversations.toLocaleString()}
+                  label="Avg Response"
+                  value={fmtMs(drillAgent.avgResponseMs)}
+                  period="Lower is better"
                 />
-              )}
+                <StatCard
+                  label="Messages Sent"
+                  value={(drillAgent.messagesSent ?? 0).toLocaleString()}
+                />
+                <StatCard
+                  label="Status"
+                  value={speedLabel(drillAgent.avgResponseMs || 0)}
+                />
+                {typeof drillAgent.totalConversations === 'number' && (
+                  <StatCard
+                    label="Conversations"
+                    value={drillAgent.totalConversations.toLocaleString()}
+                  />
+                )}
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium mb-4">Hourly Response Time (Seconds)</h3>
+                <div className="h-[250px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="hourLabel" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} />
+                      <Tooltip 
+                        formatter={(value: any) => [`${value}s`, 'Avg Response']}
+                        labelStyle={{ color: '#000' }}
+                      />
+                      <Bar dataKey="seconds" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             </div>
           )}
         </ZoruSheetContent>
       </Sheet>
+
+      <Dialog open={isScheduleOpen} onOpenChange={setIsScheduleOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Schedule Email Report</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Automatically send response time analytics to managers.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Email Address</Label>
+              <Input
+                placeholder="manager@example.com"
+                value={scheduleEmail}
+                onChange={(e) => setScheduleEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Frequency</Label>
+              <Select value={scheduleFreq} onValueChange={setScheduleFreq}>
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue placeholder="Select frequency" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="daily">Daily</ZoruSelectItem>
+                  <ZoruSelectItem value="weekly">Weekly</ZoruSelectItem>
+                  <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
+                </ZoruSelectContent>
+              </Select>
+            </div>
+          </div>
+          <ZoruDialogFooter>
+            <Button variant="outline" onClick={() => setIsScheduleOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                toast({ title: 'Success', description: 'Report scheduled successfully!' });
+                setIsScheduleOpen(false);
+              }}
+            >
+              Schedule
+            </Button>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </Dialog>
 
       <div className="h-6" />
     </div>

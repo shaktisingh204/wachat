@@ -53,7 +53,6 @@ type KpiGridProps = {
   velocity: any;
   derived: any;
   currency: string;
-  onExport: (timeRange: TimeRange) => void;
 };
 
 function SortableKpiTile({ id, kpiData }: { id: string, kpiData: any }) {
@@ -80,7 +79,7 @@ function SortableKpiTile({ id, kpiData }: { id: string, kpiData: any }) {
   );
 }
 
-export function KpiGrid({ stats, velocity, derived, currency, onExport }: KpiGridProps) {
+export function KpiGrid({ stats, velocity, derived, currency }: KpiGridProps) {
   const router = useRouter();
   const [timeRange, setTimeRange] = useState<TimeRange>("7d");
   
@@ -297,10 +296,6 @@ export function KpiGrid({ stats, velocity, derived, currency, onExport }: KpiGri
               </ZoruDropdownMenuItem>
             </ZoruDropdownMenuContent>
           </DropdownMenu>
-
-          <Button variant="outline" size="sm" onClick={() => onExport(timeRange)}>
-            <Download /> Export
-          </Button>
         </div>
       </div>
 

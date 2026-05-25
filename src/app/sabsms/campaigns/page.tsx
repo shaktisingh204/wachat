@@ -12,7 +12,7 @@ import {
   SortingState,
   ColumnFiltersState,
 } from "@tanstack/react-table";
-import { format } from "date-fns";
+import { fmtDate, formatUTC } from "@/lib/utils";
 import {
   Search,
   Filter,
@@ -256,8 +256,8 @@ export default function CampaignsPage() {
           const date = new Date(row.getValue("createdAt") as string);
           return (
             <div className="flex flex-col text-xs text-zoru-ink-muted font-medium">
-              <span>{format(date, "MMM d, yyyy")}</span>
-              <span>{format(date, "h:mm a")}</span>
+              <span>{fmtDate(date)}</span>
+              <span>{formatUTC(date, true).split(", ")[1]}</span>
             </div>
           );
         },

@@ -18,6 +18,8 @@ export interface TeamMemberRow {
   twoFactorEnabled: boolean;
   alertSubscriptions: string[];
   outOfOffice: boolean;
+  allowedCampaigns?: string;
+  allowedTags?: string;
 }
 
 export interface MemberAuditEntry {
@@ -113,7 +115,21 @@ export async function updateMemberCaps(data: {
   return { ok: true };
 }
 
+export async function updateMemberDataAccess(data: {
+  memberId: string;
+  allowedCampaigns?: string;
+  allowedTags?: string;
+}) {
+  await new Promise((r) => setTimeout(r, 200));
+  return { ok: true };
+}
+
 export async function revokeInvite(data: { memberId: string }) {
+  await new Promise((r) => setTimeout(r, 200));
+  return { ok: true };
+}
+
+export async function removeMember(data: { memberId: string }) {
   await new Promise((r) => setTimeout(r, 200));
   return { ok: true };
 }

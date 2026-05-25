@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 /**
  * hr-detail-loader — server-side helpers for HR detail pages.
  *
@@ -58,15 +59,10 @@ export function fmtDate(value: unknown): string {
   if (!value) return '—';
   const d = new Date(value as any);
   if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString();
+  return fmtDate(d);
 }
 
-export function fmtDateTime(value: unknown): string {
-  if (!value) return '—';
-  const d = new Date(value as any);
-  if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleString();
-}
+export 
 
 export function fmtCurrency(value: unknown, currency = 'INR'): string {
   if (value === null || value === undefined || value === '') return '—';

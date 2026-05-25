@@ -29,8 +29,6 @@ import {
 } from '@/app/actions/crm-erase-requests.actions';
 import type { EntityKey } from '@/lib/lookup-registry';
 
-export const dynamic = 'force-dynamic';
-
 const SUBJECT_KINDS: { value: EraseSubjectKind; entity: EntityKey; label: string }[] = [
     { value: 'contact', entity: 'contact', label: 'Contact' },
     { value: 'lead', entity: 'lead', label: 'Lead' },

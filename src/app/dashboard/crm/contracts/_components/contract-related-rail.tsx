@@ -17,6 +17,14 @@ function daysBetween(start: unknown, end: unknown): number | null {
   return Math.round((e.getTime() - s.getTime()) / 86_400_000);
 }
 
+// Fixed date formatter for hydration stability
+function formatDate(d: unknown): string {
+  if (!d) return '—';
+  const dt = new Date(d as string);
+  if (Number.isNaN(dt.getTime())) return '—';
+  return dt.toISOString().slice(0, 10);
+}
+
 interface ContractRelatedRailProps {
   contractId: string;
   status?: string;
@@ -140,15 +148,13 @@ export function ContractRelatedRail({
               <div className="flex justify-between">
                 <span className="text-zoru-ink-muted">Start</span>
                 <span>
-                  {new Date(startDate as string).toLocaleDateString()}
+                  {formatDate(startDate)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zoru-ink-muted">End</span>
                 <span>
-                  {endDate
-                    ? new Date(endDate as string).toLocaleDateString()
-                    : '—'}
+                  {formatDate(endDate)}
                 </span>
               </div>
             </div>

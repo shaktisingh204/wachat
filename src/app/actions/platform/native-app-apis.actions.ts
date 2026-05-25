@@ -1,5 +1,7 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
+
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { z } from 'zod';
@@ -35,6 +37,9 @@ export async function createNativeAppAPIKey(data: any): Promise<{ key: string, r
     createdAt: new Date(),
   };
   const res = await db.collection(collectionName).insertOne(newDoc);
+  
+  revalidatePath('/dashboard/platform/native-app-apis');
+  
   return {
     key: fullKey,
     record: {
@@ -49,5 +54,6 @@ export async function createNativeAppAPIKey(data: any): Promise<{ key: string, r
 export async function deleteNativeAppAPIKey(id: string): Promise<boolean> {
   const { db } = await connectToDatabase();
   const res = await db.collection(collectionName).deleteOne({ _id: new ObjectId(id) });
+  revalidatePath('/dashboard/platform/native-app-apis');
   return res.deletedCount === 1;
 }

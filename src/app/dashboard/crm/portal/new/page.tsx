@@ -36,8 +36,6 @@ function linkedEntityForPortalType(portalType: string): EntityKey {
   return 'client';
 }
 
-export const dynamic = 'force-dynamic';
-
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (

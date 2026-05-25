@@ -15,6 +15,12 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
+  Select,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  Input,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -28,6 +34,7 @@ import {
   getCrmEntityTimeline,
   getCrmContactLineage,
   addCrmNote,
+  updateCrmContact,
   } from '@/app/actions/crm.actions';
 import { getCrmAccountById } from '@/app/actions/crm-accounts.actions';
 import { getCrmDeals } from '@/app/actions/crm-deals.actions';
@@ -49,6 +56,7 @@ import {
   Pencil,
   Linkedin,
   Twitter,
+  X,
   } from 'lucide-react';
 import Link from 'next/link';
 import { RelatedRail } from '@/components/crm/RelatedRail';
@@ -174,6 +182,60 @@ export default function CrmContactDetailPage() {
       setTimelineItems(refreshed.items);
     }
     return true;
+  };
+
+  const saveContactUpdates = async (updates: Partial<CrmContact>) => {
+    if (!contact) return;
+    
+    // optimistic update
+    const previousContact = { ...contact };
+    const updatedContact = { ...contact, ...updates };
+    setContact(updatedContact as WithId<CrmContact>);
+
+    const formData = new FormData();
+    formData.append('contactId', contact._id.toString());
+    formData.append('name', updatedContact.name);
+    formData.append('email', updatedContact.email);
+    if (updatedContact.phone) formData.append('phone', updatedContact.phone);
+    if (updatedContact.company) formData.append('company', updatedContact.company);
+    if (updatedContact.jobTitle) formData.append('jobTitle', updatedContact.jobTitle);
+    formData.append('status', updatedContact.status);
+    if (updatedContact.leadScore != null) formData.append('leadScore', updatedContact.leadScore.toString());
+    if (updatedContact.linkedinUrl) formData.append('linkedinUrl', updatedContact.linkedinUrl);
+    if (updatedContact.twitterHandle) formData.append('twitterHandle', updatedContact.twitterHandle);
+    if (updatedContact.lifecycleStage) formData.append('lifecycleStage', updatedContact.lifecycleStage);
+    if (updatedContact.source) formData.append('source', updatedContact.source);
+    if (updatedContact.owner) formData.append('owner', updatedContact.owner);
+    const tagsToSave = updatedContact.tags ? updatedContact.tags.join(',') : '';
+    formData.append('tags', tagsToSave);
+    if (updatedContact.dateOfBirth) formData.append('dateOfBirth', new Date(updatedContact.dateOfBirth).toISOString());
+    if (updatedContact.timezone) formData.append('timezone', updatedContact.timezone);
+    if (updatedContact.accountId) formData.append('accountId', updatedContact.accountId.toString());
+
+    const res = await updateCrmContact({}, formData);
+    
+    if (res.error) {
+      console.error('Failed to update contact:', res.error);
+      setContact(previousContact); // revert
+    }
+  };
+
+  const handleAddTag = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const value = e.currentTarget.value.trim();
+      if (!value) return;
+      if (contact?.tags?.includes(value)) return;
+      
+      const newTags = [...(contact?.tags || []), value];
+      e.currentTarget.value = '';
+      await saveContactUpdates({ tags: newTags });
+    }
+  };
+
+  const handleRemoveTag = async (tagToRemove: string) => {
+    const newTags = contact?.tags?.filter(t => t !== tagToRemove) || [];
+    await saveContactUpdates({ tags: newTags });
   };
 
   if (isLoading || !contact) {
@@ -333,8 +395,42 @@ export default function CrmContactDetailPage() {
                     Lifecycle Status
                   </p>
                   <div className="mt-1.5">
-                    <Badge variant="danger">{contact.status}</Badge>
+                    <Select value={contact.status} onValueChange={(val) => saveContactUpdates({ status: val as any })}>
+                      <ZoruSelectTrigger className="w-[140px] h-8 text-xs">
+                        <ZoruSelectValue placeholder="Status" />
+                      </ZoruSelectTrigger>
+                      <ZoruSelectContent>
+                        <ZoruSelectItem value="new_lead">New Lead</ZoruSelectItem>
+                        <ZoruSelectItem value="contacted">Contacted</ZoruSelectItem>
+                        <ZoruSelectItem value="qualified">Qualified</ZoruSelectItem>
+                        <ZoruSelectItem value="unqualified">Unqualified</ZoruSelectItem>
+                        <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
+                        <ZoruSelectItem value="imported">Imported</ZoruSelectItem>
+                      </ZoruSelectContent>
+                    </Select>
                   </div>
+                </div>
+
+                <div className="pt-2">
+                  <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted font-bold mb-2">
+                    Tags
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {contact.tags?.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="flex items-center gap-1 px-1.5 py-0">
+                        {tag}
+                        <X 
+                          className="h-3 w-3 cursor-pointer hover:text-red-500" 
+                          onClick={() => handleRemoveTag(tag)} 
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                  <Input 
+                    placeholder="Add a tag and press Enter..." 
+                    className="h-7 text-xs bg-transparent border-zoru-line"
+                    onKeyDown={handleAddTag}
+                  />
                 </div>
               </div>
             </Card>

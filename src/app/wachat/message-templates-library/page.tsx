@@ -42,8 +42,9 @@ import {
   } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { getTemplates } from '@/app/actions/template.actions';
+import { getTemplates, saveLibraryTemplate } from '@/app/actions/template.actions';
 import { premadeTemplates } from '@/lib/premade-templates';
+import { useRouter } from 'next/navigation';
 
 /**
  * Wachat Message Templates Library — browse project templates +
@@ -73,6 +74,8 @@ export default function MessageTemplatesLibraryPage() {
   const [tab, setTab] = useState<'project' | 'premade'>('project');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [cloneTarget, setCloneTarget] = useState<LibraryRow | null>(null);
+  const [publishingId, setPublishingId] = useState<string | null>(null);
+  const router = useRouter();
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
@@ -94,6 +97,46 @@ export default function MessageTemplatesLibraryPage() {
       description: `"${name}" copied to clipboard.`,
     });
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleClone = (t: LibraryRow) => {
+    const params = new URLSearchParams();
+    params.set('cloneName', t.name);
+    params.set('cloneCategory', t.category);
+    params.set('cloneBody', t.body);
+    router.push(`/wachat/template-builder?${params.toString()}`);
+  };
+
+  const handlePublish = async (t: LibraryRow) => {
+    setPublishingId(t.id);
+    const formData = new FormData();
+    formData.append('name', t.name);
+    formData.append('category', t.category);
+    formData.append('language', 'en_US');
+    formData.append('body', t.body);
+
+    const sourceTpl = projectTemplates.find((pt) => String(pt._id) === t.id);
+    if (sourceTpl?.components) {
+      formData.append('components', JSON.stringify(sourceTpl.components));
+    } else {
+      formData.append('components', JSON.stringify([]));
+    }
+
+    const res = await saveLibraryTemplate(null, formData);
+    setPublishingId(null);
+    if (res?.error) {
+      toast({
+        title: 'Error publishing',
+        description: res.error,
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'Published',
+        description: 'Template successfully published to the community library.',
+      });
+      load();
+    }
   };
 
   const projectRows: LibraryRow[] = projectTemplates.map((t: any) => ({
@@ -164,7 +207,7 @@ export default function MessageTemplatesLibraryPage() {
               <p className="line-clamp-3 flex-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
                 {t.body}
               </p>
-              <div className="mt-3 flex items-center gap-2">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -176,6 +219,19 @@ export default function MessageTemplatesLibraryPage() {
                 <Button size="sm" onClick={() => setCloneTarget(t)}>
                   Use template
                 </Button>
+                {tab === 'project' && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handlePublish(t)}
+                    disabled={publishingId === t.id}
+                  >
+                    {publishingId === t.id ? (
+                      <Loader2 className="animate-spin mr-1 h-4 w-4" />
+                    ) : null}
+                    Publish
+                  </Button>
+                )}
               </div>
             </ZoruCardContent>
           </Card>
@@ -291,18 +347,14 @@ export default function MessageTemplatesLibraryPage() {
               Cancel
             </Button>
             <Button
-              onClick={async () => {
+              onClick={() => {
                 if (cloneTarget) {
-                  await handleCopy(
-                    cloneTarget.body,
-                    cloneTarget.id,
-                    cloneTarget.name,
-                  );
+                  handleClone(cloneTarget);
                 }
                 setCloneTarget(null);
               }}
             >
-              <Copy /> Copy &amp; close
+              Open Builder
             </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>

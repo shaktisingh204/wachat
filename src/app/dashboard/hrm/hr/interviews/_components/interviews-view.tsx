@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 'use client';
 
 import { useZoruToast } from '@/components/zoruui';
@@ -213,7 +214,7 @@ export function InterviewsView({ initial }: { initial: Interview[] }) {
       key: 'scheduledAt',
       label: 'Slot',
       render: (r) =>
-        r.scheduledAt ? new Date(r.scheduledAt).toLocaleString() : '—',
+        r.scheduledAt ? fmtDate(r.scheduledAt, true) : '—',
     },
     {
       key: 'result',

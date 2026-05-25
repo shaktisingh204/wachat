@@ -1,4 +1,4 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 import { notFound } from 'next/navigation';
 import { withTimeout } from '../lib/timeout';
 import { fmtINR } from '@/lib/utils';
@@ -22,6 +22,8 @@ import {
 import { BomDetailActions } from '../_components/bom-detail-actions';
 import { BomDetailRail } from '../_components/bom-detail-rail';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,7 +34,13 @@ interface PageProps {
 function formatDate(value: unknown): string {
   if (!value) return '—';
   const d = new Date(value as string);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  if (Number.isNaN(d.getTime())) return '—';
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(d);
 }
 
 function statusTone(status: string | undefined): EntityStatusTone {
@@ -41,6 +49,47 @@ function statusTone(status: string | undefined): EntityStatusTone {
   if (s === 'draft' || s === 'pending') return 'neutral';
   if (s === 'cancelled' || s === 'expired' || s === 'archived') return 'red';
   return 'amber';
+}
+
+function RightRailSkeleton() {
+  return (
+    <div className="flex flex-col gap-4">
+      <Card>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Versions / variants</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent className="p-0">
+          <div className="space-y-3 px-4 py-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+        </ZoruCardContent>
+      </Card>
+      <Card>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Related production orders</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent className="p-0">
+          <div className="space-y-3 px-4 py-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+        </ZoruCardContent>
+      </Card>
+    </div>
+  );
+}
+
+async function RightRailContainer({ finishedGoodId, bomId }: { finishedGoodId: string | undefined, bomId: string }) {
+  const [versions, productionOrders] = await withTimeout(
+    Promise.all([
+      getBomVersionsForFinishedGood(finishedGoodId, bomId),
+      getProductionOrdersForBom(bomId),
+    ]),
+    10000
+  );
+
+  return <BomDetailRail versions={versions} productionOrders={productionOrders} />;
 }
 
 export default async function BomDetailPage({ params }: PageProps) {
@@ -55,14 +104,6 @@ export default async function BomDetailPage({ params }: PageProps) {
     bom.finishedGoodId && typeof bom.finishedGoodId !== 'string'
       ? bom.finishedGoodId.toString?.()
       : bom.finishedGoodId;
-
-  const [versions, productionOrders] = await withTimeout(
-    Promise.all([
-      getBomVersionsForFinishedGood(finishedGoodId, id),
-      getProductionOrdersForBom(id),
-    ]),
-    10000
-  );
 
   const materialCost = components.reduce((sum: number, c: CrmBomComponent) => {
     const qty = Number.isFinite(c.qty) ? c.qty : 0;
@@ -88,7 +129,11 @@ export default async function BomDetailPage({ params }: PageProps) {
           active={active}
         />
       }
-      rightRail={<BomDetailRail versions={versions} productionOrders={productionOrders} />}
+      rightRail={
+        <Suspense fallback={<RightRailSkeleton />}>
+          <RightRailContainer finishedGoodId={finishedGoodId} bomId={id} />
+        </Suspense>
+      }
       audit={<EntityAuditTimeline entityKind="bom" entityId={id} />}
     >
       <Card>
@@ -152,41 +197,30 @@ export default async function BomDetailPage({ params }: PageProps) {
           {components.length === 0 ? (
             <p className="text-sm text-zinc-500">No components yet.</p>
           ) : (
-            <div className="overflow-x-auto rounded border border-zinc-200 dark:border-zinc-800">
-              <table className="w-full text-sm">
-                <thead className="bg-zinc-50 dark:bg-zinc-900/50">
-                  <tr>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-zinc-500">Item</th>
-                    <th className="px-3 py-2 text-right text-xs font-medium text-zinc-500">Qty</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-zinc-500">Unit</th>
-                    <th className="px-3 py-2 text-right text-xs font-medium text-zinc-500">
-                      Scrap %
-                    </th>
-                    <th className="px-3 py-2 text-right text-xs font-medium text-zinc-500">
-                      Cost / unit
-                    </th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-zinc-500">
-                      Optional
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {components.map((c: CrmBomComponent, idx: number) => (
-                    <tr
-                      key={`${c.itemName}-${idx}`}
-                      className="border-t border-zinc-200 dark:border-zinc-800"
-                    >
-                      <td className="px-3 py-2">{c.itemName || '—'}</td>
-                      <td className="px-3 py-2 text-right">{c.qty}</td>
-                      <td className="px-3 py-2">{c.unit || '—'}</td>
-                      <td className="px-3 py-2 text-right">{c.scrapPct ?? 0}</td>
-                      <td className="px-3 py-2 text-right">{fmtINR(c.costPerUnit)}</td>
-                      <td className="px-3 py-2">{c.optional ? 'Yes' : 'No'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Table>
+              <ZoruTableHeader>
+                <ZoruTableRow>
+                  <ZoruTableHead>Item</ZoruTableHead>
+                  <ZoruTableHead className="text-right">Qty</ZoruTableHead>
+                  <ZoruTableHead>Unit</ZoruTableHead>
+                  <ZoruTableHead className="text-right">Scrap %</ZoruTableHead>
+                  <ZoruTableHead className="text-right">Cost / unit</ZoruTableHead>
+                  <ZoruTableHead>Optional</ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
+                {components.map((c: CrmBomComponent, idx: number) => (
+                  <ZoruTableRow key={`${c.itemName}-${idx}`}>
+                    <ZoruTableCell>{c.itemName || '—'}</ZoruTableCell>
+                    <ZoruTableCell className="text-right">{c.qty}</ZoruTableCell>
+                    <ZoruTableCell>{c.unit || '—'}</ZoruTableCell>
+                    <ZoruTableCell className="text-right">{c.scrapPct ?? 0}</ZoruTableCell>
+                    <ZoruTableCell className="text-right">{fmtINR(c.costPerUnit)}</ZoruTableCell>
+                    <ZoruTableCell>{c.optional ? 'Yes' : 'No'}</ZoruTableCell>
+                  </ZoruTableRow>
+                ))}
+              </ZoruTableBody>
+            </Table>
           )}
         </ZoruCardContent>
       </Card>

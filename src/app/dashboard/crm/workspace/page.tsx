@@ -7,6 +7,8 @@ import {
     Bell,
     StickyNote,
     Sparkles,
+    Folder,
+    Video,
 } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -41,6 +43,8 @@ const QUICK_LINKS: HubQuickLink[] = [
     { href: '/dashboard/crm/workspace/notices', title: 'Notices', description: 'Time-sensitive notices and reminders.', icon: Bell },
     { href: '/dashboard/crm/workspace/awards', title: 'Awards', description: 'Recognise teammates with badges and awards.', icon: Award },
     { href: '/dashboard/crm/workspace/events', title: 'Events', description: 'Upcoming workspace events and meetings.', icon: CalendarDays },
+    { href: '/dashboard/crm/workspace/meetings', title: 'Meetings', description: 'Schedule and manage team video conference calls.', icon: Video },
+    { href: '/dashboard/crm/workspace/documents', title: 'Documents', description: 'Access verification documents and files library.', icon: Folder },
     { href: '/dashboard/crm/workspace/discussions', title: 'Discussions', description: 'Long-form threaded discussions.', icon: MessageSquare },
     { href: '/dashboard/crm/workspace/sticky-notes', title: 'Sticky Notes', description: 'Personal and shared notes on the workspace board.', icon: StickyNote },
     { href: '/dashboard/crm/workspace/knowledge-base', title: 'Knowledge Base', description: 'Internal documentation and runbooks.', icon: BookOpen },

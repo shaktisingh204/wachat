@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 "use client";
 
 import {
@@ -94,6 +95,7 @@ export default function NotificationsPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [filter, setFilter] = useState("");
   const [appFilter, setAppFilter] = useState("ALL");
+  const [readFilter, setReadFilter] = useState("ALL");
   const { toast } = useZoruToast();
   const router = useRouter();
   const { activeProjectId } = useProject();
@@ -103,7 +105,7 @@ export default function NotificationsPage() {
   }, []);
 
   const fetchNotifications = useCallback(
-    async (page: number, currentFilter: string, showToast = false) => {
+    async (page: number, currentFilter: string, currentAppFilter: string, currentReadFilter: string, showToast = false) => {
       startRefreshTransition(async () => {
         try {
           const { notifications: next, total } = await getAllNotifications(
@@ -111,6 +113,8 @@ export default function NotificationsPage() {
             NOTIFICATIONS_PER_PAGE,
             currentFilter,
             activeProjectId,
+            currentAppFilter,
+            currentReadFilter
           );
           setNotifications(next);
           setTotalPages(Math.ceil(total / NOTIFICATIONS_PER_PAGE));
@@ -134,8 +138,8 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetchNotifications(currentPage, filter).finally(() => setLoading(false));
-  }, [currentPage, filter, fetchNotifications]);
+    fetchNotifications(currentPage, filter, appFilter, readFilter).finally(() => setLoading(false));
+  }, [currentPage, filter, appFilter, readFilter, fetchNotifications]);
 
   const handleEventFilterChange = (next: string) => {
     setFilter(next === "ALL" ? "" : next);
@@ -183,7 +187,7 @@ export default function NotificationsPage() {
               : "No new notifications to mark as read.",
         });
         if (count > 0) {
-          fetchNotifications(1, filter);
+          fetchNotifications(1, filter, appFilter, readFilter);
           setCurrentPage(1);
         }
       } else {
@@ -196,11 +200,7 @@ export default function NotificationsPage() {
     });
   };
 
-  const filteredNotifications = notifications.filter((n) => {
-    if (appFilter === "ALL") return true;
-    if (appFilter === "system") return !n.sourceApp || n.sourceApp === "system";
-    return n.sourceApp === appFilter;
-  });
+  const filteredNotifications = notifications;
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
@@ -247,7 +247,7 @@ export default function NotificationsPage() {
           </Select>
 
           <Select defaultValue="ALL" onValueChange={handleEventFilterChange}>
-            <ZoruSelectTrigger className="w-[180px]">
+            <ZoruSelectTrigger className="w-[150px]">
               <Filter className="h-4 w-4 text-zoru-ink-muted" />
               <ZoruSelectValue placeholder="Event type" />
             </ZoruSelectTrigger>
@@ -258,6 +258,24 @@ export default function NotificationsPage() {
                   {et.label}
                 </ZoruSelectItem>
               ))}
+            </ZoruSelectContent>
+          </Select>
+
+          <Select
+            defaultValue="ALL"
+            onValueChange={(v) => {
+              setReadFilter(v);
+              setCurrentPage(1);
+            }}
+          >
+            <ZoruSelectTrigger className="w-[140px]">
+              <Bell className="h-4 w-4 text-zoru-ink-muted" />
+              <ZoruSelectValue placeholder="Read status" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              <ZoruSelectItem value="ALL">All status</ZoruSelectItem>
+              <ZoruSelectItem value="unread">Unread</ZoruSelectItem>
+              <ZoruSelectItem value="read">Read</ZoruSelectItem>
             </ZoruSelectContent>
           </Select>
 
@@ -287,7 +305,7 @@ export default function NotificationsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => fetchNotifications(currentPage, filter, true)}
+            onClick={() => fetchNotifications(currentPage, filter, appFilter, readFilter, true)}
             disabled={isRefreshing || isMarkingRead}
           >
             <RefreshCw
@@ -335,7 +353,7 @@ export default function NotificationsPage() {
                         : "System Notification"}
                     </p>
                     <p className="text-[11px] text-zoru-ink-muted">
-                      {new Date(n.createdAt).toLocaleString()}
+                      {fmtDate(n.createdAt)}
                     </p>
                   </div>
                   <p className="text-sm leading-snug text-zoru-ink-muted">

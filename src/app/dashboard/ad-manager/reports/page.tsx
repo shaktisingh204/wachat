@@ -20,19 +20,15 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
+  Checkbox,
 } from '@/components/zoruui';
-import {
-  useRouter } from 'next/navigation';
-import { FileText,
-  Plus,
-  Download,
-  Calendar,
-  Mail,
-  Save,
-  Trash2 } from 'lucide-react';
-
+import { useRouter } from 'next/navigation';
+import { FileText, Plus, Download, Calendar, Mail, Save, Trash2, Search, Loader2 } from 'lucide-react';
 import * as React from 'react';
 import Link from 'next/link';
+import { useForm, Controller } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
@@ -54,17 +50,13 @@ type SavedReport = {
     createdAt: string;
 };
 
-function getSavedReports(): SavedReport[] {
-    try {
-        return JSON.parse(localStorage.getItem('ad-manager-saved-reports') || '[]');
-    } catch {
-        return [];
-    }
-}
+const createReportSchema = z.object({
+  name: z.string().min(1, 'Report name is required'),
+  dateRange: z.string(),
+  level: z.string(),
+});
 
-function saveSavedReports(reports: SavedReport[]) {
-    localStorage.setItem('ad-manager-saved-reports', JSON.stringify(reports));
-}
+type CreateReportFormValues = z.infer<typeof createReportSchema>;
 
 export default function ReportsPage() {
     const router = useRouter();
@@ -72,13 +64,92 @@ export default function ReportsPage() {
     const [createOpen, setCreateOpen] = React.useState(false);
     const fileRef = React.useRef<HTMLInputElement>(null);
     const [savedReports, setSavedReports] = React.useState<SavedReport[]>([]);
-    const [newReportName, setNewReportName] = React.useState('');
-    const [newReportDateRange, setNewReportDateRange] = React.useState('last_7d');
-    const [newReportLevel, setNewReportLevel] = React.useState('campaign');
+    const [isHydrated, setIsHydrated] = React.useState(false);
+    const [searchQuery, setSearchQuery] = React.useState('');
+    const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+
+    const { register, handleSubmit, control, reset, formState: { errors } } = useForm<CreateReportFormValues>({
+      resolver: zodResolver(createReportSchema),
+      defaultValues: {
+        name: '',
+        dateRange: 'last_7d',
+        level: 'campaign',
+      }
+    });
 
     React.useEffect(() => {
-        setSavedReports(getSavedReports());
+        try {
+            const stored = JSON.parse(localStorage.getItem('ad-manager-saved-reports') || '[]');
+            setSavedReports(stored);
+        } catch {
+            setSavedReports([]);
+        }
+        setIsHydrated(true);
     }, []);
+
+    const updateReports = (newReports: SavedReport[]) => {
+        setSavedReports(newReports);
+        localStorage.setItem('ad-manager-saved-reports', JSON.stringify(newReports));
+    };
+
+    const toggleSelect = (id: string) => {
+        const next = new Set(selectedIds);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        setSelectedIds(next);
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedIds.size === filteredReports.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(filteredReports.map(r => r.id)));
+        }
+    };
+
+    const deleteSelected = () => {
+        const newReports = savedReports.filter(r => !selectedIds.has(r.id));
+        updateReports(newReports);
+        setSelectedIds(new Set());
+        toast({ title: 'Selected reports deleted' });
+    };
+
+    const exportToCSV = () => {
+        const reportsToExport = savedReports.filter(r => selectedIds.size === 0 || selectedIds.has(r.id));
+        if (reportsToExport.length === 0) return;
+
+        const headers = ['ID', 'Name', 'Date Range', 'Level', 'Created At'];
+        const csvContent = [
+            headers.join(','),
+            ...reportsToExport.map(r => `"${r.id}","${r.name.replace(/"/g, '""')}","${r.dateRange}","${r.level}","${r.createdAt}"`)
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'reports_export.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast({ title: 'Reports exported successfully' });
+    };
+
+    const onSubmit = (data: CreateReportFormValues) => {
+        const report: SavedReport = {
+            id: Date.now().toString(),
+            name: data.name,
+            dateRange: data.dateRange,
+            level: data.level,
+            createdAt: new Date().toISOString(),
+        };
+        updateReports([...savedReports, report]);
+        toast({ title: 'Report saved' });
+        setCreateOpen(false);
+        reset();
+    };
+
+    const filteredReports = savedReports.filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
     return (
         <div className="space-y-6">
@@ -131,59 +202,110 @@ export default function ReportsPage() {
                 </div>
             </div>
 
-            <div>
-                <h2 className="text-sm font-semibold mb-2">Saved reports</h2>
-                {savedReports.length === 0 ? (
+            <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <h2 className="text-sm font-semibold">Saved reports</h2>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <div className="relative">
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                type="text"
+                                placeholder="Search reports..."
+                                className="pl-9 w-[200px] h-9"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                        {selectedIds.size > 0 && (
+                            <>
+                                <Button size="sm" variant="destructive" onClick={deleteSelected}>
+                                    <Trash2 className="h-4 w-4 mr-1" /> Delete ({selectedIds.size})
+                                </Button>
+                            </>
+                        )}
+                        <Button size="sm" variant="outline" onClick={exportToCSV} disabled={savedReports.length === 0}>
+                            <Download className="h-4 w-4 mr-1" /> Export {selectedIds.size > 0 ? `(${selectedIds.size})` : ''}
+                        </Button>
+                    </div>
+                </div>
+
+                {!isHydrated ? (
+                    <div className="py-12 flex justify-center items-center text-muted-foreground">
+                        <Loader2 className="h-8 w-8 animate-spin" />
+                    </div>
+                ) : filteredReports.length === 0 ? (
                     <Card className="border-dashed">
                         <ZoruCardContent className="py-12 text-center">
                             <Calendar className="h-10 w-10 mx-auto text-muted-foreground" />
-                            <p className="mt-3 font-medium">No saved reports yet</p>
+                            <p className="mt-3 font-medium">No saved reports found</p>
                             <p className="text-sm text-muted-foreground">
-                                Create and save a custom report to see it here.
+                                {searchQuery ? 'Try adjusting your search query.' : 'Create and save a custom report to see it here.'}
                             </p>
                         </ZoruCardContent>
                     </Card>
                 ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {savedReports.map((r) => (
-                            <Card key={r.id} className="hover:border-[#1877F2]/50 transition-colors">
-                                <ZoruCardHeader className="pb-2">
-                                    <div className="flex items-start justify-between">
-                                        <ZoruCardTitle className="text-base">{r.name}</ZoruCardTitle>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-7 w-7 text-muted-foreground hover:text-red-600"
-                                            onClick={() => {
-                                                const updated = savedReports.filter((s) => s.id !== r.id);
-                                                setSavedReports(updated);
-                                                saveSavedReports(updated);
-                                                toast({ title: 'Report deleted' });
-                                            }}
-                                        >
-                                            <Trash2 className="h-3.5 w-3.5" />
-                                        </Button>
+                    <>
+                        {filteredReports.length > 0 && (
+                            <div className="flex items-center space-x-2 px-1">
+                                <Checkbox 
+                                    id="select-all" 
+                                    checked={selectedIds.size === filteredReports.length && filteredReports.length > 0} 
+                                    onCheckedChange={toggleSelectAll} 
+                                />
+                                <label htmlFor="select-all" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                    Select All
+                                </label>
+                            </div>
+                        )}
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {filteredReports.map((r) => (
+                                <Card key={r.id} className="hover:border-[#1877F2]/50 transition-colors relative">
+                                    <div className="absolute top-4 left-4 z-10">
+                                        <Checkbox 
+                                            checked={selectedIds.has(r.id)} 
+                                            onCheckedChange={() => toggleSelect(r.id)} 
+                                        />
                                     </div>
-                                </ZoruCardHeader>
-                                <ZoruCardContent>
-                                    <p className="text-xs text-muted-foreground">
-                                        {r.dateRange.replace(/_/g, ' ')} &middot; {r.level} level
-                                    </p>
-                                    <p className="text-[10px] text-muted-foreground mt-1">
-                                        Saved {new Date(r.createdAt).toLocaleDateString()}
-                                    </p>
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="mt-2 w-full"
-                                        onClick={() => router.push('/dashboard/ad-manager/insights')}
-                                    >
-                                        Open
-                                    </Button>
-                                </ZoruCardContent>
-                            </Card>
-                        ))}
-                    </div>
+                                    <ZoruCardHeader className="pb-2 pl-12">
+                                        <div className="flex items-start justify-between">
+                                            <ZoruCardTitle className="text-base truncate pr-2" title={r.name}>{r.name}</ZoruCardTitle>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-7 w-7 text-muted-foreground hover:text-red-600 shrink-0"
+                                                onClick={() => {
+                                                    const updated = savedReports.filter((s) => s.id !== r.id);
+                                                    updateReports(updated);
+                                                    const nextSelected = new Set(selectedIds);
+                                                    nextSelected.delete(r.id);
+                                                    setSelectedIds(nextSelected);
+                                                    toast({ title: 'Report deleted' });
+                                                }}
+                                            >
+                                                <Trash2 className="h-3.5 w-3.5" />
+                                            </Button>
+                                        </div>
+                                    </ZoruCardHeader>
+                                    <ZoruCardContent className="pl-12">
+                                        <p className="text-xs text-muted-foreground">
+                                            {r.dateRange.replace(/_/g, ' ')} &middot; {r.level} level
+                                        </p>
+                                        <p className="text-[10px] text-muted-foreground mt-1">
+                                            Saved {new Date(r.createdAt).toLocaleDateString()}
+                                        </p>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="mt-3 w-full"
+                                            onClick={() => router.push('/dashboard/ad-manager/insights')}
+                                        >
+                                            Open
+                                        </Button>
+                                    </ZoruCardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    </>
                 )}
             </div>
 
@@ -193,71 +315,66 @@ export default function ReportsPage() {
                         <ZoruDialogTitle>Create Custom Report</ZoruDialogTitle>
                         <ZoruDialogDescription>Choose metrics, dimensions, and date range for your report.</ZoruDialogDescription>
                     </ZoruDialogHeader>
-                    <div className="space-y-4">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div className="space-y-2">
                             <Label>Report Name</Label>
                             <Input
                                 placeholder="e.g. Weekly Performance Summary"
-                                value={newReportName}
-                                onChange={(e) => setNewReportName(e.target.value)}
+                                {...register('name')}
                             />
+                            {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label>Date Range</Label>
-                            <Select value={newReportDateRange} onValueChange={setNewReportDateRange}>
-                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="today">Today</ZoruSelectItem>
-                                    <ZoruSelectItem value="yesterday">Yesterday</ZoruSelectItem>
-                                    <ZoruSelectItem value="last_7d">Last 7 days</ZoruSelectItem>
-                                    <ZoruSelectItem value="last_30d">Last 30 days</ZoruSelectItem>
-                                    <ZoruSelectItem value="this_month">This month</ZoruSelectItem>
-                                    <ZoruSelectItem value="last_month">Last month</ZoruSelectItem>
-                                </ZoruSelectContent>
-                            </Select>
+                            <Controller
+                              name="dateRange"
+                              control={control}
+                              render={({ field }) => (
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="today">Today</ZoruSelectItem>
+                                        <ZoruSelectItem value="yesterday">Yesterday</ZoruSelectItem>
+                                        <ZoruSelectItem value="last_7d">Last 7 days</ZoruSelectItem>
+                                        <ZoruSelectItem value="last_30d">Last 30 days</ZoruSelectItem>
+                                        <ZoruSelectItem value="this_month">This month</ZoruSelectItem>
+                                        <ZoruSelectItem value="last_month">Last month</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </Select>
+                              )}
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label>Level</Label>
-                            <Select value={newReportLevel} onValueChange={setNewReportLevel}>
-                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="account">Account</ZoruSelectItem>
-                                    <ZoruSelectItem value="campaign">Campaign</ZoruSelectItem>
-                                    <ZoruSelectItem value="adset">Ad Set</ZoruSelectItem>
-                                    <ZoruSelectItem value="ad">Ad</ZoruSelectItem>
-                                </ZoruSelectContent>
-                            </Select>
+                            <Controller
+                              name="level"
+                              control={control}
+                              render={({ field }) => (
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="account">Account</ZoruSelectItem>
+                                        <ZoruSelectItem value="campaign">Campaign</ZoruSelectItem>
+                                        <ZoruSelectItem value="adset">Ad Set</ZoruSelectItem>
+                                        <ZoruSelectItem value="ad">Ad</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </Select>
+                              )}
+                            />
                         </div>
-                    </div>
-                    <ZoruDialogFooter>
-                        <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                if (!newReportName.trim()) {
-                                    toast({ title: 'Enter a report name', variant: 'destructive' });
-                                    return;
-                                }
-                                const report: SavedReport = {
-                                    id: Date.now().toString(),
-                                    name: newReportName,
-                                    dateRange: newReportDateRange,
-                                    level: newReportLevel,
-                                    createdAt: new Date().toISOString(),
-                                };
-                                const updated = [...savedReports, report];
-                                setSavedReports(updated);
-                                saveSavedReports(updated);
-                                toast({ title: 'Report saved' });
-                                setNewReportName('');
-                            }}
-                        >
-                            <Save className="h-4 w-4 mr-1" /> Save
-                        </Button>
-                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => { setCreateOpen(false); router.push('/dashboard/ad-manager/insights'); }}>
-                            Generate Report
-                        </Button>
-                    </ZoruDialogFooter>
+                        <ZoruDialogFooter>
+                            <Button type="button" variant="outline" onClick={() => { setCreateOpen(false); reset(); }}>Cancel</Button>
+                            <Button type="submit">
+                                <Save className="h-4 w-4 mr-1" /> Save
+                            </Button>
+                            <Button type="button" className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleSubmit((data) => {
+                                onSubmit(data);
+                                router.push('/dashboard/ad-manager/insights');
+                            })}>
+                                Generate Report
+                            </Button>
+                        </ZoruDialogFooter>
+                    </form>
                 </ZoruDialogContent>
             </Dialog>
             <input ref={fileRef} type="file" accept=".csv,.json" className="hidden" onChange={(e) => { if (e.target.files?.[0]) { toast({ title: 'Report imported', description: e.target.files[0].name }); } }} />

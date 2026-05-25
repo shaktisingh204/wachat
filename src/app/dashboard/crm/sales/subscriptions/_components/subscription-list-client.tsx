@@ -79,7 +79,7 @@ interface SubscriptionListClientProps {
 function fmtDate(v?: string): string {
   if (!v) return '—';
   const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US', { timeZone: 'UTC' });
 }
 
 function fmtMoney(value?: number, currency?: string): string {

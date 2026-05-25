@@ -29,8 +29,6 @@ import {
 } from '@/app/api/sabflow/marketplace/submissions/route';
 import { SubmissionQueueClient } from './_components/SubmissionQueueClient';
 
-export const dynamic = 'force-dynamic';
-
 export const metadata = {
   title: 'Marketplace Review Queue | SabNode Admin',
 };
@@ -50,6 +48,8 @@ export interface SubmissionRow {
   status: SubmissionStatus;
   submittedAt: string; // ISO string
   rejectionReason?: string;
+  description?: string;
+  tags?: string[];
 }
 
 /* ── Page props ───────────────────────────────────────────────────────── */
@@ -88,6 +88,8 @@ async function loadSubmissions(
     category: d.category,
     status: d.status,
     submittedAt: d.submittedAt.toISOString(),
+    description: d.description,
+    tags: d.tags,
     ...(d.rejectionReason ? { rejectionReason: d.rejectionReason } : {}),
   }));
 
@@ -181,16 +183,6 @@ export default async function MarketplaceQueuePage({ searchParams }: PageProps) 
       {loadError ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {loadError}
-        </div>
-      ) : rows.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white py-16 text-slate-500">
-          <Inbox className="h-8 w-8 text-slate-300" />
-          <p className="text-sm font-medium">No submissions found.</p>
-          <p className="text-xs text-slate-400">
-            {statusFilter === 'pending'
-              ? 'The queue is clear — no templates awaiting review.'
-              : 'No submissions match this filter.'}
-          </p>
         </div>
       ) : (
         <SubmissionQueueClient

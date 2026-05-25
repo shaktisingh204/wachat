@@ -60,10 +60,11 @@ export interface TaxonomyRow {
 export interface TaxonomyField {
   name: string;
   label: string;
-  type?: 'text' | 'textarea' | 'color';
+  type?: 'text' | 'textarea' | 'color' | 'select';
   required?: boolean;
   placeholder?: string;
   fullWidth?: boolean;
+  options?: { value: string; label: string }[];
 }
 
 export interface TaxonomyColumn<R extends TaxonomyRow> {
@@ -607,6 +608,25 @@ function TaxonomyDialog<R extends TaxonomyRow>({
                       required={f.required}
                       defaultValue={defaultVal}
                     />
+                  ) : f.type === 'select' ? (
+                    <select
+                      id={f.name}
+                      name={f.name}
+                      required={f.required}
+                      defaultValue={defaultVal}
+                      className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {f.placeholder ? (
+                        <option value="">{f.placeholder}</option>
+                      ) : (
+                        <option value="">-- Select {f.label} --</option>
+                      )}
+                      {f.options?.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
                   ) : (
                     <Input
                       id={f.name}

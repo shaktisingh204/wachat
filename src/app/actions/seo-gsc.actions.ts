@@ -44,9 +44,9 @@ export async function exchangeGscCode(code: string, projectId: string) {
         );
 
         return { success: true };
-    } catch (e: any) {
+    } catch (e: unknown) {
         console.error("GSC Token Exchange Failed", e);
-        return { error: e.message };
+        return { error: e instanceof Error ? e.message : 'Unknown error' };
     }
 }
 
@@ -83,8 +83,8 @@ export async function getGscData(projectId: string, days: number = 28) {
 
         const rows = await client.getAnalytics(siteUrl, startDate, endDate);
         return { success: true, rows, siteUrl };
-    } catch (e: any) {
+    } catch (e: unknown) {
         console.error("GSC Data Fetch Failed", e);
-        return { error: e.message };
+        return { error: e instanceof Error ? e.message : 'Unknown error' };
     }
 }

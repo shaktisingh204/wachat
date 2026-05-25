@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { format } from "date-fns";
+import React, { useState, useMemo, useEffect } from "react";
+import { fmtDate, formatUTC } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   ShieldCheck,
@@ -30,6 +30,7 @@ import {
   Share,
   Share2,
   MoreHorizontal,
+  BellRing,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -206,9 +207,46 @@ export default function ComplianceAuditPage() {
   const [retentionDialogOpen, setRetentionDialogOpen] = useState(false);
   const [webhookDialogOpen, setWebhookDialogOpen] = useState(false);
   const [summarizeDialogOpen, setSummarizeDialogOpen] = useState(false);
+  const [alertsDialogOpen, setAlertsDialogOpen] = useState(false);
   const [rowSelection, setRowSelection] = useState<AuditRecord[]>([]);
   
-  const selectedRecord = mockAuditLogs.find((r) => r.id === detailRecordId) || null;
+  const [logs, setLogs] = useState<AuditRecord[]>(mockAuditLogs);
+  const [isHashing, setIsHashing] = useState(true);
+
+  useEffect(() => {
+    const generateHashes = async () => {
+      const hashedLogs = [...mockAuditLogs].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      
+      let previousHash = "0000000000000000000000000000000000000000000000000000000000000000";
+      for (const log of hashedLogs) {
+        log.previousHash = previousHash;
+        const payloadString = JSON.stringify({
+          id: log.id,
+          timestamp: log.timestamp,
+          action: log.action,
+          actor: log.actor,
+          subjectId: log.subjectId,
+          severity: log.severity,
+          payload: log.payload,
+          previousHash: log.previousHash
+        });
+        
+        const encoder = new TextEncoder();
+        const dataBuffer = encoder.encode(payloadString);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        log.hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        previousHash = log.hash;
+      }
+      
+      setLogs(hashedLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+      setIsHashing(false);
+    };
+    
+    generateHashes();
+  }, []);
+
+  const selectedRecord = logs.find((r) => r.id === detailRecordId) || null;
 
   const aiSummarizeAction = {
     label: "Summarise this hour",
@@ -231,10 +269,71 @@ export default function ComplianceAuditPage() {
     variant: "ghost" as const,
   };
 
+  const alertsAction = {
+    label: "Alert Rules",
+    icon: <BellRing className="h-4 w-4" />,
+    onClick: () => setAlertsDialogOpen(true),
+    variant: "outline" as const,
+  };
+
+  const handleExport = () => {
+    const data = JSON.stringify(filteredData, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `audit-logs-siem-export-${format(new Date(), 'yyyyMMdd-HHmmss')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Logs exported for SIEM ingestion");
+  };
+
+  const verifyIntegrity = async () => {
+    try {
+      const sortedDesc = [...logs].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      let previousHash = "0000000000000000000000000000000000000000000000000000000000000000";
+      
+      for (const log of sortedDesc) {
+        if (log.previousHash !== previousHash) {
+          toast.error(`Integrity failed at ${log.id}. Previous hash mismatch.`);
+          return;
+        }
+        
+        const payloadString = JSON.stringify({
+          id: log.id,
+          timestamp: log.timestamp,
+          action: log.action,
+          actor: log.actor,
+          subjectId: log.subjectId,
+          severity: log.severity,
+          payload: log.payload,
+          previousHash: log.previousHash
+        });
+        
+        const encoder = new TextEncoder();
+        const dataBuffer = encoder.encode(payloadString);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        if (log.hash !== hashHex) {
+          toast.error(`Integrity failed at ${log.id}. Hash mismatch.`);
+          return;
+        }
+        
+        previousHash = hashHex;
+      }
+      
+      toast.success("Chain is completely valid! No tampering detected.");
+    } catch (err) {
+      toast.error("Error verifying integrity");
+    }
+  };
+
   const searchActions: ZoruActionSearchAction[] = useMemo(() => {
-    const actions: ZoruActionSearchAction[] = mockAuditLogs.map(log => ({
+    const actions: ZoruActionSearchAction[] = logs.map(log => ({
       id: log.id,
-      label: `Hash: ${log.hash}`,
+      label: `Hash: ${log.hash.substring(0, 16)}...`,
       icon: <Hash className="h-4 w-4" />,
       meta: log.action,
       onSelect: () => setDetailRecordId(log.id),
@@ -245,17 +344,17 @@ export default function ComplianceAuditPage() {
       label: "Verify Global Chain Integrity",
       icon: <ShieldCheck className="h-4 w-4" />,
       shortcut: "⌘V",
-      onSelect: () => toast.success("Chain is completely valid! No tampering detected."),
+      onSelect: verifyIntegrity,
     });
 
     return actions;
-  }, []);
+  }, [logs]);
 
   const columns: ColumnDef<AuditRecord>[] = useMemo(() => [
     {
       accessorKey: "timestamp",
       header: "Time",
-      cell: ({ row }) => format(new Date(row.original.timestamp), "MMM d, HH:mm:ss"),
+      cell: ({ row }) => formatUTC(new Date(row.original.timestamp), true),
     },
     {
       accessorKey: "action",
@@ -309,8 +408,8 @@ export default function ComplianceAuditPage() {
       accessorKey: "hash",
       header: "Hash",
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-          {row.original.hash}
+        <span className="font-mono text-xs text-muted-foreground bg-muted px-2 py-1 rounded" title={row.original.hash}>
+          {isHashing ? "Hashing..." : `${row.original.hash.substring(0, 8)}...`}
         </span>
       ),
     },
@@ -344,7 +443,7 @@ export default function ComplianceAuditPage() {
 
   // Filter the mock logs locally since we use TanStack Table internally 
   const filteredData = useMemo(() => {
-    let data = [...mockAuditLogs];
+    let data = [...logs];
     if (filters.action) {
       const actionFilters = Array.isArray(filters.action) ? filters.action : [filters.action];
       if (actionFilters.length > 0) {
@@ -364,7 +463,7 @@ export default function ComplianceAuditPage() {
       }
     }
     return data;
-  }, [filters]);
+  }, [filters, logs]);
 
   const statItems: ZoruStatisticsCard1Item[] = [
     { label: "Valid Chains", value: "99.99%", delta: 0.01, meta: "Cryptographically verified" },
@@ -383,11 +482,12 @@ export default function ComplianceAuditPage() {
       secondaryActions={[
         webhookAction,
         retentionAction,
+        alertsAction,
         aiSummarizeAction,
         {
           label: "Export",
           icon: <Download className="h-4 w-4" />,
-          onClick: () => {},
+          onClick: handleExport,
           variant: "outline",
         }
       ]}
@@ -457,7 +557,7 @@ export default function ComplianceAuditPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Time</p>
-                  <p className="font-medium">{format(new Date(selectedRecord.timestamp), "PPpp")}</p>
+                  <p className="font-medium">{formatUTC(new Date(selectedRecord.timestamp), true)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Severity</p>
@@ -540,7 +640,7 @@ export default function ComplianceAuditPage() {
                           </p>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" className="w-full" onClick={() => toast.success("Integrity verified.")}>
+                      <Button variant="outline" size="sm" className="w-full" onClick={verifyIntegrity}>
                         <ShieldCheck className="h-4 w-4 mr-2" /> Verify Integrity
                       </Button>
                     </div>
@@ -640,6 +740,41 @@ export default function ComplianceAuditPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setWebhookDialogOpen(false)}>Cancel</Button>
             <Button onClick={() => { toast.success("Webhook config saved."); setWebhookDialogOpen(false); }}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={alertsDialogOpen} onOpenChange={setAlertsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Custom Alerts</DialogTitle>
+            <DialogDescription>
+              Configure alerts for critical audit events to be notified immediately.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Critical Severity Alerts</Label>
+                <p className="text-sm text-muted-foreground">Notify when any critical event is logged.</p>
+              </div>
+              <Switch defaultChecked />
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Campaign Blocked Alerts</Label>
+                <p className="text-sm text-muted-foreground">Notify when a campaign is blocked by compliance.</p>
+              </div>
+              <Switch defaultChecked />
+            </div>
+            <div className="space-y-2">
+              <Label>Notification Channels</Label>
+              <Input placeholder="Email (e.g. security@acme.com) or Slack Webhook URL" defaultValue="security@acme.com" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAlertsDialogOpen(false)}>Cancel</Button>
+            <Button onClick={() => { toast.success("Alert rules saved."); setAlertsDialogOpen(false); }}>Save Rules</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

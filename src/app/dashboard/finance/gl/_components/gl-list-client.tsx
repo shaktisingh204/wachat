@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useGSAP } from '@gsap/react';
+import gsapCore from 'gsap';
 import { 
   Button, 
   Input, 
@@ -27,8 +29,11 @@ import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'luci
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createGlEntry, updateGlEntry, deleteGlEntry, GlEntry } from '@/app/actions/finance/gl.actions';
 import { toast } from 'sonner';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 export function GlEntryListClient({ initialItems, error }: { initialItems: GlEntry[], error?: string }) {
+  gsapCore.registerPlugin(useGSAP);
+  const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const [items, setItems] = useState(initialItems || []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -58,6 +63,19 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
     setIsViewOpen(true);
   }
 
+  useGSAP(() => {
+    gsapCore.fromTo('.animate-row', {
+      opacity: 0,
+      x: -10
+    }, {
+      opacity: 1,
+      x: 0,
+      stagger: 0.05,
+      duration: 0.3,
+      ease: 'power1.out'
+    });
+  }, { scope: containerRef, dependencies: [items, search] });
+
   const filteredItems = items.filter(item => 
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
@@ -68,7 +86,7 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
     const formData = new FormData(e.currentTarget);
     const data: any = {};
     formData.forEach((val, key) => {
-      if (!isNaN(Number(val)) && val !== '') {
+      if (!isNaN(Number(val)) && val !== '' && key !== 'transactionDate') {
         data[key] = Number(val);
       } else if (val === 'true' || val === 'false') {
         data[key] = val === 'true';
@@ -127,6 +145,7 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
   }
 
   return (
+    <div ref={containerRef}>
     <EntityListShell
       title="Multi-Currency GL"
       subtitle="Manage general ledger across multiple currencies."
@@ -151,7 +170,7 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
               <Label>Currency</Label>
               <Input 
                 name="currency" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.currency : ''} 
+                defaultValue={editingId ? items.find(i => i._id === editingId)?.currency : 'INR'} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("currency")} 
               />
             </div>
@@ -159,6 +178,8 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
               <Label>BaseAmount</Label>
               <Input 
                 name="baseAmount" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.baseAmount : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("baseAmount")} 
               />
@@ -167,6 +188,8 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
               <Label>ExchangeRate</Label>
               <Input 
                 name="exchangeRate" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.exchangeRate : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("exchangeRate")} 
               />
@@ -183,6 +206,8 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
               <Label>Credit</Label>
               <Input 
                 name="credit" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.credit : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("credit")} 
               />
@@ -191,6 +216,8 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
               <Label>Debit</Label>
               <Input 
                 name="debit" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.debit : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("debit")} 
               />
@@ -199,7 +226,8 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
               <Label>TransactionDate</Label>
               <Input 
                 name="transactionDate" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.transactionDate : ''} 
+                type="date"
+                defaultValue={editingId ? items.find(i => i._id === editingId)?.transactionDate ? new Date(items.find(i => i._id === editingId)!.transactionDate).toISOString().split('T')[0] : '' : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("transactionDate")} 
               />
             </div></div>
@@ -249,8 +277,14 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
               </TableRow>
             ) : (
               filteredItems.map((item) => (
-                <TableRow key={item._id}>
-                  <TableCell>{String(item.currency ?? '')}</TableCell><TableCell>{String(item.baseAmount ?? '')}</TableCell><TableCell>{String(item.exchangeRate ?? '')}</TableCell><TableCell>{String(item.accountId ?? '')}</TableCell><TableCell>{String(item.credit ?? '')}</TableCell><TableCell>{String(item.debit ?? '')}</TableCell><TableCell>{String(item.transactionDate ?? '')}</TableCell>
+                <TableRow key={item._id} className="animate-row">
+                  <TableCell>{String(item.currency ?? '')}</TableCell>
+                  <TableCell>{fmtINR(Number(item.baseAmount || 0), item.currency || 'INR')}</TableCell>
+                  <TableCell>{String(item.exchangeRate ?? '')}</TableCell>
+                  <TableCell>{String(item.accountId ?? '')}</TableCell>
+                  <TableCell>{fmtINR(Number(item.credit || 0), item.currency || 'INR')}</TableCell>
+                  <TableCell>{fmtINR(Number(item.debit || 0), item.currency || 'INR')}</TableCell>
+                  <TableCell>{item.transactionDate ? fmtDate(new Date(item.transactionDate)) : ''}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -294,5 +328,6 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
         </DialogContent>
       </Dialog>
     </EntityListShell>
+    </div>
   );
 }

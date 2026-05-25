@@ -10,15 +10,15 @@ export type CrmOkrStatus =
   | 'in_progress'
   | 'on_track'
   | 'at_risk'
-  | 'behind'
+  | 'off_track'
   | 'completed'
-  | 'missed'
+  | 'cancelled'
   | 'archived';
 
 export type CrmOkrKeyResultStatus =
   | 'on_track'
   | 'at_risk'
-  | 'behind'
+  | 'off_track'
   | 'completed';
 
 export interface CrmOkrKeyResult {

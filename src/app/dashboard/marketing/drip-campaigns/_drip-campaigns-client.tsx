@@ -25,6 +25,8 @@ import { Label } from '@/components/zoruui';
 import { Badge } from '@/components/zoruui';
 import { useZoruToast } from '@/components/zoruui';
 import { StatCard } from '@/components/zoruui/stat-card';
+import { ZoruChart, ZoruChartContainer, ZoruChartTooltip, ZORU_CHART_PALETTE } from '@/components/zoruui';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { createDripCampaign, updateDripCampaign, deleteDripCampaign } from '@/app/actions/marketing/drip-campaigns.actions';
 
 export function DripCampaignClient({ initialData }: { initialData: any[] }) {
@@ -49,6 +51,13 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
   // Mock data for ROI and engagement as they are not in the schema
   const avgROI = 142; // %
   const openRate = 24.8; // %
+
+  const roiData = [
+    { channel: 'Email', roi: 156 },
+    { channel: 'SMS', roi: 110 },
+    { channel: 'Push', roi: 205 },
+    { channel: 'In-App', roi: 98 },
+  ];
 
   const openNew = () => {
     setEditingItem(null);
@@ -212,6 +221,29 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
           delta={15.2}
           period="vs last quarter"
         />
+      </div>
+
+      <div className="mb-8 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-6">
+        <h3 className="mb-4 text-sm font-medium text-zoru-ink">Cross-Channel ROI (%)</h3>
+        <ZoruChartContainer height={250}>
+          <BarChart data={roiData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+            <XAxis 
+              dataKey="channel" 
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "hsl(var(--zoru-ink-muted))", fontSize: 12 }}
+              dy={10}
+            />
+            <YAxis 
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "hsl(var(--zoru-ink-muted))", fontSize: 12 }}
+            />
+            <Tooltip content={<ZoruChartTooltip />} cursor={{ fill: "hsl(var(--zoru-line-strong))", opacity: 0.2 }} />
+            <Bar dataKey="roi" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} barSize={40} />
+          </BarChart>
+        </ZoruChartContainer>
       </div>
 
       {filteredData.length === 0 ? (

@@ -5,6 +5,10 @@ export function usePermissionGroupWebsocket(initialGroups: HrmPermissionGroup[])
   const [groups, setGroups] = useState(initialGroups);
 
   useEffect(() => {
+    setGroups(initialGroups);
+  }, [initialGroups]);
+
+  useEffect(() => {
     // Real-time updates using WebSockets for collaborative editing.
     // In a real app, this connects to the actual WebSocket endpoint.
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://api.example.com/ws/hrm/permissions';

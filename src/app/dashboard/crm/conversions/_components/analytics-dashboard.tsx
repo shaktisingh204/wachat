@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { Card } from '@/components/zoruui';
+import { Card, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/zoruui';
 import { getConversionsAnalytics } from './analytics-actions';
 import { FunnelChart } from './funnel-chart';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -30,15 +30,16 @@ export function AnalyticsDashboard() {
                 <h2 className="text-lg font-medium text-zoru-ink">Conversion Analytics</h2>
                 <div className="flex items-center gap-2">
                     <span className="text-sm text-zoru-ink-muted">Date Range:</span>
-                    <select 
-                        className="bg-zoru-surface border border-zoru-line rounded-md text-sm px-2 py-1 text-zoru-ink focus:outline-none focus:ring-2 focus:ring-zoru-brand"
-                        value={dateRange}
-                        onChange={(e) => setDateRange(e.target.value)}
-                    >
-                        <option value="7d">Last 7 Days</option>
-                        <option value="30d">Last 30 Days</option>
-                        <option value="90d">Last 90 Days</option>
-                    </select>
+                    <Select value={dateRange} onValueChange={setDateRange}>
+                        <ZoruSelectTrigger className="w-[140px] h-8 text-xs bg-zoru-surface">
+                            <ZoruSelectValue placeholder="Select Range" />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            <ZoruSelectItem value="7d">Last 7 Days</ZoruSelectItem>
+                            <ZoruSelectItem value="30d">Last 30 Days</ZoruSelectItem>
+                            <ZoruSelectItem value="90d">Last 90 Days</ZoruSelectItem>
+                        </ZoruSelectContent>
+                    </Select>
                 </div>
             </div>
 

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { Badge, Button } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
@@ -40,6 +41,7 @@ import {
 } from '@/app/actions/hr-status.actions';
 import { deleteExit } from '@/app/actions/hr.actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { ExitStepper } from '../_components/exit-stepper';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -56,7 +58,19 @@ export default async function ExitDetailPage({ params }: PageProps) {
     const reason = String(e.reason || '—');
     const clearance = String(e.clearance_status || 'pending');
     const fnf = String(e.fnf_status || 'pending');
+    const noc = String(e.nocStatus || 'pending');
     const employeeRef = e.employeeName || e.employeeId || '—';
+
+    let currentStep: 'resignation' | 'clearance' | 'noc' | 'fnf' | 'done' = 'resignation';
+    if (clearance === 'cleared') {
+      currentStep = 'noc';
+      if (noc === 'issued' || noc === 'na') {
+        currentStep = 'fnf';
+        if (fnf === 'processed') {
+          currentStep = 'done';
+        }
+      }
+    }
 
     return (
         <EntityDetailShell
@@ -138,6 +152,10 @@ export default async function ExitDetailPage({ params }: PageProps) {
             }
             audit={<EntityAuditTimeline entityKind="exit" entityId={id} />}
         >
+            <div className="mb-6 rounded-lg border border-zoru-line p-6 bg-card">
+              <ExitStepper status={currentStep} />
+            </div>
+
             <HrDetailGrid
                 title="Exit details"
                 titleSlot={

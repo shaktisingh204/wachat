@@ -55,11 +55,11 @@ function formatINR(n: number): string {
 function formatDate(d: string | Date): string {
     const date = d instanceof Date ? d : new Date(d);
     if (!Number.isFinite(date.getTime())) return '—';
-    return date.toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-    });
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getUTCMonth()];
+    const year = date.getUTCFullYear();
+    return `${day} ${month} ${year}`;
 }
 
 function isoDate(d: string | Date): string {

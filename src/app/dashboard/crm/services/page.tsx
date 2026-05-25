@@ -75,6 +75,7 @@ import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
+import { fmtINR, formatUTC } from '@/lib/utils';
 
 import {
     bulkServiceAction,
@@ -793,7 +794,7 @@ export default function ServicesPage() {
                             />
                             <StatCard
                                 label="Total billed"
-                                value={`${kpis.totalBilled.toLocaleString()}`}
+                                value={fmtINR(kpis.totalBilled)}
                                 icon={<DollarSign className="h-4 w-4" />}
                             />
                             <StatCard
@@ -801,7 +802,7 @@ export default function ServicesPage() {
                                 value={
                                     <span className="text-[13px] font-medium leading-tight">
                                         {kpis.topRevenueService
-                                            ? `${kpis.topRevenueService.name} (${kpis.topRevenueService.defaultPrice.toLocaleString()})`
+                                            ? `${kpis.topRevenueService.name} (${fmtINR(kpis.topRevenueService.defaultPrice, kpis.topRevenueService.currency ?? 'INR')})`
                                             : '—'}
                                     </span>
                                 }
@@ -919,9 +920,7 @@ export default function ServicesPage() {
                                                     </ZoruTableCell>
                                                     <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                                         {r.defaultPrice != null
-                                                            ? `${r.currency ?? 'INR'} ${(
-                                                                  r.defaultPrice ?? 0
-                                                              ).toFixed(2)}`
+                                                            ? fmtINR(r.defaultPrice, r.currency ?? 'INR')
                                                             : '—'}
                                                     </ZoruTableCell>
                                                     <ZoruTableCell>

@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, use } from 'react';
 import { Button, Card, Input, Label } from '@/components/zoruui';
 import { Lock, LoaderCircle } from 'lucide-react';
 import { verifyLinkPassword } from '@/app/actions/url-shortener.actions';
 
-export default function VerifyLinkPage({ params }: { params: { shortCode: string } }) {
-  const { shortCode } = params;
+export default function VerifyLinkPage({ params }: { params: Promise<{ shortCode: string }> }) {
+  const { shortCode } = use(params);
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -19,7 +19,7 @@ export default function VerifyLinkPage({ params }: { params: { shortCode: string
       if (result.valid && result.originalUrl) {
         window.location.href = result.originalUrl;
       } else {
-        setError('Incorrect password');
+        setError(result.error || 'Incorrect password');
       }
     });
   };

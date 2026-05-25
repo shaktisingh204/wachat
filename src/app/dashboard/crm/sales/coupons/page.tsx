@@ -1,7 +1,5 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 /**
  * Coupons — Deep list page.
  *
@@ -26,22 +24,22 @@ import {
   Card,
   ZoruDateRangePicker,
   DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   StatCard,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   useZoruToast,
 } from '@/components/zoruui';
 
@@ -308,16 +306,16 @@ export default function SalesCouponsPage(): React.JSX.Element {
                   setPage(1);
                 }}
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Status" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
                   {STATUS_OPTIONS.map((s) => (
-                    <ZoruSelectItem key={s} value={s}>
+                    <SelectItem key={s} value={s}>
                       {s === 'all' ? 'All statuses' : s[0].toUpperCase() + s.slice(1)}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div className="w-64">
@@ -336,19 +334,19 @@ export default function SalesCouponsPage(): React.JSX.Element {
               </Button>
             ) : null}
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                   <Download className="h-4 w-4" /> Export
                 </Button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent align="end">
-                <ZoruDropdownMenuItem onClick={() => exportFile('csv')}>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => exportFile('csv')}>
                   <FileText className="h-4 w-4" /> CSV
-                </ZoruDropdownMenuItem>
-                <ZoruDropdownMenuItem onClick={() => exportFile('xlsx')}>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportFile('xlsx')}>
                   <FileSpreadsheet className="h-4 w-4" /> XLSX
-                </ZoruDropdownMenuItem>
-              </ZoruDropdownMenuContent>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
             </DropdownMenu>
           </div>
         }
@@ -357,42 +355,42 @@ export default function SalesCouponsPage(): React.JSX.Element {
             <div className="flex flex-wrap items-center gap-2 text-sm text-zoru-ink">
               <span className="font-medium">{selected.size} selected</span>
               <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
                     Set status
                   </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent>
-                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'active')}>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => runBulk('status', 'active')}>
                     Active
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'draft')}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => runBulk('status', 'draft')}>
                     Draft
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'expired')}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => runBulk('status', 'expired')}>
                     Expired
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'cancelled')}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => runBulk('status', 'cancelled')}>
                     Cancelled
-                  </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
               <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
                     <Download className="h-4 w-4" /> Export selected
                   </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end">
-                  <ZoruDropdownMenuItem onClick={() => exportFile('csv')}>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => exportFile('csv')}>
                     <FileText className="h-4 w-4" /> CSV
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onClick={() => exportFile('xlsx')}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => exportFile('xlsx')}>
                     <FileSpreadsheet className="h-4 w-4" /> XLSX
-                  </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
-              <ZoruDropdownMenuSeparator className="hidden" />
+              <DropdownMenuSeparator className="hidden" />
               <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
                 Delete
               </Button>
@@ -455,84 +453,84 @@ export default function SalesCouponsPage(): React.JSX.Element {
           <Card className="p-0">
             <div className="overflow-x-auto rounded-lg">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                    <ZoruTableHead className="w-10">
+                <TableHeader>
+                  <TableRow className="border-zoru-line hover:bg-transparent">
+                    <TableHead className="w-10">
                       <input
                         type="checkbox"
                         aria-label="Select all"
                         checked={allSelected}
                         onChange={(e) => handleToggleAll(e.target.checked)}
                       />
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Code</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Type</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Value</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Min cart</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Max uses</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Used</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Validity</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </TableHead>
+                    <TableHead className="text-zoru-ink-muted">Code</TableHead>
+                    <TableHead className="text-zoru-ink-muted">Type</TableHead>
+                    <TableHead className="text-zoru-ink-muted">Value</TableHead>
+                    <TableHead className="text-zoru-ink-muted">Min cart</TableHead>
+                    <TableHead className="text-zoru-ink-muted">Max uses</TableHead>
+                    <TableHead className="text-zoru-ink-muted">Used</TableHead>
+                    <TableHead className="text-zoru-ink-muted">Validity</TableHead>
+                    <TableHead className="text-zoru-ink-muted">Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {rows.length === 0 ? (
-                    <ZoruTableRow className="border-zoru-line">
-                      <ZoruTableCell
+                    <TableRow className="border-zoru-line">
+                      <TableCell
                         colSpan={9}
                         className="h-24 text-center text-[13px] text-zoru-ink-muted"
                       >
                         {isPending ? 'Loading…' : 'No coupons match these filters.'}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     rows.map((c, idx) => {
                       const id = getId(c, idx);
                       const checked = selected.has(id);
                       return (
-                        <ZoruTableRow key={id} className="border-zoru-line">
-                          <ZoruTableCell>
+                        <TableRow key={id} className="border-zoru-line">
+                          <TableCell>
                             <input
                               type="checkbox"
                               aria-label={`Select ${c.code ?? id}`}
                               checked={checked}
                               onChange={() => handleToggleOne(id)}
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
+                          </TableCell>
+                          <TableCell className="text-zoru-ink">
                             <EntityRowLink
                               href={`/dashboard/crm/sales/coupons/${id}`}
                               label={c.code || 'Untitled coupon'}
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
+                          </TableCell>
+                          <TableCell className="text-zoru-ink">
                             {c.type || '—'}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
+                          </TableCell>
+                          <TableCell className="text-zoru-ink">
                             {formatValue(c.type, c.value)}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
+                          </TableCell>
+                          <TableCell className="text-zoru-ink">
                             {c.minCart?.toLocaleString() || '—'}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
+                          </TableCell>
+                          <TableCell className="text-zoru-ink">
                             {c.maxUses?.toLocaleString() || '—'}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
+                          </TableCell>
+                          <TableCell className="text-zoru-ink">
                             {c.usedCount?.toLocaleString() || '—'}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
+                          </TableCell>
+                          <TableCell className="text-zoru-ink">
                             {formatValidity(c.validFrom, c.validTo)}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </TableCell>
+                          <TableCell>
                             <Badge variant={getStatusVariant(c.status)}>
                               {c.status || 'draft'}
                             </Badge>
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </TableCell>
+                        </TableRow>
                       );
                     })
                   )}
-                </ZoruTableBody>
+                </TableBody>
               </Table>
             </div>
           </Card>

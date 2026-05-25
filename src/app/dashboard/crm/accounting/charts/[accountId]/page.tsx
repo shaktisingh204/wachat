@@ -6,7 +6,8 @@ import { Edit,
   Printer,
   Archive,
   History,
-  Plus } from 'lucide-react';
+  Plus,
+  Download } from 'lucide-react';
 
 import Link from 'next/link';
 
@@ -80,7 +81,7 @@ export default async function ChartOfAccountDetailPage(props: {
         }
         return {
             _id: entry._id.toString(),
-            date: new Date(entry.date).toLocaleDateString(),
+            date: new Date(entry.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
             voucherNumber: entry.voucherNumber,
             note: entry.note,
             debit,
@@ -113,6 +114,11 @@ export default async function ChartOfAccountDetailPage(props: {
                         <Link href={`/api/pdf/account-ledger/${accountIdStr}`} target="_blank">
                             <Printer className="mr-1.5 h-3.5 w-3.5" /> Print
                         </Link>
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
+                        <a href={`/api/pdf/account-ledger/${accountIdStr}?download=true`} download>
+                            <Download className="mr-1.5 h-3.5 w-3.5" /> Export PDF
+                        </a>
                     </Button>
                     <Button asChild variant="outline" size="sm">
                         <Link href={`/dashboard/crm/accounting/charts/${accountIdStr}/activity`}>

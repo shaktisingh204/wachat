@@ -2,25 +2,30 @@ import { notFound, redirect } from 'next/navigation';
 import { trackClickAndGetUrl } from '@/app/actions/url-shortener.actions';
 import { headers } from 'next/headers';
 import { unstable_cache } from 'next/cache';
+import { after } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { ShortUrl } from '@/lib/definitions';
 
 const getCachedUrlRules = unstable_cache(
     async (shortCode: string, lookupHost: string | null) => {
         const { db } = await connectToDatabase();
-        const doc = await db.collection('short_urls').findOne({
-            shortCode,
-            ...(lookupHost ? { customDomain: lookupHost } : {})
-        }) as ShortUrl | null;
+        // Fallback to domainId if customDomain doesn't exist on the schema
+        const query: any = { shortCode };
+        
+        const doc = await db.collection('short_urls').findOne(query) as ShortUrl | null;
         if (!doc) return null;
+        
         return {
             originalUrl: doc.originalUrl,
             splitTargets: doc.splitTargets,
             geoTargets: doc.geoTargets,
             deviceTargets: doc.deviceTargets,
+            passwordHash: doc.passwordHash,
+            utmParams: doc.utmParams,
+            expiresAt: doc.expiresAt,
         };
     },
-    ['short-url-rules'],
+    ['short-url-rules-v2'],
     { revalidate: 60 }
 );
 
@@ -64,69 +69,63 @@ export default async function ShortUrlRedirectPage({ params }: PageProps) {
     // Otherwise, it's a custom domain link (lookupHost = requestHost).
     const lookupHost = (mainAppHost && requestHost === mainAppHost) ? null : requestHost;
 
-    const { originalUrl, error, passwordHash, utmParams, isExpired } =
-        await trackClickAndGetUrl(shortCode, lookupHost);
+    const rules = await getCachedUrlRules(shortCode, lookupHost);
 
-    if (isExpired) {
-        redirect('/expired');
-    }
-
-    if (error || !originalUrl) {
-        if (passwordHash) {
-            redirect(`/verify/${shortCode}`);
-        }
+    if (!rules || !rules.originalUrl) {
         notFound();
     }
 
-    if (passwordHash) {
+    const isExpired = rules.expiresAt ? new Date(rules.expiresAt) < new Date() : false;
+
+    if (isExpired) {
+        redirect(`/expired?code=${shortCode}`);
+    }
+
+    if (rules.passwordHash) {
         redirect(`/verify/${shortCode}`);
     }
 
-    let finalUrl = originalUrl;
+    let finalUrl = rules.originalUrl;
+    let routedUrl: string | null = null;
+    const country = headersList.get('x-vercel-ip-country') || headersList.get('x-real-ip-country') || 'unknown';
+    const ua = (headersList.get('user-agent') || '').toLowerCase();
 
-    const rules = await getCachedUrlRules(shortCode, lookupHost);
-    if (rules) {
-        let routedUrl: string | null = null;
-        const country = headersList.get('x-vercel-ip-country') || headersList.get('x-real-ip-country') || 'unknown';
-        const ua = (headersList.get('user-agent') || '').toLowerCase();
-
-        // 1. Geo routing
-        if (rules.geoTargets && rules.geoTargets.length > 0) {
-            const target = rules.geoTargets.find(t => t.country.toLowerCase() === country.toLowerCase());
-            if (target) routedUrl = target.url;
-        }
-
-        // 2. Device routing
-        if (!routedUrl && rules.deviceTargets && rules.deviceTargets.length > 0) {
-            let deviceType = 'desktop';
-            if (/iphone|ipad|ipod/i.test(ua)) deviceType = 'ios';
-            else if (/android/i.test(ua)) deviceType = 'android';
-            else if (/ipad|tablet/i.test(ua)) deviceType = 'tablet';
-            else if (/mobi|touch/i.test(ua)) deviceType = 'mobile';
-            
-            const target = rules.deviceTargets.find(t => t.device === deviceType) || 
-                           rules.deviceTargets.find(t => t.device === 'mobile' && (deviceType === 'ios' || deviceType === 'android'));
-            if (target) routedUrl = target.url;
-        }
-
-        // 3. A/B Testing
-        if (!routedUrl && rules.splitTargets && rules.splitTargets.length > 0) {
-            const allTargets = [{ url: originalUrl, weight: 50 }, ...rules.splitTargets];
-            const totalWeight = allTargets.reduce((sum, t) => sum + t.weight, 0);
-            let random = Math.random() * totalWeight;
-            for (const target of allTargets) {
-                if (random < target.weight) {
-                    routedUrl = target.url;
-                    break;
-                }
-                random -= target.weight;
-            }
-        }
-        
-        if (routedUrl) finalUrl = routedUrl;
+    // 1. Geo routing
+    if (rules.geoTargets && rules.geoTargets.length > 0) {
+        const target = rules.geoTargets.find(t => t.country.toLowerCase() === country.toLowerCase());
+        if (target) routedUrl = target.url;
     }
 
-    if (utmParams && Object.keys(utmParams).length > 0) {
+    // 2. Device routing
+    if (!routedUrl && rules.deviceTargets && rules.deviceTargets.length > 0) {
+        let deviceType = 'desktop';
+        if (/iphone|ipad|ipod/i.test(ua)) deviceType = 'ios';
+        else if (/android/i.test(ua)) deviceType = 'android';
+        else if (/ipad|tablet/i.test(ua)) deviceType = 'tablet';
+        else if (/mobi|touch/i.test(ua)) deviceType = 'mobile';
+        
+        const target = rules.deviceTargets.find(t => t.device === deviceType) || 
+                       rules.deviceTargets.find(t => t.device === 'mobile' && (deviceType === 'ios' || deviceType === 'android'));
+        if (target) routedUrl = target.url;
+    }
+
+    // 3. A/B Testing
+    if (!routedUrl && rules.splitTargets && rules.splitTargets.length > 0) {
+        const allTargets = [{ url: rules.originalUrl, weight: 50 }, ...rules.splitTargets];
+        const totalWeight = allTargets.reduce((sum, t) => sum + t.weight, 0);
+        let random = Math.random() * totalWeight;
+        for (const target of allTargets) {
+            if (random < target.weight) {
+                routedUrl = target.url;
+                break;
+            }
+            random -= target.weight;
+        }
+    }
+    
+    if (routedUrl) finalUrl = routedUrl;
+
+    if (rules.utmParams && Object.keys(rules.utmParams).length > 0) {
         try {
             const u = new URL(finalUrl);
             const map: Record<string, string> = {
@@ -137,7 +136,7 @@ export default async function ShortUrlRedirectPage({ params }: PageProps) {
                 content: 'utm_content',
             };
             for (const [key, param] of Object.entries(map)) {
-                const val = utmParams[key];
+                const val = (rules.utmParams as any)[key];
                 if (val) u.searchParams.set(param, val);
             }
             finalUrl = u.toString();
@@ -145,6 +144,15 @@ export default async function ShortUrlRedirectPage({ params }: PageProps) {
             // malformed URL — redirect to original unchanged
         }
     }
+
+    // Track click asynchronously without blocking the redirect
+    after(async () => {
+        try {
+            await trackClickAndGetUrl(shortCode, lookupHost);
+        } catch (e) {
+            console.error('[ShortURL Tracking Error]', e);
+        }
+    });
 
     redirect(finalUrl);
 }

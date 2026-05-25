@@ -1,6 +1,6 @@
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Progress } from '@/components/zoruui';
-import {
-  notFound } from 'next/navigation';
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Progress, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/zoruui';
+import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 
 /**
  * Production-order detail page — §1D.2 bar.
@@ -135,7 +135,11 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
           </Card>
         </div>
       }
-      audit={<EntityAuditTimeline entityKind="production_order" entityId={orderId} />}
+      audit={
+        <Suspense fallback={<div className="h-24 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />}>
+          <EntityAuditTimeline entityKind="production_order" entityId={orderId} />
+        </Suspense>
+      }
     >
       <Card>
         <ZoruCardHeader>
@@ -251,44 +255,31 @@ export default async function ProductionOrderDetailPage({ params }: PageProps) {
             </p>
           ) : (
             <div className="overflow-x-auto rounded border border-zinc-200 dark:border-zinc-800">
-              <table className="w-full text-sm">
-                <thead className="bg-zinc-50 dark:bg-zinc-900/50">
-                  <tr>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-zinc-500">
-                      Item
-                    </th>
-                    <th className="px-3 py-2 text-right text-xs font-medium text-zinc-500">
-                      Planned
-                    </th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-zinc-500">
-                      Unit
-                    </th>
-                    <th className="px-3 py-2 text-right text-xs font-medium text-zinc-500">
-                      Cost / unit
-                    </th>
-                    <th className="px-3 py-2 text-right text-xs font-medium text-zinc-500">
-                      Subtotal
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Item</TableHead>
+                    <TableHead className="text-right">Planned</TableHead>
+                    <TableHead>Unit</TableHead>
+                    <TableHead className="text-right">Cost / unit</TableHead>
+                    <TableHead className="text-right">Subtotal</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {components.map((c: any, idx: number) => {
                     const sub = (c.qty || 0) * (c.costPerUnit ?? 0);
                     return (
-                      <tr
-                        key={`${c.itemName}-${idx}`}
-                        className="border-t border-zinc-200 dark:border-zinc-800"
-                      >
-                        <td className="px-3 py-2">{c.itemName || '—'}</td>
-                        <td className="px-3 py-2 text-right">{c.qty}</td>
-                        <td className="px-3 py-2">{c.unit || '—'}</td>
-                        <td className="px-3 py-2 text-right">{fmtINR(c.costPerUnit)}</td>
-                        <td className="px-3 py-2 text-right">{fmtINR(sub)}</td>
-                      </tr>
+                      <TableRow key={`${c.itemName}-${idx}`}>
+                        <TableCell>{c.itemName || '—'}</TableCell>
+                        <TableCell className="text-right">{c.qty}</TableCell>
+                        <TableCell>{c.unit || '—'}</TableCell>
+                        <TableCell className="text-right">{fmtINR(c.costPerUnit)}</TableCell>
+                        <TableCell className="text-right">{fmtINR(sub)}</TableCell>
+                      </TableRow>
                     );
                   })}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </ZoruCardContent>

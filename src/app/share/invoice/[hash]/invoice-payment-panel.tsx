@@ -47,7 +47,7 @@ type Props = {
   initialBanner?: Banner;
 };
 
-type Banner = { kind: 'success' | 'error'; message: string } | null;
+type Banner = { kind: 'success' | 'error' | 'warning' | 'info'; message: string } | null;
 
 const RAZORPAY_SCRIPT_SRC = 'https://checkout.razorpay.com/v1/checkout.js';
 
@@ -176,7 +176,15 @@ export function InvoicePaymentPanel({
         </ZoruCardHeader>
         <ZoruCardContent>
           {banner ? (
-            <Alert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
+            <Alert
+              variant={
+                banner.kind === 'success'
+                  ? 'success'
+                  : banner.kind === 'error'
+                    ? 'destructive'
+                    : banner.kind
+              }
+            >
               <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
             </Alert>
           ) : null}
@@ -201,7 +209,15 @@ export function InvoicePaymentPanel({
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-3">
         {banner ? (
-          <Alert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
+          <Alert
+            variant={
+              banner.kind === 'success'
+                ? 'success'
+                : banner.kind === 'error'
+                  ? 'destructive'
+                  : banner.kind
+            }
+          >
             <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
           </Alert>
         ) : null}
@@ -221,7 +237,15 @@ export function InvoicePaymentPanel({
             </ZoruDrawerHeader>
             <div className="space-y-4 px-6 pb-6">
               {banner ? (
-                <Alert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
+                <Alert
+                  variant={
+                    banner.kind === 'success'
+                      ? 'success'
+                      : banner.kind === 'error'
+                        ? 'destructive'
+                        : banner.kind
+                  }
+                >
                   <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
                 </Alert>
               ) : null}

@@ -1,9 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { marked } from 'marked';
+import { MDXRemote } from 'next-mdx-remote/rsc';
 import { LandingHeader } from '@/components/landing/landing-header';
 import Link from 'next/link';
+
+// ZoruUI Components
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const CONTENT_DIR = path.join(process.cwd(), 'content/changelog');
 
@@ -14,21 +19,18 @@ type ChangelogEntry = {
   title: string;
   description: string;
   tags: string[];
-  contentHtml: string;
+  content: string;
 };
 
 async function getChangelogs(): Promise<ChangelogEntry[]> {
   if (!fs.existsSync(CONTENT_DIR)) return [];
-  const files = fs.readdirSync(CONTENT_DIR).filter(f => f.endsWith('.md'));
+  const files = fs.readdirSync(CONTENT_DIR).filter(f => f.endsWith('.md') || f.endsWith('.mdx'));
   
   const entries = await Promise.all(files.map(async (filename) => {
-    const slug = filename.replace(/\.md$/, '');
+    const slug = filename.replace(/\.mdx?$/, '');
     const fullPath = path.join(CONTENT_DIR, filename);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const { data, content } = matter(fileContents);
-    
-    // Convert markdown content to HTML
-    const contentHtml = await marked.parse(content);
     
     return {
       slug,
@@ -37,13 +39,33 @@ async function getChangelogs(): Promise<ChangelogEntry[]> {
       title: data.title || '',
       description: data.description || '',
       tags: data.tags || [],
-      contentHtml
+      content
     };
   }));
   
   // Sort by date descending
   return entries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
+
+// Map HTML tags to ZoruUI / Tailwind styled components for MDX
+const mdxComponents = {
+  h1: (props: any) => <h1 className="text-2xl font-bold mt-6 mb-4 text-white font-sans" {...props} />,
+  h2: (props: any) => <h2 className="text-xl font-bold mt-5 mb-3 text-white font-sans border-b border-neutral-800 pb-2" {...props} />,
+  h3: (props: any) => <h3 className="text-lg font-semibold mt-4 mb-2 text-white font-sans" {...props} />,
+  p: (props: any) => <p className="text-neutral-400 mb-4 leading-relaxed font-mono text-sm" {...props} />,
+  ul: (props: any) => <ul className="list-disc list-inside mb-4 text-neutral-400 font-mono text-sm" {...props} />,
+  ol: (props: any) => <ol className="list-decimal list-inside mb-4 text-neutral-400 font-mono text-sm" {...props} />,
+  li: (props: any) => <li className="mb-1" {...props} />,
+  a: (props: any) => <a className="text-blue-400 hover:underline font-mono text-sm" {...props} />,
+  blockquote: (props: any) => <blockquote className="border-l-4 border-neutral-700 pl-4 italic my-4 text-neutral-300 font-mono text-sm" {...props} />,
+  code: (props: any) => <code className="bg-neutral-800 text-neutral-200 px-1.5 py-0.5 rounded text-xs font-mono" {...props} />,
+  pre: (props: any) => <pre className="bg-neutral-900 border border-neutral-800 p-4 rounded-md overflow-x-auto mb-4" {...props} />,
+  Badge,
+  Button,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+};
 
 export default async function ChangelogPage({ searchParams }: { searchParams: Promise<{ tag?: string, page?: string }> }) {
   const { tag, page } = await searchParams;
@@ -110,14 +132,16 @@ export default async function ChangelogPage({ searchParams }: { searchParams: Pr
                 
                 {/* Timeline Column */}
                 <div className="md:col-span-3 border-b md:border-b-0 md:border-r border-neutral-800 p-8 flex flex-col justify-start items-start md:items-end">
-                   <div className="inline-block bg-white text-black font-mono text-xs font-bold px-2 py-1 mb-2">
+                   <Badge variant="default" className="font-mono text-xs font-bold px-2 py-1 mb-2 rounded-sm bg-white text-black hover:bg-neutral-200">
                      {entry.version}
-                   </div>
+                   </Badge>
                    <time className="font-mono text-neutral-400 text-sm">{entry.date}</time>
                    
                    <div className="mt-4 flex flex-wrap justify-start md:justify-end gap-1">
                      {entry.tags.map(t => (
-                       <span key={t} className="text-[10px] uppercase font-mono text-neutral-500 tracking-wider">#{t}</span>
+                       <Badge key={t} variant="secondary" className="text-[10px] uppercase font-mono text-neutral-500 tracking-wider rounded bg-neutral-900 border-neutral-800 text-neutral-400">
+                         #{t}
+                       </Badge>
                      ))}
                    </div>
                 </div>
@@ -129,9 +153,9 @@ export default async function ChangelogPage({ searchParams }: { searchParams: Pr
                     {entry.description}
                   </p>
                   
-                  <div className="bg-neutral-900 border border-neutral-800 p-6 prose prose-invert prose-sm max-w-none prose-p:font-mono prose-li:font-mono prose-headings:font-sans"
-                    dangerouslySetInnerHTML={{ __html: entry.contentHtml }}
-                  />
+                  <div className="mt-6">
+                    <MDXRemote source={entry.content} components={mdxComponents} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -141,23 +165,21 @@ export default async function ChangelogPage({ searchParams }: { searchParams: Pr
           {totalPages > 1 && (
             <div className="p-8 flex items-center justify-between border-t border-neutral-800">
               {currentPage > 1 ? (
-                <Link 
-                  href={`/blog?page=${currentPage - 1}${tag ? `&tag=${tag}` : ''}`}
-                  className="px-4 py-2 bg-neutral-900 border border-neutral-800 text-white font-mono text-sm hover:bg-neutral-800 transition-colors"
-                >
-                  &larr; Newer
-                </Link>
+                <Button variant="outline" className="font-mono text-sm" asChild>
+                  <Link href={`/blog?page=${currentPage - 1}${tag ? `&tag=${tag}` : ''}`}>
+                    &larr; Newer
+                  </Link>
+                </Button>
               ) : <div />}
               
               <span className="font-mono text-sm text-neutral-500">Page {currentPage} of {totalPages}</span>
               
               {currentPage < totalPages ? (
-                <Link 
-                  href={`/blog?page=${currentPage + 1}${tag ? `&tag=${tag}` : ''}`}
-                  className="px-4 py-2 bg-neutral-900 border border-neutral-800 text-white font-mono text-sm hover:bg-neutral-800 transition-colors"
-                >
-                  Older &rarr;
-                </Link>
+                <Button variant="outline" className="font-mono text-sm" asChild>
+                  <Link href={`/blog?page=${currentPage + 1}${tag ? `&tag=${tag}` : ''}`}>
+                    Older &rarr;
+                  </Link>
+                </Button>
               ) : <div />}
             </div>
           )}

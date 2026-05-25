@@ -55,6 +55,7 @@ export default function SlackIntegrationPage() {
     saveSlackSetting,
     { message: '', error: '' } as { message?: string; error?: string; id?: string },
   );
+  const [mounted, setMounted] = useState(false);
 
   const refresh = useCallback(() => {
     startLoading(async () => {
@@ -71,6 +72,7 @@ export default function SlackIntegrationPage() {
   }, []);
 
   useEffect(() => {
+    setMounted(true);
     refresh();
   }, [refresh]);
 
@@ -122,6 +124,14 @@ export default function SlackIntegrationPage() {
   const lastDeliveryLabel = lastDelivery
     ? new Date(lastDelivery.createdAt).toLocaleString()
     : 'Never';
+
+  if (!mounted) {
+    return (
+      <div className="flex h-60 items-center justify-center">
+        <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+      </div>
+    );
+  }
 
   return (
     <EntityListShell title="Slack" subtitle="Post notifications to a Slack channel via incoming webhook.">

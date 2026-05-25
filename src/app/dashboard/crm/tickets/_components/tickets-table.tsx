@@ -261,7 +261,15 @@ export function TicketsTable({
                                                 {overdue ? (
                                                     <AlertTriangle className="h-3.5 w-3.5" />
                                                 ) : null}
-                                                {new Date(t.dueBy).toLocaleDateString()}
+                                                {(() => {
+                                                    const date = new Date(t.dueBy);
+                                                    if (Number.isNaN(date.getTime())) return '—';
+                                                    const day = String(date.getUTCDate()).padStart(2, '0');
+                                                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                                                    const month = months[date.getUTCMonth()];
+                                                    const year = date.getUTCFullYear();
+                                                    return `${day} ${month} ${year}`;
+                                                })()}
                                             </span>
                                         ) : (
                                             '—'
@@ -270,16 +278,31 @@ export function TicketsTable({
                                     <ZoruTableCell
                                         className="text-[12.5px] text-zoru-ink-muted"
                                         title={
-                                            t.createdAt
-                                                ? new Date(t.createdAt).toLocaleString()
-                                                : ''
+                                            (() => {
+                                                if (!t.createdAt) return '';
+                                                const date = new Date(t.createdAt);
+                                                if (Number.isNaN(date.getTime())) return '';
+                                                const day = String(date.getUTCDate()).padStart(2, '0');
+                                                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                                                const month = months[date.getUTCMonth()];
+                                                const year = date.getUTCFullYear();
+                                                const hours = String(date.getUTCHours()).padStart(2, '0');
+                                                const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+                                                return `${day} ${month} ${year} ${hours}:${minutes} UTC`;
+                                            })()
                                         }
                                     >
-                                        {t.createdAt
-                                            ? formatDistanceToNow(new Date(t.createdAt), {
-                                                  addSuffix: true,
-                                              })
-                                            : '—'}
+                                        {t.createdAt ? (
+                                            (() => {
+                                                const date = new Date(t.createdAt);
+                                                if (Number.isNaN(date.getTime())) return '—';
+                                                const day = String(date.getUTCDate()).padStart(2, '0');
+                                                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                                                const month = months[date.getUTCMonth()];
+                                                const year = date.getUTCFullYear();
+                                                return `${day} ${month} ${year}`;
+                                            })()
+                                        ) : '—'}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
                                         <DropdownMenu>

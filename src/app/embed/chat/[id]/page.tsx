@@ -11,6 +11,22 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import type { WidgetConfig } from '@/lib/embed/types';
 import EmbedClient from './EmbedClient';
+import { UnavailableWidget } from './components/UnavailableWidget';
+
+export const dynamic = 'force-dynamic';
+
+interface WidgetDocument {
+  _id: ObjectId;
+  id?: string;
+  workspaceId?: string;
+  name?: string;
+  flowId?: string;
+  allowedOrigins?: string[];
+  theme?: WidgetConfig['theme'];
+  greeting?: string;
+  enabled?: boolean;
+  locale?: string;
+}
 
 export const dynamicParams = true;
 export const revalidate = 0;
@@ -24,24 +40,24 @@ async function loadWidget(id: string): Promise<WidgetConfig | null> {
       delete query.id;
       (query as { $or?: unknown }).$or = or;
     }
-    const doc = await db.collection('embed_widgets').findOne(query as never);
+    const doc = await db.collection<WidgetDocument>('embed_widgets').findOne(query);
     if (!doc) return null;
-    const d = doc as unknown as Record<string, unknown>;
     return {
-      id: String(d.id ?? doc._id),
-      workspaceId: String(d.workspaceId ?? ''),
-      name: String(d.name ?? 'SabNode'),
-      flowId: d.flowId as string | undefined,
-      allowedOrigins: (d.allowedOrigins as string[] | undefined) ?? [],
-      theme: d.theme as WidgetConfig['theme'],
-      greeting: d.greeting as string | undefined,
-      enabled: d.enabled !== false,
-      locale: d.locale as string | undefined,
+      id: String(doc.id ?? doc._id),
+      workspaceId: String(doc.workspaceId ?? ''),
+      name: String(doc.name ?? 'SabNode'),
+      flowId: doc.flowId,
+      allowedOrigins: doc.allowedOrigins ?? [],
+      theme: doc.theme,
+      greeting: doc.greeting,
+      enabled: doc.enabled !== false,
+      locale: doc.locale,
     } satisfies WidgetConfig;
   } catch (error) {
     console.error('[embed/chat] failed to load widget', error);
-    return null;
+    throw new Error('Failed to load widget configuration.');
   }
+
 }
 
 export default async function EmbedChatPage(props: {
@@ -59,33 +75,9 @@ export default async function EmbedChatPage(props: {
     typeof searchParams.locale === 'string' ? searchParams.locale : undefined;
 
   if (!widget || !widget.enabled) {
-    return (
-      <main
-        style={{
-          margin: 0,
-          padding: 24,
-          fontFamily:
-            'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-          color: '#111',
-          background: '#fff',
-          height: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-        }}
-      >
-        <div>
-          <h1 style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>
-            Chat unavailable
-          </h1>
-          <p style={{ fontSize: 13, color: '#555' }}>
-            This widget is not currently enabled.
-          </p>
-        </div>
-      </main>
-    );
+    return <UnavailableWidget />;
   }
+
 
   const primary = widget.theme?.primary ?? '#111827';
   const fontFamily =

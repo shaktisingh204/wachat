@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { ShieldCheck } from 'lucide-react';
 
 import { AuditLogTable } from '@/components/admin/AuditLogTable';
@@ -23,21 +24,36 @@ interface SearchParams {
 }
 
 function resolveRange(sp: SearchParams): DateRange {
+    if (sp.days) {
+        const days = Math.max(1, Math.min(365, Number(sp.days)));
+        return lastNDays(Number.isFinite(days) ? days : 7);
+    }
     if (sp.from && sp.to) return { from: sp.from, to: sp.to };
-    const days = sp.days ? Math.max(1, Math.min(365, Number(sp.days))) : 7;
-    return lastNDays(Number.isFinite(days) ? days : 7);
+    return lastNDays(7);
 }
 
-const EMPTY_SUMMARY = (tenantId: string, range: DateRange): AuditSummary => ({
-    tenantId,
-    range,
-    total: 0,
-    failures: 0,
-    actionsByActor: [],
-    actionsByResource: [],
-    actionsByAction: [],
-    recent: [],
-});
+async function AuditTableLoader({ tenantId, range }: { tenantId: string, range: DateRange }) {
+    const summary = await auditSummaryFor(tenantId, range);
+    return <AuditLogTable summary={summary} />;
+}
+
+function AuditTableSkeleton() {
+    return (
+        <div className="space-y-6 animate-pulse">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="h-24 rounded-2xl bg-slate-100"></div>
+                <div className="h-24 rounded-2xl bg-slate-100"></div>
+                <div className="h-24 rounded-2xl bg-slate-100"></div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <div className="h-48 rounded-2xl bg-slate-100"></div>
+                <div className="h-48 rounded-2xl bg-slate-100"></div>
+                <div className="h-48 rounded-2xl bg-slate-100"></div>
+            </div>
+            <div className="h-96 rounded-2xl bg-slate-100"></div>
+        </div>
+    );
+}
 
 export default async function AuditLogAdminPage({
     searchParams,
@@ -49,15 +65,6 @@ export default async function AuditLogAdminPage({
     // is never blank — the wrapper falls back to that bucket too.
     const tenantId = sp.tenantId?.trim() || 'system';
     const range = resolveRange(sp);
-
-    let summary: AuditSummary;
-    try {
-        summary = await auditSummaryFor(tenantId, range);
-    } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error('[admin/audit] failed to load summary', err);
-        summary = EMPTY_SUMMARY(tenantId, range);
-    }
 
     return (
         <div className="space-y-6">
@@ -122,7 +129,9 @@ export default async function AuditLogAdminPage({
                 </button>
             </form>
 
-            <AuditLogTable summary={summary} />
+            <Suspense fallback={<AuditTableSkeleton />}>
+                <AuditTableLoader tenantId={tenantId} range={range} />
+            </Suspense>
         </div>
     );
 }

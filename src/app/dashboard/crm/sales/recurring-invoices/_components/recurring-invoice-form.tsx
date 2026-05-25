@@ -245,7 +245,7 @@ export function RecurringInvoiceForm({ initialData }: RecurringInvoiceFormProps)
                                 <div key={i} className="flex items-center gap-1.5 rounded-full bg-background px-3 py-1 text-xs border shadow-sm">
                                     <span className="text-muted-foreground font-mono opacity-60">#{i + 1}</span>
                                     <span className="font-medium text-foreground">
-                                        {d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}
+                                        {d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}
                                     </span>
                                 </div>
                             ))}

@@ -18,7 +18,7 @@ const STATUS_TONE: Record<string, 'green' | 'amber' | 'red' | 'neutral'> = {
 function fmtDate(v: unknown): string {
   if (!v) return '—';
   const d = new Date(v as string | number | Date);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US', { timeZone: 'UTC' });
 }
 
 function fmtMoney(n: number | undefined, currency = 'INR'): string {

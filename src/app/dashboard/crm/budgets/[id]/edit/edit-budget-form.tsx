@@ -34,7 +34,7 @@ import {
 } from '@/components/zoruui';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { FileText, LoaderCircle, Plus, Save, Trash2, X } from 'lucide-react';
+import { FileText, LoaderCircle, Plus, Save, Trash2, X, Upload } from 'lucide-react';
 import Link from 'next/link';
 
 import { updateBudget } from '@/app/actions/crm-budgets.actions';
@@ -196,6 +196,30 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
         }
     }, [state, toast, budgetId]);
 
+    // Real-time depletion alerts via SSE
+    useEffect(() => {
+        const source = new EventSource(`/api/budgets/depletion-alerts?budgetId=${budgetId}`);
+        
+        source.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'depletion_alert') {
+                    toast({
+                        title: 'Budget Depletion Alert',
+                        description: data.message || 'Critical overrun detected on this budget.',
+                        variant: 'destructive',
+                    });
+                }
+            } catch (e) {
+                // ignore parse errors
+            }
+        };
+
+        return () => {
+            source.close();
+        };
+    }, [budgetId, toast]);
+
     function addAllocation(): void {
         setAllocations((rows) => [
             ...rows,
@@ -218,6 +242,39 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
 
     function removeAllocation(id: string): void {
         setAllocations((rows) => rows.filter((row) => row.id !== id));
+    }
+
+    function handleImportCSV(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const text = event.target?.result as string;
+            if (!text) return;
+            const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+            if (lines.length < 2) {
+                toast({ title: 'Invalid CSV', description: 'File must contain headers and at least one data row.', variant: 'destructive' });
+                return;
+            }
+            // Simple comma split
+            const dataLines = lines.slice(1);
+            const newAllocs = dataLines.map((line) => {
+                 const [dept, period, amount, note] = line.split(',');
+                 return {
+                     id: freshLineId(),
+                     departmentId: null,
+                     departmentLabel: dept?.trim() || '',
+                     period: period?.trim() || '',
+                     amount: parseFloat(amount?.trim()) || 0,
+                     note: note?.trim() || '',
+                 };
+            });
+            setAllocations((prev) => [...prev, ...newAllocs]);
+            toast({ title: 'CSV Imported', description: `Added ${newAllocs.length} allocations.` });
+        };
+        reader.readAsText(file);
+        e.target.value = ''; // Reset input
     }
 
     return (
@@ -512,15 +569,23 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                             </div>
                         )}
                         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={addAllocation}
-                                className="h-9 gap-1"
-                            >
-                                <Plus className="h-4 w-4" />
-                                Add allocation
-                            </Button>
+                            <div className="flex gap-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={addAllocation}
+                                    className="h-9 gap-1"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Add allocation
+                                </Button>
+                                
+                                <label className="inline-flex cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-md border border-zoru-line bg-zoru-bg px-4 py-2 text-sm font-medium text-zoru-ink transition-colors hover:bg-zoru-surface hover:text-zoru-ink-strong focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-primary disabled:pointer-events-none disabled:opacity-50 h-9">
+                                    <Upload className="h-4 w-4" />
+                                    Import CSV
+                                    <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
+                                </label>
+                            </div>
                             {allocations.length > 0 ? (
                                 <div className="text-[12px] text-zoru-ink-muted">
                                     Allocated:{' '}

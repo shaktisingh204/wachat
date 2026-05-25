@@ -38,6 +38,10 @@ import {
     ZoruBreadcrumbPage,
     ZoruBreadcrumbSeparator,
     Skeleton,
+    PageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruPageDescription,
 } from '@/components/zoruui';
 import { HubKpiGrid, type HubKpi } from '../_components/hub-kpi-grid';
 import { formatDate } from '../_components/hub-data';
@@ -210,19 +214,23 @@ export default async function ImportExportLandingPage(props: { searchParams?: Pr
                 </ZoruBreadcrumbList>
             </Breadcrumb>
             
-            <header className="flex items-center gap-3">
-                <FileSpreadsheet className="h-6 w-6 text-zoru-accent" />
-                <div>
-                    <h1 className="text-lg font-semibold text-zoru-ink">
-                        Import &amp; Export
-                    </h1>
-                    <p className="text-sm text-zoru-ink-muted">
-                        Bulk-load data from CSV or export a snapshot of an
-                        entity. The same field schema is used in both
-                        directions so an export can be re-imported losslessly.
-                    </p>
+            <PageHeader>
+                <div className="flex items-start gap-3">
+                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
+                        <FileSpreadsheet className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
+                    </div>
+                    <ZoruPageHeading>
+                        <ZoruPageTitle>
+                            Import &amp; Export
+                        </ZoruPageTitle>
+                        <ZoruPageDescription>
+                            Bulk-load data from CSV or export a snapshot of an
+                            entity. The same field schema is used in both
+                            directions so an export can be re-imported losslessly.
+                        </ZoruPageDescription>
+                    </ZoruPageHeading>
                 </div>
-            </header>
+            </PageHeader>
 
             <Suspense fallback={<div className="grid grid-cols-2 lg:grid-cols-4 gap-4"><Skeleton className="h-24 w-full" /><Skeleton className="h-24 w-full" /><Skeleton className="h-24 w-full" /><Skeleton className="h-24 w-full" /></div>}>
                 <KpiStatsGridWrapper searchParams={props.searchParams} />

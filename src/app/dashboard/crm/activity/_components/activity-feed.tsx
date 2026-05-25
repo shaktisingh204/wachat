@@ -350,16 +350,27 @@ function BucketCard({ title, rows }: { title: string; rows: Row[] }): React.JSX.
                   </span>
                 ) : null}
               </div>
-              {a.description ? (
-                <p className="mt-1 text-[12.5px] text-zoru-ink-muted">{a.description}</p>
-              ) : null}
-              <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
-                {formatRelative(a.occurred_at)}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </Card>
-  );
-}
+                {a.description ? (
+                  <p className="mt-1 text-[12.5px] text-zoru-ink-muted">{a.description}</p>
+                ) : null}
+                <TimeDisplay occurredAt={a.occurred_at} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    );
+  }
+  
+  function TimeDisplay({ occurredAt }: { occurredAt: WsUserActivity['occurred_at'] }) {
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => setMounted(true), []);
+    
+    if (!occurredAt) return null;
+    
+    return (
+      <p className="mt-1 text-[11.5px] text-zoru-ink-muted" title={String(occurredAt)}>
+        {mounted ? formatRelative(occurredAt) : String(occurredAt).slice(0, 10)}
+      </p>
+    );
+  }

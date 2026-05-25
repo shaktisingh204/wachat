@@ -70,6 +70,21 @@ export async function getSerpLive(keyword: string, location_code: number = 2840)
     return await fetchFromDataForSeo('/google/serp/organic/live/advanced', payload);
 }
 
+export async function getSerpLiveBatch(keywords: string[], location_code: number = 2840) {
+    if (keywords.length === 0) return { tasks: [] };
+    const payload = keywords.map(keyword => ({
+        keyword: keyword,
+        location_code: location_code,
+        language_code: "en",
+        device: "desktop",
+        os: "windows",
+        depth: 100
+    }));
+
+    // Split payload into chunks of 100 max if needed, but assuming <100 for now.
+    return await fetchFromDataForSeo('/google/serp/organic/live/advanced', payload.slice(0, 100));
+}
+
 // 3. Grid Tracking (Local SEO) - using Google Maps SERP
 // Scans multiple points around a center coordinate.
 export async function getLocalGridRanking(keyword: string, lat: number, lng: number, radiusKm: number = 10, gridSize: number = 3) {

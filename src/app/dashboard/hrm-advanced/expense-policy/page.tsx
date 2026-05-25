@@ -1,33 +1,43 @@
-'use client';
+import React, { Suspense } from 'react';
+import { ClientPage } from './client-page';
+import { getExpenseClaims } from '@/app/actions/hrm-advanced/expense-policy';
+import { Skeleton } from '@/components/zoruui';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
-import React from 'react';
-import { EntityCrudPage } from '@/components/crm/entity-crud-page';
-import { getExpenseClaims, saveExpenseClaim, deleteExpenseClaim } from '@/app/actions/hrm-advanced/expense-policy';
-import { ExpenseClaim } from '@/lib/hrm-advanced-types';
+export const dynamic = 'force-dynamic';
 
-export default function Page() {
+
+// Next.js config for the page
+export const metadata = {
+  title: 'Expense Policy | SabNode CRM',
+  description: 'Manage and approve employee expenses with real-time updates.',
+};
+
+export default async function ExpensePolicyPage() {
   return (
-    <EntityCrudPage<ExpenseClaim>
+    <Suspense fallback={<ExpensePolicySkeleton />}>
+      <ExpensePolicyDataFetcher />
+    </Suspense>
+  );
+}
+
+async function ExpensePolicyDataFetcher() {
+  const data = await getExpenseClaims();
+  return <ClientPage initialData={data || []} />;
+}
+
+function ExpensePolicySkeleton() {
+  return (
+    <EntityListShell
       title="Expense Policy Engine"
-      description="Manage and approve employee expenses"
-      entityName="Claim"
-      fetchFn={getExpenseClaims}
-      saveFn={saveExpenseClaim}
-      deleteFn={deleteExpenseClaim}
-      formFields={[
-      { name: 'employeeId', label: 'Employee ID', type: 'text' },
-      { name: 'amount', label: 'Amount', type: 'number' },
-      { name: 'category', label: 'Category', type: 'text' },
-      { name: 'status', label: 'Status', type: 'select', options: ['Pending', 'Approved', 'Rejected'] },
-      { name: 'dateSubmitted', label: 'Date Submitted', type: 'date' }
-    ]}
-      columns={[
-      { header: 'Employee', accessorKey: 'employeeId' },
-      { header: 'Category', accessorKey: 'category' },
-      { header: 'Amount', accessorKey: 'amount', render: (val) => `$${val}` },
-      { header: 'Status', accessorKey: 'status' }
-    ]}
-      defaultValues={{ status: 'Pending', amount: 0 }}
-    />
+      subtitle="Manage, filter, and approve employee expenses with real-time updates."
+      loading={true}
+    >
+      <div className="space-y-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-16 w-full" />
+        ))}
+      </div>
+    </EntityListShell>
   );
 }

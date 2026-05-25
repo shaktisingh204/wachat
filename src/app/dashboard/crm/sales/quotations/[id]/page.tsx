@@ -76,7 +76,7 @@ function fmtMoney(value?: number | null, currency = 'INR'): string {
 function fmtDate(v?: string | Date | null): string {
   if (!v) return '—';
   const d = v instanceof Date ? v : new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US', { timeZone: 'UTC' });
 }
 
 const STATUS_FLOW = ['draft', 'sent', 'accepted', 'converted'] as const;

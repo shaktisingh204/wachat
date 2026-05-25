@@ -1818,6 +1818,7 @@ export type Project = {
         keyId?: string;
         keySecret?: string;
     };
+    kind?: string;
 };
 
 export type Template = {

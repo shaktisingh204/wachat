@@ -60,7 +60,14 @@ function fmtMoney(value: number | undefined, currency = 'INR'): string {
 function fmtDate(value: string | undefined): string {
     if (!value) return '—';
     const d = new Date(value);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
+    if (Number.isNaN(d.getTime())) return '—';
+    return new Intl.DateTimeFormat('en-IN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(d);
 }
 
 export default async function BankTransactionDetailPage({

@@ -13,12 +13,17 @@ import {
 import { Banknote, LoaderCircle, PieChart as PieChartIcon, Scale, ShieldCheck } from 'lucide-react';
 
 import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
     Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from '@/components/zoruui';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
@@ -46,6 +51,7 @@ export default function BalanceSheetPage(): React.JSX.Element {
     const [page, setPage] = React.useState(1);
     const [limit, setLimit] = React.useState(20);
     const [asOf, setAsOf] = React.useState<'current' | 'previous'>('current');
+    const [isMounted, setIsMounted] = React.useState(false);
 
     const load = React.useCallback(() => {
         startTransition(async () => {
@@ -60,8 +66,17 @@ export default function BalanceSheetPage(): React.JSX.Element {
     }, []);
 
     React.useEffect(() => {
+        setIsMounted(true);
         load();
     }, [load]);
+
+    if (!isMounted) {
+        return (
+            <div className="flex h-full items-center justify-center py-16">
+                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+        );
+    }
 
     if (isLoading && !data) {
         return (
@@ -173,57 +188,57 @@ export default function BalanceSheetPage(): React.JSX.Element {
 
     const table = (
         <Table>
-            <ZoruTableHeader>
-                <ZoruTableRow className="border-border hover:bg-transparent">
-                    <ZoruTableHead className="text-muted-foreground">Account</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground text-right">Amount</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground text-right">Share (%)</ZoruTableHead>
-                </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <TableHeader>
+                <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground">Account</TableHead>
+                    <TableHead className="text-muted-foreground text-right">Amount</TableHead>
+                    <TableHead className="text-muted-foreground text-right">Share (%)</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
                 {pageRows.length === 0 ? (
-                    <ZoruTableRow className="border-border">
-                        <ZoruTableCell colSpan={3} className="h-24 text-center text-muted-foreground">
+                    <TableRow className="border-border">
+                        <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
                             No accounts to display.
-                        </ZoruTableCell>
-                    </ZoruTableRow>
+                        </TableCell>
+                    </TableRow>
                 ) : (
                     pageRows.map((entry, idx) => {
                         const share = totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00';
                         return (
-                            <ZoruTableRow
+                            <TableRow
                                 key={`${entry.account}-${idx}`}
                                 className={`border-border ${entry.isMain ? 'bg-secondary font-semibold' : ''}`}
                             >
-                                <ZoruTableCell className={`text-foreground ${entry.isSub ? 'pl-8' : ''}`}>
+                                <TableCell className={`text-foreground ${entry.isSub ? 'pl-8' : ''}`}>
                                     {entry.account}
-                                </ZoruTableCell>
-                                <ZoruTableCell className="text-right font-mono text-foreground">
+                                </TableCell>
+                                <TableCell className="text-right font-mono text-foreground">
                                     {fmtMoney(entry.amount)}
-                                </ZoruTableCell>
-                                <ZoruTableCell className="text-right font-mono text-foreground">
+                                </TableCell>
+                                <TableCell className="text-right font-mono text-foreground">
                                     {share}%
-                                </ZoruTableCell>
-                            </ZoruTableRow>
+                                </TableCell>
+                            </TableRow>
                         );
                     })
                 )}
-            </ZoruTableBody>
+            </TableBody>
         </Table>
     );
 
     // Note: balance-sheet is a point-in-time report — no date range, but we
     // still offer Current vs Previous FY snapshot via filters slot.
     const filters = (
-        <select
-            value={asOf}
-            onChange={(e) => setAsOf(e.target.value as 'current' | 'previous')}
-            className="h-9 rounded-[var(--zoru-radius-sm)] border border-border bg-background px-3 text-[13px] text-foreground"
-            aria-label="Snapshot date"
-        >
-            <option value="current">As of today</option>
-            <option value="previous">As of FY end (prior)</option>
-        </select>
+        <Select value={asOf} onValueChange={(val) => setAsOf(val as 'current' | 'previous')}>
+            <SelectTrigger className="w-[180px] h-9">
+                <SelectValue placeholder="Snapshot date" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="current">As of today</SelectItem>
+                <SelectItem value="previous">As of FY end (prior)</SelectItem>
+            </SelectContent>
+        </Select>
     );
 
     return (

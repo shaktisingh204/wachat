@@ -29,7 +29,7 @@ export default function OnboardingLayout({
             </main>
             <footer className="border-t">
                 <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 text-xs text-muted-foreground sm:px-6">
-                    <span>
+                    <span suppressHydrationWarning>
                         © {new Date().getFullYear()} SabNode — all rights
                         reserved.
                     </span>

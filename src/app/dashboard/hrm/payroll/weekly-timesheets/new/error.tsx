@@ -1,12 +1,28 @@
 'use client';
+
+import { useEffect } from 'react';
 import { Button } from '@/components/zoruui';
 
-export default function WeeklyTimesheetNewError({ error, reset }: { error: Error; reset: () => void }) {
+export default function NewTimesheetError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    console.error('Error fetching data for new timesheet:', error);
+  }, [error]);
+
   return (
-    <div className="flex h-[400px] flex-col items-center justify-center space-y-4">
-      <h2 className="text-lg font-semibold">Something went wrong fetching employees!</h2>
-      <p className="text-sm text-zoru-ink-muted">{error.message}</p>
-      <Button onClick={() => reset()}>Try again</Button>
+    <div className="p-12 text-center flex flex-col items-center gap-4">
+      <h2 className="text-lg font-semibold text-zoru-danger-ink">Something went wrong!</h2>
+      <p className="text-sm text-zoru-ink-muted">
+        Failed to load employees for the new timesheet form.
+      </p>
+      <Button onClick={() => reset()} variant="outline">
+        Try again
+      </Button>
     </div>
   );
 }

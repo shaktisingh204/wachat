@@ -16,7 +16,7 @@ export async function getLandingPages() {
     return records.map(r => ({ ...r, _id: r._id.toString() }));
   } catch (error) {
     console.error('Error fetching LandingPages:', error);
-    return [];
+    throw new Error('Failed to fetch landing pages');
   }
 }
 

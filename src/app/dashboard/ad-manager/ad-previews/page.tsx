@@ -38,7 +38,7 @@ export default function AdPreviewsPage() {
     const fetchData = React.useCallback(async () => {
         if (!activeAccount) return;
         setLoading(true);
-        const actId = activeAccount.account_id;
+        const actId = activeAccount.id;
         const res = await getAdPreviews(actId);
         if (res.error) {
             toast({ title: 'Error', description: res.error, variant: 'destructive' });
@@ -108,8 +108,8 @@ export default function AdPreviewsPage() {
                                                 <img src={img} alt={ad.name} className="w-full h-full object-cover" />
                                             </div>
                                         </ZoruDialogTrigger>
-                                        <ZoruDialogContent className="max-w-4xl p-0 overflow-hidden bg-black border-none shadow-2xl">
-                                            <img src={img} alt={ad.name} className="w-full h-auto max-h-[85vh] object-contain" />
+                                        <ZoruDialogContent className="w-[90vw] max-w-6xl h-[90vh] p-2 flex flex-col justify-center items-center bg-black/95 border-none shadow-2xl [&>button]:text-white [&>button:hover]:text-white [&>button:hover]:bg-white/20">
+                                            <img src={img} alt={ad.name} className="w-full h-full object-contain" />
                                         </ZoruDialogContent>
                                     </Dialog>
                                 ) : (
@@ -131,7 +131,7 @@ export default function AdPreviewsPage() {
                                         <p className="text-muted-foreground text-xs line-clamp-3">{ad.creative.body}</p>
                                     )}
                                     <a
-                                        href={`https://www.facebook.com/ads/manager/creation/edit/?act=${activeAccount.account_id.replace(/^act_/, '')}&selected_adset_id=&selected_campaign_id=&selected_ad_id=${ad.id}`}
+                                        href={`https://www.facebook.com/ads/manager/creation/edit/?act=${activeAccount.account_id}&selected_adset_id=&selected_campaign_id=&selected_ad_id=${ad.id}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline mt-2"

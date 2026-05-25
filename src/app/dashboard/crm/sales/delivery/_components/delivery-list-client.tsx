@@ -57,14 +57,11 @@ import {
 } from './delivery-list-bits';
 import { CrmBulkyGrid, type ColumnDef } from '@/components/crm/crm-bulky-grid';
 import { useCrmBulkyState } from '@/components/crm/use-crm-bulky-state';
+import { fmtDate } from '@/lib/utils';
 
 export type { DcStatus, DcRow, DcKpis };
 
-function fmtDate(v?: string): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 export interface DeliveryListClientProps {
   rows: DcRow[];

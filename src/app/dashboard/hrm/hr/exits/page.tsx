@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 'use client';
 
 import {
@@ -59,11 +60,7 @@ function pretty(s: string): string {
     return s.replace(/_/g, ' ');
 }
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 export default function ExitsListPage() {
     const [exits, setExits] = React.useState<CrmExitDoc[]>([]);

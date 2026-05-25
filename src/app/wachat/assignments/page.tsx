@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -18,6 +19,11 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -27,10 +33,11 @@ import {
 import { Inbox,
   UserPlus,
   RefreshCw,
-  Loader2 } from 'lucide-react';
+  Loader2,
+  Bot } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { getUnassignedConversations, assignConversation } from '@/app/actions/wachat-features.actions';
+import { getUnassignedConversations, assignConversation, getAgentStatuses, autoRouteConversations } from '@/app/actions/wachat-features.actions';
 
 /**
  * /wachat/assignments — Assign unassigned conversations to agents,
@@ -39,14 +46,13 @@ import { getUnassignedConversations, assignConversation } from '@/app/actions/wa
 
 import * as React from 'react';
 
-export const dynamic = 'force-dynamic';
-
 export default function AssignmentsPage() {
   const { activeProject, activeProjectId } = useProject();
   const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
   const [contacts, setContacts] = useState<any[]>([]);
   const [agentInputs, setAgentInputs] = useState<Record<string, string>>({});
+  const [agents, setAgents] = useState<any[]>([]);
 
   const fetchData = useCallback(() => {
     if (!activeProjectId) return;
@@ -56,6 +62,10 @@ export default function AssignmentsPage() {
         toast({ title: 'Error', description: res.error, variant: 'destructive' });
       } else {
         setContacts(res.contacts ?? []);
+      }
+      const agentRes = await getAgentStatuses(activeProjectId);
+      if (!agentRes.error) {
+        setAgents(agentRes.agents ?? []);
       }
     });
   }, [activeProjectId, toast]);
@@ -93,6 +103,19 @@ export default function AssignmentsPage() {
     });
   };
 
+  const handleAutoRoute = (strategy: 'round-robin' | 'skill-based') => {
+    if (!activeProjectId) return;
+    startTransition(async () => {
+      const res = await autoRouteConversations(activeProjectId, strategy);
+      if (res.error) {
+        toast({ title: 'Routing Error', description: res.error, variant: 'destructive' });
+      } else {
+        toast({ title: 'Routed', description: `Successfully routed ${res.count} conversations.` });
+        fetchData();
+      }
+    });
+  };
+
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       <Breadcrumb>
@@ -120,15 +143,25 @@ export default function AssignmentsPage() {
             Assign unassigned conversations to agents for follow-up.
           </p>
         </div>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={fetchData}
-          disabled={isPending}
-        >
-          <RefreshCw className={isPending ? 'animate-spin' : ''} />
-          Refresh
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleAutoRoute('round-robin')}
+            disabled={isPending || contacts.length === 0}
+          >
+            <Bot className="mr-1 h-3.5 w-3.5" /> Auto-Route
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={fetchData}
+            disabled={isPending}
+          >
+            <RefreshCw className={isPending ? 'animate-spin h-3.5 w-3.5 mr-1' : 'h-3.5 w-3.5 mr-1'} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       <Card className="w-fit p-5">
@@ -177,28 +210,37 @@ export default function AssignmentsPage() {
                   </ZoruTableCell>
                   <ZoruTableCell className="whitespace-nowrap text-[12px] text-zoru-ink-muted">
                     {c.lastMessageTimestamp
-                      ? new Date(c.lastMessageTimestamp).toLocaleString()
+                      ? fmtDate(c.lastMessageTimestamp)
                       : '--'}
                   </ZoruTableCell>
                   <ZoruTableCell>
                     <div className="flex items-center gap-2">
-                      <Input
+                      <Select
                         value={agentInputs[c._id] || ''}
-                        onChange={(e) =>
+                        onValueChange={(val) =>
                           setAgentInputs((p) => ({
                             ...p,
-                            [c._id]: e.target.value,
+                            [c._id]: val,
                           }))
                         }
-                        placeholder="Agent ID"
-                        className="h-8 w-[140px] text-xs"
-                      />
+                      >
+                        <SelectTrigger className="h-8 w-[160px] text-xs">
+                          <SelectValue placeholder="Select Agent" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {agents.map((a) => (
+                            <SelectItem key={a.id || a._id} value={a.id || a._id}>
+                              {a.name} ({a.status})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <Button
                         size="sm"
                         onClick={() => handleAssign(c._id)}
-                        disabled={isPending}
+                        disabled={isPending || !agentInputs[c._id]}
                       >
-                        <UserPlus /> Assign
+                        <UserPlus className="mr-1 h-3.5 w-3.5" /> Assign
                       </Button>
                     </div>
                   </ZoruTableCell>

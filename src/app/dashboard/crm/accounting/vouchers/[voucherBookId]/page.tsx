@@ -19,6 +19,8 @@ import {
 } from '@/app/actions/crm-vouchers.actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
+import { ExportCsvButton } from './export-csv-button';
+
 export default async function VoucherBookDetailPage(props: {
     params: Promise<{ voucherBookId: string }>;
 }) {
@@ -147,11 +149,14 @@ export default async function VoucherBookDetailPage(props: {
                     </div>
                 </Card>
                 <Card className="p-0">
-                    <div className="px-4 py-3">
-                        <p className="text-[13px] font-semibold text-foreground">Recent entries</p>
-                        <p className="text-[11.5px] text-muted-foreground">
-                            Last 50 voucher entries posted under this book.
-                        </p>
+                    <div className="flex items-start justify-between px-4 py-3">
+                        <div>
+                            <p className="text-[13px] font-semibold text-foreground">Recent entries</p>
+                            <p className="text-[11.5px] text-muted-foreground">
+                                Last 50 voucher entries posted under this book.
+                            </p>
+                        </div>
+                        <ExportCsvButton data={entries} filename={`voucher-entries-${voucherBookId}`} />
                     </div>
                     <div className="overflow-x-auto border-t border-border">
                         <Table>

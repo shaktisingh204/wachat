@@ -24,12 +24,28 @@ type Filter = 'all' | 'default';
 
 export default function TaxesPage() {
     const [filter, setFilter] = React.useState<Filter>('all');
+    const [mounted, setMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const getAll = React.useCallback(async () => {
         const list = (await getTaxes()) as Row[];
         if (filter === 'default') return list.filter((t) => t.is_default);
         return list;
     }, [filter]);
+
+    if (!mounted) {
+        return (
+            <div className="flex h-60 items-center justify-center">
+                <span className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-zoru-ink-muted border-t-transparent" />
+                    Loading taxes...
+                </span>
+            </div>
+        );
+    }
 
     return (
         <SettingsEntityShell<Row>

@@ -8,9 +8,11 @@
  * the full row set and let the client component do in-memory filtering.
  */
 
+import { Suspense } from 'react';
 import { getProposals } from '@/app/actions/worksuite/proposals.actions';
 import type { WsProposal } from '@/lib/worksuite/proposals-types';
 import { ProposalListClient } from './_components/proposal-list-client';
+import { Skeleton } from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,10 +47,28 @@ export default async function ProposalsPage({ searchParams }: PageProps) {
   );
 
   return (
-    <ProposalListClient
-      proposals={proposals as ProposalRow[]}
-      initialQuery={q}
-      kpi={kpi}
-    />
+    <Suspense fallback={<ProposalsPageLoader />}>
+      <ProposalListClient
+        proposals={proposals as ProposalRow[]}
+        initialQuery={q}
+        kpi={kpi}
+      />
+    </Suspense>
   );
 }
+
+function ProposalsPageLoader() {
+  return (
+    <div className="space-y-4 p-6">
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-4 w-96" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-5">
+        {[...Array(5)].map((_, i) => (
+          <Skeleton key={i} className="h-20 w-full" />
+        ))}
+      </div>
+      <Skeleton className="h-64 w-full" />
+    </div>
+  );
+}
+

@@ -6,14 +6,14 @@
  * lifting on the client.
  */
 
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+
 
 import { ImportExportClient } from './_components/import-export-client';
 import { SUPPORTED_ENTITY_KINDS } from '@/lib/bulk-import/registry';
 import { getExportHistory } from './_components/export-history.actions';
 import { hasPermissionGroup } from '@/lib/permission-groups/check';
+import { format } from 'date-fns';
+import { Suspense } from 'react';
 import {
     Breadcrumb,
     ZoruBreadcrumbItem,
@@ -49,11 +49,11 @@ export default async function ImportExportEntityPage({
     }
 
     const canView = await hasPermissionGroup('import_export', 'view');
-    if (!canView) {
+    const canImport = await hasPermissionGroup('import_export', 'create');
+
+    if (!canView && !canImport) {
         throw new Error('You do not have permission to access Import & Export.');
     }
-
-    const history = await getExportHistory(entityKind);
 
     return (
         <div className="flex w-full flex-col gap-4">
@@ -75,33 +75,59 @@ export default async function ImportExportEntityPage({
             <h1 className="text-lg font-semibold text-zoru-ink">
                 Import / Export — {entityKind}
             </h1>
-            <ImportExportClient entityKind={entityKind} />
+            <ImportExportClient entityKind={entityKind} canImport={canImport} canExport={canView} />
             
             <div className="mt-6 flex flex-col gap-2">
                 <h2 className="text-sm font-semibold text-zoru-ink">Recent Exports</h2>
-                <Card className="overflow-hidden">
-                    {history.length === 0 ? (
-                        <div className="p-4 text-sm text-zoru-ink-muted">No recent exports found.</div>
-                    ) : (
-                        <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Date</ZoruTableHead>
-                                    <ZoruTableHead>Rows Exported</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
-                                {history.map(h => (
-                                    <ZoruTableRow key={h.id}>
-                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink">{h.createdAt.toLocaleString()}</ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">{h.rowCount.toLocaleString()}</ZoruTableCell>
-                                    </ZoruTableRow>
-                                ))}
-                            </ZoruTableBody>
-                        </Table>
-                    )}
-                </Card>
+                <Suspense fallback={<ExportHistorySkeleton />}>
+                    <ExportHistoryList entityKind={entityKind} />
+                </Suspense>
             </div>
         </div>
+    );
+}
+
+async function ExportHistoryList({ entityKind }: { entityKind: string }) {
+    const history = await getExportHistory(entityKind);
+
+    return (
+        <Card className="overflow-hidden">
+            {history.length === 0 ? (
+                <div className="p-4 text-sm text-zoru-ink-muted">No recent exports found.</div>
+            ) : (
+                <Table>
+                    <ZoruTableHeader>
+                        <ZoruTableRow>
+                            <ZoruTableHead>Date</ZoruTableHead>
+                            <ZoruTableHead>Rows Exported</ZoruTableHead>
+                        </ZoruTableRow>
+                    </ZoruTableHeader>
+                    <ZoruTableBody>
+                        {history.map(h => (
+                            <ZoruTableRow key={h.id}>
+                                <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                                    {format(new Date(h.createdAt), 'PPpp')}
+                                </ZoruTableCell>
+                                <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    {h.rowCount.toLocaleString()}
+                                </ZoruTableCell>
+                            </ZoruTableRow>
+                        ))}
+                    </ZoruTableBody>
+                </Table>
+            )}
+        </Card>
+    );
+}
+
+function ExportHistorySkeleton() {
+    return (
+        <Card className="overflow-hidden p-4">
+            <div className="space-y-3">
+                <div className="h-4 w-1/4 rounded bg-zoru-border animate-pulse" />
+                <div className="h-4 w-full rounded bg-zoru-border/50 animate-pulse" />
+                <div className="h-4 w-full rounded bg-zoru-border/50 animate-pulse" />
+            </div>
+        </Card>
     );
 }

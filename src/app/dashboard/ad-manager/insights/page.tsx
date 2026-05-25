@@ -21,9 +21,16 @@ import {
   Eye,
   MousePointerClick,
   Users,
-  Download } from 'lucide-react';
+  Download,
+  RefreshCcw,
+  Search,
+  ArrowUpDown,
+} from 'lucide-react';
 
 import * as React from 'react';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import { cn } from '@/lib/utils';
 import { useAdManager } from '@/context/ad-manager-context';
@@ -46,12 +53,22 @@ const TABS: { value: BreakdownTab; label: string }[] = [
     { value: 'country', label: 'Country' },
 ];
 
+const dateRangeSchema = z.object({
+    since: z.string().min(1, 'Since date is required'),
+    until: z.string().min(1, 'Until date is required'),
+}).refine(data => new Date(data.since) <= new Date(data.until), {
+    message: 'Start date must be before or equal to end date',
+    path: ['since'],
+});
+
+type DateRangeValues = z.infer<typeof dateRangeSchema>;
+
 export default function InsightsPage() {
     const { activeAccount } = useAdManager();
     const { preset, date } = useAdManagerShell();
     const [loading, setLoading] = React.useState(true);
-    const [customSince, setCustomSince] = React.useState('');
-    const [customUntil, setCustomUntil] = React.useState('');
+    const [refreshing, setRefreshing] = React.useState(false);
+
     const [accountAgg, setAccountAgg] = React.useState<any>(null);
     const [byDay, setByDay] = React.useState<any[]>([]);
     const [byPlacement, setByPlacement] = React.useState<any[]>([]);
@@ -60,17 +77,27 @@ export default function InsightsPage() {
     const [byCountry, setByCountry] = React.useState<any[]>([]);
     const [activeTab, setActiveTab] = React.useState<BreakdownTab>('time');
 
-    React.useEffect(() => {
+    const form = useForm<DateRangeValues>({
+        resolver: zodResolver(dateRangeSchema),
+        defaultValues: {
+            since: '',
+            until: '',
+        },
+    });
+
+    const fetchInsights = React.useCallback((customSince?: string, customUntil?: string) => {
         if (!activeAccount) return;
-        setLoading(true);
+        setRefreshing(true);
         const actId = `act_${activeAccount.account_id.replace(/^act_/, '')}`;
         const common = {
             level: 'account' as const,
-            date_preset: preset && preset !== 'custom' ? preset : 'last_7d',
+            date_preset: (!customSince && preset && preset !== 'custom') ? preset : 'last_7d',
             time_range:
-                preset === 'custom' && date?.from && date.to
-                    ? { since: date.from.toISOString().split('T')[0], until: date.to.toISOString().split('T')[0] }
-                    : undefined,
+                customSince && customUntil 
+                    ? { since: customSince, until: customUntil }
+                    : (preset === 'custom' && date?.from && date.to)
+                        ? { since: date.from.toISOString().split('T')[0], until: date.to.toISOString().split('T')[0] }
+                        : undefined,
         };
 
         Promise.all([
@@ -88,8 +115,23 @@ export default function InsightsPage() {
             setByAgeGender(ag.data || []);
             setByCountry(cnt.data || []);
             setLoading(false);
+            setRefreshing(false);
+        }).catch(err => {
+            console.error(err);
+            setLoading(false);
+            setRefreshing(false);
         });
     }, [activeAccount, preset, date]);
+
+    React.useEffect(() => {
+        setLoading(true);
+        fetchInsights();
+    }, [fetchInsights]);
+
+    const onSubmit = (values: DateRangeValues) => {
+        setLoading(true);
+        fetchInsights(values.since, values.until);
+    };
 
     if (!activeAccount) {
         return (
@@ -133,65 +175,52 @@ export default function InsightsPage() {
                 title="Performance insights"
                 description="Deep dive into your account performance with breakdown-level insights."
                 actions={
-                    <Button variant="outline" size="sm" onClick={exportInsightsCsv} disabled={loading}>
-                        <Download className="h-4 w-4 mr-1" /> Export CSV
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => fetchInsights()} disabled={loading || refreshing}>
+                            <RefreshCcw className={cn("h-4 w-4 mr-1", refreshing && "animate-spin")} /> Refresh
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={exportInsightsCsv} disabled={loading}>
+                            <Download className="h-4 w-4 mr-1" /> Export All
+                        </Button>
+                    </div>
                 }
             />
 
-            {/* Custom date range inputs */}
-            <div className="flex items-end gap-3">
+            {/* Custom date range inputs with Zod schema */}
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-start gap-3">
                 <div className="space-y-1">
                     <Label className="text-xs">Since</Label>
                     <Input
                         type="date"
-                        value={customSince}
-                        onChange={(e) => setCustomSince(e.target.value)}
-                        className="h-8 w-40 text-xs"
+                        {...form.register('since')}
+                        className={cn("h-8 w-40 text-xs", form.formState.errors.since && "border-destructive")}
                     />
+                    {form.formState.errors.since && (
+                        <p className="text-[10px] text-destructive">{form.formState.errors.since.message}</p>
+                    )}
                 </div>
                 <div className="space-y-1">
                     <Label className="text-xs">Until</Label>
                     <Input
                         type="date"
-                        value={customUntil}
-                        onChange={(e) => setCustomUntil(e.target.value)}
-                        className="h-8 w-40 text-xs"
+                        {...form.register('until')}
+                        className={cn("h-8 w-40 text-xs", form.formState.errors.until && "border-destructive")}
                     />
+                    {form.formState.errors.until && (
+                        <p className="text-[10px] text-destructive">{form.formState.errors.until.message}</p>
+                    )}
                 </div>
-                <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={!customSince || !customUntil || loading}
-                    onClick={() => {
-                        if (!activeAccount || !customSince || !customUntil) return;
-                        setLoading(true);
-                        const actId = `act_${activeAccount.account_id.replace(/^act_/, '')}`;
-                        const common = {
-                            level: 'account' as const,
-                            time_range: { since: customSince, until: customUntil },
-                        };
-                        Promise.all([
-                            getInsights(actId, common),
-                            getInsights(actId, { ...common, time_increment: 1 }),
-                            getInsights(actId, { ...common, breakdowns: ['publisher_platform'] }),
-                            getInsights(actId, { ...common, breakdowns: ['device_platform'] }),
-                            getInsights(actId, { ...common, breakdowns: ['age', 'gender'] }),
-                            getInsights(actId, { ...common, breakdowns: ['country'] }),
-                        ]).then(([agg, day, pla, dev, ag, cnt]) => {
-                            setAccountAgg(agg.data?.[0] || null);
-                            setByDay(day.data || []);
-                            setByPlacement(pla.data || []);
-                            setByDevice(dev.data || []);
-                            setByAgeGender(ag.data || []);
-                            setByCountry(cnt.data || []);
-                            setLoading(false);
-                        });
-                    }}
-                >
-                    Apply
-                </Button>
-            </div>
+                <div className="pt-5">
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        type="submit"
+                        disabled={loading || refreshing}
+                    >
+                        Apply
+                    </Button>
+                </div>
+            </form>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 {loading
@@ -207,7 +236,7 @@ export default function InsightsPage() {
                       ))}
             </div>
 
-            {/* Segmented buttons replace Tabs (no tab primitive in Zoru). */}
+            {/* Segmented buttons replace Tabs */}
             <div className="flex flex-wrap gap-1 rounded-lg border bg-muted/40 p-1 w-fit">
                 {TABS.map((t) => (
                     <Button
@@ -251,26 +280,109 @@ function BreakdownTable({
     dimension: string;
     columns: string[];
 }) {
+    const [searchTerm, setSearchTerm] = React.useState('');
+    const [sortConfig, setSortConfig] = React.useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+
+    const filteredRows = React.useMemo(() => {
+        if (!searchTerm) return rows;
+        const lower = searchTerm.toLowerCase();
+        return rows.filter(r => 
+            columns.some(c => String(r[c] ?? '').toLowerCase().includes(lower))
+        );
+    }, [rows, searchTerm, columns]);
+
+    const sortedRows = React.useMemo(() => {
+        let sortable = [...filteredRows];
+        if (sortConfig !== null) {
+            sortable.sort((a, b) => {
+                const aVal = a[sortConfig.key];
+                const bVal = b[sortConfig.key];
+                
+                // Handle numeric sorting if strings are numbers or formatted values
+                const aNum = Number(String(aVal).replace(/[^0-9.-]+/g,""));
+                const bNum = Number(String(bVal).replace(/[^0-9.-]+/g,""));
+
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    if (aNum < bNum) return sortConfig.direction === 'asc' ? -1 : 1;
+                    if (aNum > bNum) return sortConfig.direction === 'asc' ? 1 : -1;
+                } else {
+                    if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return sortable;
+    }, [filteredRows, sortConfig]);
+
+    const handleSort = (key: string) => {
+        let direction: 'asc' | 'desc' = 'asc';
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const exportTableCsv = () => {
+        if (sortedRows.length === 0) return;
+        const headers = columns;
+        const csv = [
+            headers.join(','),
+            ...sortedRows.map((r: any) => headers.map((h) => JSON.stringify(r[h] ?? '')).join(',')),
+        ].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${dimension}-breakdown.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <Card className="mt-3">
+            <div className="p-3 border-b flex items-center justify-between gap-4">
+                <div className="relative w-64 max-w-sm">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        placeholder="Search breakdown..."
+                        className="pl-8 h-9"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <Button variant="outline" size="sm" onClick={exportTableCsv} disabled={sortedRows.length === 0}>
+                    <Download className="h-4 w-4 mr-1" /> Export Table
+                </Button>
+            </div>
             <ZoruCardContent className="p-0">
                 <Table>
                     <ZoruTableHeader>
                         <ZoruTableRow>
                             {columns.map((c) => (
-                                <ZoruTableHead key={c} className="capitalize">{c.replace(/_/g, ' ')}</ZoruTableHead>
+                                <ZoruTableHead key={c} className="capitalize">
+                                    <button 
+                                        type="button"
+                                        onClick={() => handleSort(c)}
+                                        className="flex items-center gap-1 hover:text-foreground font-medium"
+                                    >
+                                        {c.replace(/_/g, ' ')}
+                                        <ArrowUpDown className="h-3 w-3" />
+                                    </button>
+                                </ZoruTableHead>
                             ))}
                         </ZoruTableRow>
                     </ZoruTableHeader>
                     <ZoruTableBody>
-                        {rows.length === 0 ? (
+                        {sortedRows.length === 0 ? (
                             <ZoruTableRow>
                                 <ZoruTableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
                                     No data for this breakdown.
                                 </ZoruTableCell>
                             </ZoruTableRow>
                         ) : (
-                            rows.map((r, i) => (
+                            sortedRows.map((r, i) => (
                                 <ZoruTableRow key={i}>
                                     {columns.map((c) => {
                                         const v = r[c];

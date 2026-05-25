@@ -1,0 +1,19 @@
+--- src/app/dashboard/hrm/payroll/shifts/new/page.tsx
++++ src/app/dashboard/hrm/payroll/shifts/new/page.tsx
+@@ -74,9 +74,6 @@
+         setDrafts(prev => prev.filter(d => !selectedIds.has(d.id)));
+         setSelectedIds(new Set());
+         toast({ title: 'Deleted', description: 'Selected drafts were removed.' });
+     };
+ 
+     const toggleAllSelection = (checked: boolean) => {
+@@ -93,9 +90,6 @@
+         }
+         setSelectedIds(next);
+     };
+-
+-    // Protect against hydration mismatch
+-    if (!isMounted) return null;
+ 
+     const allSelected = filteredDrafts.length > 0 && selectedIds.size === filteredDrafts.length;
+     const isIndeterminate = selectedIds.size > 0 && selectedIds.size < filteredDrafts.length;

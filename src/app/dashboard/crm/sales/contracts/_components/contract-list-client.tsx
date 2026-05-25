@@ -20,16 +20,16 @@ import {
   Checkbox,
   Input,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   useZoruToast,
 } from '@/components/zoruui';
 import { Archive, CalendarRange, Download, FileSignature, Plus, Trash2, X } from 'lucide-react';
@@ -87,23 +87,11 @@ function KpiCard({ label, value, active, onClick, tone = 'neutral' }: KpiCardPro
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
 
-function fmtDate(v?: string | null): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-IN');
-}
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 function fmtMoney(value?: number, currency?: string): string {
   if (typeof value !== 'number') return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: currency || 'INR',
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${currency || 'INR'} ${value}`;
-  }
+  return fmtINR(value, currency);
 }
 
 function toCsv(rows: CrmContractDoc[]): string {
@@ -587,16 +575,16 @@ export function ContractListClient({
                 {selected.size} selected
               </span>
               <Select onValueChange={(v) => bulkStatus(v as ContractStatusV2)}>
-                <ZoruSelectTrigger className="h-8 w-[160px] text-[12px]">
-                  <ZoruSelectValue placeholder="Change status…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                  <ZoruSelectItem value="pending_signature">Pending signature</ZoruSelectItem>
-                  <ZoruSelectItem value="renewed">Renewed</ZoruSelectItem>
-                  <ZoruSelectItem value="expired">Expired</ZoruSelectItem>
-                  <ZoruSelectItem value="terminated">Terminated</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger className="h-8 w-[160px] text-[12px]">
+                  <SelectValue placeholder="Change status…" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="pending_signature">Pending signature</SelectItem>
+                  <SelectItem value="renewed">Renewed</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
+                  <SelectItem value="terminated">Terminated</SelectItem>
+                </SelectContent>
               </Select>
               <Button
                 size="sm"
@@ -669,87 +657,87 @@ export function ContractListClient({
 
           <Card className="overflow-hidden p-0">
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead className="w-[36px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[36px]">
                     <Checkbox
                       checked={allSelectedOnPage}
                       onCheckedChange={toggleAll}
                       aria-label="Select all"
                     />
-                  </ZoruTableHead>
-                  <ZoruTableHead>Title</ZoruTableHead>
-                  <ZoruTableHead>Counter-party</ZoruTableHead>
-                  <ZoruTableHead>Type</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead>Effective</ZoruTableHead>
-                  <ZoruTableHead>Expiry</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Value</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+                  </TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Counter-party</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Effective</TableHead>
+                  <TableHead>Expiry</TableHead>
+                  <TableHead className="text-right">Value</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filtered.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <TableRow>
+                    <TableCell
                       colSpan={8}
                       className="h-24 text-center text-[13px] text-zoru-ink-muted"
                     >
                       {filtersActive || query
                         ? 'No contracts match these filters.'
                         : 'No contracts yet — click "New contract" to add one.'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   filtered.map((c) => {
                     const id = String(c._id);
                     const isSelected = selected.has(id);
                     return (
-                      <ZoruTableRow
+                      <TableRow
                         key={id}
                         data-state={isSelected ? 'selected' : undefined}
                       >
-                        <ZoruTableCell>
+                        <TableCell>
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleRow(id)}
                             aria-label={`Select ${c.title}`}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </TableCell>
+                        <TableCell>
                           <EntityRowLink
                             href={`/dashboard/crm/sales/contracts/${id}`}
                             label={c.title || 'Untitled contract'}
                             subtitle={c.contractNo || undefined}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                        </TableCell>
+                        <TableCell className="text-[12.5px] text-zoru-ink">
                           {c.partyName || '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        </TableCell>
+                        <TableCell className="text-[12.5px] text-zoru-ink-muted">
                           {c.type
                             ? c.type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
                             : '—'}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
+                        </TableCell>
+                        <TableCell>
                           <StatusPill
                             label={c.status.replace(/_/g, ' ')}
                             tone={statusToTone(c.status)}
                           />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        </TableCell>
+                        <TableCell className="text-[12.5px] text-zoru-ink-muted">
                           {fmtDate(c.effectiveDate)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                        </TableCell>
+                        <TableCell className="text-[12.5px] text-zoru-ink-muted">
                           {fmtDate(c.expiryDate)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
+                        </TableCell>
+                        <TableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
                           {fmtMoney(c.value, c.currency)}
-                        </ZoruTableCell>
-                      </ZoruTableRow>
+                        </TableCell>
+                      </TableRow>
                     );
                   })
                 )}
-              </ZoruTableBody>
+              </TableBody>
             </Table>
           </Card>
         </div>

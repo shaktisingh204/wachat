@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { notFound } from 'next/navigation';
 import { getPublicEstimate } from '@/app/actions/public-estimate.actions';
 import {
@@ -8,6 +9,9 @@ import {
   ZoruCardTitle,
 } from '@/components/zoruui';
 import { EstimateActionsPanel } from './estimate-actions-panel';
+import { fmtDate, fmtINR } from '@/lib/utils';
+
+export const dynamic = 'force-dynamic';
 
 type Params = Promise<{ hash: string }>;
 
@@ -17,29 +21,7 @@ const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | '
   waiting: 'secondary',
 };
 
-function formatMoney(amount: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
-  } catch {
-    return `${currency} ${amount.toFixed(2)}`;
-  }
-}
-
-function formatDate(iso: string | null): string {
-  if (!iso) return '—';
-  try {
-    return new Date(iso).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  } catch {
-    return iso;
-  }
-}
-
-export default async function PublicEstimatePage({ params }: { params: Params }) {
-  const { hash } = await params;
+async function PublicEstimateContainer({ hash }: { hash: string }) {
   const estimate = await getPublicEstimate(hash);
   if (!estimate) notFound();
 
@@ -50,7 +32,7 @@ export default async function PublicEstimatePage({ params }: { params: Params })
           <div>
             <ZoruCardTitle>Estimate {estimate.estimateNumber}</ZoruCardTitle>
             <p className="mt-1 text-sm text-zinc-500">
-              Valid till {formatDate(estimate.validTill)}
+              Valid till {fmtDate(estimate.validTill)}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -95,10 +77,10 @@ export default async function PublicEstimatePage({ params }: { params: Params })
                         <td className="px-3 py-2">{li.description || '—'}</td>
                         <td className="px-3 py-2 text-right">{li.quantity}</td>
                         <td className="px-3 py-2 text-right">
-                          {formatMoney(li.rate, estimate.currency)}
+                          {fmtINR(li.rate)}
                         </td>
                         <td className="px-3 py-2 text-right">
-                          {formatMoney(li.total, estimate.currency)}
+                          {fmtINR(li.total)}
                         </td>
                       </tr>
                     ))
@@ -111,7 +93,7 @@ export default async function PublicEstimatePage({ params }: { params: Params })
           <section className="flex justify-end text-sm">
             <div className="flex w-full max-w-xs justify-between border-t border-zinc-200 pt-1 text-base font-semibold">
               <span>Total</span>
-              <span>{formatMoney(estimate.total, estimate.currency)}</span>
+              <span>{fmtINR(estimate.total)}</span>
             </div>
           </section>
 
@@ -131,7 +113,18 @@ export default async function PublicEstimatePage({ params }: { params: Params })
         status={estimate.status}
         signature={estimate.signature ?? null}
         declineReason={estimate.declineReason ?? null}
+        invoiceHash={estimate.invoiceHash ?? null}
       />
     </div>
+  );
+}
+
+export default async function PublicEstimatePage({ params }: { params: Params }) {
+  const { hash } = await params;
+  
+  return (
+    <React.Suspense fallback={<div>Loading estimate...</div>}>
+      <PublicEstimateContainer hash={hash} />
+    </React.Suspense>
   );
 }

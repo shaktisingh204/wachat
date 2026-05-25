@@ -190,7 +190,7 @@ export async function loadThread(
   const msgs = await db
     .collection<SabsmsMessage>(SABSMS_COLLECTIONS.messages)
     .find({ workspaceId, conversationId })
-    .sort({ createdAt: 1 })
+    .sort({ createdAt: 1, _id: 1 })
     .limit(500)
     .toArray();
 
@@ -264,7 +264,7 @@ export async function replyToThread(input: {
       conversationId: input.conversationId,
       direction: "inbound",
     },
-    { sort: { createdAt: -1 } },
+    { sort: { createdAt: -1, _id: -1 } },
   );
   const to = lastInbound?.from;
   const from = lastInbound?.to;
@@ -342,6 +342,23 @@ export async function sendCannedResponse(input: {
   const body = tpl.bodies?.[0]?.body;
   if (!body) return { ok: false, error: "Template has no body" };
   return replyToThread({ conversationId: input.conversationId, body });
+}
+
+export async function generateAiReply(conversationId: string): Promise<{ ok: true; suggestion: string } | { ok: false; error: string }> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+  
+  const thread = await loadThread(ws.workspaceId, conversationId);
+  if (!thread) return { ok: false, error: "Conversation not found" };
+
+  // In a real implementation this would call genkit or openai using the thread.messages context.
+  // For the purpose of the mock CRM, we return a heuristic or static string.
+  const inboundCount = thread.messages.filter(m => m.direction === 'inbound').length;
+  let suggestion = "Thank you for reaching out! We are looking into this for you right now and will get back to you shortly.";
+  if (inboundCount > 1) {
+    suggestion = "Thanks for following up! One of our agents will be with you momentarily to resolve this.";
+  }
+  return { ok: true, suggestion };
 }
 
 // ─── Notes / assign / status ──────────────────────────────────────────────

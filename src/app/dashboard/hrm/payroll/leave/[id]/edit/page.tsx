@@ -15,15 +15,11 @@ import {
   getLeave,
   listLeaveTypeOptions,
 } from '@/app/actions/crm/leaves.actions';
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 
-export default async function EditLeavePage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+async function EditLeaveFormLoader({ id }: { id: string }) {
   const [{ leave }, { options: leaveTypes }] = await Promise.all([
     getLeave(id),
     listLeaveTypeOptions(),
@@ -37,21 +33,30 @@ export default async function EditLeavePage({
     leaveBalances = await getCrmLeaveBalances({ employeeId: leave.assignedTo });
   }
 
-  const leaveType = leaveTypes.find((lt) => lt._id === leave.leaveTypeId);
-  const ltLabel = leaveType
-    ? `${leaveType.code} · ${leaveType.name}`
-    : 'Leave request';
-
   const hasStarted = leave.from && new Date(leave.from).getTime() <= Date.now();
   const isApproved = leave.status === 'approved';
-  const isLocked = hasStarted || isApproved;
+  const isLocked = !!(hasStarted || isApproved);
+
+  return (
+    <LeaveForm initial={leave} leaveTypes={leaveTypes} isLocked={isLocked} leaveBalances={leaveBalances} />
+  );
+}
+
+export default async function EditLeavePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
 
   return (
     <EntityListShell
-      title={`Edit ${ltLabel}`}
+      title={`Edit Leave request`}
       subtitle="Update leave request details."
     >
-      <LeaveForm initial={leave} leaveTypes={leaveTypes} isLocked={isLocked} leaveBalances={leaveBalances} />
+      <React.Suspense fallback={<div className="p-4">Loading leave details...</div>}>
+        <EditLeaveFormLoader id={id} />
+      </React.Suspense>
     </EntityListShell>
   );
 }

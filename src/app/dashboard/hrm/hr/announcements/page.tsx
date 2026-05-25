@@ -1,3 +1,5 @@
+import { fmtDate } from '@/lib/utils';
+
 'use client';
 
 import {
@@ -76,11 +78,7 @@ const PRIORITY_TONE: Record<string, StatusTone> = {
     urgent: 'red',
 };
 
-function fmtDateTime(v: unknown): string {
-    if (!v) return '—';
-    const d = new Date(v as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
-}
+
 
 function titleCase(s?: string | null): string {
     if (!s) return '—';
@@ -283,7 +281,7 @@ export default function AnnouncementsListPage() {
                                                     {titleCase(a.audience as string)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-zoru-ink">
-                                                    {fmtDateTime(a.publishAt)}
+                                                    {fmtDate(a.publishAt)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     {a.pinned ? (

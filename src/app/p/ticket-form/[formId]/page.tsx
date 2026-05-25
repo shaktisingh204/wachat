@@ -1,3 +1,4 @@
+import React from "react";
 import { loadPublicTicketForm } from '@/app/actions/worksuite/public.actions';
 import {
   Card,
@@ -22,7 +23,7 @@ interface PageProps {
   params: Promise<{ formId: string }>;
 }
 
-export default async function PublicTicketFormPage({ params }: PageProps) {
+async function PublicTicketFormPageContent({ params }: PageProps) {
   const { formId } = await params;
   const form = await loadPublicTicketForm(formId);
   if (!form) return <InvalidLinkCard message="This form is unavailable." />;
@@ -129,5 +130,14 @@ export default async function PublicTicketFormPage({ params }: PageProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+
+export default function PublicTicketFormPage({ params }: PageProps) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <PublicTicketFormPageContent params={params} />
+    </React.Suspense>
   );
 }

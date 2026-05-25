@@ -43,6 +43,7 @@ import {
   RefreshCw,
   MoreHorizontal,
   Receipt,
+  FileText,
   } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 
@@ -60,6 +61,7 @@ import { TransactionChart } from '@/app/wachat/_components/transaction-chart';
  * alert dialog.
  */
 
+import { fmtDate, fmtINR } from '@/lib/utils';
 import * as React from 'react';
 
 type PaymentRow = {
@@ -176,7 +178,7 @@ export default function WhatsAppPayPage() {
     const csv = Papa.unparse(
       transactions.map((t) => ({
         ID: t._id,
-        Date: new Date(t.createdAt).toLocaleString(),
+        Date: fmtDate(t.createdAt),
         Description: t.description,
         Amount: t.amount / 100,
         Status: t.status,
@@ -190,6 +192,55 @@ export default function WhatsAppPayPage() {
     a.download = `transactions-${new Date().toISOString()}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
+  };
+
+  const handleGenerateReconciliation = () => {
+    if (!transactions.length) return;
+    const grouped = transactions.reduce((acc: any, t) => {
+      const d = format(new Date(t.createdAt), 'yyyy-MM-dd');
+      if (!acc[d]) {
+        acc[d] = {
+          date: d,
+          successfulCount: 0,
+          failedCount: 0,
+          refundedCount: 0,
+          totalRevenue: 0,
+          totalRefunded: 0,
+        };
+      }
+      
+      const status = t.status.toUpperCase();
+      if (status === 'SUCCESS' || status === 'COMPLETED') {
+        acc[d].successfulCount++;
+        acc[d].totalRevenue += t.amount / 100;
+      } else if (status === 'REFUNDED') {
+        acc[d].refundedCount++;
+        acc[d].totalRefunded += t.amount / 100;
+      } else {
+        acc[d].failedCount++;
+      }
+      return acc;
+    }, {});
+
+    const rows = Object.values(grouped).sort((a: any, b: any) => a.date.localeCompare(b.date)).map((r: any) => ({
+      Date: r.date,
+      'Successful Transactions': r.successfulCount,
+      'Failed/Pending Transactions': r.failedCount,
+      'Refunded Transactions': r.refundedCount,
+      'Total Revenue (INR)': r.totalRevenue,
+      'Total Refunded (INR)': r.totalRefunded,
+      'Net Revenue (INR)': r.totalRevenue - r.totalRefunded
+    }));
+
+    const csv = Papa.unparse(rows);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `automated-reconciliation-report-${new Date().toISOString()}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast({ title: 'Reconciliation Generated', description: 'Your automated reconciliation report has been downloaded.' });
   };
 
   const tableData: PaymentRow[] = useMemo(
@@ -226,10 +277,7 @@ export default function WhatsAppPayPage() {
         accessorKey: 'amount',
         header: () => <div className="text-right">Amount</div>,
         cell: ({ row }) => {
-          const formatted = new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-          }).format(row.original.amount / 100);
+          const formatted = fmtINR(row.original.amount / 100);
           return (
             <div className="text-right tabular-nums text-zoru-ink">
               {formatted}
@@ -330,13 +378,22 @@ export default function WhatsAppPayPage() {
           <Download />
           Export
         </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleGenerateReconciliation}
+          disabled={transactions.length === 0}
+        >
+          <FileText />
+          Reconciliation Report
+        </Button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatCard
           label="Total revenue"
-          value={`₹${stats.totalRevenue.toLocaleString()}`}
+          value={fmtINR(stats.totalRevenue)}
           hint="from successful transactions"
           icon={<IndianRupee />}
           loading={statsLoading}
@@ -409,12 +466,7 @@ export default function WhatsAppPayPage() {
             <ZoruAlertDialogDescription>
               This will request a refund for{' '}
               <span className="text-zoru-ink">
-                {refundTarget
-                  ? new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: 'INR',
-                    }).format(refundTarget.amount / 100)
-                  : ''}
+                {refundTarget ? fmtINR(refundTarget.amount / 100) : ''}
               </span>
               . Refunds typically settle within 5–10 business days. This action
               cannot be undone.
@@ -431,7 +483,15 @@ export default function WhatsAppPayPage() {
                 if (!refundTarget) return;
                 startRefundTransition(async () => {
                   try {
-                    const res = await refundTransaction(activeProjectId, refundTarget.id);
+                    const idempotencyKey = crypto.randomUUID();
+                    const timeoutPromise = new Promise<{error: string}>((_, reject) => 
+                      setTimeout(() => reject(new Error('Provider API timeout')), 10000)
+                    );
+                    const res = await Promise.race([
+                      refundTransaction(activeProjectId, refundTarget.id, idempotencyKey),
+                      timeoutPromise
+                    ]) as { error?: string; message?: string };
+                    
                     if (res.error) {
                       toast({ title: 'Refund failed', description: res.error, variant: 'destructive' });
                     } else {

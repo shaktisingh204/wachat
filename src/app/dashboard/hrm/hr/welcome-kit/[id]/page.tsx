@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 import { Button, Card } from '@/components/zoruui';
 import {
   notFound,
@@ -30,7 +31,7 @@ const STATUS_TONE: Record<CrmWelcomeKitStatus, StatusTone> = {
 function fmtDate(value: unknown): string {
     if (!value) return '—';
     const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    return Number.isNaN(d.getTime()) ? '—' : fmtDate(d);
 }
 
 export default async function WelcomeKitDetailPage({

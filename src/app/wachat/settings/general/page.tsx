@@ -8,8 +8,6 @@ import {
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
   Button,
-  Card,
-  ZoruCardContent,
   EmptyState,
   ZoruPageDescription,
   PageHeader,
@@ -25,8 +23,6 @@ import { useProject } from '@/context/project-context';
 import { ProjectSettingsForm } from '@/components/wabasimplify/project-settings-form';
 
 import * as React from 'react';
-
-export const dynamic = 'force-dynamic';
 
 export default function GeneralSettingsPage() {
   const router = useRouter();
@@ -90,11 +86,7 @@ export default function GeneralSettingsPage() {
         </ZoruPageHeading>
       </PageHeader>
 
-      <Card>
-        <ZoruCardContent>
-          <ProjectSettingsForm project={activeProject} />
-        </ZoruCardContent>
-      </Card>
+      <ProjectSettingsForm project={activeProject} />
     </div>
   );
 }

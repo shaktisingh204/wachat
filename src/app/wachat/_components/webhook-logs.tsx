@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -306,7 +307,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                   logs.map((log) => (
                     <ZoruTableRow key={log._id.toString()}>
                       <ZoruTableCell>
-                        {new Date(log.createdAt).toLocaleString()}
+                        {fmtDate(log.createdAt)}
                       </ZoruTableCell>
                       <ZoruTableCell className="font-mono">
                         {log.eventField}
@@ -381,7 +382,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                 <ZoruDialogDescription>
                   Full JSON payload received from Meta at{' '}
                   {selectedLog
-                    ? new Date(selectedLog.createdAt).toLocaleString()
+                    ? fmtDate(selectedLog.createdAt)
                     : ''}
                 </ZoruDialogDescription>
               </div>

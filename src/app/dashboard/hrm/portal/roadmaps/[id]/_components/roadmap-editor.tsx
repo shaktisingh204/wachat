@@ -1,9 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { useState, useTransition, useCallback } from 'react';
+import { useState, useTransition, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Save, Archive, ArrowLeft } from 'lucide-react';
+import { Plus, Save, Archive, ArrowLeft, Download, Filter, CheckSquare } from 'lucide-react';
 
 import {
   updateRoadmap,
@@ -15,11 +15,18 @@ import {
 import {
   Button,
   Badge,
-  Progress,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/zoruui';
 import { TaskCard } from './task-card';
 import { AddTaskDrawer, type DirectReport } from './add-task-drawer';
+import { PhaseHeader } from './phase-header';
+import { useToast } from '@/hooks/use-toast';
+import { fmtDate } from '@/lib/utils';
 
 /* ─── Helpers ───────────────────────────────────────────────────────── */
 
@@ -62,6 +69,7 @@ export interface RoadmapEditorProps {
 
 export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   // Local state mirrors server data; optimistically updated before persist.
@@ -70,18 +78,49 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
   const [drawerPhaseId, setDrawerPhaseId] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
+  // Filters & Bulk actions state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [assigneeFilter, setAssigneeFilter] = useState<string>('all');
+  const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
+  const [isBulkMode, setIsBulkMode] = useState(false);
+
+  // Hydration state
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  // Mock WebSocket for collaborative editing
+  useEffect(() => {
+    // In a real application, this would connect to a WebSocket server
+    // e.g. const ws = new WebSocket('wss://api.example.com/roadmaps/' + roadmap._id);
+    const mockWsInterval = setInterval(() => {
+      // Simulate receiving an event that someone is viewing the roadmap
+      // console.log('[Mock WS] Ping connection active');
+    }, 15000);
+    return () => clearInterval(mockWsInterval);
+  }, [roadmap._id]);
+
   /* ── Persist helpers ──────────────────────────────────────────────── */
 
   const persistPhases = useCallback(
     (next: RoadmapPhase[]) => {
       setSaveStatus('saving');
       startTransition(async () => {
-        await updateRoadmap(roadmap._id, { phases: next });
-        setSaveStatus('saved');
-        setTimeout(() => setSaveStatus('idle'), 2000);
+        try {
+          const res = await updateRoadmap(roadmap._id, { phases: next });
+          if (!res.success) {
+            toast({ title: 'Error', description: res.error || 'Failed to save', variant: 'destructive' });
+            setSaveStatus('idle');
+            return;
+          }
+          setSaveStatus('saved');
+          setTimeout(() => setSaveStatus('idle'), 2000);
+        } catch (e) {
+          toast({ title: 'Error', description: 'Failed to save changes.', variant: 'destructive' });
+          setSaveStatus('idle');
+        }
       });
     },
-    [roadmap._id],
+    [roadmap._id, toast],
   );
 
   /* ── Phase actions ────────────────────────────────────────────────── */
@@ -90,12 +129,6 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
     const next = [...phases, newPhase()];
     setPhases(next);
     persistPhases(next);
-  }
-
-  function handleRenamePhase(phaseId: string, name: string) {
-    setPhases((prev) =>
-      prev.map((p) => (p.id === phaseId ? { ...p, name } : p)),
-    );
   }
 
   function handleRenamePhaseCommit(phaseId: string, name: string) {
@@ -116,6 +149,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
     setPhases(next);
     persistPhases(next);
     setDrawerPhaseId(null);
+    toast({ title: 'Task Added', description: 'New task successfully added to phase.' });
   }
 
   function handleMarkDone(phaseId: string, taskId: string) {
@@ -136,16 +170,59 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
     );
     // Persist + auto-report via server action
     startTransition(async () => {
-      await updateTaskStatus(roadmap._id, phaseId, taskId, 'done');
+      const res = await updateTaskStatus(roadmap._id, phaseId, taskId, 'done');
+      if (!res.success) {
+        toast({ title: 'Error', description: res.error || 'Failed to mark done', variant: 'destructive' });
+      } else {
+        toast({ title: 'Task Completed', description: 'Task has been marked as done.' });
+      }
     });
   }
+
+  /* ── Bulk Actions ─────────────────────────────────────────────────── */
+
+  const toggleTaskSelection = (taskId: string) => {
+    setSelectedTasks((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) next.delete(taskId);
+      else next.add(taskId);
+      return next;
+    });
+  };
+
+  const handleBulkMarkDone = () => {
+    if (selectedTasks.size === 0) return;
+    
+    // Optimistic UI update
+    const next = phases.map((p) => ({
+      ...p,
+      tasks: p.tasks.map((t) =>
+        selectedTasks.has(t.id) && t.status !== 'done'
+          ? { ...t, status: 'done' as const, completedAt: new Date().toISOString() }
+          : t
+      ),
+    }));
+    
+    setPhases(next);
+    setSelectedTasks(new Set());
+    setIsBulkMode(false);
+    
+    // Server persistence
+    persistPhases(next);
+    toast({ title: 'Bulk Update', description: 'Selected tasks marked as done.' });
+  };
 
   /* ── Archive ──────────────────────────────────────────────────────── */
 
   function handleArchive() {
     startTransition(async () => {
-      await updateRoadmap(roadmap._id, { status: 'archived' });
-      router.push('/dashboard/hrm/portal/roadmaps');
+      const res = await updateRoadmap(roadmap._id, { status: 'archived' });
+      if (res.success) {
+        toast({ title: 'Archived', description: 'Roadmap successfully archived.' });
+        router.push('/dashboard/hrm/portal/roadmaps');
+      } else {
+        toast({ title: 'Error', description: 'Failed to archive.', variant: 'destructive' });
+      }
     });
   }
 
@@ -155,9 +232,39 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
     persistPhases(phases);
   }
 
+  /* ── Export ───────────────────────────────────────────────────────── */
+
+  const handleExportCSV = () => {
+    const rows = [
+      ['Phase', 'Task Title', 'Assignee', 'Status', 'Priority', 'Due Date']
+    ];
+    phases.forEach((p) => {
+      p.tasks.forEach((t) => {
+        rows.push([
+          `"${p.name.replace(/"/g, '""')}"`,
+          `"${t.title.replace(/"/g, '""')}"`,
+          `"${t.assigneeName || 'Unassigned'}"`,
+          t.status,
+          t.priority,
+          t.dueDate ? fmtDate(t.dueDate) : '',
+        ]);
+      });
+    });
+    const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `roadmap_export_${roadmap._id}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({ title: 'Export Successful', description: 'Roadmap data exported to CSV.' });
+  };
+
   /* ── Drag-and-drop ────────────────────────────────────────────────── */
 
   function handleDragStart(e: React.DragEvent, taskId: string, fromPhaseId: string) {
+    if (isBulkMode) return; // Disable drag during bulk selection
     setDragging({ taskId, fromPhaseId });
     e.dataTransfer.effectAllowed = 'move';
   }
@@ -204,6 +311,29 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
 
   const activeDrawerPhase = phases.find((p) => p.id === drawerPhaseId) ?? null;
 
+  // Memoize filtering for performance
+  const filteredPhases = useMemo(() => {
+    return phases.map((p) => {
+      const ft = p.tasks.filter((t) => {
+        const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesAssignee = assigneeFilter === 'all' || (t.assigneeId === assigneeFilter) || (assigneeFilter === 'unassigned' && !t.assigneeId);
+        return matchesSearch && matchesAssignee;
+      });
+      return { ...p, tasks: ft };
+    });
+  }, [phases, searchQuery, assigneeFilter]);
+
+  // Unique assignees for filter
+  const allAssignees = useMemo(() => {
+    const set = new Map<string, string>();
+    phases.forEach(p => p.tasks.forEach(t => {
+      if (t.assigneeId && t.assigneeName) {
+        set.set(t.assigneeId, t.assigneeName);
+      }
+    }));
+    return Array.from(set.entries()).map(([id, name]) => ({ id, name }));
+  }, [phases]);
+
   return (
     <div className="flex h-full flex-col">
       {/* ── Header ── */}
@@ -219,22 +349,14 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
         <h1 className="text-base font-semibold text-zoru-ink">{roadmap.title}</h1>
         <Badge variant={STATUS_VARIANT[roadmap.status]}>{roadmap.status}</Badge>
 
-        {(roadmap.startDate || roadmap.endDate) && (
+        {mounted && (roadmap.startDate || roadmap.endDate) && (
           <span className="text-xs text-zoru-ink-muted">
             {roadmap.startDate
-              ? new Date(roadmap.startDate).toLocaleDateString(undefined, {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })
+              ? fmtDate(roadmap.startDate)
               : '—'}
             {' → '}
             {roadmap.endDate
-              ? new Date(roadmap.endDate).toLocaleDateString(undefined, {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })
+              ? fmtDate(roadmap.endDate)
               : '—'}
           </span>
         )}
@@ -246,8 +368,12 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
           {saveStatus === 'saved' && (
             <span className="text-xs text-zoru-success-ink">Saved</span>
           )}
+          <Button variant="outline" size="sm" onClick={handleExportCSV}>
+            <Download className="mr-1 h-4 w-4" />
+            Export CSV
+          </Button>
           <Button variant="outline" size="sm" onClick={handleSave} disabled={isPending}>
-            <Save />
+            <Save className="mr-1 h-4 w-4" />
             Save
           </Button>
           <Button
@@ -256,17 +382,65 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
             onClick={handleArchive}
             disabled={isPending || roadmap.status === 'archived'}
           >
-            <Archive />
+            <Archive className="mr-1 h-4 w-4" />
             Archive
           </Button>
         </div>
       </div>
 
+      {/* ── Toolbar (Filters & Bulk Actions) ── */}
+      <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line bg-zoru-surface px-6 py-2">
+        <div className="flex items-center gap-2 relative">
+          <Filter className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-subtle" />
+          <Input 
+            placeholder="Search tasks..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 h-9 w-[200px]"
+          />
+        </div>
+        
+        <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
+          <SelectTrigger className="h-9 w-[180px]">
+            <SelectValue placeholder="All Assignees" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Assignees</SelectItem>
+            <SelectItem value="unassigned">Unassigned</SelectItem>
+            {allAssignees.map(a => (
+              <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <div className="ml-auto flex items-center gap-2">
+          {isBulkMode ? (
+            <>
+              <span className="text-sm text-zoru-ink-muted">
+                {selectedTasks.size} selected
+              </span>
+              <Button size="sm" variant="default" onClick={handleBulkMarkDone} disabled={selectedTasks.size === 0}>
+                Mark Done
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => { setIsBulkMode(false); setSelectedTasks(new Set()); }}>
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <Button size="sm" variant="outline" onClick={() => setIsBulkMode(true)}>
+              <CheckSquare className="mr-1 h-4 w-4" />
+              Bulk Actions
+            </Button>
+          )}
+        </div>
+      </div>
+
       {/* ── Kanban board ── */}
       <div className="flex flex-1 gap-4 overflow-x-auto p-6">
-        {phases.map((phase) => {
-          const pct = phasePct(phase);
-          const done = phase.tasks.filter((t) => t.status === 'done').length;
+        {filteredPhases.map((phase) => {
+          const originalPhase = phases.find(p => p.id === phase.id)!;
+          const pct = phasePct(originalPhase);
+          const done = originalPhase.tasks.filter((t) => t.status === 'done').length;
 
           return (
             <div
@@ -275,21 +449,13 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, phase.id)}
             >
-              {/* Column header */}
-              <div className="flex flex-col gap-2 border-b border-zoru-line px-4 py-3">
-                <div className="flex items-center justify-between gap-2">
-                  <Input
-                    value={phase.name}
-                    onChange={(e) => handleRenamePhase(phase.id, e.target.value)}
-                    onBlur={(e) => handleRenamePhaseCommit(phase.id, e.target.value)}
-                    className="h-7 border-transparent bg-transparent px-1 text-sm font-semibold shadow-none hover:border-zoru-line focus-visible:border-zoru-ink"
-                  />
-                  <span className="shrink-0 text-xs text-zoru-ink-muted tabular-nums">
-                    {done}/{phase.tasks.length}
-                  </span>
-                </div>
-                <Progress value={pct} className="h-1.5" />
-              </div>
+              <PhaseHeader
+                name={originalPhase.name}
+                doneCount={done}
+                totalCount={originalPhase.tasks.length}
+                progressPercent={pct}
+                onRename={(name) => handleRenamePhaseCommit(phase.id, name)}
+              />
 
               {/* Task cards */}
               <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-3">
@@ -302,10 +468,13 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
                   <TaskCard
                     key={task.id}
                     task={task}
-                    draggable
+                    draggable={!isBulkMode}
                     onDragStart={(e) => handleDragStart(e, task.id, phase.id)}
                     onMarkDone={() => handleMarkDone(phase.id, task.id)}
                     isDragging={dragging?.taskId === task.id}
+                    showSelect={isBulkMode}
+                    isSelected={selectedTasks.has(task.id)}
+                    onToggleSelect={() => toggleTaskSelection(task.id)}
                   />
                 ))}
               </div>
@@ -318,7 +487,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
                   className="w-full justify-start text-zoru-ink-muted"
                   onClick={() => setDrawerPhaseId(phase.id)}
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="mr-2 h-4 w-4" />
                   Add Task
                 </Button>
               </div>
@@ -332,7 +501,7 @@ export function RoadmapEditor({ roadmap, directReports }: RoadmapEditorProps) {
           onClick={handleAddPhase}
           className="flex h-fit w-64 shrink-0 items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-surface/50 px-4 py-6 text-sm text-zoru-ink-muted transition-colors hover:border-zoru-line-strong hover:bg-zoru-surface hover:text-zoru-ink"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="mr-2 h-4 w-4" />
           Add Phase
         </button>
       </div>

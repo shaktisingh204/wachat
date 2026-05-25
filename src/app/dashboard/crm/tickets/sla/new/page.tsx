@@ -15,8 +15,6 @@ import { saveSla } from '@/app/actions/crm-sla.actions';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
-export const dynamic = 'force-dynamic';
-
 const initialState: { message?: string; error?: string; id?: string } = {
   message: '',
   error: '',

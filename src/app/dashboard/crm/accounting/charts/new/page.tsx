@@ -3,6 +3,8 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 import { CoaForm } from '../_components/coa-form';
 
+export const dynamic = 'force-dynamic';
+
 export default async function NewChartOfAccountPage() {
     const groups = await getCrmAccountGroups();
 

@@ -54,10 +54,20 @@ import type { ReportRunResult } from '@/lib/reports/types';
 
 const PAGE_SIZE = 20;
 
-const MONTHS = Array.from({ length: 12 }, (_, i) => ({
-    value: String(i + 1),
-    label: new Date(2026, i, 1).toLocaleString('en-US', { month: 'long' }),
-}));
+const MONTHS = [
+    { value: '1', label: 'January' },
+    { value: '2', label: 'February' },
+    { value: '3', label: 'March' },
+    { value: '4', label: 'April' },
+    { value: '5', label: 'May' },
+    { value: '6', label: 'June' },
+    { value: '7', label: 'July' },
+    { value: '8', label: 'August' },
+    { value: '9', label: 'September' },
+    { value: '10', label: 'October' },
+    { value: '11', label: 'November' },
+    { value: '12', label: 'December' },
+];
 
 const STATUS_OPTIONS: Array<{ value: 'all' | 'succeeded' | 'failed'; label: string }> = [
     { value: 'all', label: 'All statuses' },
@@ -89,8 +99,33 @@ function fmtInr(n: unknown): string {
     return `INR ${num.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
 }
 
+function formatDate(d: string | Date | undefined | null): string {
+    if (!d) return '—';
+    const date = d instanceof Date ? d : new Date(d);
+    if (!Number.isFinite(date.getTime())) return '—';
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getUTCMonth()];
+    const year = date.getUTCFullYear();
+    return `${day} ${month} ${year}`;
+}
+
+function formatDateTime(d: string | Date | undefined | null): string {
+    if (!d) return '—';
+    const date = d instanceof Date ? d : new Date(d);
+    if (!Number.isFinite(date.getTime())) return '—';
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getUTCMonth()];
+    const year = date.getUTCFullYear();
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    return `${day} ${month} ${year} ${hours}:${minutes} UTC`;
+}
+
 function monthLabel(month: number): string {
-    return new Date(2026, month - 1, 1).toLocaleString('en-US', { month: 'short' });
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[month - 1] ?? '—';
 }
 
 function downloadBlob(filename: string, blob: Blob) {
@@ -352,11 +387,7 @@ export default function Gstr3bPage() {
             />
             <KpiCard
                 label="Last filing"
-                value={
-                    kpis.lastFilingAt
-                        ? new Date(kpis.lastFilingAt).toLocaleDateString()
-                        : '—'
-                }
+                value={formatDate(kpis.lastFilingAt)}
                 icon={<CalendarClock className="h-4 w-4" aria-hidden="true" />}
             />
             <KpiCard
@@ -696,7 +727,7 @@ export default function Gstr3bPage() {
                                                     {fmtInr(r.netPayable ?? 0)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-muted-foreground">
-                                                    {new Date(r.startedAt).toLocaleString()}
+                                                    {formatDateTime(r.startedAt)}
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
                                         );

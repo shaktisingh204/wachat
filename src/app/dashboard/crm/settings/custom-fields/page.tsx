@@ -41,6 +41,7 @@ import {
     Check,
     Download,
     Edit,
+    LayoutGrid,
     LoaderCircle,
     Plus,
     Trash2,
@@ -829,13 +830,31 @@ export default function CustomFieldsPage() {
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : filtered.length === 0 ? (
-                                    <ZoruTableRow className="border-border">
+                                    <ZoruTableRow className="border-border hover:bg-transparent">
                                         <ZoruTableCell
                                             colSpan={8}
-                                            className="h-24 text-center text-muted-foreground"
+                                            className="py-12 text-center"
                                         >
-                                            No custom fields for{' '}
-                                            {labelForEntity(activeEntity)} yet.
+                                            <div className="mx-auto flex max-w-[420px] flex-col items-center justify-center text-center">
+                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-muted-foreground">
+                                                    <LayoutGrid className="h-6 w-6" />
+                                                </div>
+                                                <h3 className="mt-4 text-sm font-semibold text-foreground">
+                                                    No Custom Fields Configured
+                                                </h3>
+                                                <p className="mt-2 text-xs text-muted-foreground">
+                                                    Configure tailor-made custom properties for your {labelForEntity(activeEntity)} records. You can define text fields, select lists, dates, and more.
+                                                </p>
+                                                <div className="mt-4">
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => handleOpenDialog(null)}
+                                                    >
+                                                        <Plus className="mr-1.5 h-3.5 w-3.5" />
+                                                        Add first field
+                                                    </Button>
+                                                </div>
+                                            </div>
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : (

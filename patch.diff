@@ -1,10 +1,13 @@
---- src/app/dashboard/finance/payouts/_components/payouts-list-client.tsx
-+++ src/app/dashboard/finance/payouts/_components/payouts-list-client.tsx
-@@ -32,7 +32,7 @@
- import { toast } from 'sonner';
+--- rust/crates/url-shortener/src/store.rs
++++ rust/crates/url-shortener/src/store.rs
+@@ -188,6 +188,10 @@
+     pub utm_params: Option<serde_json::Value>,
+     #[serde(skip_serializing_if = "Option::is_none")]
+     pub split_targets: Option<serde_json::Value>,
++    #[serde(skip_serializing_if = "Option::is_none")]
++    pub is_expired: Option<bool>,
++    #[serde(skip_serializing_if = "Option::is_none")]
++    pub pixel_ids: Option<serde_json::Value>,
+ }
  
--export function PayoutListClient({ initialItems, error }: { initialItems: Payout[], error?: string }) {
-+export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
-   const router = useRouter();
-   const [items, setItems] = useState(initialItems || []);
-   const [isDialogOpen, setIsDialogOpen] = useState(false);
+ #[derive(Debug, Deserialize)]

@@ -63,8 +63,6 @@ import { QrScanStatsModal } from '@/components/wabasimplify/qr-scan-stats-modal'
 import { BulkQrImportDialog } from '@/components/wabasimplify/bulk-qr-import-dialog';
 import { normalizeQrWebsiteUrl } from '@/lib/qr-utils';
 
-export const dynamic = 'force-dynamic';
-
 type SortKey = 'newest' | 'oldest' | 'name-asc' | 'name-desc';
 type DynamicFilter = 'all' | 'dynamic' | 'static';
 type TypeFilter = 'all' | 'url' | 'text' | 'email' | 'phone' | 'sms' | 'wifi';

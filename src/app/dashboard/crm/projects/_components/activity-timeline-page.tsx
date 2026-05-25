@@ -6,10 +6,10 @@ import {
   Card,
   Input,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   StatCard,
   useZoruToast,
   Dialog,
@@ -85,6 +85,7 @@ function inferAction(activity: string | undefined): string {
 
 export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePageProps) {
   const { toast } = useZoruToast();
+  const [mounted, setMounted] = React.useState(false);
   const [rows, setRows] = React.useState<Row[]>([]);
   const [isLoading, startLoading] = React.useTransition();
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -96,6 +97,10 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
   const [to, setTo] = React.useState('');
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(PAGE_SIZE);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const load = React.useCallback(() => {
     startLoading(async () => {
@@ -225,6 +230,10 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
     load();
   };
 
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <>
       <EntityListShell
@@ -289,30 +298,30 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
         }
         filters={
           <>
-            <div className="w-48">
+               <div className="w-48">
               <Select value={actorFilter} onValueChange={setActorFilter}>
-                <ZoruSelectTrigger><ZoruSelectValue placeholder="Actor" /></ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="all">All actors</ZoruSelectItem>
+                <SelectTrigger><SelectValue placeholder="Actor" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All actors</SelectItem>
                   {actors.map((a) => (
-                    <ZoruSelectItem key={a} value={a}>{a}</ZoruSelectItem>
+                    <SelectItem key={a} value={a}>{a}</SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div className="w-44">
               <Select value={kindFilter} onValueChange={setKindFilter}>
-                <ZoruSelectTrigger><ZoruSelectValue placeholder="Entity kind" /></ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="all">All kinds</ZoruSelectItem>
-                  <ZoruSelectItem value="project">Project</ZoruSelectItem>
-                  <ZoruSelectItem value="task">Task</ZoruSelectItem>
-                  <ZoruSelectItem value="milestone">Milestone</ZoruSelectItem>
-                  <ZoruSelectItem value="file">File</ZoruSelectItem>
-                  <ZoruSelectItem value="note">Note</ZoruSelectItem>
-                  <ZoruSelectItem value="member">Member</ZoruSelectItem>
-                  <ZoruSelectItem value="other">Other</ZoruSelectItem>
-                </ZoruSelectContent>
+                <SelectTrigger><SelectValue placeholder="Entity kind" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All kinds</SelectItem>
+                  <SelectItem value="project">Project</SelectItem>
+                  <SelectItem value="task">Task</SelectItem>
+                  <SelectItem value="milestone">Milestone</SelectItem>
+                  <SelectItem value="file">File</SelectItem>
+                  <SelectItem value="note">Note</SelectItem>
+                  <SelectItem value="member">Member</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div className="flex items-center gap-2">

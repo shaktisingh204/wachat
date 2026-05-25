@@ -25,10 +25,12 @@ import {
     rememberPendingInviteToken,
 } from '@/app/actions/team.actions';
 
-type AuthState =
+export type AuthState =
     | { kind: 'logged-out' }
     | { kind: 'matched'; email: string; name: string }
     | { kind: 'mismatch'; loggedInEmail: string; inviteeEmail: string };
+
+type PendingState = false | 'accept' | 'decline' | 'carry';
 
 export function InviteClient({
     invitation,
@@ -39,9 +41,16 @@ export function InviteClient({
 }) {
     const router = useRouter();
     const { toast } = useToast();
-    const [pending, setPending] = React.useState<false | 'accept' | 'decline' | 'carry'>(false);
+    const [pending, setPending] = React.useState<PendingState>(false);
+    
+    // Fix Hydration mismatch
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const expiresIn = React.useMemo(() => formatExpiresIn(invitation.expiresAt), [invitation.expiresAt]);
+
     const statusTone: Record<InvitationView['status'], React.ComponentProps<typeof ClayBadge>['tone']> = {
         pending: 'amber',
         accepted: 'green',
@@ -51,10 +60,10 @@ export function InviteClient({
 
     const canInteract = invitation.status === 'pending' && !invitation.isExpired;
 
-    const onAccept = () => {
+    const onAccept = async () => {
         if (auth.kind !== 'matched') return;
         setPending('accept');
-        (async () => {
+        try {
             const res = await acceptInvitation(invitation.token);
             if (res.success) {
                 toast({
@@ -72,12 +81,19 @@ export function InviteClient({
                 });
                 setPending(false);
             }
-        })();
+        } catch (error) {
+            toast({
+                title: 'Error',
+                description: 'An unexpected error occurred. Please try again.',
+                variant: 'destructive',
+            });
+            setPending(false);
+        }
     };
 
-    const onDecline = () => {
+    const onDecline = async () => {
         setPending('decline');
-        (async () => {
+        try {
             const res = await declineInvitation(invitation.token);
             if (res.success) {
                 toast({ title: 'Invitation declined.' });
@@ -90,16 +106,30 @@ export function InviteClient({
                 });
                 setPending(false);
             }
-        })();
+        } catch (error) {
+            toast({
+                title: 'Error',
+                description: 'An unexpected error occurred. Please try again.',
+                variant: 'destructive',
+            });
+            setPending(false);
+        }
     };
 
-    const onCarryToken = (dest: '/login' | '/onboarding') => {
+    const onCarryToken = async (dest: '/login' | '/onboarding') => {
         setPending('carry');
-        (async () => {
+        try {
             await rememberPendingInviteToken(invitation.token);
             const q = new URLSearchParams({ invite: invitation.token, email: invitation.inviteeEmail });
             router.push(`${dest}?${q.toString()}`);
-        })();
+        } catch (error) {
+            toast({
+                title: 'Error',
+                description: 'Failed to process invitation token.',
+                variant: 'destructive',
+            });
+            setPending(false);
+        }
     };
 
     return (
@@ -112,34 +142,7 @@ export function InviteClient({
             <div className="relative h-[6px] w-full bg-primary" />
 
             <div className="flex flex-col gap-6 p-7 sm:p-9">
-                {/* Top meta row */}
-                <div className="flex items-center justify-between gap-2">
-                    <ClayBadge tone="rose-soft" dot>
-                        Team invitation
-                    </ClayBadge>
-                    <ClayBadge tone={statusTone[invitation.status]} dot>
-                        {invitation.status === 'pending' && invitation.isExpired
-                            ? 'Expired'
-                            : capitalize(invitation.status)}
-                    </ClayBadge>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-foreground">
-                        You're invited to {invitation.projectName || 'the team'}
-                    </h1>
-                    <p className="text-[13.5px] leading-relaxed text-muted-foreground">
-                        <span className="font-medium text-foreground">
-                            {invitation.inviterName || invitation.inviterEmail || 'A SabNode user'}
-                        </span>{' '}
-                        invited <span className="font-medium text-foreground">{invitation.inviteeEmail}</span> to join
-                        as a{' '}
-                        <ClayBadge tone="neutral" className="align-middle">
-                            {prettyRole(invitation.role)}
-                        </ClayBadge>
-                        .
-                    </p>
-                </div>
+                <HeaderSection invitation={invitation} statusTone={statusTone} />
 
                 {/* Summary rows */}
                 <div className="grid grid-cols-1 gap-2 text-[12.5px] sm:grid-cols-3">
@@ -151,7 +154,7 @@ export function InviteClient({
                     <MetaRow
                         icon={<LuClock className="h-3.5 w-3.5" strokeWidth={1.75} />}
                         label="Expires"
-                        value={expiresIn}
+                        value={mounted ? expiresIn : <span className="inline-block h-3 w-16 animate-pulse rounded bg-border" />}
                     />
                     <MetaRow
                         icon={<LuUserPlus className="h-3.5 w-3.5" strokeWidth={1.75} />}
@@ -164,99 +167,11 @@ export function InviteClient({
                 {!canInteract ? (
                     <StatusBlock invitation={invitation} />
                 ) : auth.kind === 'matched' ? (
-                    <ActionBlock
-                        primary={
-                            <ClayButton
-                                variant="obsidian"
-                                size="lg"
-                                onClick={onAccept}
-                                disabled={!!pending}
-                                leading={
-                                    pending === 'accept' ? (
-                                        <LuLoader className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <LuCheck className="h-4 w-4" strokeWidth={2.25} />
-                                    )
-                                }
-                            >
-                                Accept & join
-                            </ClayButton>
-                        }
-                        secondary={
-                            <ClayButton
-                                variant="pill"
-                                size="lg"
-                                onClick={onDecline}
-                                disabled={!!pending}
-                                leading={
-                                    pending === 'decline' ? (
-                                        <LuLoader className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <LuX className="h-4 w-4" strokeWidth={2.25} />
-                                    )
-                                }
-                            >
-                                Decline
-                            </ClayButton>
-                        }
-                        hint={`You'll join as ${auth.name || auth.email}.`}
-                    />
+                    <MatchedAuthBlock auth={auth} pending={pending} onAccept={onAccept} onDecline={onDecline} />
                 ) : auth.kind === 'mismatch' ? (
-                    <div className="flex flex-col gap-4 rounded-lg border border-amber-50 bg-amber-50/40 p-4">
-                        <p className="text-[13px] leading-relaxed text-foreground">
-                            This invitation was sent to{' '}
-                            <span className="font-medium">{invitation.inviteeEmail}</span>, but you're signed in as{' '}
-                            <span className="font-medium">{auth.loggedInEmail}</span>.
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                            <Link href="/api/auth/logout">
-                                <ClayButton
-                                    variant="obsidian"
-                                    size="md"
-                                    trailing={<LuArrowRight className="h-3.5 w-3.5" />}
-                                >
-                                    Switch account
-                                </ClayButton>
-                            </Link>
-                            <Link href="/">
-                                <ClayButton variant="pill" size="md">
-                                    Stay signed in
-                                </ClayButton>
-                            </Link>
-                        </div>
-                    </div>
+                    <MismatchAuthBlock auth={auth} invitation={invitation} />
                 ) : (
-                    <ActionBlock
-                        primary={
-                            <ClayButton
-                                variant="obsidian"
-                                size="lg"
-                                onClick={() => onCarryToken('/onboarding')}
-                                disabled={!!pending}
-                                leading={
-                                    pending === 'carry' ? (
-                                        <LuLoader className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <LuUserPlus className="h-4 w-4" strokeWidth={2.25} />
-                                    )
-                                }
-                            >
-                                Create account
-                            </ClayButton>
-                        }
-                        secondary={
-                            <ClayButton
-                                variant="pill"
-                                size="lg"
-                                onClick={() => onCarryToken('/login')}
-                                disabled={!!pending}
-                                leading={<LuLogIn className="h-4 w-4" strokeWidth={2.25} />}
-                            >
-                                I have an account
-                            </ClayButton>
-                        }
-                        hint={`You'll be attached to the team automatically after you sign in.`}
-                    />
+                    <LoggedOutAuthBlock pending={pending} onCarryToken={onCarryToken} />
                 )}
 
                 <div className="border-t border-border pt-4 text-[11.5px] leading-relaxed text-muted-foreground">
@@ -269,6 +184,174 @@ export function InviteClient({
     );
 }
 
+function HeaderSection({ 
+    invitation, 
+    statusTone 
+}: { 
+    invitation: InvitationView; 
+    statusTone: Record<InvitationView['status'], React.ComponentProps<typeof ClayBadge>['tone']> 
+}) {
+    return (
+        <>
+            <div className="flex items-center justify-between gap-2">
+                <ClayBadge tone="rose-soft" dot>
+                    Team invitation
+                </ClayBadge>
+                <ClayBadge tone={statusTone[invitation.status]} dot>
+                    {invitation.status === 'pending' && invitation.isExpired
+                        ? 'Expired'
+                        : capitalize(invitation.status)}
+                </ClayBadge>
+            </div>
+
+            <div className="flex flex-col gap-2">
+                <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-foreground">
+                    You're invited to {invitation.projectName || 'the team'}
+                </h1>
+                <p className="text-[13.5px] leading-relaxed text-muted-foreground">
+                    <span className="font-medium text-foreground">
+                        {invitation.inviterName || invitation.inviterEmail || 'A SabNode user'}
+                    </span>{' '}
+                    invited <span className="font-medium text-foreground">{invitation.inviteeEmail}</span> to join
+                    as a{' '}
+                    <ClayBadge tone="neutral" className="align-middle">
+                        {prettyRole(invitation.role)}
+                    </ClayBadge>
+                    .
+                </p>
+            </div>
+        </>
+    );
+}
+
+function MatchedAuthBlock({
+    auth,
+    pending,
+    onAccept,
+    onDecline,
+}: {
+    auth: { kind: 'matched'; email: string; name: string };
+    pending: PendingState;
+    onAccept: () => void;
+    onDecline: () => void;
+}) {
+    return (
+        <ActionBlock
+            primary={
+                <ClayButton
+                    variant="obsidian"
+                    size="lg"
+                    onClick={onAccept}
+                    disabled={!!pending}
+                    leading={
+                        pending === 'accept' ? (
+                            <LuLoader className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <LuCheck className="h-4 w-4" strokeWidth={2.25} />
+                        )
+                    }
+                >
+                    Accept & join
+                </ClayButton>
+            }
+            secondary={
+                <ClayButton
+                    variant="pill"
+                    size="lg"
+                    onClick={onDecline}
+                    disabled={!!pending}
+                    leading={
+                        pending === 'decline' ? (
+                            <LuLoader className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <LuX className="h-4 w-4" strokeWidth={2.25} />
+                        )
+                    }
+                >
+                    Decline
+                </ClayButton>
+            }
+            hint={`You'll join as ${auth.name || auth.email}.`}
+        />
+    );
+}
+
+function MismatchAuthBlock({
+    auth,
+    invitation,
+}: {
+    auth: { kind: 'mismatch'; loggedInEmail: string; inviteeEmail: string };
+    invitation: InvitationView;
+}) {
+    return (
+        <div className="flex flex-col gap-4 rounded-lg border border-amber-50 bg-amber-50/40 p-4">
+            <p className="text-[13px] leading-relaxed text-foreground">
+                This invitation was sent to{' '}
+                <span className="font-medium">{invitation.inviteeEmail}</span>, but you're signed in as{' '}
+                <span className="font-medium">{auth.loggedInEmail}</span>.
+            </p>
+            <div className="flex flex-wrap gap-2">
+                <Link href="/api/auth/logout">
+                    <ClayButton
+                        variant="obsidian"
+                        size="md"
+                        trailing={<LuArrowRight className="h-3.5 w-3.5" />}
+                    >
+                        Switch account
+                    </ClayButton>
+                </Link>
+                <Link href="/">
+                    <ClayButton variant="pill" size="md">
+                        Stay signed in
+                    </ClayButton>
+                </Link>
+            </div>
+        </div>
+    );
+}
+
+function LoggedOutAuthBlock({
+    pending,
+    onCarryToken,
+}: {
+    pending: PendingState;
+    onCarryToken: (dest: '/login' | '/onboarding') => void;
+}) {
+    return (
+        <ActionBlock
+            primary={
+                <ClayButton
+                    variant="obsidian"
+                    size="lg"
+                    onClick={() => onCarryToken('/onboarding')}
+                    disabled={!!pending}
+                    leading={
+                        pending === 'carry' ? (
+                            <LuLoader className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <LuUserPlus className="h-4 w-4" strokeWidth={2.25} />
+                        )
+                    }
+                >
+                    Create account
+                </ClayButton>
+            }
+            secondary={
+                <ClayButton
+                    variant="pill"
+                    size="lg"
+                    onClick={() => onCarryToken('/login')}
+                    disabled={!!pending}
+                    leading={<LuLogIn className="h-4 w-4" strokeWidth={2.25} />}
+                >
+                    I have an account
+                </ClayButton>
+            }
+            hint={`You'll be attached to the team automatically after you sign in.`}
+        />
+    );
+}
+
 function MetaRow({
     icon,
     label,
@@ -276,7 +359,7 @@ function MetaRow({
 }: {
     icon: React.ReactNode;
     label: string;
-    value: string;
+    value: React.ReactNode;
 }) {
     return (
         <div className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2.5">
@@ -361,7 +444,7 @@ function prettyRole(role: string) {
     return capitalize(role);
 }
 
-function formatExpiresIn(iso: string) {
+function formatExpiresIn(iso: string | Date) {
     const diff = new Date(iso).getTime() - Date.now();
     if (diff <= 0) return 'Expired';
     const days = Math.floor(diff / (24 * 60 * 60 * 1000));

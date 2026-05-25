@@ -128,6 +128,7 @@ export default function IncomeStatementPage(): React.JSX.Element {
     const [refreshing, setRefreshing] = React.useState(false);
     const [page, setPage] = React.useState(1);
     const [limit, setLimit] = React.useState(50);
+    const [mounted, setMounted] = React.useState(false);
 
     const load = React.useCallback(() => {
         if (!range?.from || !range?.to) return;
@@ -154,6 +155,7 @@ export default function IncomeStatementPage(): React.JSX.Element {
     }, [range]);
 
     React.useEffect(() => {
+        setMounted(true);
         load();
     }, [load]);
 
@@ -168,7 +170,7 @@ export default function IncomeStatementPage(): React.JSX.Element {
         setFyChoice('custom');
     };
 
-    if (isLoading && !data) {
+    if (!mounted || (isLoading && !data)) {
         return (
             <div className="flex h-full items-center justify-center py-16">
                 <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />

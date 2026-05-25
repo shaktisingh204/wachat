@@ -91,23 +91,38 @@ export function VoucherBooksListClient({ initialRows, totalCount, searchParams, 
 
     /* ── Derived ─────────────────────────────────────────────────────── */
 
-    const filtered = initialRows;
+    const [optimisticDeleted, setOptimisticDeleted] = React.useState<Set<string>>(new Set());
+    const [optimisticUpdates, setOptimisticUpdates] = React.useState<Record<string, { isActive?: boolean }>>({});
 
+    const filtered = React.useMemo(() => {
+        return initialRows
+            .filter(r => !optimisticDeleted.has(r._id))
+            .map(r => {
+                if (optimisticUpdates[r._id]) {
+                    return { ...r, ...optimisticUpdates[r._id] };
+                }
+                return r;
+            });
+    }, [initialRows, optimisticDeleted, optimisticUpdates]);
+
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => setMounted(true), []);
 
     const kpi = React.useMemo<VoucherBooksKpi>(() => {
         const byType: Record<string, number> = {};
         let active = 0;
         let pendingResets = 0;
         let entriesThisMonth = 0;
-        const now = new Date();
-        const thisMonth = now.getMonth();
-        const thisYear = now.getFullYear();
+        
+        const now = mounted ? new Date() : null;
+        const thisMonth = now ? now.getMonth() : -1;
+        const thisYear = now ? now.getFullYear() : -1;
 
-        for (const r of initialRows) {
+        for (const r of filtered) {
             byType[r.type] = (byType[r.type] ?? 0) + 1;
             if (r.isActive !== false) active += 1;
             if (r.resetFrequency && r.resetFrequency !== 'none') pendingResets += 1;
-            if (r.lastEntryDate) {
+            if (r.lastEntryDate && mounted) {
                 const d = new Date(r.lastEntryDate);
                 if (d.getMonth() === thisMonth && d.getFullYear() === thisYear) {
                     entriesThisMonth += r.entryCount ?? 0;
@@ -117,12 +132,12 @@ export function VoucherBooksListClient({ initialRows, totalCount, searchParams, 
 
         return {
             activeCount: active,
-            totalCount,
+            totalCount: totalCount - optimisticDeleted.size,
             byType,
             entriesThisMonth,
             pendingResets,
         };
-    }, [initialRows, totalCount]);
+    }, [filtered, totalCount, mounted, optimisticDeleted.size]);
 
     /* ── Handlers ────────────────────────────────────────────────────── */
 
@@ -143,14 +158,23 @@ export function VoucherBooksListClient({ initialRows, totalCount, searchParams, 
 
     const handleRowDelete = React.useCallback(() => {
         if (!pendingRow) return;
+        const rowId = pendingRow._id;
+        
+        setOptimisticDeleted(prev => new Set(prev).add(rowId));
+        setPendingRow(null);
+
         startTransition(async () => {
-            const result = await deleteVoucherBook(pendingRow._id);
+            const result = await deleteVoucherBook(rowId);
             if (result.success) {
                 toast({ title: 'Voucher book deleted' });
-                setPendingRow(null);
                 await refresh();
             } else {
                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
+                setOptimisticDeleted(prev => {
+                    const next = new Set(prev);
+                    next.delete(rowId);
+                    return next;
+                });
             }
         });
     }, [pendingRow, refresh, toast]);
@@ -158,15 +182,47 @@ export function VoucherBooksListClient({ initialRows, totalCount, searchParams, 
     const handleBulk = React.useCallback((op: 'archive' | 'activate' | 'delete') => {
         const ids = Array.from(selection);
         if (ids.length === 0) return;
+
+        if (op === 'delete') {
+            setOptimisticDeleted(prev => {
+                const next = new Set(prev);
+                ids.forEach(id => next.add(id));
+                return next;
+            });
+        } else {
+            setOptimisticUpdates(prev => {
+                const next = { ...prev };
+                ids.forEach(id => {
+                    next[id] = { ...next[id], isActive: op === 'activate' };
+                });
+                return next;
+            });
+        }
+
+        setSelection(new Set());
+        setConfirmBulk(null);
+
         startTransition(async () => {
             const result = await bulkUpdateVoucherBooks(ids, op);
             if (result.success) {
                 toast({ title: `Updated ${result.updated ?? 0} books.` });
-                setSelection(new Set());
-                setConfirmBulk(null);
                 await refresh();
             } else {
                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
+                // Revert optimistic updates
+                if (op === 'delete') {
+                    setOptimisticDeleted(prev => {
+                        const next = new Set(prev);
+                        ids.forEach(id => next.delete(id));
+                        return next;
+                    });
+                } else {
+                    setOptimisticUpdates(prev => {
+                        const next = { ...prev };
+                        ids.forEach(id => delete next[id]);
+                        return next;
+                    });
+                }
             }
         });
     }, [selection, refresh, toast]);

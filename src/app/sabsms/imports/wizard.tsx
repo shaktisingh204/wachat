@@ -111,6 +111,8 @@ export function ImportsWizard({
   const [cronExpression, setCronExpression] = React.useState("");
   const [webhookUrl, setWebhookUrl] = React.useState("");
   const [name, setName] = React.useState("");
+  const [totalRows, setTotalRows] = React.useState<number>(0);
+  const [aiMappingLoading, setAiMappingLoading] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [templates, setTemplates] = React.useState<MappingTemplate[]>([]);
@@ -143,7 +145,7 @@ export function ImportsWizard({
     }
   }, [open]);
 
-  // Parse CSV when a SabFile is picked.
+  // Parse CSV when a SabFile is picked (Chunked to prevent timeout on large files).
   React.useEffect(() => {
     if (!picked?.url) return;
     let cancelled = false;
@@ -152,33 +154,71 @@ export function ImportsWizard({
     (async () => {
       try {
         const res = await fetch(picked.url);
-        const text = await res.text();
+        if (!res.body) throw new Error("No response body.");
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let firstChunk = "";
+        let lineCount = 0;
+        let gotPreview = false;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          if (!gotPreview) {
+            firstChunk += chunk;
+            if (firstChunk.length > 50000 || firstChunk.split("\n").length > 50) {
+              gotPreview = true;
+              const lines = firstChunk.split("\n");
+              firstChunk = lines.slice(0, 50).join("\n");
+            }
+          }
+          for (let i = 0; i < chunk.length; i++) {
+            if (chunk[i] === '\n') lineCount++;
+          }
+        }
         if (cancelled) return;
-        const parsed = parseCsv(text);
-        setCsvText(text);
+
+        setTotalRows(Math.max(lineCount - 1, 0));
+        const parsed = parseCsv(firstChunk);
         setHeaders(parsed.headers);
         setRows(parsed.rows);
         setMapping(inferColumnMapping(parsed.headers));
         setName(picked.name.replace(/\.csv$/i, ""));
         if (parsed.errors.length > 0) {
-          setParseError(
-            `Parsed with ${parsed.errors.length} warning${parsed.errors.length === 1 ? "" : "s"}.`,
-          );
+          setParseError(`Preview parsed with warnings.`);
         }
       } catch (err) {
-        if (!cancelled) {
-          setParseError(
-            err instanceof Error ? err.message : "Failed to read CSV file.",
-          );
-        }
+        if (!cancelled) setParseError(err instanceof Error ? err.message : "Failed to read CSV file.");
       } finally {
         if (!cancelled) setParsing(false);
       }
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => cancelled = true;
   }, [picked]);
+
+  // AI-powered mapping
+  const handleAiMapping = React.useCallback(async () => {
+    if (headers.length === 0 || rows.length === 0) return;
+    setAiMappingLoading(true);
+    try {
+      const res = await fetch("/api/sabsms/imports/ai-mapping", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ headers, sampleRows: rows.slice(0, 3) })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.mapping) {
+          setMapping(data.mapping);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAiMappingLoading(false);
+    }
+  }, [headers, rows]);
 
   const phoneCol = mapping.phone;
   const previewRows = rows.slice(0, PREVIEW_ROW_LIMIT);
@@ -244,7 +284,7 @@ export function ImportsWizard({
         .split(/[,\n]/)
         .map((t) => t.trim())
         .filter(Boolean);
-      const validCount = rows.length - invalidCount - duplicates.length;
+      const validCount = Math.max(totalRows - invalidCount - duplicates.length, 0);
       const result = await onSubmit({
         name: name.trim(),
         sabFileId: picked?.id,
@@ -260,7 +300,7 @@ export function ImportsWizard({
           cronExpression: cronExpression || undefined,
           webhookUrl: webhookUrl || undefined,
         },
-        totalRows: rows.length,
+        totalRows: totalRows,
         costEstimate: {
           units: Math.max(validCount, 0),
           currency: "USD",
@@ -298,7 +338,7 @@ export function ImportsWizard({
               picked={picked}
               parsing={parsing}
               parseError={parseError}
-              rowsCount={rows.length}
+              rowsCount={totalRows}
               lastImport={lastImport}
               onPick={setPicked}
             />
@@ -314,6 +354,8 @@ export function ImportsWizard({
               onTemplateNameChange={setTemplateName}
               onSaveTemplate={saveTemplate}
               onLoadTemplate={loadTemplate}
+              aiMappingLoading={aiMappingLoading}
+              onAiMapping={handleAiMapping}
             />
           )}
 
@@ -321,7 +363,7 @@ export function ImportsWizard({
             <PreviewStep
               headers={headers}
               rows={previewRows}
-              totalRows={rows.length}
+              totalRows={totalRows}
               phoneCol={phoneCol}
               duplicates={duplicates}
               invalidCount={invalidCount}
@@ -353,7 +395,7 @@ export function ImportsWizard({
             <ConfirmStep
               name={name}
               onName={setName}
-              totalRows={rows.length}
+              totalRows={totalRows}
               invalidCount={invalidCount}
               duplicateCount={duplicates.length}
               submitError={submitError}
@@ -477,7 +519,11 @@ function MappingStep({
   onTemplateNameChange,
   onSaveTemplate,
   onLoadTemplate,
+  aiMappingLoading,
+  onAiMapping,
 }: {
+  aiMappingLoading?: boolean;
+  onAiMapping?: () => void;
   headers: string[];
   mapping: ColumnMapping;
   templates: MappingTemplate[];
@@ -495,10 +541,16 @@ function MappingStep({
   ];
   return (
     <div className="space-y-5">
-      <p className="text-sm text-slate-600">
-        Match each contact field to a column in your CSV. We've auto-detected
-        the most likely matches — adjust as needed.
-      </p>
+      <div className="flex items-start justify-between">
+        <p className="text-sm text-slate-600 max-w-xl">
+          Match each contact field to a column in your CSV. We've auto-detected
+          the most likely matches — adjust as needed.
+        </p>
+        <Button variant="outline" size="sm" onClick={onAiMapping} disabled={aiMappingLoading}>
+          {aiMappingLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          AI Automap
+        </Button>
+      </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {fields.map((f) => (
           <div key={f.key} className="space-y-1.5">

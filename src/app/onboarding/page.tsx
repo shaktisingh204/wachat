@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import type { Plan } from '@/lib/definitions';
@@ -9,6 +10,11 @@ import { OnboardingWizard } from '@/components/wabasimplify/onboarding/onboardin
 
 export const dynamic = 'force-dynamic';
 
+export const metadata: Metadata = {
+    title: 'Onboarding | SabNode Platform Core',
+    description: 'Set up your workspace and customize your experience.',
+};
+
 type OnboardingSearchParams = {
     payment?: string;
     reason?: string;
@@ -19,13 +25,39 @@ type PageProps = {
     searchParams?: Promise<OnboardingSearchParams>;
 };
 
+// Add strict TypeScript typing for API responses
+type SerializedPlan = Plan & { _id: string; price?: number };
+type OnboardingStateResponse = Awaited<ReturnType<typeof getOnboardingState>>;
+
+// Refactored data fetching into a smaller chunk
+async function fetchOnboardingData(searchParamsPromise?: Promise<OnboardingSearchParams>) {
+    const [stateResult, rawPlans, resolvedSearchParams] = await Promise.all([
+        getOnboardingState(),
+        getOnboardingPlans(),
+        (searchParamsPromise ?? Promise.resolve({})) as Promise<OnboardingSearchParams>,
+    ]);
+
+    const fetchedPlans = rawPlans as unknown as Array<SerializedPlan>;
+
+    // Robust sorting and filtering
+    const sortedPlans = fetchedPlans
+        .filter((plan) => plan.isActive !== false) // Basic filter for active plans
+        .sort((a, b) => {
+            const priceA = a.price ?? 0;
+            const priceB = b.price ?? 0;
+            return priceA - priceB;
+        });
+
+    return {
+        stateResult,
+        sortedPlans,
+        resolvedSearchParams,
+    };
+}
+
 export default async function OnboardingPage({ searchParams }: PageProps) {
-    const [{ user, onboarding }, rawPlans, resolvedSearchParams] =
-        await Promise.all([
-            getOnboardingState(),
-            getOnboardingPlans(),
-            (searchParams ?? Promise.resolve({})) as Promise<OnboardingSearchParams>,
-        ]);
+    const { stateResult, sortedPlans, resolvedSearchParams } = await fetchOnboardingData(searchParams);
+    const { user, onboarding } = stateResult;
 
     const paymentStatus = resolvedSearchParams?.payment ?? null;
 
@@ -37,16 +69,11 @@ export default async function OnboardingPage({ searchParams }: PageProps) {
         redirect('/wachat');
     }
 
-    // getOnboardingPlans() already serializes ObjectIds to strings via
-    // JSON.parse(JSON.stringify(...)), so the runtime shape matches what
-    // the client-side wizard expects — cast at this boundary only.
-    const plans = rawPlans as unknown as Array<Plan & { _id: string }>;
-
     return (
         <OnboardingWizard
             initialUser={user}
             initialOnboarding={onboarding}
-            initialPlans={plans}
+            initialPlans={sortedPlans}
             paymentStatus={
                 paymentStatus === 'success' || paymentStatus === 'failed'
                     ? paymentStatus

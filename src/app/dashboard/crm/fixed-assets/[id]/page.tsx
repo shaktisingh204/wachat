@@ -46,8 +46,11 @@ function fmtMoney(value?: number, currency?: string): string {
 
 function fmtDate(v?: string): string {
   if (!v) return '—';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  try {
+    return new Date(v).toISOString().substring(0, 10);
+  } catch {
+    return '—';
+  }
 }
 
 function methodLabel(v?: string): string {

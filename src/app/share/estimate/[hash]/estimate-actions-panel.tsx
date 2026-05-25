@@ -43,17 +43,21 @@ type Props = {
   status: string;
   signature: Signature;
   declineReason: string | null;
+  invoiceHash?: string | null;
 };
 
-export function EstimateActionsPanel({ hash, status, signature, declineReason }: Props) {
+export function EstimateActionsPanel({ hash, status, signature, declineReason, invoiceHash }: Props) {
   const [name, setName] = React.useState('');
   const [signatureData, setSignatureData] = React.useState<string | null>(null);
   const [declineOpen, setDeclineOpen] = React.useState(false);
   const [reason, setReason] = React.useState('');
+  const [actionInvoiceHash, setActionInvoiceHash] = React.useState<string | null>(null);
   const [banner, setBanner] = React.useState<
     { kind: 'success' | 'error'; message: string } | null
   >(null);
   const [pending, startTransition] = React.useTransition();
+
+  const effectiveInvoiceHash = actionInvoiceHash || invoiceHash;
 
   if (status === 'accepted') {
     return (
@@ -80,6 +84,15 @@ export function EstimateActionsPanel({ hash, status, signature, declineReason }:
           ) : (
             <p>This estimate has been accepted.</p>
           )}
+          {effectiveInvoiceHash ? (
+            <div className="mt-4 pt-4 border-t border-zinc-200">
+              <Button asChild>
+                <a href={`/share/invoice/${effectiveInvoiceHash}`}>
+                  Pay Advance / Deposit
+                </a>
+              </Button>
+            </div>
+          ) : null}
         </ZoruCardContent>
       </Card>
     );
@@ -113,6 +126,9 @@ export function EstimateActionsPanel({ hash, status, signature, declineReason }:
     }
     startTransition(async () => {
       const result = await acceptEstimate(hash, signatureData, name);
+      if (result.success && 'invoiceHash' in result && result.invoiceHash) {
+        setActionInvoiceHash(result.invoiceHash);
+      }
       setBanner(
         result.success
           ? { kind: 'success', message: result.message || 'Accepted.' }
@@ -156,16 +172,26 @@ export function EstimateActionsPanel({ hash, status, signature, declineReason }:
           />
         </div>
 
-        <SignaturePad onChange={setSignatureData} />
+        {!actionInvoiceHash ? <SignaturePad onChange={setSignatureData} /> : null}
 
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Button onClick={handleAccept} disabled={pending}>
-            {pending ? 'Submitting…' : 'Accept estimate'}
-          </Button>
-          <Button variant="outline" onClick={() => setDeclineOpen(true)} disabled={pending}>
-            Decline
-          </Button>
-        </div>
+        {!actionInvoiceHash ? (
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button onClick={handleAccept} disabled={pending}>
+              {pending ? 'Submitting…' : 'Accept estimate'}
+            </Button>
+            <Button variant="outline" onClick={() => setDeclineOpen(true)} disabled={pending}>
+              Decline
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button asChild>
+              <a href={`/share/invoice/${actionInvoiceHash}`}>
+                Pay Advance / Deposit
+              </a>
+            </Button>
+          </div>
+        )}
 
         <Dialog open={declineOpen} onOpenChange={setDeclineOpen}>
           <ZoruDialogContent>

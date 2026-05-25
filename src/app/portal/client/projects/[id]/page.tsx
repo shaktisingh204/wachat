@@ -1,3 +1,5 @@
+import React from "react";
+import { fmtINR } from "@/lib/utils";
 /**
  * /portal/client/projects/[id] — Read-only project detail.
  *
@@ -48,19 +50,8 @@ function fmtDate(iso: string | null): string {
     return new Date(iso).toLocaleDateString();
 }
 
-function fmtCurrency(n: number | undefined, ccy: string | undefined): string {
-    if (typeof n !== 'number') return '—';
-    try {
-        return new Intl.NumberFormat(undefined, {
-            style: 'currency',
-            currency: ccy || 'USD',
-        }).format(n);
-    } catch {
-        return String(n);
-    }
-}
 
-export default async function ClientProjectDetailPage({
+async function ClientProjectDetailPageContent({
     params,
     searchParams,
 }: {
@@ -112,7 +103,7 @@ export default async function ClientProjectDetailPage({
                         </div>
                         <div>
                             <dt className="text-xs text-zoru-ink-muted">Budget</dt>
-                            <dd className="text-zoru-ink">{fmtCurrency(project.budget, project.currency)}</dd>
+                            <dd className="text-zoru-ink">{fmtINR(project.budget, project.currency)}</dd>
                         </div>
                         <div className="col-span-2 sm:col-span-4">
                             <dt className="text-xs text-zoru-ink-muted">Progress</dt>
@@ -237,7 +228,7 @@ export default async function ClientProjectDetailPage({
                                                 </Link>
                                             </ZoruTableCell>
                                             <ZoruTableCell>{fmtDate(inv.invoiceDate)}</ZoruTableCell>
-                                            <ZoruTableCell>{fmtCurrency(inv.total, inv.currency)}</ZoruTableCell>
+                                            <ZoruTableCell>{fmtINR(inv.total, inv.currency)}</ZoruTableCell>
                                             <ZoruTableCell>
                                                 <Badge variant="outline">{inv.status}</Badge>
                                             </ZoruTableCell>
@@ -260,4 +251,19 @@ export default async function ClientProjectDetailPage({
             )}
         </div>
     );
+}
+
+
+export default function ClientProjectDetailPage({
+    params,
+    searchParams,
+}: {
+    params: Promise<{ id: string }>;
+    searchParams: Promise<{ tab?: string }>;
+}) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <ClientProjectDetailPageContent params={params} searchParams={searchParams} />
+    </React.Suspense>
+  );
 }

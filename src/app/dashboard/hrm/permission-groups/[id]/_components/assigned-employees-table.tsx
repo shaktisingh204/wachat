@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { UserMinus, Download, Printer, Search } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { fmtDate } from '@/lib/utils';
 import {
   Badge,
   Button,
@@ -87,7 +88,7 @@ export function AssignedEmployeesTable({
     const rows = filteredEmployees.map((e) => [
       e.name,
       e.email || '',
-      new Date(e.assignedAt).toLocaleDateString(),
+      fmtDate(e.assignedAt),
     ]);
     const csvContent = [
       headers.join(','),
@@ -216,7 +217,7 @@ export function AssignedEmployeesTable({
                       {e.email ?? '—'}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
-                      {mounted ? new Date(e.assignedAt).toLocaleDateString() : ''}
+                      {mounted ? fmtDate(e.assignedAt) : ''}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right print:hidden">
                       <Button

@@ -13,7 +13,8 @@ const STATUS_TONE: Record<CrmAnnouncementStatus, StatusTone> = {
 export function fmtDate(v: string | null | undefined): string {
     if (!v) return '—';
     const d = new Date(v);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
 }
 
 interface AnnouncementBadgesProps {

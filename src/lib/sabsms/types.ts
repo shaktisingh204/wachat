@@ -112,6 +112,8 @@ export interface SabsmsNumber {
   };
   status: 'active' | 'pending' | 'releasing' | 'released';
   monthlyCost?: number; // in cents, USD
+  webhookUrl?: string;
+  routingUrl?: string;
   createdAt: Date;
   releasedAt?: Date;
 }
@@ -290,6 +292,7 @@ export interface SabsmsSuppression {
   source: SabsmsSuppressionSource;
   reason?: string;
   createdAt: Date;
+  expiresAt?: Date;
 }
 
 export interface SabsmsConsentEvent {

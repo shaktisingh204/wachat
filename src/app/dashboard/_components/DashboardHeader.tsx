@@ -34,12 +34,34 @@ type DashboardHeaderProps = {
   userName: string;
   totalProjects: number;
   planName: string;
-  onRefresh: () => void;
-  onExport: () => void;
+  data: any;
 };
 
-export function DashboardHeader({ userName, totalProjects, planName, onRefresh, onExport }: DashboardHeaderProps) {
+export function DashboardHeader({ userName, totalProjects, planName, data }: DashboardHeaderProps) {
   const router = useRouter();
+
+  const handleRefresh = () => {
+    router.refresh();
+  };
+
+  const handleExport = (timeRange: string = "7d") => {
+    if (!data) return;
+    const payload = {
+      generatedAt: new Date().toISOString(),
+      timeRange,
+      userName,
+      ...data,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `sabnode-home-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <>
@@ -78,7 +100,7 @@ export function DashboardHeader({ userName, totalProjects, planName, onRefresh, 
             {planName || "Free plan"}
             <ChevronDown className="opacity-60 h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={onExport}>
+          <Button variant="outline" size="sm" onClick={() => handleExport("7d")}>
             <Download className="h-4 w-4" /> Export
           </Button>
           <DropdownMenu>
@@ -102,7 +124,7 @@ export function DashboardHeader({ userName, totalProjects, planName, onRefresh, 
                 <Bell className="h-4 w-4" /> Unread notifications
               </ZoruDropdownMenuItem>
               <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem onSelect={onRefresh}>
+              <ZoruDropdownMenuItem onSelect={handleRefresh}>
                 <AlarmClock className="h-4 w-4" /> Refresh data
               </ZoruDropdownMenuItem>
             </ZoruDropdownMenuContent>

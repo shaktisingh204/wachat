@@ -18,6 +18,8 @@ import {
   ZoruPageTitle,
   StatCard,
 } from '@/components/zoruui';
+import { SabsmsHistoricalChart } from './HistoricalChart';
+import { QueueActions } from './QueueActions';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,13 +44,7 @@ async function probeEngine(): Promise<EngineHealth> {
   }
 }
 
-async function countMessages(): Promise<{
-  total: number;
-  queued: number;
-  sent: number;
-  delivered: number;
-  failed: number;
-}> {
+async function countMessages() {
   const { db } = await connectToDatabase();
   const col = db.collection(SABSMS_COLLECTIONS.messages);
   const [total, queued, sent, delivered, failed] = await Promise.all([
@@ -61,11 +57,61 @@ async function countMessages(): Promise<{
   return { total, queued, sent, delivered, failed };
 }
 
+async function getHistoricalData() {
+  const { db } = await connectToDatabase();
+  const col = db.collection(SABSMS_COLLECTIONS.messages);
+  
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  const rawStats = await col.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: thirtyDaysAgo }
+      }
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
+        },
+        sent: {
+          $sum: { $cond: [{ $eq: ['$status', 'sent'] }, 1, 0] }
+        },
+        delivered: {
+          $sum: { $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0] }
+        },
+        failed: {
+          $sum: { $cond: [{ $eq: ['$status', 'failed'] }, 1, 0] }
+        },
+        queued: {
+          $sum: { $cond: [{ $eq: ['$status', 'queued'] }, 1, 0] }
+        }
+      }
+    },
+    {
+      $sort: { _id: 1 }
+    }
+  ]).toArray();
+
+  return rawStats.map(stat => ({
+    _id: stat._id,
+    sent: stat.sent || 0,
+    delivered: stat.delivered || 0,
+    failed: stat.failed || 0,
+    queued: stat.queued || 0,
+  }));
+}
+
 export default async function SabsmsAdminOverviewPage() {
   const { isAdmin } = await getAdminSession();
   if (!isAdmin) redirect('/admin-login');
 
-  const [health, counts] = await Promise.all([probeEngine(), countMessages()]);
+  const [health, counts, historicalData] = await Promise.all([
+    probeEngine(), 
+    countMessages(),
+    getHistoricalData()
+  ]);
 
   return (
     <div className="space-y-6">
@@ -88,27 +134,31 @@ export default async function SabsmsAdminOverviewPage() {
         </ZoruPageHeading>
       </PageHeader>
 
-      <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Engine</ZoruCardTitle>
-          <ZoruCardDescription>
-            Live status reported by the Rust service.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="flex flex-wrap items-center gap-3 text-sm">
-          {health.reachable ? (
-            <Badge variant="default">healthy</Badge>
-          ) : (
-            <Badge variant="destructive">unreachable</Badge>
-          )}
-          {health.version && (
-            <span className="text-slate-600">version {health.version}</span>
-          )}
-          {health.error && (
-            <span className="text-rose-600">{health.error}</span>
-          )}
-        </ZoruCardContent>
-      </Card>
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Engine</ZoruCardTitle>
+            <ZoruCardDescription>
+              Live status reported by the Rust service.
+            </ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent className="flex flex-wrap items-center gap-3 text-sm">
+            {health.reachable ? (
+              <Badge variant="default">healthy</Badge>
+            ) : (
+              <Badge variant="destructive">unreachable</Badge>
+            )}
+            {health.version && (
+              <span className="text-slate-600">version {health.version}</span>
+            )}
+            {health.error && (
+              <span className="text-rose-600">{health.error}</span>
+            )}
+          </ZoruCardContent>
+        </Card>
+        
+        <QueueActions />
+      </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
         <StatCard label="Total" value={counts.total.toLocaleString()} />
@@ -117,6 +167,8 @@ export default async function SabsmsAdminOverviewPage() {
         <StatCard label="Delivered" value={counts.delivered.toLocaleString()} />
         <StatCard label="Failed" value={counts.failed.toLocaleString()} />
       </div>
+
+      <SabsmsHistoricalChart data={historicalData} />
     </div>
   );
 }

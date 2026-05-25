@@ -29,10 +29,10 @@ export const dynamic = 'force-dynamic';
 
 const BASE = '/dashboard/crm/settings/custom-fields';
 
+import { formatUTC } from '@/lib/utils';
+
 function fmtDate(value: unknown): string {
-  if (!value) return '—';
-  const d = new Date(value as string);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
+  return formatUTC(value as string ?? undefined, true);
 }
 
 function entityLabel(kind: string): string {

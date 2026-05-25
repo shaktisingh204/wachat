@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Label, Textarea } from '@/components/zoruui';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Download } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -35,6 +35,24 @@ export default function AdwordsWrapperPage() {
     }
   };
 
+  const handleDownloadCSV = () => {
+    if (!out) return;
+    try {
+      const lines = out.split(/\r?\n/).filter(Boolean);
+      const csvContent = "Keyword\n" + lines.map(l => `"${l.replace(/"/g, '""')}"`).join("\n");
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'adwords_keywords.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Failed to export CSV', err);
+    }
+  };
+
   return (
     <ToolShell title="AdWords Keyword Wrapper" description="Wrap a list of keywords with Google Ads match type syntax.">
       <div className="space-y-1">
@@ -49,16 +67,28 @@ export default function AdwordsWrapperPage() {
       <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[180px] font-mono text-xs" placeholder="One keyword per line…" />
       <div className="relative">
         <Textarea readOnly value={out} className="min-h-[180px] font-mono text-xs" placeholder="Output will appear here..." />
-        <Button 
-          variant="outline"
-          size="sm"
-          className="absolute top-2 right-2 bg-zoru-bg"
-          onClick={handleCopy}
-          disabled={!out}
-          leading={copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-        >
-          {copied ? 'Copied' : 'Copy'}
-        </Button>
+        <div className="absolute top-2 right-2 flex gap-2">
+          <Button 
+            variant="outline"
+            size="sm"
+            className="bg-zoru-bg"
+            onClick={handleCopy}
+            disabled={!out}
+            leading={copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+          >
+            {copied ? 'Copied' : 'Copy'}
+          </Button>
+          <Button 
+            variant="outline"
+            size="sm"
+            className="bg-zoru-bg"
+            onClick={handleDownloadCSV}
+            disabled={!out}
+            leading={<Download className="w-4 h-4" />}
+          >
+            Export CSV
+          </Button>
+        </div>
       </div>
     </ToolShell>
   );

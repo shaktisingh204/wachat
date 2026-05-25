@@ -526,13 +526,22 @@ function QuickReplyDialog({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="qr-body">Body</Label>
+          <div className="flex justify-between items-center">
+            <Label htmlFor="qr-body">Body</Label>
+            <div className="flex items-center gap-1.5 text-[11px] text-zoru-ink-muted">
+              <span>Variables:</span>
+              <button type="button" onClick={() => setBody(b => b + '{{first_name}} ')} className="hover:text-zoru-ink hover:underline decoration-dotted transition-colors">{'{{first_name}}'}</button>
+              <button type="button" onClick={() => setBody(b => b + '{{last_name}} ')} className="hover:text-zoru-ink hover:underline decoration-dotted transition-colors">{'{{last_name}}'}</button>
+              <button type="button" onClick={() => setBody(b => b + '{{name}} ')} className="hover:text-zoru-ink hover:underline decoration-dotted transition-colors">{'{{name}}'}</button>
+              <button type="button" onClick={() => setBody(b => b + '{{phone}} ')} className="hover:text-zoru-ink hover:underline decoration-dotted transition-colors">{'{{phone}}'}</button>
+            </div>
+          </div>
           <Textarea
             id="qr-body"
             rows={5}
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="Thanks for reaching out! We'll be back to you within a few hours."
+            placeholder="Hi {{first_name}}, thanks for reaching out! We'll be back to you within a few hours."
           />
         </div>
 
@@ -550,7 +559,14 @@ function QuickReplyDialog({
           </p>
           <div className="mt-2 max-w-md rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 text-sm text-zoru-ink shadow-[var(--zoru-shadow-sm)]">
             <p className="whitespace-pre-wrap">
-              {body || (
+              {body ? (
+                body
+                  .replace(/\{\{\s*name\s*\}\}/gi, 'Jane Doe')
+                  .replace(/\{\{\s*first_name\s*\}\}/gi, 'Jane')
+                  .replace(/\{\{\s*last_name\s*\}\}/gi, 'Doe')
+                  .replace(/\{\{\s*phone\s*\}\}/gi, '+1 234 567 8900')
+                  .replace(/\{\{\s*company\s*\}\}/gi, 'Acme Corp')
+              ) : (
                 <span className="italic text-zoru-ink-muted">
                   (empty body)
                 </span>

@@ -22,6 +22,7 @@ import {
 import * as React from 'react';
 
 import { fetchPublicDownloadUrl, fetchPublicPreviewUrl } from './actions';
+import { useDebounce } from 'use-debounce';
 import type { PublicShareView } from '@/lib/rust-client/sabfiles';
 import {
     formatShareFileSize,
@@ -75,6 +76,7 @@ export function ShareLanding({
     view: PublicShareView;
 }) {
     const [password, setPassword] = React.useState('');
+    const [debouncedPassword] = useDebounce(password, 500);
     const [busy, setBusy] = React.useState(false);
     const [copied, setCopied] = React.useState(false);
     const [previewUrl, setPreviewUrl] = React.useState<string | undefined>(view.thumbnail_url);
@@ -94,12 +96,12 @@ export function ShareLanding({
             setPreviewUrl(undefined);
             return;
         }
-        if (view.password_protected && !password) {
+        if (view.password_protected && !debouncedPassword) {
             setPreviewUrl(undefined);
             return;
         }
 
-        fetchPublicPreviewUrl(token, password).then((res) => {
+        fetchPublicPreviewUrl(token, debouncedPassword).then((res) => {
             if (cancelled) return;
             if ('error' in res) {
                 setPreviewUrl(undefined);
@@ -112,7 +114,7 @@ export function ShareLanding({
         return () => {
             cancelled = true;
         };
-    }, [canLoadPreview, password, token, view.password_protected]);
+    }, [canLoadPreview, debouncedPassword, token, view.password_protected]);
 
     const onDownload = async () => {
         if (busy || !view.download_enabled || view.type !== 'file') return;

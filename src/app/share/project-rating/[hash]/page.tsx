@@ -7,6 +7,7 @@
  * panel instead of the form.
  */
 
+import * as React from 'react';
 import { notFound } from 'next/navigation';
 import {
   Card,
@@ -17,14 +18,11 @@ import {
 import { getPublicProjectRating } from '@/app/actions/public-project-rating.actions';
 import { PublicRatingForm } from './_components/public-rating-form';
 
+export const dynamic = 'force-dynamic';
+
 type Params = Promise<{ hash: string }>;
 
-export default async function PublicProjectRatingPage({
-  params,
-}: {
-  params: Params;
-}) {
-  const { hash } = await params;
+async function PublicProjectRatingContainer({ hash }: { hash: string }) {
   const data = await getPublicProjectRating(hash);
   if (!data) notFound();
 
@@ -49,18 +47,28 @@ export default async function PublicProjectRatingPage({
           </p>
         </ZoruCardHeader>
         <ZoruCardContent>
-          {alreadyRated ? (
-            <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-              <p className="font-semibold">Thank you!</p>
-              <p className="mt-1">
-                You&apos;ve already submitted feedback for this project.
-              </p>
-            </div>
-          ) : (
-            <PublicRatingForm hash={hash} />
-          )}
+          <PublicRatingForm 
+            hash={hash}
+            alreadyRated={alreadyRated}
+            existingRating={data.existingRating}
+            syndicationUrls={project.syndicationUrls}
+          />
         </ZoruCardContent>
       </Card>
     </div>
+  );
+}
+
+export default async function PublicProjectRatingPage({
+  params,
+}: {
+  params: Params;
+}) {
+  const { hash } = await params;
+  
+  return (
+    <React.Suspense fallback={<div>Loading rating form...</div>}>
+      <PublicProjectRatingContainer hash={hash} />
+    </React.Suspense>
   );
 }

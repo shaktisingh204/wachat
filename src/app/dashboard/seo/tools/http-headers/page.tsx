@@ -19,14 +19,14 @@ import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';
 
 const USER_AGENTS = [
-  { label: 'Default Server', value: '' },
+  { label: 'Default Server', value: 'default' },
   { label: 'Googlebot Desktop', value: 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' },
   { label: 'Googlebot Smartphone', value: 'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.97 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' },
   { label: 'Bingbot', value: 'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)' },
   { label: 'Custom...', value: 'custom' },
 ];
 
-class ErrorBoundary extends React.Component<{children: React.ReactNode, onReset?: () => void}, {hasError: boolean, error?: Error}> {
+class ErrorBoundary extends React.Component<{children: React.ReactNode, title?: string, onReset?: () => void}, {hasError: boolean, error?: Error}> {
   constructor(props: any) {
     super(props);
     this.state = { hasError: false };
@@ -43,7 +43,7 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode, onReset?
         <Card className="border-red-500 mt-4">
           <ZoruCardContent className="p-4 flex flex-col items-center justify-center space-y-4">
             <AlertCircle className="w-8 h-8 text-red-500" />
-            <div className="text-red-500 font-semibold text-center">Something went wrong rendering the results!</div>
+            <div className="text-red-500 font-semibold text-center">{this.props.title || 'Something went wrong rendering the results!'}</div>
             <p className="text-sm text-gray-500 text-center max-w-md break-all">{this.state.error?.message}</p>
             <Button onClick={() => {
               this.setState({ hasError: false });
@@ -57,10 +57,17 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode, onReset?
   }
 }
 
+const FetchErrorThrower = ({ error }: { error: string }) => {
+  if (error) {
+    throw new Error(error);
+  }
+  return null;
+};
+
 export default function HttpHeadersPage() {
   const [url, setUrl] = useState('');
   const [method, setMethod] = useState('GET');
-  const [userAgentType, setUserAgentType] = useState('');
+  const [userAgentType, setUserAgentType] = useState('default');
   const [customUserAgent, setCustomUserAgent] = useState('');
   
   const [loading, setLoading] = useState(false);
@@ -74,7 +81,7 @@ export default function HttpHeadersPage() {
     }
     setLoading(true); setError(''); setData(null);
     try {
-      let finalUserAgent = userAgentType;
+      let finalUserAgent = userAgentType === 'default' ? '' : userAgentType;
       if (userAgentType === 'custom') {
         finalUserAgent = customUserAgent;
       }
@@ -138,17 +145,14 @@ export default function HttpHeadersPage() {
         )}
       </div>
 
-      {error && (
-        <Card className="border-red-500 mt-4">
-          <ZoruCardContent className="p-4 text-red-600 text-sm">
-            {error}
-          </ZoruCardContent>
-        </Card>
-      )}
-
-      {data && (
-        <ErrorBoundary onReset={() => setData(null)}>
-          <div className="mt-4 flex flex-col gap-4">
+      {(error || data) && (
+        <ErrorBoundary 
+          title={error ? "HTTP Request Failed" : "Something went wrong rendering the results!"} 
+          onReset={() => { setError(''); setData(null); }}
+        >
+          {error && <FetchErrorThrower error={error} />}
+          {data && (
+            <div className="mt-4 flex flex-col gap-4">
             
             {data.redirectChain && data.redirectChain.length > 1 && (
               <Card>
@@ -210,7 +214,8 @@ export default function HttpHeadersPage() {
                 </div>
               </ZoruCardContent>
             </Card>
-          </div>
+            </div>
+          )}
         </ErrorBoundary>
       )}
     </ToolShell>

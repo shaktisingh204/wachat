@@ -13,7 +13,7 @@ export default async function VoucherBookActivityPage(props: {
 
     return (
         <EntityDetailShell
-            eyebrow="VOUCHER BOOK"
+            eyebrow="VOUCHER BOOK ACTIVITY"
             title={book.name}
             back={{ href: `/dashboard/crm/accounting/vouchers/${voucherBookId}`, label: 'Back to voucher book' }}
         >

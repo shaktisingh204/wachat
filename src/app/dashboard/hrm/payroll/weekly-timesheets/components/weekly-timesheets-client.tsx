@@ -34,6 +34,8 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
@@ -60,10 +62,9 @@ const STATUS_VARIANT: Record<WsWeeklyTimesheetStatus, StatusVariant> = {
 };
 
 // Fixed client-side formatting to prevent hydration mismatch
-function fmtDate(v: unknown): string {
-  if (!v) return '—';
+function fmtDate(v: unknown, isMounted: boolean): string {
+  if (!v || !isMounted) return '—';
   try {
-    // Only parse standard formats locally to avoid TZ drift or mismatch
     const d = new Date(v as any);
     return format(d, 'dd MMM yyyy');
   } catch {
@@ -95,7 +96,10 @@ export function WeeklyTimesheetsClient({
 
   // WebSocket Mockup for Collaborative Editing
   const [isLive, setIsLive] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
+    setIsMounted(true);
     // Simulate connection to a WebSocket server
     const timeout = setTimeout(() => setIsLive(true), 1500);
     const interval = setInterval(() => {
@@ -176,8 +180,8 @@ export function WeeklyTimesheetsClient({
     updateSheetOptimistically(id, { status: 'submitted' });
     startTransition(async () => {
       const r = await submitWeeklyTimesheet(id);
-      if (r.ok) toast({ title: 'Submitted' });
-      else toast({ title: 'Error', description: String(r.error), variant: 'destructive' });
+      if (r.ok) toast({ title: 'Submitted', description: 'The timesheet has been successfully submitted.' });
+      else toast({ title: 'Failed to Submit', description: r.error ? String(r.error) : 'An unknown error occurred.', variant: 'destructive' });
     });
   };
 
@@ -186,8 +190,8 @@ export function WeeklyTimesheetsClient({
     updateSheetOptimistically(id, { status: 'approved' });
     startTransition(async () => {
       const r = await approveWeeklyTimesheet(id);
-      if (r.ok) toast({ title: 'Approved' });
-      else toast({ title: 'Error', description: String(r.error), variant: 'destructive' });
+      if (r.ok) toast({ title: 'Approved', description: 'Timesheet has been approved.' });
+      else toast({ title: 'Failed to Approve', description: r.error ? String(r.error) : 'An unknown error occurred.', variant: 'destructive' });
     });
   };
 
@@ -198,8 +202,8 @@ export function WeeklyTimesheetsClient({
     updateSheetOptimistically(id, { status: 'rejected', reason });
     startTransition(async () => {
       const r = await rejectWeeklyTimesheet(id, reason);
-      if (r.ok) toast({ title: 'Rejected' });
-      else toast({ title: 'Error', description: String(r.error), variant: 'destructive' });
+      if (r.ok) toast({ title: 'Rejected', description: 'Timesheet has been rejected.' });
+      else toast({ title: 'Failed to Reject', description: r.error ? String(r.error) : 'An unknown error occurred.', variant: 'destructive' });
     });
   };
 
@@ -209,7 +213,7 @@ export function WeeklyTimesheetsClient({
     removeSheetOptimistically(id);
     startTransition(async () => {
       await deleteWeeklyTimesheet(id);
-      toast({ title: 'Deleted' });
+      toast({ title: 'Deleted', description: 'Timesheet was permanently removed.' });
     });
   };
 
@@ -220,7 +224,7 @@ export function WeeklyTimesheetsClient({
     updateMultipleOptimistically(ids, { status: 'submitted' });
     startTransition(async () => {
       await bulkSubmitTimesheets(ids);
-      toast({ title: 'Bulk Submit Successful' });
+      toast({ title: 'Bulk Submit Successful', description: `${ids.length} timesheets submitted.` });
       setSelectedIds(new Set());
     });
   };
@@ -231,7 +235,7 @@ export function WeeklyTimesheetsClient({
     updateMultipleOptimistically(ids, { status: 'approved' });
     startTransition(async () => {
       await bulkApproveTimesheets(ids);
-      toast({ title: 'Bulk Approve Successful' });
+      toast({ title: 'Bulk Approve Successful', description: `${ids.length} timesheets approved.` });
       setSelectedIds(new Set());
     });
   };
@@ -244,7 +248,7 @@ export function WeeklyTimesheetsClient({
     updateMultipleOptimistically(ids, { status: 'rejected', reason });
     startTransition(async () => {
       await bulkRejectTimesheets(ids, reason);
-      toast({ title: 'Bulk Reject Successful' });
+      toast({ title: 'Bulk Reject Successful', description: `${ids.length} timesheets rejected.` });
       setSelectedIds(new Set());
     });
   };
@@ -256,7 +260,7 @@ export function WeeklyTimesheetsClient({
     ids.forEach(removeSheetOptimistically);
     startTransition(async () => {
       await bulkDeleteTimesheets(ids);
-      toast({ title: 'Bulk Delete Successful' });
+      toast({ title: 'Bulk Delete Successful', description: `${ids.length} timesheets deleted.` });
     });
   };
 
@@ -266,8 +270,8 @@ export function WeeklyTimesheetsClient({
     const rows = filtered.map((s) => [
       String(s._id),
       empMap.get(String(s.user_id)) || '',
-      fmtDate(s.week_start_date),
-      fmtDate(s.week_end_date),
+      fmtDate(s.week_start_date, isMounted),
+      fmtDate(s.week_end_date, isMounted),
       fmtHours(s.total_hours, s.total_minutes),
       s.status,
       s.reason || '',
@@ -279,6 +283,31 @@ export function WeeklyTimesheetsClient({
     link.href = URL.createObjectURL(blob);
     link.download = `weekly-timesheets-export-${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
+  };
+
+  // --- PDF Export ---
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Weekly Timesheets", 14, 15);
+    
+    const body = filtered.map(s => {
+      const empName = empMap.get(String(s.user_id)) || '';
+      return [
+        empName, 
+        fmtDate(s.week_start_date, isMounted), 
+        fmtDate(s.week_end_date, isMounted), 
+        fmtHours(s.total_hours, s.total_minutes), 
+        s.status
+      ];
+    });
+
+    autoTable(doc, {
+      head: [['Employee', 'Week Start', 'Week End', 'Total Hours', 'Status']],
+      body,
+      startY: 20,
+    });
+    
+    doc.save(`weekly-timesheets-export-${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   return (
@@ -296,10 +325,18 @@ export function WeeklyTimesheetsClient({
               Live
             </div>
           )}
-          <Button variant="outline" size="sm" onClick={handleExportCSV}>
-            <Download className="mr-1.5 h-4 w-4" />
-            Export CSV
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="mr-1.5 h-4 w-4" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleExportCSV}>Export as CSV</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportPDF}>Export as PDF</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Link href="/dashboard/hrm/payroll/weekly-timesheets/new">
             <Button size="sm">
               <Plus className="mr-1.5 h-4 w-4" />
@@ -406,8 +443,8 @@ export function WeeklyTimesheetsClient({
                     <div className="flex-1 min-w-[150px] font-medium text-zoru-ink truncate pr-2">
                       {empMap.get(String(s.user_id)) || `…${String(s.user_id).slice(-6)}`}
                     </div>
-                    <div className="w-[120px] text-zoru-ink">{fmtDate(s.week_start_date)}</div>
-                    <div className="w-[120px] text-zoru-ink">{fmtDate(s.week_end_date)}</div>
+                    <div className="w-[120px] text-zoru-ink">{fmtDate(s.week_start_date, isMounted)}</div>
+                    <div className="w-[120px] text-zoru-ink">{fmtDate(s.week_end_date, isMounted)}</div>
                     <div className="w-[100px] font-mono text-zoru-ink">{fmtHours(s.total_hours, s.total_minutes)}</div>
                     <div className="w-[100px]">
                       <Badge variant={STATUS_VARIANT[s.status]}>{s.status}</Badge>

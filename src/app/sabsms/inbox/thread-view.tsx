@@ -28,6 +28,7 @@ import {
   Trash2,
   UserPlus,
   X,
+  Sparkles,
 } from "lucide-react";
 
 import {
@@ -76,6 +77,7 @@ import {
   replyToThread,
   sendCannedResponse,
   snoozeUntil,
+  generateAiReply,
 } from "./actions";
 import { computeSlaState, formatDeliveryStatusLabel } from "./sla";
 import type {
@@ -238,6 +240,18 @@ export function ThreadView({
       onMutate();
     } else {
       toast({ title: "Send failed", description: res.error, variant: "destructive" });
+    }
+  }
+
+  async function getAiSuggestion() {
+    setBusy(true);
+    const res = await generateAiReply(conversation.id);
+    setBusy(false);
+    if (res.ok) {
+      setComposerBody(res.suggestion);
+      toast({ title: "AI Suggestion applied" });
+    } else {
+      toast({ title: "Failed to generate AI suggestion", description: res.error, variant: "destructive" });
     }
   }
 
@@ -453,6 +467,9 @@ export function ThreadView({
             </Button>
           </div>
           <div className="flex items-center gap-2">
+            <Button size="sm" variant="ghost" onClick={getAiSuggestion} disabled={busy} className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50">
+              <Sparkles className="mr-1 h-3.5 w-3.5" /> AI Suggest
+            </Button>
             <DropdownMenu>
               <ZoruDropdownMenuTrigger asChild>
                 <Button size="sm" variant="ghost">

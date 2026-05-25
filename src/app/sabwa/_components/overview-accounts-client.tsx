@@ -26,6 +26,7 @@ import {
   Input,
   Label,
   Skeleton,
+  StatCard,
   cn,
   useZoruToast,
 } from '@/components/zoruui';
@@ -43,6 +44,7 @@ import {
   QrCode,
   Smartphone,
   Sparkles,
+  AlertCircle,
   } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
@@ -474,6 +476,27 @@ export function OverviewAccountsClient() {
               </Link>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Global Metric Roll-ups */}
+      {sessions.length > 0 && (
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <StatCard
+            label="Total Accounts"
+            value={sessions.length.toString()}
+            icon={<Smartphone />}
+          />
+          <StatCard
+            label="Ready to Use"
+            value={sessions.filter(s => s.status === 'connected').length.toString()}
+            icon={<CheckCircle2 className="text-zoru-success" />}
+          />
+          <StatCard
+            label="Needs Attention"
+            value={sessions.filter(s => s.status !== 'connected').length.toString()}
+            icon={<AlertCircle className={sessions.filter(s => s.status !== 'connected').length > 0 ? "text-zoru-warning" : "text-zoru-ink-muted"} />}
+          />
         </div>
       )}
 

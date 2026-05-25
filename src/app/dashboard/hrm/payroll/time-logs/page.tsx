@@ -4,6 +4,9 @@ import { TimeLogsClient } from './components/time-logs-client';
 import { ErrorBoundaryWrapper } from './components/error-boundary';
 import { Card } from '@/components/zoruui';
 
+export const dynamic = 'force-dynamic';
+
+
 export default function TimeLogsPage() {
   // Trigger data fetch on the server to pass the promise down for Suspense
   const logsPromise = getTimeLogs();

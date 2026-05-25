@@ -137,6 +137,11 @@ export default function AdManagerOverviewPage() {
   const [loading, setLoading] = React.useState(true);
   const [kpis, setKpis] = React.useState<Kpi[]>([]);
   const [topCampaigns, setTopCampaigns] = React.useState<any[]>([]);
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   React.useEffect(() => {
     if (!activeAccount) {
@@ -204,6 +209,18 @@ export default function AdManagerOverviewPage() {
       setLoading(false);
     })();
   }, [activeAccount, preset]);
+
+  if (!isMounted) {
+    return (
+      <>
+        <AmBreadcrumb page="Overview" />
+        <AmHeader title="Performance overview" description="Loading..." />
+        <div className="mt-6">
+          <KpiSkeleton />
+        </div>
+      </>
+    );
+  }
 
   if (!activeAccount) {
     return (

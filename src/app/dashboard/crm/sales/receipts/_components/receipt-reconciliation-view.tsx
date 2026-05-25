@@ -103,7 +103,7 @@ export function ReceiptReconciliationView({
                 <div>
                   <div className="text-sm font-medium text-zoru-ink">{r.receiptNo}</div>
                   <div className="text-xs text-zoru-ink-muted mt-1">
-                    {r.date ? new Date(r.date).toLocaleDateString() : 'No date'} • {r.mode || 'Unknown mode'}
+                    {r.date ? new Date(r.date).toLocaleDateString('en-US', { timeZone: 'UTC' }) : 'No date'} • {r.mode || 'Unknown mode'}
                   </div>
                 </div>
                 <div className="text-right">

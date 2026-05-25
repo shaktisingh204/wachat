@@ -43,6 +43,7 @@ import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
+import { fmtDate } from '@/lib/utils';
 
 import {
   bulkApprovePurchaseOrders,
@@ -564,14 +565,10 @@ export function PurchaseOrdersListClient({
                         {po.vendorLabel ?? po.vendorId ?? '—'}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
-                        {po.date
-                          ? new Date(po.date).toLocaleDateString()
-                          : '—'}
+                        {fmtDate(po.date)}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
-                        {po.expectedDelivery
-                          ? new Date(po.expectedDelivery).toLocaleDateString()
-                          : '—'}
+                        {fmtDate(po.expectedDelivery)}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
                         {fmt(po.total, po.currency ?? 'INR')}

@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 import {
@@ -12,10 +14,43 @@ import {
   Switch,
   Badge,
   Separator,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/zoruui";
+import { Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function ProviderConfigPage({ params }: { params: { id: string } }) {
   const providerId = params.id;
+
+  const [isRevealed, setIsRevealed] = React.useState(false);
+  const [showAuthDialog, setShowAuthDialog] = React.useState(false);
+  const [password, setPassword] = React.useState("");
+
+  const [isTesting, setIsTesting] = React.useState(false);
+  const [testResult, setTestResult] = React.useState<"idle" | "success" | "error">("idle");
+
+  const handleReveal = () => {
+    // In a real application, verify the password with the backend
+    if (password) {
+      setIsRevealed(true);
+      setShowAuthDialog(false);
+      setPassword("");
+    }
+  };
+
+  const handleTestConnection = () => {
+    setIsTesting(true);
+    setTestResult("idle");
+    setTimeout(() => {
+      setIsTesting(false);
+      setTestResult("success");
+    }, 1500);
+  };
 
   return (
     <SabsmsPageShell
@@ -50,8 +85,61 @@ export default function ProviderConfigPage({ params }: { params: { id: string } 
               </div>
               <div className="grid gap-2">
                 <Label>Auth Token / Secret</Label>
-                <Input type="password" defaultValue="••••••••••••••••" />
+                <div className="flex gap-2">
+                  <Input 
+                    type={isRevealed ? "text" : "password"} 
+                    defaultValue={isRevealed ? "real_secret_token_abc123" : "••••••••••••••••"} 
+                    readOnly={!isRevealed}
+                    className="flex-1"
+                  />
+                  {isRevealed ? (
+                    <Button variant="outline" onClick={() => setIsRevealed(false)}>
+                      <EyeOff className="w-4 h-4 mr-2" /> Hide
+                    </Button>
+                  ) : (
+                    <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline">
+                          <Eye className="w-4 h-4 mr-2" /> Reveal
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Authentication Required</DialogTitle>
+                          <DialogDescription>
+                            Please enter your admin password to reveal sensitive credentials.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4">
+                          <Label>Password</Label>
+                          <Input 
+                            type="password" 
+                            placeholder="Enter password..." 
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                          />
+                        </div>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setShowAuthDialog(false)}>Cancel</Button>
+                          <Button onClick={handleReveal}>Authenticate</Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                </div>
               </div>
+              
+              <div className="flex justify-start pt-2">
+                <Button variant="secondary" onClick={handleTestConnection} disabled={isTesting}>
+                  {isTesting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : (
+                    testResult === "success" ? <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" /> : null
+                  )}
+                  {isTesting ? "Verifying..." : testResult === "success" ? "Verified" : "Verify Credentials"}
+                </Button>
+              </div>
+
+              <Separator />
+
               <div className="flex items-center justify-between pt-2">
                 <div className="space-y-0.5">
                   <Label>Sender-ID Whitelist</Label>

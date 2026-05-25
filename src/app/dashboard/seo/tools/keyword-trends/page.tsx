@@ -1,56 +1,89 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, cn } from '@/components/zoruui';
-import { cn as _zoruCn, useMemo, useState } from 'react';
-
-void _zoruCn;
+import { Button, Input, Card, ZoruCardContent } from '@/components/zoruui';
+import { useState } from 'react';
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from 'recharts';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
-function hash(s: string, salt: number) {
-  let h = salt;
-  for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0;
-  return Math.abs(h);
-}
+import { getKeywordTrends } from './actions';
 
 export default function KeywordTrendsPage() {
   const [kw, setKw] = useState('');
   const [submitted, setSubmitted] = useState('');
-  const data = useMemo(() => {
-    if (!submitted) return [];
-    return Array.from({ length: 12 }, (_, i) => 30 + (hash(submitted, i + 1) % 70));
-  }, [submitted]);
-  const max = Math.max(...data, 1);
-  const w = 480, h = 160, pad = 20;
-  const path = data
-    .map((v, i) => {
-      const x = pad + ((w - pad * 2) * i) / (data.length - 1 || 1);
-      const y = h - pad - ((h - pad * 2) * v) / max;
-      return `${i === 0 ? 'M' : 'L'}${x},${y}`;
-    })
-    .join(' ');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState<{ month: string; interest: number }[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchTrends = async () => {
+    if (!kw) return;
+    setSubmitted(kw);
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await getKeywordTrends(kw);
+      if (res.error) {
+        setError(res.error);
+        setData([]);
+      } else {
+        const chartData = (res.data || []).map((val: number, idx: number) => ({
+          month: res.months?.[idx] || '',
+          interest: val,
+        }));
+        setData(chartData);
+      }
+    } catch (e: any) {
+      setError(e.message || 'An error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <ToolShell title="Keyword Trends" description="12-month interest trend for a keyword (deterministic demo).">
-      <div className="flex gap-2">
-        <Input value={kw} onChange={(e) => setKw(e.target.value)} placeholder="e.g. ai tools" />
-        <Button onClick={() => setSubmitted(kw)}>Show trend</Button>
+    <ToolShell title="Keyword Trends" description="12-month global interest trend for a keyword using Google Trends.">
+      <div className="flex gap-2 mb-4">
+        <Input 
+          value={kw} 
+          onChange={(e) => setKw(e.target.value)} 
+          onKeyDown={(e) => { if (e.key === 'Enter') fetchTrends(); }}
+          placeholder="e.g. ai tools" 
+        />
+        <Button onClick={fetchTrends} disabled={isLoading}>
+          {isLoading ? 'Loading...' : 'Show trend'}
+        </Button>
       </div>
-      {submitted && (
+      {error && <div className="text-red-500 mb-4">{error}</div>}
+      {submitted && data.length > 0 && !isLoading && !error && (
         <Card>
           <ZoruCardContent className="p-4">
-            <div className="text-sm font-semibold mb-2">{submitted}</div>
-            <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-40">
-              <path d={path} fill="none" stroke="hsl(var(--primary))" strokeWidth="2" />
-              {data.map((v, i) => {
-                const x = pad + ((w - pad * 2) * i) / (data.length - 1 || 1);
-                const y = h - pad - ((h - pad * 2) * v) / max;
-                return <circle key={i} cx={x} cy={y} r="3" fill="hsl(var(--primary))" />;
-              })}
-            </svg>
-            <div className="grid grid-cols-12 text-[10px] text-muted-foreground text-center">
-              {months.map((m) => <div key={m}>{m}</div>)}
+            <div className="text-lg font-semibold mb-6">Trend for "{submitted}"</div>
+            <div className="w-full h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis dataKey="month" tick={{ fontSize: 12 }} tickMargin={10} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="interest" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    dot={{ r: 4, fill: "hsl(var(--primary))" }} 
+                    activeDot={{ r: 6 }} 
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </ZoruCardContent>
         </Card>

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 
 import { getRoadmapById } from '@/app/actions/hrm-roadmaps.actions';
@@ -5,6 +6,10 @@ import { getSession } from '@/app/actions/user.actions';
 import { getMyDirectReports } from '@/app/actions/hrm-portal.actions';
 import { RoadmapEditor } from './_components/roadmap-editor';
 import type { DirectReport } from './_components/add-task-drawer';
+import { LoaderCircle } from 'lucide-react';
+
+export const dynamic = 'force-dynamic';
+
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -13,6 +18,16 @@ interface PageProps {
 export default async function RoadmapEditorPage({ params }: PageProps) {
   const { id } = await params;
 
+  return (
+    <div className="h-full">
+      <Suspense fallback={<RoadmapLoading />}>
+        <RoadmapDataLoader id={id} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function RoadmapDataLoader({ id }: { id: string }) {
   const [session, roadmap] = await Promise.all([
     getSession(),
     getRoadmapById(id),
@@ -30,9 +45,13 @@ export default async function RoadmapEditorPage({ params }: PageProps) {
     name: `${r.firstName} ${r.lastName}`.trim() || 'Unknown',
   }));
 
+  return <RoadmapEditor roadmap={roadmap} directReports={directReports} />;
+}
+
+function RoadmapLoading() {
   return (
-    <div className="h-full">
-      <RoadmapEditor roadmap={roadmap} directReports={directReports} />
+    <div className="flex h-full items-center justify-center min-h-[400px]">
+      <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
     </div>
   );
 }

@@ -1,0 +1,106 @@
+src/app/dashboard/finance/po-approvals/_components/po-approvals-list-client.tsx(220,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/finance/po-approvals/_components/po-approvals-list-client.tsx(221,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/finance/po-approvals/_components/po-approvals-list-client.tsx(311,7): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/app/dashboard/finance/po-approvals/_components/po-approvals-list-client.tsx(312,3): error TS1005: '}' expected.
+src/app/dashboard/finance/po-approvals/_components/po-approvals-list-client.tsx(312,4): error TS1003: Identifier expected.
+src/app/dashboard/finance/po-approvals/_components/po-approvals-list-client.tsx(313,1): error TS1003: Identifier expected.
+src/app/dashboard/finance/subscriptions/_components/subscriptions-list-client.tsx(232,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/finance/subscriptions/_components/subscriptions-list-client.tsx(233,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/finance/subscriptions/_components/subscriptions-list-client.tsx(345,7): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/app/dashboard/finance/subscriptions/_components/subscriptions-list-client.tsx(346,3): error TS1005: '}' expected.
+src/app/dashboard/finance/subscriptions/_components/subscriptions-list-client.tsx(346,4): error TS1003: Identifier expected.
+src/app/dashboard/finance/subscriptions/_components/subscriptions-list-client.tsx(347,1): error TS1003: Identifier expected.
+src/app/dashboard/finance/vendor-portal/_components/vendor-portal-list-client.tsx(230,7): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/finance/vendor-portal/_components/vendor-portal-list-client.tsx(231,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/finance/vendor-portal/_components/vendor-portal-list-client.tsx(361,7): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/app/dashboard/finance/vendor-portal/_components/vendor-portal-list-client.tsx(362,3): error TS1005: '}' expected.
+src/app/dashboard/finance/vendor-portal/_components/vendor-portal-list-client.tsx(362,4): error TS1003: Identifier expected.
+src/app/dashboard/finance/vendor-portal/_components/vendor-portal-list-client.tsx(363,1): error TS1003: Identifier expected.
+src/app/dashboard/hrm/payroll/reports/payroll-summary/page.tsx(355,61): error TS2657: JSX expressions must have one parent element.
+src/app/dashboard/hrm/payroll/reports/payroll-summary/page.tsx(363,61): error TS2657: JSX expressions must have one parent element.
+src/app/dashboard/hrm/payroll/reports/payroll-summary/page.tsx(367,61): error TS2657: JSX expressions must have one parent element.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(399,38): error TS1127: Invalid character.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(400,15): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(400,16): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(401,13): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(407,24): error TS1127: Invalid character.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(407,54): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(409,17): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(413,16): error TS1005: '}' expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(413,17): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(414,15): error TS17002: Expected corresponding JSX closing tag for 'Card'.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(418,25): error TS1127: Invalid character.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(421,15): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(421,16): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(422,13): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(427,26): error TS1127: Invalid character.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(427,56): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(433,31): error TS1127: Invalid character.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(435,21): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(435,22): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(436,19): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(445,21): error TS17002: Expected corresponding JSX closing tag for 'EntityListShell'.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(447,16): error TS1128: Declaration or statement expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(447,17): error TS1128: Declaration or statement expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(448,13): error TS1128: Declaration or statement expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(449,11): error TS1109: Expression expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(450,9): error TS1109: Expression expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(450,10): error TS1128: Declaration or statement expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(451,7): error TS1128: Declaration or statement expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(452,5): error TS1109: Expression expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(453,3): error TS1109: Expression expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(454,1): error TS1128: Declaration or statement expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(483,34): error TS1127: Invalid character.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(483,62): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(483,85): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(485,15): error TS17002: Expected corresponding JSX closing tag for 'ZoruSelectContent'.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(486,13): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(487,11): error TS17002: Expected corresponding JSX closing tag for 'Select'.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(488,9): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(489,5): error TS1005: ')' expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(490,3): error TS1109: Expression expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(491,1): error TS1128: Declaration or statement expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(491,2): error TS1128: Declaration or statement expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(502,5): error TS2657: JSX expressions must have one parent element.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(510,34): error TS1127: Invalid character.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(510,61): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(510,84): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(519,15): error TS17002: Expected corresponding JSX closing tag for 'ZoruSelectContent'.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(520,13): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(521,11): error TS17002: Expected corresponding JSX closing tag for 'Select'.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(522,9): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(542,5): error TS1005: ')' expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(543,3): error TS1109: Expression expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(544,1): error TS1128: Declaration or statement expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(544,2): error TS1128: Declaration or statement expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(566,30): error TS1127: Invalid character.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(566,31): error TS1136: Property assignment expected.
+src/app/dashboard/hrm/payroll/shifts/schedule/schedule-client.tsx(612,1): error TS1160: Unterminated template literal.
+src/app/dashboard/hrm/payroll/weekly-timesheets/page.tsx(26,1): error TS1005: ')' expected.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(221,25): error TS1127: Invalid character.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(222,15): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(222,16): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(223,13): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(233,31): error TS1127: Invalid character.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(235,21): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(235,22): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(236,19): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(243,67): error TS1127: Invalid character.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(243,150): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(243,151): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(287,29): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(289,23): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(289,25): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(291,21): error TS17015: Expected corresponding closing tag for JSX fragment.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(291,24): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(293,15): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(293,17): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(295,11): error TS1005: ')' expected.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(297,28): error TS1005: ',' expected.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(302,9): error TS1128: Declaration or statement expected.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(302,11): error TS1109: Expression expected.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(303,7): error TS1109: Expression expected.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(303,9): error TS1128: Declaration or statement expected.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(321,5): error TS1128: Declaration or statement expected.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(322,3): error TS1109: Expression expected.
+src/app/dashboard/instagram/connections/ConnectionsClient.tsx(323,1): error TS1128: Declaration or statement expected.

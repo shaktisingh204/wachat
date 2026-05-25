@@ -67,12 +67,15 @@ export interface CrmNotificationsResult {
     items: CrmNotificationRow[];
     total: number;
     kpis: CrmNotificationKpis;
+    nextCursor?: string | null;
+    optedOutKinds: string[];
 }
 
 export interface GetCrmNotificationsFilters {
     kind?: CrmNotificationKind | 'all';
     status?: 'unread' | 'read' | 'all';
     limit?: number;
+    cursor?: string;
 }
 
 /* ─── URL map ────────────────────────────────────────────────────────── */
@@ -163,34 +166,43 @@ export async function getCrmNotifications(
         //     or meta.mentionedIds includes me, or it's a status_change
         //     on a due-risk entity within the last 7 days.
         const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        const auditFilter: Filter<RawAuditDoc> = {
+        
+        const baseConditions = [
+            { action: 'assign' },
+            { 'meta.assigneeId': userId },
+            { 'meta.assigneeId': tenantOid },
+            { 'meta.mentionedIds': userId },
+            { 'meta.mentionedIds': tenantOid },
+            { 'meta.slaBreached': true },
+            {
+                action: 'status_change',
+                entityKind: { $in: Array.from(DUE_RISK_KINDS) },
+                createdAt: { $gte: sevenDaysAgo },
+            },
+        ];
+
+        // Fetch user notification settings if any
+        const settings = await db.collection('crm_notification_settings').findOne({ userId: tenantOid });
+        const optedOutKinds = settings?.optedOutKinds || [];
+
+        const auditFilter: Record<string, any> = {
             userId: tenantOid,
-            $and: [
-                { actorId: { $ne: tenantOid } },
-                {
-                    $or: [
-                        { action: 'assign' },
-                        { 'meta.assigneeId': userId },
-                        { 'meta.assigneeId': tenantOid },
-                        { 'meta.mentionedIds': userId },
-                        { 'meta.mentionedIds': tenantOid },
-                        { 'meta.slaBreached': true },
-                        {
-                            action: 'status_change',
-                            entityKind: { $in: Array.from(DUE_RISK_KINDS) },
-                            createdAt: { $gte: sevenDaysAgo },
-                        },
-                    ],
-                },
-            ],
+            actorId: { $ne: tenantOid },
+            $or: baseConditions,
         };
+
+        if (filters.cursor && ObjectId.isValid(filters.cursor)) {
+            auditFilter._id = { $lt: new ObjectId(filters.cursor) };
+        }
 
         const docs = (await db
             .collection('crm_audit_log')
             .find(auditFilter as Filter<unknown>)
-            .sort({ createdAt: -1 })
+            .sort({ _id: -1 })
             .limit(limit)
             .toArray()) as unknown as RawAuditDoc[];
+
+        const nextCursor = docs.length === limit ? String(docs[docs.length - 1]._id) : null;
 
         // Read-receipts: load all matching reads in one query.
         const auditIds = docs.map((d) => d._id);
@@ -232,14 +244,15 @@ export async function getCrmNotifications(
             };
         });
 
-        // Apply post-filter (kind + status) in-memory — the result is
-        // already capped to `limit` rows so this is bounded.
+        // Apply post-filter (kind + status) in-memory
         const kindFilter = filters.kind && filters.kind !== 'all' ? filters.kind : null;
         const statusFilter = filters.status && filters.status !== 'all' ? filters.status : null;
         const filtered = items.filter((row) => {
             if (kindFilter && row.kind !== kindFilter) return false;
             if (statusFilter === 'unread' && row.read) return false;
             if (statusFilter === 'read' && !row.read) return false;
+            // Apply opt-out settings
+            if (optedOutKinds.includes(row.kind)) return false;
             return true;
         });
 
@@ -254,6 +267,7 @@ export async function getCrmNotifications(
         let overdue = 0;
         let slaAtRisk = 0;
         for (const r of items) {
+            if (optedOutKinds.includes(r.kind)) continue;
             if (!r.read) unread += 1;
             const t = new Date(r.ts).getTime();
             if (t >= oneDayAgo) today += 1;
@@ -266,6 +280,8 @@ export async function getCrmNotifications(
             items: filtered,
             total: filtered.length,
             kpis: { unread, today, thisWeek, overdue, slaAtRisk },
+            nextCursor,
+            optedOutKinds,
         };
     } catch (e) {
         console.error('[getCrmNotifications] failed:', e);
@@ -411,5 +427,29 @@ export async function markAllNotificationsRead(): Promise<
     } catch (e) {
         console.error('[markAllNotificationsRead] failed:', e);
         return { success: false, error: 'Failed to mark all notifications read.' };
+    }
+}
+
+export async function updateNotificationSettings(optedOutKinds: CrmNotificationKind[]) {
+    const session = await getSession();
+    if (!session?.user?._id) return { success: false, error: 'Authentication required.' };
+
+    const userId = String(session.user._id);
+    if (!ObjectId.isValid(userId)) return { success: false, error: 'Invalid session.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const tenantOid = new ObjectId(userId);
+
+        await db.collection('crm_notification_settings').updateOne(
+            { userId: tenantOid },
+            { $set: { optedOutKinds } },
+            { upsert: true }
+        );
+
+        return { success: true };
+    } catch (e) {
+        console.error('[updateNotificationSettings] failed:', e);
+        return { success: false, error: 'Failed to update settings.' };
     }
 }

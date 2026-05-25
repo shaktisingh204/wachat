@@ -1,3 +1,5 @@
+import { fmtDate } from '@/lib/utils';
+export const dynamic = 'force-dynamic';
 /**
  * Interview detail — §1D.2 rebuild.
  *
@@ -20,6 +22,7 @@ import {
 } from 'lucide-react';
 
 import { getInterviewById, getCandidateById } from '@/app/actions/hr.actions';
+import { HrInterview, HrCandidate } from '@/lib/hr-types';
 import {
   RecruitmentDetailShell,
   DetailCard,
@@ -37,12 +40,12 @@ export default async function InterviewDetailPage({ params }: PageProps) {
   const { id } = await params;
   const raw = await getInterviewById(id);
   if (!raw) notFound();
-  const i = raw as any;
+  const i = raw as unknown as HrInterview & { _id: string };
 
-  let candidate: any = null;
+  let candidate: (HrCandidate & { _id: string }) | null = null;
   if (i.candidateId) {
     try {
-      candidate = await getCandidateById(String(i.candidateId));
+      candidate = (await getCandidateById(String(i.candidateId))) as unknown as (HrCandidate & { _id: string }) | null;
     } catch {
       candidate = null;
     }
@@ -164,7 +167,7 @@ export default async function InterviewDetailPage({ params }: PageProps) {
           {
             label: 'Scheduled at',
             value: i.scheduledAt
-              ? new Date(i.scheduledAt).toLocaleString()
+              ? fmtDate(i.scheduledAt, true)
               : '—',
           },
           {

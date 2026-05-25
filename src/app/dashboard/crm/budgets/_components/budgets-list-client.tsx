@@ -57,6 +57,7 @@ function fmtMoney(v?: number): string {
 }
 
 export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
+  const [mounted, setMounted] = React.useState(false);
   const [search, setSearch] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState<'all' | string>('all');
   const [headTypeFilter, setHeadTypeFilter] = React.useState<'all' | string>(
@@ -69,6 +70,10 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
   );
   const [kpiKey, setKpiKey] = React.useState<BudgetsKpiKey>('all');
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const headTypeOptions = React.useMemo(() => {
     const s = new Set<string>();
@@ -245,6 +250,14 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
     URL.revokeObjectURL(url);
   };
 
+  if (!mounted) {
+    return (
+      <div className="flex h-64 w-full items-center justify-center rounded-lg border border-zoru-line border-dashed bg-zoru-surface/50">
+        <span className="text-sm text-zoru-ink-muted">Loading budgets...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <BudgetsKpiStrip counts={kpis} active={kpiKey} onPick={setKpiKey} />
@@ -259,7 +272,6 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
             className="h-9 pl-9 text-[13px]"
           />
         </div>
-        {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
             <ZoruSelectValue placeholder="Status" />
@@ -273,7 +285,6 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
             ))}
           </ZoruSelectContent>
         </Select>
-        {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
         <Select value={headTypeFilter} onValueChange={setHeadTypeFilter}>
           <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
             <ZoruSelectValue placeholder="Head type" />
@@ -287,7 +298,6 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
             ))}
           </ZoruSelectContent>
         </Select>
-        {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
         <Select value={periodFilter} onValueChange={setPeriodFilter}>
           <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
             <ZoruSelectValue placeholder="Period" />
@@ -301,7 +311,6 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
             ))}
           </ZoruSelectContent>
         </Select>
-        {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
         <Select value={ownerFilter} onValueChange={setOwnerFilter}>
           <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
             <ZoruSelectValue placeholder="Owner" />
@@ -315,7 +324,6 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
             ))}
           </ZoruSelectContent>
         </Select>
-        {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
         <Select value={scenarioFilter} onValueChange={setScenarioFilter}>
           <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
             <ZoruSelectValue placeholder="Scenario" />

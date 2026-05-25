@@ -1,9 +1,12 @@
+import { fmtDate } from '@/lib/utils';
 import { HrDetailPage } from '../../_components/hr-detail-page';
 import {
-  getCertifications,
+  getCertification,
   deleteCertification,
 } from '@/app/actions/hr.actions';
 import type { HrCertification } from '@/lib/hr-types';
+
+export const dynamic = 'force-dynamic';
 
 type Row = HrCertification & {
   _id: string;
@@ -22,8 +25,7 @@ export default async function CertificationDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const list = (await getCertifications()) as Row[];
-  const row = list.find((r) => String(r._id) === id) ?? null;
+  const row = (await getCertification(id)) as Row | null;
 
   if (!row) return <div className="text-sm text-zoru-ink-muted">Certification not found.</div>;
 
@@ -65,11 +67,11 @@ export default async function CertificationDetailPage({
             { label: 'Skill level', value: row.skillLevel },
             {
               label: 'Issued',
-              value: row.issuedAt ? new Date(row.issuedAt).toLocaleDateString() : null,
+              value: row.issuedAt ? fmtDate(row.issuedAt) : null,
             },
             {
               label: 'Expires',
-              value: expiresAt ? expiresAt.toLocaleDateString() : null,
+              value: expiresAt ? fmtDate(expiresAt) : null,
             },
           ],
         },

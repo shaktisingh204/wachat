@@ -1,10 +1,8 @@
 import { Badge, Card, ZoruCardContent } from '@/components/zoruui';
-import {
-  ObjectId } from 'mongodb';
-import { CheckCircle2,
-  MailCheck } from 'lucide-react';
-
+import { ObjectId } from 'mongodb';
+import { CheckCircle2, MailCheck } from 'lucide-react';
 import { connectToDatabase } from '@/lib/mongodb';
+import { PdfDownloadButton } from './pdf-button';
 
 /**
  * Sign-flow confirmation — `/sign/[contractId]/[signerToken]/done`.
@@ -38,6 +36,7 @@ export default async function SignDonePage({ params }: PageProps) {
     let me: SignerLite | null = null;
     let totalSigners = 0;
     let completed = 0;
+    let contractData: any = null;
 
     if (ObjectId.isValid(contractId)) {
         try {
@@ -46,6 +45,8 @@ export default async function SignDonePage({ params }: PageProps) {
                 _id: new ObjectId(contractId),
             });
             if (doc) {
+                // Ensure the doc is serializable to pass to client component
+                contractData = JSON.parse(JSON.stringify(doc));
                 title = (doc.title as string | undefined) || 'Contract';
                 status = (doc.status as string | undefined) || '';
                 const signers = Array.isArray(doc.signers) ? (doc.signers as SignerLite[]) : [];
@@ -61,7 +62,8 @@ export default async function SignDonePage({ params }: PageProps) {
                     })[0] || null;
                 me = found || null;
             }
-        } catch {
+        } catch (error) {
+            console.error('[SignDonePage] Error fetching contract:', error);
             // Render the generic confirmation even when the DB read
             // hiccups — the signer's submission already succeeded.
         }
@@ -133,6 +135,10 @@ export default async function SignDonePage({ params }: PageProps) {
                                 </li>
                             </ul>
                         </div>
+
+                        {contractData && (
+                            <PdfDownloadButton contract={contractData} />
+                        )}
                     </ZoruCardContent>
                 </Card>
             </div>

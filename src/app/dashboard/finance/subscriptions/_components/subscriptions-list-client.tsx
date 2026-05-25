@@ -32,6 +32,7 @@ import { Plus, MoreHorizontal, Pencil, Trash, Search, DollarSign, Calendar, Cred
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createSubscription, updateSubscription, deleteSubscription, Subscription } from '@/app/actions/finance/subscriptions.actions';
 import { toast } from 'sonner';
+import { fmtINR, fmtDate } from '@/lib/utils';
 
 export function SubscriptionListClient({ initialItems, error }: { initialItems: Subscription[], error?: string }) {
   const router = useRouter();
@@ -201,7 +202,8 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
               <Label>NextBillingDate</Label>
               <Input 
                 name="nextBillingDate" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.nextBillingDate : ''} 
+                type="date"
+                defaultValue={editingId ? (items.find(i => i._id === editingId)?.nextBillingDate ? new Date(items.find(i => i._id === editingId)!.nextBillingDate!).toISOString().split('T')[0] : '') : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("nextBillingDate")} 
               />
             </div>
@@ -209,6 +211,8 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
               <Label>Amount</Label>
               <Input 
                 name="amount" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.amount : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("amount")} 
               />
@@ -229,6 +233,7 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
             </form>
           </ZoruDialogContent>
         </Dialog>
+        </div>
       }
     >
       {error && (
@@ -255,12 +260,12 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <StatCard 
               label="MRR" 
-              value={`$${mrr.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} 
+              value={fmtINR(mrr)} 
               icon={<DollarSign className="text-zoru-ink-muted" />} 
             />
             <StatCard 
               label="ARR" 
-              value={`$${arr.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`} 
+              value={fmtINR(arr)} 
               icon={<DollarSign className="text-zoru-ink-muted" />} 
             />
             <StatCard 
@@ -300,7 +305,7 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
                 ) : (
                   filteredItems.map((item) => (
                     <ZoruTableRow key={item._id}>
-                      <ZoruTableCell>{String(item.customerId ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.planId ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.billingCycle ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.nextBillingDate ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.amount ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.status ?? '')}</ZoruTableCell>
+                      <ZoruTableCell>{String(item.customerId ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.planId ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.billingCycle ?? '')}</ZoruTableCell><ZoruTableCell>{item.nextBillingDate ? fmtDate(item.nextBillingDate.toString()) : ''}</ZoruTableCell><ZoruTableCell>{fmtINR(item.amount)}</ZoruTableCell><ZoruTableCell>{String(item.status ?? '')}</ZoruTableCell>
                       <ZoruTableCell>
                         <DropdownMenu>
                           <ZoruDropdownMenuTrigger asChild>
@@ -328,10 +333,10 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
       )}
 
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>View Details</DialogTitle>
-          </DialogHeader>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>View Details</ZoruDialogTitle>
+          </ZoruDialogHeader>
           <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
               <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
@@ -340,7 +345,7 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
               </div>
             ))}
           </div>
-        </DialogContent>
+        </ZoruDialogContent>
       </Dialog>
     </EntityListShell>
   );

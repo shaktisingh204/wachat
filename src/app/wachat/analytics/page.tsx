@@ -14,6 +14,11 @@ import {
   PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
+  Select,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
   cn,
   useZoruToast,
 } from '@/components/zoruui';
@@ -55,8 +60,6 @@ import {
 
 import * as React from 'react';
 
-export const dynamic = 'force-dynamic';
-
 type AnalyticsData = {
   totalSent: number;
   totalDelivered: number;
@@ -78,6 +81,38 @@ type BroadcastData = {
   totalContacts: number;
   totalSuccess: number;
   totalFailed: number;
+  broadcasts: Array<{
+    name: string;
+    templateName: string;
+    contactCount: number;
+    successCount: number;
+    failedCount: number;
+    status: string;
+    createdAt: Date;
+  }>;
+};
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-lg border border-zoru-line bg-zoru-surface p-3 shadow-sm">
+        <p className="mb-2 text-sm font-medium text-zoru-ink">{label}</p>
+        <div className="flex flex-col gap-1.5">
+          {payload.map((entry: any, index: number) => (
+            <div key={index} className="flex items-center gap-2 text-xs">
+              <div
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: entry.color }}
+              />
+              <span className="text-zoru-ink-muted">{entry.name}:</span>
+              <span className="font-medium text-zoru-ink">{entry.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return null;
 };
 
 export default function AnalyticsPage() {
@@ -87,6 +122,11 @@ export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [broadcastData, setBroadcastData] = useState<BroadcastData | null>(null);
   const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d'>('30d');
+
+  const [selectedAgent, setSelectedAgent] = useState<string>('all');
+  const [selectedCampaign, setSelectedCampaign] = useState<string>('all');
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('all');
+  const [yAxisLimit, setYAxisLimit] = useState<string>('auto');
 
   const fetchAnalytics = useCallback(() => {
     if (!activeProject?._id) return;
@@ -117,13 +157,32 @@ export default function AnalyticsPage() {
     fetchAnalytics();
   }, [fetchAnalytics]);
 
+  const filteredBroadcasts = React.useMemo(() => {
+    if (!broadcastData) return [];
+    return broadcastData.broadcasts.filter((b) => {
+      if (selectedCampaign !== 'all' && b.name !== selectedCampaign) return false;
+      if (selectedTemplate !== 'all' && b.templateName !== selectedTemplate) return false;
+      return true;
+    });
+  }, [broadcastData, selectedCampaign, selectedTemplate]);
+
+  const displayBroadcastData = React.useMemo(() => {
+    if (!broadcastData) return null;
+    return {
+      totalBroadcasts: filteredBroadcasts.length,
+      totalContacts: filteredBroadcasts.reduce((acc, b) => acc + b.contactCount, 0),
+      totalSuccess: filteredBroadcasts.reduce((acc, b) => acc + b.successCount, 0),
+      totalFailed: filteredBroadcasts.reduce((acc, b) => acc + b.failedCount, 0),
+    };
+  }, [broadcastData, filteredBroadcasts]);
+
   const statCards = [
     { label: 'Messages sent', value: analytics?.totalSent ?? 0, Icon: Send },
     { label: 'Delivered', value: analytics?.totalDelivered ?? 0, Icon: CheckCheck },
     { label: 'Read', value: analytics?.totalRead ?? 0, Icon: Eye },
     { label: 'Failed', value: analytics?.totalFailed ?? 0, Icon: CircleAlert },
     { label: 'Incoming', value: analytics?.totalIncoming ?? 0, Icon: ArrowDown },
-    { label: 'Broadcasts', value: broadcastData?.totalBroadcasts ?? 0, Icon: MessageSquare },
+    { label: 'Broadcasts', value: displayBroadcastData?.totalBroadcasts ?? 0, Icon: MessageSquare },
   ];
 
   return (
@@ -175,6 +234,67 @@ export default function AnalyticsPage() {
             <RefreshCw className={cn('h-3.5 w-3.5', isPending && 'animate-spin')} />
             Refresh
           </Button>
+        </div>
+      </div>
+
+      {/* Advanced Filters */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-zoru-ink-muted">Agent</label>
+          <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Agents" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Agents</SelectItem>
+              <SelectItem value="agent-1" disabled>Agent 1 (No data)</SelectItem>
+              <SelectItem value="agent-2" disabled>Agent 2 (No data)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-zoru-ink-muted">Campaign</label>
+          <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Campaigns" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Campaigns</SelectItem>
+              {Array.from(new Set(broadcastData?.broadcasts.map((b) => b.name) || [])).map((name) => (
+                <SelectItem key={name} value={name}>{name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-zoru-ink-muted">Template</label>
+          <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Templates" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Templates</SelectItem>
+              {Array.from(new Set(broadcastData?.broadcasts.map((b) => b.templateName) || [])).map((name) => (
+                <SelectItem key={name} value={name}>{name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-zoru-ink-muted">Chart Y-Axis Limit</label>
+          <Select value={yAxisLimit} onValueChange={setYAxisLimit}>
+            <SelectTrigger>
+              <SelectValue placeholder="Auto" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="auto">Auto</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+              <SelectItem value="500">500</SelectItem>
+              <SelectItem value="1000">1,000</SelectItem>
+              <SelectItem value="5000">5,000</SelectItem>
+              <SelectItem value="10000">10,000</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -235,8 +355,13 @@ export default function AnalyticsPage() {
               <LineChart data={analytics.dailyBreakdown} margin={{ top: 5, right: 12, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
                 <XAxis dataKey="date" stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
-                <YAxis stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
-                <Tooltip />
+                <YAxis 
+                  stroke="hsl(var(--zoru-ink-muted))" 
+                  tick={{ fontSize: 10 }} 
+                  domain={[0, yAxisLimit === 'auto' ? 'auto' : parseInt(yAxisLimit)]}
+                  allowDataOverflow={true}
+                />
+                <Tooltip content={<CustomTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Line type="monotone" dataKey="sent" stroke="hsl(var(--zoru-ink))" strokeWidth={2} dot={false} name="Sent" />
                 <Line type="monotone" dataKey="delivered" stroke="hsl(var(--zoru-success))" strokeWidth={2} strokeDasharray="6 3" dot={false} name="Delivered" />
@@ -290,25 +415,25 @@ export default function AnalyticsPage() {
       )}
 
       {/* Broadcast performance */}
-      {broadcastData && broadcastData.totalBroadcasts > 0 && (
+      {displayBroadcastData && displayBroadcastData.totalBroadcasts > 0 && (
         <Card className="p-6">
           <h2 className="mb-4 text-sm text-zoru-ink">Broadcast performance</h2>
           <div className="grid grid-cols-4 gap-6">
             {[
-              { label: 'Total campaigns', value: broadcastData.totalBroadcasts, tone: 'text-zoru-ink' },
+              { label: 'Total campaigns', value: displayBroadcastData.totalBroadcasts, tone: 'text-zoru-ink' },
               {
                 label: 'Total recipients',
-                value: broadcastData.totalContacts.toLocaleString(),
+                value: displayBroadcastData.totalContacts.toLocaleString(),
                 tone: 'text-zoru-ink',
               },
               {
                 label: 'Successful',
-                value: broadcastData.totalSuccess.toLocaleString(),
+                value: displayBroadcastData.totalSuccess.toLocaleString(),
                 tone: 'text-zoru-success-ink',
               },
               {
                 label: 'Failed',
-                value: broadcastData.totalFailed.toLocaleString(),
+                value: displayBroadcastData.totalFailed.toLocaleString(),
                 tone: 'text-zoru-danger-ink',
               },
             ].map((metric) => (

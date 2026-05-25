@@ -88,10 +88,17 @@ export function EmailClient() {
     const [activeTab, setActiveTab] = useState<TabType>('inbox');
     const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
     const [isSyncing, setIsSyncing] = useState(false);
+    const [connectionState, setConnectionState] = useState<'idle' | 'connecting' | 'success'>('idle');
     
     const handleSync = () => {
         setIsSyncing(true);
         setTimeout(() => setIsSyncing(false), 1500);
+    };
+
+    const handleTestConnection = () => {
+        setConnectionState('connecting');
+        setTimeout(() => setConnectionState('success'), 1000);
+        setTimeout(() => setConnectionState('idle'), 3000);
     };
 
     const renderInbox = () => {
@@ -318,14 +325,10 @@ export function EmailClient() {
                     </div>
                 </div>
 
-                <Button className="w-full mt-4" onClick={() => {
-                    const btn = document.activeElement as HTMLButtonElement;
-                    const origText = btn.innerText;
-                    btn.innerText = 'Connecting...';
-                    setTimeout(() => btn.innerText = 'Connected Successfully', 1000);
-                    setTimeout(() => btn.innerText = origText, 3000);
-                }}>
-                    Test & Save Connection
+                <Button className="w-full mt-4" onClick={handleTestConnection} disabled={connectionState !== 'idle'}>
+                    {connectionState === 'idle' && 'Test & Save Connection'}
+                    {connectionState === 'connecting' && 'Connecting...'}
+                    {connectionState === 'success' && 'Connected Successfully'}
                 </Button>
             </div>
         </div>

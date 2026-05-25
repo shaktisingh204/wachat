@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 /**
  * Offer activity — server-rendered audit timeline.
  */

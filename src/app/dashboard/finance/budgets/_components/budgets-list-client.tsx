@@ -27,6 +27,7 @@ import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'luci
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createBudget, updateBudget, deleteBudget, Budget } from '@/app/actions/finance/budgets.actions';
 import { toast } from 'sonner';
+import { fmtINR } from '@/lib/utils';
 
 export function BudgetListClient({ initialItems, error }: { initialItems: Budget[], error?: string }) {
   const router = useRouter();
@@ -167,6 +168,8 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
               <Label>BudgetedAmount</Label>
               <Input 
                 name="budgetedAmount" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.budgetedAmount : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("budgetedAmount")} 
               />
@@ -175,6 +178,8 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
               <Label>ActualSpent</Label>
               <Input 
                 name="actualSpent" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.actualSpent : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("actualSpent")} 
               />
@@ -183,6 +188,8 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
               <Label>Variance</Label>
               <Input 
                 name="variance" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.variance : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("variance")} 
               />
@@ -234,7 +241,11 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
             ) : (
               filteredItems.map((item) => (
                 <TableRow key={item._id}>
-                  <TableCell>{String(item.departmentId ?? '')}</TableCell><TableCell>{String(item.fiscalYear ?? '')}</TableCell><TableCell>{String(item.budgetedAmount ?? '')}</TableCell><TableCell>{String(item.actualSpent ?? '')}</TableCell><TableCell>{String(item.variance ?? '')}</TableCell>
+                  <TableCell>{String(item.departmentId ?? '')}</TableCell>
+                  <TableCell>{String(item.fiscalYear ?? '')}</TableCell>
+                  <TableCell>{fmtINR(Number(item.budgetedAmount || 0))}</TableCell>
+                  <TableCell>{fmtINR(Number(item.actualSpent || 0))}</TableCell>
+                  <TableCell>{fmtINR(Number(item.variance || 0))}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

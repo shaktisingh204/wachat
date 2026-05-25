@@ -10,8 +10,10 @@ function getCert(host: string, port = 443, timeout = 8000) {
       const cert = socket.getPeerCertificate(true);
       const protocol = socket.getProtocol();
       const authorized = socket.authorized;
+      const authorizationError = socket.authorizationError;
+      const cipher = socket.getCipher();
       socket.end();
-      resolve({ cert, protocol, authorized });
+      resolve({ cert, protocol, authorized, authorizationError, cipher });
     });
     socket.on('error', reject);
     socket.on('timeout', () => {
@@ -27,7 +29,7 @@ export async function POST(req: Request) {
     if (!host || typeof host !== 'string' || !/^[a-z0-9.-]+$/i.test(host)) {
       return NextResponse.json({ error: 'valid host required' }, { status: 400 });
     }
-    const { cert, protocol, authorized } = await getCert(host);
+    const { cert, protocol, authorized, authorizationError, cipher } = await getCert(host);
     const now = Date.now();
     const validFrom = cert?.valid_from ? new Date(cert.valid_from).toISOString() : null;
     const validTo = cert?.valid_to ? new Date(cert.valid_to).toISOString() : null;
@@ -35,7 +37,9 @@ export async function POST(req: Request) {
     return NextResponse.json({
       host,
       authorized,
+      authorizationError,
       protocol,
+      cipher,
       subject: cert?.subject || null,
       issuer: cert?.issuer || null,
       validFrom,

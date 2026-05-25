@@ -47,6 +47,11 @@ import {
   ZoruTooltipContent,
   ZoruTooltipProvider,
   ZoruTooltipTrigger,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -56,9 +61,11 @@ import {
   AlertTriangle,
   CheckCircle2,
   Copy,
+  Filter,
   Loader2,
   Plus,
   RefreshCw,
+  Search,
   Send,
   Trash2,
   Webhook as WebhookIcon,
@@ -133,6 +140,10 @@ export default function WebhooksPage() {
   const [createOpen, setCreateOpen] = React.useState(false);
   const [secretReveal, setSecretReveal] = React.useState<string | null>(null);
 
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [statusFilter, setStatusFilter] = React.useState('all');
+  const [eventFilter, setEventFilter] = React.useState('all');
+
   const load = React.useCallback(async () => {
     if (!activeProjectId) {
       setRows([]);
@@ -203,6 +214,23 @@ export default function WebhooksPage() {
       setPendingDelete(null);
     }
   }, [pendingDelete, toast, load]);
+
+  const filteredRows = React.useMemo(() => {
+    return rows.filter((r) => {
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        if (!r.url.toLowerCase().includes(q)) return false;
+      }
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'enabled' && !r.enabled) return false;
+        if (statusFilter === 'disabled' && r.enabled) return false;
+      }
+      if (eventFilter !== 'all') {
+        if (!r.events.includes(eventFilter as SabwaWebhookEvent)) return false;
+      }
+      return true;
+    });
+  }, [rows, searchQuery, statusFilter, eventFilter]);
 
   return (
     <ZoruTooltipProvider delayDuration={150}>
@@ -281,6 +309,53 @@ export default function WebhooksPage() {
           />
         ) : null}
 
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-1 items-center gap-2 sm:max-w-md">
+            <div className="relative w-full">
+              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+              <Input
+                placeholder="Search webhooks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9"
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg px-2 py-1">
+              <Filter className="h-4 w-4 text-zoru-ink-muted" />
+              <span className="text-xs text-zoru-ink-muted">Status</span>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="h-7 w-[120px] border-none bg-transparent px-2 py-0 text-xs focus:ring-0 focus:ring-offset-0">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="enabled">Enabled</SelectItem>
+                  <SelectItem value="disabled">Disabled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg px-2 py-1">
+              <Filter className="h-4 w-4 text-zoru-ink-muted" />
+              <span className="text-xs text-zoru-ink-muted">Event</span>
+              <Select value={eventFilter} onValueChange={setEventFilter}>
+                <SelectTrigger className="h-7 w-[160px] border-none bg-transparent px-2 py-0 text-xs focus:ring-0 focus:ring-offset-0">
+                  <SelectValue placeholder="Event" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All events</SelectItem>
+                  {ALL_EVENTS.map((ev) => (
+                    <SelectItem key={ev.value} value={ev.value}>
+                      {ev.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
         <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-base">
@@ -307,6 +382,25 @@ export default function WebhooksPage() {
                   </Button>
                 }
               />
+            ) : filteredRows.length === 0 ? (
+              <EmptyState
+                icon={Search}
+                title="No results found"
+                description="Adjust your filters to see more results."
+                action={
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setStatusFilter('all');
+                      setEventFilter('all');
+                    }}
+                  >
+                    Clear filters
+                  </Button>
+                }
+              />
             ) : (
               <div className="overflow-x-auto">
                 <Table>
@@ -323,7 +417,7 @@ export default function WebhooksPage() {
                     </ZoruTableRow>
                   </ZoruTableHeader>
                   <ZoruTableBody>
-                    {rows.map((row) => (
+                    {filteredRows.map((row) => (
                       <ZoruTableRow
                         key={row.id}
                         className="cursor-pointer"

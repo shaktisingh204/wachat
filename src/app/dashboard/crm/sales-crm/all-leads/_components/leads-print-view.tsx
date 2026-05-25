@@ -66,7 +66,7 @@ export function LeadsPrintView({ lead }: { lead: WithId<CrmLead> }) {
                 <PrintRow label="Probability" value={`${probability}%`} />
                 <PrintRow
                     label="Expected close"
-                    value={expectedClose ? expectedClose.toLocaleDateString() : '—'}
+                    value={expectedClose ? expectedClose.toLocaleDateString('en-US', { timeZone: 'UTC' }) : '—'}
                 />
             </PrintSection>
             {lead.description ? (

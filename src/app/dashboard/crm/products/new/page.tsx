@@ -8,9 +8,11 @@
  * Per CRM_REBUILD_PLAN §1D.3.
  */
 
+import * as React from 'react';
 import { getCrmProductById } from '@/app/actions/crm-products.actions';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { ZoruSkeleton, ZoruCard } from '@/components/zoruui';
 import { ItemForm } from '../_components/item-form';
 
 export const dynamic = 'force-dynamic';
@@ -25,12 +27,94 @@ interface PageProps {
   searchParams: Promise<SearchParams>;
 }
 
-export default async function NewItemPage({ searchParams }: PageProps) {
-  const sp = await searchParams;
-  // ?fromKind=product&fromId=<id> duplicates an existing item.
+function ItemFormSkeleton() {
+  return (
+    <div className="space-y-6 max-w-2xl animate-pulse">
+      {/* Basic Details Skeleton */}
+      <ZoruCard className="p-6 space-y-4">
+        <ZoruSkeleton className="h-6 w-32 rounded bg-zinc-200 dark:bg-zinc-800" />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <ZoruSkeleton className="h-4 w-16 rounded bg-zinc-200 dark:bg-zinc-800" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-zinc-200 dark:bg-zinc-800" />
+          </div>
+          <div className="space-y-2">
+            <ZoruSkeleton className="h-4 w-12 rounded bg-zinc-200 dark:bg-zinc-800" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-zinc-200 dark:bg-zinc-800" />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <ZoruSkeleton className="h-4 w-20 rounded bg-zinc-200 dark:bg-zinc-800" />
+          <ZoruSkeleton className="h-10 w-full rounded bg-zinc-200 dark:bg-zinc-800" />
+        </div>
+      </ZoruCard>
+
+      {/* Pricing & Stock Skeleton */}
+      <ZoruCard className="p-6 space-y-4">
+        <ZoruSkeleton className="h-6 w-36 rounded bg-zinc-200 dark:bg-zinc-800" />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <ZoruSkeleton className="h-4 w-24 rounded bg-zinc-200 dark:bg-zinc-800" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-zinc-200 dark:bg-zinc-800" />
+          </div>
+          <div className="space-y-2">
+            <ZoruSkeleton className="h-4 w-20 rounded bg-zinc-200 dark:bg-zinc-800" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-zinc-200 dark:bg-zinc-800" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 items-center">
+          <div className="flex items-center gap-2 h-10">
+            <ZoruSkeleton className="h-4 w-4 rounded bg-zinc-200 dark:bg-zinc-800" />
+            <ZoruSkeleton className="h-4 w-28 rounded bg-zinc-200 dark:bg-zinc-800" />
+          </div>
+          <div className="space-y-2">
+            <ZoruSkeleton className="h-4 w-24 rounded bg-zinc-200 dark:bg-zinc-800" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-zinc-200 dark:bg-zinc-800" />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <ZoruSkeleton className="h-4 w-40 rounded bg-zinc-200 dark:bg-zinc-800" />
+          <ZoruSkeleton className="h-10 w-full rounded bg-zinc-200 dark:bg-zinc-800" />
+        </div>
+      </ZoruCard>
+
+      {/* Supplier Information Skeleton */}
+      <ZoruCard className="p-6 space-y-4">
+        <ZoruSkeleton className="h-6 w-44 rounded bg-zinc-200 dark:bg-zinc-800" />
+        <ZoruSkeleton className="h-4 w-64 rounded bg-zinc-200 dark:bg-zinc-800" />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <ZoruSkeleton className="h-4 w-28 rounded bg-zinc-200 dark:bg-zinc-800" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-zinc-200 dark:bg-zinc-800" />
+          </div>
+          <div className="space-y-2">
+            <ZoruSkeleton className="h-4 w-32 rounded bg-zinc-200 dark:bg-zinc-800" />
+            <ZoruSkeleton className="h-10 w-full rounded bg-zinc-200 dark:bg-zinc-800" />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <ZoruSkeleton className="h-4 w-32 rounded bg-zinc-200 dark:bg-zinc-800" />
+          <ZoruSkeleton className="h-10 w-full rounded bg-zinc-200 dark:bg-zinc-800" />
+        </div>
+      </ZoruCard>
+
+      {/* Actions Skeleton */}
+      <div className="flex justify-end gap-2">
+        <ZoruSkeleton className="h-10 w-24 rounded bg-zinc-200 dark:bg-zinc-800" />
+        <ZoruSkeleton className="h-10 w-32 rounded bg-zinc-200 dark:bg-zinc-800" />
+      </div>
+    </div>
+  );
+}
+
+interface ItemNewFormContainerProps {
+  searchParams: SearchParams;
+}
+
+async function ItemNewFormContainer({ searchParams }: ItemNewFormContainerProps) {
   let initial = null;
-  if (sp.fromKind === 'product' && sp.fromId) {
-    const source = await getCrmProductById(sp.fromId);
+  if (searchParams.fromKind === 'product' && searchParams.fromId) {
+    const source = await getCrmProductById(searchParams.fromId);
     if (source) {
       const { _id: _omit, sku: sourceSku, ...rest } = source as {
         _id: unknown;
@@ -48,13 +132,22 @@ export default async function NewItemPage({ searchParams }: PageProps) {
     }
   }
 
+  return <ItemForm initial={initial} />;
+}
+
+export default async function NewItemPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const isDuplicate = sp.fromKind === 'product' && !!sp.fromId;
+
   return (
     <EntityDetailShell
       eyebrow="PRODUCT"
-      title={initial ? 'Duplicate item' : 'New item'}
+      title={isDuplicate ? 'Duplicate item' : 'New item'}
       back={{ href: '/dashboard/crm/products', label: 'Products' }}
     >
-      <ItemForm initial={initial} />
+      <React.Suspense fallback={<ItemFormSkeleton />}>
+        <ItemNewFormContainer searchParams={sp} />
+      </React.Suspense>
     </EntityDetailShell>
   );
 }

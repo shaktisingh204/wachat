@@ -12,7 +12,7 @@ import {
   ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useOptimistic, startTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -68,6 +68,14 @@ function SubmitButton() {
 }
 
 export function EditContactForm({ initial }: Props) {
+  const [optimisticState, addOptimisticState] = useOptimistic<
+    ContactInitial,
+    Partial<ContactInitial>
+  >(initial, (state, update) => ({
+    ...state,
+    ...update,
+  }));
+
   const [state, formAction] = useActionState(
     updateCrmContact as unknown as (
       prev: ActionResult,
@@ -78,6 +86,22 @@ export function EditContactForm({ initial }: Props) {
   const { toast } = useZoruToast();
 
   const router = useRouter();
+
+  const handleAction = (formData: FormData) => {
+    startTransition(() => {
+      addOptimisticState({
+        name: formData.get('name') as string || optimisticState.name,
+        jobTitle: formData.get('jobTitle') as string || optimisticState.jobTitle,
+        company: formData.get('company') as string || optimisticState.company,
+        email: formData.get('email') as string || optimisticState.email,
+        phone: formData.get('phone') as string || optimisticState.phone,
+        status: formData.get('status') as string || optimisticState.status,
+      });
+    });
+    startTransition(() => {
+      formAction(formData);
+    });
+  };
 
   useEffect(() => {
     if (state?.message) {
@@ -92,18 +116,18 @@ export function EditContactForm({ initial }: Props) {
         variant: 'destructive',
       });
     }
-  }, [state, toast, initial._id]);
+  }, [state, toast, initial._id, router]);
 
   return (
     <EntityDetailShell
       eyebrow="CONTACT"
-      title={`Edit ${initial.name || 'Contact'}`}
+      title={`Edit ${optimisticState.name || 'Contact'}`}
       back={{
         href: `/dashboard/crm/contacts/${initial._id}`,
         label: 'Back to contact',
       }}
     >
-      <form action={formAction}>
+      <form action={handleAction}>
         <input type="hidden" name="contactId" value={initial._id} />
 
         <div className="space-y-6">
@@ -126,7 +150,7 @@ export function EditContactForm({ initial }: Props) {
                   id="name"
                   name="name"
                   required
-                  defaultValue={initial.name}
+                  defaultValue={optimisticState.name}
                   className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
@@ -140,7 +164,7 @@ export function EditContactForm({ initial }: Props) {
                 <Input
                   id="jobTitle"
                   name="jobTitle"
-                  defaultValue={initial.jobTitle}
+                  defaultValue={optimisticState.jobTitle}
                   className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
@@ -162,7 +186,7 @@ export function EditContactForm({ initial }: Props) {
                 >
                   Status
                 </Label>
-                <Select name="status" defaultValue={initial.status}>
+                <Select name="status" defaultValue={optimisticState.status}>
                   <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
@@ -194,7 +218,7 @@ export function EditContactForm({ initial }: Props) {
                 <EntityFormField
                   entity="account"
                   name="accountId"
-                  initialId={initial.accountId}
+                  initialId={optimisticState.accountId}
                   placeholder="Select account…"
                 />
               </div>
@@ -208,7 +232,7 @@ export function EditContactForm({ initial }: Props) {
                 <Input
                   id="company"
                   name="company"
-                  defaultValue={initial.company}
+                  defaultValue={optimisticState.company}
                   className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
@@ -237,7 +261,7 @@ export function EditContactForm({ initial }: Props) {
                   name="email"
                   type="email"
                   required
-                  defaultValue={initial.email}
+                  defaultValue={optimisticState.email}
                   className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
@@ -251,7 +275,7 @@ export function EditContactForm({ initial }: Props) {
                 <Input
                   id="phone"
                   name="phone"
-                  defaultValue={initial.phone}
+                  defaultValue={optimisticState.phone}
                   className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>

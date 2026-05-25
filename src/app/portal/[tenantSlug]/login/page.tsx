@@ -1,3 +1,4 @@
+import React from "react";
 /**
  * Portal login page — public. Renders a minimal HTML shell (no CRM
  * app-shell, no auth) plus the `<PortalLoginForm>` interactive island.
@@ -29,7 +30,7 @@ interface PageProps {
     searchParams: Promise<{ error?: string }>;
 }
 
-export default async function PortalLoginPage({ params, searchParams }: PageProps) {
+async function PortalLoginPageContent({ params, searchParams }: PageProps) {
     const { tenantSlug } = await params;
     const { error } = await searchParams;
     const errorMessage = error ? ERROR_COPY[error] ?? null : null;
@@ -90,4 +91,13 @@ export default async function PortalLoginPage({ params, searchParams }: PageProp
             </section>
         </main>
     );
+}
+
+
+export default function PortalLoginPage({ params, searchParams }: PageProps) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <PortalLoginPageContent params={params} searchParams={searchParams} />
+    </React.Suspense>
+  );
 }

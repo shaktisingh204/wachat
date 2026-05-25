@@ -1,3 +1,4 @@
+import React from "react";
 /**
  * SabSMS — `/sabsms/campaigns/[id]` (Page 8).
  *
@@ -23,7 +24,7 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function SabsmsCampaignDetailPage({ params }: PageProps) {
+async function SabsmsCampaignDetailPageContent({ params }: PageProps) {
   const { id } = await params;
   const session = await getCachedSession();
   const workspaceId = String(
@@ -84,5 +85,14 @@ export default async function SabsmsCampaignDetailPage({ params }: PageProps) {
     >
       <CampaignDetailClient bundle={bundle} />
     </SabsmsPageShell>
+  );
+}
+
+
+export default function SabsmsCampaignDetailPage({ params }: PageProps) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <SabsmsCampaignDetailPageContent params={params} />
+    </React.Suspense>
   );
 }

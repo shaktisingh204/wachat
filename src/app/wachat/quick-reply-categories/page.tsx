@@ -34,6 +34,11 @@ import {
   PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Skeleton,
   useZoruToast,
 } from '@/components/zoruui';
@@ -53,6 +58,7 @@ import { useProject } from '@/context/project-context';
 import {
   getQuickReplyCategories,
   saveQuickReplyCategory,
+  deleteQuickReplyCategory,
   } from '@/app/actions/wachat-features.actions';
 
 /**
@@ -63,12 +69,15 @@ import {
 
 import * as React from 'react';
 
-export const dynamic = 'force-dynamic';
-
 interface Category {
   _id: string;
   name: string;
+  parentId?: string | null;
   count?: number;
+}
+
+interface UI_Category extends Category {
+  displayName: string;
 }
 
 export default function QuickReplyCategoriesPage() {
@@ -80,6 +89,38 @@ export default function QuickReplyCategoriesPage() {
   const [editing, setEditing] = useState<Category | null>(null);
   const [deleting, setDeleting] = useState<Category | null>(null);
   const [name, setName] = useState('');
+  const [parentId, setParentId] = useState('');
+
+  const uiCategories = useMemo<UI_Category[]>(() => {
+    const map = new Map<string, Category>(categories.map(c => [c._id, c]));
+    return categories.map(c => {
+      let parentNames = [];
+      let curr = c.parentId ? map.get(c.parentId) : null;
+      while(curr) {
+         parentNames.unshift(curr.name);
+         curr = curr.parentId ? map.get(curr.parentId) : null;
+      }
+      const displayName = parentNames.length > 0 ? `${parentNames.join(' > ')} > ${c.name}` : c.name;
+      return { ...c, displayName };
+    }).sort((a, b) => a.displayName.localeCompare(b.displayName));
+  }, [categories]);
+
+  const validParents = useMemo(() => {
+    if (!editing) return uiCategories;
+    const invalidIds = new Set<string>();
+    invalidIds.add(editing._id);
+    let changed = true;
+    while(changed) {
+       changed = false;
+       for (const cat of categories) {
+           if (cat.parentId && invalidIds.has(cat.parentId) && !invalidIds.has(cat._id)) {
+              invalidIds.add(cat._id);
+              changed = true;
+           }
+       }
+    }
+    return uiCategories.filter(c => !invalidIds.has(c._id));
+  }, [uiCategories, editing, categories]);
 
   const fetchData = useCallback(() => {
     if (!activeProjectId) return;
@@ -100,7 +141,7 @@ export default function QuickReplyCategoriesPage() {
   const handleSave = () => {
     if (!activeProjectId || !name.trim()) return;
     startTransition(async () => {
-      const res = await saveQuickReplyCategory(activeProjectId, name.trim());
+      const res = await saveQuickReplyCategory(activeProjectId, name.trim(), editing?._id, parentId || null);
       if (res.error) {
         toast({ title: 'Error', description: res.error, variant: 'destructive' });
       } else {
@@ -109,6 +150,7 @@ export default function QuickReplyCategoriesPage() {
           description: res.message ?? 'Saved.',
         });
         setName('');
+        setParentId('');
         setCreateOpen(false);
         setEditing(null);
         fetchData();
@@ -118,33 +160,38 @@ export default function QuickReplyCategoriesPage() {
 
   const handleDelete = () => {
     if (!deleting) return;
-    // No dedicated delete server action exposed yet — keep the dialog but
-    // surface a friendly toast and refetch. Once the action ships, wire it.
-    toast({
-      title: 'Delete coming soon',
-      description: 'A delete-category server action is on the way.',
+    startTransition(async () => {
+      const res = await deleteQuickReplyCategory(deleting._id);
+      if (res.error) {
+         toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      } else {
+         toast({ title: 'Deleted', description: 'Category deleted successfully.' });
+         setDeleting(null);
+         fetchData();
+      }
     });
-    setDeleting(null);
   };
 
   const openCreate = () => {
     setEditing(null);
     setName('');
+    setParentId('');
     setCreateOpen(true);
   };
   const openEdit = (cat: Category) => {
     setEditing(cat);
     setName(cat.name);
+    setParentId(cat.parentId || '');
     setCreateOpen(true);
   };
 
-  const columns = useMemo<ColumnDef<Category>[]>(
+  const columns = useMemo<ColumnDef<UI_Category>[]>(
     () => [
       {
-        accessorKey: 'name',
+        accessorKey: 'displayName',
         header: 'Name',
         cell: ({ row }) => (
-          <span className="text-zoru-ink">{row.original.name}</span>
+          <span className="text-zoru-ink">{row.original.displayName}</span>
         ),
       },
       {
@@ -238,8 +285,8 @@ export default function QuickReplyCategoriesPage() {
           <Card className="p-4">
             <DataTable
               columns={columns}
-              data={categories}
-              filterColumn="name"
+              data={uiCategories}
+              filterColumn="displayName"
               filterPlaceholder="Search categories…"
             />
           </Card>
@@ -254,6 +301,7 @@ export default function QuickReplyCategoriesPage() {
           if (!open) {
             setEditing(null);
             setName('');
+            setParentId('');
           }
         }}
       >
@@ -267,18 +315,37 @@ export default function QuickReplyCategoriesPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="category-name">Name</Label>
-            <Input
-              id="category-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSave();
-              }}
-              placeholder="e.g. Sales"
-              autoFocus
-            />
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="category-name">Name</Label>
+              <Input
+                id="category-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSave();
+                }}
+                placeholder="e.g. Sales"
+                autoFocus
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="parent-category">Parent Category</Label>
+              <Select
+                value={parentId || 'none'}
+                onValueChange={(val) => setParentId(val === 'none' ? '' : val)}
+              >
+                <SelectTrigger id="parent-category">
+                  <SelectValue placeholder="Select parent category (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None (Top-level)</SelectItem>
+                  {validParents.map(c => (
+                    <SelectItem key={c._id} value={c._id}>{c.displayName}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <ZoruDialogFooter>
@@ -288,6 +355,7 @@ export default function QuickReplyCategoriesPage() {
                 setCreateOpen(false);
                 setEditing(null);
                 setName('');
+                setParentId('');
               }}
             >
               Cancel
@@ -312,7 +380,14 @@ export default function QuickReplyCategoriesPage() {
               Delete &ldquo;{deleting?.name}&rdquo;?
             </ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription>
-              This removes the category but leaves the underlying replies intact.
+              {deleting?.count ? (
+                <>
+                  This category contains <strong>{deleting.count} quick repl{deleting.count === 1 ? 'y' : 'ies'}</strong>. 
+                  Deleting it will leave these replies without a category, but they will not be deleted.
+                </>
+              ) : (
+                'This removes the category but leaves any underlying replies intact.'
+              )}
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
           <ZoruAlertDialogFooter>

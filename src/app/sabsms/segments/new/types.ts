@@ -42,7 +42,32 @@ export function validateDraftForSave(draft: SegmentBuilderDraft): DraftIssue[] {
       field: "predicate",
       message: "Predicate cannot be empty.",
     });
+  } else {
+    // recursively validate predicate
+    const checkNode = (node: SegmentNode, path: string) => {
+      if (node.kind === "group") {
+        if (!node.children || node.children.length === 0) {
+          issues.push({
+            field: `predicate${path}`,
+            message: "Group must contain at least one rule.",
+          });
+        } else {
+          node.children.forEach((c, i) => checkNode(c, `${path}[${i}]`));
+        }
+      } else if (node.kind === "leaf") {
+        if (node.value === undefined || node.value === null || (typeof node.value === "string" && node.value.trim() === "")) {
+          // Some fields like booleans could be false, which is fine, but string/empty array shouldn't be empty for most operators.
+          // Let's ensure value is provided.
+          issues.push({
+            field: `predicate${path}`,
+            message: `Rule for "${node.field}" is missing a value.`,
+          });
+        }
+      }
+    };
+    checkNode(draft.predicate, "");
   }
+
   if (draft.category === "marketing" && !hasConsentGate(draft.predicate)) {
     issues.push({
       field: "predicate",

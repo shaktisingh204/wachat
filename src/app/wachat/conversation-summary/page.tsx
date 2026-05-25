@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -199,9 +200,9 @@ export default function ConversationSummaryPage() {
                     : ''}
                   .
                   {events[0]?.timestamp &&
-                    ` Most recent activity: ${new Date(events[0].timestamp).toLocaleDateString()}.`}
+                    ` Most recent activity: ${fmtDate(events[0].timestamp)}.`}
                   {events[events.length - 1]?.timestamp &&
-                    ` First recorded activity: ${new Date(events[events.length - 1].timestamp).toLocaleDateString()}.`}
+                    ` First recorded activity: ${fmtDate(events[events.length - 1].timestamp)}.`}
                 </p>
               )}
             </div>
@@ -253,7 +254,7 @@ export default function ConversationSummaryPage() {
                         {e.content || '--'}
                       </p>
                       <span className="text-[11px] text-zoru-ink-muted">
-                        {e.timestamp ? new Date(e.timestamp).toLocaleString() : ''}
+                        {e.timestamp ? fmtDate(e.timestamp) : ''}
                       </span>
                     </div>
                   </div>

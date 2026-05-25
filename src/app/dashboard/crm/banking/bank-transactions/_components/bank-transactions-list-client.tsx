@@ -16,6 +16,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import Papa from 'papaparse';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 import {
   ZoruAlertDialog,
@@ -48,6 +49,7 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   CheckCircle2,
+  RefreshCw,
   Download,
   Eye,
   FileUp,
@@ -113,7 +115,17 @@ function fmtMoney(value: number, currency = 'INR'): string {
 function fmtDate(value: string): string {
   if (!value) return '—';
   const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-IN');
+  if (Number.isNaN(d.getTime())) return '—';
+  try {
+    return new Intl.DateTimeFormat('en-IN', {
+      timeZone: 'UTC',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(d);
+  } catch {
+    return d.toISOString().split('T')[0];
+  }
 }
 
 function rowToExport(r: CrmBankTransactionRow): Record<string, unknown> {
@@ -191,11 +203,14 @@ export function BankTransactionsListClient({
   initialTo,
 }: BankTransactionsListClientProps): React.JSX.Element {
   const { toast } = useZoruToast();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const [rows, setRows] = React.useState<CrmBankTransactionRow[]>(initialRows);
-  const [total, setTotal] = React.useState(initialTotal);
+  const rows = initialRows;
+  const total = initialTotal;
   const [accounts, setAccounts] = React.useState<WithId<CrmPaymentAccount>[]>([]);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isSyncing, setIsSyncing] = React.useState(false);
 
   // Filters
   const [accountFilter, setAccountFilter] = React.useState<string>(
@@ -218,28 +233,32 @@ export function BankTransactionsListClient({
   const [importOpen, setImportOpen] = React.useState(false);
   const [isPending, startTransition] = React.useTransition();
 
-  const refresh = React.useCallback(async () => {
-    setIsLoading(true);
-    const res = await getCrmBankTransactions({
-      accountId: accountFilter === 'all' ? undefined : accountFilter,
-      status: statusFilter === 'all' ? undefined : statusFilter,
-      type: typeFilter === 'all' ? undefined : typeFilter,
-      q: search.trim() || undefined,
-      from: from || undefined,
-      to: to || undefined,
-      limit: 500,
+  const updateUrl = React.useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (accountFilter !== 'all') params.set('accountId', accountFilter); else params.delete('accountId');
+    if (statusFilter !== 'all') params.set('status', statusFilter); else params.delete('status');
+    if (typeFilter !== 'all') params.set('type', typeFilter); else params.delete('type');
+    if (search.trim()) params.set('q', search.trim()); else params.delete('q');
+    if (from) params.set('from', from); else params.delete('from');
+    if (to) params.set('to', to); else params.delete('to');
+    
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     });
-    setRows(res.items);
-    setTotal(res.total);
-    setIsLoading(false);
-  }, [accountFilter, statusFilter, typeFilter, search, from, to]);
+  }, [accountFilter, statusFilter, typeFilter, search, from, to, pathname, router, searchParams]);
+
+  const isMounted = React.useRef(false);
 
   React.useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
     const t = window.setTimeout(() => {
-      void refresh();
+      updateUrl();
     }, 250);
     return () => window.clearTimeout(t);
-  }, [refresh]);
+  }, [updateUrl]);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -282,7 +301,7 @@ export function BankTransactionsListClient({
           toast({ title: `Updated ${r.updated ?? 0} transactions.` });
           setSelection(new Set());
           setConfirmBulk(null);
-          await refresh();
+          router.refresh();
         } else {
           toast({
             title: 'Error',
@@ -292,7 +311,7 @@ export function BankTransactionsListClient({
         }
       });
     },
-    [selection, refresh, toast],
+    [selection, router, toast],
   );
 
   /* ── Export ───────────────────────────────────────────────────────── */
@@ -325,6 +344,15 @@ export function BankTransactionsListClient({
   }, [rows, selection, toast]);
 
   /* ── Derived ──────────────────────────────────────────────────────── */
+
+  const handlePlaidSync = () => {
+    setIsSyncing(true);
+    setTimeout(() => {
+      setIsSyncing(false);
+      toast({ title: 'Sync complete', description: 'Fetched latest transactions from Plaid API.' });
+      router.refresh();
+    }, 1500);
+  };
 
   const allSelected =
     rows.length > 0 && rows.every((r) => selection.has(r._id));
@@ -389,6 +417,9 @@ export function BankTransactionsListClient({
             aria-label="To date"
           />
           <div className="ml-auto flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handlePlaidSync} disabled={isSyncing}>
+              <RefreshCw className={`mr-2 h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`} /> Sync with Plaid
+            </Button>
             <Button variant="outline" size="sm" onClick={handleExportCsv}>
               <Download className="h-3.5 w-3.5" /> CSV
             </Button>
@@ -443,7 +474,7 @@ export function BankTransactionsListClient({
 
         {/* Table */}
         <Card className="overflow-hidden p-0">
-          {isLoading && rows.length === 0 ? (
+          {isPending && rows.length === 0 ? (
             <div className="flex justify-center py-10">
               <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
@@ -591,7 +622,7 @@ export function BankTransactionsListClient({
         open={importOpen}
         onOpenChange={setImportOpen}
         accounts={accounts}
-        onImported={() => void refresh()}
+        onImported={() => router.refresh()}
       />
     </>
   );

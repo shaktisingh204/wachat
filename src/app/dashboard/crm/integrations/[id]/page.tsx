@@ -25,6 +25,7 @@ import { getIntegrationById } from '@/app/actions/crm-integrations.actions';
 import {
   IntegrationConnectButton,
   IntegrationDeleteButton,
+  IntegrationSyncButton,
 } from './_components/integration-detail-actions';
 import { SyncStatusMonitor } from '../_components/sync-status-monitor';
 import { WebhookLogsPreview } from '../_components/webhook-logs';
@@ -42,6 +43,7 @@ function fmtDate(value: unknown): string {
   return new Intl.DateTimeFormat('en-US', {
       dateStyle: 'medium',
       timeStyle: 'short',
+      timeZone: 'UTC', // Ensure deterministic dates for hydration
   }).format(d);
 }
 
@@ -85,6 +87,9 @@ export default async function IntegrationDetailPage({
               integrationId={String(integration._id)}
               isActive={integration.isActive}
             />
+            {connected && (
+              <IntegrationSyncButton integrationId={String(integration._id)} />
+            )}
             <Button variant="outline" asChild>
               <Link href={`${BASE}/${id}/edit`}>
                 <Pencil className="mr-2 h-4 w-4" />
@@ -145,13 +150,13 @@ export default async function IntegrationDetailPage({
             </div>
             <div>
               <div className="text-zoru-ink-muted">Last sync</div>
-              <div className="text-zoru-ink">
+              <div suppressHydrationWarning className="text-zoru-ink">
                 {fmtDate(integration.lastSyncAt)}
               </div>
             </div>
             <div>
               <div className="text-zoru-ink-muted">Last updated</div>
-              <div className="text-zoru-ink">
+              <div suppressHydrationWarning className="text-zoru-ink">
                 {fmtDate(integration.updatedAt)}
               </div>
             </div>

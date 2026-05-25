@@ -35,7 +35,9 @@ import {
   CircleAlert,
   RefreshCw,
   Send,
-  Radio } from 'lucide-react';
+  Radio,
+  Activity
+} from 'lucide-react';
 
 import * as React from 'react';
 
@@ -45,7 +47,7 @@ import {
 } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useToast } from '@/hooks/use-toast';
-import { listPixels, getPixelStats } from '@/app/actions/ad-manager.actions';
+import { listPixels } from '@/app/actions/ad-manager.actions';
 import { getPixelEventStats, sendTestConversionEvent } from '@/app/actions/ad-manager-features.actions';
 
 const TEST_EVENTS = ['PageView', 'Purchase', 'Lead', 'AddToCart', 'InitiateCheckout', 'CompleteRegistration', 'Search', 'ViewContent'] as const;
@@ -53,6 +55,8 @@ const TEST_EVENTS = ['PageView', 'Purchase', 'Lead', 'AddToCart', 'InitiateCheck
 export default function EventsManagerPage() {
     const { activeAccount } = useAdManager();
     const { toast } = useToast();
+    const [mounted, setMounted] = React.useState(false);
+    
     const [pixels, setPixels] = React.useState<any[]>([]);
     const [selectedPixel, setSelectedPixel] = React.useState<string | null>(null);
     const [eventStats, setEventStats] = React.useState<any[]>([]);
@@ -62,43 +66,85 @@ export default function EventsManagerPage() {
     const [testEvent, setTestEvent] = React.useState<string>('PageView');
     const [sending, setSending] = React.useState(false);
 
-    const fetchPixels = React.useCallback(async () => {
-        if (!activeAccount) return;
-        setLoading(true);
-        const res = await listPixels(activeAccount.account_id);
-        const data = res.data || [];
-        setPixels(data);
-        if (data.length > 0 && !selectedPixel) {
-            setSelectedPixel(data[0].id);
-        }
-        setLoading(false);
-    }, [activeAccount, selectedPixel]);
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
 
-    React.useEffect(() => { fetchPixels(); }, [fetchPixels]);
+    const fetchPixels = React.useCallback(async () => {
+        if (!activeAccount) {
+            setLoading(false);
+            return;
+        }
+        setLoading(true);
+        try {
+            const res = await listPixels(activeAccount.account_id);
+            const data = res.data || [];
+            setPixels(data);
+            if (data.length > 0 && !selectedPixel) {
+                setSelectedPixel(data[0].id);
+            }
+        } catch (error) {
+            console.error(error);
+            toast({ title: 'Error', description: 'Failed to load pixels.', variant: 'destructive' });
+        } finally {
+            setLoading(false);
+        }
+    }, [activeAccount, selectedPixel, toast]);
+
+    React.useEffect(() => { 
+        if (mounted) fetchPixels(); 
+    }, [mounted, fetchPixels]);
 
     const fetchStats = React.useCallback(async () => {
         if (!selectedPixel) return;
         setStatsLoading(true);
-        const res = await getPixelEventStats(selectedPixel);
-        setEventStats(res.stats || []);
-        setStatsLoading(false);
-    }, [selectedPixel]);
+        try {
+            const res = await getPixelEventStats(selectedPixel);
+            setEventStats(res.stats || []);
+        } catch (error) {
+            console.error(error);
+            toast({ title: 'Error', description: 'Failed to load event stats.', variant: 'destructive' });
+        } finally {
+            setStatsLoading(false);
+        }
+    }, [selectedPixel, toast]);
 
-    React.useEffect(() => { fetchStats(); }, [fetchStats]);
+    React.useEffect(() => { 
+        if (mounted) fetchStats(); 
+    }, [mounted, fetchStats]);
 
     const handleSendTest = async () => {
         if (!selectedPixel) return;
         setSending(true);
-        const res = await sendTestConversionEvent(selectedPixel, testEvent);
-        setSending(false);
-        if (res.error) {
-            toast({ title: 'Error', description: res.error, variant: 'destructive' });
-        } else {
-            toast({ title: 'Sent', description: res.message });
-            setTestDialogOpen(false);
-            fetchStats();
+        try {
+            const res = await sendTestConversionEvent(selectedPixel, testEvent);
+            if (res.error) {
+                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+            } else {
+                toast({ title: 'Sent', description: res.message || 'Test event sent successfully.' });
+                setTestDialogOpen(false);
+                fetchStats();
+            }
+        } catch (error) {
+            console.error(error);
+            toast({ title: 'Error', description: 'Failed to send test event.', variant: 'destructive' });
+        } finally {
+            setSending(false);
         }
     };
+
+    if (!mounted) {
+        return (
+            <div className="space-y-6">
+                <AmBreadcrumb page="Events manager" />
+                <div className="space-y-2">
+                    <Skeleton className="h-8 w-1/4" />
+                    <Skeleton className="h-4 w-1/3" />
+                </div>
+                <Skeleton className="h-[200px] w-full" />
+            </div>
+        );
+    }
 
     if (!activeAccount) {
         return (
@@ -127,9 +173,9 @@ export default function EventsManagerPage() {
                         <Button
                             className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
                             onClick={() => setTestDialogOpen(true)}
-                            disabled={!selectedPixel}
+                            disabled={!selectedPixel || loading}
                         >
-                            <Send className="h-4 w-4 mr-1" /> Send Test Event
+                            <Send className="h-4 w-4 mr-2" /> Send Test Event
                         </Button>
                     </div>
                 }
@@ -138,15 +184,15 @@ export default function EventsManagerPage() {
             {/* Pixel selector */}
             {loading ? (
                 <div className="flex gap-2">
-                    {Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-10 w-40" />)}
+                    {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10 w-32" />)}
                 </div>
             ) : pixels.length === 0 ? (
                 <Card className="border-dashed">
                     <ZoruCardContent className="py-16 text-center">
-                        <Radio className="h-12 w-12 mx-auto text-muted-foreground" />
-                        <p className="mt-3 font-semibold">No pixels found</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            Create a pixel in your Meta ad account first.
+                        <Activity className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <p className="font-semibold text-lg">No pixels found</p>
+                        <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
+                            Create a pixel in your Meta Business Settings first. Pixels are used to track user actions on your website.
                         </p>
                     </ZoruCardContent>
                 </Card>
@@ -161,7 +207,7 @@ export default function EventsManagerPage() {
                                 onClick={() => setSelectedPixel(p.id)}
                                 className={selectedPixel === p.id ? 'bg-[#1877F2] hover:bg-[#1877F2]/90 text-white' : ''}
                             >
-                                <Radio className="h-3 w-3 mr-1" />
+                                <Radio className="h-4 w-4 mr-2" />
                                 {p.name}
                             </Button>
                         ))}
@@ -170,24 +216,25 @@ export default function EventsManagerPage() {
                     {/* Event stats table */}
                     <Card>
                         <ZoruCardHeader className="pb-2">
-                            <ZoruCardTitle className="text-base">
-                                Event activity{' '}
+                            <ZoruCardTitle className="text-base flex items-center">
+                                Event activity
                                 {selectedPixel && (
-                                    <span className="text-xs text-muted-foreground font-normal ml-1">
-                                        Pixel: {pixels.find(p => p.id === selectedPixel)?.name || selectedPixel}
-                                    </span>
+                                    <Badge variant="secondary" className="ml-2 font-normal text-xs">
+                                        Pixel ID: {selectedPixel}
+                                    </Badge>
                                 )}
                             </ZoruCardTitle>
                         </ZoruCardHeader>
                         <ZoruCardContent className="p-0">
                             {statsLoading ? (
-                                <div className="p-4 space-y-2">
-                                    {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-10" />)}
+                                <div className="p-4 space-y-4">
+                                    {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
                                 </div>
                             ) : eventStats.length === 0 ? (
-                                <div className="py-12 text-center text-muted-foreground">
-                                    <p className="font-medium">No events recorded yet</p>
-                                    <p className="text-sm mt-1">Use the "Send Test Event" button to fire a test event.</p>
+                                <div className="py-16 text-center text-muted-foreground">
+                                    <ChartBar className="h-10 w-10 mx-auto text-muted-foreground/50 mb-3" />
+                                    <p className="font-medium text-base">No events recorded yet</p>
+                                    <p className="text-sm mt-1 max-w-sm mx-auto">Use the "Send Test Event" button above to fire a test conversion event to Meta and verify your connection.</p>
                                 </div>
                             ) : (
                                 <Table>
@@ -202,14 +249,17 @@ export default function EventsManagerPage() {
                                         {eventStats.map((s, i) => (
                                             <ZoruTableRow key={i}>
                                                 <ZoruTableCell>
-                                                    <Badge variant="outline">{s.event || s.event_name || s.key || 'Unknown'}</Badge>
+                                                    <Badge variant="outline" className="font-mono bg-background">{s.event || s.event_name || s.key || 'Unknown'}</Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="tabular-nums font-medium">
                                                     {s.count ?? s.value ?? 0}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-xs text-muted-foreground">
                                                     {s.last_fired_time
-                                                        ? new Date(s.last_fired_time).toLocaleString()
+                                                        ? new Date(s.last_fired_time).toLocaleString(undefined, {
+                                                            dateStyle: 'medium',
+                                                            timeStyle: 'short'
+                                                          })
                                                         : '—'}
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
@@ -223,20 +273,21 @@ export default function EventsManagerPage() {
             )}
 
             {/* Send test event dialog */}
-            <Dialog open={testDialogOpen} onOpenChange={(open) => { if (!open) setTestDialogOpen(false); else setTestDialogOpen(true); }}>
+            <Dialog open={testDialogOpen} onOpenChange={setTestDialogOpen}>
                 <ZoruDialogContent className="max-w-sm">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Send test event</ZoruDialogTitle>
                         <ZoruDialogDescription>
-                            Send a test conversion event to pixel{' '}
-                            {pixels.find(p => p.id === selectedPixel)?.name || selectedPixel}.
+                            Simulate a conversion event being sent to pixel <span className="font-mono bg-muted px-1 rounded text-xs">{selectedPixel}</span>.
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
-                    <div className="space-y-4">
+                    <div className="space-y-4 py-2">
                         <div className="space-y-2">
-                            <Label>Event name</Label>
+                            <Label htmlFor="test-event">Event name</Label>
                             <Select value={testEvent} onValueChange={setTestEvent}>
-                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                                <ZoruSelectTrigger id="test-event">
+                                    <ZoruSelectValue placeholder="Select event" />
+                                </ZoruSelectTrigger>
                                 <ZoruSelectContent>
                                     {TEST_EVENTS.map(e => <ZoruSelectItem key={e} value={e}>{e}</ZoruSelectItem>)}
                                 </ZoruSelectContent>
@@ -244,9 +295,13 @@ export default function EventsManagerPage() {
                         </div>
                     </div>
                     <ZoruDialogFooter>
-                        <Button variant="outline" onClick={() => setTestDialogOpen(false)}>Cancel</Button>
-                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleSendTest} disabled={sending}>
-                            {sending ? 'Sending…' : 'Send'}
+                        <Button variant="outline" onClick={() => setTestDialogOpen(false)} disabled={sending}>Cancel</Button>
+                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white min-w-[100px]" onClick={handleSendTest} disabled={sending}>
+                            {sending ? (
+                                <><RefreshCw className="mr-2 h-4 w-4 animate-spin" /> Sending...</>
+                            ) : (
+                                'Send Event'
+                            )}
                         </Button>
                     </ZoruDialogFooter>
                 </ZoruDialogContent>

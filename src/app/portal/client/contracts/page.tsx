@@ -4,40 +4,12 @@
 
 export const dynamic = 'force-dynamic';
 
+import { Suspense } from 'react';
 import { getClientContracts } from '@/app/actions/client-portal.actions';
-import { Badge } from '@/components/zoruui/badge';
-import { Button } from '@/components/zoruui/button';
-import {
-    Card,
-    ZoruCardContent,
-} from '@/components/zoruui/card';
-import {
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui/table';
-import { EmptyState } from '@/components/zoruui/empty-state';
+import { ClientContractsClient } from './client-contracts-client';
+import { Skeleton } from '@/components/zoruui/skeleton';
 
-function fmtDate(iso: string | null): string {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleDateString();
-}
-
-function fmtCurrency(n: number | undefined, ccy: string | undefined): string {
-    if (typeof n !== 'number') return '—';
-    try {
-        return new Intl.NumberFormat(undefined, { style: 'currency', currency: ccy || 'USD' }).format(n);
-    } catch {
-        return String(n);
-    }
-}
-
-export default async function ClientContractsPage() {
-    const contracts = await getClientContracts();
-
+export default function ClientContractsPage() {
     return (
         <div className="flex flex-col gap-4">
             <div>
@@ -47,58 +19,54 @@ export default async function ClientContractsPage() {
                 </p>
             </div>
 
-            {contracts.length === 0 ? (
-                <EmptyState
-                    title="No contracts yet"
-                    description="Contracts shared with you will appear here."
-                />
-            ) : (
-                <Card>
-                    <ZoruCardContent className="p-0">
-                        <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow>
-                                    <ZoruTableHead>Name</ZoruTableHead>
-                                    <ZoruTableHead>Type</ZoruTableHead>
-                                    <ZoruTableHead>Amount</ZoruTableHead>
-                                    <ZoruTableHead>Period</ZoruTableHead>
-                                    <ZoruTableHead>Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">Action</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
-                                {contracts.map((c) => {
-                                    const unsigned = !c.signedAt;
-                                    return (
-                                        <ZoruTableRow key={c._id}>
-                                            <ZoruTableCell className="font-medium text-zoru-ink">{c.title}</ZoruTableCell>
-                                            <ZoruTableCell>{c.type ?? '—'}</ZoruTableCell>
-                                            <ZoruTableCell>{fmtCurrency(c.value, c.currency)}</ZoruTableCell>
-                                            <ZoruTableCell className="text-xs text-zoru-ink-muted">
-                                                {fmtDate(c.startDate)} – {fmtDate(c.endDate)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                <Badge variant={unsigned ? 'outline' : 'secondary'}>
-                                                    {c.signedAt ? 'Signed' : c.status}
-                                                </Badge>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
-                                                {unsigned && c.publicHash ? (
-                                                    <Button asChild size="sm">
-                                                        <a href={`/share/contract/${c.publicHash}`}>Review &amp; Sign</a>
-                                                    </Button>
-                                                ) : (
-                                                    <span className="text-xs text-zoru-ink-muted">—</span>
-                                                )}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
-                                    );
-                                })}
-                            </ZoruTableBody>
-                        </Table>
-                    </ZoruCardContent>
-                </Card>
-            )}
+            <Suspense fallback={<ContractsSkeleton />}>
+                <ContractsData />
+            </Suspense>
+        </div>
+    );
+}
+
+async function ContractsData() {
+    const contracts = await getClientContracts();
+    return <ClientContractsClient contracts={contracts} />;
+}
+
+function ContractsSkeleton() {
+    return (
+        <div className="flex flex-col gap-4">
+            <div className="flex sm:justify-between items-center">
+                <Skeleton className="h-10 w-full sm:max-w-sm rounded-md" />
+            </div>
+            <div className="rounded-xl border bg-card text-card-foreground shadow">
+                <div className="p-0">
+                    <div className="w-full relative overflow-auto">
+                        <table className="w-full caption-bottom text-sm">
+                            <thead className="[&_tr]:border-b">
+                                <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground w-[200px]"><Skeleton className="h-4 w-20" /></th>
+                                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground"><Skeleton className="h-4 w-16" /></th>
+                                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground"><Skeleton className="h-4 w-16" /></th>
+                                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground"><Skeleton className="h-4 w-24" /></th>
+                                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground"><Skeleton className="h-4 w-16" /></th>
+                                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground text-right"><Skeleton className="h-4 w-12 ml-auto" /></th>
+                                </tr>
+                            </thead>
+                            <tbody className="[&_tr:last-child]:border-0">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                    <tr key={i} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                                        <td className="p-4 align-middle"><Skeleton className="h-4 w-full max-w-[150px]" /></td>
+                                        <td className="p-4 align-middle"><Skeleton className="h-4 w-16" /></td>
+                                        <td className="p-4 align-middle"><Skeleton className="h-4 w-20" /></td>
+                                        <td className="p-4 align-middle"><Skeleton className="h-4 w-24" /></td>
+                                        <td className="p-4 align-middle"><Skeleton className="h-6 w-20 rounded-full" /></td>
+                                        <td className="p-4 align-middle text-right"><Skeleton className="h-8 w-8 rounded-md ml-auto" /></td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

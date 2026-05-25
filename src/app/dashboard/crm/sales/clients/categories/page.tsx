@@ -46,10 +46,10 @@ import {
   Input,
   Label,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useZoruToast,
 } from '@/components/zoruui';
 
@@ -343,14 +343,14 @@ export default function ClientCategoriesPage() {
                 setStatusFilter(v as typeof statusFilter)
               }
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div className="flex items-center gap-2">
@@ -840,16 +840,16 @@ function SubCategoryDrawerPanel({
           Parent category
         </Label>
         <Select value={parentId} onValueChange={setParentId}>
-          <ZoruSelectTrigger className="mt-1.5">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
+          <SelectTrigger className="mt-1.5">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
             {parents.map((p) => (
-              <ZoruSelectItem key={p._id} value={p._id}>
+              <SelectItem key={p._id} value={p._id}>
                 {p.category_name}
-              </ZoruSelectItem>
+              </SelectItem>
             ))}
-          </ZoruSelectContent>
+          </SelectContent>
         </Select>
 
         <Label className="mt-3 text-[12px] text-zoru-ink-muted">

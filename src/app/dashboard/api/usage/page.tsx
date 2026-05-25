@@ -14,8 +14,6 @@ import {
   ZoruBreadcrumbLink,
   ZoruBreadcrumbSeparator,
   ZoruBreadcrumbPage,
-  Alert,
-  ZoruAlertDescription,
   Card,
   StatCard,
   Table,
@@ -26,7 +24,7 @@ import {
   ZoruTableCell,
 } from '@/components/zoruui';
 import Link from 'next/link';
-import { AlertCircle } from 'lucide-react';
+import { format } from 'date-fns';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,11 +40,15 @@ export default async function UsagePage(): Promise<JSX.Element> {
     getUsageByKey(),
   ]);
 
-  const errors = [
-    !summaryRes.success ? summaryRes.error : null,
-    !topRes.success ? topRes.error : null,
-    !keysRes.success ? keysRes.error : null,
-  ].filter(Boolean);
+  if (!summaryRes.success) {
+    throw new Error(summaryRes.error || 'Failed to fetch usage summary');
+  }
+  if (!topRes.success) {
+    throw new Error(topRes.error || 'Failed to fetch top endpoints');
+  }
+  if (!keysRes.success) {
+    throw new Error(keysRes.error || 'Failed to fetch usage by key');
+  }
 
   return (
     <div className="flex min-h-full flex-col gap-6">
@@ -74,24 +76,15 @@ export default async function UsagePage(): Promise<JSX.Element> {
         </ZoruPageHeading>
       </PageHeader>
 
-      {errors.length ? (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <ZoruAlertDescription>{errors.join(' · ')}</ZoruAlertDescription>
-        </Alert>
-      ) : null}
-
-      {summaryRes.success ? (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatCard label="Total requests" value={summaryRes.totalRequests.toLocaleString()} />
-          <StatCard
-            label="Errors"
-            value={`${summaryRes.errorRequests.toLocaleString()} (${pct(summaryRes.errorRequests, summaryRes.totalRequests)})`}
-          />
-          <StatCard label="Avg latency" value={`${Math.round(summaryRes.avgLatencyMs)} ms`} />
-          <StatCard label="p95 latency" value={`${Math.round(summaryRes.p95LatencyMs)} ms`} />
-        </div>
-      ) : null}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatCard label="Total requests" value={summaryRes.totalRequests.toLocaleString('en-US')} />
+        <StatCard
+          label="Errors"
+          value={`${summaryRes.errorRequests.toLocaleString('en-US')} (${pct(summaryRes.errorRequests, summaryRes.totalRequests)})`}
+        />
+        <StatCard label="Avg latency" value={`${Math.round(summaryRes.avgLatencyMs)} ms`} />
+        <StatCard label="p95 latency" value={`${Math.round(summaryRes.p95LatencyMs)} ms`} />
+      </div>
 
       <section className="space-y-3">
         <h2 className="text-base font-semibold text-zoru-ink">Top endpoints</h2>
@@ -106,13 +99,13 @@ export default async function UsagePage(): Promise<JSX.Element> {
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
-              {topRes.success && topRes.rows.length > 0 ? (
+              {topRes.rows.length > 0 ? (
                 topRes.rows.map((r, i) => (
                   <ZoruTableRow key={i}>
                     <ZoruTableCell className="font-mono text-xs text-zoru-ink">
                       {r.method} {r.path}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">{r.count.toLocaleString()}</ZoruTableCell>
+                    <ZoruTableCell className="text-zoru-ink">{r.count.toLocaleString('en-US')}</ZoruTableCell>
                     <ZoruTableCell className="text-zoru-ink-muted text-xs">
                       {r.errorCount} ({pct(r.errorCount, r.count)})
                     </ZoruTableCell>
@@ -146,16 +139,16 @@ export default async function UsagePage(): Promise<JSX.Element> {
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
-              {keysRes.success && keysRes.rows.length > 0 ? (
+              {keysRes.rows.length > 0 ? (
                 keysRes.rows.map((r) => (
                   <ZoruTableRow key={r.keyId}>
                     <ZoruTableCell className="font-mono text-xs text-zoru-ink">{r.keyId}</ZoruTableCell>
                     <ZoruTableCell className="text-xs text-zoru-ink-muted">{r.kind}</ZoruTableCell>
                     <ZoruTableCell className="text-xs text-zoru-ink-muted">{r.env}</ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">{r.count.toLocaleString()}</ZoruTableCell>
+                    <ZoruTableCell className="text-zoru-ink">{r.count.toLocaleString('en-US')}</ZoruTableCell>
                     <ZoruTableCell className="text-zoru-ink-muted">{r.errorCount}</ZoruTableCell>
                     <ZoruTableCell className="text-xs text-zoru-ink-muted">
-                      {r.lastUsedAt ? new Date(r.lastUsedAt).toLocaleString() : '—'}
+                      {r.lastUsedAt ? format(new Date(r.lastUsedAt), 'MMM d, yyyy HH:mm') : '—'}
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))

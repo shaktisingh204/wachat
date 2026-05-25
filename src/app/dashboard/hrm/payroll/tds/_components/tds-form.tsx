@@ -28,17 +28,6 @@ import { ArrowLeft,
   Download,
   Users } from 'lucide-react';
 
-// 1E.sweep: quarter/status converted to <EnumFormField> using
-// `tdsQuarter` / `tdsStatus`. TODOs remaining:
-// - financial-year is a dynamically-generated list (fyOptions(6)) — leave
-//   as Select until an <EnumFieldYearRange> variant exists.
-// - employee → <EntityFormField entity="employee">.
-
-/**
- * <TdsForm /> — create + edit form for TDS records.
- * Binds to `saveTdsRecord` via `useActionState`.
- */
-
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {
@@ -100,13 +89,14 @@ export function TdsForm({ initialData }: TdsFormProps) {
     const isEditing = !!initialData?._id;
 
     const [wsConnected, setWsConnected] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
+        setIsMounted(true);
         // Simulated WebSocket connection for collaborative editing
         const timer = setTimeout(() => setWsConnected(true), 1500);
         return () => clearTimeout(timer);
     }, []);
-
 
     const [state, formAction] = useActionState(saveTdsRecord, initialState);
 
@@ -137,6 +127,41 @@ export function TdsForm({ initialData }: TdsFormProps) {
         }
     }, [state, toast, router, initialData?._id]);
 
+    const handleExportCsv = () => {
+        if (!initialData) return;
+        const headers = ['ID', 'Employee Name', 'FY', 'Quarter', 'Gross Amount', 'TDS Amount', 'Status'];
+        const row = [
+            initialData._id,
+            initialData.employeeName,
+            financialYear,
+            quarter,
+            initialData.grossAmount,
+            initialData.tdsAmount,
+            status
+        ].join(',');
+        const csvContent = headers.join(',') + '\n' + row;
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `tds_record_${initialData._id}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast({ title: 'Exported', description: 'CSV file downloaded successfully.' });
+    };
+
+    const handleExportPdf = () => {
+        window.print(); // Simple PDF export for now
+        toast({ title: 'Exporting', description: 'Opening print dialog for PDF export...' });
+    };
+
+    if (!isMounted) {
+        return null; // Prevent hydration mismatch entirely by waiting for mount
+    }
+
     return (
         <Card className="p-6">
             <form action={formAction} className="flex flex-col gap-6">
@@ -156,11 +181,11 @@ export function TdsForm({ initialData }: TdsFormProps) {
                     </div>
                     {isEditing && (
                         <div className="flex gap-2">
-                            <Button type="button" variant="outline" size="sm" onClick={() => toast({ title: 'Exporting', description: 'Generating PDF...' })}>
+                            <Button type="button" variant="outline" size="sm" onClick={handleExportPdf}>
                                 <Download className="h-4 w-4 mr-2" />
                                 Export PDF
                             </Button>
-                            <Button type="button" variant="outline" size="sm" onClick={() => toast({ title: 'Exporting', description: 'Generating CSV...' })}>
+                            <Button type="button" variant="outline" size="sm" onClick={handleExportCsv}>
                                 <Download className="h-4 w-4 mr-2" />
                                 Export CSV
                             </Button>
@@ -202,7 +227,6 @@ export function TdsForm({ initialData }: TdsFormProps) {
                 <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-1.5">
                         <Label htmlFor="fy-trigger">Financial year</Label>
-                        {/* TODO 1E.sweep: dynamic list — needs <EnumFieldYearRange> variant (rolling 6-FY window) */}
                         <Select value={financialYear} onValueChange={setFinancialYear}>
                             <ZoruSelectTrigger id="fy-trigger">
                                 <ZoruSelectValue placeholder="FY" />

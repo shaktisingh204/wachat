@@ -27,6 +27,7 @@ import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'luci
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createAsset, updateAsset, deleteAsset, Asset } from '@/app/actions/finance/assets.actions';
 import { toast } from 'sonner';
+import { fmtINR } from '@/lib/utils';
 
 export function AssetListClient({ initialItems, error }: { initialItems: Asset[], error?: string }) {
   const router = useRouter();
@@ -159,6 +160,8 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
               <Label>PurchasePrice</Label>
               <Input 
                 name="purchasePrice" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.purchasePrice : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("purchasePrice")} 
               />
@@ -167,6 +170,8 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
               <Label>SalvageValue</Label>
               <Input 
                 name="salvageValue" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.salvageValue : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("salvageValue")} 
               />
@@ -175,6 +180,8 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
               <Label>UsefulLifeYears</Label>
               <Input 
                 name="usefulLifeYears" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.usefulLifeYears : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("usefulLifeYears")} 
               />
@@ -183,6 +190,8 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
               <Label>AccumulatedDepreciation</Label>
               <Input 
                 name="accumulatedDepreciation" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.accumulatedDepreciation : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("accumulatedDepreciation")} 
               />
@@ -234,7 +243,11 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
             ) : (
               filteredItems.map((item) => (
                 <TableRow key={item._id}>
-                  <TableCell>{String(item.name ?? '')}</TableCell><TableCell>{String(item.purchasePrice ?? '')}</TableCell><TableCell>{String(item.salvageValue ?? '')}</TableCell><TableCell>{String(item.usefulLifeYears ?? '')}</TableCell><TableCell>{String(item.accumulatedDepreciation ?? '')}</TableCell>
+                  <TableCell>{String(item.name ?? '')}</TableCell>
+                  <TableCell>{fmtINR(Number(item.purchasePrice || 0))}</TableCell>
+                  <TableCell>{fmtINR(Number(item.salvageValue || 0))}</TableCell>
+                  <TableCell>{String(item.usefulLifeYears ?? '')}</TableCell>
+                  <TableCell>{fmtINR(Number(item.accumulatedDepreciation || 0))}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

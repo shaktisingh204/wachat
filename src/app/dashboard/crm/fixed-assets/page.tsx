@@ -20,6 +20,9 @@ import { listFixedAssets } from '@/app/actions/crm/fixed-assets.actions';
 import { FixedAssetListClient } from './_components/fixed-asset-list-client';
 import { BarcodeScannerDialog } from './_components/barcode-scanner-dialog';
 
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/zoruui';
+
 export const dynamic = 'force-dynamic';
 
 interface SearchParams {
@@ -28,12 +31,7 @@ interface SearchParams {
   q?: string;
 }
 
-export default async function FixedAssetsPage({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const sp = await searchParams;
+async function FixedAssetsData({ sp }: { sp: SearchParams }) {
   const page = Math.max(1, Number(sp.page) || 1);
   const limit = Math.min(Math.max(1, Number(sp.limit) || 20), 100);
   const q = (sp.q ?? '').trim();
@@ -43,6 +41,25 @@ export default async function FixedAssetsPage({
     limit,
     q: q || undefined,
   });
+
+  return (
+    <FixedAssetListClient
+      assets={assets}
+      page={page}
+      limit={limit}
+      hasMore={hasMore}
+      initialQuery={q}
+      error={error}
+    />
+  );
+}
+
+export default async function FixedAssetsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const sp = await searchParams;
 
   return (
     <EntityListShell
@@ -60,15 +77,9 @@ export default async function FixedAssetsPage({
         </div>
       }
     >
-
-      <FixedAssetListClient
-        assets={assets}
-        page={page}
-        limit={limit}
-        hasMore={hasMore}
-        initialQuery={q}
-        error={error}
-      />
+      <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+        <FixedAssetsData sp={sp} />
+      </Suspense>
     </EntityListShell>
   );
 }

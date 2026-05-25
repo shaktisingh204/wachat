@@ -10,7 +10,7 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   Button,
-  Select,
+  ZoruSelect,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
@@ -274,7 +274,7 @@ export function BankingListClient(): React.JSX.Element {
                     search={{ value: search, onChange: setSearch, placeholder: 'Search accounts…' }}
                     filters={
                         <div className="flex flex-wrap items-center gap-2">
-                            <Select
+                            <ZoruSelect
                                 value={filters.currency}
                                 onValueChange={(v) => setFilters({ ...filters, currency: v })}
                             >
@@ -289,8 +289,8 @@ export function BankingListClient(): React.JSX.Element {
                                         </ZoruSelectItem>
                                     ))}
                                 </ZoruSelectContent>
-                            </Select>
-                            <Select
+                            </ZoruSelect>
+                            <ZoruSelect
                                 value={filters.status}
                                 onValueChange={(v) => setFilters({ ...filters, status: v as FiltersState['status'] })}
                             >
@@ -302,8 +302,8 @@ export function BankingListClient(): React.JSX.Element {
                                     <ZoruSelectItem value="active">Active</ZoruSelectItem>
                                     <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </Select>
-                            <Select
+                            </ZoruSelect>
+                            <ZoruSelect
                                 value={filters.defaultOnly}
                                 onValueChange={(v) =>
                                     setFilters({ ...filters, defaultOnly: v as FiltersState['defaultOnly'] })
@@ -317,7 +317,7 @@ export function BankingListClient(): React.JSX.Element {
                                     <ZoruSelectItem value="yes">Default only</ZoruSelectItem>
                                     <ZoruSelectItem value="no">Non-default</ZoruSelectItem>
                                 </ZoruSelectContent>
-                            </Select>
+                            </ZoruSelect>
                         </div>
                     }
                     bulkBar={

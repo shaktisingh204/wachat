@@ -86,9 +86,12 @@ export function BookingForm({ initial }: BookingFormProps) {
 
   const editing = !!initial?._id;
 
-  // Mirror the Select's controlled value into a hidden input so the
-  // server action sees it in FormData. (ZoruSelect's underlying Radix
-  // primitive isn't itself a form control.)
+  const [mounted, setMounted] = React.useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [status, setStatus] = React.useState<CrmBookingStatus>(
     initial?.status ?? 'pending',
   );
@@ -184,11 +187,12 @@ export function BookingForm({ initial }: BookingFormProps) {
               Slot start <span className="text-zoru-danger-ink">*</span>
             </Label>
             <Input
+              key={`start-${mounted}`}
               id="slotStart"
               name="slotStart"
               type="datetime-local"
               required
-              defaultValue={toLocalDateTimeInput(initial?.slotStart)}
+              defaultValue={mounted ? toLocalDateTimeInput(initial?.slotStart) : ''}
               className="mt-1.5"
             />
           </div>
@@ -197,11 +201,12 @@ export function BookingForm({ initial }: BookingFormProps) {
               Slot end <span className="text-zoru-danger-ink">*</span>
             </Label>
             <Input
+              key={`end-${mounted}`}
               id="slotEnd"
               name="slotEnd"
               type="datetime-local"
               required
-              defaultValue={toLocalDateTimeInput(initial?.slotEnd)}
+              defaultValue={mounted ? toLocalDateTimeInput(initial?.slotEnd) : ''}
               className="mt-1.5"
             />
           </div>
@@ -237,7 +242,13 @@ export function BookingForm({ initial }: BookingFormProps) {
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <Label>Reminder Time</Label>
-              <Input type="datetime-local" name="reminderAt_0" defaultValue={initial?.reminders?.[0] ? toLocalDateTimeInput(initial.reminders[0].at) : ''} className="mt-1.5" />
+              <Input 
+                key={`reminder-${mounted}`}
+                type="datetime-local" 
+                name="reminderAt_0" 
+                defaultValue={mounted && initial?.reminders?.[0] ? toLocalDateTimeInput(initial.reminders[0].at) : ''} 
+                className="mt-1.5" 
+              />
             </div>
             <div>
               <Label>Channel</Label>

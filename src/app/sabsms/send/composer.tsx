@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { AlertCircle, AlertTriangle, CheckCircle2, Info } from "lucide-react";
 
 import {
   Badge,
   Button,
   Input,
   Label,
+  Progress,
   Select,
   ZoruSelectContent,
   ZoruSelectItem,
@@ -40,10 +42,7 @@ function statusVariant(s: SabsmsMessageStatus) {
 }
 
 // Mirror of the GSM-7 / UCS-2 segment math in the Rust engine.
-// Lets users see the cost-impact while composing.
 function isGsm(body: string): boolean {
-  // Approximation — close enough to drive the UI; the engine is the
-  // source of truth at send time.
   return /^[\x20-\x7E\n\r£¥€§Æ¡¿äöüÄÖÜñÑàèéìòùÇß]*$/.test(body);
 }
 
@@ -71,6 +70,117 @@ const CATEGORIES: { value: SabsmsMessageCategory; label: string; hint: string }[
   { value: "service", label: "Service", hint: "General service messages" },
 ];
 
+function useDeliverabilityScore(body: string, category: SabsmsMessageCategory, encoding: "GSM-7" | "UCS-2", segments: number) {
+  return useMemo(() => {
+    let score = 100;
+    const warnings: { type: "info" | "warning" | "danger", text: string }[] = [];
+
+    if (!body) {
+      return { score: 0, grade: "Empty", color: "bg-slate-200", warnings: [] };
+    }
+
+    if (encoding === "UCS-2") {
+      score -= 10;
+      warnings.push({ type: "warning", text: "Unicode encoding reduces segment capacity from 160 to 70 characters." });
+    }
+
+    if (segments > 1) {
+      score -= (segments - 1) * 5;
+      if (segments > 3) {
+        warnings.push({ type: "warning", text: `Long message (${segments} segments) has higher risk of delivery issues and costs more.` });
+      } else {
+        warnings.push({ type: "info", text: `Message spans ${segments} segments. Cost will be multiplied.` });
+      }
+    }
+
+    const lowerBody = body.toLowerCase();
+    const spamWords = ["free", "win", "prize", "guarantee", "cash", "bonus", "click here"];
+    const foundSpam = spamWords.filter(w => lowerBody.includes(w));
+    if (foundSpam.length > 0) {
+      score -= foundSpam.length * 10;
+      warnings.push({ type: "danger", text: `Contains spam-trigger words: ${foundSpam.join(", ")}.` });
+    }
+
+    if (category === "marketing" && !lowerBody.includes("stop") && !lowerBody.includes("opt-out")) {
+      score -= 15;
+      warnings.push({ type: "danger", text: "Marketing messages must include opt-out instructions (e.g., 'Reply STOP')." });
+    }
+
+    if (body.includes("http://") || body.includes("https://")) {
+      if (body.includes("http://")) {
+        score -= 20;
+        warnings.push({ type: "danger", text: "Unsecured HTTP links are heavily filtered. Use HTTPS." });
+      }
+      if (body.includes("bit.ly") || body.includes("tinyurl")) {
+        score -= 20;
+        warnings.push({ type: "danger", text: "Public URL shorteners are often blocked by carriers." });
+      }
+    }
+
+    score = Math.max(0, Math.min(100, score));
+
+    let grade = "Excellent";
+    let color = "bg-green-500";
+    if (score < 50) {
+      grade = "Poor";
+      color = "bg-rose-500";
+    } else if (score < 80) {
+      grade = "Fair";
+      color = "bg-amber-500";
+    } else if (score < 95) {
+      grade = "Good";
+      color = "bg-blue-500";
+    }
+
+    return { score, grade, color, warnings };
+  }, [body, category, encoding, segments]);
+}
+
+function SmsPreview({ body }: { body: string }) {
+  const chars = Array.from(body);
+  const GSM_REGEX_CHAR = /^[\x20-\x7E\n\r£¥€§Æ¡¿äöüÄÖÜñÑàèéìòùÇß]$/;
+  const hasUnicode = !isGsm(body);
+
+  return (
+    <div className="flex flex-col rounded-3xl border-[6px] border-slate-900 bg-slate-50 shadow-xl overflow-hidden max-w-[280px] mx-auto w-full aspect-[9/19]">
+      <div className="bg-slate-900 px-4 pt-4 pb-2 relative">
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-4 bg-black rounded-b-xl z-10"></div>
+        <div className="text-center text-xs font-medium text-white/90 mt-2">Live Preview</div>
+      </div>
+      <div className="flex-1 p-3 flex flex-col justify-end bg-slate-50 gap-2 overflow-y-auto">
+        <div className="flex flex-col gap-1 items-end w-full">
+          {body ? (
+            <div className="relative rounded-2xl rounded-tr-sm bg-blue-500 px-3 py-2 text-[13px] leading-relaxed text-white shadow-sm max-w-[85%] break-words whitespace-pre-wrap">
+              {chars.map((char, i) => {
+                const isNonGsm = char !== '\n' && char !== '\r' && !GSM_REGEX_CHAR.test(char);
+                return (
+                  <span
+                    key={i}
+                    title={isNonGsm ? "Unicode character forcing UCS-2 encoding" : undefined}
+                    className={isNonGsm ? "bg-amber-300 text-slate-900 font-semibold px-[1px] rounded-[2px]" : ""}
+                  >
+                    {char}
+                  </span>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="relative rounded-2xl rounded-tr-sm bg-slate-200 px-3 py-2 text-[13px] leading-relaxed text-slate-400 max-w-[85%]">
+              Type a message...
+            </div>
+          )}
+          {body && (
+            <div className="text-[10px] text-slate-400 mr-1 flex gap-2">
+              <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              {hasUnicode && <span className="text-amber-500 font-medium">UCS-2</span>}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function SabsmsSendComposer() {
   const [to, setTo] = useState("");
   const [body, setBody] = useState("");
@@ -83,6 +193,10 @@ export function SabsmsSendComposer() {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const seg = useMemo(() => segmentCount(body), [body]);
+  const deliverability = useDeliverabilityScore(body, category, seg.encoding, seg.segments);
+
+  const MAX_CHARS = 1600;
+  const isOverLimit = body.length > MAX_CHARS;
 
   useEffect(
     () => () => {
@@ -93,6 +207,7 @@ export function SabsmsSendComposer() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isOverLimit) return;
     setError(null);
     setMessage(null);
     setMessageId(null);
@@ -126,102 +241,168 @@ export function SabsmsSendComposer() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="grid gap-5 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="sabsms-send-to">Recipient (E.164)</Label>
-          <Input
-            id="sabsms-send-to"
-            required
-            placeholder="+15551234567"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            autoComplete="tel"
-          />
-          <p className="text-xs text-slate-500">
-            Engine normalises to E.164 before send.
-          </p>
-        </div>
+    <div className="grid gap-8 lg:grid-cols-12">
+      <div className="lg:col-span-7">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="sabsms-send-to">Recipient (E.164)</Label>
+              <Input
+                id="sabsms-send-to"
+                required
+                placeholder="+15551234567"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                autoComplete="tel"
+              />
+              <p className="text-xs text-slate-500">
+                Engine normalises to E.164 before send.
+              </p>
+            </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="sabsms-send-category">Category</Label>
-          <Select
-            value={category}
-            onValueChange={(v) => setCategory(v as SabsmsMessageCategory)}
-          >
-            <ZoruSelectTrigger id="sabsms-send-category">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {CATEGORIES.map((c) => (
-                <ZoruSelectItem key={c.value} value={c.value}>
-                  <span className="flex flex-col">
-                    <span>{c.label}</span>
-                    <span className="text-[11px] text-slate-500">{c.hint}</span>
-                  </span>
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="sabsms-send-body">Message body</Label>
-        <Textarea
-          id="sabsms-send-body"
-          required
-          rows={5}
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Type your message…"
-        />
-        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600">
-          <span>{body.length} chars</span>
-          <span>·</span>
-          <span>{seg.encoding}</span>
-          <span>·</span>
-          <span>
-            {seg.segments} segment{seg.segments === 1 ? "" : "s"}
-          </span>
-          <span className="text-slate-400">
-            (GSM-7 splits at 160/153, UCS-2 at 70/67)
-          </span>
-        </div>
-      </div>
-
-      <Separator />
-
-      <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" disabled={submitting || !to || !body}>
-          {submitting ? "Sending…" : "Send message"}
-        </Button>
-        {status && (
-          <Badge variant={statusVariant(status)}>{status}</Badge>
-        )}
-        {messageId && (
-          <code className="rounded bg-slate-100 px-2 py-1 text-xs">
-            {messageId}
-          </code>
-        )}
-      </div>
-
-      {error && (
-        <p className="rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
-          {error}
-        </p>
-      )}
-
-      {message && (
-        <div className="rounded border border-slate-200 bg-slate-50 p-3">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Message doc
+            <div className="space-y-2">
+              <Label htmlFor="sabsms-send-category">Category</Label>
+              <Select
+                value={category}
+                onValueChange={(v) => setCategory(v as SabsmsMessageCategory)}
+              >
+                <ZoruSelectTrigger id="sabsms-send-category">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {CATEGORIES.map((c) => (
+                    <ZoruSelectItem key={c.value} value={c.value}>
+                      <span className="flex flex-col">
+                        <span>{c.label}</span>
+                        <span className="text-[11px] text-slate-500">{c.hint}</span>
+                      </span>
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </Select>
+            </div>
           </div>
-          <pre className="overflow-x-auto text-[11px] leading-relaxed text-slate-700">
-            {JSON.stringify(message, null, 2)}
-          </pre>
+
+          <div className="space-y-2">
+            <Label htmlFor="sabsms-send-body">Message body</Label>
+            <Textarea
+              id="sabsms-send-body"
+              required
+              rows={6}
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="Type your message…"
+              className={isOverLimit ? "border-rose-500 focus-visible:ring-rose-500" : ""}
+            />
+            <div className="flex flex-wrap items-center justify-between text-xs">
+              <div className="flex flex-wrap items-center gap-3 text-slate-600">
+                <span className={isOverLimit ? "font-semibold text-rose-600" : ""}>
+                  {body.length} / {MAX_CHARS} chars
+                </span>
+                <span>·</span>
+                <span className={seg.encoding === "UCS-2" ? "font-medium text-amber-600" : ""}>
+                  {seg.encoding}
+                </span>
+                <span>·</span>
+                <span>
+                  {seg.segments} segment{seg.segments === 1 ? "" : "s"}
+                </span>
+              </div>
+              <span className="text-slate-400">
+                (GSM-7 splits at 160/153, UCS-2 at 70/67)
+              </span>
+            </div>
+            {isOverLimit && (
+              <p className="text-xs font-medium text-rose-600 mt-1">
+                Message exceeds the {MAX_CHARS} character limit.
+              </p>
+            )}
+          </div>
+
+          <Separator />
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="submit" disabled={submitting || !to || !body || isOverLimit}>
+              {submitting ? "Sending…" : "Send message"}
+            </Button>
+            {status && (
+              <Badge variant={statusVariant(status)}>{status}</Badge>
+            )}
+            {messageId && (
+              <code className="rounded bg-slate-100 px-2 py-1 text-xs">
+                {messageId}
+              </code>
+            )}
+          </div>
+
+          {error && (
+            <p className="rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+              {error}
+            </p>
+          )}
+
+          {message && (
+            <div className="rounded border border-slate-200 bg-slate-50 p-3">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Message doc
+              </div>
+              <pre className="overflow-x-auto text-[11px] leading-relaxed text-slate-700">
+                {JSON.stringify(message, null, 2)}
+              </pre>
+            </div>
+          )}
+        </form>
+      </div>
+
+      <div className="lg:col-span-5 space-y-6">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-slate-800">Deliverability Score</h3>
+            <Badge variant={deliverability.score >= 80 ? "default" : deliverability.score >= 50 ? "secondary" : "destructive"}>
+              {deliverability.grade}
+            </Badge>
+          </div>
+          
+          <div className="mb-4 flex items-end gap-2">
+            <span className="text-4xl font-bold tracking-tight text-slate-900">{deliverability.score}</span>
+            <span className="mb-1 text-sm font-medium text-slate-500">/ 100</span>
+          </div>
+          
+          <Progress 
+            value={deliverability.score} 
+            indicatorClassName={deliverability.color}
+            className="h-2 mb-4"
+          />
+
+          {deliverability.warnings.length > 0 && (
+            <div className="space-y-3 mt-5">
+              {deliverability.warnings.map((w, i) => (
+                <div key={i} className="flex gap-2.5 text-xs">
+                  {w.type === "danger" && <AlertTriangle className="h-4 w-4 text-rose-500 shrink-0" />}
+                  {w.type === "warning" && <AlertCircle className="h-4 w-4 text-amber-500 shrink-0" />}
+                  {w.type === "info" && <Info className="h-4 w-4 text-blue-500 shrink-0" />}
+                  <span className="text-slate-600 leading-snug">{w.text}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {deliverability.warnings.length === 0 && body.length > 0 && (
+            <div className="flex gap-2.5 text-xs text-emerald-700 bg-emerald-50 p-3 rounded-lg mt-4 border border-emerald-100">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+              <span className="font-medium">Message looks optimal for delivery.</span>
+            </div>
+          )}
+          {body.length === 0 && (
+            <p className="text-xs text-slate-500 mt-4 text-center">
+              Type a message to see its deliverability score.
+            </p>
+          )}
         </div>
-      )}
-    </form>
+
+        <div className="flex justify-center pt-2">
+          <SmsPreview body={body} />
+        </div>
+      </div>
+    </div>
   );
 }

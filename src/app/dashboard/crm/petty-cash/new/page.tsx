@@ -12,8 +12,6 @@ import { savePettyCashFloat } from '@/app/actions/crm-petty-cash.actions';
 import { useRouter } from 'next/navigation';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
-export const dynamic = 'force-dynamic';
-
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (

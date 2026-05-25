@@ -883,7 +883,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                                     {inv.invoiceNumber}
                                                                 </div>
                                                                 <div className="text-[10.5px] text-zoru-ink-muted mt-0.5">
-                                                                    Date: {inv.date ? inv.date.toLocaleDateString() : 'N/A'}
+                                                                    Date: {inv.date ? inv.date.toLocaleDateString('en-US', { timeZone: 'UTC' }) : 'N/A'}
                                                                 </div>
                                                             </td>
                                                             <td className="px-3 py-3 whitespace-nowrap">
@@ -894,7 +894,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                                             : 'bg-zoru-surface-3 text-zoru-ink-muted'
                                                                     }`}
                                                                 >
-                                                                    {inv.dueDate ? inv.dueDate.toLocaleDateString() : 'N/A'}
+                                                                    {inv.dueDate ? inv.dueDate.toLocaleDateString('en-US', { timeZone: 'UTC' }) : 'N/A'}
                                                                 </span>
                                                             </td>
                                                             <td className="px-3 py-3 text-right font-bold text-zoru-ink">

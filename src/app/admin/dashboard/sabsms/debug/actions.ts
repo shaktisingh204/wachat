@@ -13,6 +13,7 @@ import type {
 export interface SendInput {
   to: string;
   body: string;
+  dryRun?: boolean;
 }
 
 export type SendResult =
@@ -33,9 +34,12 @@ export async function sendDebugSms(input: SendInput): Promise<SendResult> {
   if (!auth.ok) return { ok: false, error: auth.error };
 
   try {
+    const workspaceId = input.dryRun
+      ? '__admin_debug_dry_run__'
+      : process.env.SABSMS_DEFAULT_WORKSPACE ?? '__admin_debug__';
+
     const res = await sabsmsEngine.enqueueSend({
-      workspaceId:
-        process.env.SABSMS_DEFAULT_WORKSPACE ?? '__admin_debug__',
+      workspaceId,
       to: input.to,
       body: input.body,
       category: 'transactional',

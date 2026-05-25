@@ -145,6 +145,10 @@ export function QuickSendClient({
   const [skipSuppressed, setSkipSuppressed] = React.useState(true);
   const [skipSentToday, setSkipSentToday] = React.useState(false);
 
+  const [tendlcCampaignId, setTendlcCampaignId] = React.useState("");
+  const [dltTemplateId, setDltTemplateId] = React.useState("");
+  const [testVarsStr, setTestVarsStr] = React.useState("");
+
   const [costConfirmOpen, setCostConfirmOpen] = React.useState(false);
   const [launchState, setLaunchState] = React.useState<LaunchState>({ kind: "idle" });
 
@@ -189,6 +193,19 @@ export function QuickSendClient({
     launchState.kind !== "running" &&
     (category !== "marketing" || marketingAttested);
 
+  const activeSender = senderNumberId ? senderNumbers.find((n) => n.id === senderNumberId) : null;
+  const requires10DLC = activeSender?.country === "US" || (!activeSender && parsed.rows.some((r) => r.phone.startsWith("+1")));
+  const requiresDLT = activeSender?.country === "IN" || (!activeSender && parsed.rows.some((r) => r.phone.startsWith("+91")));
+
+  const canLaunch =
+    parsed.rows.length > 0 &&
+    body.trim().length > 0 &&
+    launchState.kind !== "submitting" &&
+    launchState.kind !== "running" &&
+    (category !== "marketing" || marketingAttested) &&
+    (!requires10DLC || tendlcCampaignId.trim().length > 0) &&
+    (!requiresDLT || dltTemplateId.trim().length > 0);
+
   const launchLabel =
     launchState.kind === "submitting"
       ? "Launching…"
@@ -208,6 +225,8 @@ export function QuickSendClient({
       skipSuppressed,
       skipSentToday,
       marketingAttested,
+      tendlcCampaignId,
+      dltTemplateId,
     });
     if (!res.ok) {
       setLaunchState({ kind: "error", message: res.error });
@@ -231,7 +250,18 @@ export function QuickSendClient({
       setTestResult("Pick a recipient (test field or paste at least one row).");
       return;
     }
-    const sampleVars = parsed.rows[0]?.vars ?? {};
+    
+    let manualVars = {};
+    if (testVarsStr.trim()) {
+      try {
+        manualVars = JSON.parse(testVarsStr);
+      } catch {
+        setTestResult("Test failed: Test variables must be valid JSON.");
+        return;
+      }
+    }
+    const sampleVars = testVarsStr.trim() ? manualVars : (parsed.rows[0]?.vars ?? {});
+
     const res = await quickSendTestRow({
       to: target,
       body: interpolateBody(body, sampleVars),
@@ -422,6 +452,36 @@ export function QuickSendClient({
               </span>
             </label>
           )}
+
+          {requires10DLC && (
+            <div className="space-y-2 rounded border border-slate-200 p-3">
+              <Label htmlFor="tendlc-campaign-id" className="text-sm font-medium">10DLC Campaign ID (US requirement)</Label>
+              <Input
+                id="tendlc-campaign-id"
+                value={tendlcCampaignId}
+                onChange={(e) => setTendlcCampaignId(e.target.value)}
+                placeholder="CXXXXXXXXXXXXX"
+              />
+              <p className="text-[11px] text-slate-500">
+                Required for US outbound messages to comply with carrier A2P rules.
+              </p>
+            </div>
+          )}
+
+          {requiresDLT && (
+            <div className="space-y-2 rounded border border-slate-200 p-3">
+              <Label htmlFor="dlt-template-id" className="text-sm font-medium">DLT Template ID (India requirement)</Label>
+              <Input
+                id="dlt-template-id"
+                value={dltTemplateId}
+                onChange={(e) => setDltTemplateId(e.target.value)}
+                placeholder="1000XXXXXXXXXXXXXXXXX"
+              />
+              <p className="text-[11px] text-slate-500">
+                Required by TRAI for commercial messaging in India.
+              </p>
+            </div>
+          )}
         </ZoruCardContent>
       </Card>
 
@@ -602,6 +662,17 @@ export function QuickSendClient({
                 value={testTo}
                 onChange={(e) => setTestTo(e.target.value)}
                 placeholder="+15551234567"
+              />
+            </div>
+            <div className="grow space-y-1">
+              <Label htmlFor="quick-send-test-vars">
+                Test variables (JSON, optional)
+              </Label>
+              <Input
+                id="quick-send-test-vars"
+                value={testVarsStr}
+                onChange={(e) => setTestVarsStr(e.target.value)}
+                placeholder='{"first_name": "Alice"}'
               />
             </div>
             <Button

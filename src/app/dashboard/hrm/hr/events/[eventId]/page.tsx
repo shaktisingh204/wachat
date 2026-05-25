@@ -1,3 +1,6 @@
+import { fmtDate } from '@/lib/utils';
+export const dynamic = 'force-dynamic';
+import { fmtDate } from '@/lib/utils';
 import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
@@ -10,6 +13,7 @@ import {
   User,
   Users,
   Video,
+  CalendarPlus,
   } from 'lucide-react';
 
 /**
@@ -45,36 +49,17 @@ function titleCase(s: string): string {
     return s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function fmtDateTime(iso?: string): string {
-    if (!iso) return '—';
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return '—';
-    return d.toLocaleString(undefined, {
-        weekday: 'short',
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-}
-
 function timeRange(starts?: string, ends?: string, allDay?: boolean): string {
-    const start = fmtDateTime(starts);
+    const start = fmtDate(starts);
     if (allDay) {
         // Strip the time portion for all-day events.
         if (!starts) return '—';
         const d = new Date(starts);
         if (Number.isNaN(d.getTime())) return start;
-        return d.toLocaleDateString(undefined, {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
+        return fmtDate(d);
     }
     if (!ends) return start;
-    return `${start} — ${fmtDateTime(ends)}`;
+    return `${start} — ${fmtDate(ends)}`;
 }
 
 function Field({
@@ -119,12 +104,18 @@ export default async function WorkplaceEventDetailPage({ params }: PageProps) {
                     : 'Workplace event'
             }
             primaryAction={
-                <Button asChild>
-                    <Link href={`/dashboard/hrm/hr/events/${eventId}/edit`}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit
-                    </Link>
-                </Button>
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => {}}>
+                        <CalendarPlus className="mr-2 h-4 w-4" />
+                        Add to Calendar
+                    </Button>
+                    <Button asChild>
+                        <Link href={`/dashboard/hrm/hr/events/${eventId}/edit`}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                        </Link>
+                    </Button>
+                </div>
             }
         >
             {event.bannerUrl ? (

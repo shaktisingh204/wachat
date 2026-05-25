@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Card, Label, Input, Textarea } from '@/components/zoruui';
 import type { HrmPermissionGroup } from '@/app/actions/hrm-permission-groups.actions';
+import { fmtDate } from '@/lib/utils';
 
 interface GroupDetailsCardProps {
   name: string;
@@ -27,7 +28,7 @@ export function GroupDetailsCard({
 
   const formatDate = (dateStr: string | Date) => {
     if (!mounted) return '';
-    return new Date(dateStr).toLocaleDateString();
+    return fmtDate(dateStr);
   };
 
   return (

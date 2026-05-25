@@ -61,7 +61,7 @@ import {
   downloadXlsx,
   type ExportRow,
 } from '@/lib/crm-list-export';
-import { fmtDate, fmtINR } from '@/lib/utils';
+import { fmtDate } from '@/lib/utils';
 
 import {
   bulkStockTransferAction,

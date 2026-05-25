@@ -77,6 +77,18 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
     });
   }, [data]);
 
+  const ltvChartData = useMemo(() => {
+    const periods = Array.from({ length: 6 }, (_, i) => i);
+    return periods.map((period) => {
+      const point: any = { period: `Month ${period}` };
+      data.rows.forEach((row) => {
+        const cell = row.cells.find((c) => c.period === period);
+        if (cell && cell.ltv !== undefined) point[row.id] = cell.ltv;
+      });
+      return point;
+    });
+  }, [data]);
+
   // Compute KPIs
   const totalContacts = useMemo(() => data.rows.reduce((acc, row) => acc + row.size, 0), [data]);
   const avgM1Retention = useMemo(() => {
@@ -271,6 +283,54 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
         </CardContent>
       </Card>
 
+      {/* LTV Curve Chart */}
+      <Card variant="elevated">
+        <CardHeader>
+          <CardTitle>LTV Over Time</CardTitle>
+          <CardDescription>Cumulative Life-Time Value progression across all cohorts over time</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[350px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={ltvChartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                <XAxis 
+                  dataKey="period" 
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis 
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(val) => `$${val}`}
+                />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
+                  itemStyle={{ color: 'hsl(var(--foreground))' }}
+                  formatter={(value: number) => [`$${value}`, undefined]}
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                {data.rows.map((row, idx) => (
+                  <Line 
+                    key={row.id} 
+                    type="monotone" 
+                    dataKey={row.id} 
+                    stroke={COLORS[(idx + 2) % COLORS.length]} 
+                    strokeWidth={3}
+                    dot={{ r: 4, strokeWidth: 2 }}
+                    activeDot={{ r: 6 }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Heatmap */}
       <Card variant="elevated">
         <CardHeader>
@@ -362,11 +422,11 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
           <p className="text-sm text-muted-foreground">
             Detailed breakdown of the contacts in this cohort cell.
           </p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <Card variant="default" className="bg-muted/30">
               <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">Active Contacts</p>
-                <p className="text-3xl font-bold font-mono text-primary">
+                <p className="text-2xl font-bold font-mono text-primary">
                   {selectedCell &&
                     data.rows
                       .find((r) => r.id === selectedCell.rowId)
@@ -377,11 +437,22 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
             <Card variant="default" className="bg-muted/30">
               <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">Retention Rate</p>
-                <p className="text-3xl font-bold font-mono text-primary">
+                <p className="text-2xl font-bold font-mono text-primary">
                   {selectedCell &&
                     data.rows
                       .find((r) => r.id === selectedCell.rowId)
                       ?.cells.find((c) => c.period === selectedCell.period)?.value}%
+                </p>
+              </CardContent>
+            </Card>
+            <Card variant="default" className="bg-muted/30">
+              <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">LTV</p>
+                <p className="text-2xl font-bold font-mono text-primary">
+                  ${selectedCell &&
+                    data.rows
+                      .find((r) => r.id === selectedCell.rowId)
+                      ?.cells.find((c) => c.period === selectedCell.period)?.ltv}
                 </p>
               </CardContent>
             </Card>

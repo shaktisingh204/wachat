@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import { notFound } from "next/navigation";
+import React, { Suspense } from "react";
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 import { getCachedSession } from "@/lib/server-cache";
@@ -45,35 +46,32 @@ async function loadTemplate(
   return fromTemplateDoc(doc, doc.lastPublishedBodies ?? null);
 }
 
-export default async function TemplateEditorPage({ params }: PageProps) {
-  const { id } = await params;
-
+async function TemplateDataLoader({ id, isNew }: { id: string; isNew: boolean }) {
   const session = await getCachedSession();
   const workspaceId = String((session?.user as any)?._id ?? "");
+
   if (!workspaceId) {
     return (
-      <SabsmsPageShell
-        title="Sign in required"
-        breadcrumbs={[
-          { label: "Templates", href: "/sabsms/templates" },
-          { label: "Editor" },
-        ]}
-      >
-        <p className="text-sm text-slate-600">
-          You need to sign in to edit templates.
-        </p>
-      </SabsmsPageShell>
+      <p className="text-sm text-slate-600">
+        You need to sign in to edit templates.
+      </p>
     );
   }
 
-  const isNew = id === "new";
   const vm = isNew ? emptyViewModel() : await loadTemplate(id, workspaceId);
   if (!vm) notFound();
 
+  return <TemplateEditor initial={vm} isNew={isNew} />;
+}
+
+export default async function TemplateEditorPage({ params }: PageProps) {
+  const { id } = await params;
+  const isNew = id === "new";
+  
   return (
     <SabsmsPageShell
       eyebrow="SabSMS"
-      title={isNew ? "New template" : `Edit · ${vm.name || "(untitled)"}`}
+      title={isNew ? "New template" : "Edit Template"}
       description={
         isNew
           ? "Compose a message template, add variables, and submit it for carrier approval."
@@ -81,7 +79,7 @@ export default async function TemplateEditorPage({ params }: PageProps) {
       }
       breadcrumbs={[
         { label: "Templates", href: "/sabsms/templates" },
-        { label: isNew ? "New" : vm.name || "(untitled)" },
+        { label: isNew ? "New" : "Edit" },
       ]}
       helpTitle="Template editor"
       helpBody={
@@ -105,7 +103,9 @@ export default async function TemplateEditorPage({ params }: PageProps) {
         </ul>
       }
     >
-      <TemplateEditor initial={vm} isNew={isNew} />
+      <Suspense fallback={<div className="h-96 w-full bg-slate-100 animate-pulse rounded-xl" />}>
+        <TemplateDataLoader id={id} isNew={isNew} />
+      </Suspense>
     </SabsmsPageShell>
   );
 }

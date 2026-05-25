@@ -24,6 +24,7 @@ import { ItemDetailBody } from '../_components/item-detail-body';
 import { ItemRelatedRail } from '../_components/item-related-rail';
 import { ItemPrintView } from '../_components/item-print-view';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,7 +50,9 @@ export default async function InventoryItemDetailPage({
   searchParams,
 }: PageProps) {
   const [{ productId }, sp] = await Promise.all([params, searchParams]);
-  const product = await fetchWithTimeout(getCrmProductById(productId), 8000, null) as (WithId<CrmProduct> & Record<string, unknown>) | null;
+  const product = (await fetchWithTimeout(getCrmProductById(productId), 8000, null)) as
+    | (WithId<CrmProduct> & { status?: string; reorderPoint?: number })
+    | null;
   if (!product) notFound();
 
   /* Print / QR sheet variants */
@@ -121,7 +124,9 @@ export default async function InventoryItemDetailPage({
       }
       audit={<EntityAuditTimeline entityKind="item" entityId={productId} />}
     >
-      <ItemDetailBody product={product} productId={productId} defaultTab={sp.tab} />
+      <Suspense fallback={<div className="p-4 text-sm text-zoru-ink-muted animate-pulse">Loading item details...</div>}>
+        <ItemDetailBody product={product} productId={productId} defaultTab={sp.tab} />
+      </Suspense>
     </EntityDetailShell>
   );
 }

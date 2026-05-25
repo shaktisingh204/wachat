@@ -1,3 +1,4 @@
+import { fmtDate, fmtINR } from '@/lib/utils';
 'use client';
 
 import {
@@ -57,25 +58,9 @@ function pretty(s: string | undefined): string {
     return s.replace(/_/g, ' ');
 }
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
 
-function fmtMoney(amt?: number, currency?: string): string {
-    if (amt == null) return '—';
-    const ccy = currency ?? 'INR';
-    try {
-        return new Intl.NumberFormat(undefined, {
-            style: 'currency',
-            currency: ccy,
-            maximumFractionDigits: 0,
-        }).format(amt);
-    } catch {
-        return `${ccy} ${amt}`;
-    }
-}
+
+
 
 export default function OffersListPage() {
     const [offers, setOffers] = React.useState<CrmOfferDoc[]>([]);
@@ -215,7 +200,7 @@ export default function OffersListPage() {
                                                     {o.jobTitle || o.jobId || '—'}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
-                                                    {fmtMoney(o.salaryAmount, o.salaryCurrency)}{' '}
+                                                    {fmtINR(o.salaryAmount, o.salaryCurrency)}{' '}
                                                     <span className="text-zoru-ink-muted">
                                                         / {pretty(o.salaryPeriod)}
                                                     </span>

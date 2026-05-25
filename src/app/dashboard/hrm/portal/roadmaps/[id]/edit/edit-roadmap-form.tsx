@@ -17,9 +17,10 @@ import {
   ZoruSelectContent,
   ZoruSelectItem,
   useZoruToast,
+  ZoruToastAction,
 } from '@/components/zoruui';
 import { Users } from 'lucide-react';
-
+import BasicInfoForm from './basic-info-form';
 import PhaseList, { type PhaseDraft } from './phase-list';
 import type { HrmRoadmap, RoadmapPhase } from '@/app/actions/hrm-roadmaps.actions';
 
@@ -54,24 +55,48 @@ export default function EditRoadmapForm({ initialRoadmap, id }: EditRoadmapFormP
   // Real-time collaborative editing mock
   const [collaborators, setCollaborators] = useState<number>(0);
 
-  useEffect(() => {
-    // Simulate joining a WebSocket channel for collaborative editing
-    const timer = setTimeout(() => {
-      setCollaborators(Math.floor(Math.random() * 3));
-    }, 2000);
+  const clientId = React.useRef(`client-${Math.random().toString(36).substring(2, 9)}`);
+  const wsRef = React.useRef<WebSocket | null>(null);
 
-    const interval = setInterval(() => {
-      setCollaborators((prev) => {
-        const change = Math.random() > 0.5 ? 1 : -1;
-        return Math.max(0, Math.min(3, prev + change));
-      });
-    }, 15000);
+  useEffect(() => {
+    const ws = new WebSocket('wss://echo.websocket.events');
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      // Broadcast join event
+      ws.send(JSON.stringify({ type: 'JOIN_ROADMAP', roadmapId: id, clientId: clientId.current }));
+      setCollaborators(Math.floor(Math.random() * 3) + 1); // Mock other users
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.roadmapId === id && data.clientId !== clientId.current) {
+          if (data.type === 'UPDATE_FIELD') {
+            if (data.field === 'title') setTitle(data.value);
+            if (data.field === 'description') setDescription(data.value);
+            if (data.field === 'status') setStatus(data.value);
+            if (data.field === 'startDate') setStartDate(data.value);
+            if (data.field === 'endDate') setEndDate(data.value);
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
 
     return () => {
-      clearTimeout(timer);
-      clearInterval(interval);
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
     };
-  }, []);
+  }, [id]);
+
+  const handleFieldChange = (field: string, value: string) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'UPDATE_FIELD', roadmapId: id, clientId: clientId.current, field, value }));
+    }
+  };
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -102,7 +127,16 @@ export default function EditRoadmapForm({ initialRoadmap, id }: EditRoadmapFormP
       if (!result.success) {
         const errMsg = result.error ?? 'Failed to update roadmap.';
         setError(errMsg);
-        toast({ title: 'Update Failed', description: errMsg, variant: 'destructive' });
+        toast({ 
+          title: 'Update Failed', 
+          description: errMsg, 
+          variant: 'destructive',
+          action: (
+            <ZoruToastAction altText="Retry" onClick={(e: any) => handleSubmit(e)}>
+              Retry
+            </ZoruToastAction>
+          )
+        });
         return;
       }
 
@@ -124,63 +158,15 @@ export default function EditRoadmapForm({ initialRoadmap, id }: EditRoadmapFormP
       )}
 
       {/* Basic info */}
-      <Card>
-        <ZoruCardContent className="flex flex-col gap-4 pt-5">
-          <div className="flex flex-col gap-1.5">
-            <Label required>Title</Label>
-            <Input
-              placeholder="e.g. Q3 Product Launch"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              invalid={error !== null && !title.trim()}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label>Description</Label>
-            <Textarea
-              placeholder="What is this roadmap about?"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label>Status</Label>
-            <Select value={status} onValueChange={(v) => setStatus(v as RoadmapStatus)}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
-                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-              </ZoruSelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label>Start Date</Label>
-              <Input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label>End Date</Label>
-              <Input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </div>
-          </div>
-        </ZoruCardContent>
-      </Card>
+      <BasicInfoForm
+        title={title} setTitle={setTitle}
+        description={description} setDescription={setDescription}
+        status={status} setStatus={setStatus}
+        startDate={startDate} setStartDate={setStartDate}
+        endDate={endDate} setEndDate={setEndDate}
+        handleFieldChange={handleFieldChange}
+        error={error}
+      />
 
       {/* Extracted Phase List Component */}
       <PhaseList phases={phases} setPhases={setPhases} />

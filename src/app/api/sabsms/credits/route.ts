@@ -38,6 +38,15 @@ export async function POST(req: NextRequest) {
     if (!body?.workspaceId || !body?.messageId) {
       return NextResponse.json({ error: 'bad_request' }, { status: 400 });
     }
+
+    if (body.workspaceId === '__admin_debug_dry_run__') {
+      return NextResponse.json({
+        reservationToken: randomUUID(),
+        approved: false,
+        reason: 'dry_run_testing_engine_ingestion',
+      });
+    }
+
     const resp: CreditReserveResponse = {
       reservationToken: randomUUID(),
       approved: true,

@@ -1,19 +1,8 @@
-/**
- * SabSMS template approvals — Page 11 (`/sabsms/templates/approvals`).
- *
- * Admin-flavoured review queue. Server entry loads the pending queue +
- * roll-up stats; the client `<ApprovalsTable>` owns the decision UI
- * (approve / reject dialogs, side-by-side diff, taxonomy editor, rotation
- * config, etc).
- *
- * Workspace scope is the caller's own workspace; the cross-workspace
- * admin scope is stubbed (see `./actions.ts` TODO) until a typed
- * "global admin" session helper lands.
- */
-
+import React, { Suspense } from "react";
 import { getCachedSession } from "@/lib/server-cache";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 import { StatCard } from "@/components/zoruui";
+import { fmtQty } from "@/lib/utils";
 
 import {
   loadApprovalQueue,
@@ -39,29 +28,14 @@ function toArray(v: string | string[] | undefined): string[] | undefined {
   return Array.isArray(v) ? v : [v];
 }
 
-export default async function SabsmsApprovalsPage({ searchParams }: PageProps) {
+async function ApprovalsDataLoader({ searchParams }: PageProps) {
   const sp = await searchParams;
   const session = await getCachedSession();
   const workspaceId = String(
     (session?.user as { _id?: unknown } | undefined)?._id ?? "",
   );
 
-  if (!workspaceId) {
-    return (
-      <SabsmsPageShell
-        title="Approval queue"
-        breadcrumbs={[
-          { label: "Templates", href: "/sabsms/templates" },
-          { label: "Approvals" },
-        ]}
-        eyebrow="SabSMS · Admin"
-      >
-        <p className="text-sm text-slate-600">
-          Sign in with reviewer access to use the approval queue.
-        </p>
-      </SabsmsPageShell>
-    );
-  }
+  if (!workspaceId) return null;
 
   const filters: ApprovalListFilters = {
     q: sp.q,
@@ -91,6 +65,61 @@ export default async function SabsmsApprovalsPage({ searchParams }: PageProps) {
       : 0;
 
   return (
+    <>
+      <section className="grid grid-cols-1 gap-3 md:grid-cols-4 mb-6">
+        <StatCard label="Pending" value={fmtQty(stats.pending)} />
+        <StatCard
+          label="Approved today"
+          value={fmtQty(stats.approvedToday)}
+        />
+        <StatCard
+          label="Rejected today"
+          value={fmtQty(stats.rejectedToday)}
+        />
+        <StatCard
+          label="Avg time-to-approval"
+          value={avgMinutesOverall > 0 ? `${avgMinutesOverall} min` : "—"}
+          period={
+            categoryDecisions > 0
+              ? `from ${categoryDecisions} recent decisions`
+              : "no decisions yet"
+          }
+        />
+      </section>
+
+      <ApprovalsTable
+        workspaceId={workspaceId}
+        initialRows={rows}
+        perCategoryAvg={stats.avgTimeToApprovalMin}
+      />
+    </>
+  );
+}
+
+export default async function SabsmsApprovalsPage(props: PageProps) {
+  const session = await getCachedSession();
+  const workspaceId = String(
+    (session?.user as { _id?: unknown } | undefined)?._id ?? "",
+  );
+
+  if (!workspaceId) {
+    return (
+      <SabsmsPageShell
+        title="Approval queue"
+        breadcrumbs={[
+          { label: "Templates", href: "/sabsms/templates" },
+          { label: "Approvals" },
+        ]}
+        eyebrow="SabSMS · Admin"
+      >
+        <p className="text-sm text-slate-600">
+          Sign in with reviewer access to use the approval queue.
+        </p>
+      </SabsmsPageShell>
+    );
+  }
+
+  return (
     <SabsmsPageShell
       eyebrow="SabSMS · Admin"
       title="Approval queue"
@@ -107,8 +136,6 @@ export default async function SabsmsApprovalsPage({ searchParams }: PageProps) {
         {
           label: "Reject reasons taxonomy",
           onSelectAction: undefined,
-          // The taxonomy editor is rendered inline below — secondary
-          // actions stay as quick deep-links only.
           onSelectHref: "/sabsms/templates/approvals?taxonomy=open",
         },
       ]}
@@ -130,32 +157,9 @@ export default async function SabsmsApprovalsPage({ searchParams }: PageProps) {
         </ul>
       }
     >
-      <section className="grid grid-cols-1 gap-3 md:grid-cols-4">
-        <StatCard label="Pending" value={stats.pending.toLocaleString()} />
-        <StatCard
-          label="Approved today"
-          value={stats.approvedToday.toLocaleString()}
-        />
-        <StatCard
-          label="Rejected today"
-          value={stats.rejectedToday.toLocaleString()}
-        />
-        <StatCard
-          label="Avg time-to-approval"
-          value={avgMinutesOverall > 0 ? `${avgMinutesOverall} min` : "—"}
-          period={
-            categoryDecisions > 0
-              ? `from ${categoryDecisions} recent decisions`
-              : "no decisions yet"
-          }
-        />
-      </section>
-
-      <ApprovalsTable
-        workspaceId={workspaceId}
-        initialRows={rows}
-        perCategoryAvg={stats.avgTimeToApprovalMin}
-      />
+      <Suspense fallback={<div className="h-96 w-full bg-slate-100 animate-pulse rounded-xl" />}>
+        <ApprovalsDataLoader {...props} />
+      </Suspense>
     </SabsmsPageShell>
   );
 }

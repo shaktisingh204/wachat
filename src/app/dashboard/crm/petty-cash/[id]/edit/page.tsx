@@ -10,18 +10,7 @@ interface PageProps {
     params: Promise<{ id: string }>;
 }
 
-function fmtMoney(value: unknown, currency?: string): string {
-    if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-    try {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: currency || 'INR',
-            maximumFractionDigits: 0,
-        }).format(value);
-    } catch {
-        return `${currency ?? 'INR'} ${value}`;
-    }
-}
+import { fmtINR as fmtMoney } from '@/lib/utils';
 
 export default async function PettyCashEditPage({ params }: PageProps) {
     const { id } = await params;

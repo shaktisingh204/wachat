@@ -1,27 +1,7 @@
-import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import {
-  notFound } from 'next/navigation';
-import { ArrowLeft,
-  ClipboardList } from 'lucide-react';
-
-/**
- * RFQ detail — `/dashboard/crm/purchases/rfqs/[id]`
- * (P1.1B Wave 3 — Purchases rebuild · §1D.2).
- *
- * Server component. Lifted onto the canonical `<EntityDetailShell>` —
- * purchase-side mirror of the Quotation detail. Header / body / right
- * rail / audit-footer composition now matches the Invoices template.
- *
- * Header: back link + eyebrow + status pill + action group
- * (Edit · Send to vendors · Receive bids · Award · Convert-to-PO ·
- * Print · Archive · Activity — see <RfqDetailActions>).
- * Body: overview, vendors invited, line items, vendor bids received,
- * terms, attachments.
- * Right rail: status-flow visualizer · LineageRail (purchase chain) ·
- * quick-edit chips · at-a-glance dates.
- * Audit footer: <EntityAuditTimeline entityKind="rfq">.
- */
-
+import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/zoruui';
+import { notFound } from 'next/navigation';
+import { ArrowLeft, ClipboardList } from 'lucide-react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
@@ -31,6 +11,7 @@ import { LineageRail } from '@/components/crm/lineage-rail';
 import { statusToTone } from '@/components/crm/status-pill';
 import { getRfq } from '@/app/actions/crm/rfqs.actions';
 import type { CrmRfqLineItem } from '@/lib/rust-client/crm-rfqs';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 import { RfqDetailActions } from '../_components/rfq-detail-actions';
 import { RfqQuickEdits } from '../_components/rfq-quick-edits';
@@ -41,14 +22,6 @@ export const dynamic = 'force-dynamic';
 interface PageProps {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ print?: string }>;
-}
-
-/* ─── Helpers (module-level for hoist + reuse) ────────────────────── */
-
-function fmtDate(v?: string | Date | null): string {
-  if (!v) return '—';
-  const d = v instanceof Date ? v : new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
 const STATUS_FLOW = ['draft', 'open', 'closed', 'awarded'] as const;
@@ -215,7 +188,11 @@ export default async function RfqDetailPage({ params }: PageProps) {
           </Button>
         </>
       }
-      audit={<EntityAuditTimeline entityKind="rfq" entityId={rfqId} />}
+      audit={
+        <Suspense fallback={<Skeleton className="h-48 w-full rounded-xl" />}>
+          <EntityAuditTimeline entityKind="rfq" entityId={rfqId} />
+        </Suspense>
+      }
     >
       <p className="text-[12.5px] text-zoru-ink-muted">{subtitle}</p>
 
@@ -311,7 +288,9 @@ export default async function RfqDetailPage({ params }: PageProps) {
       </Card>
 
       {/* Vendor bids received */}
-      <RfqVendorBidsCard rfqId={rfqId} />
+      <Suspense fallback={<Skeleton className="h-64 w-full rounded-xl" />}>
+        <RfqVendorBidsCard rfqId={rfqId} />
+      </Suspense>
 
       {/* Terms */}
       {rfq.terms ? (

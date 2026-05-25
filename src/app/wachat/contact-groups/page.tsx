@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -292,7 +293,7 @@ export default function ContactGroupsPage() {
                 </Badge>
                 <span>
                   {g.createdAt
-                    ? new Date(g.createdAt).toLocaleDateString()
+                    ? fmtDate(g.createdAt)
                     : '—'}
                 </span>
               </div>

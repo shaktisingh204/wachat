@@ -1,11 +1,13 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
     Card,
     Badge,
 } from '@/components/zoruui';
 import type { PortalEmployeeProfile } from '@/app/actions/hrm-portal.actions';
 import { Building2, Briefcase, CalendarDays, Hash } from 'lucide-react';
+import { fmtDate } from '@/lib/utils';
 
 interface ProfileCardProps {
     profile: PortalEmployeeProfile;
@@ -21,13 +23,18 @@ function initials(first: string, last: string): string {
     return `${first[0] ?? ''}${last[0] ?? ''}`.toUpperCase();
 }
 
-function formatDate(iso: string | null): string {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-    });
+function ClientDate({ iso }: { iso: string | null }) {
+    const [dateStr, setDateStr] = useState('—');
+
+    useEffect(() => {
+        if (!iso) {
+            setDateStr('—');
+            return;
+        }
+        setDateStr(fmtDate(iso));
+    }, [iso]);
+
+    return <>{dateStr}</>;
 }
 
 export function ProfileCard({ profile }: ProfileCardProps) {
@@ -70,7 +77,7 @@ export function ProfileCard({ profile }: ProfileCardProps) {
                         {profile.dateOfJoining && (
                             <span className="flex items-center gap-1.5">
                                 <CalendarDays className="h-3.5 w-3.5 shrink-0" />
-                                Joined {formatDate(profile.dateOfJoining)}
+                                Joined <ClientDate iso={profile.dateOfJoining} />
                             </span>
                         )}
                     </div>

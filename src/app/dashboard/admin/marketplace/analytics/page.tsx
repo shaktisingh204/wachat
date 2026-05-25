@@ -20,6 +20,9 @@
 import { redirect } from 'next/navigation';
 import { BarChart3, Download, Eye, Search, ShieldCheck, Store } from 'lucide-react';
 
+import { Card, CardContent } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
 import { getAdminSession } from '@/lib/admin-session';
 import { connectToDatabase } from '@/lib/mongodb';
 import {
@@ -28,8 +31,6 @@ import {
 import { SABFLOW_MARKETPLACE_TEMPLATES_COLLECTION } from '@/lib/sabflow/marketplace/templates';
 
 import { TopTemplatesChart, InstallTrendsChart } from './analytics-charts';
-
-export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Marketplace Analytics | SabFlow Admin',
@@ -235,16 +236,18 @@ function KpiCard({
   sub?: string;
 }) {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 space-y-2">
-      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-zinc-400">
-        <Icon className="h-3.5 w-3.5 text-amber-400/80" />
-        {label}
-      </div>
-      <div className="text-3xl font-semibold text-amber-200 tabular-nums">
-        {value.toLocaleString()}
-      </div>
-      {sub && <div className="text-xs text-zinc-500">{sub}</div>}
-    </div>
+    <Card className="border-zinc-800 bg-zinc-900 shadow-none">
+      <CardContent className="p-5 space-y-2">
+        <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-zinc-400">
+          <Icon className="h-3.5 w-3.5 text-amber-400/80" />
+          {label}
+        </div>
+        <div className="text-3xl font-semibold text-amber-200 tabular-nums">
+          {value.toLocaleString()}
+        </div>
+        {sub && <div className="text-xs text-zinc-500">{sub}</div>}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -342,9 +345,9 @@ export default async function MarketplaceAnalyticsPage() {
               Top 10 Templates by Installs
             </h2>
           </div>
-          <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
+          <Card className="overflow-hidden border-zinc-800 bg-zinc-900 shadow-none">
             <TopTemplatesChart data={data.topTemplates} />
-          </div>
+          </Card>
         </section>
 
         {/* Install Trends */}
@@ -355,9 +358,9 @@ export default async function MarketplaceAnalyticsPage() {
               Install Trends (Last 30 Days)
             </h2>
           </div>
-          <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
+          <Card className="overflow-hidden border-zinc-800 bg-zinc-900 shadow-none">
             <InstallTrendsChart data={data.installTrends} />
-          </div>
+          </Card>
         </section>
 
         {/* Recent search queries table */}
@@ -368,53 +371,53 @@ export default async function MarketplaceAnalyticsPage() {
               Recent Search Queries (last 20)
             </h2>
           </div>
-          <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900">
+          <Card className="overflow-hidden border-zinc-800 bg-zinc-900 shadow-none">
             {data.recentSearches.length === 0 ? (
               <div className="py-16 text-center text-sm text-zinc-500">
                 No search events recorded yet.
               </div>
             ) : (
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-zinc-800">
+              <Table className="w-full text-sm">
+                <TableHeader>
+                  <TableRow className="border-b border-zinc-800 hover:bg-transparent">
                     {['Query', 'Results', 'Time'].map((h, i) => (
-                      <th
+                      <TableHead
                         key={i}
                         className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500"
                       >
                         {h}
-                      </th>
+                      </TableHead>
                     ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800">
+                  </TableRow>
+                </TableHeader>
+                <TableBody className="divide-y divide-zinc-800">
                   {data.recentSearches.map((s, i) => (
-                    <tr
+                    <TableRow
                       key={i}
-                      className="transition-colors hover:bg-zinc-800/50"
+                      className="border-zinc-800 transition-colors hover:bg-zinc-800/50"
                     >
-                      <td className="px-5 py-3 text-amber-100">
+                      <TableCell className="px-5 py-3 text-amber-100">
                         {s.query || (
                           <span className="italic text-zinc-500">(empty)</span>
                         )}
-                      </td>
-                      <td className="px-5 py-3 tabular-nums text-zinc-400">
+                      </TableCell>
+                      <TableCell className="px-5 py-3 tabular-nums text-zinc-400">
                         {s.resultCount}
-                      </td>
-                      <td className="px-5 py-3 text-xs text-zinc-500 tabular-nums">
+                      </TableCell>
+                      <TableCell className="px-5 py-3 text-xs text-zinc-500 tabular-nums">
                         {s.ts
                           ? new Date(s.ts).toLocaleString('en-GB', {
                               dateStyle: 'short',
                               timeStyle: 'medium',
                             })
                           : '—'}
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             )}
-          </div>
+          </Card>
         </section>
 
       </div>

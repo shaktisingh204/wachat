@@ -4,7 +4,8 @@ import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton 
 import {
   Filter,
   RefreshCw,
-  DollarSign } from 'lucide-react';
+  DollarSign,
+  Download } from 'lucide-react';
 
 import * as React from 'react';
 
@@ -57,6 +58,35 @@ export default function ConversionFunnelPage() {
         setLoading(false);
     }, [activeAccount, toast]);
 
+    const handleExport = React.useCallback(() => {
+        if (!funnel) return;
+        
+        const rows = [
+            ['Step', 'Count', 'Drop-off %', 'Cost Per Step ($)'],
+        ];
+
+        let prevCount = funnel[STEPS[0].key];
+
+        STEPS.forEach((step, idx) => {
+            const count = funnel[step.key];
+            const dropOff = idx > 0 && prevCount > 0 ? ((1 - count / prevCount) * 100).toFixed(1) : '0.0';
+            const costPer = funnel.spend > 0 && count > 0 ? (funnel.spend / count).toFixed(2) : '0.00';
+            rows.push([step.label, count.toString(), dropOff, costPer]);
+            prevCount = count;
+        });
+
+        rows.push(['Total Spend', '', '', funnel.spend.toFixed(2)]);
+
+        const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `conversion_funnel_${activeAccount?.account_id}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }, [funnel, activeAccount]);
+
     React.useEffect(() => { fetchData(); }, [fetchData]);
 
     if (!activeAccount) {
@@ -77,9 +107,14 @@ export default function ConversionFunnelPage() {
                 title="Conversion funnel"
                 description="Last 30 days funnel from impressions to purchases."
                 actions={
-                    <Button variant="outline" onClick={fetchData} disabled={loading}>
-                        <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" onClick={handleExport} disabled={!funnel || loading}>
+                            <Download className="h-4 w-4 mr-1" /> Export CSV
+                        </Button>
+                        <Button variant="outline" onClick={fetchData} disabled={loading}>
+                            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
+                        </Button>
+                    </div>
                 }
             />
 

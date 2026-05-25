@@ -7,6 +7,7 @@
 
 import * as React from 'react';
 import { UserCheck } from 'lucide-react';
+import { AssignmentForm } from './assignment-form';
 import {
   Button,
   Label,
@@ -131,46 +132,14 @@ export function AssignGroupSheet({
 
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto py-4">
           {/* Employee picker */}
-          <div className="space-y-2">
-            <Label htmlFor="emp-select">Employee</Label>
-            <Select value={employeeId} onValueChange={setEmployeeId}>
-              <ZoruSelectTrigger id="emp-select">
-                <ZoruSelectValue placeholder="Select employee…" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {employees.map((e) => (
-                  <ZoruSelectItem key={e._id} value={e._id}>
-                    {e.name}
-                    {e.email ? (
-                      <span className="ml-1 text-zoru-ink-muted text-xs">
-                        ({e.email})
-                      </span>
-                    ) : null}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </Select>
-          </div>
-
-          {/* Group picker */}
-          <div className="space-y-2">
-            <Label htmlFor="grp-select">Permission Group</Label>
-            <Select value={groupId} onValueChange={setGroupId}>
-              <ZoruSelectTrigger id="grp-select">
-                <ZoruSelectValue placeholder="None (remove assignment)" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {groups.map((g) => (
-                  <ZoruSelectItem key={g._id} value={g._id}>
-                    {g.name}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </Select>
-            <p className="text-[11px] text-zoru-ink-muted">
-              Leave blank to remove the employee&apos;s current group.
-            </p>
-          </div>
+          <AssignmentForm
+            employees={employees}
+            groups={groups}
+            employeeId={employeeId}
+            groupId={groupId}
+            onEmployeeChange={setEmployeeId}
+            onGroupChange={setGroupId}
+          />
 
           {/* Summary of current assignment */}
           {employeeId ? (

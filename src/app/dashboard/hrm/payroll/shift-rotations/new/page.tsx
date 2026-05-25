@@ -19,9 +19,22 @@ export const dynamic = 'force-dynamic';
 
 const BASE = '/dashboard/hrm/payroll/shift-rotations';
 
+import { AlertCircle } from 'lucide-react';
+
 async function RotationFormWrapper() {
-    const shiftsRes = await getShifts({ limit: 200, status: 'active' });
-    return <RotationForm shifts={shiftsRes.items ?? []} />;
+    try {
+        const shiftsRes = await getShifts({ limit: 200, status: 'active' });
+        return <RotationForm shifts={shiftsRes.items ?? []} />;
+    } catch (error: any) {
+        return (
+            <div className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-md border border-destructive/20 bg-destructive/10 text-destructive">
+                <AlertCircle className="h-6 w-6" />
+                <p className="text-sm font-medium">
+                    Failed to load shifts. {error?.message}
+                </p>
+            </div>
+        );
+    }
 }
 
 export default async function NewShiftRotationPage() {

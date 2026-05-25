@@ -39,6 +39,7 @@ import {
   Suspense,
   useState,
   useTransition,
+  useEffect,
   } from 'react';
 import { useRouter,
   useSearchParams } from 'next/navigation';
@@ -72,6 +73,7 @@ import {
 
 import { useProject } from '@/context/project-context';
 import { handleCreateTemplate } from '@/app/actions/template.actions';
+import { useTemplateStore } from '../template-store';
 
 /**
  * Template Creator — full-featured WhatsApp Cloud API template builder,
@@ -83,130 +85,18 @@ import { handleCreateTemplate } from '@/app/actions/template.actions';
 
 import * as React from 'react';
 
-export const dynamic = 'force-dynamic';
-
-/* ── Languages ─────────────────────────────────── */
-
-const LANGUAGES = [
-  { code: 'en_US', name: 'English (US)' },
-  { code: 'en', name: 'English' },
-  { code: 'hi', name: 'Hindi' },
-  { code: 'es', name: 'Spanish' },
-  { code: 'fr', name: 'French' },
-  { code: 'de', name: 'German' },
-  { code: 'pt_BR', name: 'Portuguese (BR)' },
-  { code: 'ar', name: 'Arabic' },
-  { code: 'it', name: 'Italian' },
-  { code: 'ja', name: 'Japanese' },
-  { code: 'ko', name: 'Korean' },
-  { code: 'zh_CN', name: 'Chinese (Simplified)' },
-  { code: 'ru', name: 'Russian' },
-  { code: 'tr', name: 'Turkish' },
-  { code: 'nl', name: 'Dutch' },
-  { code: 'id', name: 'Indonesian' },
-  { code: 'ms', name: 'Malay' },
-  { code: 'ta', name: 'Tamil' },
-  { code: 'te', name: 'Telugu' },
-  { code: 'bn', name: 'Bengali' },
-  { code: 'mr', name: 'Marathi' },
-  { code: 'gu', name: 'Gujarati' },
-  { code: 'kn', name: 'Kannada' },
-  { code: 'ml', name: 'Malayalam' },
-  { code: 'pa', name: 'Punjabi' },
-  { code: 'ur', name: 'Urdu' },
-  { code: 'th', name: 'Thai' },
-  { code: 'vi', name: 'Vietnamese' },
-  { code: 'fil', name: 'Filipino' },
-  { code: 'sw', name: 'Swahili' },
-];
-
-const CATEGORIES = [
-  { id: 'MARKETING', name: 'Marketing', desc: 'Promotions, offers, updates' },
-  { id: 'UTILITY', name: 'Utility', desc: 'Order updates, confirmations' },
-  {
-    id: 'AUTHENTICATION',
-    name: 'Authentication',
-    desc: 'OTP, verification codes',
-  },
-];
-
-const TEMPLATE_TYPES = [
-  {
-    id: 'STANDARD',
-    name: 'Standard',
-    icon: MessageSquare,
-    desc: 'Text, media, buttons',
-  },
-  {
-    id: 'CAROUSEL',
-    name: 'Carousel',
-    icon: LayoutGrid,
-    desc: 'Scrollable media cards',
-  },
-  {
-    id: 'CATALOG',
-    name: 'Catalog',
-    icon: ShoppingBag,
-    desc: 'Interactive product list',
-  },
-  { id: 'AUTH', name: 'Authentication', icon: Shield, desc: 'OTP verification' },
-  {
-    id: 'LTO',
-    name: 'Limited Time Offer',
-    icon: Clock,
-    desc: 'Expiring promotions',
-  },
-];
-
-const HEADER_FORMATS = [
-  { id: 'NONE', name: 'None', icon: Hash },
-  { id: 'TEXT', name: 'Text', icon: Type },
-  { id: 'IMAGE', name: 'Image', icon: ImageIcon },
-  { id: 'VIDEO', name: 'Video', icon: Video },
-  { id: 'DOCUMENT', name: 'Document', icon: FileText },
-  { id: 'LOCATION', name: 'Location', icon: MapPin },
-];
-
-const BUTTON_TYPES = [
-  { id: 'QUICK_REPLY', name: 'Quick Reply', icon: MessageSquare },
-  { id: 'URL', name: 'URL', icon: ExternalLink },
-  { id: 'PHONE_NUMBER', name: 'Call', icon: Phone },
-  { id: 'COPY_CODE', name: 'Copy Code', icon: Copy },
-];
-
-type ButtonData = {
-  type: string;
-  text: string;
-  url?: string;
-  phone_number?: string;
-  example?: string[];
-};
-
-/* ── Field wrapper ─────────────────────────────── */
-
-function Field({
-  label,
-  hint,
-  required,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  required?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
-        {label} {required && <span className="text-zoru-danger">*</span>}
-      </Label>
-      {children}
-      {hint && (
-        <p className="text-[11px] text-zoru-ink-muted">{hint}</p>
-      )}
-    </div>
-  );
-}
+import { Field } from './components/Field';
+import { HeaderEditor } from './components/HeaderEditor';
+import { BodyEditor } from './components/BodyEditor';
+import { ButtonManager } from './components/ButtonManager';
+import {
+  LANGUAGES,
+  CATEGORIES,
+  TEMPLATE_TYPES,
+  HEADER_FORMATS,
+  BUTTON_TYPES,
+  ButtonData,
+} from './constants';
 
 /* ── Live Phone Preview ────────────────────────── */
 
@@ -305,135 +195,6 @@ function PhonePreview({
   );
 }
 
-/* ── AI Body Generator ─────────────────────────── */
-
-function AIBodyGenerator({
-  onGenerate,
-}: {
-  onGenerate: (text: string) => void;
-}) {
-  const [prompt, setPrompt] = useState('');
-  const [open, setOpen] = useState(false);
-
-  const generate = () => {
-    if (!prompt.trim()) return;
-    const templates: Record<string, string> = {
-      welcome:
-        "Hello {{1}}! 👋 Welcome to our store. We're excited to have you here. Browse our latest collection and enjoy exclusive deals just for you!",
-      order:
-        'Hi {{1}}, your order #{{2}} has been {{3}}. Track your delivery at {{4}}. Thank you for shopping with us!',
-      appointment:
-        'Hi {{1}}, this is a reminder for your appointment on {{2}} at {{3}}. Reply YES to confirm or NO to reschedule.',
-      promo:
-        '🎉 Exclusive offer for {{1}}! Get {{2}}% OFF on your next purchase. Use code: {{3}}. Valid until {{4}}. Shop now!',
-      feedback:
-        "Hi {{1}}, we hope you enjoyed your recent experience with us! We'd love to hear your feedback. Rate us from 1-5 by replying with a number.",
-      payment:
-        'Hi {{1}}, your payment of {{2}} for invoice #{{3}} has been received. Thank you!',
-    };
-
-    const key = Object.keys(templates).find((k) =>
-      prompt.toLowerCase().includes(k),
-    );
-    onGenerate(
-      key ? templates[key] : `Hi {{1}}, ${prompt}. Thank you for choosing us!`,
-    );
-    setOpen(false);
-    setPrompt('');
-  };
-
-  if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-[11px] text-zoru-ink-muted transition-colors hover:text-zoru-ink"
-      >
-        <Wand className="h-3 w-3" /> Generate with AI
-      </button>
-    );
-  }
-
-  return (
-    <div className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
-      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-zoru-ink">
-        <Sparkles className="h-3 w-3" /> AI Body Generator
-      </div>
-      <Input
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Describe your message (e.g., 'order confirmation with tracking')"
-      />
-      <div className="flex gap-2">
-        <Button size="sm" onClick={generate}>
-          Generate
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setOpen(false)}
-        >
-          Cancel
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-/* ── Variable Examples ─────────────────────────── */
-
-function VariableExamples({
-  text,
-  prefix,
-}: {
-  text: string;
-  prefix: string;
-}) {
-  const matches = text.match(/{{\s*(\d+)\s*}}/g);
-  if (!matches || matches.length === 0) return null;
-
-  const vars = [
-    ...new Set(
-      matches.map((m) => parseInt(m.replace(/[{}]/g, '').trim())),
-    ),
-  ]
-    .sort((a, b) => a - b)
-    .filter((n) => n > 0);
-  if (vars.length === 0) return null;
-
-  const suggestions: Record<number, string> = {
-    1: 'John',
-    2: 'ORD-12345',
-    3: 'confirmed',
-    4: 'https://track.example.com',
-  };
-
-  return (
-    <div className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
-      <p className="text-[11px] font-semibold text-zoru-ink">
-        Variable examples required
-      </p>
-      <div className="space-y-1.5">
-        {vars.map((v) => (
-          <div key={v} className="flex items-center gap-2">
-            <span className="w-12 font-mono text-[11px] text-zoru-ink-muted">
-              {`{{${v}}}`}
-            </span>
-            <Input
-              name={`${prefix}_example_${v}`}
-              placeholder={
-                suggestions[v] || `Example for variable ${v}`
-              }
-              required
-              className="h-8 text-[12px]"
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /* ── Multi-Language Selector ───────────────────── */
 
 function MultiLanguageSelector({
@@ -527,7 +288,7 @@ function CreateTemplateContent() {
   const [language, setLanguage] = useState('en_US');
   const [headerFormat, setHeaderFormat] = useState('NONE');
   const [headerText, setHeaderText] = useState('');
-  const [headerSampleUrl, setHeaderSampleUrl] = useState('');
+  const [headerMediaUrl, setHeaderMediaUrl] = useState('');
   const [body, setBody] = useState('');
   const [footer, setFooter] = useState('');
   const [buttons, setButtons] = useState<ButtonData[]>([]);
@@ -546,27 +307,39 @@ function CreateTemplateContent() {
   const [cloneLanguages, setCloneLanguages] = useState<string[]>([]);
   const [showPreview, setShowPreview] = useState(true);
 
+  const templateToAction = useTemplateStore((s) => s.templateToAction);
+
+  useEffect(() => {
+    if (action === 'clone' && templateToAction) {
+      setName(templateToAction.name + '_clone');
+      setCategory(templateToAction.category);
+      setLanguage(templateToAction.language);
+      setBody(templateToAction.body);
+      
+      const header = templateToAction.components.find((c: any) => c.type === 'HEADER');
+      if (header) {
+        setHeaderFormat(header.format || 'NONE');
+        if (header.text) setHeaderText(header.text);
+      }
+      
+      const footerComp = templateToAction.components.find((c: any) => c.type === 'FOOTER');
+      if (footerComp) {
+        setFooter(footerComp.text || '');
+      }
+      
+      const btns = templateToAction.components.find((c: any) => c.type === 'BUTTONS');
+      if (btns && btns.buttons) {
+        setButtons(btns.buttons);
+      }
+    }
+  }, [action, templateToAction]);
+
   // Submit-for-review confirm dialog
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   // Derived
   const charCount = body.length;
   const varCount = (body.match(/{{\s*\d+\s*}}/g) || []).length;
-
-  const addButton = (type: string) => {
-    if (buttons.length >= 10) return;
-    setButtons([...buttons, { type, text: '' }]);
-  };
-
-  const updateButton = (i: number, field: string, value: string) => {
-    const updated = [...buttons];
-    (updated[i] as any)[field] = value;
-    setButtons(updated);
-  };
-
-  const removeButton = (i: number) => {
-    setButtons(buttons.filter((_, idx) => idx !== i));
-  };
 
   const handleSubmit = () => {
     if (!activeProject?._id || !name.trim() || !body.trim()) {
@@ -609,9 +382,9 @@ function CreateTemplateContent() {
       if (headerFormat === 'TEXT') formData.set('headerText', headerText);
       if (
         ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) &&
-        headerSampleUrl
+        headerMediaUrl
       ) {
-        formData.set('headerSampleUrl', headerSampleUrl);
+        formData.set('headerMediaUrl', headerMediaUrl);
       }
 
       if (templateType === 'AUTH') {
@@ -945,98 +718,22 @@ function CreateTemplateContent() {
                 </h3>
 
                 {templateType === 'STANDARD' && (
-                  <Field label="Header">
-                    <div className="flex flex-wrap gap-1.5">
-                      {HEADER_FORMATS.map((h) => {
-                        const Icon = h.icon;
-                        const isActive = headerFormat === h.id;
-                        return (
-                          <button
-                            key={h.id}
-                            type="button"
-                            onClick={() => setHeaderFormat(h.id)}
-                            className={cn(
-                              'flex items-center gap-1 rounded-[var(--zoru-radius)] border px-2.5 py-1.5 text-[11px] font-medium transition-colors',
-                              isActive
-                                ? 'border-zoru-ink bg-zoru-surface-2 text-zoru-ink'
-                                : 'border-zoru-line text-zoru-ink-muted hover:text-zoru-ink',
-                            )}
-                          >
-                            <Icon className="h-3 w-3" /> {h.name}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {headerFormat === 'TEXT' && (
-                      <div className="mt-2 space-y-2">
-                        <Input
-                          name="headerText"
-                          value={headerText}
-                          onChange={(e) => setHeaderText(e.target.value)}
-                          placeholder="Header text (e.g., Welcome {{1}})"
-                        />
-                        <VariableExamples text={headerText} prefix="header" />
-                      </div>
-                    )}
-
-                    {['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && (
-                      <div className="mt-2 space-y-2">
-                        <ZoruFileInput
-                          accept={
-                            headerFormat === 'IMAGE'
-                              ? 'image'
-                              : headerFormat === 'VIDEO'
-                                ? 'video'
-                                : 'document'
-                          }
-                          value={headerSampleUrl ? { id: headerSampleUrl, name: headerSampleUrl, mimeType: '', size: 0, tag: 'other', url: headerSampleUrl, key: headerSampleUrl, createdAt: '' } : null}
-                          onChange={(file) => setHeaderSampleUrl(file?.url ?? '')}
-                          placeholder="Pick a media file"
-                          pickerTitle="Pick header media"
-                        />
-                        <p className="text-[10px] text-zoru-ink-muted">
-                          Pick from your file library or upload a new file. Meta requires a sample for approval.
-                        </p>
-                      </div>
-                    )}
-
-                    {headerFormat === 'LOCATION' && (
-                      <p className="mt-2 text-[11px] text-zoru-ink-muted">
-                        Location header will prompt the user to share or view
-                        a location.
-                      </p>
-                    )}
-                  </Field>
+                  <HeaderEditor
+                    headerFormat={headerFormat}
+                    setHeaderFormat={setHeaderFormat}
+                    headerText={headerText}
+                    setHeaderText={setHeaderText}
+                    headerMediaUrl={headerMediaUrl}
+                    setHeaderMediaUrl={setHeaderMediaUrl}
+                  />
                 )}
 
-                <Field
-                  label="Body"
-                  required
-                  hint={`${charCount}/1024 chars · ${varCount} variable(s)`}
-                >
-                  <Textarea
-                    name="body"
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    placeholder="Hello {{1}}, your order #{{2}} is confirmed…"
-                    required
-                    rows={5}
-                  />
-                  <div className="mt-2">
-                    <AIBodyGenerator onGenerate={setBody} />
-                  </div>
-                  <VariableExamples text={body} prefix="body" />
-                </Field>
-
-                <Field label="Footer" hint="Optional, max 60 chars">
-                  <Input
-                    name="footer"
-                    value={footer}
-                    onChange={(e) => setFooter(e.target.value.slice(0, 60))}
-                    placeholder="e.g., Reply STOP to unsubscribe"
-                  />
-                </Field>
+                <BodyEditor
+                  body={body}
+                  setBody={setBody}
+                  footer={footer}
+                  setFooter={setFooter}
+                />
               </ZoruCardContent>
             </Card>
           )}
@@ -1045,95 +742,10 @@ function CreateTemplateContent() {
           {(templateType === 'STANDARD' || templateType === 'CAROUSEL') && (
             <Card>
               <ZoruCardContent className="space-y-3 pt-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-[13px] font-semibold text-zoru-ink">
-                    Buttons ({buttons.length}/10)
-                  </h3>
-                </div>
-
-                {buttons.map((btn, i) => (
-                  <div
-                    key={i}
-                    className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-zoru-ink-muted">
-                        {btn.type.replace('_', ' ')}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => removeButton(i)}
-                        aria-label="Remove button"
-                      >
-                        <Trash2 />
-                      </Button>
-                    </div>
-                    <Input
-                      value={btn.text}
-                      onChange={(e) =>
-                        updateButton(i, 'text', e.target.value)
-                      }
-                      placeholder="Button label"
-                    />
-                    {btn.type === 'URL' && (
-                      <>
-                        <Input
-                          value={btn.url || ''}
-                          onChange={(e) =>
-                            updateButton(i, 'url', e.target.value)
-                          }
-                          placeholder="https://example.com/{{1}}"
-                        />
-                        {btn.url?.includes('{{') && (
-                          <Input
-                            name={`btn_${i}_url_example`}
-                            placeholder="URL variable example"
-                            className="text-[11px]"
-                          />
-                        )}
-                      </>
-                    )}
-                    {btn.type === 'PHONE_NUMBER' && (
-                      <Input
-                        value={btn.phone_number || ''}
-                        onChange={(e) =>
-                          updateButton(i, 'phone_number', e.target.value)
-                        }
-                        placeholder="+1234567890"
-                      />
-                    )}
-                    {btn.type === 'COPY_CODE' && (
-                      <Input
-                        value={(btn.example || [''])[0]}
-                        onChange={(e) => {
-                          const updated = [...buttons];
-                          updated[i] = {
-                            ...updated[i],
-                            example: [e.target.value],
-                          };
-                          setButtons(updated);
-                        }}
-                        placeholder="Example code (e.g., ABC123)"
-                      />
-                    )}
-                  </div>
-                ))}
-
-                {buttons.length < 10 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {BUTTON_TYPES.map((bt) => (
-                      <button
-                        key={bt.id}
-                        type="button"
-                        onClick={() => addButton(bt.id)}
-                        className="flex items-center gap-1 rounded-[var(--zoru-radius)] border border-dashed border-zoru-line px-2.5 py-1.5 text-[11px] text-zoru-ink-muted transition-colors hover:border-zoru-line-strong hover:text-zoru-ink"
-                      >
-                        <Plus className="h-3 w-3" /> {bt.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <ButtonManager
+                  buttons={buttons}
+                  setButtons={setButtons}
+                />
               </ZoruCardContent>
             </Card>
           )}

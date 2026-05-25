@@ -16,18 +16,18 @@ import {
   ZoruCardTitle,
   Checkbox,
   Dialog,
-  ZoruDialogContent,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   Input,
   Label,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   Textarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -132,7 +132,7 @@ function ContractTypeDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent>
+            <DialogContent>
                 <form action={formAction}>
                     {isEditing ? (
                         <input
@@ -143,11 +143,11 @@ function ContractTypeDialog({
                     ) : null}
                     <input type="hidden" name="status" value={status} />
 
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>
+                    <DialogHeader>
+                        <DialogTitle>
                             {isEditing ? 'Edit' : 'Create new'} contract type
-                        </ZoruDialogTitle>
-                    </ZoruDialogHeader>
+                        </DialogTitle>
+                    </DialogHeader>
 
                     <div className="space-y-4 py-4">
                         <div className="grid gap-3 sm:grid-cols-2">
@@ -246,7 +246,7 @@ function ContractTypeDialog({
                         </div>
                     </div>
 
-                    <ZoruDialogFooter>
+                    <DialogFooter>
                         <Button
                             type="button"
                             variant="ghost"
@@ -255,9 +255,9 @@ function ContractTypeDialog({
                             Cancel
                         </Button>
                         <SubmitButton isEditing={isEditing} />
-                    </ZoruDialogFooter>
+                    </DialogFooter>
                 </form>
-            </ZoruDialogContent>
+            </DialogContent>
         </Dialog>
     );
 }
@@ -494,55 +494,55 @@ export default function ContractTypesPage() {
 
                     <div className="overflow-x-auto rounded-lg border border-zoru-line">
                         <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="w-[36px]">
+                            <TableHeader>
+                                <TableRow className="border-zoru-line hover:bg-transparent">
+                                    <TableHead className="w-[36px]">
                                         <Checkbox
                                             checked={allSelected}
                                             onCheckedChange={toggleAll}
                                             aria-label="Select all"
                                         />
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    </TableHead>
+                                    <TableHead className="text-zoru-ink-muted">
                                         Code
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    </TableHead>
+                                    <TableHead className="text-zoru-ink-muted">
                                         Name
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    </TableHead>
+                                    <TableHead className="text-zoru-ink-muted">
                                         Description
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    </TableHead>
+                                    <TableHead className="text-zoru-ink-muted">
                                         Default term
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">
+                                    </TableHead>
+                                    <TableHead className="text-zoru-ink-muted">
                                         Status
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">
+                                    </TableHead>
+                                    <TableHead className="text-zoru-ink-muted text-right">
                                         Actions
-                                    </ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
+                                    </TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell
+                                    <TableRow className="border-zoru-line">
+                                        <TableCell
                                             colSpan={7}
                                             className="h-24 text-center"
                                         >
                                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </TableCell>
+                                    </TableRow>
                                 ) : items.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell
+                                    <TableRow className="border-zoru-line">
+                                        <TableCell
                                             colSpan={7}
                                             className="h-24 text-center text-zoru-ink-muted"
                                         >
                                             No contract types match this
                                             filter.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
+                                        </TableCell>
+                                    </TableRow>
                                 ) : (
                                     items.map((row) => {
                                         const status = (row.status ??
@@ -551,39 +551,39 @@ export default function ContractTypesPage() {
                                             STATUS_TONE[status] ?? 'neutral';
                                         const isSelected = selected.has(row._id);
                                         return (
-                                            <ZoruTableRow
+                                            <TableRow
                                                 key={row._id}
                                                 className="border-zoru-line"
                                                 data-state={isSelected ? 'selected' : undefined}
                                             >
-                                                <ZoruTableCell>
+                                                <TableCell>
                                                     <Checkbox
                                                         checked={isSelected}
                                                         onCheckedChange={() => toggleRow(row._id)}
                                                         aria-label={`Select ${row.name}`}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                </TableCell>
+                                                <TableCell className="font-mono text-[12px] text-zoru-ink">
                                                     {row.code}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
+                                                </TableCell>
+                                                <TableCell className="font-medium text-zoru-ink">
                                                     {row.name}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink-muted">
+                                                </TableCell>
+                                                <TableCell className="text-zoru-ink-muted">
                                                     {row.description ?? '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                                                </TableCell>
+                                                <TableCell className="font-mono text-[12px] text-zoru-ink">
                                                     {row.defaultTermMonths != null
                                                         ? `${row.defaultTermMonths} mo`
                                                         : '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
+                                                </TableCell>
+                                                <TableCell>
                                                     <StatusPill
                                                         label={status}
                                                         tone={tone}
                                                     />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
+                                                </TableCell>
+                                                <TableCell className="text-right">
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
@@ -606,12 +606,12 @@ export default function ContractTypesPage() {
                                                     >
                                                         <Trash2 className="h-4 w-4 text-destructive" />
                                                     </Button>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
+                                                </TableCell>
+                                            </TableRow>
                                         );
                                     })
                                 )}
-                            </ZoruTableBody>
+                            </TableBody>
                         </Table>
                     </div>
                 </EntityListShell>

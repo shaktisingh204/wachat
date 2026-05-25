@@ -1,3 +1,4 @@
+import React from "react";
 /**
  * /portal/client/tickets/[id] — Ticket detail with reply thread.
  */
@@ -23,7 +24,7 @@ function fmtDateTime(iso: string | null): string {
     return new Date(iso).toLocaleString();
 }
 
-export default async function ClientTicketDetailPage({
+async function ClientTicketDetailPageContent({
     params,
 }: {
     params: Promise<{ id: string }>;
@@ -107,4 +108,17 @@ export default async function ClientTicketDetailPage({
             )}
         </div>
     );
+}
+
+
+export default function ClientTicketDetailPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <ClientTicketDetailPageContent params={params} />
+    </React.Suspense>
+  );
 }

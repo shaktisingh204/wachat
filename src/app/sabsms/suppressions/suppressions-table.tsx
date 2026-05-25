@@ -12,6 +12,7 @@
  */
 
 import * as React from "react";
+import { fmtDate, formatUTC, fmtQty, fmtINR } from "@/lib/utils";
 import {
   Edit3,
   History,
@@ -67,6 +68,7 @@ import {
   type SuppressionCoverage,
   type SuppressionRow,
   addReasonTaxonomy,
+  addSuppression,
   bulkImportSuppressions,
   bulkUnsuppress,
   computeCampaignOverlap,
@@ -122,6 +124,10 @@ export function SuppressionsTable({
   isAdmin,
 }: SuppressionsTableProps) {
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  const [addBlockOpen, setAddBlockOpen] = React.useState(false);
+  const [addPhone, setAddPhone] = React.useState("");
+  const [addReason, setAddReason] = React.useState("");
+  const [addExpiresIn, setAddExpiresIn] = React.useState<number | "">("");
   const [importOpen, setImportOpen] = React.useState(false);
   const [bulkUnsupOpen, setBulkUnsupOpen] = React.useState(false);
   const [bulkUnsupReason, setBulkUnsupReason] = React.useState("");
@@ -205,14 +211,18 @@ export function SuppressionsTable({
       {
         id: "createdAt",
         header: "Added",
-        render: (r) =>
-          new Date(r.createdAt).toLocaleString(undefined, {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
+        render: (r) => (
+          <div>
+            <div>
+              {formatUTC(r.createdAt, true)}
+            </div>
+            {r.expiresAt && (
+              <div className="text-xs text-orange-600 mt-0.5">
+                Expires: {formatUTC(r.expiresAt, true)}
+              </div>
+            )}
+          </div>
+        ),
         width: "160px",
       },
       {
@@ -220,12 +230,7 @@ export function SuppressionsTable({
         header: "Last touched",
         render: (r) =>
           r.lastTouchedAt
-            ? new Date(r.lastTouchedAt).toLocaleString(undefined, {
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })
+            ? formatUTC(r.lastTouchedAt, true)
             : "—",
         width: "150px",
       },
@@ -269,6 +274,30 @@ export function SuppressionsTable({
       const res = await bulkImportSuppressions({ sabFileUrl: picked.url });
       if (res.ok) {
         setImportOpen(false);
+        refresh();
+      } else {
+        alert(res.error);
+      }
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function handleAddBlock() {
+    if (!addPhone.trim()) return;
+    setBusy("Adding…");
+    try {
+      const res = await addSuppression({
+        phone: addPhone,
+        source: "manual",
+        reason: addReason,
+        expiresInDays: typeof addExpiresIn === "number" ? addExpiresIn : undefined,
+      });
+      if (res.ok) {
+        setAddBlockOpen(false);
+        setAddPhone("");
+        setAddReason("");
+        setAddExpiresIn("");
         refresh();
       } else {
         alert(res.error);
@@ -404,16 +433,16 @@ export function SuppressionsTable({
         <StatCard
           label="Suppression coverage"
           value={`${coverage.coveragePct.toFixed(1)}%`}
-          period={`${coverage.suppressed.toLocaleString()} of ${coverage.workspaceContacts.toLocaleString()} contacts`}
+          period={`${fmtQty(coverage.suppressed)} of ${fmtQty(coverage.workspaceContacts)} contacts`}
         />
         <StatCard
           label="Total suppressed"
-          value={total.toLocaleString()}
+          value={fmtQty(total)}
           period="all sources"
         />
         <StatCard
           label="Cost avoided 24h"
-          value={`$${costAvoidedUsd.toFixed(2)}`}
+          value={fmtINR(costAvoidedUsd, "USD")}
           period="messages auto-blocked"
         />
       </div>
@@ -438,6 +467,13 @@ export function SuppressionsTable({
           <>
             <SabsmsSavedViews scope="suppressions" />
             <SabsmsRefreshButton onRefresh={refresh} />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAddBlockOpen(true)}
+            >
+              Add block
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -545,6 +581,50 @@ export function SuppressionsTable({
         emptyTitle="No suppressed phones"
         emptyDescription="STOP replies, complaints, and manual blocks land here automatically."
       />
+
+      {/* Add block dialog */}
+      <Dialog open={addBlockOpen} onOpenChange={setAddBlockOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Add manual block</ZoruDialogTitle>
+          </ZoruDialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label>Phone number</Label>
+              <Input
+                value={addPhone}
+                onChange={(e) => setAddPhone(e.target.value)}
+                placeholder="+1234567890"
+              />
+            </div>
+            <div>
+              <Label>Reason (optional)</Label>
+              <Input
+                value={addReason}
+                onChange={(e) => setAddReason(e.target.value)}
+                placeholder="e.g. user requested via email"
+              />
+            </div>
+            <div>
+              <Label>Auto-expire (days, optional)</Label>
+              <Input
+                type="number"
+                value={addExpiresIn}
+                onChange={(e) => setAddExpiresIn(e.target.value ? Number(e.target.value) : "")}
+                placeholder="e.g. 30"
+              />
+            </div>
+          </div>
+          <ZoruDialogFooter>
+            <Button variant="outline" onClick={() => setAddBlockOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddBlock} disabled={!addPhone.trim() || !!busy}>
+              {busy ?? "Add"}
+            </Button>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </Dialog>
 
       {/* Import dialog — SabFiles picker only (no external URLs). */}
       <SabFilePicker
@@ -715,7 +795,7 @@ export function SuppressionsTable({
                 <div className="flex items-center justify-between">
                   <Badge variant="secondary">{e.kind}</Badge>
                   <span className="text-slate-500">
-                    {new Date(e.at).toLocaleString()}
+                    {formatUTC(e.at, true)}
                   </span>
                 </div>
                 {e.reason && <p className="mt-1.5 text-slate-700">{e.reason}</p>}

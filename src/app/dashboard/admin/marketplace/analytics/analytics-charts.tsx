@@ -15,12 +15,10 @@ interface TopTemplate {
 }
 
 export function TopTemplatesChart({ data }: { data: TopTemplate[] }) {
-    // Process data to avoid any NaN or zero division
     const safeData = data.map(d => {
         const installs = Number(d.installs) || 0;
         const views = Number(d.views) || 0;
-        const total = installs + views;
-        const rate = total > 0 ? ((installs / total) * 100).toFixed(1) : 0;
+        const rate = views > 0 ? ((installs / views) * 100).toFixed(1) : (installs > 0 ? '100.0' : '0.0');
         return {
             ...d,
             installs,

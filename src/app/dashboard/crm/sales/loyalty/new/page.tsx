@@ -13,8 +13,6 @@ import { useRouter } from 'next/navigation';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { saveLoyaltyProgram } from '@/app/actions/crm-loyalty.actions';
 
-export const dynamic = 'force-dynamic';
-
 const initialState = { message: '', error: '' };
 
 function SubmitButton() {

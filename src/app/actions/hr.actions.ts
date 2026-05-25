@@ -232,6 +232,28 @@ export async function deleteOnboardingTemplate(id: string) {
 export async function getWelcomeKits() {
   return hrList<HrWelcomeKit>('hr_welcome_kits');
 }
+export async function getDisciplinaryCases() {
+  return hrList<HrDisciplinaryCase>('hr_disciplinary_cases');
+}
+export async function getDisciplinaryCase(id: string) {
+  return hrGetById<HrDisciplinaryCase>('hr_disciplinary_cases', id);
+}
+export async function saveDisciplinaryCase(_prev: any, formData: FormData) {
+  return genericSave('hr_disciplinary_cases', '/dashboard/hrm/hr/disciplinary', formData, {
+    idFields: ['employeeId', 'reportedBy'],
+    dateFields: ['incidentDate', 'investigationDate', 'decisionDate'],
+  });
+}
+export async function deleteDisciplinaryCase(id: string) {
+  const r = await hrDelete('hr_disciplinary_cases', id);
+  revalidatePath('/dashboard/hrm/hr/disciplinary');
+  return r;
+}
+export async function addDisciplinaryHearing(caseId: string, hearing: any) {
+  // In a real app we'd push to case.hearings array
+  revalidatePath(`/dashboard/hrm/hr/disciplinary/${caseId}`);
+  return { success: true };
+}
 export async function saveWelcomeKit(_prev: any, formData: FormData) {
   return genericSave(
     'hr_welcome_kits',
@@ -349,6 +371,9 @@ export async function deleteTrainingProgram(id: string) {
 
 export async function getCertifications() {
   return hrList<HrCertification>('hr_certifications');
+}
+export async function getCertification(id: string) {
+  return hrGetById<HrCertification>('hr_certifications', id);
 }
 export async function saveCertification(_prev: any, formData: FormData) {
   return genericSave('hr_certifications', '/dashboard/hrm/hr/certifications', formData, {

@@ -30,9 +30,9 @@ import { useAdManager } from '@/context/ad-manager-context';
 import { listPixels } from '@/app/actions/ad-manager.actions';
 import { sendTestConversionEvent } from '@/app/actions/ad-manager-features.actions';
 
-const SAMPLE_PAYLOAD = `{
+const getSamplePayload = (timestamp: number) => `{
   "event_name": "Purchase",
-  "event_time": ${Math.floor(Date.now() / 1000)},
+  "event_time": ${timestamp},
   "action_source": "website",
   "event_source_url": "https://example.com/thank-you",
   "user_data": {
@@ -54,8 +54,10 @@ export default function CapiPage() {
     const [selectedPixelId, setSelectedPixelId] = React.useState<string>('');
     const [testEventName, setTestEventName] = React.useState<string>('PageView');
     const [sendingTest, setSendingTest] = React.useState(false);
+    const [samplePayload, setSamplePayload] = React.useState<string>(getSamplePayload(0));
 
     React.useEffect(() => {
+        setSamplePayload(getSamplePayload(Math.floor(Date.now() / 1000)));
         if (!activeAccount) return;
         (async () => {
             const res = await listPixels(activeAccount.account_id);
@@ -139,12 +141,12 @@ export default function CapiPage() {
                     <ZoruCardTitle className="text-base">3. Sample event payload</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">{SAMPLE_PAYLOAD}</pre>
+                    <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">{samplePayload}</pre>
                     <Button
                         variant="outline"
                         size="sm"
                         className="mt-2"
-                        onClick={() => copy(SAMPLE_PAYLOAD)}
+                        onClick={() => copy(samplePayload)}
                     >
                         <Copy className="h-3 w-3 mr-1" /> Copy payload
                     </Button>

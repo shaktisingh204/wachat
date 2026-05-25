@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 'use client';
 
 import React from 'react';
@@ -305,7 +306,7 @@ export function HrOverviewClient({
                               <div className="flex items-center gap-2 mt-1">
                                 <span className="text-[11.5px] text-zoru-ink-muted flex items-center gap-1">
                                   <Calendar className="w-3.5 h-3.5 text-zoru-ink-muted" /> 
-                                  Joining: {onboarding.joiningDate ? new Date(onboarding.joiningDate).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'}) : '—'}
+                                  Joining: {onboarding.joiningDate ? fmtDate(onboarding.joiningDate) : '—'}
                                 </span>
                               </div>
                             </div>
@@ -448,7 +449,7 @@ export function HrOverviewClient({
                           {ann.priority}
                         </Badge>
                         <span className="text-[10.5px] font-medium text-zoru-ink-muted font-mono">
-                          {ann.publishedAt ? new Date(ann.publishedAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric'}) : (ann.createdAt ? new Date(ann.createdAt).toLocaleDateString(undefined, {month: 'short', day: 'numeric'}) : '')}
+                          {ann.publishedAt ? fmtDate(ann.publishedAt) : (ann.createdAt ? fmtDate(ann.createdAt) : '')}
                         </span>
                       </div>
                       <h4 className="text-[13.5px] font-extrabold text-zoru-ink mt-2.5 line-clamp-1">{ann.title}</h4>

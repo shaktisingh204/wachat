@@ -485,7 +485,7 @@ function AssetRow({
 export default function FacebookSetupPage() {
   const router = useRouter();
   const { toast } = useZoruToast();
-  const { setActiveProjectId } = useProject();
+  const { activeProjectId, setActiveProjectId } = useProject();
   const [projects, setProjects] = useState<WithId<Project>[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -514,9 +514,8 @@ export default function FacebookSetupPage() {
 
   useEffect(() => {
     fetchProjects();
-    const stored = localStorage.getItem("activeProjectId");
-    if (stored) setSelectedId(stored);
-  }, [fetchProjects]);
+    if (activeProjectId) setSelectedId(activeProjectId);
+  }, [fetchProjects, activeProjectId]);
 
   // Drive the active step from real state — no behavioral changes.
   useEffect(() => {

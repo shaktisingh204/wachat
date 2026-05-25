@@ -1,3 +1,4 @@
+import React from "react";
 import Link from "next/link";
 
 import {
@@ -231,7 +232,7 @@ function buildQueryString(filter: SabsmsAnalyticsFilter): string {
   return params.toString();
 }
 
-export default async function SabsmsAnalyticsPage({
+async function SabsmsAnalyticsPageContent({
   searchParams,
 }: {
   searchParams: Promise<RawSearchParams>;
@@ -613,5 +614,18 @@ export default async function SabsmsAnalyticsPage({
         </Card>
       </div>
     </SabsmsPageShell>
+  );
+}
+
+
+export default function SabsmsAnalyticsPage({
+  searchParams,
+}: {
+  searchParams: Promise<RawSearchParams>;
+}) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <SabsmsAnalyticsPageContent searchParams={searchParams} />
+    </React.Suspense>
   );
 }

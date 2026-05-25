@@ -18,13 +18,11 @@ import {
     type AccountFormPrefill,
 } from '../_components/accounts-form';
 
-export const dynamic = 'force-dynamic';
+// Next.js static generation requires search params usage in client components
+// to be wrapped in a suspense boundary to prevent entire page de-opts.
 
-export default function NewAccountPage() {
+function AccountFormWithParams() {
     const params = useSearchParams();
-
-    const fromKind = params.get('fromKind') ?? '';
-    const fromId = params.get('fromId') ?? '';
 
     const prefillName = params.get('name');
     const prefillIndustry = params.get('industry');
@@ -59,18 +57,19 @@ export default function NewAccountPage() {
               }
             : null;
 
-    const subtitle =
-        fromKind && fromId
-            ? `Creating from ${fromKind} ${fromId.slice(-6)}`
-            : 'Add a company to your CRM. Contacts, deals, quotes and invoices will hang off this record.';
+    return <AccountForm mode="create" prefill={prefill} />;
+}
 
+export default function NewAccountPage() {
     return (
         <EntityDetailShell
             eyebrow="ACCOUNT"
             title="New Account"
             back={{ href: '/dashboard/crm/accounts', label: 'Accounts' }}
         >
-            <AccountForm mode="create" prefill={prefill} />
+            <React.Suspense fallback={<div className="p-4 text-sm text-zinc-500 animate-pulse">Loading form...</div>}>
+                <AccountFormWithParams />
+            </React.Suspense>
         </EntityDetailShell>
     );
 }

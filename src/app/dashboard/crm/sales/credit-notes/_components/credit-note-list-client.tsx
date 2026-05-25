@@ -6,16 +6,16 @@ import {
   Card,
   Checkbox,
   DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuSeparator,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   useZoruToast,
   cn,
 } from '@/components/zoruui';
@@ -45,6 +45,7 @@ import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { setCreditNoteStatus } from '@/app/actions/crm/credit-notes.actions';
 import type { CrmCreditNoteDoc } from '@/lib/rust-client/crm-credit-notes';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 interface CreditNoteListClientProps {
     creditNotes: CrmCreditNoteDoc[];
@@ -55,24 +56,7 @@ interface CreditNoteListClientProps {
     onDelete: (id: string) => void;
 }
 
-function fmtMoney(value?: number, currency?: string): string {
-    if (typeof value !== 'number') return '—';
-    try {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: currency || 'INR',
-            maximumFractionDigits: 0,
-        }).format(value);
-    } catch {
-        return `${currency || 'INR'} ${value}`;
-    }
-}
 
-function fmtDate(v?: string): string {
-    if (!v) return '—';
-    const d = new Date(v);
-    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
 
 function reasonLabel(reason?: string): string {
     if (!reason) return '—';
@@ -134,66 +118,66 @@ export function CreditNoteListClient({
     return (
         <Card className="overflow-hidden p-0">
             <Table>
-                <ZoruTableHeader>
-                    <ZoruTableRow>
-                        <ZoruTableHead className="w-[36px]">
+                <TableHeader>
+                    <TableRow>
+                        <TableHead className="w-[36px]">
                             <Checkbox
                                 checked={allSelected}
                                 aria-checked={someSelected ? 'mixed' : allSelected}
                                 onCheckedChange={(v) => onToggleAll(v === true)}
                                 aria-label="Select all"
                             />
-                        </ZoruTableHead>
-                        <ZoruTableHead>CN #</ZoruTableHead>
-                        <ZoruTableHead>Customer</ZoruTableHead>
-                        <ZoruTableHead>Linked invoice</ZoruTableHead>
-                        <ZoruTableHead>Date</ZoruTableHead>
-                        <ZoruTableHead>Reason</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Amount</ZoruTableHead>
-                        <ZoruTableHead>Refund mode</ZoruTableHead>
-                        <ZoruTableHead>Status</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                    </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                        </TableHead>
+                        <TableHead>CN #</TableHead>
+                        <TableHead>Customer</TableHead>
+                        <TableHead>Linked invoice</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Reason</TableHead>
+                        <TableHead className="text-right">Amount</TableHead>
+                        <TableHead>Refund mode</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
                     {creditNotes.length === 0 ? (
-                        <ZoruTableRow>
-                            <ZoruTableCell
+                        <TableRow>
+                            <TableCell
                                 colSpan={10}
                                 className="h-24 text-center text-[13px] text-zoru-ink-muted"
                             >
                                 {loading ? 'Loading…' : 'No credit notes.'}
-                            </ZoruTableCell>
-                        </ZoruTableRow>
+                            </TableCell>
+                        </TableRow>
                     ) : (
                         creditNotes.map((cn) => {
                             const id = String(cn._id);
                             const isChecked = selectedIds.has(id);
                             const statusLabel = cn.status || 'draft';
                             return (
-                                <ZoruTableRow key={id}>
-                                    <ZoruTableCell>
+                                <TableRow key={id}>
+                                    <TableCell>
                                         <Checkbox
                                             checked={isChecked}
                                             onCheckedChange={() => onToggleOne(id)}
                                             aria-label={`Select ${cn.cnNo}`}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </TableCell>
+                                    <TableCell>
                                         <EntityRowLink
                                             href={`/dashboard/crm/sales/credit-notes/${id}`}
                                             label={cn.cnNo || id.slice(-6)}
                                             subtitle={fmtDate(cn.date)}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    </TableCell>
+                                    <TableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {cn.clientId ? (
                                             <EntityPickerChip entity="client" id={cn.clientId} />
                                         ) : (
                                             '—'
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    </TableCell>
+                                    <TableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {cn.linkedInvoiceId ? (
                                             <Link
                                                 href={`/dashboard/crm/sales/invoices/${cn.linkedInvoiceId}`}
@@ -204,28 +188,28 @@ export function CreditNoteListClient({
                                         ) : (
                                             '—'
                                         )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    </TableCell>
+                                    <TableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {fmtDate(cn.date)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </TableCell>
+                                    <TableCell>
                                         <Badge variant="outline">
                                             {reasonLabel(cn.reason)}
                                         </Badge>
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right tabular-nums text-[12.5px] text-zoru-ink">
-                                        {fmtMoney(cn.totals?.total, cn.currency)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                    </TableCell>
+                                    <TableCell className="text-right tabular-nums text-[12.5px] text-zoru-ink">
+                                        {fmtINR(cn.totals?.total, cn.currency)}
+                                    </TableCell>
+                                    <TableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {refundModeLabel(cn.refundMode)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
+                                    </TableCell>
+                                    <TableCell>
                                         <StatusPill
                                             label={statusLabel}
                                             tone={statusToTone(statusLabel)}
                                         />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
+                                    </TableCell>
+                                    <TableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <Button size="sm" variant="ghost" asChild>
                                                 <Link
@@ -235,7 +219,7 @@ export function CreditNoteListClient({
                                                 </Link>
                                             </Button>
                                             <DropdownMenu>
-                                                <ZoruDropdownMenuTrigger asChild>
+                                                <DropdownMenuTrigger asChild>
                                                     <Button
                                                         size="sm"
                                                         variant="ghost"
@@ -243,31 +227,31 @@ export function CreditNoteListClient({
                                                     >
                                                         <MoreHorizontal className="h-3.5 w-3.5" />
                                                     </Button>
-                                                </ZoruDropdownMenuTrigger>
-                                                <ZoruDropdownMenuContent align="end">
-                                                    <ZoruDropdownMenuItem
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem
                                                         onClick={() => markRefunded(id)}
                                                     >
                                                         <BadgeDollarSign className="h-3.5 w-3.5" />
                                                         Mark refunded
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuSeparator />
-                                                    <ZoruDropdownMenuItem
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem
                                                         onClick={() => onDelete(id)}
                                                         className="text-zoru-danger-ink"
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5" />
                                                         Delete
-                                                    </ZoruDropdownMenuItem>
-                                                </ZoruDropdownMenuContent>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
                                             </DropdownMenu>
                                         </div>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
+                                    </TableCell>
+                                </TableRow>
                             );
                         })
                     )}
-                </ZoruTableBody>
+                </TableBody>
             </Table>
         </Card>
     );

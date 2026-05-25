@@ -1,10 +1,12 @@
 'use client';
 
-import { Badge, Input, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import { Badge, Input, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
 import {
   Search,
   ShieldAlert,
   ShieldCheck } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 /**
  * Admin-side viewer for the compliance audit log.
@@ -133,6 +135,53 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
         });
     }, [summary.recent, actorFilter, actionFilter, search, from, to]);
 
+    const allActions = React.useMemo(() => {
+        const set = new Set([
+            ...summary.actionsByAction.map(b => b.key),
+            ...summary.recent.map(e => e.action)
+        ]);
+        return Array.from(set).sort();
+    }, [summary]);
+
+    const exportCSV = () => {
+        const rows = filtered.map(e => [
+            formatTimestamp(e.ts),
+            e.actor,
+            e.action,
+            e.resource,
+            isFailure(e) ? 'error' : 'ok'
+        ]);
+        const csvContent = [
+            ['Timestamp', 'Actor', 'Action', 'Resource', 'Outcome'],
+            ...rows
+        ].map(e => e.map(f => `"${String(f).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `audit_log_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const exportPDF = () => {
+        const doc = new jsPDF();
+        doc.text("Audit Log", 14, 15);
+        autoTable(doc, {
+            head: [['Timestamp', 'Actor', 'Action', 'Resource', 'Outcome']],
+            body: filtered.map(e => [
+                formatTimestamp(e.ts),
+                e.actor,
+                e.action,
+                e.resource,
+                isFailure(e) ? 'error' : 'ok'
+            ]),
+            startY: 20
+        });
+        doc.save(`audit_log_${Date.now()}.pdf`);
+    };
+
     const clearFilters = () => {
         setActorFilter(null);
         setActionFilter(null);
@@ -230,6 +279,27 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                     </div>
                     <div>
                         <label className="text-xs font-medium text-slate-500">
+                            Action
+                        </label>
+                        <Select
+                            value={actionFilter || 'all'}
+                            onValueChange={(val) => setActionFilter(val === 'all' ? null : val)}
+                        >
+                            <SelectTrigger className="mt-1 w-[160px]">
+                                <SelectValue placeholder="All actions" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All actions</SelectItem>
+                                {allActions.map(action => (
+                                    <SelectItem key={action} value={action}>
+                                        {action}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <label className="text-xs font-medium text-slate-500">
                             From
                         </label>
                         <Input
@@ -278,13 +348,23 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
 
             {/* Table */}
             <div className="rounded-2xl border border-slate-200 bg-white">
-                <div className="border-b border-slate-200 px-4 py-3">
-                    <h2 className="text-sm font-semibold text-slate-900">
-                        Recent events
-                    </h2>
-                    <p className="text-xs text-slate-500">
-                        Showing {filtered.length} of {summary.recent.length} most-recent rows.
-                    </p>
+                <div className="border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-sm font-semibold text-slate-900">
+                            Recent events
+                        </h2>
+                        <p className="text-xs text-slate-500">
+                            Showing {filtered.length} of {summary.recent.length} most-recent rows.
+                        </p>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={exportCSV}>
+                            Export CSV
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={exportPDF}>
+                            Export PDF
+                        </Button>
+                    </div>
                 </div>
                 <Table>
                     <ZoruTableHeader>

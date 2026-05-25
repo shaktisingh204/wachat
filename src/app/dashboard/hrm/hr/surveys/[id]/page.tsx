@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 import { HrDetailPage } from '../../_components/hr-detail-page';
 import { getSurveys, deleteSurvey } from '@/app/actions/hr.actions';
 import type { HrSurvey } from '@/lib/hr-types';
@@ -54,15 +55,15 @@ export default async function SurveyDetailPage({
           fields: [
             {
               label: 'Start date',
-              value: row.startDate ? new Date(row.startDate).toLocaleDateString() : null,
+              value: row.startDate ? fmtDate(row.startDate) : null,
             },
             {
               label: 'End date',
-              value: row.endDate ? new Date(row.endDate).toLocaleDateString() : null,
+              value: row.endDate ? fmtDate(row.endDate) : null,
             },
             {
               label: 'Deadline',
-              value: row.deadline ? new Date(row.deadline).toLocaleDateString() : null,
+              value: row.deadline ? fmtDate(row.deadline) : null,
             },
             {
               label: 'Responses',

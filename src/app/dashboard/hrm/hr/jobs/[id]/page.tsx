@@ -1,3 +1,4 @@
+import { fmtDate, fmtINR } from '@/lib/utils';
 import { Badge, Button, Card } from '@/components/zoruui';
 import {
   notFound,
@@ -35,30 +36,14 @@ const STATUS_TONE: Record<CrmJobStatus, EntityStatusTone> = {
     archived: 'neutral',
 };
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function pretty(s?: string): string {
     if (!s) return '—';
     return s.replace(/_/g, ' ');
 }
 
-function fmtMoney(amt?: number, currency?: string): string {
-    if (amt == null) return '—';
-    const ccy = currency ?? 'INR';
-    try {
-        return new Intl.NumberFormat(undefined, {
-            style: 'currency',
-            currency: ccy,
-            maximumFractionDigits: 0,
-        }).format(amt);
-    } catch {
-        return `${ccy} ${amt}`;
-    }
-}
+
 
 export default async function JobDetailPage({
     params,
@@ -136,8 +121,8 @@ export default async function JobDetailPage({
                     <div>
                         <div className="text-zoru-ink-muted">Salary range</div>
                         <div className="text-zoru-ink">
-                            {fmtMoney(job.salaryMin, job.currency)} –{' '}
-                            {fmtMoney(job.salaryMax, job.currency)}
+                            {fmtINR(job.salaryMin, job.currency)} –{' '}
+                            {fmtINR(job.salaryMax, job.currency)}
                         </div>
                     </div>
                     <div>
@@ -187,9 +172,9 @@ export default async function JobDetailPage({
                     Description
                 </div>
                 {job.description ? (
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
-                        {job.description}
-                    </pre>
+                    <div className="prose prose-sm prose-zoru max-w-none text-[13px] text-zoru-ink p-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2" 
+                         dangerouslySetInnerHTML={{ __html: job.description }} 
+                    />
                 ) : (
                     <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
                         No description.
@@ -203,9 +188,9 @@ export default async function JobDetailPage({
                     <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                         Responsibilities
                     </div>
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
-                        {job.responsibilities}
-                    </pre>
+                    <div className="prose prose-sm prose-zoru max-w-none text-[13px] text-zoru-ink p-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2" 
+                         dangerouslySetInnerHTML={{ __html: job.responsibilities }} 
+                    />
                 </Card>
             ) : null}
 
@@ -215,9 +200,9 @@ export default async function JobDetailPage({
                     <div className="mb-3 text-[15px] font-medium text-zoru-ink">
                         Requirements
                     </div>
-                    <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-4 font-sans text-[13px] text-zoru-ink">
-                        {job.requirements}
-                    </pre>
+                    <div className="prose prose-sm prose-zoru max-w-none text-[13px] text-zoru-ink p-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2" 
+                         dangerouslySetInnerHTML={{ __html: job.requirements }} 
+                    />
                 </Card>
             ) : null}
         </EntityDetailShell>

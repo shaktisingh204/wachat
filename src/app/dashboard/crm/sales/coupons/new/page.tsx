@@ -23,8 +23,6 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { saveCoupon } from '@/app/actions/crm-coupons.actions';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
-export const dynamic = 'force-dynamic';
-
 type CouponType = 'percent' | 'flat' | 'bogo' | 'free_shipping';
 
 const COUPON_TYPES: { value: CouponType; label: string }[] = [

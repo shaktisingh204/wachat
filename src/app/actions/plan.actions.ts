@@ -10,11 +10,11 @@ import { planFeaturesDefaults } from '@/lib/plans';
 export async function getPlans(filter?: Filter<Plan>): Promise<WithId<Plan>[]> {
     try {
         const { db } = await connectToDatabase();
-        const plans = await db.collection('plans').find((filter || {}) as any).sort({ price: 1 }).toArray();
+        const plans = await db.collection('plans').find((filter || {}) as any).sort({ displayOrder: 1, price: 1 }).toArray();
         return JSON.parse(JSON.stringify(plans));
     } catch (error) {
         console.error("Failed to fetch plans:", error);
-        return [];
+        throw error;
     }
 }
 
@@ -220,6 +220,15 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
         if (isNew) {
             await db.collection('plans').insertOne({ ...planData, createdAt: new Date() } as any);
         } else {
+            const oldPlan = await db.collection('plans').findOne({ _id: new ObjectId(planId) });
+            if (oldPlan) {
+                const { _id, ...rest } = oldPlan;
+                await db.collection('plan_history').insertOne({
+                    planId: _id,
+                    versionedAt: new Date(),
+                    ...rest
+                });
+            }
             await db.collection('plans').updateOne({ _id: new ObjectId(planId) }, { $set: planData });
         }
 
@@ -258,6 +267,18 @@ export async function deletePlan(prevState: any, formData: FormData): Promise<{ 
     } catch (e: any) {
         console.error('Failed to delete plan:', e);
         return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function getPlanHistory(planId: string): Promise<(WithId<Plan> & { versionedAt: Date | string })[]> {
+    if (!ObjectId.isValid(planId)) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const history = await db.collection('plan_history').find({ planId: new ObjectId(planId) }).sort({ versionedAt: -1 }).toArray();
+        return JSON.parse(JSON.stringify(history));
+    } catch (error) {
+        console.error('Failed to fetch plan history:', error);
+        return [];
     }
 }
 
@@ -310,5 +331,33 @@ export async function deleteTemplateCategory(id: string): Promise<{ message?: st
     } catch (e: any) {
         console.error('Failed to delete category:', e);
         return { error: 'Failed to delete category.' };
+    }
+}
+
+export async function updatePlanOrder(planIds: string[]): Promise<{ message?: string; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+    
+    try {
+        const { db } = await connectToDatabase();
+        
+        // Update in bulk
+        const bulkOps = planIds.map((id, index) => ({
+            updateOne: {
+                filter: { _id: new ObjectId(id) },
+                update: { $set: { displayOrder: index } }
+            }
+        }));
+        
+        if (bulkOps.length > 0) {
+            await db.collection('plans').bulkWrite(bulkOps);
+        }
+        
+        revalidatePath('/admin/dashboard/plans');
+        revalidatePath('/pricing');
+        return { message: 'Plan order updated successfully.' };
+    } catch (e: any) {
+        console.error('Failed to update plan order:', e);
+        return { error: 'Failed to update plan order.' };
     }
 }

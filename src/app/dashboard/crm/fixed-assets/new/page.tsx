@@ -6,6 +6,7 @@
  * fetch and hand a bare `<FixedAssetForm>` to the user.
  */
 
+import { Suspense } from 'react';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { FixedAssetForm } from '../_components/fixed-asset-form';
 
@@ -18,7 +19,9 @@ export default async function NewFixedAssetPage() {
       title="New fixed asset"
       back={{ href: '/dashboard/crm/fixed-assets', label: 'Fixed Assets' }}
     >
-      <FixedAssetForm />
+      <Suspense fallback={<div className="p-8 text-center text-sm text-zoru-ink-muted">Loading form...</div>}>
+        <FixedAssetForm />
+      </Suspense>
     </EntityDetailShell>
   );
 }

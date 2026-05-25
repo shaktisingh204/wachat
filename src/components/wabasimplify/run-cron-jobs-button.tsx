@@ -1,6 +1,17 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import {
+  Button,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
 import { useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -53,18 +64,36 @@ export function RunCronJobsButton() {
   };
 
   return (
-    <Button onClick={onRun} variant="outline" disabled={isPending}>
-      {isPending ? (
-        <>
-          <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-          Running...
-        </>
-      ) : (
-        <>
-          <Play className="mr-2 h-4 w-4" />
-          Run All Cron Jobs
-        </>
-      )}
-    </Button>
+    <ZoruAlertDialog>
+      <ZoruAlertDialogTrigger asChild>
+        <Button variant="outline" disabled={isPending}>
+          {isPending ? (
+            <>
+              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+              Running...
+            </>
+          ) : (
+            <>
+              <Play className="mr-2 h-4 w-4" />
+              Run All Cron Jobs
+            </>
+          )}
+        </Button>
+      </ZoruAlertDialogTrigger>
+      <ZoruAlertDialogContent>
+        <ZoruAlertDialogHeader>
+          <ZoruAlertDialogTitle>Run All Cron Jobs?</ZoruAlertDialogTitle>
+          <ZoruAlertDialogDescription>
+            This will manually trigger all scheduled background tasks including broadcasts, webhooks, randomizer, emails, and abandoned cart reminders. This operation cannot be undone.
+          </ZoruAlertDialogDescription>
+        </ZoruAlertDialogHeader>
+        <ZoruAlertDialogFooter>
+          <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+          <ZoruAlertDialogAction onClick={onRun}>
+            Continue
+          </ZoruAlertDialogAction>
+        </ZoruAlertDialogFooter>
+      </ZoruAlertDialogContent>
+    </ZoruAlertDialog>
   );
 }

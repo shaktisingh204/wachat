@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { Suspense } from 'react';
+import { Skeleton } from '@/components/zoruui';
 import { listPurchaseOrders } from '@/app/actions/finance/po-approvals.actions';
 import { PurchaseOrderListClient } from './_components/po-approvals-list-client';
 
-export default async function PurchaseOrderPage() {
+export const dynamic = 'force-dynamic';
+
+async function PurchaseOrderPageContainer() {
   const { items, error } = await listPurchaseOrders();
   
   if (error) {
@@ -10,4 +13,12 @@ export default async function PurchaseOrderPage() {
   }
 
   return <PurchaseOrderListClient initialItems={items || []} />;
+}
+
+export default function PurchaseOrderPage() {
+  return (
+    <Suspense fallback={<div className="p-8 space-y-4"><Skeleton className="h-10 w-full" /><Skeleton className="h-[400px] w-full" /></div>}>
+      <PurchaseOrderPageContainer  />
+    </Suspense>
+  );
 }

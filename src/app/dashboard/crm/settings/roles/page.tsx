@@ -111,6 +111,7 @@ export default function RolesPage() {
     const [filter, setFilter] = useState<Filter>('all');
     const [selected, setSelected] = useState<Set<string>>(new Set());
     const [bulkDeleting, setBulkDeleting] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     const refresh = React.useCallback(() => {
         startLoading(async () => {
@@ -124,8 +125,20 @@ export default function RolesPage() {
     }, []);
 
     useEffect(() => {
+        setMounted(true);
         refresh();
     }, [refresh]);
+
+    if (!mounted) {
+        return (
+            <div className="flex h-60 items-center justify-center">
+                <span className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                    Loading roles...
+                </span>
+            </div>
+        );
+    }
 
     const filtered = React.useMemo(() => {
         let list = allRows;

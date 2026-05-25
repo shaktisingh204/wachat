@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 import { Button, Card } from '@/components/zoruui';
 import { notFound, redirect } from 'next/navigation';
 import { Pencil } from 'lucide-react';
@@ -25,7 +26,7 @@ const STATUS_TONE: Record<CrmAssetAssignmentStatus, StatusTone> = {
 function fmtDate(value: unknown): string {
     if (!value) return '—';
     const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    return Number.isNaN(d.getTime()) ? '—' : fmtDate(d);
 }
 
 function pretty(s?: string | null): string {

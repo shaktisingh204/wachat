@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import {
   notFound,
   redirect } from 'next/navigation';
@@ -12,6 +13,7 @@ import { getSession } from '@/app/actions/user.actions';
 import { getAutomationById } from '@/app/actions/crm-automations.actions';
 
 import { AutomationForm } from '../../_components/automation-form';
+import { LoaderCircle } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +29,24 @@ export default async function EditAutomationPage({
     const session = await getSession();
     if (!session?.user) redirect('/login');
 
+    return (
+        <Suspense fallback={
+            <EntityDetailShell
+                eyebrow="AUTOMATION"
+                title="Loading..."
+                back={{ href: `${BASE}/${automationId}`, label: 'Back to detail' }}
+            >
+                <div className="flex h-32 items-center justify-center">
+                    <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+            </EntityDetailShell>
+        }>
+            <AutomationEditor automationId={automationId} />
+        </Suspense>
+    );
+}
+
+async function AutomationEditor({ automationId }: { automationId: string }) {
     const automation = await getAutomationById(automationId);
     if (!automation) notFound();
 

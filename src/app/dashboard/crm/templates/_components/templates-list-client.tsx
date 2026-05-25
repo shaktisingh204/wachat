@@ -421,7 +421,15 @@ export function TemplatesListClient({ initialTemplates }: TemplatesListClientPro
                             <div className="flex items-center justify-between border-t border-slate-800/40 pt-3 mt-4 text-[10px] text-slate-500">
                                 <div className="flex items-center gap-1">
                                     <Calendar className="h-3 w-3" />
-                                    <span>Updated {new Date(t.updatedAt || new Date()).toLocaleDateString()}</span>
+                                    <span>Updated {(() => {
+                                        const date = new Date(t.updatedAt || new Date());
+                                        if (Number.isNaN(date.getTime())) return '—';
+                                        const day = String(date.getUTCDate()).padStart(2, '0');
+                                        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                                        const month = months[date.getUTCMonth()];
+                                        const year = date.getUTCFullYear();
+                                        return `${day} ${month} ${year}`;
+                                    })()}</span>
                                 </div>
                                 <span className="flex items-center text-indigo-400 font-semibold group-hover:translate-x-0.5 transition-transform gap-0.5">
                                     Open Designer <ChevronRight className="h-3 w-3" />

@@ -1,13 +1,13 @@
-'use client';
+import { Suspense } from 'react';
+import ClientPage from './page.client';
+import Loading from './loading';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+export const dynamic = 'force-dynamic';
 
-// This page redirects to the default settings tab.
-export default function UserSettingsRedirectPage() {
-    const router = useRouter();
-    useEffect(() => {
-        router.replace('/dashboard/user/settings/profile');
-    }, [router]);
-    return null; 
+export default function Page(props: any) {
+  return (
+    <Suspense fallback={<Loading />}>
+      <ClientPage {...props} />
+    </Suspense>
+  );
 }

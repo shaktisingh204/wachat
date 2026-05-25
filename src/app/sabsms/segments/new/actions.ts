@@ -447,10 +447,37 @@ export async function forecastCost(
 
 // ─── AI build (feature 12, stub) ──────────────────────────────────────────
 
+import { ai } from '@/ai/genkit';
+import { gemini15Flash } from '@genkit-ai/googleai';
+import { z } from 'genkit';
+
+const LeafSchema = z.object({
+  kind: z.literal("leaf"),
+  field: z.enum([
+    "e164_prefix",
+    "last_sms_clicked_at",
+    "total_replies",
+    "unsubscribed",
+    "engagement_score",
+    "tag",
+    "source",
+    "country",
+    "locale",
+  ]),
+  op: z.enum(["eq", "neq", "gt", "lt", "in", "contains"]),
+  value: z.any(),
+});
+
+const GroupSchema: z.ZodType<any> = z.lazy(() =>
+  z.object({
+    kind: z.literal("group"),
+    op: z.enum(["and", "or"]),
+    children: z.array(z.union([LeafSchema, GroupSchema])),
+  })
+);
+
 /**
- * "Build segment from prompt" — stubbed until the SabSMS LLM gateway
- * lands. We return a benign predicate (`country IN (US)`) so the
- * builder still updates and the UI flow can be tested.
+ * "Build segment from prompt" — generates a segment predicate from plain English.
  */
 export async function aiBuildFromPrompt(
   prompt: string,
@@ -460,21 +487,33 @@ export async function aiBuildFromPrompt(
   if (!prompt.trim()) {
     return { ok: false, error: "Prompt is required." };
   }
-  // Pure stub — no LLM call. Match the AST shape so the builder can
-  // diff the new predicate against whatever was on screen.
-  const predicate: SegmentNode = {
-    kind: "group",
-    op: "and",
-    children: [
-      { kind: "leaf", field: "country", op: "eq", value: "US" },
-      { kind: "leaf", field: "unsubscribed", op: "eq", value: false },
-    ],
-  };
-  return {
-    ok: true,
-    predicate,
-    note: `AI: ${prompt.slice(0, 80)} (stub — wire up SabSMS LLM gateway in Phase 4)`,
-  };
+
+  try {
+    const { output } = await ai.generate({
+      model: gemini15Flash,
+      prompt: `Build a segment predicate AST based on this prompt: "${prompt}"
+
+Valid fields: e164_prefix, last_sms_clicked_at, total_replies, unsubscribed, engagement_score, tag, source, country, locale.
+Valid operators: eq, neq, gt, lt, in, contains.
+Booleans should be true/false. Return valid JSON matching the schema. Always return a root group.`,
+      output: { schema: GroupSchema },
+    });
+
+    if (!output) {
+      throw new Error("Failed to generate predicate");
+    }
+
+    return {
+      ok: true,
+      predicate: output as SegmentNode,
+      note: `AI: Generated from "${prompt.slice(0, 80)}"`,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "AI generation failed.",
+    };
+  }
 }
 
 // ─── Engine probe — used by the cost forecast tooltip ─────────────────────

@@ -1,3 +1,5 @@
+import React from "react";
+import { fmtINR } from "@/lib/utils";
 /**
  * /portal/client/invoices/[id] — Read-only invoice detail.
  *
@@ -34,15 +36,8 @@ function fmtDate(iso: string | null): string {
     return new Date(iso).toLocaleDateString();
 }
 
-function fmtCurrency(n: number, ccy: string): string {
-    try {
-        return new Intl.NumberFormat(undefined, { style: 'currency', currency: ccy || 'USD' }).format(n);
-    } catch {
-        return String(n);
-    }
-}
 
-export default async function ClientInvoiceDetailPage({
+async function ClientInvoiceDetailPageContent({
     params,
 }: {
     params: Promise<{ id: string }>;
@@ -81,15 +76,15 @@ export default async function ClientInvoiceDetailPage({
                     <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                         <div>
                             <dt className="text-xs text-zoru-ink-muted">Total</dt>
-                            <dd className="text-zoru-ink">{fmtCurrency(invoice.total, invoice.currency)}</dd>
+                            <dd className="text-zoru-ink">{fmtINR(invoice.total, invoice.currency)}</dd>
                         </div>
                         <div>
                             <dt className="text-xs text-zoru-ink-muted">Paid</dt>
-                            <dd className="text-zoru-ink">{fmtCurrency(invoice.paidAmount ?? 0, invoice.currency)}</dd>
+                            <dd className="text-zoru-ink">{fmtINR(invoice.paidAmount ?? 0, invoice.currency)}</dd>
                         </div>
                         <div>
                             <dt className="text-xs text-zoru-ink-muted">Balance</dt>
-                            <dd className="text-zoru-ink">{fmtCurrency(Math.max(0, balance), invoice.currency)}</dd>
+                            <dd className="text-zoru-ink">{fmtINR(Math.max(0, balance), invoice.currency)}</dd>
                         </div>
                         <div>
                             <dt className="text-xs text-zoru-ink-muted">Currency</dt>
@@ -128,10 +123,10 @@ export default async function ClientInvoiceDetailPage({
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">{qty}</ZoruTableCell>
                                             <ZoruTableCell className="text-right">
-                                                {fmtCurrency(rate, invoice.currency)}
+                                                {fmtINR(rate, invoice.currency)}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
-                                                {fmtCurrency(qty * rate, invoice.currency)}
+                                                {fmtINR(qty * rate, invoice.currency)}
                                             </ZoruTableCell>
                                         </ZoruTableRow>
                                     );
@@ -143,4 +138,17 @@ export default async function ClientInvoiceDetailPage({
             ) : null}
         </div>
     );
+}
+
+
+export default function ClientInvoiceDetailPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <ClientInvoiceDetailPageContent params={params} />
+    </React.Suspense>
+  );
 }

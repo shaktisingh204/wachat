@@ -34,6 +34,7 @@ import {
   useState,
   useTransition,
   useActionState,
+  useRef,
 } from 'react';
 import Link from 'next/link';
 import {
@@ -43,6 +44,8 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 import {
   getContracts,
   saveContract,
@@ -75,6 +78,7 @@ export default function ContractsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Contract | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // §1D filter state
   const [search, setSearch] = useState('');
@@ -266,6 +270,19 @@ export default function ContractsPage() {
     }
   }, [saveState, toast, refresh]);
 
+  useGSAP(
+    () => {
+      if (!isLoading && filtered.length > 0) {
+        gsap.fromTo(
+          '.contract-row',
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, stagger: 0.05, duration: 0.3, ease: 'power2.out' }
+        );
+      }
+    },
+    { scope: containerRef, dependencies: [filtered, isLoading] }
+  );
+
   const handleDelete = async () => {
     if (!deletingId) return;
     const res = await deleteContract(deletingId);
@@ -283,8 +300,9 @@ export default function ContractsPage() {
   };
 
   return (
-    <EntityListShell
-      title="Contracts"
+    <div ref={containerRef}>
+      <EntityListShell
+        title="Contracts"
       subtitle="Prepare, send, and e-sign client contracts."
       primaryAction={
         <Button
@@ -432,7 +450,7 @@ export default function ContractsPage() {
                 </ZoruTableRow>
               ) : (
                 filtered.map((row) => (
-                  <ZoruTableRow key={row._id} className="border-border">
+                  <ZoruTableRow key={row._id} className="border-border contract-row">
                     <ZoruTableCell>
                       <Checkbox
                         checked={selected.has(row._id)}
@@ -559,5 +577,6 @@ export default function ContractsPage() {
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
     </EntityListShell>
+    </div>
   );
 }

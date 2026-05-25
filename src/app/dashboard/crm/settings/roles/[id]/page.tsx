@@ -92,6 +92,11 @@ export default function RoleDetailPage() {
 
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [newMemberName, setNewMemberName] = useState('');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const refresh = React.useCallback(() => {
     if (!roleId) return;
@@ -199,7 +204,7 @@ export default function RoleDetailPage() {
     }
   };
 
-  if (isLoading && !role) {
+  if (!mounted || (isLoading && !role)) {
     return (
       <div className="flex h-60 items-center justify-center">
         <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />

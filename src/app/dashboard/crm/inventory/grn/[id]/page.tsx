@@ -6,7 +6,8 @@ import {
   Activity,
   Printer,
   Receipt,
-  } from 'lucide-react';
+  ArrowLeft,
+} from 'lucide-react';
 
 /**
  * GRN detail — `/dashboard/crm/inventory/grn/[id]`.
@@ -21,6 +22,7 @@ import {
  */
 
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
@@ -31,16 +33,9 @@ import { getGrn } from '@/app/actions/crm/grns.actions';
 import { GrnDetailActions } from '../_components/grn-detail-actions';
 import { GrnTabsClient } from '../_components/grn-tabs-client';
 import type { LineageRef } from '@/lib/definitions';
-import { fmtDate } from '@/lib/utils';
+import { fmtDate, fmtQty } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-
-
-
-function fmtQty(n?: number): string {
-    if (typeof n !== 'number' || !Number.isFinite(n)) return '—';
-    return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 3 }).format(n);
-}
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
@@ -383,7 +378,9 @@ export default async function GrnDetailPage({
                 </div>
             </div>
 
-            <EntityAuditTimeline entityKind="grn" entityId={id} />
+            <Suspense fallback={<div className="h-48 w-full animate-pulse rounded-lg bg-zoru-surface-2" />}>
+                <EntityAuditTimeline entityKind="grn" entityId={id} />
+            </Suspense>
         </EntityDetailShell>
     );
 }

@@ -19,6 +19,7 @@ import { History,
  */
 
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 import {
     EntityDetailShell,
@@ -30,6 +31,7 @@ import { getCrmStockAdjustmentById } from '@/app/actions/crm-inventory.actions';
 
 import { AdjustmentDetailActions } from '../_components/adjustment-detail-actions';
 import { PrintButton } from '../_components/print-button';
+import { AdjustmentAttachments } from '../_components/adjustment-attachments';
 import { mapToStockAdjustmentDto } from '../types';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
@@ -47,13 +49,27 @@ function statusTone(status: string): EntityStatusTone {
 function fmtDate(value: unknown): string {
     if (!value) return '—';
     const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
+    return Number.isNaN(d.getTime())
+        ? '—'
+        : new Intl.DateTimeFormat('en-IN', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+          }).format(d);
 }
 
 function fmtDateOnly(value: unknown): string {
     if (!value) return '—';
     const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    return Number.isNaN(d.getTime())
+        ? '—'
+        : new Intl.DateTimeFormat('en-IN', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+          }).format(d);
 }
 
 export default async function StockAdjustmentDetailPage({ params }: PageProps) {
@@ -115,7 +131,11 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                     <AdjustmentDetailActions id={id} status={status} />
                 </>
             }
-            audit={<EntityAuditTimeline entityKind="stock_adjustment" entityId={id} />}
+            audit={
+                <Suspense fallback={<div className="p-4 text-sm text-zoru-ink-subtle">Loading activity...</div>}>
+                    <EntityAuditTimeline entityKind="stock_adjustment" entityId={id} />
+                </Suspense>
+            }
         >
             <Card>
                 <ZoruCardHeader>
@@ -369,6 +389,17 @@ export default async function StockAdjustmentDetailPage({ params }: PageProps) {
                         <p className="whitespace-pre-wrap text-sm text-zinc-900 dark:text-zinc-100">
                             {adj.notes}
                         </p>
+                    </ZoruCardContent>
+                </Card>
+            ) : null}
+
+            {adj.attachments && adj.attachments.length > 0 ? (
+                <Card className="print:hidden">
+                    <ZoruCardHeader>
+                        <ZoruCardTitle>Attachments</ZoruCardTitle>
+                    </ZoruCardHeader>
+                    <ZoruCardContent>
+                        <AdjustmentAttachments attachments={adj.attachments} />
                     </ZoruCardContent>
                 </Card>
             ) : null}

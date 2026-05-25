@@ -1,19 +1,22 @@
+import { fmtINR } from "@/lib/utils";
 'use client';
 
 import { useState, useTransition } from 'react';
+import useSWR from 'swr';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell, useZoruToast, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/zoruui';
-import { createSalesForecast, deleteSalesForecast } from '@/app/actions/platform/ai-sales-forecasting.actions';
+import { createSalesForecast, deleteSalesForecast, getSalesForecasts } from '@/app/actions/platform/ai-sales-forecasting.actions';
 import type { AISalesForecast } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 export function ClientSalesForecastingPage({ initialData }: { initialData: AISalesForecast[] }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isPending, startTransition] = useTransition();
   const { toast } = useZoruToast();
-  const router = useRouter();
+  const { data: forecasts = initialData, mutate } = useSWR<AISalesForecast[]>('ai-sales-forecasts', () => getSalesForecasts(), {
+    fallbackData: initialData,
+  });
 
   const [form, setForm] = useState({ period: '', predictedRevenue: 0, confidenceScore: 0, aiModel: 'gpt-4', drivers: '' });
 
@@ -28,7 +31,7 @@ export function ClientSalesForecastingPage({ initialData }: { initialData: AISal
         toast({ title: 'Forecast created', variant: 'success' });
         setDialogOpen(false);
         setForm({ period: '', predictedRevenue: 0, confidenceScore: 0, aiModel: 'gpt-4', drivers: '' });
-        router.refresh();
+        await mutate();
       } catch (err) {
         toast({ title: 'Error creating forecast', variant: 'destructive' });
       }
@@ -40,13 +43,13 @@ export function ClientSalesForecastingPage({ initialData }: { initialData: AISal
     try {
       await deleteSalesForecast(id);
       toast({ title: 'Forecast deleted', variant: 'success' });
-      router.refresh();
+      await mutate();
     } catch (err) {
       toast({ title: 'Error deleting forecast', variant: 'destructive' });
     }
   };
 
-  const filteredData = initialData.filter(d => d.period.toLowerCase().includes(query.toLowerCase()));
+  const filteredData = forecasts.filter(d => d.period.toLowerCase().includes(query.toLowerCase()));
 
   return (
     <EntityListShell
@@ -72,7 +75,7 @@ export function ClientSalesForecastingPage({ initialData }: { initialData: AISal
               <ZoruTableRow key={item.id}>
                 <ZoruTableCell className="font-medium">{item.period}</ZoruTableCell>
                 <ZoruTableCell>{item.aiModel || 'N/A'}</ZoruTableCell>
-                <ZoruTableCell>\${item.predictedRevenue.toLocaleString()}</ZoruTableCell>
+                <ZoruTableCell>{fmtINR(item.predictedRevenue)}</ZoruTableCell>
                 <ZoruTableCell>{item.confidenceScore}%</ZoruTableCell>
                 <ZoruTableCell>{item.drivers.join(', ')}</ZoruTableCell>
                 <ZoruTableCell className="text-right">

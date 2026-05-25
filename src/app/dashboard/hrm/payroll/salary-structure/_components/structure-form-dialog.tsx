@@ -43,6 +43,8 @@ type ComponentRow = {
     taxable?: boolean;
 };
 
+type ComponentRowWithId = ComponentRow & { _uiId: string };
+
 export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
@@ -52,10 +54,13 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
     const [state, formAction] = useActionState(saveSalaryStructure, saveInitialState);
     const { toast } = useZoruToast();
     const isEditing = !!structure;
-    const [components, setComponents] = useState<ComponentRow[]>(structure?.components ?? []);
+    
+    const [components, setComponents] = useState<ComponentRowWithId[]>([]);
 
     useEffect(() => {
-        if (isOpen) setComponents(structure?.components ?? []);
+        if (isOpen) {
+            setComponents((structure?.components ?? []).map(c => ({ ...c, _uiId: crypto.randomUUID() })));
+        }
     }, [isOpen, structure]);
 
     useEffect(() => {
@@ -69,16 +74,16 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
         }
     }, [state, toast, onSave, onOpenChange]);
 
-    const updateComponent = (index: number, field: string, value: string | number | boolean) => {
-        setComponents(prev => prev.map((c, i) => i === index ? { ...c, [field]: value } : c));
+    const updateComponent = (id: string, field: string, value: string | number | boolean) => {
+        setComponents(prev => prev.map(c => c._uiId === id ? { ...c, [field]: value } : c));
     };
     const addComponent = (type: 'earning' | 'deduction') =>
-        setComponents(prev => [...prev, { name: '', type, calculationType: 'fixed', value: 0, taxable: false }]);
-    const removeComponent = (index: number) =>
-        setComponents(prev => prev.filter((_, i) => i !== index));
+        setComponents(prev => [...prev, { _uiId: crypto.randomUUID(), name: '', type, calculationType: 'fixed', value: 0, taxable: false }]);
+    const removeComponent = (id: string) =>
+        setComponents(prev => prev.filter(c => c._uiId !== id));
 
     const renderComponents = (type: 'earning' | 'deduction') => {
-        const filtered = components.map((c, originalIndex) => ({ ...c, originalIndex })).filter(c => c.type === type);
+        const filtered = components.filter(c => c.type === type);
         return (
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -94,13 +99,13 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
                     </p>
                 )}
                 {filtered.map(comp => (
-                    <div key={comp.originalIndex} className="grid grid-cols-[1fr_auto_auto_auto_auto] items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
+                    <div key={comp._uiId} className="grid grid-cols-[1fr_auto_auto_auto_auto] items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                         <div className="space-y-1">
                             <Label className="text-[11.5px] text-zoru-ink-muted">Component Name</Label>
                             <Input
                                 placeholder={type === 'earning' ? 'e.g. Basic Pay' : 'e.g. Prof. Tax'}
                                 value={comp.name}
-                                onChange={e => updateComponent(comp.originalIndex, 'name', e.target.value)}
+                                onChange={e => updateComponent(comp._uiId, 'name', e.target.value)}
                                 className="h-9 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
                             />
                         </div>
@@ -108,7 +113,7 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
                             <Label className="text-[11.5px] text-zoru-ink-muted">Calc. Type</Label>
                             <RadioGroup
                                 value={comp.calculationType}
-                                onValueChange={val => updateComponent(comp.originalIndex, 'calculationType', val)}
+                                onValueChange={val => updateComponent(comp._uiId, 'calculationType', val)}
                                 className="flex h-9 items-center gap-3"
                             >
                                 <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-zoru-ink">
@@ -126,7 +131,7 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
                             <Input
                                 type="number"
                                 value={comp.value}
-                                onChange={e => updateComponent(comp.originalIndex, 'value', Number(e.target.value))}
+                                onChange={e => updateComponent(comp._uiId, 'value', Number(e.target.value))}
                                 className="h-9 w-24 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
                             />
                         </div>
@@ -134,7 +139,7 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
                             <Label className="text-[11.5px] text-zoru-ink-muted">Taxable</Label>
                             <button
                                 type="button"
-                                onClick={() => updateComponent(comp.originalIndex, 'taxable', !comp.taxable)}
+                                onClick={() => updateComponent(comp._uiId, 'taxable', !comp.taxable)}
                                 className="flex h-9 items-center text-zoru-ink-muted hover:text-zoru-ink transition-colors"
                             >
                                 {comp.taxable
@@ -147,7 +152,7 @@ export function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }:
                             type="button"
                             variant="ghost"
                             size="icon"
-                            onClick={() => removeComponent(comp.originalIndex)}
+                            onClick={() => removeComponent(comp._uiId)}
                             className="text-zoru-danger-ink hover:text-zoru-danger-ink"
                         >
                             <Trash2 className="h-4 w-4" />

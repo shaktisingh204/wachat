@@ -20,26 +20,48 @@ import { getCrmNotifications } from '@/app/actions/crm-notifications.actions';
  */
 
 import { NotificationsClient } from './_components/notifications-client';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import React from 'react';
 
 export const dynamic = 'force-dynamic';
 
-export default async function CrmNotificationsPage() {
+async function NotificationsContent() {
     const result = await getCrmNotifications({ limit: 50 });
 
     if ('error' in result) {
         return (
-            <div className="flex w-full flex-col gap-6 p-4 md:p-6">
-                <Card className="p-6">
-                    <h1 className="mb-1 text-base font-semibold text-zoru-ink">Notifications</h1>
-                    <p className="text-sm text-zoru-ink-muted">{result.error}</p>
-                </Card>
-            </div>
+            <Card className="p-6">
+                <h1 className="mb-1 text-base font-semibold text-zoru-ink">Notifications Error</h1>
+                <p className="text-sm text-zoru-ink-muted">{result.error}</p>
+            </Card>
         );
     }
 
     return (
-        <div className="flex w-full flex-col gap-6 p-4 md:p-6">
-            <NotificationsClient initialItems={result.items} initialKpis={result.kpis} />
-        </div>
+        <NotificationsClient 
+            initialItems={result.items} 
+            initialKpis={result.kpis} 
+            initialNextCursor={result.nextCursor}
+            initialOptedOutKinds={result.optedOutKinds}
+        />
+    );
+}
+
+export default function CrmNotificationsPage() {
+    return (
+        <EntityListShell
+            title="Notifications"
+            subtitle="View all CRM activity notifications."
+        >
+            <React.Suspense fallback={
+                <div className="space-y-4">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="h-20 w-full animate-pulse bg-zoru-surface-2 rounded-md" />
+                    ))}
+                </div>
+            }>
+                <NotificationsContent />
+            </React.Suspense>
+        </EntityListShell>
     );
 }

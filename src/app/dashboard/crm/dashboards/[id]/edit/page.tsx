@@ -3,7 +3,12 @@ import { notFound } from 'next/navigation';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getDashboardById, type DashboardWidget } from '@/app/actions/crm-dashboards.actions';
 import { DashboardEditForm } from './edit-form';
-import { DashboardEditor } from '../../_components/dashboard-editor';
+import dynamic from 'next/dynamic';
+
+const DashboardEditor = dynamic(
+    () => import('../../_components/dashboard-editor').then((mod) => mod.DashboardEditor),
+    { ssr: false }
+);
 
 interface PageProps {
     params: Promise<{ id: string }>;

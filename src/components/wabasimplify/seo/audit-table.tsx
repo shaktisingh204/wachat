@@ -16,13 +16,15 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 
+type ClientSeoPageAudit = Omit<SeoPageAudit, 'crawledAt'> & { crawledAt: string | Date };
+
 function IssueBadge({ severity }: { severity: 'critical' | 'warning' | 'info' }) {
     if (severity === 'critical') return <Badge variant="destructive" className="h-5 text-[10px]">Critical</Badge>;
     if (severity === 'warning') return <Badge variant="secondary" className="h-5 text-[10px] bg-yellow-100 text-yellow-800 hover:bg-yellow-200">Warning</Badge>;
     return <Badge variant="outline" className="h-5 text-[10px]">Info</Badge>;
 }
 
-export function AuditTable({ pages }: { pages: any[] }) {
+export function AuditTable({ pages }: { pages: ClientSeoPageAudit[] }) {
     // Pages is AuditSnapshot[] actually.
 
     return (
@@ -61,15 +63,15 @@ import { generateMetaTagsAction } from "@/app/actions/seo-ai.actions";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-function AuditRow({ page }: { page: any }) {
+function AuditRow({ page }: { page: ClientSeoPageAudit }) {
     const [isOpen, setIsOpen] = useState(false);
     const [aiOpen, setAiOpen] = useState(false);
     const [generating, setGenerating] = useState(false);
-    const [aiResult, setAiResult] = useState<any>(null);
+    const [aiResult, setAiResult] = useState<{ reasoning: string, optimizedTitle: string, optimizedDesc: string } | null>(null);
     const { toast } = useToast();
 
-    const critical = page.issues.filter((i: any) => i.severity === 'critical').length;
-    const warning = page.issues.filter((i: any) => i.severity === 'warning').length;
+    const critical = page.issues.filter((i) => i.severity === 'critical').length;
+    const warning = page.issues.filter((i) => i.severity === 'warning').length;
 
     const handleFix = async (issueCode: string) => {
         // Only handling meta tags for now
@@ -136,7 +138,7 @@ function AuditRow({ page }: { page: any }) {
                                 <p className="text-sm text-muted-foreground">No issues found on this page.</p>
                             ) : (
                                 <ul className="grid gap-2">
-                                    {page.issues.map((issue: any, i: number) => (
+                                    {page.issues.map((issue, i) => (
                                         <li key={i} className="text-sm flex items-center justify-between border p-2 rounded bg-background">
                                             <div className="flex items-center gap-2">
                                                 <IssueBadge severity={issue.severity} />

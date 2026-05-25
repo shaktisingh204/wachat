@@ -15,6 +15,12 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -54,6 +60,7 @@ import {
   Sparklines,
   Activity,
   ArrowLeft,
+  MoreHorizontal,
 } from 'lucide-react';
 import Link from 'next/link';
 import { RelatedRail } from '@/components/crm/RelatedRail';
@@ -62,27 +69,9 @@ import { Crm360Timeline } from '@/components/crm/crm-360-timeline';
 import { CrmLineageChart } from '@/components/crm/crm-lineage-chart';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
-function LeadDetailPageSkeleton() {
-  return (
-    <div className="flex w-full flex-col gap-6 p-6">
-      <div className="flex items-center gap-4">
-        <Skeleton className="h-8 w-12" />
-        <Skeleton className="h-8 w-48" />
-      </div>
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-1">
-          <Skeleton className="h-96 w-full rounded-xl" />
-        </div>
-        <div className="space-y-4 lg:col-span-2">
-          <Skeleton className="h-32 w-full rounded-xl" />
-          <Skeleton className="h-64 w-full rounded-xl" />
-          <Skeleton className="h-48 w-full rounded-xl" />
-        </div>
-      </div>
-    </div>
-  );
-}
+import Loading from './loading';
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -198,7 +187,7 @@ export default function LeadDetailPage() {
   };
 
   if (isLoading || !lead) {
-    return <LeadDetailPageSkeleton />;
+    return <Loading />;
   }
 
   const fullName = [lead.firstName, lead.lastName].filter(Boolean).join(' ') || lead.email || 'Lead';
@@ -211,22 +200,7 @@ export default function LeadDetailPage() {
   };
 
   const fmtMoney = (value?: number, currency?: string): string => {
-    if (typeof value !== 'number') return '—';
-    try {
-      return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: currency || 'INR',
-        maximumFractionDigits: 0,
-      }).format(value);
-    } catch {
-      return `${currency || 'INR'} ${value}`;
-    }
-  };
-
-  const fmtDate = (v?: string | Date): string => {
-    if (!v) return '—';
-    const d = new Date(v);
-    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    return fmtINR(value, currency);
   };
 
   const getStatusTone = (status: string | null | undefined): 'neutral' | 'blue' | 'green' | 'amber' | 'red' => {
@@ -481,6 +455,7 @@ export default function LeadDetailPage() {
                       <ZoruTableHead className="text-zoru-ink-muted font-semibold text-[12px]">Deal Name</ZoruTableHead>
                       <ZoruTableHead className="text-zoru-ink-muted font-semibold text-[12px]">Stage</ZoruTableHead>
                       <ZoruTableHead className="text-right text-zoru-ink-muted font-semibold text-[12px]">Pipeline Value</ZoruTableHead>
+                      <ZoruTableHead className="w-[50px]"></ZoruTableHead>
                     </ZoruTableRow>
                   </ZoruTableHeader>
                   <ZoruTableBody>
@@ -504,12 +479,32 @@ export default function LeadDetailPage() {
                           <ZoruTableCell className="text-right font-semibold text-zoru-ink">
                             {fmtMoney(deal.value, deal.currency)}
                           </ZoruTableCell>
+                          <ZoruTableCell onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                  <span className="sr-only">Open menu</span>
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => router.push(`/dashboard/crm/deals/${deal._id.toString()}/edit`)}>
+                                  Edit Deal
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => router.push(`/dashboard/crm/deals/${deal._id.toString()}`)}>
+                                  View Details
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </ZoruTableCell>
                         </ZoruTableRow>
                       ))
                     ) : (
                       <ZoruTableRow className="border-zoru-line">
                         <ZoruTableCell
-                          colSpan={3}
+                          colSpan={4}
                           className="h-24 text-center text-[12.5px] text-zoru-ink-muted font-medium"
                         >
                           No active deals currently associated with this lead.

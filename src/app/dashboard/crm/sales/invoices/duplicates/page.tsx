@@ -38,24 +38,7 @@ import {
     resolveInvoiceDuplicates,
     type InvoiceDuplicatesDeepKpis,
 } from '@/app/actions/crm-invoices.actions';
-
-function fmtMoney(value: number, currency = 'INR'): string {
-    try {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency,
-            maximumFractionDigits: 0,
-        }).format(value);
-    } catch {
-        return `${currency} ${value}`;
-    }
-}
-
-function fmtDate(v?: string | null): string {
-    if (!v) return '—';
-    const d = new Date(v);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+import { fmtINR, fmtDate } from '@/lib/utils';
 
 const KPI_EMPTY: InvoiceDuplicatesDeepKpis = {
     clusters: 0,
@@ -211,7 +194,7 @@ function MergeClusterCard({
                             <dl className="grid grid-cols-2 gap-1 text-[11.5px]">
                                 <dt className="text-zoru-ink-muted">Total</dt>
                                 <dd className="text-right font-mono tabular-nums text-zoru-ink">
-                                    {fmtMoney(m.total, m.currency ?? 'INR')}
+                                    {fmtINR(m.total, m.currency ?? 'INR')}
                                 </dd>
                                 <dt className="text-zoru-ink-muted">Status</dt>
                                 <dd className="text-right text-zoru-ink">
@@ -224,25 +207,56 @@ function MergeClusterCard({
                             </dl>
                             {showDiff && (
                                 <div className="mt-3 border-t border-zoru-line pt-3">
-                                    <h4 className="mb-2 text-[11px] font-semibold text-zoru-ink-muted">Line Items</h4>
+                                    <h4 className="mb-2 text-[11.5px] font-semibold text-zoru-ink-muted">Line Items Comparison</h4>
                                     {(!m.lineItems || m.lineItems.length === 0) ? (
                                         <p className="text-[11px] text-zoru-ink-muted">No line items</p>
                                     ) : (
-                                        <ul className="space-y-1">
+                                        <ul className="space-y-1.5">
                                             {m.lineItems.map((item: any, i: number) => {
-                                                const desc = item.description?.toLowerCase().trim();
-                                                const survivorDescriptions = new Set(survivor?.lineItems?.map((si: any) => si.description?.toLowerCase().trim()) || []);
-                                                const isDiff = !isSurvivor && !survivorDescriptions.has(desc);
+                                                const desc = item.description?.toLowerCase().trim() || '';
+                                                const survivorItems = survivor?.lineItems || [];
+                                                
+                                                // Find matching item in survivor
+                                                const survivorMatch = survivorItems.find((si: any) => (si.description?.toLowerCase().trim() || '') === desc);
+                                                
+                                                const isMissingInSurvivor = !isSurvivor && !survivorMatch;
+                                                const hasQtyDiff = !isSurvivor && survivorMatch && survivorMatch.quantity !== item.quantity;
+                                                const hasRateDiff = !isSurvivor && survivorMatch && survivorMatch.rate !== item.rate;
+                                                
+                                                let itemBg = 'bg-zoru-line/45 text-zoru-ink';
+                                                let label = null;
+                                                
+                                                if (isMissingInSurvivor) {
+                                                    itemBg = 'bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-300 border border-red-200/50 dark:border-red-900/50';
+                                                    label = <span className="text-[9px] font-semibold uppercase tracking-wider bg-red-100 dark:bg-red-900/60 px-1 py-0.5 rounded text-red-800 dark:text-red-200">Not in survivor</span>;
+                                                } else if (hasQtyDiff || hasRateDiff) {
+                                                    itemBg = 'bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-900/50';
+                                                    label = (
+                                                        <span className="text-[9px] font-semibold uppercase tracking-wider bg-amber-100 dark:bg-amber-900/60 px-1 py-0.5 rounded text-amber-800 dark:text-amber-200">
+                                                            {hasQtyDiff && hasRateDiff ? 'Qty & Rate Mismatch' : hasQtyDiff ? 'Qty Mismatch' : 'Rate Mismatch'}
+                                                        </span>
+                                                    );
+                                                } else if (!isSurvivor) {
+                                                    itemBg = 'bg-emerald-50 dark:bg-emerald-950/10 text-emerald-700 dark:text-emerald-300 border border-emerald-200/30 dark:border-emerald-900/20';
+                                                    label = <span className="text-[9px] font-semibold uppercase tracking-wider bg-emerald-100/60 dark:bg-emerald-900/40 px-1 py-0.5 rounded text-emerald-800 dark:text-emerald-200">Identical</span>;
+                                                }
+
                                                 return (
-                                                    <li key={i} className={`flex flex-col text-[11px] rounded p-1.5 ${isDiff ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-200' : 'bg-zoru-line/50 text-zoru-ink'}`}>
+                                                    <li key={i} className={`flex flex-col text-[11px] rounded-lg p-2 ${itemBg}`}>
                                                         <div className="flex justify-between items-start gap-2">
-                                                            <span className="font-medium truncate">{item.description || 'Unnamed item'}</span>
-                                                            <span className="font-mono whitespace-nowrap">{fmtMoney(item.rate * item.quantity, m.currency ?? 'INR')}</span>
+                                                            <span className="font-semibold truncate">{item.description || 'Unnamed item'}</span>
+                                                            <span className="font-mono whitespace-nowrap font-bold">{fmtINR(item.rate * item.quantity, m.currency ?? 'INR')}</span>
                                                         </div>
-                                                        <div className="text-[10px] opacity-70 flex justify-between mt-0.5">
-                                                            <span>Qty: {item.quantity} × {fmtMoney(item.rate, m.currency ?? 'INR')}</span>
-                                                            {isDiff && <span className="font-semibold text-amber-600 dark:text-amber-400">Not in survivor</span>}
+                                                        <div className="text-[10px] opacity-80 flex justify-between items-center mt-1">
+                                                            <span>Qty: {item.quantity} × {fmtINR(item.rate, m.currency ?? 'INR')}</span>
+                                                            {label}
                                                         </div>
+                                                        {survivorMatch && (hasQtyDiff || hasRateDiff) && (
+                                                            <div className="mt-1.5 pt-1.5 border-t border-dashed border-amber-300/40 dark:border-amber-700/40 text-[10px] flex flex-col gap-0.5">
+                                                                <span className="font-medium">Survivor values:</span>
+                                                                <span className="opacity-75">Qty: {survivorMatch.quantity} × {fmtINR(survivorMatch.rate, m.currency ?? 'INR')} ({fmtINR(survivorMatch.rate * survivorMatch.quantity, m.currency ?? 'INR')} total)</span>
+                                                            </div>
+                                                        )}
                                                     </li>
                                                 );
                                             })}
@@ -347,7 +361,7 @@ export default function InvoiceDuplicatesPage(): React.JSX.Element {
                 />
                 <KpiTile
                     label="Duplicate value"
-                    value={fmtMoney(kpis.totalDuplicateValue)}
+                    value={fmtINR(kpis.totalDuplicateValue)}
                     sub="Total ₹ in cancelled duplicates"
                     icon={Copy}
                 />

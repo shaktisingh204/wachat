@@ -227,10 +227,10 @@ export function ImportWizardShell({
                                                     </span>
                                                 )}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                            <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted" suppressHydrationWarning>
                                                 {formatDateTime(job.createdAt)}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                            <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted" suppressHydrationWarning>
                                                 {formatDateTime(job.finishedAt)}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">

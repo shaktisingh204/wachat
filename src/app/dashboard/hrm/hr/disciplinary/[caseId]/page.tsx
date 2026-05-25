@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 import { Badge, Button, Card } from '@/components/zoruui';
 import {
   redirect } from 'next/navigation';
@@ -20,6 +21,7 @@ import {
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import type { EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getDisciplinaryCaseById } from '@/app/actions/crm-disciplinary.actions';
+import { AddHearingDialog } from '../_components/add-hearing-dialog';
 import { getSession } from '@/app/actions/user.actions';
 import { HrActionButtons } from '../../_components/hr-action-buttons';
 import {
@@ -33,7 +35,7 @@ export const dynamic = 'force-dynamic';
 function fmtDate(v: unknown): string {
     if (!v) return '—';
     const d = new Date(v as any);
-    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    return isNaN(d.getTime()) ? '—' : fmtDate(d);
 }
 
 type SeverityVariant = 'danger' | 'warning' | 'ghost' | 'success';
@@ -113,10 +115,7 @@ export default async function DisciplinaryCaseDetailPage({
             back={{ href: '/dashboard/hrm/hr/disciplinary', label: 'Disciplinary cases' }}
             actions={
                 <>
-                    <Button variant="outline" disabled>
-                        <PlusCircle className="h-4 w-4" />
-                        Add Hearing
-                    </Button>
+                    <AddHearingDialog caseId={id} />
                     <HrActionButtons
                             actions={[
                                 {

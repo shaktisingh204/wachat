@@ -27,6 +27,7 @@ import { Plus, MoreHorizontal, Pencil, Trash, Search, CheckCircle, XCircle, Down
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createPurchaseOrder, updatePurchaseOrder, deletePurchaseOrder, PurchaseOrder } from '@/app/actions/finance/po-approvals.actions';
 import { toast } from 'sonner';
+import { fmtINR } from '@/lib/utils';
 
 export function PurchaseOrderListClient({ initialItems }: { initialItems: PurchaseOrder[] }) {
   const router = useRouter();
@@ -189,6 +190,8 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
               <Label>TotalAmount</Label>
               <Input 
                 name="totalAmount" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.totalAmount : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("totalAmount")} 
               />
@@ -217,6 +220,7 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
             </form>
           </ZoruDialogContent>
         </Dialog>
+        </div>
       }
     >
       
@@ -252,7 +256,7 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
               filteredItems.map((item) => (
                 <ZoruTableRow key={item._id}>
                   <ZoruTableCell>{String(item.vendorId ?? '')}</ZoruTableCell>
-                  <ZoruTableCell>{String(item.totalAmount ?? '')}</ZoruTableCell>
+                  <ZoruTableCell>{fmtINR(item.totalAmount)}</ZoruTableCell>
                   <ZoruTableCell>{String(item.approvedBy ?? '')}</ZoruTableCell>
                   <ZoruTableCell>
                     <Badge variant={item.status === 'approved' ? 'default' : item.status === 'rejected' ? 'destructive' : 'secondary'}>
@@ -294,10 +298,10 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
       </div>
 
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>View Details</DialogTitle>
-          </DialogHeader>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>View Details</ZoruDialogTitle>
+          </ZoruDialogHeader>
           <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
               <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
@@ -306,7 +310,7 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
               </div>
             ))}
           </div>
-        </DialogContent>
+        </ZoruDialogContent>
       </Dialog>
     </EntityListShell>
   );

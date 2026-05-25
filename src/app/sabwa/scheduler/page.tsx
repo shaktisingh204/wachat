@@ -22,6 +22,7 @@ import {
   ChevronRight,
   ListChecks,
   Plus,
+  Repeat,
   Smartphone,
   } from "lucide-react";
 
@@ -191,7 +192,7 @@ export default function SchedulerCalendarPage() {
     ev.dataTransfer.dropEffect = "move";
   };
 
-  const onCellDrop = (target: Date) =>
+  const onCellDrop = (target: Date, dropType: "date" | "time-slot" = "date") =>
     async (ev: React.DragEvent<HTMLDivElement>) => {
       ev.preventDefault();
       const id = ev.dataTransfer.getData("text/plain");
@@ -199,12 +200,24 @@ export default function SchedulerCalendarPage() {
       const existing = events.find((e) => e.id === id);
       if (!existing) return;
       const next = new Date(target);
-      next.setHours(
-        existing.date.getHours(),
-        existing.date.getMinutes(),
-        0,
-        0,
-      );
+      
+      if (dropType === "time-slot") {
+        const rect = ev.currentTarget.getBoundingClientRect();
+        const offsetY = Math.max(0, ev.clientY - rect.top);
+        const height = rect.height || 1;
+        let minutes = Math.floor((offsetY / height) * 60);
+        minutes = Math.round(minutes / 15) * 15;
+        if (minutes >= 60) minutes = 45;
+        next.setHours(target.getHours(), minutes, 0, 0);
+      } else {
+        next.setHours(
+          existing.date.getHours(),
+          existing.date.getMinutes(),
+          0,
+          0,
+        );
+      }
+
       // Optimistic update
       setEvents((curr) =>
         curr.map((e) => (e.id === id ? { ...e, date: next } : e)),
@@ -469,6 +482,7 @@ interface MonthGridProps {
   onCellDragOver: (ev: React.DragEvent<HTMLDivElement>) => void;
   onCellDrop: (
     target: Date,
+    dropType: "date" | "time-slot",
   ) => (ev: React.DragEvent<HTMLDivElement>) => void | Promise<void>;
   onEventDragStart: (
     id: string,
@@ -513,7 +527,7 @@ function MonthGrid({
               <ZoruTooltipTrigger asChild>
                 <div
                   onDragOver={onCellDragOver}
-                  onDrop={onCellDrop(d)}
+                  onDrop={onCellDrop(d, "date")}
                   onClick={() => onCellClick(d)}
                   className={cn(
                     "group relative min-h-[96px] cursor-pointer border-b border-r border-zoru-line p-1.5 text-xs",
@@ -584,6 +598,7 @@ interface WeekGridProps {
   onCellDragOver: (ev: React.DragEvent<HTMLDivElement>) => void;
   onCellDrop: (
     target: Date,
+    dropType: "date" | "time-slot",
   ) => (ev: React.DragEvent<HTMLDivElement>) => void | Promise<void>;
   onEventDragStart: (
     id: string,
@@ -639,7 +654,7 @@ function WeekGrid({
                   <div
                     key={`${d.toISOString()}-${h}`}
                     onDragOver={onCellDragOver}
-                    onDrop={onCellDrop(slot)}
+                    onDrop={onCellDrop(slot, "time-slot")}
                     onClick={() => onSlotClick(slot)}
                     className="relative min-h-[40px] cursor-pointer border-b border-r border-zoru-line p-0.5"
                   >
@@ -673,6 +688,7 @@ interface DayGridProps {
   onCellDragOver: (ev: React.DragEvent<HTMLDivElement>) => void;
   onCellDrop: (
     target: Date,
+    dropType: "date" | "time-slot",
   ) => (ev: React.DragEvent<HTMLDivElement>) => void | Promise<void>;
   onEventDragStart: (
     id: string,
@@ -705,7 +721,7 @@ function DayGrid({
                 </div>
                 <div
                   onDragOver={onCellDragOver}
-                  onDrop={onCellDrop(slot)}
+                  onDrop={onCellDrop(slot, "time-slot")}
                   onClick={() => onSlotClick(slot)}
                   className="relative min-h-[48px] cursor-pointer border-b border-zoru-line p-1"
                 >
@@ -749,6 +765,10 @@ function EventChip({
     hour: "2-digit",
     minute: "2-digit",
   });
+  
+  const isRecurring = event.raw.recurrence !== "none";
+  const tzStr = event.raw.timezone ? ` ${event.raw.timezone.split('/').pop()?.replace(/_/g, ' ')}` : "";
+
   return (
     <div
       role="button"
@@ -763,15 +783,24 @@ function EventChip({
         }
       }}
       className={cn(
-        "cursor-grab rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-1.5 py-1 text-[11px] leading-tight text-zoru-ink active:cursor-grabbing hover:bg-zoru-surface-2 transition-colors",
+        "cursor-grab rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-1.5 py-1 text-[11px] leading-tight text-zoru-ink active:cursor-grabbing hover:bg-zoru-surface-2 transition-colors flex flex-col",
         expanded && "py-1.5",
       )}
-      title={`${time} — ${event.body} (${meta.label})`}
+      title={`${time}${tzStr} — ${event.body} (${meta.label})`}
     >
-      <div className="flex items-center gap-1 truncate">
-        <span className="font-medium tabular-nums">{time}</span>
+      <div className="flex items-center gap-1 w-full overflow-hidden">
+        {isRecurring && <Repeat className="h-3 w-3 shrink-0 text-zoru-ink-muted" />}
+        <span className="font-medium tabular-nums shrink-0">{time}</span>
+        {(!expanded || !event.raw.timezone) && tzStr && (
+          <span className="text-zoru-ink-muted shrink-0 text-[10px]">{tzStr}</span>
+        )}
         <span className="truncate">{event.body}</span>
       </div>
+      {expanded && event.raw.timezone && (
+        <div className="text-[10px] text-zoru-ink-subtle mt-0.5 truncate w-full">
+          {event.raw.timezone}
+        </div>
+      )}
     </div>
   );
 }

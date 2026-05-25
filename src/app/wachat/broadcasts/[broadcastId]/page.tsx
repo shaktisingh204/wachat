@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -345,7 +346,7 @@ export default function BroadcastReportPage() {
           'Message ID': attempt.messageId,
           'Details / Error': attempt.error,
           Timestamp: attempt.sentAt
-            ? new Date(attempt.sentAt).toLocaleString()
+            ? fmtDate(attempt.sentAt)
             : '',
         }));
 

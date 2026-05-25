@@ -229,23 +229,44 @@ export default function CareersPageConfigPage() {
           </Card>
 
           {/* ─── SEO meta ──────────────────────────────────────────── */}
-          {/* TODO 1D.4: SEO fields (meta title/description/og-image) +
-              "visible jobs" picker + custom application form builder
-              once a `careers_page_seo` action lands. Keys are emitted
-              as no-op until then so the save action sees nothing new. */}
           <Card>
             <ZoruCardHeader>
               <ZoruCardTitle className="text-[15px]">SEO meta</ZoruCardTitle>
               <ZoruCardDescription>
-                Coming soon — meta title, description, OG image picker,
-                and visible-jobs allow-list. The save action will surface
-                these keys once the schema ships.
+                Search engine optimization fields for the careers site.
               </ZoruCardDescription>
             </ZoruCardHeader>
-            <ZoruCardContent>
-              <p className="text-[12.5px] text-zoru-ink-muted">
-                For now SEO inherits the headline + intro defined above.
-              </p>
+            <ZoruCardContent className="space-y-5">
+              <div className="space-y-1.5">
+                <Label htmlFor="metaTitle" className="text-[13.5px] font-medium">Meta Title</Label>
+                <Input
+                  id="metaTitle"
+                  name="metaTitle"
+                  defaultValue={(config as any)?.metaTitle ?? ''}
+                  placeholder="e.g. Careers at Acme"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="metaDescription" className="text-[13.5px] font-medium">Meta Description</Label>
+                <Textarea
+                  id="metaDescription"
+                  name="metaDescription"
+                  defaultValue={(config as any)?.metaDescription ?? ''}
+                  rows={2}
+                  placeholder="e.g. Join us to build the future."
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="ogImage" className="text-[13.5px] font-medium">OG Image URL</Label>
+                <Input
+                  id="ogImage"
+                  name="ogImage"
+                  defaultValue={(config as any)?.ogImage ?? ''}
+                  placeholder="e.g. https://example.com/og-image.png"
+                />
+              </div>
             </ZoruCardContent>
           </Card>
 

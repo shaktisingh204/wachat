@@ -54,18 +54,21 @@ import {
   useEffect,
   useState,
   useTransition,
+  startTransition,
   } from 'react';
 import { Bot,
   Loader,
   Plus,
-  Trash2, GripVertical } from 'lucide-react';
+  Trash2, GripVertical, Wand2 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
+import { AiSuggestionsDialog } from './ai-suggestions';
 import {
   deleteAutoReplyRule,
   getAutoReplyRules,
   saveAutoReplyRule,
-  } from '@/app/actions/wachat-features.actions';
+} from '@/app/actions/wachat-features.actions';
+import { updateAutoReplyRuleOrder } from './actions';
 
 import {
   DndContext,
@@ -176,9 +179,24 @@ export default function AutoReplyRulesPage() {
   const [deleteTarget, setDeleteTarget] = useState<AutoReplyRule | null>(null);
   const [isDeleting, startDeleting] = useTransition();
 
+  const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
+
+  const [formName, setFormName] = useState('');
+  const [formKeywords, setFormKeywords] = useState('');
+  const [formResponseText, setFormResponseText] = useState('');
   const [responseType, setResponseType] = useState('text');
   const [matchType, setMatchType] = useState('contains');
   const [isActive, setIsActive] = useState(true);
+
+  const handleSelectAiSuggestion = (suggestion: any) => {
+    setFormName(suggestion.name);
+    setFormKeywords(suggestion.keywords);
+    setMatchType(suggestion.matchType);
+    setResponseType(suggestion.responseType);
+    setFormResponseText(suggestion.responseText);
+    setIsActive(true);
+    setCreateOpen(true);
+  };
 
   const [formState, formAction, isPending] = useActionState(saveAutoReplyRule, null);
 
@@ -204,6 +222,13 @@ export default function AutoReplyRulesPage() {
     if (formState?.message) {
       toast({ title: 'Saved', description: formState.message });
       setCreateOpen(false);
+      // Reset form states
+      setFormName('');
+      setFormKeywords('');
+      setFormResponseText('');
+      setResponseType('text');
+      setMatchType('contains');
+      setIsActive(true);
       if (projectId) fetchRules(projectId);
     }
     if (formState?.error) {
@@ -248,11 +273,11 @@ export default function AutoReplyRulesPage() {
         // Optimistic UI update
         const newItems = arrayMove(items, oldIndex, newIndex);
         
-        // TODO: Fire off a server action to save the new sort order.
-        // e.g. updateAutoReplyRuleOrder(newItems.map(i => i._id));
-        // The backend `saveAutoReplyRule` might need an order update method.
-        // Since the prompt just says to make the UI work, optimistic update is sufficient here
-        // if no such API exists, or we leave it as an optimistic visual reorder.
+        // Fire off a server action to save the new sort order.
+        startTransition(() => {
+          updateAutoReplyRuleOrder(newItems.map(i => i._id));
+        });
+        
         return newItems;
       });
     }
@@ -289,7 +314,24 @@ export default function AutoReplyRulesPage() {
         <ZoruPageActions>
           <Button
             size="sm"
-            onClick={() => setCreateOpen(true)}
+            variant="outline"
+            onClick={() => setAiSuggestionsOpen(true)}
+            disabled={!projectId}
+            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+          >
+            <Wand2 className="mr-2 h-4 w-4" /> AI Suggestions
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => {
+              setFormName('');
+              setFormKeywords('');
+              setFormResponseText('');
+              setResponseType('text');
+              setMatchType('contains');
+              setIsActive(true);
+              setCreateOpen(true);
+            }}
             disabled={!projectId}
           >
             <Plus /> Create rule
@@ -336,7 +378,15 @@ export default function AutoReplyRulesPage() {
             title="No rules yet"
             description="Create your first auto-reply rule to handle keyword-triggered responses."
             action={
-              <Button size="sm" onClick={() => setCreateOpen(true)}>
+              <Button size="sm" onClick={() => {
+                setFormName('');
+                setFormKeywords('');
+                setFormResponseText('');
+                setResponseType('text');
+                setMatchType('contains');
+                setIsActive(true);
+                setCreateOpen(true);
+              }}>
                 <Plus /> Create rule
               </Button>
             }
@@ -392,7 +442,7 @@ export default function AutoReplyRulesPage() {
 
             <div className="grid gap-2">
               <Label htmlFor="rule-name">Rule name</Label>
-              <Input id="rule-name" name="name" placeholder="Welcome new customers" required />
+              <Input id="rule-name" name="name" placeholder="Welcome new customers" value={formName} onChange={e => setFormName(e.target.value)} required />
             </div>
 
             <div className="grid gap-2">
@@ -401,6 +451,8 @@ export default function AutoReplyRulesPage() {
                 id="rule-keywords"
                 name="keywords"
                 placeholder="hi, hello, hey"
+                value={formKeywords}
+                onChange={e => setFormKeywords(e.target.value)}
                 required
               />
               <p className="text-[11.5px] text-zoru-ink-muted">
@@ -442,6 +494,8 @@ export default function AutoReplyRulesPage() {
                 id="rule-response"
                 name="responseText"
                 placeholder="Hi! Thanks for reaching out..."
+                value={formResponseText}
+                onChange={e => setFormResponseText(e.target.value)}
                 rows={3}
               />
             </div>
@@ -522,6 +576,12 @@ export default function AutoReplyRulesPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
+
+      <AiSuggestionsDialog
+        open={aiSuggestionsOpen}
+        onOpenChange={setAiSuggestionsOpen}
+        onSelectSuggestion={handleSelectAiSuggestion}
+      />
 
       <div className="h-6" />
     </div>

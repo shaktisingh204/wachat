@@ -42,6 +42,8 @@ import {
   ZoruTableCell 
 } from "@/components/zoruui/table";
 import { Input } from "@/components/zoruui/input";
+import { ZoruDateRangePicker } from "@/components/zoruui/date-picker";
+import type { DateRange } from "react-day-picker";
 import Link from "next/link";
 import { getSabflowDashboardData, retryExecution } from "../actions";
 
@@ -49,7 +51,7 @@ export function DashboardClient({ initialData }: { initialData: any }) {
   const [data, setData] = useState(initialData);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filters, setFilters] = useState<{from?: string; to?: string}>({});
-  const [dateRangeStr, setDateRangeStr] = useState({ from: "", to: "" });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
   const loadData = useCallback(async (showIndicator = false) => {
     if (showIndicator) setIsRefreshing(true);
@@ -64,17 +66,34 @@ export function DashboardClient({ initialData }: { initialData: any }) {
   }, [filters]);
 
   useEffect(() => {
-    // Polling every 5 seconds for real-time updates
-    const interval = setInterval(() => {
-      loadData(false);
-    }, 5000);
-    return () => clearInterval(interval);
+    // Real-time SSE integration for live updates
+    const eventSource = new EventSource('/dashboard/sabflow/api/sse');
+    
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'update') {
+          loadData(false);
+        }
+      } catch (e) {
+        console.error("Error parsing SSE data", e);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error("SSE Error:", error);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, [loadData]);
 
   const handleApplyFilters = () => {
     setFilters({
-       from: dateRangeStr.from ? new Date(dateRangeStr.from).toISOString() : undefined,
-       to: dateRangeStr.to ? new Date(dateRangeStr.to).toISOString() : undefined,
+       from: dateRange?.from ? dateRange.from.toISOString() : undefined,
+       to: dateRange?.to ? dateRange.to.toISOString() : undefined,
     });
     loadData(true);
   };
@@ -100,18 +119,10 @@ export function DashboardClient({ initialData }: { initialData: any }) {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
-          <div className="flex gap-2 mr-4">
-             <Input 
-                type="date" 
-                value={dateRangeStr.from} 
-                onChange={e => setDateRangeStr(prev => ({...prev, from: e.target.value}))} 
-                placeholder="From" 
-             />
-             <Input 
-                type="date" 
-                value={dateRangeStr.to} 
-                onChange={e => setDateRangeStr(prev => ({...prev, to: e.target.value}))} 
-                placeholder="To" 
+          <div className="flex gap-2 mr-4 min-w-[280px]">
+             <ZoruDateRangePicker 
+                value={dateRange}
+                onChange={setDateRange}
              />
              <Button variant="outline" onClick={handleApplyFilters}>Filter</Button>
           </div>

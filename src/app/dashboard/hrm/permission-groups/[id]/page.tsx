@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/zoruui';
 import { ClientPage } from './_components/client-page';
+export const dynamic = 'force-dynamic';
+
 import {
   getPermissionGroupById,
   getEmployeesInGroup,
@@ -26,20 +28,25 @@ export default async function PermissionGroupEditPage({
 }
 
 async function DataLoader({ id }: { id: string }) {
-  const [group, empAssignments, allEmployees] = await Promise.all([
-    getPermissionGroupById(id),
-    getEmployeesInGroup(id),
-    getHrmEmployeeList(),
-  ]);
+  try {
+    const [group, empAssignments, allEmployees] = await Promise.all([
+      getPermissionGroupById(id),
+      getEmployeesInGroup(id),
+      getHrmEmployeeList(),
+    ]);
 
-  return (
-    <ClientPage
-      id={id}
-      initialGroup={group}
-      initialEmpAssignments={empAssignments}
-      allEmployees={allEmployees}
-    />
-  );
+    return (
+      <ClientPage
+        id={id}
+        initialGroup={group}
+        initialEmpAssignments={empAssignments}
+        allEmployees={allEmployees}
+      />
+    );
+  } catch (error) {
+    console.error('Error fetching data for Permission Group:', error);
+    throw new Error('Failed to load permission group details. Please try again.');
+  }
 }
 
 function PageSkeleton() {

@@ -75,3 +75,17 @@ export async function deleteRedactionPolicy(id: string): Promise<boolean> {
   const res = await db.collection(collectionName).deleteOne({ _id: new ObjectId(id) });
   return res.deletedCount === 1;
 }
+
+export async function updateRedactionPolicy(id: string, data: any): Promise<RedactionPolicy> {
+  const parsed = policySchema.parse(data);
+  const { db } = await connectToDatabase();
+  const updateDoc = {
+    ...parsed,
+    updatedAt: new Date(),
+  };
+  await db.collection(collectionName).updateOne({ _id: new ObjectId(id) }, { $set: updateDoc });
+  return {
+    id,
+    ...parsed,
+  };
+}

@@ -7,6 +7,8 @@
  * `<SabsmsPageShell>`.
  */
 
+import { redirect } from "next/navigation";
+
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 
 import { ProvisionWizard } from "./provision-wizard";
@@ -17,6 +19,10 @@ export const dynamic = "force-dynamic";
 export default async function SabsmsProvisionNumberPage() {
   const { workspaceId, campaigns, pools, complianceReady } =
     await loadProvisioningContext();
+
+  if (!workspaceId) {
+    redirect("/login");
+  }
 
   return (
     <SabsmsPageShell
@@ -46,17 +52,11 @@ export default async function SabsmsProvisionNumberPage() {
         { label: "Configure providers", onSelectHref: "/sabsms/providers" },
       ]}
     >
-      {workspaceId ? (
-        <ProvisionWizard
-          campaigns={campaigns}
-          pools={pools}
-          complianceReady={complianceReady}
-        />
-      ) : (
-        <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          You need to sign in to provision numbers.
-        </div>
-      )}
+      <ProvisionWizard
+        campaigns={campaigns}
+        pools={pools}
+        complianceReady={complianceReady}
+      />
     </SabsmsPageShell>
   );
 }

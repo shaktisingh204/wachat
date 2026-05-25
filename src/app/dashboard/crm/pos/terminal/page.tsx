@@ -1,27 +1,16 @@
+import * as React from 'react';
+import Link from 'next/link';
+import { ObjectId } from 'mongodb';
+import { Plus, ShoppingCart, Store } from 'lucide-react';
+
 import {
     Button,
     Card,
     ZoruCardContent,
 } from '@/components/zoruui';
-import { Plus, ShoppingCart, Store } from 'lucide-react';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-
-/**
- * POS terminal — `/dashboard/crm/pos/terminal`.
- *
- * Dual-mode page:
- *   • `?live=1` (or `?holdId=…`) drops the user into the live register
- *     for the currently-open session, just like before.
- *   • Default view is the **Terminal manager** — device list derived
- *     from observed `terminalId`s across sessions, with status
- *     indicator (online if there's an open session, offline otherwise),
- *     last-heartbeat (latest session activity), and quick actions
- *     (open live · open new session · close active).
- */
-
-import Link from 'next/link';
 
 import {
     getPosHolds,
@@ -32,7 +21,6 @@ import {
 } from '@/app/actions/crm-pos.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import { ObjectId } from 'mongodb';
 
 import { PosTerminalClient } from '../_components/pos-terminal-client';
 import { PosTerminalManagerClient } from '../_components/pos-terminal-manager-client';
@@ -43,73 +31,242 @@ interface PageProps {
     searchParams: Promise<{ holdId?: string; live?: string }>;
 }
 
-export default async function PosTerminalPage({ searchParams }: PageProps) {
-    const sp = await searchParams;
-    const isLive = sp.live === '1' || !!sp.holdId;
+/**
+ * Deterministic UTC-based date/time formatter helper.
+ * Formats a date reliably to YYYY-MM-DD HH:mm:ss UTC to avoid timezone mismatch
+ * during hydration on the client side.
+ */
+function formatUtcDateTime(dateInput: Date | string | number | null | undefined): string {
+    if (!dateInput) return '—';
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return '—';
+    
+    const pad = (n: number) => String(n).padStart(2, '0');
+    
+    const year = d.getUTCFullYear();
+    const month = pad(d.getUTCMonth() + 1);
+    const day = pad(d.getUTCDate());
+    const hours = pad(d.getUTCHours());
+    const minutes = pad(d.getUTCMinutes());
+    const seconds = pad(d.getUTCSeconds());
+    
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds} UTC`;
+}
 
-    /* ─── Live mode: register the cashier into the open session ──── */
-    if (isLive) {
-        const openSessions = await getPosSessions({ status: 'open' });
-        const activeSession = openSessions[0] ?? null;
-        const items = await searchPosItems('', 50);
+/* ─── Skeleton Fallbacks for React Suspense ────────────────────────── */
 
-        let prefillHold = null;
-        if (sp.holdId) {
-            const holds = await getPosHolds({ status: 'held' });
-            prefillHold = holds.find((h) => h._id === sp.holdId) ?? null;
-        }
+function LiveTerminalSkeleton() {
+    return (
+        <EntityDetailShell
+            eyebrow="POS TERMINAL"
+            title="Live · Loading..."
+            back={{ href: '/dashboard/crm/pos/terminal', label: 'Terminals' }}
+        >
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-5 animate-pulse">
+                {/* Left 60% — item picker skeleton */}
+                <Card className="md:col-span-3">
+                    <ZoruCardContent className="flex flex-col gap-3 p-4">
+                        <div className="h-10 bg-zinc-200 dark:bg-zinc-800 rounded w-full animate-pulse" />
+                        <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
+                            {[...Array(8)].map((_, i) => (
+                                <div key={i} className="h-[90px] rounded-md border border-zoru-line bg-zoru-surface p-3 flex flex-col justify-between">
+                                    <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-5/6 animate-pulse" />
+                                    <div className="h-2 bg-zinc-100 dark:bg-zinc-900 rounded w-1/2 animate-pulse" />
+                                    <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-2/3 animate-pulse" />
+                                </div>
+                            ))}
+                        </div>
+                    </ZoruCardContent>
+                </Card>
 
-        if (!activeSession) {
-            return (
-                <EntityDetailShell
-                    eyebrow="POS TERMINAL"
-                    title="POS terminal"
-                    back={{ href: '/dashboard/crm/pos', label: 'POS' }}
-                >
-                    <Card>
-                        <ZoruCardContent className="flex flex-col items-center justify-center gap-3 p-10 text-center">
-                            <p className="text-sm font-medium text-zoru-ink">
-                                No open POS session
-                            </p>
-                            <p className="text-[13px] text-zoru-ink-muted">
-                                Open a session before ringing up sales — that
-                                ensures every transaction is auditable against
-                                a cashier shift.
-                            </p>
-                            <Button size="sm" asChild>
-                                <Link href="/dashboard/crm/pos/sessions/new">
-                                    <Plus className="h-4 w-4" /> Open session
-                                </Link>
-                            </Button>
+                {/* Right 40% — cart panel skeleton */}
+                <Card className="md:col-span-2">
+                    <ZoruCardContent className="flex flex-col gap-4 p-4">
+                        <div className="flex items-center justify-between">
+                            <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-1/4 animate-pulse" />
+                            <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-12 animate-pulse" />
+                        </div>
+                        <div className="space-y-1.5">
+                            <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-16 animate-pulse" />
+                            <div className="h-9 bg-zinc-100 dark:bg-zinc-900 rounded w-full animate-pulse" />
+                        </div>
+                        <div className="h-[120px] rounded-md border border-dashed border-zoru-line p-6 flex items-center justify-center">
+                            <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-1/2 animate-pulse" />
+                        </div>
+                        <div className="space-y-2 border-t border-zoru-line pt-3">
+                            <div className="flex justify-between">
+                                <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-12 animate-pulse" />
+                                <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-16 animate-pulse" />
+                            </div>
+                            <div className="flex justify-between">
+                                <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-10 animate-pulse" />
+                                <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-16 animate-pulse" />
+                            </div>
+                            <div className="flex justify-between">
+                                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-12 animate-pulse" />
+                                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-20 animate-pulse" />
+                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-24 animate-pulse" />
+                            <div className="grid grid-cols-4 gap-1">
+                                {[...Array(4)].map((_, i) => (
+                                    <div key={i} className="h-12 bg-zinc-100 dark:bg-zinc-900 rounded animate-pulse" />
+                                ))}
+                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-32 animate-pulse" />
+                            <div className="h-12 bg-zinc-100 dark:bg-zinc-900 rounded animate-pulse" />
+                        </div>
+                        <div className="flex gap-2 pt-2">
+                            <div className="h-10 bg-zinc-100 dark:bg-zinc-900 rounded flex-1 animate-pulse" />
+                            <div className="h-10 bg-zinc-200 dark:bg-zinc-800 rounded flex-1 animate-pulse" />
+                        </div>
+                    </ZoruCardContent>
+                </Card>
+            </div>
+        </EntityDetailShell>
+    );
+}
+
+function TerminalManagerSkeleton() {
+    return (
+        <div className="flex flex-col gap-6">
+            {/* KPI Cards Skeleton */}
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 border-none shadow-none">
+                {[...Array(4)].map((_, i) => (
+                    <Card key={i}>
+                        <ZoruCardContent className="flex items-start justify-between p-3.5 h-[68px]">
+                            <div className="space-y-1.5 w-full">
+                                <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-16 animate-pulse" />
+                                <div className="h-5 bg-zinc-200 dark:bg-zinc-800 rounded w-8 animate-pulse" />
+                            </div>
+                            <div className="h-4 w-4 rounded bg-zinc-200 dark:bg-zinc-800 animate-pulse" />
                         </ZoruCardContent>
                     </Card>
-                </EntityDetailShell>
-            );
-        }
+                ))}
+            </div>
 
+            {/* Filter and table skeleton */}
+            <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center gap-2">
+                    <div className="h-9 bg-zinc-200 dark:bg-zinc-800 rounded max-w-sm flex-1 animate-pulse" />
+                    <div className="h-9 bg-zinc-200 dark:bg-zinc-800 rounded w-[150px] animate-pulse" />
+                    <div className="ml-auto flex items-center gap-1">
+                        <div className="h-8 bg-zinc-100 dark:bg-zinc-900 rounded w-20 animate-pulse" />
+                        <div className="h-8 bg-zinc-100 dark:bg-zinc-900 rounded w-14 animate-pulse" />
+                        <div className="h-8 bg-zinc-100 dark:bg-zinc-900 rounded w-16 animate-pulse" />
+                    </div>
+                </div>
+
+                <Card className="p-0">
+                    <div className="overflow-x-auto">
+                        <div className="min-w-full divide-y divide-zoru-line">
+                            {/* Table Header */}
+                            <div className="flex items-center px-4 py-3 bg-zoru-surface-2 text-zoru-ink-muted">
+                                <div className="h-4 w-4 rounded bg-zinc-200 dark:bg-zinc-800 mr-4 animate-pulse" />
+                                <div className="flex-1 grid grid-cols-6 gap-4">
+                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-16 animate-pulse" />
+                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-12 animate-pulse" />
+                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-24 animate-pulse" />
+                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-28 animate-pulse" />
+                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-16 text-right justify-self-end animate-pulse" />
+                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-20 text-right justify-self-end animate-pulse" />
+                                </div>
+                                <div className="h-4 w-20 rounded bg-zinc-200 dark:bg-zinc-800 ml-4 animate-pulse" />
+                            </div>
+
+                            {/* Table Rows */}
+                            {[...Array(5)].map((_, rowIndex) => (
+                                <div key={rowIndex} className="flex items-center px-4 py-4 border-t border-zoru-line">
+                                    <div className="h-4 w-4 rounded bg-zinc-100 dark:bg-zinc-900 mr-4 animate-pulse" />
+                                    <div className="flex-1 grid grid-cols-6 gap-4">
+                                        <div className="space-y-1">
+                                            <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-20 animate-pulse" />
+                                            <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-12 animate-pulse" />
+                                        </div>
+                                        <div className="h-5 bg-zinc-200 dark:bg-zinc-800 rounded-full w-14 animate-pulse" />
+                                        <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-24 animate-pulse" />
+                                        <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-16 animate-pulse" />
+                                        <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-8 text-right justify-self-end animate-pulse" />
+                                        <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-16 text-right justify-self-end animate-pulse" />
+                                    </div>
+                                    <div className="h-8 w-24 bg-zinc-200 dark:bg-zinc-800 rounded ml-4 animate-pulse" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </Card>
+            </div>
+        </div>
+    );
+}
+
+/* ─── Containers for Suspense loading ───────────────────────────────── */
+
+async function LiveTerminalContainer({ sp }: { sp: { holdId?: string; live?: string } }) {
+    const openSessions = await getPosSessions({ status: 'open' });
+    const activeSession = openSessions[0] ?? null;
+    const items = await searchPosItems('', 50);
+
+    let prefillHold = null;
+    if (sp.holdId) {
+        const holds = await getPosHolds({ status: 'held' });
+        prefillHold = holds.find((h) => h._id === sp.holdId) ?? null;
+    }
+
+    if (!activeSession) {
         return (
             <EntityDetailShell
                 eyebrow="POS TERMINAL"
-                title={`Live · ${activeSession.terminalId}`}
-                back={{ href: '/dashboard/crm/pos/terminal', label: 'Terminals' }}
-                actions={
-                    <Button size="sm" variant="outline" asChild>
-                        <Link href={`/dashboard/crm/pos/sessions/${activeSession._id}`}>
-                            View session
-                        </Link>
-                    </Button>
-                }
+                title="POS terminal"
+                back={{ href: '/dashboard/crm/pos', label: 'POS' }}
             >
-                <PosTerminalClient
-                    session={activeSession}
-                    initialItems={items}
-                    prefillHold={prefillHold}
-                />
+                <Card>
+                    <ZoruCardContent className="flex flex-col items-center justify-center gap-3 p-10 text-center">
+                        <p className="text-sm font-medium text-zoru-ink">
+                            No open POS session
+                        </p>
+                        <p className="text-[13px] text-zoru-ink-muted">
+                            Open a session before ringing up sales — that
+                            ensures every transaction is auditable against
+                            a cashier shift.
+                        </p>
+                        <Button size="sm" asChild>
+                            <Link href="/dashboard/crm/pos/sessions/new">
+                                <Plus className="h-4 w-4" /> Open session
+                            </Link>
+                        </Button>
+                    </ZoruCardContent>
+                </Card>
             </EntityDetailShell>
         );
     }
 
-    /* ─── Manager mode: device list ────────────────────────────── */
+    return (
+        <EntityDetailShell
+            eyebrow="POS TERMINAL"
+            title={`Live · ${activeSession.terminalId}`}
+            back={{ href: '/dashboard/crm/pos/terminal', label: 'Terminals' }}
+            actions={
+                <Button size="sm" variant="outline" asChild>
+                    <Link href={`/dashboard/crm/pos/sessions/${activeSession._id}`}>
+                        View session
+                    </Link>
+                </Button>
+            }
+        >
+            <PosTerminalClient
+                session={activeSession}
+                initialItems={items}
+                prefillHold={prefillHold}
+            />
+        </EntityDetailShell>
+    );
+}
+
+async function TerminalManagerContainer() {
     const dbSession = await getSession();
     let registryTerminals: PosTerminalDoc[] = [];
     if (dbSession?.user?._id) {
@@ -235,25 +392,7 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
             .reduce((acc, t) => (t > acc ? t : acc), 0) || null;
 
     return (
-        <EntityListShell
-            title="Terminals"
-            subtitle="POS devices and their current status."
-            primaryAction={
-                <div className="flex flex-wrap items-center gap-2">
-                    <Button size="sm" variant="outline" asChild>
-                        <Link href="/dashboard/crm/pos/sessions/new">
-                            <Plus className="h-4 w-4" /> New session
-                        </Link>
-                    </Button>
-                    <Button size="sm" asChild>
-                        <Link href="/dashboard/crm/pos/terminal?live=1">
-                            <ShoppingCart className="h-4 w-4" /> Open live
-                            terminal
-                        </Link>
-                    </Button>
-                </div>
-            }
-        >
+        <div className="flex flex-col gap-6">
             {/* Manager KPIs */}
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <Card>
@@ -303,7 +442,7 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
                             </p>
                             <p className="mt-0.5 text-[13px] font-medium text-zoru-ink">
                                 {lastSync
-                                    ? new Date(lastSync).toLocaleString()
+                                    ? formatUtcDateTime(lastSync)
                                     : 'No activity yet'}
                             </p>
                         </div>
@@ -313,6 +452,47 @@ export default async function PosTerminalPage({ searchParams }: PageProps) {
             </div>
 
             <PosTerminalManagerClient terminals={terminals} />
+        </div>
+    );
+}
+
+/* ─── Main Page Component ───────────────────────────────────────────── */
+
+export default async function PosTerminalPage({ searchParams }: PageProps) {
+    const sp = await searchParams;
+    const isLive = sp.live === '1' || !!sp.holdId;
+
+    if (isLive) {
+        return (
+            <React.Suspense fallback={<LiveTerminalSkeleton />}>
+                <LiveTerminalContainer sp={sp} />
+            </React.Suspense>
+        );
+    }
+
+    return (
+        <EntityListShell
+            title="Terminals"
+            subtitle="POS devices and their current status."
+            primaryAction={
+                <div className="flex flex-wrap items-center gap-2">
+                    <Button size="sm" variant="outline" asChild>
+                        <Link href="/dashboard/crm/pos/sessions/new">
+                            <Plus className="h-4 w-4" /> New session
+                        </Link>
+                    </Button>
+                    <Button size="sm" asChild>
+                        <Link href="/dashboard/crm/pos/terminal?live=1">
+                            <ShoppingCart className="h-4 w-4" /> Open live
+                            terminal
+                        </Link>
+                    </Button>
+                </div>
+            }
+        >
+            <React.Suspense fallback={<TerminalManagerSkeleton />}>
+                <TerminalManagerContainer />
+            </React.Suspense>
         </EntityListShell>
     );
 }

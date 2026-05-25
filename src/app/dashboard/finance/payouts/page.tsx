@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { Suspense } from 'react';
+import { Skeleton } from '@/components/zoruui';
 import { listPayouts } from '@/app/actions/finance/payouts.actions';
 import { PayoutListClient } from './_components/payouts-list-client';
 
-export default async function PayoutPage() {
+export const dynamic = 'force-dynamic';
+
+async function PayoutPageContainer() {
   const { items, error } = await listPayouts();
   
   if (error) {
@@ -10,4 +13,12 @@ export default async function PayoutPage() {
   }
 
   return <PayoutListClient initialItems={items || []} />;
+}
+
+export default function PayoutPage() {
+  return (
+    <Suspense fallback={<div className="p-8 space-y-4"><Skeleton className="h-10 w-full" /><Skeleton className="h-[400px] w-full" /></div>}>
+      <PayoutPageContainer  />
+    </Suspense>
+  );
 }

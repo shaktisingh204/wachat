@@ -20,7 +20,7 @@ import {
 import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { StatusPill } from '@/components/crm/status-pill';
+import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import { getCrmPaymentAccountById } from '@/app/actions/crm-payment-accounts.actions';
 import { getSession } from '@/app/actions/user.actions';
@@ -72,6 +72,7 @@ export default async function BankAccountDetailPage({
         <EntityDetailShell
             eyebrow="BANK ACCOUNT"
             title={account.accountName}
+            status={{ label: account.status, tone: statusToTone(account.status) }}
             back={{ href: BASE, label: 'Bank Accounts' }}
             actions={
                 <div className="flex flex-wrap items-center gap-2">
@@ -112,7 +113,10 @@ export default async function BankAccountDetailPage({
                         label="As of"
                         value={
                             account.openingBalanceDate
-                                ? new Date(account.openingBalanceDate).toLocaleDateString()
+                                ? new Intl.DateTimeFormat('en-IN', {
+                                      dateStyle: 'medium',
+                                      timeZone: 'UTC',
+                                  }).format(new Date(account.openingBalanceDate))
                                 : '—'
                         }
                     />
@@ -122,10 +126,10 @@ export default async function BankAccountDetailPage({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {/* Bank details */}
                 <Card className="p-5">
-                    <p className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zoru-ink-muted">
                         Bank details
                     </p>
-                    <dl className="space-y-2 text-[13px]">
+                    <dl className="space-y-1">
                         <Row label="Bank" value={account.bankDetails?.bankName || '—'} />
                         <Row label="Holder" value={account.bankDetails?.accountHolder || '—'} />
                         <Row
@@ -146,10 +150,10 @@ export default async function BankAccountDetailPage({
 
                 {/* Meta */}
                 <Card className="p-5">
-                    <p className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-zoru-ink-muted">
                         Account
                     </p>
-                    <dl className="space-y-2 text-[13px]">
+                    <dl className="space-y-1">
                         <Row label="Type" value={account.accountType} capitalize />
                         <Row label="Currency" value={account.currency} mono />
                         <Row
@@ -157,7 +161,7 @@ export default async function BankAccountDetailPage({
                             value={
                                 <StatusPill
                                     label={account.status}
-                                    tone={account.status === 'active' ? 'green' : 'neutral'}
+                                    tone={statusToTone(account.status)}
                                 />
                             }
                         />
@@ -167,7 +171,7 @@ export default async function BankAccountDetailPage({
                                 account.isDefault ? (
                                     <StatusPill label="Default" tone="blue" />
                                 ) : (
-                                    <span className="text-[12px] text-muted-foreground">No</span>
+                                    <span className="text-sm text-zoru-ink-muted">No</span>
                                 )
                             }
                         />
@@ -175,17 +179,17 @@ export default async function BankAccountDetailPage({
                 </Card>
             </div>
 
-            <Card className="p-4">
-                <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <Card className="p-5">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zoru-ink-muted">
                     Linked ledger
                 </p>
-                <p className="mt-1 text-[13px] text-muted-foreground">
+                <p className="text-sm text-zoru-ink-muted">
                     Posted vouchers flow into the chart-of-account ledger.{' '}
                     <Link
                         href={`/dashboard/crm/accounting/day-book?accountId=${accountId}`}
-                        className="inline-flex items-center gap-1 text-foreground hover:underline"
+                        className="inline-flex items-center gap-1 font-medium text-zoru-ink hover:underline"
                     >
-                        <FileText className="h-3 w-3" /> View ledger
+                        <FileText className="h-4 w-4" /> View ledger
                     </Link>
                 </p>
             </Card>
@@ -205,12 +209,12 @@ function BalanceCell({
     return (
         <div
             className={[
-                'rounded-lg border border-border p-3',
-                accent ? 'bg-zoru-surface-2' : 'bg-secondary',
+                'rounded-[var(--zoru-radius)] border border-zoru-line p-4',
+                accent ? 'bg-zoru-surface-2' : 'bg-zoru-surface',
             ].join(' ')}
         >
-            <p className="text-[11.5px] text-muted-foreground">{label}</p>
-            <p className="mt-1 text-[18px] font-semibold text-foreground">{value}</p>
+            <p className="text-xs font-medium text-zoru-ink-muted">{label}</p>
+            <p className="mt-1 text-lg font-semibold text-zoru-ink">{value}</p>
         </div>
     );
 }
@@ -227,11 +231,11 @@ function Row({
     capitalize?: boolean;
 }) {
     return (
-        <div className="flex justify-between gap-3">
-            <dt className="text-muted-foreground">{label}</dt>
+        <div className="flex justify-between gap-4 py-1">
+            <dt className="text-sm text-zoru-ink-muted">{label}</dt>
             <dd
                 className={[
-                    'text-right text-foreground',
+                    'text-right text-sm font-medium text-zoru-ink',
                     mono ? 'font-mono' : '',
                     capitalize ? 'capitalize' : '',
                 ]

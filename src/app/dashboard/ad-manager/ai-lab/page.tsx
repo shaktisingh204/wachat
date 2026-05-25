@@ -17,7 +17,7 @@ import {
     AmHeader,
 } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
-import { generateAdVariants } from '@/app/actions/ai-lab.actions';
+import { generateAdVariants } from './actions';
 
 const TOOLS = [
     { id: 'copy', icon: Type, label: 'Ad copy generator', desc: 'Generate primary text, headlines, and descriptions from a brief.' },

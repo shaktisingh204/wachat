@@ -36,24 +36,8 @@ interface RfqTableProps {
   density?: DensityMode;
 }
 
-function fmtMoney(value?: number | null, currency = 'INR'): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${currency} ${value}`;
-  }
-}
+import { fmtINR, fmtDate } from '@/lib/utils';
 
-function fmtDate(v?: string | null): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
 
 export function RfqTable({
   rfqs,
@@ -150,7 +134,7 @@ export function RfqTable({
       sortable: true,
       render: (row) => (
         <span className="font-mono tabular-nums text-zoru-ink font-semibold">
-          {fmtMoney(row.estimatedValue, row.currency ?? defaultCurrency)}
+          {fmtINR(row.estimatedValue, row.currency ?? defaultCurrency)}
         </span>
       ),
     },

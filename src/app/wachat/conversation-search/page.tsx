@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -129,7 +130,7 @@ export default function ConversationSearchPage() {
                     {r.contactName || r.contactId || r.from || 'Unknown'}
                   </span>
                   <span className="whitespace-nowrap text-[11px] text-zoru-ink-muted">
-                    {r.timestamp ? new Date(r.timestamp).toLocaleString() : ''}
+                    {r.timestamp ? fmtDate(r.timestamp) : ''}
                   </span>
                 </div>
                 <p className="text-[13px] leading-relaxed text-zoru-ink-muted">

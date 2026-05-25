@@ -6,9 +6,10 @@ import { EditorProvider } from '@/components/builder/editor-provider';
 import { PageData } from '@/lib/builder/builder-types';
 import { BuilderInitializer } from './builder-initializer';
 
-async function getPageData(id: string, userId: string): Promise<PageData | null> {
+async function getPageData(id: string, projectId: string): Promise<PageData | null> {
     const { db } = await connectToDatabase();
-    const page = await db.collection('pages').findOne({ id, userId });
+    // Authorized: only fetch the page if it belongs to the current user's active project
+    const page = await db.collection('pages').findOne({ id, projectId });
     return page as PageData | null;
 }
 
@@ -18,16 +19,21 @@ export default async function BuilderPage(props: { params: Promise<{ id: string 
         redirect('/login');
     }
 
+    const projectId = session.user.activeProjectId;
+    if (!projectId) {
+        redirect('/dashboard');
+    }
+
     const params = await props.params;
     const { id } = params;
 
-    let pageData = await getPageData(id, session.user._id.toString());
+    let pageData = await getPageData(id, projectId);
 
-    // If no page found, we might want to create a default one or just pass null to let client handle "New Page" state
     if (!pageData) {
         pageData = {
             id: id,
             userId: session.user._id.toString(),
+            projectId: projectId,
             title: 'New Page',
             elements: [],
             settings: {}
@@ -36,7 +42,7 @@ export default async function BuilderPage(props: { params: Promise<{ id: string 
 
     return (
         <EditorProvider>
-            <BuilderInitializer initialData={pageData} />
+            <BuilderInitializer initialData={pageData} projectId={projectId} />
         </EditorProvider>
     );
 }

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 /**
  * Job activity — server-rendered audit timeline.
  */

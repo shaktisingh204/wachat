@@ -17,6 +17,7 @@ import { ObjectId, type Filter } from "mongodb";
 import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
+import { after } from "next/server";
 
 import {
   evaluatePredicate,
@@ -194,10 +195,24 @@ export async function listSegments(
 
     const [docs, total, campaigns, drips] = await Promise.all([
       col
-        .find(filter)
-        .sort(mongoSort)
-        .skip((page - 1) * pageSize)
-        .limit(pageSize)
+        .aggregate<SegmentDoc>([
+          { $match: filter },
+          { $sort: mongoSort },
+          { $skip: (page - 1) * pageSize },
+          { $limit: pageSize },
+          {
+            $addFields: {
+              size: {
+                $cond: {
+                  if: { $isNumber: "$size" },
+                  then: "$size",
+                  else: { $size: { $ifNull: ["$contactIds", []] } },
+                },
+              },
+            },
+          },
+          { $project: { contactIds: 0 } },
+        ])
         .toArray(),
       col.countDocuments(filter),
       db
@@ -255,6 +270,25 @@ export async function listSegments(
           r.predicateText.toLowerCase().includes(needle) ||
           (r.tags ?? []).some((t) => t.toLowerCase().includes(needle)),
       );
+    }
+
+    // Schedule background re-evaluation of stale dynamic segments
+    const nowMs = Date.now();
+    for (const d of docs) {
+      if (d.kind === "dynamic") {
+        const autoRefreshSeconds = d.autoRefreshSeconds ?? 300; // default 5m
+        const stale =
+          !d.lastRefreshedAt ||
+          nowMs - new Date(d.lastRefreshedAt).getTime() > autoRefreshSeconds * 1000;
+        
+        if (stale) {
+          after(() => {
+            refreshSegment(String(d._id ?? "")).catch((err) => {
+              console.error("[sabsms.segments] async refresh failed:", err);
+            });
+          });
+        }
+      }
     }
 
     return { ok: true, rows, total };
@@ -841,6 +875,60 @@ export async function estimateSegmentCost(
 }
 
 // ─── Cross-app stub (feature 15) ──────────────────────────────────────────
+
+export async function exportSegmentToCrm(
+  segmentId: string,
+): Promise<ActionResult<{ pushed: number }>> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+  if (!ObjectId.isValid(segmentId)) {
+    return { ok: false, error: "Invalid segment id." };
+  }
+  try {
+    const { db } = await connectToDatabase();
+    const doc = await db
+      .collection<SegmentDoc>(SEGMENTS_COLLECTION)
+      .findOne({
+        _id: new ObjectId(segmentId),
+        workspaceId: ws.workspaceId,
+      });
+    if (!doc) return { ok: false, error: "Segment not found." };
+
+    const contacts = await db
+      .collection<SegmentContact>("sabsms_contacts")
+      .find({ workspaceId: ws.workspaceId })
+      .limit(50000)
+      .toArray();
+
+    const matching =
+      doc.kind === "static"
+        ? contacts.filter((c) =>
+            doc.contactIds?.includes(String((c as { _id?: unknown })._id ?? "")),
+          )
+        : contacts.filter((c) => evaluatePredicate(doc.predicate, c));
+
+    // Mock CRM export logic
+    const crmContacts = matching.map(c => ({
+      workspaceId: ws.workspaceId,
+      source: "sabsms_segment_export",
+      segmentId,
+      phone: c.e164 ?? c.phone,
+      country: c.country,
+      tags: c.tags,
+      importedAt: new Date(),
+    }));
+
+    if (crmContacts.length > 0) {
+      await db.collection("crm_contacts").insertMany(crmContacts);
+    }
+    
+    await logAudit(ws.workspaceId, "export_to_crm", segmentId, { pushed: crmContacts.length });
+
+    return { ok: true, pushed: crmContacts.length };
+  } catch (e) {
+    return { ok: false, error: (e as Error)?.message ?? "exportSegmentToCrm failed" };
+  }
+}
 
 /**
  * Stub for cross-app CRM segments. The catalog calls out reuse from

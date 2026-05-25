@@ -19,6 +19,9 @@ import {
 } from '@/app/actions/crm/bookings.actions';
 import { BookingListClient } from './_components/booking-list-client';
 
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/zoruui';
+
 export const dynamic = 'force-dynamic';
 
 interface SearchParams {
@@ -28,12 +31,7 @@ interface SearchParams {
   status?: string;
 }
 
-export default async function BookingsPage({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const sp = await searchParams;
+async function BookingsData({ sp }: { sp: SearchParams }) {
   const page = Math.max(1, Number(sp.page) || 1);
   const limit = Math.min(Math.max(1, Number(sp.limit) || 20), 100);
   const q = (sp.q ?? '').trim();
@@ -42,6 +40,26 @@ export default async function BookingsPage({
     listBookings({ page, limit }),
     getBookingKpis(),
   ]);
+
+  return (
+    <BookingListClient
+      bookings={bookings}
+      page={page}
+      limit={limit}
+      hasMore={hasMore}
+      initialQuery={q}
+      error={error}
+      kpis={kpis}
+    />
+  );
+}
+
+export default async function BookingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const sp = await searchParams;
 
   return (
     <EntityListShell
@@ -63,15 +81,9 @@ export default async function BookingsPage({
         </div>
       }
     >
-      <BookingListClient
-        bookings={bookings}
-        page={page}
-        limit={limit}
-        hasMore={hasMore}
-        initialQuery={q}
-        error={error}
-        kpis={kpis}
-      />
+      <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+        <BookingsData sp={sp} />
+      </Suspense>
     </EntityListShell>
   );
 }

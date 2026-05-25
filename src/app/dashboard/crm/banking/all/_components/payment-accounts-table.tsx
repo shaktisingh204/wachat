@@ -3,11 +3,11 @@
 import {
   Button,
   Checkbox,
-  DropdownMenu,
+  ZoruDropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-  Table,
+  ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
@@ -73,7 +73,7 @@ export function PaymentAccountsTable({
 
     return (
         <div className="overflow-x-auto rounded-lg border border-border">
-            <Table>
+            <ZoruTable>
                 <ZoruTableHeader>
                     <ZoruTableRow className="border-border hover:bg-transparent">
                         <ZoruTableHead className="w-10 text-muted-foreground">
@@ -178,7 +178,7 @@ export function PaymentAccountsTable({
                                                     <Edit className="h-4 w-4" />
                                                 </Link>
                                             </Button>
-                                            <DropdownMenu>
+                                            <ZoruDropdownMenu>
                                                 <ZoruDropdownMenuTrigger asChild>
                                                     <Button variant="ghost" size="icon" aria-label="More actions">
                                                         <MoreHorizontal className="h-4 w-4" />
@@ -210,7 +210,7 @@ export function PaymentAccountsTable({
                                                         Delete
                                                     </ZoruDropdownMenuItem>
                                                 </ZoruDropdownMenuContent>
-                                            </DropdownMenu>
+                                            </ZoruDropdownMenu>
                                         </div>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
@@ -218,7 +218,7 @@ export function PaymentAccountsTable({
                         })
                     )}
                 </ZoruTableBody>
-            </Table>
+            </ZoruTable>
         </div>
     );
 }

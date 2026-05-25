@@ -1,4 +1,5 @@
-import { CircleCheck, Circle } from 'lucide-react';
+export const dynamic = 'force-dynamic';
+import { CircleCheck, Circle, Trophy, Award } from 'lucide-react';
 
 import { HrDetailPage } from '../../_components/hr-detail-page';
 import {
@@ -107,6 +108,54 @@ export default async function LearningPathDetailPage({
             { label: 'Prerequisites', value: row.prerequisites, fullWidth: true },
             { label: 'Outcomes', value: row.outcomes, fullWidth: true },
           ],
+        },
+        {
+          title: 'Gamification Progress',
+          fields: [
+            {
+              label: 'Completion',
+              value: (
+                <div className="flex items-center gap-4">
+                  <div className="relative h-16 w-16">
+                    <svg className="h-full w-full" viewBox="0 0 36 36">
+                      <path
+                        className="text-zoru-line"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="text-primary transition-all duration-500 ease-in-out"
+                        strokeDasharray={`${steps.length > 0 ? (steps.filter(s => s.done).length / steps.length) * 100 : 0}, 100`}
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-zoru-ink">
+                      {steps.length > 0 ? Math.round((steps.filter(s => s.done).length / steps.length) * 100) : 0}%
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    {steps.length > 0 && steps.every(s => s.done) ? (
+                      <div className="flex flex-col items-center p-2 border border-yellow-400 bg-yellow-50 rounded-md">
+                        <Trophy className="h-6 w-6 text-yellow-500 mb-1" />
+                        <span className="text-xs font-semibold text-yellow-700">Mastery Badge</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center p-2 border border-zoru-line bg-muted rounded-md opacity-50">
+                        <Award className="h-6 w-6 text-muted-foreground mb-1" />
+                        <span className="text-xs font-semibold text-muted-foreground">Keep Going</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ),
+              fullWidth: true
+            }
+          ]
         },
         {
           title: `Steps (${steps.length})`,

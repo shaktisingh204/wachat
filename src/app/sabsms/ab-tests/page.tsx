@@ -1,3 +1,4 @@
+import React from "react";
 /**
  * SabSMS — `/sabsms/ab-tests` (Page 14, §B.2).
  *
@@ -24,7 +25,7 @@ import { loadAbTests } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function SabsmsAbTestsPage() {
+async function SabsmsAbTestsPageContent() {
   const session = await getCachedSession();
   const workspaceId = String(
     (session?.user as { _id?: unknown } | undefined)?._id ?? "",
@@ -75,5 +76,14 @@ export default async function SabsmsAbTestsPage() {
     >
       <AbTestsTable rows={rows} />
     </SabsmsPageShell>
+  );
+}
+
+
+export default function SabsmsAbTestsPage() {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <SabsmsAbTestsPageContent  />
+    </React.Suspense>
   );
 }

@@ -1,0 +1,616 @@
+'use client';
+
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  Badge,
+  Breadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  Button,
+  Card,
+  Dialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  EmptyState,
+  Input,
+  Label,
+  ZoruPageDescription,
+  ZoruPageEyebrow,
+  PageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  Select,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  Sheet,
+  ZoruSheetContent,
+  ZoruSheetDescription,
+  ZoruSheetFooter,
+  ZoruSheetHeader,
+  ZoruSheetTitle,
+  Skeleton,
+  StatCard,
+  Switch,
+  Table,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  Textarea,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  CreditCard,
+  Plus,
+  RefreshCw,
+  Trash2,
+  Pencil,
+  Send,
+  Link2,
+  Search,
+  Download,
+  DollarSign,
+  CheckCircle2,
+  Clock3,
+  Undo2,
+  TestTube,
+  Eye,
+  Loader2,
+  } from 'lucide-react';
+import {
+    Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  } from 'recharts';
+
+import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
+import {
+    SabFileUrlInput,
+  } from '@/components/sabfiles';
+
+/**
+ * Telegram Payments dashboard — multi-tenant, project-scoped.
+ *
+ * Surface (segmented views, per zoruui no-tab-UI directive):
+ *   - Payments   list + analytics chart + filters + CSV export + refund
+ *   - Invoices   sent invoices & invoice links from this project
+ *   - Templates  reusable invoice payloads (CRUD via drawer)
+ *   - Providers  saved provider tokens (CRUD + token-validity test)
+ *
+ * Data flows through the server actions in
+ * `@/app/actions/telegram-payments.actions.ts`, which proxy to the
+ * `telegram-payments` Rust BFF.
+ */
+
+import * as React from 'react';
+
+import {
+    createPaymentInvoiceLinkAction,
+    createPaymentProviderAction,
+    createPaymentTemplateAction,
+    deletePaymentProviderAction,
+    deletePaymentTemplateAction,
+    getPaymentAction,
+    listPaymentInvoicesAction,
+    listPaymentProvidersAction,
+    listPaymentTemplatesAction,
+    listPaymentsAction,
+    listProjectBotsForPaymentsAction,
+    paymentAnalyticsAction,
+    refundPaymentAction,
+    sendPaymentInvoiceAction,
+    testPaymentProviderAction,
+    updatePaymentProviderAction,
+    updatePaymentTemplateAction,
+    type AnalyticsResp,
+    type BotOption,
+    type InvoiceRow,
+    type PaymentRow,
+    type ProviderRow,
+    type TemplateRow,
+} from '@/app/actions/telegram-payments.actions';
+import type {
+    PriceItem,
+    UpsertTemplateBody,
+} from '@/lib/rust-client/telegram-payments';
+
+// ---------------------------------------------------------------------------
+//  Constants & helpers
+// ---------------------------------------------------------------------------
+
+const ACCENT = '#229ED9';
+
+const CURRENCY_OPTIONS = [
+    { code: 'XTR', label: 'XTR — Telegram Stars' },
+    { code: 'USD', label: 'USD' },
+    { code: 'EUR', label: 'EUR' },
+    { code: 'GBP', label: 'GBP' },
+    { code: 'INR', label: 'INR' },
+    { code: 'AUD', label: 'AUD' },
+    { code: 'CAD', label: 'CAD' },
+];
+
+type View = 'payments' | 'invoices' | 'templates' | 'providers';
+
+const VIEWS: Array<{ key: View; label: string }> = [
+    { key: 'payments', label: 'Payments' },
+    { key: 'invoices', label: 'Invoices' },
+    { key: 'templates', label: 'Templates' },
+    { key: 'providers', label: 'Providers' },
+];
+
+const STATUS_OPTIONS = [
+    { value: 'all', label: 'All statuses' },
+    { value: 'succeeded', label: 'Succeeded' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'refunded', label: 'Refunded' },
+    { value: 'failed', label: 'Failed' },
+];
+
+function fmtCurrency(amountSmallestUnit: number, currency: string): string {
+    if (currency === 'XTR') {
+        return `${new Intl.NumberFormat().format(amountSmallestUnit)} XTR`;
+    }
+    try {
+        return new Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency,
+        }).format(amountSmallestUnit / 100);
+    } catch {
+        return `${(amountSmallestUnit / 100).toFixed(2)} ${currency}`;
+    }
+}
+
+function fmtDate(iso?: string): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleString();
+}
+
+function startOfNDaysAgo(n: number): Date {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - n);
+    return d;
+}
+
+function StatusBadge({ status }: { status: string }) {
+    const tone: 'success' | 'warning' | 'danger' | 'secondary' =
+        status === 'succeeded'
+            ? 'success'
+            : status === 'refunded'
+              ? 'warning'
+              : status === 'failed'
+                ? 'danger'
+                : 'secondary';
+    return <Badge variant={tone}>{status || '—'}</Badge>;
+}
+
+// ---------------------------------------------------------------------------
+//  Segmented view switcher (no tab primitive in zoruui)
+// ---------------------------------------------------------------------------
+
+function ViewSwitcher({
+    view,
+    onChange,
+}: {
+    view: View;
+    onChange: (v: View) => void;
+}) {
+    return (
+        <div className="flex gap-1 rounded-full border border-zoru-line bg-zoru-bg p-1">
+            {VIEWS.map((v) => (
+                <button
+                    key={v.key}
+                    type="button"
+                    onClick={() => onChange(v.key)}
+                    className={cn(
+                        'h-8 rounded-full px-4 text-[12.5px] font-medium transition-colors',
+                        view === v.key
+                            ? 'bg-foreground text-white shadow-sm'
+                            : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground',
+                    )}
+                    aria-pressed={view === v.key}
+                >
+                    {v.label}
+                </button>
+            ))}
+        </div>
+    );
+}
+
+// ===========================================================================
+//                                  PAGE
+// ===========================================================================
+
+import { PaymentsSection } from './_components/payments';
+import { InvoicesSection } from './_components/invoices';
+import { TemplatesSection } from './_components/templates';
+import { ProvidersSection } from './_components/providers';
+import { ViewSwitcher } from './_components/shared';
+
+export default function TelegramPaymentsPage() {
+    const { activeProject } = useProject();
+    const { toast } = useZoruToast();
+    const projectId = activeProject?._id?.toString();
+
+    const [view, setView] = React.useState<View>('payments');
+
+    // shared resources — bots, providers, templates — used across views
+    const [bots, setBots] = React.useState<BotOption[]>([]);
+    const [providers, setProviders] = React.useState<ProviderRow[]>([]);
+    const [templates, setTemplates] = React.useState<TemplateRow[]>([]);
+    const [payments, setPayments] = React.useState<PaymentRow[]>([]);
+    const [paymentsTotal, setPaymentsTotal] = React.useState(0);
+    const [invoices, setInvoices] = React.useState<InvoiceRow[]>([]);
+    const [analytics, setAnalytics] = React.useState<AnalyticsResp | null>(null);
+
+    // filters
+    const [primaryCurrency, setPrimaryCurrency] = React.useState('USD');
+    const [statusFilter, setStatusFilter] = React.useState('all');
+    const [currencyFilter, setCurrencyFilter] = React.useState('all');
+    const [search, setSearch] = React.useState('');
+    const [from, setFrom] = React.useState<string>(() =>
+        startOfNDaysAgo(30).toISOString(),
+    );
+    const [to, setTo] = React.useState<string>(() => new Date().toISOString());
+    const [page, setPage] = React.useState(1);
+    const PAGE_SIZE = 50;
+
+    const [isLoading, startLoading] = React.useTransition();
+
+    // ---------------------- loaders ----------------------
+
+    const reloadBots = React.useCallback(async () => {
+        if (!projectId) return;
+        const list = await listProjectBotsForPaymentsAction(projectId);
+        setBots(list);
+    }, [projectId]);
+
+    const reloadProviders = React.useCallback(async () => {
+        if (!projectId) return;
+        const res = await listPaymentProvidersAction(projectId);
+        setProviders(res.providers ?? []);
+        if (res.error) {
+            toast({
+                title: 'Could not load providers',
+                description: res.error,
+                variant: 'destructive',
+            });
+        }
+    }, [projectId, toast]);
+
+    const reloadTemplates = React.useCallback(async () => {
+        if (!projectId) return;
+        const res = await listPaymentTemplatesAction(projectId);
+        setTemplates(res.templates ?? []);
+        if (res.error) {
+            toast({
+                title: 'Could not load templates',
+                description: res.error,
+                variant: 'destructive',
+            });
+        }
+    }, [projectId, toast]);
+
+    const reloadPayments = React.useCallback(async () => {
+        if (!projectId) return;
+        const res = await listPaymentsAction({
+            projectId,
+            from,
+            to,
+            status: statusFilter === 'all' ? undefined : statusFilter,
+            currency: currencyFilter === 'all' ? undefined : currencyFilter,
+            search: search || undefined,
+            page,
+            pageSize: PAGE_SIZE,
+        });
+        setPayments(res.payments ?? []);
+        setPaymentsTotal(res.total ?? 0);
+        if (res.error) {
+            toast({
+                title: 'Could not load payments',
+                description: res.error,
+                variant: 'destructive',
+            });
+        }
+    }, [projectId, from, to, statusFilter, currencyFilter, search, page, toast]);
+
+    const reloadInvoices = React.useCallback(async () => {
+        if (!projectId) return;
+        const res = await listPaymentInvoicesAction(projectId);
+        setInvoices(res.invoices ?? []);
+        if (res.error) {
+            toast({
+                title: 'Could not load invoices',
+                description: res.error,
+                variant: 'destructive',
+            });
+        }
+    }, [projectId, toast]);
+
+    const reloadAnalytics = React.useCallback(async () => {
+        if (!projectId) return;
+        const res = await paymentAnalyticsAction({ projectId, from, to });
+        setAnalytics(res);
+        if (res.error) {
+            toast({
+                title: 'Could not load analytics',
+                description: res.error,
+                variant: 'destructive',
+            });
+        }
+    }, [projectId, from, to, toast]);
+
+    const reloadAll = React.useCallback(() => {
+        if (!projectId) return;
+        startLoading(async () => {
+            await Promise.all([
+                reloadBots(),
+                reloadProviders(),
+                reloadTemplates(),
+                reloadPayments(),
+                reloadInvoices(),
+                reloadAnalytics(),
+            ]);
+        });
+    }, [
+        projectId,
+        reloadBots,
+        reloadProviders,
+        reloadTemplates,
+        reloadPayments,
+        reloadInvoices,
+        reloadAnalytics,
+    ]);
+
+    React.useEffect(() => {
+        reloadAll();
+    }, [reloadAll]);
+
+    // ---------------------- KPI totals (in primary currency) ----------------------
+
+    const kpi = React.useMemo(() => {
+        if (!analytics) {
+            return { revenue: 0, successful: 0, pending: 0, refunded: 0 };
+        }
+        const c = analytics.by_currency.find((x) => x.currency === primaryCurrency);
+        return {
+            revenue: c?.revenue ?? 0,
+            successful: analytics.successful,
+            pending: analytics.pending,
+            refunded: analytics.refunded,
+        };
+    }, [analytics, primaryCurrency]);
+
+    // ---------------------- CSV download ----------------------
+
+    const handleCsvExport = React.useCallback(async () => {
+        if (!projectId) return;
+        try {
+            const params = new URLSearchParams({ projectId });
+            if (from) params.set('from', from);
+            if (to) params.set('to', to);
+            if (statusFilter !== 'all') params.set('status', statusFilter);
+            if (currencyFilter !== 'all') params.set('currency', currencyFilter);
+            if (search) params.set('search', search);
+
+            const res = await fetch(
+                `/api/telegram/payments/export?${params.toString()}`,
+            );
+            if (!res.ok) throw new Error(`Export failed (${res.status})`);
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `telegram-payments-${new Date()
+                .toISOString()
+                .slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast({ title: 'CSV ready', description: 'Download started.' });
+        } catch (e) {
+            toast({
+                title: 'CSV export failed',
+                description: e instanceof Error ? e.message : String(e),
+                variant: 'destructive',
+            });
+        }
+    }, [projectId, from, to, statusFilter, currencyFilter, search, toast]);
+
+    // ---------------------- render guard ----------------------
+
+    if (!projectId) {
+        return (
+            <div className="px-6 py-12">
+                <EmptyState
+                    title="No project selected"
+                    description="Pick a project from the sidebar to manage Telegram payments."
+                />
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col gap-6 px-6 py-6">
+            <TelegramProjectGate />
+            {/* Breadcrumbs */}
+            <Breadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard">Dashboard</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/telegram">Telegram</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Payments</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </Breadcrumb>
+
+            {/* Header */}
+            <PageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>
+                    <ZoruPageTitle>
+                        <span
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-full"
+                            style={{ background: `${ACCENT}1A`, color: ACCENT }}
+                        >
+                            <CreditCard className="h-5 w-5" aria-hidden />
+                        </span>
+                        Telegram Payments
+                    </ZoruPageTitle>
+                    <ZoruPageDescription>
+                        Templates, invoices, provider tokens, and a full payments ledger
+                        for {activeProject?.name ?? 'this project'}.
+                    </ZoruPageDescription>
+                </ZoruPageHeading>
+                <div className="flex items-center gap-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={reloadAll}
+                        disabled={isLoading}
+                    >
+                        <RefreshCw
+                            className={cn('h-4 w-4', isLoading && 'animate-spin')}
+                        />
+                        Refresh
+                    </Button>
+                </div>
+            </PageHeader>
+
+            {/* KPI strip + primary-currency picker */}
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                    label={`Revenue (${primaryCurrency})`}
+                    value={
+                        analytics
+                            ? fmtCurrency(kpi.revenue, primaryCurrency)
+                            : '—'
+                    }
+                    icon={<DollarSign />}
+                />
+                <StatCard
+                    label="Successful"
+                    value={String(kpi.successful)}
+                    icon={<CheckCircle2 />}
+                />
+                <StatCard
+                    label="Pending"
+                    value={String(kpi.pending)}
+                    icon={<Clock3 />}
+                />
+                <StatCard
+                    label="Refunded"
+                    value={String(kpi.refunded)}
+                    icon={<Undo2 />}
+                />
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <ViewSwitcher view={view} onChange={setView} />
+                <div className="flex items-center gap-2">
+                    <Label className="text-xs text-muted-foreground">
+                        Display currency
+                    </Label>
+                    <Select
+                        value={primaryCurrency}
+                        onValueChange={(v) => setPrimaryCurrency(v)}
+                    >
+                        <ZoruSelectTrigger className="w-[160px]">
+                            <ZoruSelectValue />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            {CURRENCY_OPTIONS.map((c) => (
+                                <ZoruSelectItem key={c.code} value={c.code}>
+                                    {c.code}
+                                </ZoruSelectItem>
+                            ))}
+                        </ZoruSelectContent>
+                    </Select>
+                </div>
+            </div>
+
+            {/* Body — one section per view */}
+            {view === 'payments' && (
+                <PaymentsSection
+                    projectId={projectId}
+                    payments={payments}
+                    paymentsTotal={paymentsTotal}
+                    page={page}
+                    pageSize={PAGE_SIZE}
+                    onPageChange={setPage}
+                    statusFilter={statusFilter}
+                    onStatusFilter={setStatusFilter}
+                    currencyFilter={currencyFilter}
+                    onCurrencyFilter={setCurrencyFilter}
+                    search={search}
+                    onSearch={setSearch}
+                    from={from}
+                    onFromChange={setFrom}
+                    to={to}
+                    onToChange={setTo}
+                    analytics={analytics}
+                    onApply={reloadPayments}
+                    onCsvExport={handleCsvExport}
+                    onRefunded={reloadPayments}
+                />
+            )}
+            {view === 'invoices' && (
+                <InvoicesSection
+                    invoices={invoices}
+                    templates={templates}
+                />
+            )}
+            {view === 'templates' && (
+                <TemplatesSection
+                    projectId={projectId}
+                    templates={templates}
+                    providers={providers}
+                    bots={bots}
+                    onChange={reloadTemplates}
+                    onAfterSend={() => {
+                        reloadInvoices();
+                        reloadPayments();
+                    }}
+                />
+            )}
+            {view === 'providers' && (
+                <ProvidersSection
+                    projectId={projectId}
+                    providers={providers}
+                    bots={bots}
+                    onChange={reloadProviders}
+                />
+            )}
+        </div>
+    );
+}

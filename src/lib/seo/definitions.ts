@@ -6,6 +6,12 @@ export type SeoProjectSettings = {
     locations: string[]; // e.g. ["us", "in"]
     maxPages?: number;
     crawlDepth?: number;
+    gridSettings?: {
+        lat: number;
+        lng: number;
+        radius: number;
+        gridSize: number;
+    };
 };
 
 export type SeoProject = {

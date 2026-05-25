@@ -6,6 +6,7 @@ import {
     ZoruCardHeader,
     ZoruCardTitle,
 } from '@/components/zoruui';
+import { Skeleton } from '@/components/zoruui/skeleton';
 import {
     Banknote,
     Building2,
@@ -20,9 +21,11 @@ import {
     PauseCircle,
     TrendingUp,
 } from 'lucide-react';
+import { Suspense } from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusPillProps } from '@/components/crm/status-pill';
+import { fmtINR } from '@/lib/utils';
 
 /**
  * POS home / overview — `/dashboard/crm/pos`.
@@ -34,7 +37,7 @@ import { StatusPill, type StatusPillProps } from '@/components/crm/status-pill';
  *   • Today's transactions snapshot (last 10)
  *   • Recent refunds (last 5)
  *
- * Per CRM_REBUILD_PLAN §6.3 deep-list upgrade.
+ * Wrap core widgets in a Suspense boundary for instantaneous shell loading.
  */
 
 import Link from 'next/link';
@@ -51,23 +54,13 @@ import { PosSalesGraph } from './_components/pos-sales-graph';
 
 export const dynamic = 'force-dynamic';
 
-const inr = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-});
-
-function fmtMoney(value: number | null | undefined): string {
-    if (typeof value !== 'number' || !Number.isFinite(value)) return '—';
-    return inr.format(value);
-}
-
 function fmtTime(iso: string | null | undefined): string {
     if (!iso) return '—';
     const d = new Date(iso);
-    return Number.isNaN(d.getTime())
-        ? '—'
-        : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (Number.isNaN(d.getTime())) return '—';
+    const hh = String(d.getUTCHours()).padStart(2, '0');
+    const mm = String(d.getUTCMinutes()).padStart(2, '0');
+    return `${hh}:${mm} UTC`;
 }
 
 function txnTone(s: PosTransactionStatus): StatusPillProps['tone'] {
@@ -163,7 +156,7 @@ function QuickActionCard({ href, title, description, icon: Icon }: QuickActionCa
     );
 }
 
-export default async function PosHomePage() {
+async function PosDashboardContainer() {
     const [kpis, transactions, refunds, openSessions] = await Promise.all([
         getPosOverviewKpis(),
         getPosTransactions({ limit: 200 }),
@@ -229,29 +222,12 @@ export default async function PosHomePage() {
     const recentRefunds = refunds.slice(0, 5);
 
     return (
-        <EntityListShell
-            title="Point of Sale"
-            subtitle="Run shifts, ring up sales, recall held tickets and process refunds."
-            primaryAction={
-                <div className="flex flex-wrap items-center gap-2">
-                    <Button size="sm" variant="outline" asChild>
-                        <Link href="/dashboard/crm/pos/sessions">
-                            <Store className="h-4 w-4" /> Sessions
-                        </Link>
-                    </Button>
-                    <Button size="sm" asChild>
-                        <Link href="/dashboard/crm/pos/terminal">
-                            <ShoppingCart className="h-4 w-4" /> Open terminal
-                        </Link>
-                    </Button>
-                </div>
-            }
-        >
+        <div className="flex flex-col gap-6 animate-in fade-in-50">
             {/* Primary KPI strip — 5 cards */}
             <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
                 <KpiCard
                     label="Today's revenue"
-                    value={fmtMoney(kpis.todaysRevenue)}
+                    value={fmtINR(kpis.todaysRevenue)}
                     icon={Banknote}
                     tone="accent"
                 />
@@ -267,7 +243,7 @@ export default async function PosHomePage() {
                 />
                 <KpiCard
                     label="Avg ticket"
-                    value={fmtMoney(avgTicket)}
+                    value={fmtINR(avgTicket)}
                     icon={TrendingUp}
                 />
                 <KpiCard
@@ -290,7 +266,7 @@ export default async function PosHomePage() {
                     icon={ShoppingCart}
                     hint={
                         topProduct
-                            ? `${topProduct[1].qty} sold · ${fmtMoney(topProduct[1].total)}`
+                            ? `${topProduct[1].qty} sold · ${fmtINR(topProduct[1].total)}`
                             : 'No sales yet today'
                     }
                 />
@@ -298,18 +274,18 @@ export default async function PosHomePage() {
                     label="Top register"
                     value={topRegister ? topRegister[0] : '—'}
                     icon={Building2}
-                    hint={topRegister ? fmtMoney(topRegister[1]) : 'No sales yet'}
+                    hint={topRegister ? fmtINR(topRegister[1]) : 'No sales yet'}
                 />
                 <KpiCard
                     label="Refunds today"
-                    value={fmtMoney(refundDollarsToday)}
+                    value={fmtINR(refundDollarsToday)}
                     icon={RefreshCcw}
                 />
                 <KpiCard
                     label="Refunds (mo)"
                     value={refundsThisMonth.length}
                     icon={CircleAlert}
-                    hint={fmtMoney(
+                    hint={fmtINR(
                         refundsThisMonth.reduce(
                             (sum, r) => sum + (r.refundTotal ?? 0),
                             0,
@@ -392,7 +368,7 @@ export default async function PosHomePage() {
                                                 {fmtTime(t.createdAt)}
                                             </span>
                                             <span className="w-20 text-right tabular-nums">
-                                                {fmtMoney(t.total)}
+                                                {fmtINR(t.total)}
                                             </span>
                                             <StatusPill
                                                 label={t.status}
@@ -434,7 +410,7 @@ export default async function PosHomePage() {
                                                     r.originalTransactionId.slice(-8)}
                                             </span>
                                             <span className="tabular-nums">
-                                                {fmtMoney(r.refundTotal)}
+                                                {fmtINR(r.refundTotal)}
                                             </span>
                                         </div>
                                         <div className="flex items-center justify-between gap-2">
@@ -453,6 +429,76 @@ export default async function PosHomePage() {
                     </ZoruCardContent>
                 </Card>
             </div>
+        </div>
+    );
+}
+
+function PosDashboardSkeleton() {
+    return (
+        <div className="flex flex-col gap-6">
+            {/* Headline KPI strip — 5 cards */}
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+                <Skeleton className="h-24 w-full rounded-xl animate-pulse" />
+                <Skeleton className="h-24 w-full rounded-xl animate-pulse" />
+                <Skeleton className="h-24 w-full rounded-xl animate-pulse" />
+                <Skeleton className="h-24 w-full rounded-xl animate-pulse" />
+                <Skeleton className="h-24 w-full rounded-xl animate-pulse" />
+            </div>
+
+            {/* Secondary strip — context KPIs */}
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <Skeleton className="h-24 w-full rounded-xl animate-pulse" />
+                <Skeleton className="h-24 w-full rounded-xl animate-pulse" />
+                <Skeleton className="h-24 w-full rounded-xl animate-pulse" />
+                <Skeleton className="h-24 w-full rounded-xl animate-pulse" />
+            </div>
+
+            {/* Quick actions */}
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <Skeleton className="h-20 w-full rounded-xl animate-pulse" />
+                <Skeleton className="h-20 w-full rounded-xl animate-pulse" />
+                <Skeleton className="h-20 w-full rounded-xl animate-pulse" />
+            </div>
+
+            {/* Sales Graph */}
+            <Skeleton className="h-[300px] w-full rounded-xl animate-pulse" />
+
+            {/* Today's activity — two columns */}
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                    <Skeleton className="h-[400px] w-full rounded-xl animate-pulse" />
+                </div>
+                <div>
+                    <Skeleton className="h-[400px] w-full rounded-xl animate-pulse" />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default async function PosHomePage() {
+    return (
+        <EntityListShell
+            title="Point of Sale"
+            subtitle="Run shifts, ring up sales, recall held tickets and process refunds."
+            primaryAction={
+                <div className="flex flex-wrap items-center gap-2">
+                    <Button size="sm" variant="outline" asChild>
+                        <Link href="/dashboard/crm/pos/sessions">
+                            <Store className="h-4 w-4" /> Sessions
+                        </Link>
+                    </Button>
+                    <Button size="sm" asChild>
+                        <Link href="/dashboard/crm/pos/terminal">
+                            <ShoppingCart className="h-4 w-4" /> Open terminal
+                        </Link>
+                    </Button>
+                </div>
+            }
+        >
+            <Suspense fallback={<PosDashboardSkeleton />}>
+                <PosDashboardContainer />
+            </Suspense>
         </EntityListShell>
     );
 }

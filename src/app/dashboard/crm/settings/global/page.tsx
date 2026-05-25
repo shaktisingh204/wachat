@@ -51,6 +51,9 @@ export default function GlobalSettingsPage() {
   const [rtl, setRtl] = useState('no');
   const [strictTimezone, setStrictTimezone] = useState('no');
   const [emailVerified, setEmailVerified] = useState('no');
+  const [datepickerFormat, setDatepickerFormat] = useState('dd-mm-yyyy');
+  const [momentFormat, setMomentFormat] = useState('DD-MM-YYYY');
+  const [timezone, setTimezone] = useState('Asia/Kolkata');
   const [isLoading, startLoading] = useTransition();
   const [saveState, formAction, isSaving] = useActionState(
     saveGlobalSettings,
@@ -67,6 +70,9 @@ export default function GlobalSettingsPage() {
         setRtl(s.rtl ? 'yes' : 'no');
         setStrictTimezone(s.strict_timezone ? 'yes' : 'no');
         setEmailVerified(s.email_verified ? 'yes' : 'no');
+        setDatepickerFormat(s.datepicker_format ?? 'dd-mm-yyyy');
+        setMomentFormat(s.moment_format ?? 'DD-MM-YYYY');
+        setTimezone(s.timezone ?? 'Asia/Kolkata');
       }
     });
   }, []);
@@ -92,6 +98,32 @@ export default function GlobalSettingsPage() {
     )?.currency_code ??
     currencyId ??
     '—';
+
+  const getLiveDatePreview = () => {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = String(today.getFullYear());
+
+    let formattedPicker = datepickerFormat;
+    formattedPicker = formattedPicker
+      .replace('dd', day)
+      .replace('mm', month)
+      .replace('yyyy', year);
+
+    let formattedMoment = momentFormat;
+    formattedMoment = formattedMoment
+      .replace('DD', day)
+      .replace('MM', month)
+      .replace('YYYY', year);
+
+    return {
+      picker: formattedPicker,
+      moment: formattedMoment
+    };
+  };
+
+  const preview = getLiveDatePreview();
 
   return (
     <div className="flex min-h-full flex-col gap-6">
@@ -130,7 +162,7 @@ export default function GlobalSettingsPage() {
           />
           <StatCard
             label="Timezone"
-            value={settings.timezone || '—'}
+            value={timezone || '—'}
             icon={<Clock className="h-4 w-4" />}
           />
           <StatCard
@@ -201,7 +233,8 @@ export default function GlobalSettingsPage() {
                   <EnumFormField
                     name="timezone"
                     enumName="timezonePreset"
-                    initialId={settings?.timezone ?? 'Asia/Kolkata'}
+                    initialId={timezone}
+                    onChange={(v) => setTimezone(v ?? 'Asia/Kolkata')}
                     placeholder="Pick a timezone (or type a custom IANA id)"
                   />
                 </div>
@@ -214,7 +247,8 @@ export default function GlobalSettingsPage() {
                   <EnumFormField
                     name="datepicker_format"
                     enumName="datepickerFormat"
-                    initialId={settings?.datepicker_format ?? 'dd-mm-yyyy'}
+                    initialId={datepickerFormat}
+                    onChange={(v) => setDatepickerFormat(v ?? 'dd-mm-yyyy')}
                   />
                 </div>
               </div>
@@ -226,8 +260,28 @@ export default function GlobalSettingsPage() {
                   <EnumFormField
                     name="moment_format"
                     enumName="momentFormat"
-                    initialId={settings?.moment_format ?? 'DD-MM-YYYY'}
+                    initialId={momentFormat}
+                    onChange={(v) => setMomentFormat(v ?? 'DD-MM-YYYY')}
                   />
+                </div>
+              </div>
+
+              <div className="md:col-span-2 border-t border-dashed pt-4 mt-2">
+                <div className="rounded-lg bg-zoru-surface-2 p-4 border border-zoru-line flex items-center justify-between flex-wrap gap-4">
+                  <div>
+                    <span className="text-[12px] font-semibold text-zoru-ink uppercase tracking-wide">Live Preview (Today)</span>
+                    <p className="text-[11.5px] text-zoru-ink-muted mt-0.5">See how dates will look across the workspace based on your settings.</p>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="rounded bg-background px-3 py-1.5 border border-zoru-line font-mono text-[13px] text-zoru-ink">
+                      <span className="text-[10px] block text-zoru-ink-muted font-sans font-normal mb-0.5">Date-picker Preview</span>
+                      {preview.picker}
+                    </div>
+                    <div className="rounded bg-background px-3 py-1.5 border border-zoru-line font-mono text-[13px] text-zoru-ink">
+                      <span className="text-[10px] block text-zoru-ink-muted font-sans font-normal mb-0.5">Moment.js Preview</span>
+                      {preview.moment}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

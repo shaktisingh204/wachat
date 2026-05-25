@@ -203,16 +203,54 @@ async function patchSession(req: Request, res: Response): Promise<void> {
   const label =
     typeof body.label === 'string' ? body.label : undefined;
   const rateLimitProfile = parseRateProfile(body.rateLimitProfile);
-  if (label === undefined && rateLimitProfile === undefined) {
+  const warmupEnabled = typeof body.warmupEnabled === 'boolean' ? body.warmupEnabled : undefined;
+  const dailyResetTimezone = typeof body.dailyResetTimezone === 'string' ? body.dailyResetTimezone : undefined;
+  const overrides = typeof body.overrides === 'object' && body.overrides !== null ? body.overrides as Record<string, number> : undefined;
+
+  if (label === undefined && rateLimitProfile === undefined && warmupEnabled === undefined && dailyResetTimezone === undefined && overrides === undefined) {
     res.status(400).json({
-      error: 'no patchable fields supplied (label, rateLimitProfile)',
+      error: 'no patchable fields supplied',
       code: 'bad_request',
     });
     return;
   }
 
-  await updateMetadata(state.db, id, { label, rateLimitProfile });
+  await updateMetadata(state.db, id, { label, rateLimitProfile, warmupEnabled, dailyResetTimezone, overrides });
   res.json({ sessionId: id, updated: true });
+}
+
+async function getRateLimitProfile(req: Request, res: Response): Promise<void> {
+  const state = getState(req);
+  const id = asString(req.params.id);
+  const row = await findById(state.db, id);
+  if (!row) {
+    res.status(404).json({ error: 'session not found', code: 'not_found' });
+    return;
+  }
+  
+  // Note: findById uses toSummary which doesn't include the new rate limit fields,
+  // we need to fetch the raw doc to return them.
+  const { ObjectId } = await import('mongodb');
+  let oid;
+  try { oid = new ObjectId(id); } catch { res.status(404).json({ error: 'session not found', code: 'not_found' }); return; }
+  const doc = await state.db.collection('sabwa_sessions').findOne({ _id: oid });
+  if (!doc) {
+    res.status(404).json({ error: 'session not found', code: 'not_found' });
+    return;
+  }
+
+  const createdAt = doc.createdAt;
+  const sessionAgeDays = createdAt ? Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+
+  res.json({
+    settings: {
+      profile: doc.rateLimitProfile || 'normal',
+      warmupEnabled: doc.warmupEnabled ?? false,
+      dailyResetTimezone: doc.dailyResetTimezone ?? 'UTC',
+      overrides: doc.overrides ?? {},
+      sessionAgeDays,
+    }
+  });
 }
 
 async function deleteSessionHandler(
@@ -259,6 +297,9 @@ export function buildSessionsRouter(_state: AppState): Router {
   });
   r.patch('/:id', (req, res, next) => {
     patchSession(req, res).catch(next);
+  });
+  r.get('/:id/rate-limits', (req, res, next) => {
+    getRateLimitProfile(req, res).catch(next);
   });
   r.delete('/:id', (req, res, next) => {
     deleteSessionHandler(req, res).catch(next);

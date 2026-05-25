@@ -7,7 +7,7 @@ import { type WithId, ObjectId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getDecodedSession, verifyAdminJwt } from '@/lib/auth';
 import { createAdminSessionToken } from '@/lib/auth';
-import { getErrorMessage } from '@/lib/utils';
+import { getErrorMessage, serializeMongoDoc } from '@/lib/utils';
 import type { Project, User, Plan } from '@/lib/definitions';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
@@ -23,7 +23,8 @@ export async function getWhatsAppProjectsForAdmin(
     page: number = 1,
     limit: number = 20,
     query?: string,
-    userId?: string
+    userId?: string,
+    status?: string
 ): Promise<{ projects: WithId<Project & { owner: { name: string; email: string } }>[], total: number, users: WithId<User>[] }> {
     try {
         const { db } = await connectToDatabase();
@@ -35,6 +36,9 @@ export async function getWhatsAppProjectsForAdmin(
         }
         if (userId) {
             filter.userId = new ObjectId(userId);
+        }
+        if (status) {
+            filter.reviewStatus = status;
         }
 
         const skip = (page - 1) * limit;
@@ -64,9 +68,9 @@ export async function getWhatsAppProjectsForAdmin(
         ]);
 
         return {
-            projects: JSON.parse(JSON.stringify(projects)),
+            projects: serializeMongoDoc(projects),
             total: total,
-            users: JSON.parse(JSON.stringify(users))
+            users: serializeMongoDoc(users)
         };
     } catch (e: any) {
         console.error("Failed to get WhatsApp projects for admin:", e);
@@ -177,12 +181,12 @@ async function getSessionFromMongo(decoded: Awaited<ReturnType<typeof getDecoded
 
     return {
         user: {
-            ...JSON.parse(JSON.stringify(dbUser)),
+            ...serializeMongoDoc(dbUser),
             _id: dbUser._id.toString(),
             planId: planId?.toString?.() ?? planId,
             name: dbUser.name || (decoded as any).name,
             image: (dbUser as any).image || (decoded as any).picture,
-            plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
+            plan: plan ? serializeMongoDoc(plan) : null,
         },
     };
 }
@@ -272,10 +276,10 @@ export async function getUsersForAdmin(
 
         const total = await db.collection('users').countDocuments(filter);
 
-        return { users: JSON.parse(JSON.stringify(users)), total };
+        return { users: serializeMongoDoc(users), total };
     } catch (e) {
         console.error('getUsersForAdmin failed:', e);
-        return { users: [], total: 0 };
+        throw e; // Do not fail silently
     }
 }
 
@@ -296,6 +300,7 @@ export async function handleUpdateUserProfile(prevState: { message?: string; err
         const businessName = formData.get('businessName') as string | null;
         const businessAddress = formData.get('businessAddress') as string | null;
         const businessGstin = formData.get('businessGstin') as string | null;
+        const businessPan = formData.get('businessPan') as string | null;
 
         if (name) updateData.name = name;
         if (appRailPosition) updateData.appRailPosition = appRailPosition;
@@ -315,11 +320,12 @@ export async function handleUpdateUserProfile(prevState: { message?: string; err
         }
 
         // This is the corrected part
-        if (businessName !== null || businessAddress !== null || businessGstin !== null) {
+        if (businessName !== null || businessAddress !== null || businessGstin !== null || businessPan !== null) {
             updateData.businessProfile = {
                 name: businessName || undefined,
                 address: businessAddress || undefined,
                 gstin: businessGstin || undefined,
+                pan: businessPan || undefined,
             };
         }
 

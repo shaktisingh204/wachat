@@ -2,19 +2,24 @@
 
 import { Download, FileText, Filter, Users } from 'lucide-react';
 import { Button, useZoruToast } from '@/components/zoruui';
+import Papa from 'papaparse';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export function EditHeaderActions({ id, data }: { id: string, data: any }) {
     const { toast } = useZoruToast();
 
     const handleExportCSV = () => {
         try {
-            const csvContent = "data:text/csv;charset=utf-8," +
-                "Key,Value\n" +
-                Object.entries(data).map(([k, v]) => `${k},${JSON.stringify(v)}`).join("\n");
-
-            const encodedUri = encodeURI(csvContent);
+            const flattened = Object.entries(data).map(([k, v]) => ({
+                Key: k,
+                Value: typeof v === 'object' ? JSON.stringify(v) : v,
+            }));
+            const csv = Papa.unparse(flattened);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
+            link.href = url;
             link.setAttribute("download", `salary-structure-${id}.csv`);
             document.body.appendChild(link);
             link.click();
@@ -26,7 +31,23 @@ export function EditHeaderActions({ id, data }: { id: string, data: any }) {
     };
 
     const handleExportPDF = () => {
-        toast({ title: 'Export to PDF', description: 'PDF export scheduled. You will be notified when ready.' });
+        try {
+            const doc = new jsPDF();
+            doc.text(`Salary Structure - ${id}`, 14, 15);
+            const tableData = Object.entries(data).map(([k, v]) => [
+                k, 
+                typeof v === 'object' ? JSON.stringify(v) : String(v)
+            ]);
+            autoTable(doc, {
+                startY: 20,
+                head: [['Key', 'Value']],
+                body: tableData,
+            });
+            doc.save(`salary-structure-${id}.pdf`);
+            toast({ title: 'Exported to PDF', description: 'Your PDF has been downloaded.' });
+        } catch (err) {
+            toast({ title: 'Export failed', description: 'Could not export to PDF.', variant: 'destructive' });
+        }
     };
 
     const handleFilter = () => {

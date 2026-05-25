@@ -16,17 +16,7 @@ import type { CrmVendorKpis } from '@/app/actions/crm-vendors.actions';
  * cross-filtering (e.g. click "Active" → status filter = active).
  */
 
-function fmtMoney(value: number, currency: string): string {
-    try {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: currency || 'INR',
-            maximumFractionDigits: 0,
-        }).format(value);
-    } catch {
-        return `${currency || 'INR'} ${value}`;
-    }
-}
+import { fmtINR } from '@/lib/utils';
 
 export type VendorsKpiFilter = 'all' | 'active' | 'inactive';
 
@@ -61,7 +51,7 @@ export function VendorsKpiStrip({
             />
             <KpiCard
                 label="Total purchase value"
-                value={fmtMoney(kpis.totalPurchaseValue, kpis.currency)}
+                value={fmtINR(kpis.totalPurchaseValue, kpis.currency)}
                 icon={<Wallet className="h-4 w-4" />}
                 active={false}
                 onClick={onClearAll}
@@ -79,7 +69,7 @@ export function VendorsKpiStrip({
                 }
                 hint={
                     kpis.topVendor
-                        ? fmtMoney(kpis.topVendor.value, kpis.currency)
+                        ? fmtINR(kpis.topVendor.value, kpis.currency)
                         : 'No purchase orders yet'
                 }
                 icon={<Crown className="h-4 w-4" />}

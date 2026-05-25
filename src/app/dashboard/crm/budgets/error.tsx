@@ -1,29 +1,34 @@
 'use client';
 
+import * as React from 'react';
 import { Button } from '@/components/zoruui';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function BudgetsError({
-  error,
-  reset,
+    error,
+    reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+    error: Error & { digest?: string };
+    reset: () => void;
 }) {
-  return (
-    <EntityListShell
-      title="Budgets & Forecasting"
-      subtitle="Track revenue and expense targets against actuals."
-    >
-      <div className="flex flex-col items-center justify-center rounded-lg border border-zoru-line bg-zoru-surface py-12 text-center">
-        <h2 className="text-lg font-medium text-zoru-ink">Something went wrong!</h2>
-        <p className="mt-2 text-[13px] text-zoru-ink-muted">
-          {error.message || 'An unexpected error occurred while loading budgets.'}
-        </p>
-        <Button onClick={() => reset()} className="mt-4">
-          Try again
-        </Button>
-      </div>
-    </EntityListShell>
-  );
+    React.useEffect(() => {
+        console.error('Budgets route error:', error);
+    }, [error]);
+
+    return (
+        <div className="flex h-[400px] w-full flex-col items-center justify-center gap-4 rounded-md border border-zoru-line border-dashed bg-zoru-surface-hover p-6 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
+            </div>
+            <div className="space-y-1">
+                <h3 className="text-lg font-medium text-zoru-ink">Something went wrong!</h3>
+                <p className="max-w-[400px] text-sm text-zoru-ink-muted">
+                    {error.message || 'An unexpected error occurred while loading budgets data. Please try again.'}
+                </p>
+            </div>
+            <Button onClick={reset} variant="outline" className="mt-2">
+                <RefreshCw className="mr-2 h-4 w-4" /> Try again
+            </Button>
+        </div>
+    );
 }

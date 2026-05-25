@@ -26,6 +26,8 @@ import {
   LuBell,
   LuSave,
   LuCheck,
+  LuListTree,
+  LuGlobe,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import { useT } from '@/lib/i18n/client';
@@ -42,14 +44,18 @@ type UsageResponse = {
     successRate: number;
     avgDurationMs: number;
     p95DurationMs: number;
+    steps: number;
+    apiUsage: number;
     trends?: {
       total: number;
       successRate: number;
       errored: number;
       p95DurationMs: number;
+      steps: number;
+      apiUsage: number;
     };
   };
-  daily: { date: string; count: number; errors: number }[];
+  daily: { date: string; count: number; errors: number; steps: number }[];
   topFlows: { flowId: string; name: string; runs: number }[];
   topFailing: { flowId: string; name: string; errors: number }[];
 };
@@ -165,7 +171,7 @@ function KpiCards({ data }: { data: UsageResponse }) {
   const { t, locale } = useT();
   const { summary } = data;
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-3">
       <Kpi
         icon={<LuActivity className="h-3.5 w-3.5" />}
         label={t('sabflow.usage.kpi.totalRuns')}
@@ -197,6 +203,22 @@ function KpiCards({ data }: { data: UsageResponse }) {
         accent="text-amber-600 dark:text-amber-400"
         trend={summary.trends?.p95DurationMs}
         goodDirection="down"
+      />
+      <Kpi
+        icon={<LuListTree className="h-3.5 w-3.5" />}
+        label={t('sabflow.usage.kpi.steps', { defaultValue: 'Workspace Steps' })}
+        value={(summary.steps ?? 0).toLocaleString(locale)}
+        accent="text-fuchsia-600 dark:text-fuchsia-400"
+        trend={summary.trends?.steps}
+        goodDirection="up"
+      />
+      <Kpi
+        icon={<LuGlobe className="h-3.5 w-3.5" />}
+        label={t('sabflow.usage.kpi.apiUsage', { defaultValue: 'Global API Calls' })}
+        value={(summary.apiUsage ?? 0).toLocaleString(locale)}
+        accent="text-cyan-600 dark:text-cyan-400"
+        trend={summary.trends?.apiUsage}
+        goodDirection="up"
       />
     </div>
   );
@@ -248,6 +270,8 @@ function Kpi({
 
 function DailyChart({ data }: { data: UsageResponse }) {
   const { t } = useT();
+  const [mode, setMode] = useState<'runs' | 'steps'>('runs');
+
   if (data.daily.length === 0) {
     return (
       <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-[var(--gray-5)] text-[12px] text-[var(--gray-9)]">
@@ -255,30 +279,65 @@ function DailyChart({ data }: { data: UsageResponse }) {
       </div>
     );
   }
-  const max = Math.max(...data.daily.map((d) => d.count));
+  
+  const max = Math.max(...data.daily.map((d) => mode === 'runs' ? d.count : (d.steps || 0)));
+  
   return (
     <div className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 sm:p-4">
-      <div className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide mb-2 sm:mb-3">
-        <LuChartNoAxesColumn className="h-3 w-3" />
-        {t('sabflow.usage.dailyChart.title')}
+      <div className="flex items-center justify-between mb-2 sm:mb-3">
+        <div className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
+          <LuChartNoAxesColumn className="h-3 w-3" />
+          {mode === 'runs' 
+            ? t('sabflow.usage.dailyChart.title', { defaultValue: 'Daily Runs' })
+            : t('sabflow.usage.dailyChart.stepsTitle', { defaultValue: 'Daily Steps' })}
+        </div>
+        <div className="flex items-center gap-1 bg-[var(--gray-3)] rounded-lg p-0.5">
+          <button
+            type="button"
+            onClick={() => setMode('runs')}
+            className={cn(
+              'rounded-md px-2 py-0.5 text-[10px] font-medium transition-colors',
+              mode === 'runs' ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm' : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]'
+            )}
+          >
+            {t('sabflow.usage.dailyChart.modeRuns', { defaultValue: 'Runs' })}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('steps')}
+            className={cn(
+              'rounded-md px-2 py-0.5 text-[10px] font-medium transition-colors',
+              mode === 'steps' ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm' : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]'
+            )}
+          >
+            {t('sabflow.usage.dailyChart.modeSteps', { defaultValue: 'Steps' })}
+          </button>
+        </div>
       </div>
       <div className="flex items-end gap-0.5 sm:gap-1 h-24 sm:h-32">
         {data.daily.map((d) => {
-          const heightPct = max > 0 ? Math.max(2, (d.count / max) * 100) : 2;
-          const errHeightPct =
-            max > 0 ? Math.max(0, (d.errors / max) * 100) : 0;
+          const val = mode === 'runs' ? d.count : (d.steps || 0);
+          const heightPct = max > 0 ? Math.max(2, (val / max) * 100) : 2;
+          const errHeightPct = mode === 'runs' && max > 0 ? Math.max(0, (d.errors / max) * 100) : 0;
           return (
             <div
               key={d.date}
               className="flex flex-1 flex-col items-center gap-1 group"
-              title={t('sabflow.usage.dailyChart.tooltip', { date: d.date, count: d.count, errors: d.errors })}
+              title={mode === 'runs' 
+                ? t('sabflow.usage.dailyChart.tooltip', { date: d.date, count: d.count, errors: d.errors })
+                : t('sabflow.usage.dailyChart.tooltipSteps', { date: d.date, steps: d.steps || 0 })}
             >
               <div className="relative w-full flex-1 flex items-end">
                 <div
-                  className="w-full rounded-t bg-blue-500/30 group-hover:bg-blue-500/60 transition-colors"
+                  className={cn(
+                    "w-full rounded-t transition-colors",
+                    mode === 'runs' 
+                      ? "bg-blue-500/30 group-hover:bg-blue-500/60" 
+                      : "bg-fuchsia-500/30 group-hover:bg-fuchsia-500/60"
+                  )}
                   style={{ height: `${heightPct}%` }}
                 />
-                {errHeightPct > 0 && (
+                {mode === 'runs' && errHeightPct > 0 && (
                   <div
                     className="absolute bottom-0 w-full rounded-t bg-red-500/60"
                     style={{ height: `${errHeightPct}%` }}

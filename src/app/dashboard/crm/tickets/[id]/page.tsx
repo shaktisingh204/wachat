@@ -34,6 +34,8 @@ import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
 
 import { TicketDetailClient } from '../_components/ticket-detail-client';
+import { Suspense } from 'react';
+import { TicketConversationThread } from '../_components/ticket-conversation-thread';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,14 +51,26 @@ const PRIORITY_VARIANTS: Record<
 
 function fmtDate(v?: string): string {
     if (!v) return '—';
-    const d = new Date(v);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    const date = new Date(v);
+    if (Number.isNaN(date.getTime())) return '—';
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getUTCMonth()];
+    const year = date.getUTCFullYear();
+    return `${day} ${month} ${year}`;
 }
 
 function fmtDateTime(v?: string): string {
     if (!v) return '—';
-    const d = new Date(v);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
+    const date = new Date(v);
+    if (Number.isNaN(date.getTime())) return '—';
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getUTCMonth()];
+    const year = date.getUTCFullYear();
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    return `${day} ${month} ${year} ${hours}:${minutes} UTC`;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -121,7 +135,11 @@ export default async function TicketDetailPage({
             back={{ href: '/dashboard/crm/tickets', label: 'Tickets' }}
         >
 
-            <TicketDetailClient ticket={ticket} />
+            <TicketDetailClient ticket={ticket}>
+                <Suspense fallback={<div className="p-3 text-center text-muted-foreground">Loading conversation thread...</div>}>
+                    <TicketConversationThread ticketId={id} />
+                </Suspense>
+            </TicketDetailClient>
 
             <div className="grid gap-4 lg:grid-cols-3">
                 <div className="flex flex-col gap-4 lg:col-span-2">

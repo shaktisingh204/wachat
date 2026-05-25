@@ -1,4 +1,5 @@
 import { Badge, Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Table, ZoruTableHeader, ZoruTableBody, ZoruTableRow, ZoruTableHead, ZoruTableCell } from '@/components/zoruui/table';
 import {
   notFound } from 'next/navigation';
 import { History,
@@ -35,7 +36,7 @@ import { getStockTransferById } from '@/app/actions/crm-stock-transfers.actions'
 
 import { StockTransferDetailActions } from '../_components/stock-transfer-detail-actions';
 import { StockTransferDetailTabs } from '../_components/stock-transfer-detail-tabs';
-import { fmtDate, fmtINR } from '@/lib/utils';
+import { fmtDate } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -250,54 +251,54 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                 </ZoruCardHeader>
                 <ZoruCardContent className="p-0">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-[12.5px]">
-                            <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
-                                <tr>
-                                    <th className="px-3 py-2 text-left font-medium">
+                        <Table className="w-full text-[12.5px]">
+                            <ZoruTableHeader className="bg-zoru-surface-2 text-zoru-ink-muted">
+                                <ZoruTableRow>
+                                    <ZoruTableHead className="px-3 py-2 text-left font-medium">
                                         Item
-                                    </th>
-                                    <th className="px-3 py-2 text-right font-medium">
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="px-3 py-2 text-right font-medium">
                                         Quantity
-                                    </th>
-                                    <th className="px-3 py-2 text-left font-medium">
+                                    </ZoruTableHead>
+                                    <ZoruTableHead className="px-3 py-2 text-left font-medium">
                                         Unit
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                                    </ZoruTableHead>
+                                </ZoruTableRow>
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
                                 {lineItems.length > 0 ? (
                                     lineItems.map((l, idx) => (
-                                        <tr
+                                        <ZoruTableRow
                                             key={idx}
                                             className="border-t border-zoru-line"
                                         >
-                                            <td className="px-3 py-2">
+                                            <ZoruTableCell className="px-3 py-2">
                                                 <EntityPickerChip
                                                     entity="item"
                                                     id={String(l.itemId)}
                                                     fallback={l.itemName || 'Item'}
                                                 />
-                                            </td>
-                                            <td className="px-3 py-2 text-right font-mono">
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="px-3 py-2 text-right font-mono">
                                                 {l.quantity}
-                                            </td>
-                                            <td className="px-3 py-2">
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="px-3 py-2">
                                                 {l.unit || '—'}
-                                            </td>
-                                        </tr>
+                                            </ZoruTableCell>
+                                        </ZoruTableRow>
                                     ))
                                 ) : (
-                                    <tr className="border-t border-zoru-line">
-                                        <td
+                                    <ZoruTableRow className="border-t border-zoru-line">
+                                        <ZoruTableCell
                                             colSpan={3}
                                             className="px-3 py-4 text-center text-zoru-ink-muted"
                                         >
                                             No line items
-                                        </td>
-                                    </tr>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 )}
-                            </tbody>
-                        </table>
+                            </ZoruTableBody>
+                        </Table>
                     </div>
                 </ZoruCardContent>
             </Card>

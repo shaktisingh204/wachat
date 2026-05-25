@@ -10,14 +10,16 @@ import { listSabFlowWorkspaces, type Workspace } from '../actions';
 const ROLE_STYLES: Record<string, string> = {
   owner: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
   admin: 'bg-violet-500/15 text-violet-300 border-violet-500/30',
+  editor: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+  viewer: 'bg-zinc-700/40 text-zinc-300 border-zinc-600/60',
   member: 'bg-zinc-700/40 text-zinc-300 border-zinc-600/60',
 };
 
 const PLAN_STYLES: Record<string, string> = {
-  Free: 'bg-zinc-800 text-zinc-300 border-zinc-700/60',
-  Starter: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
-  Pro: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-  Business: 'bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30',
+  free: 'bg-zinc-800 text-zinc-300 border-zinc-700/60',
+  starter: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
+  pro: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+  enterprise: 'bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30',
 };
 
 export function WorkspacesClient({ initialData }: { initialData: any }) {
@@ -166,7 +168,7 @@ function WorkspaceCard({ workspace, t }: { workspace: Workspace; t: any }) {
       <div className="mt-4 flex items-center justify-between text-xs">
         <span
           className={cn(
-            'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border',
+            'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border capitalize',
             PLAN_STYLES[workspace.plan],
           )}
         >

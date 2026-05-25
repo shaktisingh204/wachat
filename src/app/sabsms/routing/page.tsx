@@ -12,7 +12,13 @@ import {
   Download,
   Upload,
   Play,
-  GripVertical
+  GripVertical,
+  ArrowUp,
+  ArrowDown,
+  X,
+  CheckCircle2,
+  XCircle,
+  Search
 } from "lucide-react";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 import { SabsmsFilterBar, type SabsmsSortOption } from "@/components/sabsms/page-toolkit/sabsms-filter-bar";
@@ -48,6 +54,205 @@ const SORT_OPTIONS: SabsmsSortOption[] = [
   { id: "priority_desc", label: "Priority (Low to High)", field: "priority", direction: "desc" },
   { id: "name_asc", label: "Name (A-Z)", field: "name", direction: "asc" },
 ];
+
+function FallbackFlowBuilder() {
+  const [flow, setFlow] = React.useState([
+    { id: "1", type: "primary", provider: "Twilio" },
+    { id: "2", type: "fallback", provider: "Vonage" },
+    { id: "3", type: "fallback", provider: "Sinch" }
+  ]);
+
+  const moveUp = (index: number) => {
+    if (index <= 1) return;
+    const newFlow = [...flow];
+    [newFlow[index - 1], newFlow[index]] = [newFlow[index], newFlow[index - 1]];
+    setFlow(newFlow);
+  };
+
+  const moveDown = (index: number) => {
+    if (index === 0 || index === flow.length - 1) return;
+    const newFlow = [...flow];
+    [newFlow[index + 1], newFlow[index]] = [newFlow[index], newFlow[index + 1]];
+    setFlow(newFlow);
+  };
+
+  const remove = (index: number) => {
+    if (index === 0) return;
+    const newFlow = [...flow];
+    newFlow.splice(index, 1);
+    setFlow(newFlow);
+  };
+
+  const addFallback = () => {
+    setFlow([...flow, { id: Date.now().toString(), type: "fallback", provider: "Plivo" }]);
+  };
+
+  return (
+    <div className="space-y-3 bg-slate-50/50 p-4 rounded-lg border border-slate-100 mt-2">
+      {flow.map((node, i) => (
+        <div key={node.id} className="relative flex items-center gap-3">
+          {i > 0 && (
+            <div className="absolute left-[11px] -top-[16px] bottom-1/2 w-px bg-slate-300" />
+          )}
+          <div className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium border ${i === 0 ? "bg-blue-100 border-blue-300 text-blue-700" : "bg-white border-slate-300 text-slate-600 shadow-sm"}`}>
+            {i + 1}
+          </div>
+          <div className={`flex-1 flex items-center justify-between p-2.5 border rounded-md shadow-sm transition-colors ${i === 0 ? "bg-blue-50/50 border-blue-200" : "bg-white border-slate-200 hover:border-slate-300"}`}>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{i === 0 ? "Primary Provider" : `Fallback ${i}`}</span>
+              <span className="text-sm font-medium text-slate-900">{node.provider}</span>
+            </div>
+            {i > 0 && (
+              <div className="flex items-center gap-0.5">
+                <button onClick={() => moveUp(i)} disabled={i === 1} className="p-1.5 text-slate-400 hover:text-slate-600 disabled:opacity-30 rounded hover:bg-slate-100 transition-colors">
+                  <ArrowUp className="h-3.5 w-3.5" />
+                </button>
+                <button onClick={() => moveDown(i)} disabled={i === flow.length - 1} className="p-1.5 text-slate-400 hover:text-slate-600 disabled:opacity-30 rounded hover:bg-slate-100 transition-colors">
+                  <ArrowDown className="h-3.5 w-3.5" />
+                </button>
+                <div className="w-px h-4 bg-slate-200 mx-1" />
+                <button onClick={() => remove(i)} className="p-1.5 text-slate-400 hover:text-red-600 rounded hover:bg-red-50 transition-colors">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+      <div className="relative flex items-center gap-3 pt-1">
+        <div className="absolute left-[11px] -top-3 bottom-1/2 w-px border-l-2 border-dashed border-slate-300" />
+        <div className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white border-2 border-dashed border-slate-300 text-slate-400">
+          <Plus className="h-3 w-3" />
+        </div>
+        <button onClick={addFallback} className="text-sm text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1.5 transition-colors">
+          Add Fallback Route
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function RouteTraceTool() {
+  const [phoneNumber, setPhoneNumber] = React.useState("");
+  const [category, setCategory] = React.useState("Any");
+  const [traceLog, setTraceLog] = React.useState<any[] | null>(null);
+  const [isTracing, setIsTracing] = React.useState(false);
+
+  const handleTrace = () => {
+    setIsTracing(true);
+    setTimeout(() => {
+      const logs = [];
+      let matchedRule = null;
+      for (const rule of MOCK_RULES) {
+        if (rule.status === "inactive") {
+          logs.push({ rule, status: "skipped", reason: "Rule is inactive" });
+          continue;
+        }
+
+        let isMatch = true;
+        let mismatchReason = "";
+
+        if (rule.destination.includes("US") && !phoneNumber.startsWith("+1")) {
+          isMatch = false;
+          mismatchReason = "Destination mismatch (Not US)";
+        } else if (rule.destination.includes("UK") && !phoneNumber.startsWith("+44")) {
+          isMatch = false;
+          mismatchReason = "Destination mismatch (Not UK)";
+        } else if (rule.destination.includes("IN") && !phoneNumber.startsWith("+91")) {
+          isMatch = false;
+          mismatchReason = "Destination mismatch (Not IN)";
+        }
+        
+        if (isMatch && rule.category !== "Any" && category !== "Any" && rule.category !== category) {
+          isMatch = false;
+          mismatchReason = `Category mismatch (${category} != ${rule.category})`;
+        }
+
+        if (isMatch) {
+          logs.push({ rule, status: "matched", reason: "All conditions met" });
+          matchedRule = rule;
+          break;
+        } else {
+          logs.push({ rule, status: "skipped", reason: mismatchReason || "Conditions not met" });
+        }
+      }
+
+      if (!matchedRule) {
+        logs.push({ 
+          rule: { name: "Global Fallback", provider: "Sinch", priority: 999 }, 
+          status: "matched", 
+          reason: "Fell back to default provider" 
+        });
+      }
+
+      setTraceLog(logs);
+      setIsTracing(false);
+    }, 800);
+  };
+
+  return (
+    <Card>
+      <ZoruCardHeader>
+        <ZoruCardTitle className="text-base flex items-center gap-2">
+          <Search className="h-4 w-4" /> Routing Trace Tool
+        </ZoruCardTitle>
+        <ZoruCardDescription>Input a number to explain exactly which provider will be used and why.</ZoruCardDescription>
+      </ZoruCardHeader>
+      <ZoruCardContent className="space-y-4">
+        <div>
+          <label className="text-xs text-slate-500 mb-1 block">Test Number</label>
+          <input 
+            type="text" 
+            placeholder="+1 234 567 8900" 
+            className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-xs text-slate-500 mb-1 block">Message Category</label>
+          <select 
+            className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option>Any</option>
+            <option>Marketing</option>
+            <option>OTP</option>
+            <option>Alert</option>
+          </select>
+        </div>
+        <Button variant="outline" className="w-full" onClick={handleTrace} disabled={isTracing || !phoneNumber}>
+          {isTracing ? "Tracing..." : "Run Trace"}
+        </Button>
+
+        {traceLog && (
+          <div className="mt-4 space-y-2 border-t border-slate-100 pt-4">
+            <h4 className="text-sm font-semibold mb-3">Trace Results</h4>
+            {traceLog.map((log, i) => (
+              <div key={i} className={`p-3 rounded-md text-sm border ${log.status === "matched" ? "bg-green-50 border-green-200" : "bg-slate-50 border-slate-100 opacity-75"}`}>
+                <div className="flex items-center gap-2 font-medium mb-1">
+                  {log.status === "matched" ? (
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <XCircle className="h-4 w-4 text-slate-400" />
+                  )}
+                  <span className={log.status === "matched" ? "text-green-900" : "text-slate-700"}>
+                    {log.rule.name}
+                  </span>
+                  <Badge variant="outline" className="ml-auto text-[10px]">{log.rule.provider}</Badge>
+                </div>
+                <div className="text-xs text-slate-500 ml-6">
+                  {log.reason}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </ZoruCardContent>
+    </Card>
+  );
+}
 
 export default function RoutingPage() {
   const urlState = useSabsmsUrlState();
@@ -273,17 +478,7 @@ export default function RoutingPage() {
         </div>
 
         <div className="space-y-6">
-          <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle className="text-base flex items-center gap-2">
-                <Play className="h-4 w-4" /> Test Routing
-              </ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
-              <div className="text-sm text-slate-500">Simulate routing for a sample message to verify your chain.</div>
-              <Button variant="outline" className="w-full">Run Simulation</Button>
-            </ZoruCardContent>
-          </Card>
+          <RouteTraceTool />
 
           <Card>
             <ZoruCardHeader>
@@ -353,23 +548,13 @@ export default function RoutingPage() {
             </div>
 
             <div className="pt-4 border-t border-slate-100">
-              <h4 className="text-sm font-medium mb-3">Routing</h4>
-              <div>
-                <label className="text-xs text-slate-500">Primary Provider</label>
-                <select className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm mt-1">
-                  <option>Twilio</option>
-                  <option>Vonage</option>
-                  <option>Sinch</option>
-                </select>
-              </div>
-              <div className="mt-3">
-                <label className="text-xs text-slate-500">Failover Order (Per-country overrides supported)</label>
-                <div className="flex gap-2 mt-1">
-                  <Badge variant="secondary">1. Vonage</Badge>
-                  <Badge variant="secondary">2. Sinch</Badge>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h4 className="text-sm font-medium">Routing Flow</h4>
+                  <p className="text-xs text-slate-500 mt-1">Define primary and fallback providers visually.</p>
                 </div>
-                <Button variant="link" className="px-0 text-xs mt-1">Edit Failovers</Button>
               </div>
+              <FallbackFlowBuilder />
             </div>
           </div>
         </div>

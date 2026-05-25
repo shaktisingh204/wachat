@@ -19,8 +19,10 @@ import {
   ZoruAlertDescription,
   EmptyState,
   Separator,
+  Progress,
+  Badge,
 } from '@/components/zoruui';
-import { AlertCircle, TriangleAlert, Copy, Boxes, Trash2, Activity } from 'lucide-react';
+import { AlertCircle, TriangleAlert, Copy, Boxes, Trash2, Activity, BarChart2 } from 'lucide-react';
 
 interface Props {
   initialApps: OAuthAppRow[];
@@ -206,34 +208,48 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
                 <Separator className="my-3" />
                 
                 <div className="bg-zinc-50/50 rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-2 text-sm font-medium text-zoru-ink">
-                    <Activity className="h-4 w-4 text-amber-500" />
-                    Usage & Limits
+                  <div className="flex items-center gap-2 mb-3 text-sm font-medium text-zoru-ink">
+                    <BarChart2 className="h-4 w-4 text-zoru-brand" />
+                    Usage & Rate Limit
                   </div>
-                  <div className="grid grid-cols-2 gap-4 text-xs">
+                  
+                  <div className="space-y-4 text-xs">
                     <div>
-                      <p className="text-zoru-ink-subtle mb-0.5">Rate limit</p>
-                      <p className="text-zoru-ink font-medium">10,000 req / day</p>
+                      <div className="flex justify-between items-end mb-1">
+                        <p className="text-zoru-ink-subtle">API Requests (30d)</p>
+                        <p className="text-zoru-ink font-medium">
+                          {usageData.find((u) => u.keyId === a.clientId)?.count || 0} / 10,000
+                        </p>
+                      </div>
+                      <Progress 
+                        value={Math.min(100, ((usageData.find((u) => u.keyId === a.clientId)?.count || 0) / 10000) * 100)} 
+                        className="h-2" 
+                      />
                     </div>
-                    <div>
-                      <p className="text-zoru-ink-subtle mb-0.5">Requests (30d)</p>
-                      <p className="text-zoru-ink font-medium">
-                        {usageData.find(u => u.keyId === a.clientId)?.count || 0}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-zoru-ink-subtle mb-0.5">Errors (30d)</p>
-                      <p className="text-zoru-ink font-medium text-red-600">
-                        {usageData.find(u => u.keyId === a.clientId)?.errorCount || 0}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-zoru-ink-subtle mb-0.5">Last used</p>
-                      <p className="text-zoru-ink font-medium">
-                        {usageData.find(u => u.keyId === a.clientId)?.lastUsedAt 
-                          ? new Date(usageData.find(u => u.keyId === a.clientId)?.lastUsedAt as string).toLocaleString() 
-                          : 'Never'}
-                      </p>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-zoru-ink-subtle mb-1">Status</p>
+                        <Badge 
+                          variant={((usageData.find((u) => u.keyId === a.clientId)?.count || 0) >= 10000) ? 'danger' : 'success'}
+                        >
+                          {((usageData.find((u) => u.keyId === a.clientId)?.count || 0) >= 10000) ? 'Rate Limited' : 'Active'}
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-zoru-ink-subtle mb-1">Errors (30d)</p>
+                        <p className={`font-medium ${(usageData.find((u) => u.keyId === a.clientId)?.errorCount || 0) > 0 ? 'text-red-600' : 'text-zoru-ink'}`}>
+                          {usageData.find((u) => u.keyId === a.clientId)?.errorCount || 0}
+                        </p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-zoru-ink-subtle mb-1">Last used</p>
+                        <p className="text-zoru-ink font-medium">
+                          {usageData.find((u) => u.keyId === a.clientId)?.lastUsedAt 
+                            ? new Date(usageData.find((u) => u.keyId === a.clientId)?.lastUsedAt as string).toLocaleString() 
+                            : 'Never'}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -27,13 +27,36 @@ function fmtDateTime(value: unknown): string {
     return new Intl.DateTimeFormat('en-US', {
         dateStyle: 'medium',
         timeStyle: 'short',
+        timeZone: 'UTC', // Ensure deterministic dates for hydration
     }).format(d);
 }
 
-function KpiSkeleton() {
+function DashboardSkeleton() {
     return (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}
+        <div className="w-full">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+                {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}
+            </div>
+            
+            <div className="mb-6 h-10 w-full max-w-sm">
+                <Skeleton className="h-full w-full rounded-md" />
+            </div>
+            
+            <div className="mb-8">
+                <Skeleton className="h-6 w-48 mb-4 rounded" />
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {[1, 2, 3].map((i) => (
+                        <Skeleton key={i} className="h-48 w-full rounded-xl" />
+                    ))}
+                </div>
+            </div>
+            
+            <div className="mb-4 flex items-center justify-between">
+                <Skeleton className="h-6 w-48 rounded" />
+                <Skeleton className="h-9 w-32 rounded-full" />
+            </div>
+            
+            <Skeleton className="h-24 w-full rounded-xl" />
         </div>
     );
 }
@@ -83,9 +106,7 @@ async function IntegrationsDashboard({ q }: { q?: string }) {
 
     return (
         <>
-            <Suspense fallback={<KpiSkeleton />}>
-                <HubKpiGrid kpis={kpis} />
-            </Suspense>
+            <HubKpiGrid kpis={kpis} />
 
             <IntegrationsSearch />
 
@@ -128,7 +149,7 @@ async function IntegrationsDashboard({ q }: { q?: string }) {
                                     {connected && (integration.lastSyncAt || integration.syncStatus) ? (
                                         <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-zoru-ink-muted">
                                             {integration.syncStatus ? <span>sync: {integration.syncStatus}</span> : null}
-                                            {integration.lastSyncAt ? <span>last sync: {fmtDateTime(integration.lastSyncAt)}</span> : null}
+                                            {integration.lastSyncAt ? <span suppressHydrationWarning>last sync: {fmtDateTime(integration.lastSyncAt)}</span> : null}
                                         </div>
                                     ) : null}
 
@@ -181,7 +202,7 @@ export default async function IntegrationsPage({
             title="Integrations"
             subtitle="Connect your CRM to other tools and services to streamline your workflow."
         >
-            <Suspense fallback={<KpiSkeleton />}>
+            <Suspense fallback={<DashboardSkeleton />}>
                 <IntegrationsDashboard q={q} />
             </Suspense>
         </EntityListShell>

@@ -512,3 +512,79 @@ export async function acceptInvite(
     { $set: { acceptedAt: new Date() } },
   );
 }
+
+export async function getPaginatedWorkspacesByUser(
+  userId: string,
+  query: string = '',
+  page: number = 1,
+  limit: number = 12
+) {
+  const memberCol = await getMemberCollection();
+  const wsCol = await getWorkspaceCollection();
+
+  const memberships = await memberCol
+    .find({ userId }, { projection: { workspaceId: 1, role: 1 } })
+    .toArray();
+
+  if (memberships.length === 0) {
+    return { data: [], totalCount: 0 };
+  }
+
+  const roleMap = new Map(memberships.map((m) => [m.workspaceId, m.role]));
+
+  const ids = memberships
+    .map((m) => m.workspaceId)
+    .filter((id): id is string => typeof id === 'string' && ObjectId.isValid(id))
+    .map((id) => new ObjectId(id));
+
+  const matchFilter: any = { _id: { $in: ids } };
+  const q = query.trim();
+  
+  if (q) {
+    const conditions: any[] = [{ name: { $regex: q, $options: 'i' } }];
+    if (ObjectId.isValid(q)) {
+      conditions.push({ _id: new ObjectId(q) });
+    } else {
+      // Also search by hex string prefix or substring if requested, but normally we just match by name.
+      // The original code did `w.id.toLowerCase().includes(q)`.
+      // We can't do regex on ObjectId easily, but we can search name.
+    }
+    matchFilter.$or = conditions;
+  }
+
+  const totalCount = await wsCol.countDocuments(matchFilter);
+
+  const start = (page - 1) * limit;
+  const docs = await wsCol
+    .find(matchFilter)
+    .sort({ updatedAt: -1 })
+    .skip(start)
+    .limit(limit)
+    .toArray();
+
+  if (docs.length === 0) {
+    return { data: [], totalCount };
+  }
+
+  const docsIdsStr = docs.map((d) => d._id.toHexString());
+  const counts = await memberCol
+    .aggregate<{ _id: string; count: number }>([
+      { $match: { workspaceId: { $in: docsIdsStr } } },
+      { $group: { _id: '$workspaceId', count: { $sum: 1 } } },
+    ])
+    .toArray();
+  const countMap = new Map(counts.map((c) => [c._id, c.count]));
+
+  const data = docs.map((d) => {
+    const wId = d._id.toHexString();
+    return {
+      id: wId,
+      name: d.name,
+      plan: d.plan || 'free',
+      memberCount: countMap.get(wId) || 1,
+      role: roleMap.get(wId) || 'viewer',
+    };
+  });
+
+  return { data, totalCount };
+}

@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getPortalUserById } from '@/app/actions/crm-portal.actions';
 
+import React from 'react';
 import { PortalDetailActions } from '../_components/portal-detail-actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
@@ -100,7 +101,11 @@ export default async function PortalDetailPage({ params }: PageProps) {
       status={{ label: status, tone: statusTone(status) }}
       back={{ href: '/dashboard/crm/portal', label: 'All portal users' }}
       actions={<PortalDetailActions portalUserId={id} status={status} />}
-      audit={<EntityAuditTimeline entityKind="portal_user" entityId={id} />}
+      audit={
+        <React.Suspense fallback={<div className="h-64 w-full animate-pulse bg-zoru-surface-2 rounded-md" />}>
+          <EntityAuditTimeline entityKind="portal_user" entityId={id} />
+        </React.Suspense>
+      }
       rightRail={
         <>
           <Card>

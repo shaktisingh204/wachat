@@ -7,6 +7,8 @@ import { SyncLocalTemplatesButton } from '@/components/wabasimplify/sync-local-t
 import { WebhookProcessingToggle } from '@/components/wabasimplify/webhook-processing-toggle';
 import { DiwaliThemeToggle } from '@/components/wabasimplify/diwali-theme-toggle';
 import { AppLogoForm } from '@/components/wabasimplify/admin-logo-form';
+import { SystemBackupButton } from '@/components/wabasimplify/system-backup-button';
+import { MaintenanceModeToggle } from '@/components/wabasimplify/maintenance-mode-toggle';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,6 +75,7 @@ export default function SystemHealthPage() {
                         <SubscribeAllButton />
                         <RunCronJobsButton />
                         <SyncLocalTemplatesButton />
+                        <SystemBackupButton />
                     </div>
                 </SectionCard>
 
@@ -86,6 +89,8 @@ export default function SystemHealthPage() {
                         <WebhookProcessingToggle />
                         <Separator className="bg-zoru-line" />
                         <DiwaliThemeToggle />
+                        <Separator className="bg-zoru-line" />
+                        <MaintenanceModeToggle />
                     </div>
                 </SectionCard>
 

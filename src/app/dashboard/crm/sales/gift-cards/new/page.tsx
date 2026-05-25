@@ -15,8 +15,6 @@ import { EntityFormField } from '@/components/crm/entity-form-field';
 import { saveGiftCard } from '@/app/actions/crm-gift-cards.actions';
 import QRCode from 'react-qr-code';
 
-export const dynamic = 'force-dynamic';
-
 const initialState = { message: '', error: '' };
 
 function SaveButton() {

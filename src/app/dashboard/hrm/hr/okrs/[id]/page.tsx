@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 import { Badge, Button, Card, Progress } from '@/components/zoruui';
 import {
   notFound,
@@ -45,11 +46,7 @@ const KR_STATUS_TONE: Record<CrmOkrKeyResultStatus, StatusTone> = {
     completed: 'green',
 };
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function pretty(s?: string): string {
     if (!s) return '—';

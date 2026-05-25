@@ -27,6 +27,7 @@ import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'luci
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createBankRecon, updateBankRecon, deleteBankRecon, BankRecon } from '@/app/actions/finance/bank-reconciliation.actions';
 import { toast } from 'sonner';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 export function BankReconListClient({ initialItems, error }: { initialItems: BankRecon[], error?: string }) {
   const router = useRouter();
@@ -68,7 +69,7 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
     const formData = new FormData(e.currentTarget);
     const data: any = {};
     formData.forEach((val, key) => {
-      if (!isNaN(Number(val)) && val !== '') {
+      if (!isNaN(Number(val)) && val !== '' && key !== 'statementDate') {
         data[key] = Number(val);
       } else if (val === 'true' || val === 'false') {
         data[key] = val === 'true';
@@ -159,14 +160,17 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
               <Label>StatementDate</Label>
               <Input 
                 name="statementDate" 
-                defaultValue={editingId ? items.find(i => i._id === editingId)?.statementDate : ''} 
+                type="date"
+                defaultValue={editingId ? items.find(i => i._id === editingId)?.statementDate ? new Date(items.find(i => i._id === editingId)!.statementDate).toISOString().split('T')[0] : '' : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("statementDate")} 
               />
             </div>
             <div className="space-y-1">
               <Label>StatementBalance</Label>
               <Input 
-                name="statementBalance" 
+                name="statementBalance"
+                type="number"
+                step="any" 
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.statementBalance : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("statementBalance")} 
               />
@@ -175,6 +179,8 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
               <Label>BookBalance</Label>
               <Input 
                 name="bookBalance" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.bookBalance : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("bookBalance")} 
               />
@@ -234,7 +240,11 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
             ) : (
               filteredItems.map((item) => (
                 <TableRow key={item._id}>
-                  <TableCell>{String(item.accountId ?? '')}</TableCell><TableCell>{String(item.statementDate ?? '')}</TableCell><TableCell>{String(item.statementBalance ?? '')}</TableCell><TableCell>{String(item.bookBalance ?? '')}</TableCell><TableCell>{String(item.status ?? '')}</TableCell>
+                  <TableCell>{String(item.accountId ?? '')}</TableCell>
+                  <TableCell>{item.statementDate ? fmtDate(new Date(item.statementDate)) : ''}</TableCell>
+                  <TableCell>{fmtINR(Number(item.statementBalance || 0))}</TableCell>
+                  <TableCell>{fmtINR(Number(item.bookBalance || 0))}</TableCell>
+                  <TableCell>{String(item.status ?? '')}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

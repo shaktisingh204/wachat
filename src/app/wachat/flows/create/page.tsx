@@ -13,6 +13,12 @@ import {
   Skeleton,
   cn,
   useZoruToast,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/zoruui';
 import {
   Suspense,
@@ -29,6 +35,9 @@ import {
   Archive,
   ChevronLeft,
   Eye,
+  GripVertical,
+  History,
+  Layers,
   LoaderCircle,
   Save,
   Upload,
@@ -76,8 +85,43 @@ function PageSkeleton() {
   );
 }
 
-function ValidationBanner({ errors }: { errors: MetaFlowValidationError[] }) {
+function ValidationBanner({ 
+  errors,
+  flowData,
+  onSelectNode
+}: { 
+  errors: MetaFlowValidationError[];
+  flowData: any;
+  onSelectNode: (screenId: string, component: any) => void;
+}) {
   if (!errors?.length) return null;
+
+  const handleClick = (e: MetaFlowValidationError) => {
+    if (!e.pointers?.length) return;
+    const ptr = e.pointers[0]; // e.g., "/screens/0/layout/children/1"
+    const parts = ptr.split('/').filter(Boolean);
+    if (parts[0] === 'screens' && parts[1]) {
+      const screenIndex = parseInt(parts[1], 10);
+      const screen = flowData?.screens?.[screenIndex];
+      if (screen) {
+        let compNode = null;
+        let currObj = screen;
+        for (let i = 2; i < parts.length; i++) {
+            const p = parts[i];
+            if (currObj && currObj[p] !== undefined) {
+                currObj = currObj[p];
+                if (currObj && typeof currObj === 'object' && currObj.type) {
+                    compNode = currObj;
+                }
+            } else {
+                break;
+            }
+        }
+        onSelectNode(screen.id, compNode);
+      }
+    }
+  };
+
   return (
     <div className="border-b border-zoru-danger/30 bg-zoru-danger/5 px-4 py-2 text-[12.5px] text-zoru-danger-ink">
       <div className="flex items-center gap-2">
@@ -89,11 +133,93 @@ function ValidationBanner({ errors }: { errors: MetaFlowValidationError[] }) {
           <li key={i}>
             <span className="font-mono">{e.error_type ?? e.error ?? 'error'}</span>
             {e.line_start ? ` (line ${e.line_start})` : ''}: {e.message}
+            {e.pointers?.length ? (
+               <Button variant="link" size="sm" className="ml-2 h-auto p-0 text-zoru-danger-ink underline" onClick={() => handleClick(e)}>
+                 Locate
+               </Button>
+            ) : null}
           </li>
         ))}
         {errors.length > 5 ? <li>…and {errors.length - 5} more</li> : null}
       </ul>
     </div>
+  );
+}
+
+function ScreenReorderDialog({
+  open,
+  onOpenChange,
+  screens,
+  onReorder
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  screens: any[];
+  onReorder: (screens: any[]) => void;
+}) {
+  const [localScreens, setLocalScreens] = useState(screens);
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (open) setLocalScreens(screens);
+  }, [open, screens]);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIdx(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIdx === null || draggedIdx === index) return;
+    
+    const newScreens = [...localScreens];
+    const [dragged] = newScreens.splice(draggedIdx, 1);
+    newScreens.splice(index, 0, dragged);
+    
+    setDraggedIdx(index);
+    setLocalScreens(newScreens);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIdx(null);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Reorder Screens</DialogTitle>
+          <DialogDescription>Drag and drop to reorder the screens in your flow.</DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto">
+           {localScreens.map((screen, idx) => (
+             <div
+               key={screen.id}
+               draggable
+               onDragStart={(e) => handleDragStart(e, idx)}
+               onDragOver={(e) => handleDragOver(e, idx)}
+               onDragEnd={handleDragEnd}
+               className={cn(
+                 "cursor-grab active:cursor-grabbing p-3 border rounded-md flex items-center gap-3 transition-colors",
+                 draggedIdx === idx ? "bg-zoru-surface-hover opacity-50" : "bg-zoru-surface hover:bg-zoru-surface-hover"
+               )}
+             >
+               <GripVertical className="h-4 w-4 text-zoru-ink-muted" />
+               <Layers className="h-4 w-4 text-zoru-brand" />
+               <span className="font-medium">{screen.title || screen.id}</span>
+             </div>
+           ))}
+           {localScreens.length === 0 ? (
+             <div className="p-4 text-center text-sm text-zoru-ink-muted">No screens to reorder.</div>
+           ) : null}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={() => { onReorder(localScreens); onOpenChange(false); }}>Save Order</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -127,6 +253,14 @@ function CreateMetaFlowPageContent() {
   const [deprecating, setDeprecating] = useState(false);
 
   const [showEncryptionDialog, setShowEncryptionDialog] = useState(false);
+
+  const [lastSavedData, setLastSavedData] = useState<string>('');
+  const [reorderDialogOpen, setReorderDialogOpen] = useState(false);
+  
+  // History State
+  const [history, setHistory] = useState<any[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [isUndoRedo, setIsUndoRedo] = useState(false);
 
   const isEditing = !!flowId;
   const isDraft = status === 'DRAFT' || !status;
@@ -165,6 +299,7 @@ function CreateMetaFlowPageContent() {
         setStatus(fetched.status ?? 'DRAFT');
         setMetaId(fetched.metaId);
         setFlowData(fetched.flow_data ?? DEFAULT_FLOW);
+        setLastSavedData(JSON.stringify(fetched.flow_data ?? DEFAULT_FLOW));
         setValidation(fetched.validation_errors ?? []);
         if (fetched.flow_data?.screens?.[0]?.id) {
           setSelectedScreenId(fetched.flow_data.screens[0].id);
@@ -206,17 +341,17 @@ function CreateMetaFlowPageContent() {
   );
 
   const runSaveDraft = useCallback(
-    async (overrideFlowData?: any): Promise<string | null> => {
+    async (overrideFlowData?: any, showToast = true): Promise<string | null> => {
       if (!projectId) {
-        toast({ title: 'No project selected', variant: 'destructive' });
+        if (showToast) toast({ title: 'No project selected', variant: 'destructive' });
         return null;
       }
       if (!flowName.trim()) {
-        toast({ title: 'Flow name is required', variant: 'destructive' });
+        if (showToast) toast({ title: 'Flow name is required', variant: 'destructive' });
         return null;
       }
       if (!category) {
-        toast({ title: 'Pick a category', variant: 'destructive' });
+        if (showToast) toast({ title: 'Pick a category', variant: 'destructive' });
         return null;
       }
 
@@ -234,7 +369,7 @@ function CreateMetaFlowPageContent() {
           if (!created.success || !created.flowId) {
             setValidation(created.validation_errors ?? []);
             if (created.error && !handleEncryptionError(created.error)) {
-              toast({ title: 'Create failed', description: created.error, variant: 'destructive' });
+              if (showToast) toast({ title: 'Create failed', description: created.error, variant: 'destructive' });
             }
             return null;
           }
@@ -249,7 +384,7 @@ function CreateMetaFlowPageContent() {
           setValidation(saved.validation_errors ?? []);
           if (!saved.success) {
             if (saved.error && !handleEncryptionError(saved.error)) {
-              toast({
+              if (showToast) toast({
                 title: 'Flow created, but JSON upload failed',
                 description: saved.error,
                 variant: 'destructive',
@@ -259,7 +394,8 @@ function CreateMetaFlowPageContent() {
             return created.flowId;
           }
 
-          toast({ title: 'Draft created', description: created.message });
+          if (showToast) toast({ title: 'Draft created', description: created.message });
+          setLastSavedData(JSON.stringify(overrideFlowData ?? flowData));
           router.replace(`/wachat/flows/create?flowId=${created.flowId}`);
           return created.flowId;
         }
@@ -277,18 +413,19 @@ function CreateMetaFlowPageContent() {
         setValidation(saved.validation_errors ?? []);
         if (!saved.success) {
           if (saved.error && !handleEncryptionError(saved.error)) {
-            toast({ title: 'Save failed', description: saved.error, variant: 'destructive' });
+            if (showToast) toast({ title: 'Save failed', description: saved.error, variant: 'destructive' });
           }
           return null;
         }
         if (!meta.success && meta.error) {
-          toast({
+          if (showToast) toast({
             title: 'Metadata update failed',
             description: meta.error,
             variant: 'destructive',
           });
         }
-        toast({ title: 'Draft saved' });
+        if (showToast) toast({ title: 'Draft saved' });
+        setLastSavedData(JSON.stringify(overrideFlowData ?? flowData));
         return flowId;
       } finally {
         setSavingDraft(false);
@@ -296,6 +433,62 @@ function CreateMetaFlowPageContent() {
     },
     [projectId, flowName, category, endpointUri, flowData, flowId, router, toast, handleEncryptionError],
   );
+
+  // History tracking
+  useEffect(() => {
+    if (isUndoRedo) {
+       setIsUndoRedo(false);
+       return;
+    }
+    const timer = setTimeout(() => {
+       setHistory((prev) => {
+         const newHistory = prev.slice(0, historyIndex + 1);
+         if (newHistory.length > 0 && JSON.stringify(newHistory[newHistory.length - 1]) === JSON.stringify(flowData)) {
+            return prev;
+         }
+         newHistory.push(JSON.parse(JSON.stringify(flowData)));
+         if (newHistory.length > 30) newHistory.shift();
+         return newHistory;
+       });
+       setHistoryIndex((prev) => Math.min(prev + 1, 29));
+    }, 500); // debounce history entry
+    return () => clearTimeout(timer);
+  }, [flowData, historyIndex, isUndoRedo]);
+
+  const undo = () => {
+    if (historyIndex > 0) {
+      setIsUndoRedo(true);
+      setHistoryIndex(historyIndex - 1);
+      setFlowData(history[historyIndex - 1]);
+    }
+  };
+
+  const redo = () => {
+    if (historyIndex < history.length - 1) {
+      setIsUndoRedo(true);
+      setHistoryIndex(historyIndex + 1);
+      setFlowData(history[historyIndex + 1]);
+    }
+  };
+
+  // Auto-save logic
+  useEffect(() => {
+    const isEditingNow = !!flowId;
+    const isDraftNow = status === 'DRAFT' || !status;
+    const isDeprecatedNow = status === 'DEPRECATED';
+    
+    if (!isEditingNow || !isDraftNow || isDeprecatedNow || savingDraft || publishing) return;
+    
+    const currentDataStr = JSON.stringify(flowData);
+    if (currentDataStr === lastSavedData) return;
+
+    const timer = setTimeout(() => {
+      // Background auto-save, no toast
+      runSaveDraft(flowData, false);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [flowData, flowId, status, lastSavedData, savingDraft, publishing, runSaveDraft]);
 
   const runPublish = useCallback(async () => {
     if (!flowData?.screens?.length) {
@@ -435,11 +628,45 @@ function CreateMetaFlowPageContent() {
                 </ZoruSelectContent>
               </Select>
 
+              <div className="flex items-center rounded-md border border-zoru-line">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-none rounded-l-md border-r border-zoru-line"
+                  disabled={disableEdits || historyIndex <= 0}
+                  onClick={undo}
+                  title="Undo"
+                >
+                  <History className="h-3.5 w-3.5 -scale-x-100" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-none rounded-r-md"
+                  disabled={disableEdits || historyIndex >= history.length - 1}
+                  onClick={redo}
+                  title="Redo"
+                >
+                  <History className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={disableEdits || !isDraft}
+                onClick={() => setReorderDialogOpen(true)}
+                title="Reorder Screens"
+              >
+                <GripVertical className="h-4 w-4" />
+                Reorder
+              </Button>
+
               <Button
                 variant="outline"
                 size="sm"
                 disabled={savingDraft || disableEdits || !isDraft}
-                onClick={() => runSaveDraft()}
+                onClick={() => runSaveDraft(flowData, true)}
                 title={
                   !isDraft
                     ? 'Only DRAFT flows can be edited'
@@ -535,8 +762,24 @@ function CreateMetaFlowPageContent() {
             <span className="text-[10.5px] text-zoru-ink-muted">For data_exchange screens</span>
           </div>
 
-          <ValidationBanner errors={validation} />
+          <ValidationBanner 
+            errors={validation} 
+            flowData={flowData} 
+            onSelectNode={(screenId, comp) => {
+              setSelectedScreenId(screenId);
+              if (comp) setSelectedComponent(comp);
+            }} 
+          />
         </header>
+
+        <ScreenReorderDialog
+          open={reorderDialogOpen}
+          onOpenChange={setReorderDialogOpen}
+          screens={flowData?.screens || []}
+          onReorder={(newScreens) => {
+             setFlowData({ ...flowData, screens: newScreens });
+          }}
+        />
 
         <div className="flex-1 overflow-hidden">
           <MetaFlowBuilderLayout

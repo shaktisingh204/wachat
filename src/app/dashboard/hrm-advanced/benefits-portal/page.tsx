@@ -1,31 +1,33 @@
-'use client';
+import React, { Suspense } from 'react';
+import { getBenefitPlans } from '@/app/actions/hrm-advanced/benefits-portal';
+import BenefitsPortalClient from './client';
+import { Skeleton } from '@/components/zoruui';
 
-import React from 'react';
-import { EntityCrudPage } from '@/components/crm/entity-crud-page';
-import { getBenefitPlans, saveBenefitPlan, deleteBenefitPlan } from '@/app/actions/hrm-advanced/benefits-portal';
-import { BenefitPlan } from '@/lib/hrm-advanced-types';
+export const dynamic = 'force-dynamic';
 
-export default function Page() {
+export default function BenefitsPortalPage() {
   return (
-    <EntityCrudPage<BenefitPlan>
-      title="Benefits Portal"
-      description="Manage employee benefits and perks"
-      entityName="Plan"
-      fetchFn={getBenefitPlans}
-      saveFn={saveBenefitPlan}
-      deleteFn={deleteBenefitPlan}
-      formFields={[
-      { name: 'name', label: 'Plan Name', type: 'text' },
-      { name: 'provider', label: 'Provider', type: 'text' },
-      { name: 'coverageDetails', label: 'Coverage Details', type: 'text' },
-      { name: 'costToEmployee', label: 'Cost/mo', type: 'number' }
-    ]}
-      columns={[
-      { header: 'Plan Name', accessorKey: 'name' },
-      { header: 'Provider', accessorKey: 'provider' },
-      { header: 'Cost/mo', accessorKey: 'costToEmployee', render: (val) => `$${val}` }
-    ]}
-      defaultValues={{ costToEmployee: 0 }}
-    />
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0 mb-6">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight text-zoru-ink">Benefits Portal</h2>
+          <p className="text-zoru-ink-muted">Manage employee benefits, perks, and track costs.</p>
+        </div>
+      </div>
+      
+      <Suspense fallback={
+        <div className="space-y-4">
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-[500px] w-full" />
+        </div>
+      }>
+        <DataLoader />
+      </Suspense>
+    </div>
   );
+}
+
+async function DataLoader() {
+  const initialData = await getBenefitPlans();
+  return <BenefitsPortalClient initialData={initialData || []} />;
 }

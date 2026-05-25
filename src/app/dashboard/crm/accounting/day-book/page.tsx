@@ -26,6 +26,7 @@ import {
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
+    Input,
 } from '@/components/zoruui';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -72,10 +73,11 @@ function vendorPathFor(type: DayBookTransaction['type'], id: string): string {
 const HEADERS = ['Date', 'Type', 'Number', 'Party', 'Flow', 'Amount', 'Status'];
 
 export default function DayBookPage(): React.JSX.Element {
-    const now = React.useMemo(() => new Date(), []);
+    const [isMounted, setIsMounted] = React.useState(false);
     const [fyChoice, setFyChoice] = React.useState<FiscalChoice>('current');
-    const [range, setRange] = React.useState<DateRange | undefined>(() => currentFyRange(now));
+    const [range, setRange] = React.useState<DateRange | undefined>(undefined);
     const [voucherType, setVoucherType] = React.useState<string>('all');
+    const [search, setSearch] = React.useState('');
     const [transactions, setTransactions] = React.useState<DayBookTransaction[]>([]);
     const [totals, setTotals] = React.useState({ in: 0, out: 0 });
     const [countsByType, setCountsByType] = React.useState<Record<string, number>>({});
@@ -99,11 +101,19 @@ export default function DayBookPage(): React.JSX.Element {
     }, [range]);
 
     React.useEffect(() => {
-        void load();
-    }, [load]);
+        setIsMounted(true);
+        setRange(currentFyRange(new Date()));
+    }, []);
+
+    React.useEffect(() => {
+        if (isMounted) {
+            void load();
+        }
+    }, [load, isMounted]);
 
     const handleFyChange = (value: string) => {
         setFyChoice(value as FiscalChoice);
+        const now = new Date();
         if (value === 'current') setRange(currentFyRange(now));
         else if (value === 'previous') setRange(previousFyRange(now));
     };
@@ -113,10 +123,19 @@ export default function DayBookPage(): React.JSX.Element {
         setFyChoice('custom');
     };
 
-    const filtered = React.useMemo(
-        () => (voucherType === 'all' ? transactions : transactions.filter((t) => t.type === voucherType)),
-        [transactions, voucherType],
-    );
+    const filtered = React.useMemo(() => {
+        let result = voucherType === 'all' ? transactions : transactions.filter((t) => t.type === voucherType);
+        if (search.trim()) {
+            const q = search.toLowerCase();
+            result = result.filter(
+                (t) =>
+                    t.partyName.toLowerCase().includes(q) ||
+                    t.number.toLowerCase().includes(q) ||
+                    t.status.toLowerCase().includes(q)
+            );
+        }
+        return result;
+    }, [transactions, voucherType, search]);
 
     const start = (page - 1) * limit;
     const pageRows = filtered.slice(start, start + limit);
@@ -201,6 +220,12 @@ export default function DayBookPage(): React.JSX.Element {
                     <ZoruSelectItem value="Expense">Expenses</ZoruSelectItem>
                 </ZoruSelectContent>
             </Select>
+            <Input
+                placeholder="Search party or number..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-[200px]"
+            />
         </div>
     );
 
@@ -290,7 +315,7 @@ export default function DayBookPage(): React.JSX.Element {
             filters={filters}
             kpis={<ReportKpiStrip cards={kpis} />}
             chart={chart}
-            table={<div className="overflow-x-auto">{table}</div>}
+            table={<div className="overflow-x-auto">{isMounted ? table : <div className="h-64 flex items-center justify-center text-muted-foreground">Loading...</div>}</div>}
             pagination={
                 <PaginationBar
                     page={page}

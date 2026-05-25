@@ -30,6 +30,18 @@ import {
   StatCard,
   cn,
   zoruSonnerToast,
+  Alert,
+  ZoruAlertTitle,
+  ZoruAlertDescription,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Input,
+  Label,
+  Textarea,
 } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
@@ -39,6 +51,7 @@ import {
   DollarSign,
   ExternalLink,
   Eye,
+  Loader2,
   Megaphone,
   MessagesSquare,
   MousePointerClick,
@@ -46,8 +59,11 @@ import {
   Play,
   Plus,
   RefreshCw,
+  Sparkles,
   Target,
+  AlertTriangle,
   } from 'lucide-react';
+import { fmtINR } from '@/lib/utils';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -132,15 +148,7 @@ function toNum(v: string | number | undefined): number {
 
 function fmtMoney(v: string | number | undefined, currency = 'USD'): string {
   const n = toNum(v);
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 2,
-    }).format(n);
-  } catch {
-    return `${n.toFixed(2)} ${currency}`;
-  }
+  return fmtINR(n, currency);
 }
 
 function fmtNum(v: string | number | undefined): string {
@@ -174,7 +182,7 @@ function countCtwMessages(rows: InsightRow[] | undefined): number {
   return total;
 }
 
-export default function WhatsAppAdsPage(): React.ReactElement {
+function WhatsAppAdsPageContent(): React.ReactElement {
   const router = useRouter();
   const { activeProject } = useProject();
 
@@ -187,6 +195,7 @@ export default function WhatsAppAdsPage(): React.ReactElement {
   const [insightsMap, setInsightsMap] = React.useState<Record<string, InsightRow>>({});
   const [accountInsight, setAccountInsight] = React.useState<InsightRow | null>(null);
   const [dataLoading, setDataLoading] = React.useState(false);
+  const [dataError, setDataError] = React.useState<string | null>(null);
   const [pendingTogglesId, setPendingTogglesId] = React.useState<string | null>(null);
 
   // Restore last-used ad-account selection before fetch.
@@ -235,6 +244,7 @@ export default function WhatsAppAdsPage(): React.ReactElement {
     if (!selectedAccountId) return;
     let active = true;
     setDataLoading(true);
+    setDataError(null);
     Promise.all([
       listCampaigns(selectedAccountId, { limit: 200 }),
       getInsights(selectedAccountId, {
@@ -261,6 +271,12 @@ export default function WhatsAppAdsPage(): React.ReactElement {
     ])
       .then(([camps, ins, acct]) => {
         if (!active) return;
+
+        if (camps.error || ins.error || acct.error) {
+          setDataError(camps.error || ins.error || acct.error || 'Failed to fetch Meta API data');
+          return;
+        }
+
         const all = (camps.data || []) as Campaign[];
         const filtered = all.filter((c) => !c.objective || CTW_OBJECTIVES.has(c.objective));
         setCampaigns(filtered);
@@ -272,6 +288,9 @@ export default function WhatsAppAdsPage(): React.ReactElement {
         setInsightsMap(map);
         const acctRow = ((acct.data || []) as InsightRow[])[0] ?? null;
         setAccountInsight(acctRow);
+      })
+      .catch((err) => {
+        if (active) setDataError(err instanceof Error ? err.message : 'Meta API request failed');
       })
       .finally(() => {
         if (active) setDataLoading(false);
@@ -455,6 +474,7 @@ export default function WhatsAppAdsPage(): React.ReactElement {
             <Plus className="h-3.5 w-3.5" />
             New CTW campaign
           </Button>
+          <AiCampaignDialog />
         </div>
       </div>
 
@@ -547,6 +567,20 @@ export default function WhatsAppAdsPage(): React.ReactElement {
               {Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton key={i} className="h-14" />
               ))}
+            </div>
+          ) : dataError ? (
+            <div className="p-6">
+              <EmptyState
+                icon={<AlertTriangle className="h-10 w-10 text-zoru-danger" />}
+                title="Failed to load campaigns"
+                description={dataError}
+                action={
+                  <Button variant="outline" onClick={loadData}>
+                    <RefreshCw className="h-3.5 w-3.5 mr-2" />
+                    Retry
+                  </Button>
+                }
+              />
             </div>
           ) : campaigns.length === 0 ? (
             <div className="p-6">
@@ -691,4 +725,129 @@ function Metric({
       <span className="text-[12.5px] tabular-nums text-zoru-ink">{value}</span>
     </div>
   );
+}
+
+function AiCampaignDialog() {
+  const [open, setOpen] = React.useState(false);
+  const [prompt, setPrompt] = React.useState('');
+  const [generating, setGenerating] = React.useState(false);
+  const [result, setResult] = React.useState<{ primaryText: string; headline: string; description: string; creativeIdea: string } | null>(null);
+
+  const handleGenerate = async () => {
+    setGenerating(true);
+    // Simulate an AI API call delay
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setResult({
+      primaryText: `🚀 Elevate your ${prompt || 'business'} today! Join thousands of happy customers. Tap to chat with us on WhatsApp for an exclusive offer! 💬`,
+      headline: "Chat with us to claim your discount!",
+      description: "Available on WhatsApp. Quick response guaranteed.",
+      creativeIdea: "A vibrant, eye-catching image showing your product in action, with a recognizable green WhatsApp chat bubble in the lower right."
+    });
+    setGenerating(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(val) => { setOpen(val); if (!val) { setResult(null); setPrompt(''); } }}>
+      <DialogTrigger asChild>
+        <Button variant="secondary">
+          <Sparkles className="h-3.5 w-3.5" />
+          Generate with AI
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>AI Campaign Generator</DialogTitle>
+          <DialogDescription>
+            Describe your offer or product, and we'll generate WhatsApp-optimized ad copy and creative suggestions using AI.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="flex flex-col gap-2">
+            <Label>What are you promoting?</Label>
+            <Textarea
+              placeholder="e.g. A new summer collection of sneakers with 20% off"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="resize-none"
+              rows={3}
+            />
+          </div>
+          {!result && (
+            <Button onClick={handleGenerate} disabled={generating || !prompt.trim()}>
+              {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {generating ? 'Generating...' : 'Generate AI Copy'}
+            </Button>
+          )}
+          {result && (
+            <div className="flex flex-col gap-4 mt-2 pt-4 border-t border-zoru-line">
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-zoru-ink-muted">Primary Text</Label>
+                <div className="text-sm bg-zoru-surface p-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+                  {result.primaryText}
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-zoru-ink-muted">Headline</Label>
+                <div className="text-sm font-semibold bg-zoru-surface p-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+                  {result.headline}
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-zoru-ink-muted">Creative Suggestion</Label>
+                <div className="text-sm bg-zoru-surface p-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line text-zoru-ink-muted">
+                  {result.creativeIdea}
+                </div>
+              </div>
+              <Button variant="outline" onClick={() => { setResult(null); setPrompt(''); }}>
+                Start over
+              </Button>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export default function WhatsAppAdsPage(): React.ReactElement {
+  return (
+    <ErrorBoundary>
+      <WhatsAppAdsPageContent />
+    </ErrorBoundary>
+  );
+}
+
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("WhatsAppAdsPage Error Boundary caught error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex min-h-[400px] flex-col items-center justify-center p-6 text-center">
+          <Alert variant="destructive" className="max-w-xl text-left mb-4">
+            <AlertTriangle className="h-5 w-5" />
+            <ZoruAlertTitle>Component Error</ZoruAlertTitle>
+            <ZoruAlertDescription>
+              {this.state.error?.message || "An unexpected error occurred while rendering the page."}
+            </ZoruAlertDescription>
+          </Alert>
+          <Button variant="outline" onClick={() => window.location.reload()}>
+            Reload page
+          </Button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }

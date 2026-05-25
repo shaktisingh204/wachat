@@ -16,6 +16,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { ObjectId } from 'mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
+import { getUsageSummary } from '@/app/actions/developer-platform.actions';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -74,6 +75,11 @@ export async function GET(req: NextRequest) {
             cancelled: {
               $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] },
             },
+            steps: {
+              $sum: {
+                $size: { $objectToArray: { $ifNull: ['$nodeStates', {}] } }
+              }
+            },
             avgDuration: { $avg: '$executionTimeMs' },
             durations: { $push: '$executionTimeMs' },
           },
@@ -111,6 +117,11 @@ export async function GET(req: NextRequest) {
             errored: {
               $sum: { $cond: [{ $eq: ['$status', 'error'] }, 1, 0] },
             },
+            steps: {
+              $sum: {
+                $size: { $objectToArray: { $ifNull: ['$nodeStates', {}] } }
+              }
+            },
             durations: { $push: '$executionTimeMs' },
           },
         },
@@ -127,12 +138,26 @@ export async function GET(req: NextRequest) {
     const prevSuccessRate = prevSummary.total > 0 ? prevSummary.success / prevSummary.total : 0;
     const successRate = summary.total > 0 ? summary.success / summary.total : 0;
 
+    // ── Global API Usage
+    const apiUsageRes = await getUsageSummary({
+      from: since.toISOString(),
+    });
+    const apiUsagePrevRes = await getUsageSummary({
+      from: prevSince.toISOString(),
+      to: since.toISOString(),
+    });
+
+    const apiUsage = apiUsageRes.success ? apiUsageRes.totalRequests : 0;
+    const apiUsagePrev = apiUsagePrevRes.success ? apiUsagePrevRes.totalRequests : 0;
+
     // Calculate trends (percentage change)
     const trends = {
       total: calculateTrend(prevSummary.total, summary.total),
       successRate: calculateTrend(prevSuccessRate * 100, successRate * 100),
       errored: calculateTrend(prevSummary.errored, summary.errored),
       p95DurationMs: calculateTrend(prevP95, p95),
+      steps: calculateTrend(prevSummary.steps ?? 0, summary.steps ?? 0),
+      apiUsage: calculateTrend(apiUsagePrev, apiUsage),
     };
 
     // ── Daily buckets
@@ -148,6 +173,11 @@ export async function GET(req: NextRequest) {
             errors: {
               $sum: { $cond: [{ $eq: ['$status', 'error'] }, 1, 0] },
             },
+            steps: {
+              $sum: {
+                $size: { $objectToArray: { $ifNull: ['$nodeStates', {}] } }
+              }
+            }
           },
         },
         { $sort: { _id: 1 } },
@@ -189,6 +219,8 @@ export async function GET(req: NextRequest) {
         errored: summary.errored,
         running: summary.running,
         cancelled: summary.cancelled,
+        steps: summary.steps ?? 0,
+        apiUsage,
         successRate,
         avgDurationMs: Math.round(summary.avgDuration ?? 0),
         p95DurationMs: Math.round(p95),
@@ -198,6 +230,7 @@ export async function GET(req: NextRequest) {
         date: d._id,
         count: d.count,
         errors: d.errors,
+        steps: d.steps ?? 0,
       })),
       topFlows: topByRuns.map((t) => ({
         flowId: t._id,
@@ -226,6 +259,8 @@ function emptyResponse(days: number) {
       errored: 0,
       running: 0,
       cancelled: 0,
+      steps: 0,
+      apiUsage: 0,
       successRate: 0,
       avgDurationMs: 0,
       p95DurationMs: 0,
@@ -234,6 +269,8 @@ function emptyResponse(days: number) {
         successRate: 0,
         errored: 0,
         p95DurationMs: 0,
+        steps: 0,
+        apiUsage: 0,
       },
     },
     daily: [],

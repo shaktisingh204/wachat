@@ -1,5 +1,12 @@
 'use server';
 
+export interface SerpResult {
+  rank: number;
+  url: string;
+  title: string;
+  snippet?: string;
+}
+
 export async function checkKeywordRankAction(keyword: string, domain: string) {
   // We prefer DataForSEO if credentials exist, otherwise fallback to SerpApi, otherwise error.
   const dfsLogin = process.env.DATAFORSEO_LOGIN;
@@ -34,12 +41,26 @@ export async function checkKeywordRankAction(keyword: string, domain: string) {
       }
 
       const items = tasks[0].result[0].items || [];
+      const serpResults: SerpResult[] = [];
+      let foundRank = -1;
+      let foundUrl = '';
+
       for (const item of items) {
-        if (item.type === 'organic' && item.url && item.url.includes(domain)) {
-          return { rank: item.rank_absolute, url: item.url };
+        if (item.type === 'organic' && item.url) {
+          const res = {
+            rank: item.rank_absolute,
+            url: item.url,
+            title: item.title || '',
+            snippet: item.description || ''
+          };
+          serpResults.push(res);
+          if (foundRank === -1 && item.url.includes(domain)) {
+            foundRank = item.rank_absolute;
+            foundUrl = item.url;
+          }
         }
       }
-      return { rank: -1, message: 'Domain not found in top 100 results.' };
+      return { rank: foundRank, url: foundUrl, serpResults, message: foundRank === -1 ? 'Domain not found in top 100 results.' : undefined };
     } catch (e: any) {
       return { error: e.message || 'Unknown error calling DataForSEO' };
     }
@@ -56,33 +77,138 @@ export async function checkKeywordRankAction(keyword: string, domain: string) {
       if (!data.organic_results) {
         return { error: 'No organic results from SerpApi.' };
       }
+      
+      const serpResults: SerpResult[] = [];
+      let foundRank = -1;
+      let foundUrl = '';
+
       for (const result of data.organic_results) {
-        if (result.link && result.link.includes(domain)) {
-          return { rank: result.position, url: result.link };
+        if (result.link) {
+          const res = {
+            rank: result.position,
+            url: result.link,
+            title: result.title || '',
+            snippet: result.snippet || ''
+          };
+          serpResults.push(res);
+          if (foundRank === -1 && result.link.includes(domain)) {
+            foundRank = result.position;
+            foundUrl = result.link;
+          }
         }
       }
-      return { rank: -1, message: 'Domain not found in top 100 results.' };
+      return { rank: foundRank, url: foundUrl, serpResults, message: foundRank === -1 ? 'Domain not found in top 100 results.' : undefined };
     } catch (e: any) {
       return { error: e.message || 'Unknown error calling SerpApi' };
     }
   }
 
-  // Fallback if no keys provided, we can return the deterministic mock for development, 
-  // but let's notify the user that it's a mock.
-  const isProd = process.env.NODE_ENV === 'production';
-  if (isProd) {
-    return { error: 'Please set DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD or SERPAPI_KEY in environment variables.' };
+  const scaleserpKey = process.env.SCALESERP_KEY;
+  if (scaleserpKey) {
+    try {
+      const url = `https://api.scaleserp.com/search?api_key=${scaleserpKey}&q=${encodeURIComponent(keyword)}&num=100`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        return { error: `ScaleSERP error: ${response.status} ${response.statusText}` };
+      }
+      const data = await response.json();
+      if (!data.organic_results) {
+        return { error: 'No organic results from ScaleSERP.' };
+      }
+      
+      const serpResults: SerpResult[] = [];
+      let foundRank = -1;
+      let foundUrl = '';
+
+      for (const result of data.organic_results) {
+        if (result.link) {
+          const res = {
+            rank: result.position,
+            url: result.link,
+            title: result.title || '',
+            snippet: result.snippet || ''
+          };
+          serpResults.push(res);
+          if (foundRank === -1 && result.link.includes(domain)) {
+            foundRank = result.position;
+            foundUrl = result.link;
+          }
+        }
+      }
+      return { rank: foundRank, url: foundUrl, serpResults, message: foundRank === -1 ? 'Domain not found in top 100 results.' : undefined };
+    } catch (e: any) {
+      return { error: e.message || 'Unknown error calling ScaleSERP' };
+    }
   }
 
-  // Deterministic mock for local dev without keys
-  let h = 0;
-  const seed = keyword + domain;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
-  const mockRank = (Math.abs(h) % 100) + 1;
-  return { 
-    rank: mockRank, 
-    url: `https://${domain}/mock-result`, 
-    mocked: true, 
-    message: 'Mock result (API keys missing)' 
-  };
+  // As a fallback for demo/development purposes if no API keys are provided
+  // We'll simulate a SERP lookup using DuckDuckGo HTML parsing to provide real results.
+  try {
+    const res = await fetch('https://html.duckduckgo.com/html/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+      },
+      body: 'q=' + encodeURIComponent(keyword)
+    });
+    
+    if (!res.ok) {
+      return { error: `No API keys provided, and fallback SERP scraping failed: ${res.status}` };
+    }
+    
+    const text = await res.text();
+    const serpResults: SerpResult[] = [];
+    
+    const regex = /<a rel="nofollow" class="result__a" href="([^"]+)">(.*?)<\/a>/gi;
+    const snippetRegex = /<a class="result__snippet[^>]*>(.*?)<\/a>/gi;
+    
+    let match;
+    let rank = 1;
+    let foundRank = -1;
+    let foundUrl = '';
+    
+    while ((match = regex.exec(text)) !== null) {
+      const url = match[1];
+      const title = match[2].replace(/<[^>]+>/g, '').trim();
+      
+      serpResults.push({
+        rank: rank,
+        url: url,
+        title: title,
+        snippet: '' 
+      });
+      
+      if (foundRank === -1 && url.includes(domain)) {
+        foundRank = rank;
+        foundUrl = url;
+      }
+      rank++;
+    }
+    
+    let snippetMatch;
+    let i = 0;
+    while ((snippetMatch = snippetRegex.exec(text)) !== null) {
+       if (serpResults[i]) {
+         serpResults[i].snippet = snippetMatch[1].replace(/<[^>]+>/g, '').trim();
+       }
+       i++;
+    }
+
+    if (serpResults.length === 0) {
+      return { error: 'No API keys provided, and fallback SERP scraping returned no results.' };
+    }
+    
+    return { 
+      rank: foundRank, 
+      url: foundUrl, 
+      serpResults, 
+      message: foundRank === -1 
+        ? 'Domain not found in top fallback results (DuckDuckGo).' 
+        : 'Result found using fallback SERP API (DuckDuckGo).' 
+    };
+  } catch (err: any) {
+    return { error: `No API keys configured, and fallback SERP scraping failed: ${err.message}` };
+  }
 }
+

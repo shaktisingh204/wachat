@@ -5,12 +5,14 @@
  * `<ContractListClient>` which composes `<EntityListShell>`.
  */
 
+import { Suspense } from 'react';
 import {
   listContracts,
   getContractKpisV2,
 } from '@/app/actions/crm/contracts.actions';
 
 import { ContractListClient } from './_components/contract-list-client';
+import { Skeleton } from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,14 +39,32 @@ export default async function SalesContractsPage({ searchParams }: PageProps) {
   ]);
 
   return (
-    <ContractListClient
-      contracts={contracts}
-      page={page}
-      limit={limit}
-      hasMore={hasMore}
-      initialQuery={q}
-      kpi={kpi}
-      error={error}
-    />
+    <Suspense fallback={<ContractsPageLoader />}>
+      <ContractListClient
+        contracts={contracts}
+        page={page}
+        limit={limit}
+        hasMore={hasMore}
+        initialQuery={q}
+        kpi={kpi}
+        error={error}
+      />
+    </Suspense>
   );
 }
+
+function ContractsPageLoader() {
+  return (
+    <div className="space-y-4 p-6">
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-4 w-96" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-5">
+        {[...Array(5)].map((_, i) => (
+          <Skeleton key={i} className="h-20 w-full" />
+        ))}
+      </div>
+      <Skeleton className="h-64 w-full" />
+    </div>
+  );
+}
+

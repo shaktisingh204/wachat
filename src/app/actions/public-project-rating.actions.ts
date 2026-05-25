@@ -33,13 +33,23 @@ export type PublicProjectRatingSubmission = {
   raterEmail?: string;
 };
 
+export type SyndicationUrl = {
+  platform: string;
+  url: string;
+};
+
 export type PublicProjectRatingView = {
   project: {
     _id: string;
     name: string;
     clientName: string | null;
+    syndicationUrls?: SyndicationUrl[];
   };
   alreadyRated: boolean;
+  existingRating?: {
+    overall: number;
+    comment: string;
+  };
 };
 
 export type PublicProjectRatingResult =
@@ -82,12 +92,20 @@ export async function getPublicProjectRating(
 
     const meta = await clientMeta();
     let alreadyRated = false;
+    let existingRating: { overall: number; comment: string } | undefined;
+
     if (meta.ip) {
       const existing = await db.collection('crm_project_ratings').findOne({
         projectId: project._id,
         raterIp: meta.ip,
       });
-      alreadyRated = Boolean(existing);
+      if (existing) {
+        alreadyRated = true;
+        existingRating = {
+          overall: existing.rating || 0,
+          comment: existing.comment || '',
+        };
+      }
     }
 
     return {
@@ -98,8 +116,15 @@ export async function getPublicProjectRating(
           (project.projectName as string) ||
           'Project',
         clientName: (project.clientName as string | undefined) ?? null,
+        syndicationUrls: Array.isArray(project.syndicationUrls)
+          ? project.syndicationUrls
+          : [
+              { platform: 'Google', url: 'https://google.com' },
+              { platform: 'G2', url: 'https://g2.com' },
+            ],
       },
       alreadyRated,
+      existingRating,
     };
   } catch (e) {
     console.error('[getPublicProjectRating] failed:', e);

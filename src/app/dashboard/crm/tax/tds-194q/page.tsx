@@ -13,7 +13,7 @@ import { Tds194qClient } from './_components/tds-194q-client';
 
 function currentFy(): string {
     const d = new Date();
-    const startYear = d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1;
+    const startYear = d.getUTCMonth() >= 3 ? d.getUTCFullYear() : d.getUTCFullYear() - 1;
     return `${startYear}-${(startYear + 1).toString().slice(-2)}`;
 }
 

@@ -347,3 +347,27 @@ export async function getWebhookLogs(integrationId: string) {
         return [];
     }
 }
+
+export async function triggerManualSync(id: string): Promise<{ success: boolean; error?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Unauthorized' };
+
+  try {
+    const { db } = await connectToDatabase();
+    await db.collection(INTEGRATIONS_COLLECTION).updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          syncStatus: 'syncing',
+          lastSyncAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+      }
+    );
+
+    revalidatePath(`${BASE_PATH}/${id}`);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: getErrorMessage(err) };
+  }
+}

@@ -22,13 +22,17 @@ type Contract = HrContract & {
 function fmtDateTime(v: unknown): string {
   if (!v) return '—';
   const d = new Date(v as string | number | Date);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
+  if (Number.isNaN(d.getTime())) return '—';
+  // Use a stable formatting approach for Server Components to avoid hydration mismatch 
+  // if this ever is passed to client components.
+  return d.toISOString().replace('T', ' ').slice(0, 16);
 }
 
 function fmtDate(v: unknown): string {
   if (!v) return '—';
   const d = new Date(v as string | number | Date);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toISOString().slice(0, 10);
 }
 
 function fmtMoney(value?: number, currency?: string): string {

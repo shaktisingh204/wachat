@@ -1,3 +1,5 @@
+import { fmtDate } from '@/lib/utils';
+import { Suspense } from 'react';
 import {
   Badge,
   Button,
@@ -19,11 +21,13 @@ import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { AwardProgram } from './schema';
 
+export const dynamic = 'force-dynamic';
+
 function formatDate(value: string | Date | undefined | null): string {
   if (!value) return '—';
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString();
+  return fmtDate(d);
 }
 
 function formatPeriod(start?: string | Date | null, end?: string | Date | null): string {
@@ -49,7 +53,7 @@ function getStatusVariant(status?: string): 'success' | 'warning' | 'danger' | '
   return 'warning';
 }
 
-export default async function AwardsPage() {
+async function AwardsPageContainer() {
   const session = await getSession();
   let programs: AwardProgram[] = [];
   let loadError = false;
@@ -226,5 +230,13 @@ export default async function AwardsPage() {
         </div>
       </Card>
     </EntityListShell>
+  );
+}
+
+export default function AwardsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AwardsPageContainer  />
+    </Suspense>
   );
 }

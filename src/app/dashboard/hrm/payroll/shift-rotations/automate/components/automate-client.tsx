@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useTransition, useEffect, useOptimistic } from 'react';
+import { useState, useTransition, useEffect, useOptimistic, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { runRotation, saveAutomateShift, getAutomateShifts } from '@/app/actions/worksuite/shifts.actions';
+import { runRotation, saveAutomateShift, getAutomateShifts, deleteAutomateShift } from '@/app/actions/worksuite/shifts.actions';
 import type { WsShiftRotation, WsAutomateShift } from '@/lib/worksuite/shifts-types';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
 import AutomateForm from './automate-form';
@@ -18,9 +18,13 @@ export default function AutomateClient({ initialRotations, initialEmployees, ini
   const [runs, setRuns] = useState<WsAutomateShift[]>(initialRuns);
   const { toast } = useToast();
   const [pending, startTransition] = useTransition();
-  const [optimisticRuns, addOptimisticRun] = useOptimistic(
+  const [optimisticRuns, dispatchOptimistic] = useOptimistic(
     runs,
-    (state, newRun: WsAutomateShift) => [newRun, ...state]
+    (state, action: { type: 'ADD'; payload: WsAutomateShift } | { type: 'DELETE'; payload: string[] }) => {
+      if (action.type === 'ADD') return [action.payload, ...state];
+      if (action.type === 'DELETE') return state.filter(r => !action.payload.includes(String(r._id)));
+      return state;
+    }
   );
 
   // Simulated WebSocket connection for real-time collaborative updates
@@ -34,6 +38,8 @@ export default function AutomateClient({ initialRotations, initialEmployees, ini
           setRuns(prev => [data.payload, ...prev]);
         } else if (data.type === 'UPDATE_RUN') {
           setRuns(prev => prev.map(r => String(r._id) === String(data.payload._id) ? data.payload : r));
+        } else if (data.type === 'DELETE_RUNS') {
+          setRuns(prev => prev.filter(r => !data.payload.includes(String(r._id))));
         }
       } catch (e) {
         // ignore parse errors
@@ -63,7 +69,7 @@ export default function AutomateClient({ initialRotations, initialEmployees, ini
     };
 
     startTransition(async () => {
-      addOptimisticRun(newRun);
+      dispatchOptimistic({ type: 'ADD', payload: newRun });
       
       const save = await saveAutomateShift({
         shift_rotation_id: rotationId,
@@ -96,6 +102,24 @@ export default function AutomateClient({ initialRotations, initialEmployees, ini
     });
   };
 
+  const handleDeleteRuns = useCallback((ids: string[]) => {
+    startTransition(async () => {
+      dispatchOptimistic({ type: 'DELETE', payload: ids });
+      let successCount = 0;
+      for (const id of ids) {
+        if (id.startsWith('temp-')) continue;
+        const res = await deleteAutomateShift(id);
+        if (res.success) successCount++;
+      }
+      toast({
+        title: 'Deleted',
+        description: `Successfully deleted ${successCount} run(s).`,
+      });
+      const updatedRuns = await getAutomateShifts();
+      setRuns(updatedRuns);
+    });
+  }, [toast, dispatchOptimistic]);
+
   return (
     <div className="flex flex-col gap-4">
       <AutomateForm
@@ -104,7 +128,7 @@ export default function AutomateClient({ initialRotations, initialEmployees, ini
         onRun={handleRun}
         pending={pending}
       />
-      <AutomateRuns runs={optimisticRuns} />
+      <AutomateRuns runs={optimisticRuns} onDeleteRuns={handleDeleteRuns} />
     </div>
   );
 }

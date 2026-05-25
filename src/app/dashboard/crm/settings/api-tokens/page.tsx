@@ -70,20 +70,17 @@ import {
     bulkRevokeApiTokens,
     getApiTokens,
     revokeApiToken,
+    testApiToken,
     type CrmApiTokenRow,
 } from '@/app/actions/crm-api-tokens.actions';
 import { RowDrawer } from '@/components/crm/row-drawer';
 import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
+import { formatUTC } from '@/lib/utils';
 
 type StatusFilter = 'all' | 'active' | 'revoked';
 
 function formatDate(iso: string | null): string {
-    if (!iso) return '—';
-    try {
-        return new Date(iso).toLocaleString();
-    } catch {
-        return iso;
-    }
+    return formatUTC(iso ?? undefined, true);
 }
 
 export default function CrmApiTokensPage() {
@@ -182,6 +179,33 @@ export default function CrmApiTokensPage() {
             }
             toast.toast({ title: 'Token revoked' });
             await refresh();
+        });
+    };
+
+    // Test token validity
+    const handleTestToken = (id: string) => {
+        startTransition(async () => {
+            const res = await testApiToken(id);
+            if (!res.ok) {
+                toast.toast({
+                    title: 'Token check failed',
+                    description: res.error,
+                    variant: 'destructive',
+                });
+                return;
+            }
+            if (res.status === 'valid') {
+                toast.toast({
+                    title: 'Token is active & valid',
+                    description: `Name: ${res.name}. Scopes: ${res.scopes.join(', ')}`,
+                });
+            } else {
+                toast.toast({
+                    title: `Token is ${res.status}`,
+                    description: `This token is inactive (status: ${res.status}).`,
+                    variant: 'destructive',
+                });
+            }
         });
     };
 
@@ -502,42 +526,53 @@ export default function CrmApiTokensPage() {
                                     <ZoruTableCell>{formatDate(row.lastUsedAt)}</ZoruTableCell>
                                     <ZoruTableCell>{formatDate(row.expiresAt)}</ZoruTableCell>
                                     <ZoruTableCell className="text-right">
-                                        {!row.revoked && (
-                                            <ZoruAlertDialog>
-                                                <ZoruAlertDialogTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        disabled={pending}
-                                                    >
-                                                        {pending ? (
-                                                            <LoaderCircle className="size-4 animate-spin" />
-                                                        ) : (
-                                                            <Trash2 className="size-4" />
-                                                        )}
-                                                    </Button>
-                                                </ZoruAlertDialogTrigger>
-                                                <ZoruAlertDialogContent>
-                                                    <ZoruAlertDialogHeader>
-                                                        <ZoruAlertDialogTitle>
-                                                            Revoke this token?
-                                                        </ZoruAlertDialogTitle>
-                                                        <ZoruAlertDialogDescription>
-                                                            Any integration using <strong>{row.name}</strong>{' '}
-                                                            will immediately stop working. This cannot be undone.
-                                                        </ZoruAlertDialogDescription>
-                                                    </ZoruAlertDialogHeader>
-                                                    <ZoruAlertDialogFooter>
-                                                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                                        <ZoruAlertDialogAction
-                                                            onClick={() => handleRevoke(row._id)}
+                                        <div className="flex items-center justify-end gap-1">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                disabled={pending}
+                                                onClick={() => handleTestToken(row._id)}
+                                                title="Test Token"
+                                            >
+                                                <Check className="size-4 text-emerald-500" />
+                                            </Button>
+                                            {!row.revoked && (
+                                                <ZoruAlertDialog>
+                                                    <ZoruAlertDialogTrigger asChild>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            disabled={pending}
                                                         >
-                                                            Revoke
-                                                        </ZoruAlertDialogAction>
-                                                    </ZoruAlertDialogFooter>
-                                                </ZoruAlertDialogContent>
-                                            </ZoruAlertDialog>
-                                        )}
+                                                            {pending ? (
+                                                                <LoaderCircle className="size-4 animate-spin" />
+                                                            ) : (
+                                                                <Trash2 className="size-4" />
+                                                            )}
+                                                        </Button>
+                                                    </ZoruAlertDialogTrigger>
+                                                    <ZoruAlertDialogContent>
+                                                        <ZoruAlertDialogHeader>
+                                                            <ZoruAlertDialogTitle>
+                                                                Revoke this token?
+                                                            </ZoruAlertDialogTitle>
+                                                            <ZoruAlertDialogDescription>
+                                                                Any integration using <strong>{row.name}</strong>{' '}
+                                                                will immediately stop working. This cannot be undone.
+                                                            </ZoruAlertDialogDescription>
+                                                        </ZoruAlertDialogHeader>
+                                                        <ZoruAlertDialogFooter>
+                                                            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                                                            <ZoruAlertDialogAction
+                                                                onClick={() => handleRevoke(row._id)}
+                                                            >
+                                                                Revoke
+                                                            </ZoruAlertDialogAction>
+                                                        </ZoruAlertDialogFooter>
+                                                    </ZoruAlertDialogContent>
+                                                </ZoruAlertDialog>
+                                            )}
+                                        </div>
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ))

@@ -40,14 +40,7 @@ import * as React from 'react';
 
 /* ── helpers ──────────────────────────────────────────────────── */
 
-function PageSkeleton() {
-  return (
-    <div className="flex flex-col gap-4">
-      <Skeleton className="h-64 w-full" />
-      <Skeleton className="h-48 w-full" />
-    </div>
-  );
-}
+
 
 function InfoRow({
   label,
@@ -121,11 +114,11 @@ export default function WhatsAppPaySetupPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProjectId]);
 
-  const commerceManagerUrl = 'https://business.facebook.com/commerce/';
+  const commerceManagerUrl = project?.appId
+    ? `https://business.facebook.com/commerce/?app_id=${project.appId}`
+    : 'https://business.facebook.com/commerce/';
 
-  if (isLoading && !project) return <PageSkeleton />;
-
-  if (!project) {
+  if (!project && !isLoading) {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
@@ -219,6 +212,22 @@ export default function WhatsAppPaySetupPage() {
               <AlertCircle className="h-4 w-4" />
               <ZoruAlertDescription>{error}</ZoruAlertDescription>
             </Alert>
+          ) : isLoading ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              {[1, 2].map((i) => (
+                <Card key={i} variant="soft" className="p-4 flex flex-col gap-4">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-4 w-4 rounded-full" />
+                    <Skeleton className="h-4 w-32" />
+                  </div>
+                  <div className="flex flex-col gap-2 mt-3">
+                    <Skeleton className="h-9 w-full" />
+                    <Skeleton className="h-9 w-full" />
+                    <Skeleton className="h-9 w-full" />
+                  </div>
+                </Card>
+              ))}
+            </div>
           ) : configs.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2">
               {configs.map((config) => (
@@ -261,19 +270,19 @@ export default function WhatsAppPaySetupPage() {
                   </div>
                   <div className="mt-4 flex flex-wrap justify-end gap-2">
                     <UpdateDataEndpointDialog
-                      project={project}
+                      project={project!}
                       config={config}
                       onSuccess={fetchData}
                     />
                     {config.status === 'Needs_Connecting' && (
                       <RegenerateOauthDialog
-                        project={project}
+                        project={project!}
                         config={config}
                         onSuccess={fetchData}
                       />
                     )}
                     <DeletePaymentConfigButton
-                      projectId={project._id.toString()}
+                      projectId={project!._id.toString()}
                       configName={config.configuration_name}
                       onSuccess={fetchData}
                     />

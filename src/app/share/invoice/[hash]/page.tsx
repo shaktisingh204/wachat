@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { notFound } from 'next/navigation';
 import {
   capturePayPalPayment,
@@ -6,11 +7,14 @@ import {
 } from '@/app/actions/public-invoice.actions';
 import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import { InvoicePaymentPanel } from './invoice-payment-panel';
+import { fmtDate, fmtINR } from '@/lib/utils';
+
+export const dynamic = 'force-dynamic';
 
 type Params = Promise<{ hash: string }>;
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-type InitialBanner = { kind: 'success' | 'error'; message: string } | undefined;
+type InitialBanner = { kind: 'success' | 'error' | 'warning' | 'info'; message: string } | undefined;
 
 function pickParam(
   searchParams: Record<string, string | string[] | undefined>,
@@ -28,42 +32,13 @@ const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | '
   Draft: 'outline',
 };
 
-function formatMoney(amount: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
-  } catch {
-    return `${currency} ${amount.toFixed(2)}`;
-  }
-}
+async function PublicInvoiceContainer({ hash, searchParamsMap }: { hash: string; searchParamsMap: Record<string, string | string[] | undefined> }) {
+  const paid = pickParam(searchParamsMap, 'paid');
+  const cancelled = pickParam(searchParamsMap, 'cancelled');
+  const paypalToken = pickParam(searchParamsMap, 'token');
 
-function formatDate(iso: string | null): string {
-  if (!iso) return '—';
-  try {
-    return new Date(iso).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  } catch {
-    return iso;
-  }
-}
-
-export default async function PublicInvoicePage({
-  params,
-  searchParams,
-}: {
-  params: Params;
-  searchParams: SearchParams;
-}) {
-  const { hash } = await params;
-  const sp = await searchParams;
-
-  // Handle PayPal capture-on-return BEFORE rendering so the status
-  // reflects the just-captured payment.
-  const paid = pickParam(sp, 'paid');
-  const cancelled = pickParam(sp, 'cancelled');
-  const paypalToken = pickParam(sp, 'token');
+  let invoice = await getPublicInvoice(hash);
+  if (!invoice) notFound();
 
   let initialBanner: InitialBanner;
   if (paid === 'paypal' && paypalToken) {
@@ -71,22 +46,24 @@ export default async function PublicInvoicePage({
     initialBanner = res.success
       ? { kind: 'success', message: res.message || 'Payment received. Thank you!' }
       : { kind: 'error', message: res.error };
-  } else if (paid === 'stripe') {
-    initialBanner = {
-      kind: 'success',
-      message: 'Payment received. Thank you!',
-    };
-  } else if (paid === 'razorpay') {
-    initialBanner = {
-      kind: 'success',
-      message: 'Payment received. Thank you!',
-    };
+    // Refetch to get the updated status
+    invoice = await getPublicInvoice(hash);
+    if (!invoice) notFound();
+  } else if (paid === 'stripe' || paid === 'razorpay') {
+    if (invoice.status === 'Paid') {
+      initialBanner = {
+        kind: 'success',
+        message: 'Payment captured successfully. Thank you!',
+      };
+    } else {
+      initialBanner = {
+        kind: 'warning',
+        message: 'Payment received and is currently processing. It may take a moment to reflect here.',
+      };
+    }
   } else if (cancelled === '1') {
-    initialBanner = { kind: 'error', message: 'Payment cancelled.' };
+    initialBanner = { kind: 'error', message: 'Payment cancelled or failed.' };
   }
-
-  const invoice = await getPublicInvoice(hash);
-  if (!invoice) notFound();
 
   // Fire-and-forget view tracking; never blocks render.
   void markInvoiceViewed(hash);
@@ -100,7 +77,7 @@ export default async function PublicInvoicePage({
           <div>
             <ZoruCardTitle>Invoice {invoice.invoiceNumber}</ZoruCardTitle>
             <p className="mt-1 text-sm text-zinc-500">
-              Issued {formatDate(invoice.invoiceDate)} &middot; Due {formatDate(invoice.dueDate)}
+              Issued {fmtDate(invoice.invoiceDate)} &middot; Due {fmtDate(invoice.dueDate)}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -162,10 +139,10 @@ export default async function PublicInvoicePage({
                         <td className="px-3 py-2">{li.description || li.name || '—'}</td>
                         <td className="px-3 py-2 text-right">{li.quantity}</td>
                         <td className="px-3 py-2 text-right">
-                          {formatMoney(li.rate, invoice.currency)}
+                          {fmtINR(li.rate)}
                         </td>
                         <td className="px-3 py-2 text-right">
-                          {formatMoney(li.total, invoice.currency)}
+                          {fmtINR(li.total)}
                         </td>
                       </tr>
                     ))
@@ -178,23 +155,23 @@ export default async function PublicInvoicePage({
           <section className="flex flex-col items-end gap-1 text-sm">
             <div className="flex w-full max-w-xs justify-between text-zinc-600">
               <span>Subtotal</span>
-              <span>{formatMoney(invoice.subtotal, invoice.currency)}</span>
+              <span>{fmtINR(invoice.subtotal)}</span>
             </div>
             {typeof invoice.tax === 'number' ? (
               <div className="flex w-full max-w-xs justify-between text-zinc-600">
                 <span>Tax</span>
-                <span>{formatMoney(invoice.tax, invoice.currency)}</span>
+                <span>{fmtINR(invoice.tax)}</span>
               </div>
             ) : null}
             {typeof invoice.discount === 'number' ? (
               <div className="flex w-full max-w-xs justify-between text-zinc-600">
                 <span>Discount</span>
-                <span>-{formatMoney(invoice.discount, invoice.currency)}</span>
+                <span>-{fmtINR(invoice.discount)}</span>
               </div>
             ) : null}
             <div className="flex w-full max-w-xs justify-between border-t border-zinc-200 pt-1 text-base font-semibold">
               <span>Total</span>
-              <span>{formatMoney(invoice.total, invoice.currency)}</span>
+              <span>{fmtINR(invoice.total)}</span>
             </div>
           </section>
 
@@ -218,5 +195,22 @@ export default async function PublicInvoicePage({
         initialBanner={initialBanner ?? null}
       />
     </div>
+  );
+}
+
+export default async function PublicInvoicePage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: SearchParams;
+}) {
+  const { hash } = await params;
+  const sp = await searchParams;
+
+  return (
+    <React.Suspense fallback={<div>Loading invoice...</div>}>
+      <PublicInvoiceContainer hash={hash} searchParamsMap={sp} />
+    </React.Suspense>
   );
 }

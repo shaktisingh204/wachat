@@ -4,6 +4,9 @@ import { getShiftById } from '@/app/actions/crm-shifts.actions';
 import { ShiftDetailView } from './_components/shift-detail-view';
 import { LoaderCircle } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
+
 export default async function ShiftDetailPage({
   params,
 }: {

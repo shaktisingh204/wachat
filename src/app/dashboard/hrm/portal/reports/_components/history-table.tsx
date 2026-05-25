@@ -8,24 +8,18 @@ import type { HrmTaskReport } from '@/app/actions/hrm-task-reports.actions';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
 interface HistoryTableProps {
-  reports: HrmTaskReport[];
-  loading: boolean;
+  reportsPromise: Promise<HrmTaskReport[]>;
 }
 
 function fmtDate(iso: string | undefined): string {
   if (!iso) return '—';
   const d = new Date(iso);
   if (isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return fmtDate(d);
 }
 
-export function HistoryTable({ reports, loading }: HistoryTableProps) {
+export function HistoryTable({ reportsPromise }: HistoryTableProps) {
+  const reports = React.use(reportsPromise);
   const parentRef = React.useRef<HTMLDivElement>(null);
 
   const rowVirtualizer = useVirtualizer({
@@ -34,14 +28,6 @@ export function HistoryTable({ reports, loading }: HistoryTableProps) {
     estimateSize: () => 56,
     overscan: 5,
   });
-
-  if (loading) {
-    return (
-      <div className="flex h-40 items-center justify-center border border-zoru-line rounded-lg">
-        <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
-      </div>
-    );
-  }
 
   if (reports.length === 0) {
     return (
@@ -106,7 +92,7 @@ export function HistoryTable({ reports, loading }: HistoryTableProps) {
                 <div className="text-zoru-ink truncate">
                   {report.phaseId || '—'}
                 </div>
-                <div className="text-zoru-ink truncate">
+                <div className="text-zoru-ink truncate" suppressHydrationWarning>
                   {fmtDate(report.completedAt)}
                 </div>
                 <div>
@@ -121,6 +107,14 @@ export function HistoryTable({ reports, loading }: HistoryTableProps) {
           })}
         </div>
       </div>
+    </div>
+  );
+}
+
+export function HistoryTableSkeleton() {
+  return (
+    <div className="flex h-40 items-center justify-center border border-zoru-line rounded-lg">
+      <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
     </div>
   );
 }

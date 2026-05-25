@@ -655,18 +655,28 @@ export async function generatePartyTransactionReport(partyId: string, partyType:
     }
 }
 
+export type InventoryTransactionDto = {
+    date: Date;
+    type: 'Sale' | 'Sales Return' | 'Stock Adjustment';
+    itemName: string;
+    quantity: number;
+    reference: string;
+    partyName: string | null | undefined;
+    warehouseName?: string | null;
+};
+
 export async function generateAllTransactionsReport(filters: {
     startDate?: Date;
     endDate?: Date;
     type?: string;
-}): Promise<{ data: any[], error?: string }> {
+}): Promise<{ data: InventoryTransactionDto[], error?: string }> {
     const session = await getSession();
     if (!session?.user) return { data: [], error: 'Authentication required.' };
 
     try {
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
-        let transactions: any[] = [];
+        let transactions: InventoryTransactionDto[] = [];
 
         const dateFilter = (filters.startDate || filters.endDate) ? {
             date: {

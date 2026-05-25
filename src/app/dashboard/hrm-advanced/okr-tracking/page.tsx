@@ -1,33 +1,33 @@
-'use client';
+import React, { Suspense } from 'react';
+import { getOKRs } from '@/app/actions/hrm-advanced/okr-tracking';
+import { OKRClient } from './okr-client';
+import { Loader2 } from 'lucide-react';
 
-import React from 'react';
-import { EntityCrudPage } from '@/components/crm/entity-crud-page';
-import { getOKRs, saveOKR, deleteOKR } from '@/app/actions/hrm-advanced/okr-tracking';
-import { OKR } from '@/lib/hrm-advanced-types';
+export const dynamic = 'force-dynamic';
 
-export default function Page() {
+
+export const metadata = {
+  title: 'OKR Tracking | HRM Advanced',
+};
+
+export default function OKRTrackingPage() {
   return (
-    <EntityCrudPage<OKR>
-      title="OKR Tracking"
-      description="Track Objectives and Key Results"
-      entityName="OKR"
-      fetchFn={getOKRs}
-      saveFn={saveOKR}
-      deleteFn={deleteOKR}
-      formFields={[
-      { name: 'objective', label: 'Objective', type: 'text' },
-      { name: 'keyResult', label: 'Key Result', type: 'text' },
-      { name: 'progress', label: 'Progress %', type: 'number' },
-      { name: 'ownerId', label: 'Owner ID', type: 'text' },
-      { name: 'quarter', label: 'Quarter', type: 'text' }
-    ]}
-      columns={[
-      { header: 'Objective', accessorKey: 'objective' },
-      { header: 'Key Result', accessorKey: 'keyResult' },
-      { header: 'Progress', accessorKey: 'progress', render: (val) => `${val}%` },
-      { header: 'Quarter', accessorKey: 'quarter' }
-    ]}
-      defaultValues={{ progress: 0 }}
-    />
+    <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight">OKR Tracking</h2>
+      </div>
+      <Suspense fallback={
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-zoru-brand" />
+        </div>
+      }>
+        <OKRDataLoader />
+      </Suspense>
+    </div>
   );
+}
+
+async function OKRDataLoader() {
+  const initialData = await getOKRs();
+  return <OKRClient initialData={initialData || []} />;
 }

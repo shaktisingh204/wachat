@@ -482,51 +482,118 @@ function StepTest({
   state: WizardState;
   update: <K extends keyof WizardState>(k: K, v: WizardState[K]) => void;
 }): React.JSX.Element {
+  const [testPayload, setTestPayload] = React.useState('{\n  "message": "I would like to get a quote for...",\n  "name": "Jane Doe"\n}');
+  const [testResult, setTestResult] = React.useState<'idle' | 'success' | 'fail'>('idle');
+
+  const runTest = () => {
+    try {
+      if (!state.keyword) {
+        setTestResult('fail');
+        return;
+      }
+      
+      const payloadStr = testPayload.toLowerCase();
+      // Simple keyword match test
+      const keywords = state.keyword.split(',').map(k => k.trim().toLowerCase()).filter(Boolean);
+      
+      let matched = false;
+      for (const kw of keywords) {
+        if (payloadStr.includes(kw)) {
+          matched = true;
+          break;
+        }
+      }
+      setTestResult(matched ? 'success' : 'fail');
+    } catch {
+      setTestResult('fail');
+    }
+  };
+
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <div>
-        <Label htmlFor="rn">Rule name</Label>
-        <Input
-          id="rn"
-          value={state.name}
-          onChange={(e) => update('name', e.target.value)}
-          placeholder="Pricing enquiry"
+    <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4">
+        <h3 className="text-[14px] font-medium text-zoru-ink">Rule Configuration</h3>
+        <div>
+          <Label htmlFor="rn">Rule name</Label>
+          <Input
+            id="rn"
+            value={state.name}
+            onChange={(e) => update('name', e.target.value)}
+            placeholder="Pricing enquiry"
+          />
+        </div>
+        <div>
+          <Label htmlFor="kw">Match keyword</Label>
+          <Input
+            id="kw"
+            value={state.keyword}
+            onChange={(e) => update('keyword', e.target.value)}
+            placeholder="price, quote, cost"
+          />
+        </div>
+        <div>
+          <Label>Source</Label>
+          <Select value={state.source} onValueChange={(v) => update('source', v)}>
+            <ZoruSelectTrigger>
+              <ZoruSelectValue />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              {SOURCES.map((s) => (
+                <ZoruSelectItem key={s.value} value={s.value}>
+                  {s.label}
+                </ZoruSelectItem>
+              ))}
+            </ZoruSelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="ls">Lead source label</Label>
+          <Input
+            id="ls"
+            value={state.leadSource}
+            onChange={(e) => update('leadSource', e.target.value)}
+            placeholder="Auto-Generated"
+          />
+        </div>
+      </div>
+      
+      <div className="flex flex-col gap-3 rounded-xl border border-zoru-line bg-zoru-surface-2/50 p-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <Webhook className="h-4 w-4 text-zoru-ink-muted" />
+            <h3 className="text-[14px] font-medium text-zoru-ink">Webhook Tester</h3>
+          </div>
+          <p className="mt-1 text-[12px] text-zoru-ink-muted">
+            Simulate an incoming payload to verify your keyword matching logic.
+          </p>
+        </div>
+        <textarea
+          value={testPayload}
+          onChange={(e) => {
+            setTestPayload(e.target.value);
+            setTestResult('idle');
+          }}
+          className="min-h-[120px] w-full resize-none rounded-md border border-zoru-line bg-zoru-bg p-2 font-mono text-[12px] focus:outline-none focus:ring-2 focus:ring-zoru-primary/50"
+          spellCheck={false}
         />
+        <div className="flex items-center justify-between">
+          <Button variant="secondary" size="sm" onClick={runTest}>
+            Run Test
+          </Button>
+          {testResult === 'success' && (
+            <Badge className="bg-zoru-success/20 text-zoru-success-ink hover:bg-zoru-success/30">
+              <Check className="mr-1 h-3 w-3" /> Keyword matched
+            </Badge>
+          )}
+          {testResult === 'fail' && (
+            <Badge variant="destructive" className="bg-zoru-danger/10 text-zoru-danger-ink hover:bg-zoru-danger/20">
+              No match
+            </Badge>
+          )}
+        </div>
       </div>
-      <div>
-        <Label htmlFor="kw">Match keyword</Label>
-        <Input
-          id="kw"
-          value={state.keyword}
-          onChange={(e) => update('keyword', e.target.value)}
-          placeholder="price, quote, cost"
-        />
-      </div>
-      <div>
-        <Label>Source</Label>
-        <Select value={state.source} onValueChange={(v) => update('source', v)}>
-          <ZoruSelectTrigger>
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            {SOURCES.map((s) => (
-              <ZoruSelectItem key={s.value} value={s.value}>
-                {s.label}
-              </ZoruSelectItem>
-            ))}
-          </ZoruSelectContent>
-        </Select>
-      </div>
-      <div>
-        <Label htmlFor="ls">Lead source label</Label>
-        <Input
-          id="ls"
-          value={state.leadSource}
-          onChange={(e) => update('leadSource', e.target.value)}
-          placeholder="Auto-Generated"
-        />
-      </div>
-      <p className="md:col-span-2 text-[12px] text-zoru-ink-muted">
+
+      <p className="md:col-span-2 mt-2 text-[12px] text-zoru-ink-muted border-t border-zoru-line pt-4">
         Clicking <Badge variant="secondary">Activate rule</Badge> persists this
         configuration. Matching events will start creating leads as soon as the listener
         consumes them.

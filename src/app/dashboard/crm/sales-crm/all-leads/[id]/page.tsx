@@ -90,7 +90,7 @@ export default function LeadDetailPage() {
     const isPrint = searchParams?.get('print') === '1';
 
     const [lead, setLead] = React.useState<WithId<CrmLead> | null>(null);
-    const [counts, setCounts] = React.useState<CrmLeadRelatedCounts>(EMPTY_COUNTS);
+    const [countsPromise, setCountsPromise] = React.useState<Promise<CrmLeadRelatedCounts>>(() => Promise.resolve(EMPTY_COUNTS));
     const [isPending, startTransition] = React.useTransition();
     const [archiveOpen, setArchiveOpen] = React.useState(false);
     const [deleteOpen, setDeleteOpen] = React.useState(false);
@@ -100,13 +100,10 @@ export default function LeadDetailPage() {
 
     const refresh = React.useCallback(() => {
         if (!leadId) return;
+        setCountsPromise(getCrmLeadRelatedCounts(leadId).then(res => res ?? EMPTY_COUNTS));
         startTransition(async () => {
-            const [data, c] = await Promise.all([
-                getCrmLeadById(leadId),
-                getCrmLeadRelatedCounts(leadId),
-            ]);
+            const data = await getCrmLeadById(leadId);
             setLead(data);
-            setCounts(c ?? EMPTY_COUNTS);
         });
     }, [leadId]);
 
@@ -284,7 +281,7 @@ export default function LeadDetailPage() {
                     <LeadsDetailRail
                         leadId={leadId}
                         lead={lead}
-                        counts={counts}
+                        countsPromise={countsPromise}
                         onSaved={refresh}
                     />
                 }
@@ -383,7 +380,7 @@ export default function LeadDetailPage() {
                         <Field label="Currency" value={lead.currency || 'INR'} />
                         <Field
                             label="Expected close"
-                            value={expectedClose ? expectedClose.toLocaleDateString() : '—'}
+                            value={expectedClose ? expectedClose.toLocaleDateString('en-US', { timeZone: 'UTC' }) : '—'}
                         />
                         <div className="sm:col-span-3">
                             <div className="flex items-center justify-between text-[12.5px] text-zoru-ink-muted">

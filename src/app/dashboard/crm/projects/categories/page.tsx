@@ -32,6 +32,13 @@ export default function ProjectCategoriesPage() {
     return list;
   }, []);
 
+  const parentOptions = React.useMemo(() => {
+    return Array.from(parentNames.entries()).map(([id, name]) => ({
+      value: id,
+      label: name,
+    }));
+  }, [parentNames]);
+
   return (
     <div className="flex w-full flex-col gap-8">
       <TaxonomyLookupPage<CatRow>
@@ -80,7 +87,14 @@ export default function ProjectCategoriesPage() {
         ]}
         fields={[
           { name: 'categoryName', label: 'Sub-category name', required: true, fullWidth: true },
-          { name: 'parentCategoryId', label: 'Parent category ID', placeholder: 'ObjectId' },
+          {
+            name: 'parentCategoryId',
+            label: 'Parent Category',
+            type: 'select',
+            options: parentOptions,
+            placeholder: 'Select a parent category...',
+            required: true,
+          },
           { name: 'description', label: 'Description', type: 'textarea', fullWidth: true },
         ]}
       />

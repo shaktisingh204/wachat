@@ -1,17 +1,14 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { getCrmPaymentAccountById } from '@/app/actions/crm-payment-accounts.actions';
+import { getSession } from '@/app/actions/user.actions';
+import { PaymentAccountFormClient } from '../../../all/_components/payment-account-form-client';
 
 /**
  * Edit bank account — server wrapper that loads the account and passes
  * it to the shared <PaymentAccountFormClient> as `initial`.
  */
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getCrmPaymentAccountById } from '@/app/actions/crm-payment-accounts.actions';
-import { getSession } from '@/app/actions/user.actions';
-
-import { PaymentAccountFormClient } from '../../../all/_components/payment-account-form-client';
 
 export const dynamic = 'force-dynamic';
 

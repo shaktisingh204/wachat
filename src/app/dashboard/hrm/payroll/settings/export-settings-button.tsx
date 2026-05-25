@@ -1,33 +1,32 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
-import { Download } from 'lucide-react';
+import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/zoruui';
+import { Download, FileJson, FileText, FileSpreadsheet } from 'lucide-react';
 import type { PayrollSettings } from '@/app/actions/crm-payroll-settings.actions';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useZoruToast } from '@/components/zoruui';
 
 export function ExportSettingsButton({ settings }: { settings: PayrollSettings }) {
   const { toast } = useZoruToast();
   const [isExporting, setIsExporting] = useState(false);
 
-  // Memoize the settings to avoid unnecessary recalculations if there were heavy processing
-  const exportData = useMemo(() => {
-    return JSON.stringify(settings, null, 2);
-  }, [settings]);
+  const downloadFile = (content: BlobPart, filename: string, type: string) => {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
-  const handleExport = () => {
+  const handleExportJSON = () => {
     setIsExporting(true);
     try {
-      const blob = new Blob([exportData], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `payroll-settings-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
+      const data = JSON.stringify(settings, null, 2);
+      downloadFile(data, `payroll-settings-${new Date().toISOString().split('T')[0]}.json`, 'application/json');
       toast({ title: 'Export Successful', description: 'Your settings have been exported as JSON.' });
     } catch (e) {
       toast({ title: 'Export Failed', description: 'Could not export settings.', variant: 'destructive' });
@@ -36,10 +35,57 @@ export function ExportSettingsButton({ settings }: { settings: PayrollSettings }
     }
   };
 
+  const handleExportCSV = () => {
+    setIsExporting(true);
+    try {
+      const headers = Object.keys(settings).join(',');
+      const values = Object.values(settings).map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
+      const csv = `${headers}\n${values}`;
+      downloadFile(csv, `payroll-settings-${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
+      toast({ title: 'Export Successful', description: 'Your settings have been exported as CSV.' });
+    } catch (e) {
+      toast({ title: 'Export Failed', description: 'Could not export settings.', variant: 'destructive' });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportPDF = () => {
+    setIsExporting(true);
+    try {
+      // Stub PDF generation logic. A real app might use jspdf or a server route.
+      const text = `Payroll Settings Summary\n\n` + Object.entries(settings).map(([k, v]) => `${k}: ${v}`).join('\n');
+      downloadFile(text, `payroll-settings-${new Date().toISOString().split('T')[0]}.txt`, 'text/plain');
+      toast({ title: 'Export Successful', description: 'Your settings have been exported as Text (PDF stub).' });
+    } catch (e) {
+      toast({ title: 'Export Failed', description: 'Could not export settings.', variant: 'destructive' });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
-    <Button onClick={handleExport} disabled={isExporting} variant="outline">
-      <Download className="mr-2 h-4 w-4" />
-      Export Settings
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button disabled={isExporting} variant="outline">
+          <Download className="mr-2 h-4 w-4" />
+          Export
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={handleExportJSON}>
+          <FileJson className="mr-2 h-4 w-4" />
+          Export to JSON
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleExportCSV}>
+          <FileSpreadsheet className="mr-2 h-4 w-4" />
+          Export to CSV
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleExportPDF}>
+          <FileText className="mr-2 h-4 w-4" />
+          Export to PDF
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

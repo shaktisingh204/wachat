@@ -30,7 +30,7 @@ export default async function EditFixedAssetPage({
     <EntityDetailShell
       eyebrow="FIXED ASSET"
       title={`Edit · ${displayName}`}
-      back={{ href: '/dashboard/crm/fixed-assets', label: 'Fixed Assets' }}
+      back={{ href: `/dashboard/crm/fixed-assets/${id}`, label: 'Back to Asset' }}
     >
       <FixedAssetForm initial={asset} />
     </EntityDetailShell>

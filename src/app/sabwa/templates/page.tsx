@@ -50,7 +50,8 @@ import {
   CalendarClock,
   Paperclip,
   X,
-  } from 'lucide-react';
+  RefreshCw,
+} from 'lucide-react';
 
 /**
  * SabWa — Templates (Page 15)
@@ -74,9 +75,10 @@ import {
   listTemplates,
   upsertTemplate,
   deleteTemplate,
+  syncTemplates,
 } from '@/app/actions/sabwa.actions';
 import { useSabwaSession } from '@/lib/sabwa/session-context';
-import type { SabwaTemplate } from '@/lib/sabwa/types';
+import type { SabwaTemplate, SabwaTemplateApprovalStatus } from '@/lib/sabwa/types';
 
 const KNOWN_VARIABLES = [
   'firstName',
@@ -91,6 +93,7 @@ const KNOWN_VARIABLES = [
 interface TemplateRow extends Omit<SabwaTemplate, '_id' | 'projectId' | 'sessionId'> {
   id: string;
   folder: string;
+  approvalStatus?: SabwaTemplateApprovalStatus;
 }
 
 interface FolderRow {
@@ -107,6 +110,7 @@ function toTemplateRow(t: SabwaTemplate): TemplateRow {
     variables: t.variables ?? [],
     mediaSabFileId: t.mediaSabFileId,
     usageCount: t.usageCount ?? 0,
+    approvalStatus: t.approvalStatus,
     createdAt: t.createdAt,
     updatedAt: t.updatedAt,
     folder: t.category ?? 'Uncategorised',
@@ -192,9 +196,19 @@ export default function Page() {
     await deleteTemplate(id);
   };
 
+  const [syncing, setSyncing] = React.useState(false);
+
   const onSaved = async () => {
     setEditorOpen(false);
     await refresh();
+  };
+
+  const onSync = async () => {
+    if (!sessionId) return;
+    setSyncing(true);
+    await syncTemplates(sessionId);
+    await refresh();
+    setSyncing(false);
   };
 
   const addFolder = (name: string) => {
@@ -272,6 +286,10 @@ export default function Page() {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={onSync} disabled={syncing}>
+            <RefreshCw className={cn("mr-2 h-4 w-4", syncing && "animate-spin")} /> 
+            Sync API
+          </Button>
           <Button onClick={openNew}>
             <Plus className="mr-2 h-4 w-4" /> New template
           </Button>
@@ -435,6 +453,14 @@ interface TemplateCardProps {
   onDelete: () => void;
 }
 
+const statusColorMap: Record<string, string> = {
+  APPROVED: 'bg-emerald-500/10 text-emerald-600 border-emerald-200',
+  REJECTED: 'bg-rose-500/10 text-rose-600 border-rose-200',
+  PENDING: 'bg-amber-500/10 text-amber-600 border-amber-200',
+  PAUSED: 'bg-gray-500/10 text-gray-600 border-gray-200',
+  UNMAPPED: 'bg-blue-500/10 text-blue-600 border-blue-200',
+};
+
 function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
   const [actionsOpen, setActionsOpen] = React.useState(false);
   return (
@@ -445,11 +471,18 @@ function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
             <ZoruCardTitle className="truncate text-base">
               {template.name}
             </ZoruCardTitle>
-            {template.category && (
-              <ZoruCardDescription>
-                <Badge variant="outline" className="text-[10px]">
-                  {template.category}
-                </Badge>
+            {(template.category || template.approvalStatus) && (
+              <ZoruCardDescription className="flex items-center gap-1.5 flex-wrap mt-1">
+                {template.category && (
+                  <Badge variant="outline" className="text-[10px]">
+                    {template.category}
+                  </Badge>
+                )}
+                {template.approvalStatus && (
+                  <Badge variant="outline" className={cn("text-[10px]", statusColorMap[template.approvalStatus])}>
+                    {template.approvalStatus}
+                  </Badge>
+                )}
               </ZoruCardDescription>
             )}
           </div>

@@ -24,8 +24,15 @@ export const dynamic = 'force-dynamic';
 
 function fmtDateTime(v?: string | Date | null): string {
   if (!v) return '—';
-  const d = v instanceof Date ? v : new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
+  const date = v instanceof Date ? v : new Date(v);
+  if (Number.isNaN(date.getTime())) return '—';
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = months[date.getUTCMonth()];
+  const year = date.getUTCFullYear();
+  const hours = String(date.getUTCHours()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+  return `${day} ${month} ${year} ${hours}:${minutes} UTC`;
 }
 
 function statusTone(s: string): EntityStatusTone {

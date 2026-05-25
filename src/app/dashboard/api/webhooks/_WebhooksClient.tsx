@@ -47,6 +47,8 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
   const [busy, startBusy] = useTransition();
   const [selectedSubId, setSelectedSubId] = useState<string | null>(null);
 
+  const [mounted, setMounted] = useState(false);
+
   const reloadDeliveries = useCallback((): void => {
     startBusy(async () => {
       const res = await listWebhookDeliveries(selectedSubId ?? undefined, 50);
@@ -55,6 +57,7 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
   }, [selectedSubId]);
 
   useEffect(() => {
+    setMounted(true);
     reloadDeliveries();
   }, [reloadDeliveries]);
 
@@ -186,12 +189,12 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <Badge
-                        className={
+                        variant={
                           s.status === 'active'
-                            ? 'bg-green-600 text-white'
+                            ? 'success'
                             : s.status === 'paused'
-                              ? 'bg-yellow-500 text-black'
-                              : 'bg-red-600 text-white'
+                              ? 'warning'
+                              : 'destructive'
                         }
                       >
                         {s.status}
@@ -275,7 +278,9 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
                   </ZoruTableCell>
                   <ZoruTableCell className="text-xs text-zoru-ink-muted">{d.attempts}</ZoruTableCell>
                   <ZoruTableCell className="text-xs text-zoru-ink-muted">{d.responseStatus ?? '—'}</ZoruTableCell>
-                  <ZoruTableCell className="text-xs text-zoru-ink-muted">{new Date(d.createdAt).toLocaleString()}</ZoruTableCell>
+                  <ZoruTableCell className="text-xs text-zoru-ink-muted">
+                    {mounted ? new Date(d.createdAt).toLocaleString() : '—'}
+                  </ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     {d.status === 'failed' ? (
                       <Button

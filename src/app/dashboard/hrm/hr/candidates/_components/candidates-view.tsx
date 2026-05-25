@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 'use client';
 
 import { useZoruToast, Avatar, ZoruAvatarFallback } from '@/components/zoruui';
@@ -400,7 +401,7 @@ export function CandidatesView({ initial, kpis }: CandidatesViewProps) {
 function fmtDate(d?: string | Date | null) {
   if (!d) return '—';
   try {
-    return new Date(d).toLocaleDateString();
+    return fmtDate(d);
   } catch {
     return '—';
   }

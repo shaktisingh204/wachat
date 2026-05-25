@@ -61,6 +61,8 @@ export interface QuickSendRunDoc {
   skipSentToday: boolean;
   throttlePerSecond: number;
   senderNumberId?: string;
+  tendlcCampaignId?: string;
+  dltTemplateId?: string;
   total: number;
   queued: number;
   skipped: number;
@@ -80,6 +82,8 @@ export interface LaunchInput {
   skipSuppressed: boolean;
   skipSentToday: boolean;
   marketingAttested?: boolean;
+  tendlcCampaignId?: string;
+  dltTemplateId?: string;
 }
 
 export type LaunchResult =
@@ -206,6 +210,8 @@ export async function launchQuickSend(input: LaunchInput): Promise<LaunchResult>
     skipSentToday: input.skipSentToday,
     throttlePerSecond: Math.max(1, Math.min(50, input.throttlePerSecond)),
     senderNumberId: input.senderNumberId,
+    tendlcCampaignId: input.tendlcCampaignId,
+    dltTemplateId: input.dltTemplateId,
     total: input.rows.length,
     queued: 0,
     skipped: 0,
@@ -230,6 +236,8 @@ export async function launchQuickSend(input: LaunchInput): Promise<LaunchResult>
         throttlePerSecond: doc.throttlePerSecond,
         skipSuppressed: input.skipSuppressed,
         skipSentToday: input.skipSentToday,
+        tendlcCampaignId: input.tendlcCampaignId,
+        dltTemplateId: input.dltTemplateId,
       },
       createdAt: new Date(),
     });
@@ -329,13 +337,17 @@ async function runQuickSendLoop(
         continue;
       }
 
+      const tags = [`quick_send:${runId}`];
+      if (input.dltTemplateId) tags.push(`dlt_template:${input.dltTemplateId}`);
+
       const send = await sabsmsEngine.enqueueSend({
         workspaceId,
         to: row.phone,
         body,
         category: input.category,
         eventKey: "sabsms.quick_send",
-        tags: [`quick_send:${runId}`],
+        campaignId: input.tendlcCampaignId,
+        tags,
       });
       result.messageId = send.id;
       result.status = "queued";

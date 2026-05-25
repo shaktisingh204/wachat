@@ -15,16 +15,16 @@ import {
   Checkbox,
   Input,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -56,6 +56,7 @@ import {
 } from '@/app/actions/worksuite/proposals.actions';
 import type { WsProposalTemplate } from '@/lib/worksuite/proposals-types';
 import { dateStamp, downloadCsv } from '@/lib/crm-list-export';
+import { fmtINR } from '@/lib/utils';
 
 type Row = WsProposalTemplate & { _id: string };
 
@@ -78,16 +79,7 @@ const CATEGORY_OPTIONS: { value: string; label: string }[] = [
   { value: 'services', label: 'Services' },
 ];
 
-function fmtCurrency(v: number, currency?: string): string {
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: currency || 'INR',
-    }).format(v || 0);
-  } catch {
-    return `${currency || ''} ${(v || 0).toFixed(2)}`;
-  }
-}
+
 
 function matchesSearch(row: Row, q: string): boolean {
   if (!q) return true;
@@ -271,31 +263,31 @@ export default function ProposalTemplatesPage() {
               value={statusFilter || '__all'}
               onValueChange={(v) => setStatusFilter(v === '__all' ? '' : v)}
             >
-              <ZoruSelectTrigger className="h-9 w-[150px] text-[13px]">
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger className="h-9 w-[150px] text-[13px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
                 {STATUS_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value || '__all'} value={o.value || '__all'}>
+                  <SelectItem key={o.value || '__all'} value={o.value || '__all'}>
                     {o.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Select
               value={categoryFilter || '__all'}
               onValueChange={(v) => setCategoryFilter(v === '__all' ? '' : v)}
             >
-              <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                <ZoruSelectValue placeholder="Category" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
+              <SelectTrigger className="h-9 w-[160px] text-[13px]">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
                 {CATEGORY_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value || '__all'} value={o.value || '__all'}>
+                  <SelectItem key={o.value || '__all'} value={o.value || '__all'}>
                     {o.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             {hasActive ? (
               <Button
@@ -313,74 +305,74 @@ export default function ProposalTemplatesPage() {
           </div>
 
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="w-[36px]">
+            <TableHeader>
+              <TableRow className="border-zoru-line hover:bg-transparent">
+                <TableHead className="w-[36px]">
                   <Checkbox
                     checked={allSelected}
                     onCheckedChange={toggleAll}
                     aria-label="Select all"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Currency</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Total</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="w-24" />
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </TableHead>
+                <TableHead className="text-zoru-ink-muted">Name</TableHead>
+                <TableHead className="text-zoru-ink-muted">Title</TableHead>
+                <TableHead className="text-zoru-ink-muted">Currency</TableHead>
+                <TableHead className="text-right text-zoru-ink-muted">Total</TableHead>
+                <TableHead className="text-zoru-ink-muted">Status</TableHead>
+                <TableHead className="w-24" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {isLoading ? (
-                <ZoruTableRow>
-                  <ZoruTableCell colSpan={7} className="h-24 text-center">
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
                     <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </TableCell>
+                </TableRow>
               ) : filtered.length === 0 ? (
-                <ZoruTableRow>
-                  <ZoruTableCell
+                <TableRow>
+                  <TableCell
                     colSpan={7}
                     className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     {hasActive || query
                       ? 'No templates match these filters.'
                       : 'No templates yet — click "New Template" to add one.'}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </TableCell>
+                </TableRow>
               ) : (
                 filtered.map((t) => {
                   const isSelected = selected.has(t._id);
                   const statusValue = (t as Row & { status?: string }).status;
                   return (
-                    <ZoruTableRow
+                    <TableRow
                       key={t._id}
                       className="border-zoru-line"
                       data-state={isSelected ? 'selected' : undefined}
                     >
-                      <ZoruTableCell>
+                      <TableCell>
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleOne(t._id)}
                           aria-label={`Select ${t.name}`}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </TableCell>
+                      <TableCell>
                         <EntityRowLink
                           href={`/dashboard/crm/sales/proposals/templates/${t._id}`}
                           label={t.name || '—'}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      </TableCell>
+                      <TableCell className="text-[13px] text-zoru-ink">
                         {t.title || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      </TableCell>
+                      <TableCell className="text-[13px] text-zoru-ink">
                         {t.currency || '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
-                        {fmtCurrency(t.total, t.currency)}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </TableCell>
+                      <TableCell className="text-right text-[13px] text-zoru-ink">
+                        {fmtINR(t.total, t.currency)}
+                      </TableCell>
+                      <TableCell>
                         {statusValue ? (
                           <Badge
                             variant={
@@ -395,8 +387,8 @@ export default function ProposalTemplatesPage() {
                             {statusValue}
                           </Badge>
                         ) : null}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </TableCell>
+                      <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button size="sm" variant="ghost" asChild>
                             <Link href={`/dashboard/crm/sales/proposals/templates/${t._id}/edit`}>
@@ -412,12 +404,12 @@ export default function ProposalTemplatesPage() {
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </TableCell>
+                    </TableRow>
                   );
                 })
               )}
-            </ZoruTableBody>
+            </TableBody>
           </Table>
         </Card>
       </EntityListShell>

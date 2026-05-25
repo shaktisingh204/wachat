@@ -9,6 +9,8 @@ import {
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import * as React from 'react';
+import { Skeleton } from '@/components/zoruui';
 import { getSession } from '@/app/actions/user.actions';
 
 import { getStockTransferById } from '@/app/actions/crm-stock-transfers.actions';
@@ -20,6 +22,24 @@ const BASE = '/dashboard/crm/inventory/stock-transfers';
 
 interface PageProps {
     params: Promise<{ id: string }>;
+}
+
+
+function AuditTimelineSkeleton() {
+    return (
+        <div className="space-y-4 rounded-lg border border-border bg-card p-4">
+            <Skeleton className="mb-4 h-5 w-24" />
+            {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex gap-4">
+                    <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                    <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-3 w-2/3" />
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
 }
 
 export default async function EditStockTransferPage({ params }: PageProps) {
@@ -39,12 +59,14 @@ export default async function EditStockTransferPage({ params }: PageProps) {
             title={`Edit ${number}`}
             back={{ href: `${BASE}/${id}`, label: 'Back to transfer' }}
             rightRail={
-                <EntityAuditTimeline
-                    entityKind="stock_transfer"
-                    entityId={String(id)}
-                    title="Activity"
-                    limit={25}
-                />
+                <React.Suspense fallback={<AuditTimelineSkeleton />}>
+                    <EntityAuditTimeline
+                        entityKind="stock_transfer"
+                        entityId={String(id)}
+                        title="Activity"
+                        limit={25}
+                    />
+                </React.Suspense>
             }
         >
             <StockTransferForm initial={transfer} />

@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 import { Badge, Button, Card } from '@/components/zoruui';
 import {
   redirect } from 'next/navigation';
@@ -49,11 +50,7 @@ const STATUS_TONE: Record<string, StatusTone> = {
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
 
-function fmtDate(v: unknown): string {
-    if (!v) return '—';
-    const d = new Date(v as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function titleCase(s?: string | null): string {
     if (!s) return '—';

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button } from '@/components/zoruui';
-import { Plus, Edit2, Trash2, MessageSquare, Users, Activity, MessageCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, MessageSquare, Users, Activity, MessageCircle, Megaphone, TrendingUp, DollarSign, Target } from 'lucide-react';
 import { 
   Table, 
   ZoruTableHeader, 
@@ -160,37 +160,52 @@ export function WhatsappBotClient({ initialData }: { initialData: any[] }) {
           </Dialog>
         }
       >
-        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            label="Total Bots"
-            value={data.length}
-            icon={<MessageCircle />}
-            delta={12.5}
-            period="vs last month"
-          />
-          <StatCard
-            label="Active Campaigns"
-            value={data.filter(d => d.isActive).length}
-            icon={<Activity />}
-            delta={5.2}
-            period="vs last month"
-          />
-          <StatCard
-            label="Messages Sent"
-            value="1.2M"
-            icon={<MessageSquare />}
-            delta={18.4}
-            period="vs last month"
-          />
-          <StatCard
-            label="Audience Reached"
-            value="450K"
-            icon={<Users />}
-            delta={-2.4}
-            period="vs last month"
-            invertDelta
-          />
+        
+        {/* Global Campaign Dashboard */}
+        <div className="mb-6 rounded-xl border border-zoru-line bg-gradient-to-r from-blue-50/50 to-indigo-50/50 p-6">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="rounded-lg bg-blue-100 p-3 text-blue-600">
+              <Megaphone className="h-6 w-6" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-zoru-ink">Global Campaign Dashboard</h2>
+              <p className="text-sm text-zoru-ink-muted">Aggregated metrics and cross-channel ROI</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+              label="Total Cross-Channel ROI"
+              value="245%"
+              icon={<TrendingUp />}
+              delta={12.5}
+              period="vs last month"
+            />
+            <StatCard
+              label="Revenue Attributed"
+              value="$124,500"
+              icon={<DollarSign />}
+              delta={8.2}
+              period="vs last month"
+            />
+            <StatCard
+              label="Active Campaigns"
+              value={data.filter(d => d.isActive).length}
+              icon={<Activity />}
+              delta={5.2}
+              period="vs last month"
+            />
+            <StatCard
+              label="Cross-Channel Conversion"
+              value="18.4%"
+              icon={<Target />}
+              delta={-2.4}
+              period="vs last month"
+              invertDelta
+            />
+          </div>
         </div>
+
 
         {filteredData.length === 0 ? (
           <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">

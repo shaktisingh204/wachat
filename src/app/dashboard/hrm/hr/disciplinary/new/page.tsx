@@ -14,8 +14,6 @@ import { useRouter } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { saveDisciplinaryCase } from '@/app/actions/crm-disciplinary.actions';
 
-export const dynamic = 'force-dynamic';
-
 const initialState: { message?: string; error?: string; id?: string } = {};
 
 function SubmitButton() {

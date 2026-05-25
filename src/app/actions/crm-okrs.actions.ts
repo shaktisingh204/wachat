@@ -66,7 +66,7 @@ function asKeyResults(v: FormDataEntryValue | null): CrmOkrKeyResult[] | undefin
             if (!title) continue;
             const status = (
                 typeof o.status === 'string' &&
-                ['on_track', 'at_risk', 'behind', 'completed'].includes(o.status)
+                ['on_track', 'at_risk', 'off_track', 'completed'].includes(o.status)
                     ? o.status
                     : 'on_track'
             ) as CrmOkrKeyResultStatus;
@@ -165,9 +165,9 @@ const VALID_STATUSES: ReadonlySet<CrmOkrStatus> = new Set<CrmOkrStatus>([
     'in_progress',
     'on_track',
     'at_risk',
-    'behind',
+    'off_track',
     'completed',
-    'missed',
+    'cancelled',
     'archived',
 ]);
 

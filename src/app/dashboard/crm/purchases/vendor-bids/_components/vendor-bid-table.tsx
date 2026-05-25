@@ -35,24 +35,8 @@ interface VendorBidTableProps {
   density?: DensityMode;
 }
 
-function fmtMoney(value?: number | null, currency = 'INR'): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${currency} ${value}`;
-  }
-}
+import { fmtINR, fmtDate } from '@/lib/utils';
 
-function fmtDate(v?: string | null): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
 
 export function VendorBidTable({
   bids,
@@ -149,7 +133,7 @@ export function VendorBidTable({
       sortable: true,
       render: (row) => (
         <span className="font-mono tabular-nums text-zoru-ink font-semibold">
-          {fmtMoney(row.total, row.currency ?? defaultCurrency)}
+          {fmtINR(row.total, row.currency ?? defaultCurrency)}
         </span>
       ),
     },
@@ -164,7 +148,7 @@ export function VendorBidTable({
         return (
           <div className="flex flex-col gap-0.5">
             <span className="font-mono text-[12px] tabular-nums text-zoru-ink-muted line-through">
-              {fmtMoney(row.budget, row.currency ?? defaultCurrency)}
+              {fmtINR(row.budget, row.currency ?? defaultCurrency)}
             </span>
             <span className={`text-[10px] font-medium ${isOver ? 'text-zoru-danger-ink' : 'text-zoru-success-ink'}`}>
               {isOver ? '+' : '-'}{Math.abs(variancePct).toFixed(1)}% {isOver ? 'over' : 'under'}

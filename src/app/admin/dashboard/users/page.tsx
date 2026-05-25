@@ -17,6 +17,8 @@ import { AdminUserPermissionsDialog } from '@/components/wabasimplify/admin-user
 import { AdminUserActionsMenu } from '@/components/wabasimplify/admin-user-actions-menu';
 import { Users, CheckCircle, Clock, Ban } from 'lucide-react';
 
+import { AdminUsersTableView } from '@/components/wabasimplify/admin-users-table-view';
+
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'User Management | SabNode Admin' };
 
@@ -43,8 +45,9 @@ export default async function AdminUsersPage({
         users = userData.users;
         total = userData.total;
         allPlans = plansData;
-    } catch {
-        // fail gracefully
+    } catch (e) {
+        // Log the error that was silently failing
+        console.error('Error fetching admin users page data:', e);
     }
 
     const totalPages = Math.ceil(total / USERS_PER_PAGE);
@@ -86,123 +89,14 @@ export default async function AdminUsersPage({
             </div>
 
             {/* Table card */}
-            <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-slate-500" />
-                        <span className="font-medium text-slate-900 text-sm">{total.toLocaleString()} users found</span>
-                    </div>
-                    <div className="w-72">
-                        <AdminUserSearch placeholder="Search by name or email…" />
-                    </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-slate-200">
-                                <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
-                                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Joined</th>
-                                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Plan</th>
-                                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                                <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-200">
-                            {plainUsers.length > 0 ? (
-                                plainUsers.map((user) => (
-                                    <tr key={user._id.toString()} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-3.5">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-8 w-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center shrink-0">
-                                                    <span className="text-xs font-bold text-slate-900">
-                                                        {user.name.charAt(0).toUpperCase()}
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium text-slate-900">{user.name}</p>
-                                                    <p className="text-xs text-slate-500">{user.email}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3.5 text-xs text-slate-500">
-                                            {new Date(user.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                        </td>
-                                        <td className="px-4 py-3.5">
-                                            <span className="inline-flex items-center rounded-full border border-slate-300 bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">
-                                                {user.plan?.name || 'N/A'}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-3.5">
-                                            {user.isSuspended ? (
-                                                <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-600">
-                                                    <Ban className="h-3 w-3" />
-                                                    Suspended
-                                                </span>
-                                            ) : user.isApproved ? (
-                                                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600">
-                                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                                                    Approved
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-600">
-                                                    <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-                                                    Pending
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="px-4 py-3.5">
-                                            <div className="flex items-center justify-end gap-1">
-                                                <ImpersonateUserButton userId={user._id.toString()} userName={user.name} />
-                                                <AdminUserPermissionsDialog
-                                                    userId={user._id.toString()}
-                                                    userName={user.name}
-                                                    initialPermissions={user.customPermissions}
-                                                />
-                                                <AdminAssignUserPlanDialog
-                                                    userId={user._id.toString()}
-                                                    userName={user.name}
-                                                    currentPlanId={user.planId?.toString()}
-                                                    allPlans={allPlans}
-                                                />
-                                                {!user.isApproved && (
-                                                    <ApproveUserButton userId={user._id.toString()} />
-                                                )}
-                                                <AdminUserActionsMenu
-                                                    userId={user._id.toString()}
-                                                    userName={user.name}
-                                                    isSuspended={user.isSuspended}
-                                                />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={5} className="px-6 py-16 text-center text-slate-500">
-                                        No users found matching your search.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Pagination */}
-                <div className="px-6 py-3 border-t border-slate-200 flex items-center justify-between">
-                    <span className="text-xs text-slate-500">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
-                    <div className="flex gap-2">
-                        <Button variant="outline" size="sm" asChild disabled={currentPage <= 1}
-                            className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
-                            <Link href={`/admin/dashboard/users?page=${currentPage - 1}${query ? `&query=${query}` : ''}`}>Previous</Link>
-                        </Button>
-                        <Button variant="outline" size="sm" asChild disabled={currentPage >= totalPages}
-                            className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
-                            <Link href={`/admin/dashboard/users?page=${currentPage + 1}${query ? `&query=${query}` : ''}`}>Next</Link>
-                        </Button>
-                    </div>
-                </div>
-            </div>
+            <AdminUsersTableView 
+                plainUsers={plainUsers} 
+                allPlans={allPlans} 
+                total={total} 
+                currentPage={currentPage} 
+                totalPages={totalPages} 
+                query={query} 
+            />
         </div>
     );
 }

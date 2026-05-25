@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 import {
   Badge,
   Button,
@@ -46,7 +47,7 @@ const STATUS_TONE: Record<ProbationStatus, StatusTone> = {
 function fmtDate(value: unknown): string {
     if (!value) return '—';
     const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    return Number.isNaN(d.getTime()) ? '—' : fmtDate(d);
 }
 
 function pretty(s?: string): string {

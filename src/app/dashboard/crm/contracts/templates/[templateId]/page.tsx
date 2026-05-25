@@ -86,18 +86,7 @@ export default async function ContractTemplateDetailPage(props: {
   )) as StoredTemplate | null;
 
   if (!tpl) {
-    return (
-      <div className="flex w-full flex-col gap-4 p-6">
-        <p className="text-[14px] text-zoru-ink">
-          Couldn&apos;t load this template.
-        </p>
-        <Button variant="outline" asChild>
-          <Link href="/dashboard/crm/contracts/templates">
-            <ArrowLeft className="h-4 w-4" /> Back to Templates
-          </Link>
-        </Button>
-      </div>
-    );
+    notFound();
   }
 
   const body = tpl.body ?? '';

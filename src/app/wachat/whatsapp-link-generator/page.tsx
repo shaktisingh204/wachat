@@ -37,6 +37,8 @@ import { Link as LinkIcon,
   QrCode } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import { shortenUrlAction } from './actions';
 
 /**
  * Wachat WhatsApp Link Generator (ZoruUI).
@@ -62,19 +64,55 @@ export default function WhatsAppLinkGeneratorPage() {
   const [message, setMessage] = useState('');
   const [copied, setCopied] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [isShortening, setIsShortening] = useState(false);
+  const [shortUrl, setShortUrl] = useState('');
 
   useEffect(() => {
-    if (projectPhone && !phone) setPhone(projectPhone.replace(/[^0-9]/g, ''));
+    if (projectPhone && !phone) setPhone(projectPhone);
   }, [projectPhone, phone]);
 
+  const { isValid, cleanPhone, formattedPhone } = useMemo(() => {
+    let p = phone.trim();
+    if (!p) return { isValid: false, cleanPhone: '', formattedPhone: '' };
+    if (/^\d/.test(p)) {
+      p = '+' + p;
+    }
+    const pn = parsePhoneNumberFromString(p);
+    const valid = pn ? pn.isValid() : false;
+    const clean = valid ? pn!.format('E.164').replace('+', '') : '';
+    const formatted = valid ? pn!.formatInternational() : '';
+    return { isValid: valid, cleanPhone: clean, formattedPhone: formatted };
+  }, [phone]);
+
   const generatedLink = useMemo(() => {
-    const cleanPhone = phone.replace(/[^0-9]/g, '');
-    if (!cleanPhone) return '';
+    if (!isValid || !cleanPhone) return '';
     const encodedMsg = message.trim()
       ? `?text=${encodeURIComponent(message.trim())}`
       : '';
     return `https://wa.me/${cleanPhone}${encodedMsg}`;
-  }, [phone, message]);
+  }, [isValid, cleanPhone, message]);
+
+  useEffect(() => {
+    setShortUrl('');
+  }, [generatedLink]);
+
+  const handleShortenLink = async () => {
+    if (!generatedLink) return;
+    setIsShortening(true);
+    try {
+      const res = await shortenUrlAction(generatedLink);
+      if (res) {
+        setShortUrl(res);
+        toast({ title: 'Success', description: 'Link shortened successfully.' });
+      } else {
+        toast({ title: 'Error', description: 'Failed to shorten link.', variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Error', description: 'An error occurred while shortening.', variant: 'destructive' });
+    } finally {
+      setIsShortening(false);
+    }
+  };
 
   const qrUrl = useMemo(() => {
     if (!generatedLink) return '';
@@ -83,9 +121,11 @@ export default function WhatsAppLinkGeneratorPage() {
     )}`;
   }, [generatedLink]);
 
+  const linkToCopy = shortUrl || generatedLink;
+
   const performCopy = async () => {
-    if (!generatedLink) return;
-    await navigator.clipboard.writeText(generatedLink);
+    if (!linkToCopy) return;
+    await navigator.clipboard.writeText(linkToCopy);
     setCopied(true);
     toast({ title: 'Copied', description: 'Link copied to clipboard.' });
     window.setTimeout(() => setCopied(false), 2000);
@@ -131,20 +171,28 @@ export default function WhatsAppLinkGeneratorPage() {
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="919876543210"
+              placeholder="+91 98765 43210"
               className="font-mono"
+              invalid={phone.length > 0 && !isValid}
             />
-            {projectPhone ? (
-              <button
-                type="button"
-                onClick={() =>
-                  setPhone(projectPhone.replace(/[^0-9]/g, ''))
-                }
-                className="self-start text-[11px] text-zoru-ink-muted transition-colors hover:text-zoru-ink hover:underline"
-              >
-                Use project number
-              </button>
-            ) : null}
+            <div className="flex items-start justify-between mt-0.5 min-h-[20px]">
+              <div className="text-[11px]">
+                {phone && !isValid ? (
+                  <span className="text-zoru-danger">Invalid phone number. Check country code.</span>
+                ) : phone && isValid ? (
+                  <span className="text-zoru-success">Valid: {formattedPhone}</span>
+                ) : null}
+              </div>
+              {projectPhone ? (
+                <button
+                  type="button"
+                  onClick={() => setPhone(projectPhone)}
+                  className="shrink-0 text-[11px] text-zoru-ink-muted transition-colors hover:text-zoru-ink hover:underline ml-2"
+                >
+                  Use project number
+                </button>
+              ) : null}
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -166,13 +214,23 @@ export default function WhatsAppLinkGeneratorPage() {
 
           {generatedLink ? (
             <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
-              <div className="mb-2 text-[12px] text-zoru-ink-muted">
-                Generated Link
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-[12px] text-zoru-ink-muted">Generated Link</span>
+                {!shortUrl && (
+                  <button
+                    type="button"
+                    onClick={handleShortenLink}
+                    disabled={isShortening}
+                    className="text-[11px] font-medium text-zoru-ink transition-colors hover:underline disabled:opacity-50"
+                  >
+                    {isShortening ? 'Shortening...' : 'Shorten link'}
+                  </button>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <Input
                   readOnly
-                  value={generatedLink}
+                  value={shortUrl || generatedLink}
                   className="font-mono text-[12px]"
                 />
                 <Button
@@ -198,7 +256,7 @@ export default function WhatsAppLinkGeneratorPage() {
             {generatedLink ? (
               <Button
                 variant="outline"
-                onClick={() => window.open(generatedLink, '_blank')}
+                onClick={() => window.open(shortUrl || generatedLink, '_blank')}
               >
                 Test Link
               </Button>
@@ -256,7 +314,7 @@ export default function WhatsAppLinkGeneratorPage() {
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
           <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 font-mono text-[12px] text-zoru-ink break-all">
-            {generatedLink}
+            {shortUrl || generatedLink}
           </div>
           <ZoruAlertDialogFooter>
             <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>

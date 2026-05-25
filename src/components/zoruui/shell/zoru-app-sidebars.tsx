@@ -1504,8 +1504,16 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         id: "url-main",
         label: "Workspace",
         items: [
-          leaf("home", "All links", "/dashboard/url-shortener", LinkIcon, p),
-          leaf("settings", "Settings", "/dashboard/url-shortener/settings", Settings, p),
+          leaf("home", "All links", "/dashboard/url-shortener", LinkIcon, p, { exact: true }),
+          leaf("bio", "Link in Bio", "/dashboard/url-shortener/bio", FileText, p),
+        ],
+      },
+      {
+        id: "url-settings",
+        label: "Settings",
+        items: [
+          leaf("settings", "Settings", "/dashboard/url-shortener/settings", Settings, p, { exact: true }),
+          leaf("webhooks", "Webhooks", "/dashboard/url-shortener/settings/webhooks", Webhook, p),
         ],
       },
     ],
@@ -1521,7 +1529,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         id: "sabfiles-main",
         label: "Workspace",
         items: [
-          leaf("home", "My files", "/dashboard/sabfiles", FolderOpen, p),
+          leaf("home", "My files", "/dashboard/sabfiles", FolderOpen, p, { exact: true }),
           leaf("recent", "Recent", "/dashboard/sabfiles/recent", History, p),
           leaf("starred", "Starred", "/dashboard/sabfiles/starred", Star, p),
           leaf("shared", "Shared by me", "/dashboard/sabfiles/shared", Share2, p),
@@ -1548,8 +1556,16 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         id: "qr-main",
         label: "Workspace",
         items: [
-          leaf("home", "Generator", "/dashboard/qr-code-maker", QrCode, p),
-          leaf("settings", "Settings", "/dashboard/qr-code-maker/settings", Settings, p),
+          leaf("home", "Generator", "/dashboard/qr-code-maker", QrCode, p, { exact: true }),
+          leaf("campaigns", "Campaigns", "/dashboard/qr-code-maker/campaigns", LayoutGrid, p),
+        ],
+      },
+      {
+        id: "qr-settings",
+        label: "Settings",
+        items: [
+          leaf("settings", "Settings", "/dashboard/qr-code-maker/settings", Settings, p, { exact: true }),
+          leaf("brand-kit", "Brand Kit", "/dashboard/qr-code-maker/settings/brand-kit", Palette, p),
         ],
       },
     ],

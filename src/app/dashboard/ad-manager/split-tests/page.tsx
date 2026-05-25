@@ -34,6 +34,7 @@ import {
 
 import * as React from 'react';
 
+import { AmBreadcrumb } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
 
 const VARIABLES = [
@@ -59,6 +60,7 @@ export default function SplitTestsPage() {
     const { toast } = useToast();
     const [selectedVar, setSelectedVar] = React.useState<string | null>(null);
     const [pastTests, setPastTests] = React.useState<SplitTest[]>([]);
+    const [isMounted, setIsMounted] = React.useState(false);
 
     // form state
     const [testName, setTestName] = React.useState('');
@@ -68,6 +70,7 @@ export default function SplitTestsPage() {
 
     // Load past tests from localStorage on mount
     React.useEffect(() => {
+        setIsMounted(true);
         try {
             const stored = localStorage.getItem('sabnode_split_tests');
             if (stored) setPastTests(JSON.parse(stored));
@@ -116,8 +119,13 @@ export default function SplitTestsPage() {
         toast({ title: 'Deleted', description: 'Split test removed.' });
     };
 
+    if (!isMounted) {
+        return null; // Ensure full hydration stability by avoiding server-client mismatch on initial load
+    }
+
     return (
         <div className="space-y-6">
+            <AmBreadcrumb page="A/B split tests" />
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">

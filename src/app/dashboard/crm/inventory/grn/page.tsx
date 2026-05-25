@@ -11,7 +11,7 @@ import { Plus } from 'lucide-react';
  */
 
 import Link from 'next/link';
-
+import React from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getGrnKpis, listGrns } from '@/app/actions/crm/grns.actions';
 import { GrnListClient } from './_components/grn-list-client';
@@ -36,7 +36,45 @@ export default async function GrnPage({
 }: {
     searchParams: Promise<SearchParams>;
 }) {
+    // Await the params before passing them to the fetcher to satisfy Next.js 15+ constraints
     const sp = await searchParams;
+
+    return (
+        <EntityListShell
+            title="Goods Receipt (GRN)"
+            subtitle="Record incoming stock against purchase orders and reconcile quantities."
+            primaryAction={
+                <Button asChild>
+                    <Link href="/dashboard/crm/inventory/grn/new">
+                        <Plus className="h-4 w-4" />
+                        New GRN
+                    </Link>
+                </Button>
+            }
+        >
+            <React.Suspense fallback={<ListFallback />}>
+                <GrnListFetcher searchParams={sp} />
+            </React.Suspense>
+        </EntityListShell>
+    );
+}
+
+// Minimal fallback for inner Suspense boundary
+function ListFallback() {
+    return (
+        <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="h-24 rounded-lg border border-dashed bg-muted/20 animate-pulse" />
+                ))}
+            </div>
+            <div className="h-[400px] w-full rounded-lg border border-dashed bg-muted/20 animate-pulse" />
+        </div>
+    );
+}
+
+async function GrnListFetcher({ searchParams }: { searchParams: SearchParams }) {
+    const sp = searchParams;
     const page = Math.max(1, Number(sp.page) || 1);
     const limit = Math.min(Math.max(1, Number(sp.limit) || 20), 100);
     const q = (sp.q ?? '').trim();
@@ -108,33 +146,20 @@ export default async function GrnPage({
     }
 
     return (
-        <EntityListShell
-            title="Goods Receipt (GRN)"
-            subtitle="Record incoming stock against purchase orders and reconcile quantities."
-            primaryAction={
-                <Button asChild>
-                    <Link href="/dashboard/crm/inventory/grn/new">
-                        <Plus className="h-4 w-4" />
-                        New GRN
-                    </Link>
-                </Button>
-            }
-        >
-            <GrnListClient
-                grns={filtered}
-                page={page}
-                limit={limit}
-                hasMore={hasMore}
-                initialQuery={q}
-                initialStatus={status}
-                initialVendorId={vendorId}
-                initialWarehouseId={warehouseId}
-                initialQcStatus={qcStatus}
-                initialDateFrom={dateFrom}
-                initialDateTo={dateTo}
-                kpis={kpis}
-                error={error}
-            />
-        </EntityListShell>
+        <GrnListClient
+            grns={filtered}
+            page={page}
+            limit={limit}
+            hasMore={hasMore}
+            initialQuery={q}
+            initialStatus={status}
+            initialVendorId={vendorId}
+            initialWarehouseId={warehouseId}
+            initialQcStatus={qcStatus}
+            initialDateFrom={dateFrom}
+            initialDateTo={dateTo}
+            kpis={kpis}
+            error={error}
+        />
     );
 }

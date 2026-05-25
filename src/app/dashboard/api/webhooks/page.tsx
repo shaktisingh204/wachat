@@ -13,10 +13,7 @@ import {
   ZoruBreadcrumbLink,
   ZoruBreadcrumbSeparator,
   ZoruBreadcrumbPage,
-  Alert,
-  ZoruAlertDescription,
 } from '@/components/zoruui';
-import { AlertCircle } from 'lucide-react';
 import { WebhooksClient } from './_WebhooksClient';
 
 export const dynamic = 'force-dynamic';
@@ -26,13 +23,17 @@ export default async function WebhooksPage(): Promise<JSX.Element> {
     listWebhookSubscriptions(),
     listWebhookDeliveries(undefined, 50),
   ]);
-  const initialSubs = subsRes.success ? subsRes.subs : [];
-  const initialDeliveries = deliveriesRes.success ? deliveriesRes.deliveries : [];
-  const loadError = !subsRes.success
-    ? subsRes.error
-    : !deliveriesRes.success
-      ? deliveriesRes.error
-      : null;
+
+  if (!subsRes.success) {
+    throw new Error(subsRes.error || 'Failed to list webhook subscriptions');
+  }
+  
+  if (!deliveriesRes.success) {
+    throw new Error(deliveriesRes.error || 'Failed to list webhook deliveries');
+  }
+
+  const initialSubs = subsRes.subs || [];
+  const initialDeliveries = deliveriesRes.deliveries || [];
 
   return (
     <div className="flex min-h-full flex-col gap-6">
@@ -58,13 +59,6 @@ export default async function WebhooksPage(): Promise<JSX.Element> {
           </ZoruPageDescription>
         </ZoruPageHeading>
       </PageHeader>
-
-      {loadError ? (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <ZoruAlertDescription>{loadError}</ZoruAlertDescription>
-        </Alert>
-      ) : null}
 
       <WebhooksClient initialSubs={initialSubs} initialDeliveries={initialDeliveries} />
     </div>

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 
 /**
@@ -15,7 +16,7 @@ import { AnnouncementForm } from '../_components/announcement-form';
 
 export const dynamic = 'force-dynamic';
 
-export default async function NewAnnouncementPage() {
+async function NewAnnouncementPageContainer() {
     const session = await getSession();
     if (!session?.user) redirect('/login');
 
@@ -27,4 +28,12 @@ export default async function NewAnnouncementPage() {
             <AnnouncementForm />
         </EntityListShell>
     );
+}
+
+export default function NewAnnouncementPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewAnnouncementPageContainer  />
+    </Suspense>
+  );
 }

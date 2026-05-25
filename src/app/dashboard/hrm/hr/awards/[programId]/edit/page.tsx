@@ -19,8 +19,6 @@ import {
   updateAwardProgram,
 } from '@/app/actions/crm-awards.actions';
 
-export const dynamic = 'force-dynamic';
-
 const SELECT_CLASS =
   'flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-[13px] text-zoru-ink shadow-sm focus:outline-none focus:ring-1 focus:ring-zoru-accent';
 

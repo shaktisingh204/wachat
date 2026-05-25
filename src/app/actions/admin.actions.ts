@@ -498,3 +498,21 @@ export async function updatePlanPermissions(
         return translateRustError(e);
     }
 }
+
+export async function bulkApproveUsers(userIds: string[]): Promise<{ success: boolean; error?: string }> {
+    try {
+        await Promise.all(userIds.map(id => approveUser(id)));
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function bulkUpdateUserPlans(userIds: string[], planId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        await Promise.all(userIds.map(id => updateUserPlanByAdmin(id, planId)));
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}

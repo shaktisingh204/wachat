@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getSiteById, getWebsitePages } from '@/app/actions/portfolio.actions';
 import { notFound } from 'next/navigation';
 import { CartProvider } from '@/context/cart-context';

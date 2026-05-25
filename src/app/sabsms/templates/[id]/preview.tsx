@@ -117,22 +117,28 @@ export function spamScore(body: string): number {
 
 // ─── Interpolation (features #6, #7, #8, #20) ─────────────────────────────
 
-/**
- * Tiny templating language used in the preview only — the engine has its
- * own. Supports:
- *   - `{{ var }}` substitution
- *   - `{{ now | date('YYYY-MM-DD') }}` date filter (very narrow grammar)
- *   - `{% if foo %} … {% endif %}` blocks
- */
+function getPath(obj: any, path: string): any {
+  if (!obj || typeof obj !== "object") return undefined;
+  const keys = path.split(".");
+  let val = obj;
+  for (const k of keys) {
+    if (val === null || val === undefined) return undefined;
+    val = val[k];
+  }
+  return val;
+}
+
 export function interpolate(
   template: string,
-  vars: Record<string, string>,
+  payload: Record<string, any>,
+  defaults: Record<string, string>,
 ): string {
   // Conditional blocks first (greedy-safe — non-nesting).
   let out = template.replace(
     /\{%\s*if\s+([\w.]+)\s*%\}([\s\S]*?)\{%\s*endif\s*%\}/g,
     (_, key: string, inner: string) => {
-      const v = vars[key];
+      let v = getPath(payload, key);
+      if (v === undefined && defaults[key] !== undefined) v = defaults[key];
       return v && v !== "false" && v !== "0" ? inner : "";
     },
   );
@@ -143,8 +149,15 @@ export function interpolate(
   );
 
   out = out.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (_, name: string) => {
-    if (name in vars) return vars[name];
-    return `{{${name}}}`;
+    let v = getPath(payload, name);
+    if (v === undefined) {
+      if (defaults[name] !== undefined) {
+        v = defaults[name];
+      } else {
+        return ""; // Graceful fallback
+      }
+    }
+    return String(v);
   });
 
   return out;
@@ -170,7 +183,7 @@ export interface TemplatePreviewProps {
   body: string;
   category: string;
   variableDefaults: VariableDefault[];
-  sampleVars: Record<string, string>;
+  sampleVars: Record<string, any>;
   metadata: TemplateEditorMetadata;
 }
 
@@ -182,12 +195,10 @@ export function TemplatePreview({
   metadata,
 }: TemplatePreviewProps) {
   const interpolated = useMemo(() => {
-    const vars: Record<string, string> = {};
-    for (const v of variableDefaults) vars[v.name] = v.defaultValue;
-    for (const [k, val] of Object.entries(sampleVars)) {
-      if (val) vars[k] = val;
-    }
-    let out = interpolate(body, vars);
+    const defaults: Record<string, string> = {};
+    for (const v of variableDefaults) defaults[v.name] = v.defaultValue;
+    
+    let out = interpolate(body, sampleVars, defaults);
     if (metadata.tendlc.footerInjection) out += FOOTER_TEXT;
     return out;
   }, [body, variableDefaults, sampleVars, metadata.tendlc.footerInjection]);

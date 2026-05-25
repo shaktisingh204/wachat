@@ -27,6 +27,7 @@ import {
     Boxes,
     Download,
     LoaderCircle,
+    MoreHorizontal,
     Package,
     Receipt,
     TrendingDown,
@@ -38,10 +39,12 @@ import {
     useMemo,
     useState,
     useTransition,
+    Suspense,
 } from 'react';
 
 import {
     generateAllTransactionsReport,
+    type InventoryTransactionDto,
 } from '@/app/actions/crm-reports.actions';
 import {
     getAllTransactionsDeepKpis,
@@ -65,6 +68,10 @@ import {
     ZoruTableHeader,
     ZoruTableRow,
     useZoruToast,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/components/zoruui';
 import {
     dateStamp,
@@ -73,15 +80,6 @@ import {
     type ExportRow,
 } from '@/lib/crm-list-export';
 
-type Transaction = {
-    date: Date;
-    type: 'Sale' | 'Sales Return' | 'Stock Adjustment';
-    itemName: string;
-    quantity: number;
-    reference: string;
-    partyName: string;
-    warehouseName: string;
-};
 
 
 const fmtNumber = (n: number): string => n.toLocaleString('en-IN');
@@ -119,9 +117,9 @@ function KpiTile({
     );
 }
 
-export default function AllTransactionsDeepPage(): React.JSX.Element {
+function AllTransactionsDeepContent(): React.JSX.Element {
     const { toast } = useZoruToast();
-    const [reportData, setReportData] = useState<Transaction[]>([]);
+    const [reportData, setReportData] = useState<InventoryTransactionDto[]>([]);
     const [kpis, setKpis] = useState<AllTransactionsDeepKpis>(KPI_EMPTY);
     const [isLoading, startTransition] = useTransition();
 
@@ -146,7 +144,7 @@ export default function AllTransactionsDeepPage(): React.JSX.Element {
                     variant: 'destructive',
                 });
             } else {
-                setReportData((reportResult.data as Transaction[]) ?? []);
+                setReportData(reportResult.data ?? []);
             }
             setKpis(kpiResult);
         });
@@ -384,12 +382,13 @@ export default function AllTransactionsDeepPage(): React.JSX.Element {
                                 <ZoruTableHead className="text-muted-foreground">Party</ZoruTableHead>
                                 <ZoruTableHead className="text-muted-foreground">Reference</ZoruTableHead>
                                 <ZoruTableHead className="text-muted-foreground">Warehouse</ZoruTableHead>
+                                <ZoruTableHead className="w-[50px]"></ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading ? (
                                 <ZoruTableRow className="border-border">
-                                    <ZoruTableCell colSpan={7} className="h-48 text-center">
+                                    <ZoruTableCell colSpan={8} className="h-48 text-center">
                                         <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
                                     </ZoruTableCell>
                                 </ZoruTableRow>
@@ -426,11 +425,32 @@ export default function AllTransactionsDeepPage(): React.JSX.Element {
                                         <ZoruTableCell className="text-foreground">
                                             {row.warehouseName || 'Default'}
                                         </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" className="h-8 w-8 p-0">
+                                                        <span className="sr-only">Open menu</span>
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(row.reference);
+                                                            toast({ title: 'Copied', description: 'Reference copied to clipboard.' });
+                                                        }}
+                                                    >
+                                                        Copy reference
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem>View details</DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))
                             ) : (
                                 <ZoruTableRow className="border-border">
-                                    <ZoruTableCell colSpan={7} className="h-48 text-center text-muted-foreground">
+                                    <ZoruTableCell colSpan={8} className="h-48 text-center text-muted-foreground">
                                         <div className="flex flex-col items-center gap-2">
                                             <TrendingDown className="h-6 w-6 text-muted-foreground" />
                                             <Boxes className="hidden h-6 w-6" />
@@ -444,5 +464,13 @@ export default function AllTransactionsDeepPage(): React.JSX.Element {
                 </div>
             </Card>
         </EntityListShell>
+    );
+}
+
+export default function AllTransactionsDeepPage(): React.JSX.Element {
+    return (
+        <Suspense fallback={null}>
+            <AllTransactionsDeepContent />
+        </Suspense>
     );
 }

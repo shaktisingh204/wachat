@@ -39,34 +39,37 @@ import {
   useMemo,
   useState,
   useTransition,
-  } from 'react';
-import { Link as LinkIcon,
+} from 'react';
+import {
+  Link as LinkIcon,
   MousePointerClick,
   RefreshCw,
   Eye,
-  Trash2 } from 'lucide-react';
+  Trash2,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 import { useProject } from '@/context/project-context';
 import { getLinkClicks } from '@/app/actions/wachat-features.actions';
-
-/**
- * Wachat Link Tracking (ZoruUI).
- *
- * Tracked links table with view-clicks dialog and delete-confirm
- * alert. Only display data is currently surfaced server-side; the
- * dialog actions are wired for when delete is added.
- */
-
 import * as React from 'react';
-
-export const dynamic = 'force-dynamic';
 
 type ClickRecord = {
   url?: string;
   link?: string;
   clickedAt?: string;
   createdAt?: string;
+  campaignName?: string;
+  messagesSent?: number;
 };
 
 type GroupedLink = {
@@ -74,6 +77,8 @@ type GroupedLink = {
   count: number;
   lastClicked: string;
   clicks: ClickRecord[];
+  campaignName?: string;
+  messagesSent?: number;
 };
 
 export default function LinkTrackingPage() {
@@ -83,6 +88,9 @@ export default function LinkTrackingPage() {
   const [clicks, setClicks] = useState<ClickRecord[]>([]);
   const [viewing, setViewing] = useState<GroupedLink | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<GroupedLink | null>(null);
+  
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
 
   const fetchData = useCallback(() => {
     if (!activeProjectId) return;
@@ -105,27 +113,65 @@ export default function LinkTrackingPage() {
   const grouped: GroupedLink[] = useMemo(() => {
     const map = new Map<
       string,
-      { count: number; lastClicked: string; clicks: ClickRecord[] }
+      { count: number; lastClicked: string; clicks: ClickRecord[]; campaignName?: string; messagesSent?: number }
     >();
     for (const c of clicks) {
       const url = c.url || c.link || '';
       const ts = c.clickedAt || c.createdAt || '';
-      const existing = map.get(url);
+      
+      const key = c.campaignName ? `${url}|${c.campaignName}` : url;
+      
+      const existing = map.get(key);
       if (existing) {
         existing.count += 1;
         existing.clicks.push(c);
         if (ts > existing.lastClicked) existing.lastClicked = ts;
+        if (c.messagesSent && (!existing.messagesSent || c.messagesSent > existing.messagesSent)) {
+           existing.messagesSent = c.messagesSent;
+        }
       } else {
-        map.set(url, { count: 1, lastClicked: ts, clicks: [c] });
+        map.set(key, { 
+           count: 1, 
+           lastClicked: ts, 
+           clicks: [c],
+           campaignName: c.campaignName,
+           messagesSent: c.messagesSent
+        });
       }
     }
     return Array.from(map.entries())
-      .map(([url, data]) => ({ url, ...data }))
+      .map(([key, data]) => {
+          const url = data.clicks[0]?.url || data.clicks[0]?.link || '';
+          return { url, ...data };
+      })
       .sort((a, b) => b.count - a.count);
+  }, [clicks]);
+
+  const chartData = useMemo(() => {
+     const dateMap = new Map<string, number>();
+     for (const c of clicks) {
+         const ts = c.clickedAt || c.createdAt;
+         if (!ts) continue;
+         const d = new Date(ts);
+         if (isNaN(d.getTime())) continue;
+         const dStr = d.toISOString().split('T')[0];
+         dateMap.set(dStr, (dateMap.get(dStr) || 0) + 1);
+     }
+     return Array.from(dateMap.entries())
+       .sort((a, b) => a[0].localeCompare(b[0]))
+       .map(([date, count]) => ({ date, count }));
   }, [clicks]);
 
   const totalClicks = clicks.length;
   const uniqueLinks = grouped.length;
+  
+  const paginatedClicks = useMemo(() => {
+    if (!viewing) return [];
+    const start = (page - 1) * pageSize;
+    return viewing.clicks.slice(start, start + pageSize);
+  }, [viewing, page]);
+  
+  const totalPages = viewing ? Math.ceil(viewing.clicks.length / pageSize) : 0;
 
   const columns = useMemo<ColumnDef<GroupedLink>[]>(
     () => [
@@ -137,16 +183,25 @@ export default function LinkTrackingPage() {
             href={row.original.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex max-w-[420px] items-center gap-1.5 truncate text-[13px] text-zoru-ink hover:underline"
+            className="inline-flex max-w-[320px] items-center gap-1.5 truncate text-[13px] text-zoru-ink hover:underline"
             title={row.original.url}
           >
             <LinkIcon className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">
-              {row.original.url.length > 60
-                ? `${row.original.url.slice(0, 60)}…`
+              {row.original.url.length > 50
+                ? `${row.original.url.slice(0, 50)}…`
                 : row.original.url}
             </span>
           </a>
+        ),
+      },
+      {
+        accessorKey: 'campaignName',
+        header: 'Campaign',
+        cell: ({ row }) => (
+          <span className="text-zoru-ink text-[13px]">
+            {row.original.campaignName || '—'}
+          </span>
         ),
       },
       {
@@ -159,12 +214,21 @@ export default function LinkTrackingPage() {
         ),
       },
       {
+        id: 'ctr',
+        header: 'CTR',
+        cell: ({ row }) => {
+           if (!row.original.messagesSent) return <span className="text-zoru-ink-muted">—</span>;
+           const ctr = (row.original.count / row.original.messagesSent) * 100;
+           return <span className="font-mono text-zoru-ink">{ctr.toFixed(1)}%</span>;
+        }
+      },
+      {
         accessorKey: 'lastClicked',
         header: 'Last clicked',
         cell: ({ row }) => (
           <span className="text-[12px] text-zoru-ink-muted whitespace-nowrap">
             {row.original.lastClicked
-              ? new Date(row.original.lastClicked).toLocaleString()
+              ? formatUTC(row.original.lastClicked, true)
               : '—'}
           </span>
         ),
@@ -178,7 +242,10 @@ export default function LinkTrackingPage() {
               variant="ghost"
               size="icon-sm"
               aria-label="View clicks"
-              onClick={() => setViewing(row.original)}
+              onClick={() => {
+                setViewing(row.original);
+                setPage(1);
+              }}
             >
               <Eye />
             </Button>
@@ -224,7 +291,7 @@ export default function LinkTrackingPage() {
           <ZoruPageEyebrow>WaChat · Tools</ZoruPageEyebrow>
           <ZoruPageTitle>Link Tracking</ZoruPageTitle>
           <ZoruPageDescription>
-            Track clicks on links sent through WhatsApp messages.
+            Track clicks on links sent through WhatsApp messages, and measure campaign performance.
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
@@ -240,9 +307,8 @@ export default function LinkTrackingPage() {
         </ZoruPageActions>
       </PageHeader>
 
-      {/* Stat cards */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card className="p-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Card className="p-5 flex flex-col justify-center">
           <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Total Clicks
           </div>
@@ -250,13 +316,49 @@ export default function LinkTrackingPage() {
             {totalClicks}
           </div>
         </Card>
-        <Card className="p-5">
+        <Card className="p-5 flex flex-col justify-center">
           <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Unique Links
           </div>
           <div className="mt-1 text-[28px] tabular-nums text-zoru-ink">
             {uniqueLinks}
           </div>
+        </Card>
+        
+        <Card className="p-5 sm:col-span-2 lg:col-span-1 flex flex-col justify-center min-h-[140px]">
+           {chartData.length > 0 ? (
+             <div className="h-full w-full flex flex-col">
+               <div className="mb-2 text-[11px] uppercase tracking-wide text-zoru-ink-muted">Clicks Over Time</div>
+               <div className="flex-1 min-h-[80px]">
+                 <ResponsiveContainer width="100%" height="100%">
+                   <AreaChart data={chartData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+                     <defs>
+                       <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                         <stop offset="5%" stopColor="var(--zoru-brand)" stopOpacity={0.3} />
+                         <stop offset="95%" stopColor="var(--zoru-brand)" stopOpacity={0} />
+                       </linearGradient>
+                     </defs>
+                     <Tooltip 
+                       contentStyle={{ borderRadius: 'var(--zoru-radius)', fontSize: '12px', border: '1px solid var(--zoru-line)', background: 'var(--zoru-surface)', color: 'var(--zoru-ink)' }}
+                       labelFormatter={(label) => formatUTC(label, false)}
+                       itemStyle={{ color: 'var(--zoru-ink)' }}
+                     />
+                     <Area 
+                       type="monotone" 
+                       dataKey="count" 
+                       stroke="var(--zoru-brand)" 
+                       fillOpacity={1} 
+                       fill="url(#colorCount)" 
+                     />
+                   </AreaChart>
+                 </ResponsiveContainer>
+               </div>
+             </div>
+           ) : (
+             <div className="flex h-full flex-col items-center justify-center text-zoru-ink-muted text-[13px]">
+               No chart data available
+             </div>
+           )}
         </Card>
       </div>
 
@@ -287,7 +389,10 @@ export default function LinkTrackingPage() {
       <Dialog
         open={viewing !== null}
         onOpenChange={(open) => {
-          if (!open) setViewing(null);
+          if (!open) {
+            setViewing(null);
+            setPage(1);
+          }
         }}
       >
         <ZoruDialogContent className="max-w-2xl">
@@ -297,31 +402,76 @@ export default function LinkTrackingPage() {
               {viewing?.url}
             </ZoruDialogDescription>
           </ZoruDialogHeader>
+          
+          {viewing && viewing.campaignName && (
+             <div className="text-[13px] text-zoru-ink">
+               <span className="font-medium">Campaign:</span> {viewing.campaignName}
+               {viewing.messagesSent && (
+                  <span className="ml-4 text-zoru-ink-muted">
+                     CTR: {((viewing.count / viewing.messagesSent) * 100).toFixed(1)}% ({viewing.count}/{viewing.messagesSent} clicks)
+                  </span>
+               )}
+             </div>
+          )}
+
           {viewing ? (
-            <div className="max-h-[60vh] overflow-y-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-              <table className="w-full text-[13px]">
-                <thead className="border-b border-zoru-line bg-zoru-surface text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                  <tr>
-                    <th className="px-4 py-2 text-left">#</th>
-                    <th className="px-4 py-2 text-left">When</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zoru-line">
-                  {viewing.clicks.map((c, idx) => {
-                    const ts = c.clickedAt || c.createdAt || '';
-                    return (
-                      <tr key={`${ts}-${idx}`}>
-                        <td className="px-4 py-2 text-zoru-ink-muted tabular-nums">
-                          {idx + 1}
-                        </td>
-                        <td className="px-4 py-2 text-zoru-ink whitespace-nowrap">
-                          {ts ? new Date(ts).toLocaleString() : '—'}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="flex flex-col gap-3">
+              <div className="max-h-[50vh] overflow-y-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+                <table className="w-full text-[13px]">
+                  <thead className="border-b border-zoru-line bg-zoru-surface text-[11px] uppercase tracking-wide text-zoru-ink-muted sticky top-0">
+                    <tr>
+                      <th className="px-4 py-2 text-left">#</th>
+                      <th className="px-4 py-2 text-left">When</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zoru-line">
+                    {paginatedClicks.map((c, idx) => {
+                      const ts = c.clickedAt || c.createdAt || '';
+                      const absoluteIdx = (page - 1) * pageSize + idx + 1;
+                      return (
+                        <tr key={`${ts}-${absoluteIdx}`}>
+                          <td className="px-4 py-2 text-zoru-ink-muted tabular-nums">
+                            {absoluteIdx}
+                          </td>
+                          <td className="px-4 py-2 text-zoru-ink whitespace-nowrap">
+                            {ts ? formatUTC(ts, true) : '—'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between">
+                  <div className="text-[12px] text-zoru-ink-muted">
+                    Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, viewing.clicks.length)} of {viewing.clicks.length}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      disabled={page === 1}
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-[13px] text-zoru-ink font-medium px-2">
+                       {page} / {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      disabled={page === totalPages}
+                      onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : null}
         </ZoruDialogContent>

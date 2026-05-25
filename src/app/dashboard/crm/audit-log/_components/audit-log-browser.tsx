@@ -204,6 +204,11 @@ export function AuditLogBrowser({
   const [search, setSearch] = React.useState(initialQuery?.search ?? '');
   const [drawerRow, setDrawerRow] = React.useState<AuditLogRow | null>(null);
   const [isExporting, setIsExporting] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // ── KPIs — prefer server-computed; fall back to slice computation ──────
   const clientKpis = React.useMemo(() => {
@@ -387,7 +392,7 @@ export function AuditLogBrowser({
         search={{
           value: search,
           onChange: setSearch,
-          placeholder: 'Search in diff / reason…',
+          placeholder: 'Search diff or use advanced query (e.g. user:john AND action:delete)…',
         }}
         filters={
           <AuditFilters
@@ -450,9 +455,9 @@ export function AuditLogBrowser({
                       <ZoruTableRow key={row._id} className="border-zoru-line">
                         <ZoruTableCell
                           className="whitespace-nowrap text-[13px] text-zoru-ink"
-                          title={formatAbsolute(row.createdAt)}
+                          title={mounted ? formatAbsolute(row.createdAt) : undefined}
                         >
-                          {formatRelative(row.createdAt)}
+                          {mounted ? formatRelative(row.createdAt) : '—'}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[13px] text-zoru-ink">
                           {row.actorName || row.actorId || '—'}
@@ -556,7 +561,7 @@ export function AuditLogBrowser({
               {drawerRow ? (
                 <>
                   {drawerRow.action} on {drawerRow.entityKind} ·{' '}
-                  {formatAbsolute(drawerRow.createdAt)}
+                  {mounted ? formatAbsolute(drawerRow.createdAt) : '—'}
                 </>
               ) : null}
             </ZoruSheetDescription>

@@ -19,6 +19,7 @@ export type PublicTaskboardCard = {
   priority: string | null;
   assigneeName: string | null;
   dueDate: string | null;
+  tags: string[];
 };
 
 export type PublicTaskboardColumn = {
@@ -90,6 +91,7 @@ export async function getPublicTaskboard(
       priority: (t.priority as string | undefined) ?? null,
       assigneeName: (t.assigneeName as string | undefined) ?? null,
       dueDate: asIsoDate(t.dueDate),
+      tags: Array.isArray(t.tags) ? t.tags.map(String) : [],
     }));
 
     const columns: PublicTaskboardColumn[] = columnsRaw.map((c) => {

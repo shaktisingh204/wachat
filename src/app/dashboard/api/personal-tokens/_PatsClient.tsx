@@ -15,7 +15,6 @@ import {
   Input,
   Label,
   Alert,
-  ZoruAlertDescription,
   Table,
   ZoruTableHeader,
   ZoruTableHead,
@@ -24,8 +23,9 @@ import {
   ZoruTableCell,
   Badge,
   EmptyState,
+  useZoruToast,
 } from '@/components/zoruui';
-import { AlertCircle, TriangleAlert, Copy, KeyRound } from 'lucide-react';
+import { TriangleAlert, Copy, KeyRound } from 'lucide-react';
 
 interface PatRow {
   _id: string;
@@ -49,16 +49,19 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
   const [name, setName] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
   const [revealed, setRevealed] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [busy, startBusy] = useTransition();
+  const { toast } = useZoruToast();
 
   const handleCreate = (): void => {
     if (!name.trim()) return;
-    setError(null);
     startBusy(async () => {
       const res = await createPersonalToken(name.trim(), undefined, expiresAt || undefined);
       if (!res.success) {
-        setError(res.error);
+        toast({
+          title: 'Error',
+          description: res.error || 'Failed to create token',
+          variant: 'destructive',
+        });
         return;
       }
       if (res.token && res.tokenId) {
@@ -77,6 +80,10 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
           },
           ...prev,
         ]);
+        toast({
+          title: 'Success',
+          description: 'Token created successfully.',
+        });
       }
       setName('');
       setExpiresAt('');
@@ -88,10 +95,18 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
     startBusy(async () => {
       const res = await revokePersonalToken(id);
       if (!res.success) {
-        setError(res.error);
+        toast({
+          title: 'Error',
+          description: res.error || 'Failed to revoke token',
+          variant: 'destructive',
+        });
         return;
       }
       setTokens((prev) => prev.map((t) => (t._id === id ? { ...t, revoked: true } : t)));
+      toast({
+        title: 'Success',
+        description: 'Token revoked successfully.',
+      });
     });
   };
 
@@ -149,13 +164,6 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
         </ZoruCardContent>
       </Card>
 
-      {error ? (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </Alert>
-      ) : null}
-
       <Card>
         <Table>
           <ZoruTableHeader>
@@ -186,8 +194,8 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
                 <ZoruTableCell className="font-mono text-xs text-zoru-ink-muted">
                   {t.scopes.join(' ') || '*'}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-xs text-zoru-ink-muted">{fmt(t.createdAt)}</ZoruTableCell>
-                <ZoruTableCell className="text-xs text-zoru-ink-muted">
+                <ZoruTableCell className="text-xs text-zoru-ink-muted" suppressHydrationWarning>{fmt(t.createdAt)}</ZoruTableCell>
+                <ZoruTableCell className="text-xs text-zoru-ink-muted" suppressHydrationWarning>
                   {t.expiresAt ? fmt(t.expiresAt) : '—'}
                 </ZoruTableCell>
                 <ZoruTableCell>

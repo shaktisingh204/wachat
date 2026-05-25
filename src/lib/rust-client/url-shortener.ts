@@ -55,6 +55,7 @@ export interface TrackClickBody {
     userAgent?: string | null;
     referrer?: string | null;
     ip?: string | null;
+    password?: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -112,6 +113,7 @@ export interface TrackClickResult {
     utmParams?: Record<string, string> | null;
     splitTargets?: { url: string; weight: number }[] | null;
     isExpired?: boolean | null;
+    pixelIds?: { facebook?: string; google?: string; tiktok?: string } | null;
 }
 
 export interface UpdateShortUrlBody {

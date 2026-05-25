@@ -11,6 +11,8 @@ export async function getAllNotifications(
     limit: number = 20,
     eventTypeFilter?: string,
     projectId?: string | null,
+    sourceAppFilter?: string,
+    readStatusFilter?: string,
 ): Promise<{ notifications: WithId<NotificationWithProject>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { notifications: [], total: 0 };
@@ -40,6 +42,18 @@ export async function getAllNotifications(
 
         if (eventTypeFilter) {
             filter.eventType = eventTypeFilter;
+        }
+
+        if (sourceAppFilter && sourceAppFilter !== 'ALL') {
+            if (sourceAppFilter === 'system') {
+                filter.$or = [{ sourceApp: 'system' }, { sourceApp: { $exists: false } }];
+            } else {
+                filter.sourceApp = sourceAppFilter as any;
+            }
+        }
+
+        if (readStatusFilter && readStatusFilter !== 'ALL') {
+            filter.isRead = readStatusFilter === 'read';
         }
 
         const skip = (page - 1) * limit;

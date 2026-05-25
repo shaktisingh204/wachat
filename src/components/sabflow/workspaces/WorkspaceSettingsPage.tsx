@@ -11,6 +11,9 @@
  */
 
 import {
+  Skeleton,
+} from '@/components/zoruui';
+import {
   useCallback,
   useEffect,
   useMemo,
@@ -372,6 +375,13 @@ function MembersTab({
 
   const handleRoleChange = useCallback(
     async (memberId: string, role: WorkspaceRole) => {
+      // Optimistic update
+      const previousMembers = [...members];
+      setMembers((prev) =>
+        prev.map((m) => (m.id === memberId ? { ...m, role } : m))
+      );
+      setError(null);
+
       const res = await fetch(
         `/api/sabflow/workspaces/${workspaceId}/members/${memberId}`,
         {
@@ -381,6 +391,8 @@ function MembersTab({
         },
       );
       if (!res.ok) {
+        // Revert on error
+        setMembers(previousMembers);
         const data = (await res.json().catch(() => ({}))) as { error?: string };
         setError(data.error ?? 'Failed to update role');
         return;
@@ -388,17 +400,25 @@ function MembersTab({
       await reload();
       router.refresh();
     },
-    [reload, workspaceId, router],
+    [reload, workspaceId, router, members],
   );
 
   const handleRemove = useCallback(
     async (memberId: string, displayName: string) => {
       if (!confirm(`Remove ${displayName} from this workspace?`)) return;
+
+      // Optimistic update
+      const previousMembers = [...members];
+      setMembers((prev) => prev.filter((m) => m.id !== memberId));
+      setError(null);
+
       const res = await fetch(
         `/api/sabflow/workspaces/${workspaceId}/members/${memberId}`,
         { method: 'DELETE' },
       );
       if (!res.ok) {
+        // Revert on error
+        setMembers(previousMembers);
         const data = (await res.json().catch(() => ({}))) as { error?: string };
         setError(data.error ?? 'Failed to remove member');
         return;
@@ -406,7 +426,7 @@ function MembersTab({
       await reload();
       router.refresh();
     },
-    [reload, workspaceId, router],
+    [reload, workspaceId, router, members],
   );
 
   return (
@@ -418,7 +438,18 @@ function MembersTab({
           </div>
         )}
         {loading ? (
-          <div className="text-[13px] text-gray-500">Loading members…</div>
+          <div className="flex flex-col gap-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center gap-3 border-b border-gray-100 dark:border-zinc-800 pb-3">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-3 w-1/4" />
+                </div>
+                <Skeleton className="h-8 w-24 rounded-md" />
+              </div>
+            ))}
+          </div>
         ) : members.length === 0 ? (
           <div className="text-[13px] text-gray-500">No members yet.</div>
         ) : (
@@ -437,7 +468,7 @@ function MembersTab({
                   const isSelf = m.userId === currentUserId;
                   const canChangeRole =
                     canManage &&
-                    m.role !== 'owner' &&
+                    (m.role !== 'owner' || isOwner) &&
                     !isSelf; // don't let a user demote themselves in the list
                   const canRemove =
                     m.role !== 'owner' && (canManage || isSelf);
@@ -598,18 +629,26 @@ function InvitesTab({
   const handleRevoke = useCallback(
     async (inviteId: string) => {
       if (!confirm('Revoke this invite?')) return;
+
+      // Optimistic update
+      const previousInvites = [...invites];
+      setInvites((prev) => prev.filter((inv) => inv.id !== inviteId));
+      setError(null);
+
       const res = await fetch(
         `/api/sabflow/workspaces/${workspaceId}/invites/${inviteId}`,
         { method: 'DELETE' },
       );
       if (!res.ok) {
+        // Revert on error
+        setInvites(previousInvites);
         const data = (await res.json().catch(() => ({}))) as { error?: string };
         setError(data.error ?? 'Failed to revoke invite');
         return;
       }
       await reload();
     },
-    [reload, workspaceId],
+    [reload, workspaceId, invites],
   );
 
   return (
@@ -672,7 +711,18 @@ function InvitesTab({
           </div>
         )}
         {loading ? (
-          <div className="text-[13px] text-gray-500">Loading…</div>
+          <div className="flex flex-col gap-3">
+            {[1, 2].map((i) => (
+              <div key={i} className="flex items-center justify-between gap-3 border-b border-gray-100 dark:border-zinc-800 pb-3">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-4 w-4" />
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-4 w-16 rounded-full" />
+                </div>
+                <Skeleton className="h-8 w-8 rounded-md" />
+              </div>
+            ))}
+          </div>
         ) : invites.length === 0 ? (
           <div className="text-[13px] text-gray-500">No pending invites.</div>
         ) : (
@@ -823,7 +873,16 @@ function AuditTab({
           </div>
         )}
         {loading ? (
-          <div className="text-[13px] text-gray-500">Loading audit logs…</div>
+          <div className="flex flex-col gap-3">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex items-center gap-4 border-b border-gray-100 dark:border-zinc-800 pb-3">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-4 w-20" />
+              </div>
+            ))}
+          </div>
         ) : entries.length === 0 ? (
           <div className="text-[13px] text-gray-500">No activity found.</div>
         ) : (

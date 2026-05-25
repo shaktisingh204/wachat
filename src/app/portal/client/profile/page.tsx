@@ -1,3 +1,4 @@
+import React from "react";
 /**
  * /portal/client/profile — view/edit profile + view-only company info.
  */
@@ -15,7 +16,7 @@ import {
 } from '@/components/zoruui/card';
 import { ProfileForm } from '@/components/client-portal/profile-form';
 
-export default async function ClientProfilePage() {
+async function ClientProfilePageContent() {
     const profile = await getClientProfile();
     if (!profile) {
         redirect('/login?return=/portal/client/profile');
@@ -40,6 +41,9 @@ export default async function ClientProfilePage() {
                             initialName={profile.name}
                             email={profile.email}
                             initialMobile={profile.mobile ?? ''}
+                            initialAvatarUrl={profile.avatarUrl ?? ''}
+                            initialTwoFactorEnabled={profile.twoFactorEnabled ?? false}
+                            initialNotificationPreferences={profile.notificationPreferences ?? { email: true, sms: false }}
                         />
                     </ZoruCardContent>
                 </Card>
@@ -79,4 +83,13 @@ export default async function ClientProfilePage() {
             </div>
         </div>
     );
+}
+
+
+export default function ClientProfilePage() {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <ClientProfilePageContent  />
+    </React.Suspense>
+  );
 }

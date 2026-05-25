@@ -7,7 +7,15 @@ import { ArrowRight, ArrowUpRight, Check, ChevronRight, Sparkles, Plus, Minus } 
 import { FEATURES, getFeature, getRelatedFeatures } from '@/lib/features/catalog';
 import { FEATURE_CATEGORIES } from '@/lib/features/types';
 import { FEATURE_ICONS } from '@/lib/features/icons';
-import { FeatureHeader, FeatureCategoryStrip, FeatureFooter, FeatureHeroPattern } from '@/components/features/FeatureChrome';
+import { FeatureHeader, FeatureCategoryStrip, FeatureFooter } from '@/components/features/FeatureChrome';
+import { CapabilitiesSection } from './components/CapabilitiesSection';
+import { HeroSection } from './components/HeroSection';
+import { PlatformIntegrations } from './components/PlatformIntegrations';
+import { FaqSection } from './components/FaqSection';
+import { UseCasesSection } from './components/UseCasesSection';
+import { HowItWorksSection } from './components/HowItWorksSection';
+
+export const dynamic = 'force-dynamic';
 
 type Params = { slug: string };
 
@@ -121,133 +129,7 @@ export default async function FeatureDetailPage({
       </nav>
 
       {/* ───────────── Hero ───────────── */}
-      <section className="relative overflow-hidden">
-        {/* feature-tinted halo */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-0"
-          style={{
-            backgroundImage: `radial-gradient(60% 60% at 80% 0%, ${feature.color}22, transparent 70%), radial-gradient(50% 50% at 10% 30%, ${feature.tint}, transparent 70%)`,
-          }}
-        />
-        {/* per-category texture overlay — each category gets a distinct pattern */}
-        <FeatureHeroPattern category={feature.category} color={feature.color} />
-        <div className="container mx-auto px-4 md:px-6 pt-12 md:pt-16 pb-10 md:pb-16 relative">
-          <div className="grid grid-cols-12 gap-6 md:gap-10 items-end">
-            <div className="col-span-12 md:col-span-8">
-              <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#4A4A6B]">
-                <span
-                  className="h-7 w-7 rounded-md inline-flex items-center justify-center text-white"
-                  style={{
-                    background: `linear-gradient(135deg, ${feature.color}, ${feature.color}cc)`,
-                    boxShadow: `0 6px 16px -6px ${feature.color}66`,
-                  }}
-                >
-                  <Icon className="h-3.5 w-3.5" strokeWidth={2.4} />
-                </span>
-                {feature.hero.eyebrow}
-              </div>
-
-              <h1 className="mt-5 font-display tracking-[-0.03em] text-[40px] md:text-[64px] lg:text-[76px] leading-[1.02] text-[#121126]">
-                {feature.hero.headline}
-              </h1>
-              <p className="mt-6 text-[16px] md:text-[18px] leading-[1.55] text-[#4A4A6B] max-w-2xl">
-                {feature.hero.subhead}
-              </p>
-
-              <ul className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-2xl">
-                {feature.hero.bullets.map(b => (
-                  <li key={b} className="inline-flex items-start gap-2 text-[13.5px] text-[#121126]">
-                    <span
-                      className="mt-0.5 h-4 w-4 rounded-full inline-flex items-center justify-center flex-shrink-0"
-                      style={{ background: `${feature.color}1a`, color: feature.color }}
-                    >
-                      <Check className="h-3 w-3" strokeWidth={3} />
-                    </span>
-                    <span className="leading-snug">{b}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-8 flex flex-wrap items-center gap-2.5">
-                <Link
-                  href="/signup"
-                  className="inline-flex h-11 items-center gap-1.5 rounded-full px-5 text-[13.5px] font-semibold text-white transition-transform hover:translate-y-[-1px]"
-                  style={{ background: feature.color, boxShadow: `0 10px 24px -10px ${feature.color}` }}
-                >
-                  Start free <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  href="/contact"
-                  className="inline-flex h-11 items-center gap-1.5 rounded-full px-5 text-[13.5px] font-semibold text-[#121126] border sn-hair hover:bg-black/[0.03]"
-                >
-                  Talk to sales
-                </Link>
-                <Link
-                  href="/features"
-                  className="inline-flex h-11 items-center gap-1.5 px-2 text-[13px] font-medium text-[#4A4A6B] hover:text-[#121126]"
-                >
-                  Browse all features <ArrowUpRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-            </div>
-
-            {/* hero side-card: feature signature */}
-            <aside className="col-span-12 md:col-span-4">
-              <div
-                className="rounded-2xl p-6 border sn-hair bg-white relative overflow-hidden"
-                style={{ boxShadow: `0 30px 60px -30px ${feature.color}55` }}
-              >
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full opacity-30"
-                  style={{ background: `radial-gradient(circle, ${feature.color}, transparent 70%)` }}
-                />
-                <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#7878A1]">
-                  Feature signature
-                </div>
-                <div className="mt-3 flex items-center gap-3">
-                  <span
-                    className="h-12 w-12 rounded-xl inline-flex items-center justify-center text-white"
-                    style={{
-                      background: `linear-gradient(135deg, ${feature.color}, ${feature.color}cc)`,
-                      boxShadow: `0 12px 28px -10px ${feature.color}88`,
-                    }}
-                  >
-                    <Icon className="h-5.5 w-5.5" strokeWidth={2.2} />
-                  </span>
-                  <div className="min-w-0">
-                    <div className="text-[10.5px] uppercase tracking-[0.14em] text-[#7878A1] font-bold leading-none">
-                      SabNode · {feature.brand ?? categoryMeta?.label}
-                    </div>
-                    <div className="mt-1 font-display text-[20px] leading-tight text-[#121126]">
-                      {feature.name}
-                    </div>
-                  </div>
-                </div>
-                <p className="mt-4 text-[13px] leading-relaxed text-[#4A4A6B]">
-                  {feature.tagline}
-                </p>
-
-                {feature.metrics && feature.metrics.length > 0 && (
-                  <div className="mt-5 grid grid-cols-3 gap-2 border-t sn-hair pt-4">
-                    {feature.metrics.slice(0, 3).map(m => (
-                      <div key={m.label}>
-                        <div className="font-display text-[22px] leading-none text-[#121126]" style={{ color: feature.color }}>
-                          {m.value}
-                        </div>
-                        <div className="mt-1 text-[10.5px] text-[#7878A1] leading-snug">
-                          {m.label}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </aside>
-          </div>
-        </div>
-      </section>
+      <HeroSection feature={feature} categoryMeta={categoryMeta} />
 
       {/* ───────────── Problem ───────────── */}
       <section className="border-t sn-hair">
@@ -292,223 +174,23 @@ export default async function FeatureDetailPage({
         </div>
       </section>
 
-      {/* ───────────── Capabilities grid ───────────── */}
-      <section className="border-t sn-hair">
-        <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
-          <div className="flex items-end justify-between mb-10 gap-6 flex-wrap">
-            <div>
-              <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7878A1]">
-                Capabilities
-              </div>
-              <h2 className="mt-3 font-display tracking-[-0.02em] text-[28px] md:text-[40px] leading-[1.05] text-[#121126]">
-                Everything you get with {feature.name}.
-              </h2>
-            </div>
-            <div className="text-[12px] font-mono tabular-nums text-[#7878A1]">
-              {feature.capabilities.length} capabilities
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {feature.capabilities.map((c, i) => (
-              <article
-                key={c.title}
-                className="group relative rounded-2xl p-6 border sn-hair bg-white transition-all hover:bg-white hover:-translate-y-0.5"
-                style={{
-                  boxShadow: `0 14px 30px -22px rgba(17,17,38,0.18)`,
-                }}
-              >
-                <div
-                  aria-hidden
-                  className="absolute left-0 top-0 h-full w-[3px] rounded-l-2xl"
-                  style={{ background: feature.color }}
-                />
-                <div className="flex items-baseline gap-3">
-                  <span className="font-mono text-[10.5px] tabular-nums text-[#7878A1]">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <h3 className="font-display text-[18px] leading-tight text-[#121126]">
-                    {c.title}
-                  </h3>
-                </div>
-                <p className="mt-3 text-[13.5px] leading-[1.65] text-[#4A4A6B]">
-                  {c.body}
-                </p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CapabilitiesSection 
+        featureName={feature.name} 
+        color={feature.color} 
+        capabilities={feature.capabilities} 
+      />
 
       {/* ───────────── Use cases ───────────── */}
-      <section className="border-t sn-hair bg-[#121126] text-white">
-        <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
-          <div className="flex items-end justify-between mb-10 gap-6 flex-wrap">
-            <div>
-              <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/50">
-                Use cases
-              </div>
-              <h2 className="mt-3 font-display tracking-[-0.02em] text-[28px] md:text-[40px] leading-[1.05] text-white">
-                Built for the way teams actually work.
-              </h2>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {feature.useCases.map((u, i) => (
-              <article
-                key={u.title}
-                className="relative rounded-2xl p-6 md:p-7 bg-white/[0.04] border border-white/10 hover:bg-white/[0.06] transition-colors"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="inline-flex items-center gap-2">
-                    <span
-                      className="text-[10px] font-bold uppercase tracking-[0.14em] px-2 py-1 rounded-full"
-                      style={{ background: `${feature.color}22`, color: feature.color }}
-                    >
-                      {u.industry ?? 'General'}
-                    </span>
-                  </div>
-                  <span className="font-mono text-[10px] text-white/40 tabular-nums">
-                    Case {String(i + 1).padStart(2, '0')}
-                  </span>
-                </div>
-                <h3 className="mt-4 font-display text-[22px] leading-tight">
-                  {u.title}
-                </h3>
-                <p className="mt-3 text-[14px] leading-[1.7] text-white/70">
-                  {u.body}
-                </p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      <UseCasesSection color={feature.color} useCases={feature.useCases} />
 
       {/* ───────────── How it works ───────────── */}
-      <section className="border-t sn-hair">
-        <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
-          <div className="grid grid-cols-12 gap-6 md:gap-10">
-            <div className="col-span-12 md:col-span-4">
-              <div className="md:sticky md:top-28">
-                <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7878A1]">
-                  How it works
-                </div>
-                <h2 className="mt-3 font-display tracking-[-0.02em] text-[28px] md:text-[40px] leading-[1.05] text-[#121126]">
-                  From signup to first send in minutes.
-                </h2>
-                <p className="mt-4 text-[14px] leading-[1.7] text-[#4A4A6B] max-w-sm">
-                  {feature.name} is included on every SabNode workspace. No
-                  separate billing, no extra setup — flip it on from your
-                  workspace settings.
-                </p>
-              </div>
-            </div>
-
-            <div className="col-span-12 md:col-span-8">
-              <ol className="relative">
-                <span
-                  aria-hidden
-                  className="absolute left-[19px] top-2 bottom-2 w-px"
-                  style={{ background: `linear-gradient(${feature.color}, ${feature.color}00)` }}
-                />
-                {feature.howItWorks.map((s, i) => (
-                  <li key={s.step} className="relative pl-14 pb-7 last:pb-0">
-                    <span
-                      className="absolute left-0 top-0 h-10 w-10 rounded-full inline-flex items-center justify-center font-mono text-[12px] font-bold text-white"
-                      style={{
-                        background: feature.color,
-                        boxShadow: `0 8px 20px -8px ${feature.color}`,
-                      }}
-                    >
-                      {s.step}
-                    </span>
-                    <h3 className="font-display text-[20px] leading-tight text-[#121126]">
-                      {s.title}
-                    </h3>
-                    <p className="mt-2 text-[14.5px] leading-[1.7] text-[#4A4A6B]">
-                      {s.body}
-                    </p>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HowItWorksSection featureName={feature.name} color={feature.color} howItWorks={feature.howItWorks} />
 
       {/* ───────────── Integrations ───────────── */}
-      <section className="border-t sn-hair bg-[#FAF9F4]">
-        <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
-          <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7878A1]">
-            Plays well with
-          </div>
-          <h2 className="mt-3 font-display tracking-[-0.02em] text-[28px] md:text-[40px] leading-[1.05] text-[#121126] max-w-3xl">
-            Works with the tools you already ship on.
-          </h2>
-
-          <div className="mt-8 flex flex-wrap gap-2">
-            {feature.integrations.map(i => (
-              <span
-                key={i}
-                className="inline-flex items-center gap-1.5 h-10 px-4 rounded-full border sn-hair bg-white text-[13px] text-[#121126] font-medium hover:border-[#4F46E5]/30 transition-colors"
-              >
-                <span
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{ background: feature.color }}
-                />
-                {i}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
+      <PlatformIntegrations color={feature.color} integrations={feature.integrations} />
 
       {/* ───────────── FAQ ───────────── */}
-      <section className="border-t sn-hair">
-        <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
-          <div className="grid grid-cols-12 gap-6 md:gap-10">
-            <div className="col-span-12 md:col-span-4">
-              <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7878A1]">
-                Frequently asked
-              </div>
-              <h2 className="mt-3 font-display tracking-[-0.02em] text-[28px] md:text-[40px] leading-[1.05] text-[#121126]">
-                Questions about {feature.name}.
-              </h2>
-              <p className="mt-4 text-[14px] leading-[1.7] text-[#4A4A6B] max-w-sm">
-                Can't find what you're looking for?{' '}
-                <Link href="/contact" className="font-semibold text-[#121126] underline decoration-[#4F46E5]/40 underline-offset-2 hover:decoration-[#4F46E5]">
-                  Talk to our team
-                </Link>
-                .
-              </p>
-            </div>
-
-            <div className="col-span-12 md:col-span-8">
-              <div className="rounded-2xl border sn-hair bg-white overflow-hidden divide-y divide-[rgba(17,17,38,0.06)]">
-                {feature.faqs.map((f, i) => (
-                  <details key={i} className="group">
-                    <summary className="cursor-pointer list-none flex items-start justify-between gap-4 px-5 md:px-6 py-4 md:py-5 hover:bg-black/[0.02]">
-                      <span className="font-display text-[16px] md:text-[17px] leading-snug text-[#121126]">
-                        {f.q}
-                      </span>
-                      <span
-                        className="mt-1 h-7 w-7 rounded-full inline-flex items-center justify-center flex-shrink-0 border sn-hair text-[#4A4A6B] group-open:rotate-180 group-open:bg-[#121126] group-open:text-white transition-all"
-                      >
-                        <Plus className="h-4 w-4 group-open:hidden" />
-                        <Minus className="h-4 w-4 hidden group-open:block" />
-                      </span>
-                    </summary>
-                    <div className="px-5 md:px-6 pb-5 md:pb-6 text-[14.5px] leading-[1.75] text-[#4A4A6B]">
-                      {f.a}
-                    </div>
-                  </details>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <FaqSection featureName={feature.name} faqs={feature.faqs} />
 
       {/* ───────────── Related features ───────────── */}
       {related.length > 0 && (

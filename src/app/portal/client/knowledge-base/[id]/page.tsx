@@ -1,3 +1,4 @@
+import React from "react";
 /**
  * /portal/client/knowledge-base/[id] — Read-only article detail.
  */
@@ -20,7 +21,7 @@ function fmtDate(iso: string | null): string {
     return new Date(iso).toLocaleDateString();
 }
 
-export default async function ClientKbArticlePage({
+async function ClientKbArticlePageContent({
     params,
 }: {
     params: Promise<{ id: string }>;
@@ -63,4 +64,17 @@ export default async function ClientKbArticlePage({
             </Card>
         </div>
     );
+}
+
+
+export default function ClientKbArticlePage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <ClientKbArticlePageContent params={params} />
+    </React.Suspense>
+  );
 }

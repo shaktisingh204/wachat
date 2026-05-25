@@ -40,7 +40,7 @@ import {
   Search,
   Smartphone,
   Trash2,
-  } from "lucide-react";
+} from "lucide-react";
 
 /**
  * SabWa — Scheduler Queue (`/sabwa/scheduler/queue`).
@@ -104,6 +104,7 @@ type StatusFilter = "all" | SabwaScheduledStatus;
 
 const STATUS_LABEL: Record<SabwaScheduledStatus, string> = {
   pending: "Pending",
+  paused: "Paused",
   sent: "Sent",
   failed: "Failed",
   cancelled: "Cancelled",
@@ -112,6 +113,8 @@ const STATUS_LABEL: Record<SabwaScheduledStatus, string> = {
 const STATUS_BADGE_CLASS: Record<SabwaScheduledStatus, string> = {
   pending:
     "border-zoru-line bg-zoru-surface text-zoru-ink",
+  paused:
+    "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200",
   sent: "border-zoru-line-strong bg-zoru-surface-2 text-zoru-ink",
   failed: "border-zoru-line-strong bg-zoru-surface-2 text-zoru-ink",
   cancelled:
@@ -282,6 +285,35 @@ export default function SchedulerQueuePage() {
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [refresh],
+  );
+
+  const handleTogglePause = React.useCallback(
+    async (id: string, isPaused: boolean) => {
+      const nextStatus: SabwaScheduledStatus = isPaused ? "pending" : "paused";
+      // Optimistic
+      setRows((curr) =>
+        curr.map((r) => (r.id === id ? { ...r, status: nextStatus } : r)),
+      );
+      try {
+        const res = await updateScheduledMessage(id, { status: nextStatus });
+        if (!res.ok) {
+          reportError(isPaused ? "Couldn't resume" : "Couldn't pause", res.error);
+          void refresh();
+        } else {
+          toast.toast({
+            title: isPaused ? "Message resumed" : "Message paused",
+          });
+        }
+      } catch (err) {
+        reportError(
+          isPaused ? "Couldn't resume" : "Couldn't pause",
+          err instanceof Error ? err.message : "Unknown error",
+        );
+        void refresh();
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [refresh, toast],
   );
 
   const handleBulkCancel = React.useCallback(async () => {
@@ -505,6 +537,7 @@ export default function SchedulerQueuePage() {
             <ZoruSelectContent>
               <ZoruSelectItem value="all">All</ZoruSelectItem>
               <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
+              <ZoruSelectItem value="paused">Paused</ZoruSelectItem>
               <ZoruSelectItem value="sent">Sent</ZoruSelectItem>
               <ZoruSelectItem value="failed">Failed</ZoruSelectItem>
               <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
@@ -742,6 +775,15 @@ export default function SchedulerQueuePage() {
                         onClick={() => handleCancel(row.id)}
                       >
                         Cancel
+                      </Button>
+                    )}
+                    {row.cron && (row.status === "pending" || row.status === "paused") && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleTogglePause(row.id, row.status === "paused")}
+                      >
+                        {row.status === "paused" ? "Resume" : "Pause"}
                       </Button>
                     )}
                   </ZoruTableCell>

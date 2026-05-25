@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Activity, AlertCircle, PlayCircle, CheckCircle2 } from "lucide-react";
 
 import {
   Badge,
@@ -9,19 +8,17 @@ import {
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
-  StatCard,
   Table,
   ZoruTableHeader,
   ZoruTableRow,
   ZoruTableHead,
   ZoruTableBody,
   ZoruTableCell,
-  ZoruChart,
-  ZoruChartContainer,
-  ZORU_CHART_PALETTE,
 } from "@/components/zoruui";
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
+import { SabsmsDashboardWidgets, type MetricData } from "./_components/sabsms-dashboard-widgets";
+const { getRedisClient } = require('@/lib/redis');
 
 const mockActiveCampaigns = [
   { id: "camp_1", name: "Black Friday Promo", status: "Sending", sent: 4500, target: 10000 },
@@ -29,28 +26,45 @@ const mockActiveCampaigns = [
   { id: "camp_3", name: "Re-engagement Batch 4", status: "Scheduled", sent: 0, target: 5000 },
 ];
 
-const mockSparklineData = [
-  { val: 10 }, { val: 25 }, { val: 15 }, { val: 40 }, { val: 35 }, { val: 50 }, { val: 45 }
-];
+async function getDashboardMetrics(): Promise<MetricData[]> {
+  let redis;
+  try {
+    redis = await getRedisClient();
+    const cached = await redis.get("sabsms:dashboard_metrics");
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (e) {
+    console.error("Redis cache error:", e);
+  }
 
-function Sparkline() {
-  return (
-    <ZoruChartContainer height={40} className="w-full mt-2">
-      <ZoruChart.LineChart data={mockSparklineData} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
-        <ZoruChart.Line
-          type="monotone"
-          dataKey="val"
-          stroke={ZORU_CHART_PALETTE[0]}
-          strokeWidth={2}
-          dot={false}
-          isAnimationActive={false}
-        />
-      </ZoruChart.LineChart>
-    </ZoruChartContainer>
-  );
+  // Simulate complex aggregation from DB
+  await new Promise(resolve => setTimeout(resolve, 800));
+
+  const metrics: MetricData[] = [
+    { id: "totalSent", label: "Total Sent", value: "1,254,300", delta: 12.5, period: "vs last month", iconName: "Activity" },
+    { id: "deliveryRate", label: "Delivery Rate", value: "99.04%", delta: 0.2, period: "vs last month", iconName: "CheckCircle2" },
+    { id: "activeCampaigns", label: "Active Campaigns", value: "3", delta: 50, period: "vs last month", iconName: "PlayCircle" },
+    { id: "failedDeliveries", label: "Failed Deliveries", value: "1,200", delta: -1.2, invertDelta: true, period: "vs last month", iconName: "AlertCircle" },
+    { id: "avgCost", label: "Avg Cost / SMS", value: "$0.008", delta: -5, invertDelta: true, period: "vs last month", iconName: "DollarSign" },
+    { id: "conversionRate", label: "Conversion Rate", value: "4.2%", delta: 1.1, period: "vs last month", iconName: "TrendingUp" },
+    { id: "unsubscribeRate", label: "Opt-out Rate", value: "0.1%", delta: 0, period: "vs last month", iconName: "UserMinus" }
+  ];
+
+  if (redis) {
+    try {
+      await redis.set("sabsms:dashboard_metrics", JSON.stringify(metrics), { EX: 60 });
+    } catch (e) {
+      console.error("Redis set error:", e);
+    }
+  }
+
+  return metrics;
 }
 
-export default function SabsmsOverviewPage() {
+export default async function SabsmsOverviewPage() {
+  const metrics = await getDashboardMetrics();
+
   return (
     <SabsmsPageShell
       title="Overview"
@@ -63,41 +77,7 @@ export default function SabsmsOverviewPage() {
         { label: "System Logs", onSelectHref: "/sabsms/logs" }
       ]}
     >
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard 
-          label="Total Sent" 
-          value="1,254,300" 
-          delta={12.5} 
-          period="vs last month"
-          icon={<Activity />}
-          chart={<Sparkline />}
-        />
-        <StatCard 
-          label="Delivery Rate" 
-          value="99.04%" 
-          delta={0.2} 
-          period="vs last month"
-          icon={<CheckCircle2 />}
-          chart={<Sparkline />}
-        />
-        <StatCard 
-          label="Active Campaigns" 
-          value="3" 
-          delta={50} 
-          period="vs last month"
-          icon={<PlayCircle />}
-          chart={<Sparkline />}
-        />
-        <StatCard 
-          label="Failed Deliveries" 
-          value="1,200" 
-          delta={-1.2} 
-          invertDelta
-          period="vs last month"
-          icon={<AlertCircle />}
-          chart={<Sparkline />}
-        />
-      </div>
+      <SabsmsDashboardWidgets allMetrics={metrics} />
 
       <div className="grid gap-6 xl:grid-cols-3 mt-6">
         <Card className="shadow-sm flex flex-col xl:col-span-3">

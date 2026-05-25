@@ -3,7 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-import { z } from 'zod';
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
 
 const schema = z.object({
   url: z.string().url(), source: z.string().min(1), medium: z.string().min(1), campaign: z.string().min(1), term: z.string().optional(), content: z.string().optional(), clicks: z.number().default(0)
@@ -16,7 +17,7 @@ export async function getUtmLinks() {
     return records.map(r => ({ ...r, _id: r._id.toString() }));
   } catch (error) {
     console.error('Error fetching UtmLinks:', error);
-    return [];
+    throw new Error('Failed to fetch UTM links');
   }
 }
 
@@ -28,7 +29,7 @@ export async function getUtmLink(id: string) {
     return { ...record, _id: record._id.toString() };
   } catch (error) {
     console.error('Error fetching UtmLink:', error);
-    return null;
+    throw new Error('Failed to fetch UTM link');
   }
 }
 
@@ -77,32 +78,35 @@ export async function deleteUtmLink(id: string) {
   }
 }
 
+const UtmTagSchema = z.object({
+  source: z.string().describe('The referrer of the traffic (e.g. google, newsletter, facebook)'),
+  medium: z.string().describe('The marketing medium (e.g. cpc, banner, email)'),
+  campaign: z.string().describe('The product, promo code, or slogan (e.g. spring_sale)'),
+});
+
 export async function generateOptimalUtmTags(url: string) {
   try {
-    // Mocking AI response
-    // In a real scenario, you'd integrate with OpenAI or similar here
-    await new Promise(resolve => setTimeout(resolve, 1500)); // simulate delay
-    
-    const aiSuggestions = [
-      { source: 'google', medium: 'cpc', campaign: 'spring_sale' },
-      { source: 'newsletter', medium: 'email', campaign: 'weekly_digest' },
-      { source: 'facebook', medium: 'social', campaign: 'retargeting' },
-      { source: 'linkedin', medium: 'social', campaign: 'b2b_leadgen' }
-    ];
-    
-    // Simple deterministic random for mock
-    const choice = (url?.length || 0) % aiSuggestions.length;
-    const suggested = aiSuggestions[choice];
+    if (!url) {
+      return { success: false, error: 'URL is required' };
+    }
+
+    const { output } = await ai.generate({
+      prompt: `Suggest optimal UTM tags (source, medium, campaign) for this URL: ${url}. Provide realistic and useful suggestions based on the domain or path.`,
+      output: {
+        schema: UtmTagSchema,
+      },
+    });
+
+    if (!output) {
+      return { success: false, error: 'AI failed to generate tags' };
+    }
 
     return { 
       success: true, 
-      data: {
-        source: suggested.source,
-        medium: suggested.medium,
-        campaign: `${suggested.campaign}_${Math.floor(Math.random() * 1000)}`
-      }
+      data: output
     };
   } catch (error) {
+    console.error('Error generating tags:', error);
     return { success: false, error: 'Failed to generate tags' };
   }
 }

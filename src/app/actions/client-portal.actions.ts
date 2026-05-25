@@ -277,17 +277,13 @@ export async function getClientInvoiceById(id: string): Promise<ClientInvoice | 
 export async function getClientEstimates(): Promise<ClientEstimate[]> {
     const ctx = await requireClient();
     if (!ctx) return [];
-    try {
-        const { db } = await connectToDatabase();
-        const docs = await db
-            .collection('crm_estimates')
-            .find(clientIdFilter(ctx))
-            .sort({ createdAt: -1 })
-            .toArray();
-        return docs.map(mapEstimate);
-    } catch {
-        return [];
-    }
+    const { db } = await connectToDatabase();
+    const docs = await db
+        .collection('crm_estimates')
+        .find(clientIdFilter(ctx))
+        .sort({ createdAt: -1 })
+        .toArray();
+    return docs.map(mapEstimate);
 }
 
 export async function getClientContracts(): Promise<ClientContract[]> {
@@ -300,7 +296,32 @@ export async function getClientContracts(): Promise<ClientContract[]> {
             .find(clientIdFilter(ctx))
             .sort({ createdAt: -1 })
             .toArray();
-        return docs.map(mapContract);
+
+        const contractIds = docs.map(d => d._id);
+        const signs = await db.collection('contract_signs').find({ contractId: { $in: contractIds } }).toArray();
+        const amendments = await db.collection('crm_contract_amendments').find({ contractId: { $in: contractIds } }).toArray().catch(() => []);
+
+        return docs.map((doc) => {
+            const base = mapContract(doc);
+            const docSigns = signs.filter(s => String(s.contractId) === String(doc._id));
+            const docAmendments = amendments.filter(a => String(a.contractId) === String(doc._id));
+
+            return {
+                ...base,
+                signatures: docSigns.map(s => ({
+                    fullName: asString(s.fullName),
+                    signedAt: toIso(s.signedAt),
+                    place: asString(s.place),
+                    party: asString(s.party)
+                })),
+                amendments: docAmendments.map(a => ({
+                    _id: String(a._id),
+                    title: asString(a.title) || 'Untitled Amendment',
+                    createdAt: toIso(a.createdAt),
+                    status: asString(a.status) || 'draft'
+                }))
+            };
+        });
     } catch {
         return [];
     }
@@ -324,7 +345,42 @@ export async function getClientTickets(): Promise<ClientTicket[]> {
             } as Filter<Document>)
             .sort({ updatedAt: -1, createdAt: -1 })
             .toArray();
-        return docs.map(mapTicket);
+            
+        const tickets = docs.map(mapTicket);
+
+        const openTicketIds = tickets
+            .filter((t) => t.status !== 'resolved' && t.status !== 'closed')
+            .map((t) => new ObjectId(t._id));
+
+        if (openTicketIds.length > 0) {
+            const replies = await db
+                .collection('crm_ticket_replies')
+                .find({ ticketId: { $in: openTicketIds } })
+                .sort({ createdAt: -1 })
+                .toArray();
+
+            const latestReplyByTicket = new Map<string, any>();
+            for (const r of replies) {
+                const tid = String(r.ticketId);
+                if (!latestReplyByTicket.has(tid)) {
+                    latestReplyByTicket.set(tid, r);
+                }
+            }
+
+            for (const t of tickets) {
+                const latest = latestReplyByTicket.get(t._id);
+                if (
+                    latest &&
+                    latest.isStaff &&
+                    t.status !== 'resolved' &&
+                    t.status !== 'closed'
+                ) {
+                    t.awaitingClientResponse = true;
+                }
+            }
+        }
+
+        return tickets;
     } catch {
         return [];
     }
@@ -550,7 +606,15 @@ export async function getClientProfile(): Promise<ClientProfile | null> {
             db.collection('client_details').findOne({ userId: ctx.userId }),
         ]);
         if (!user) return null;
-        const u = user as { _id: ObjectId; name?: string; email?: string; mobile?: string };
+        const u = user as {
+            _id: ObjectId;
+            name?: string;
+            email?: string;
+            mobile?: string;
+            avatarUrl?: string;
+            twoFactorEnabled?: boolean;
+            notificationPreferences?: { email: boolean; sms: boolean };
+        };
         const d = details as {
             companyName?: string;
             contactName?: string;
@@ -563,6 +627,9 @@ export async function getClientProfile(): Promise<ClientProfile | null> {
             name: asString(u.name),
             email: asString(u.email),
             mobile: u.mobile ?? d?.mobile,
+            avatarUrl: u.avatarUrl,
+            twoFactorEnabled: u.twoFactorEnabled ?? false,
+            notificationPreferences: u.notificationPreferences ?? { email: true, sms: false },
             company: d
                 ? {
                       companyName: d.companyName,
@@ -581,6 +648,9 @@ export async function updateClientProfile(input: {
     name?: string;
     mobile?: string;
     password?: string;
+    avatarUrl?: string;
+    twoFactorEnabled?: boolean;
+    notificationPreferences?: { email: boolean; sms: boolean };
 }): Promise<{ ok?: boolean; error?: string }> {
     const ctx = await requireClient();
     if (!ctx) return { error: 'Access denied.' };
@@ -595,6 +665,15 @@ export async function updateClientProfile(input: {
         }
         if (typeof input.password === 'string' && input.password.length >= 8) {
             update.password = await hashPassword(input.password);
+        }
+        if (typeof input.avatarUrl === 'string') {
+            update.avatarUrl = input.avatarUrl;
+        }
+        if (typeof input.twoFactorEnabled === 'boolean') {
+            update.twoFactorEnabled = input.twoFactorEnabled;
+        }
+        if (input.notificationPreferences) {
+            update.notificationPreferences = input.notificationPreferences;
         }
         if (Object.keys(update).length === 1) {
             return { error: 'Nothing to update.' };

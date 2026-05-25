@@ -56,6 +56,7 @@ import {
 import { uploadLibraryFile } from "@/app/actions/files.actions";
 import { ZoruFileUploadCard, ZoruFileUploadItem } from "@/components/zoruui/file-upload-card";
 import { RadioGroup, ZoruRadioCard } from "@/components/zoruui/radio-group";
+import { useProject } from "@/context/project-context";
 
 /**
  * /dashboard/facebook/stories — Meta Suite Stories manager, ZoruUI rebuild.
@@ -211,15 +212,15 @@ export default function StoriesPage() {
     });
   }, [projectId]);
 
+  const { activeProjectId } = useProject();
+
   useEffect(() => {
     document.title = "Stories · Meta Suite · SabNode";
-    const stored =
-      typeof window !== "undefined"
-        ? localStorage.getItem("activeProjectId")
-        : null;
-    setProjectId(stored);
-    setProjectIdReady(true);
-  }, []);
+    if (activeProjectId !== undefined) {
+      setProjectId(activeProjectId);
+      setProjectIdReady(true);
+    }
+  }, [activeProjectId]);
 
   useEffect(() => {
     if (projectId) fetchStories();

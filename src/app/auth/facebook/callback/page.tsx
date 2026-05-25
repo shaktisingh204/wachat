@@ -1,7 +1,7 @@
-import { Card, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import {
-  Suspense } from 'react'
-import { LoaderCircle } from 'lucide-react'
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, Button } from '@/components/zoruui';
+import { Suspense } from 'react'
+import { LoaderCircle, AlertCircle } from 'lucide-react'
+import Link from 'next/link'
 
 import FacebookCallbackClient from './FacebookCallbackClient'
 
@@ -20,7 +20,52 @@ export default async function FacebookCallbackPage({
 
   const code = params.code as string | undefined
   const state = params.state as string | undefined
-  const error = params.error_description as string | undefined
+  const error = (params.error_description as string | undefined) || (params.error as string | undefined)
+
+  // 1. Track OAuth success/failure metrics directly from server component
+  if (error) {
+    console.error(`[Facebook OAuth Metric] Failed callback:`, { error, state });
+  } else if (!code) {
+    console.warn(`[Facebook OAuth Metric] Invalid callback (no code):`, { state });
+  } else {
+    console.info(`[Facebook OAuth Metric] Success callback code received:`, { state });
+  }
+
+  const getRedirectPath = (s: string | undefined) => {
+    switch (s) {
+      case 'whatsapp': return '/wachat';
+      case 'facebook': return '/dashboard/facebook/all-projects';
+      case 'ad_manager': return '/dashboard/ad-manager/ad-accounts';
+      case 'instagram': return '/dashboard/instagram/connections';
+      default: return '/dashboard/facebook/all-projects';
+    }
+  };
+
+  // 2. Inline fallback for invalid code or errors (fails entirely)
+  if (error || !code || !state) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-muted">
+        <Card className="max-w-sm text-center">
+          <ZoruCardHeader>
+            <div className="flex justify-center mb-4">
+              <AlertCircle className="h-10 w-10 text-destructive" />
+            </div>
+            <ZoruCardTitle>Connection Failed</ZoruCardTitle>
+            <ZoruCardDescription>
+              {error 
+                ? `Error: ${error}` 
+                : "No connection code or state was provided. The process might have been cancelled."}
+            </ZoruCardDescription>
+          </ZoruCardHeader>
+          <div className="p-6 pt-0">
+             <Link href={getRedirectPath(state)}>
+               <Button variant="outline" className="w-full">Return to Dashboard</Button>
+             </Link>
+          </div>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <Suspense

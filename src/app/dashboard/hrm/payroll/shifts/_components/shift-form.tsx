@@ -26,7 +26,7 @@ const WEEKDAYS = [
     { value: 'sunday', label: 'Sun' },
 ];
 
-const saveInitial = {};
+const saveInitial: { message?: string; error?: string; id?: string } = {};
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
@@ -46,6 +46,7 @@ export function ShiftForm({
     initial: CrmShiftDoc | null;
     onSaved: () => void;
     onCancel?: () => void;
+    onOptimisticSubmit?: (formData: FormData) => void;
 }) {
     const isEditing = !!initial;
     const [state, formAction] = useActionState(saveShift, saveInitial);
@@ -84,8 +85,17 @@ export function ShiftForm({
         );
     };
 
+    const handleAction = (formData: FormData) => {
+        if (onOptimisticSubmit) {
+            onOptimisticSubmit(formData);
+        }
+        React.startTransition(() => {
+            formAction(formData);
+        });
+    };
+
     return (
-        <form action={formAction} className="flex flex-col gap-4">
+        <form action={handleAction} className="flex flex-col gap-4">
             {isEditing ? (
                 <input type="hidden" name="shiftId" value={initial!._id} />
             ) : null}

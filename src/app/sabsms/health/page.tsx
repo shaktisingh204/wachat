@@ -3,7 +3,7 @@
 import * as React from "react";
 import { 
   Activity, AlertTriangle, CheckCircle2, Globe, List, Power, 
-  Server, ShieldAlert, Webhook 
+  Server, ShieldAlert, Webhook, Monitor, Zap, Plus, FileText, Settings 
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -37,6 +37,8 @@ import {
   LineChart,
   Line
 } from "recharts";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const MOCK_THROUGHPUT = Array.from({ length: 24 }).map((_, i) => ({
   time: `${i}:00`,
@@ -51,7 +53,53 @@ const MOCK_ERROR_HISTOGRAM = [
   { code: "21614", count: 90 },
 ];
 
+function useLiveMetrics() {
+  const [updateMode, setUpdateMode] = React.useState<'websocket' | 'smart_polling'>('smart_polling');
+  const [lastUpdated, setLastUpdated] = React.useState<Date>(new Date());
+
+  React.useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (updateMode === 'smart_polling') {
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          clearInterval(interval);
+        } else {
+          startPolling();
+        }
+      };
+
+      const startPolling = () => {
+        interval = setInterval(() => {
+          setLastUpdated(new Date());
+        }, 15000); // Optimized backoff polling to avoid overloading the server
+      };
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      
+      if (!document.hidden) {
+        startPolling();
+      }
+
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        clearInterval(interval);
+      };
+    } else {
+      interval = setInterval(() => {
+        setLastUpdated(new Date());
+      }, 2000); // Simulate realtime websocket events
+
+      return () => clearInterval(interval);
+    }
+  }, [updateMode]);
+
+  return { updateMode, setUpdateMode, lastUpdated };
+}
+
 export default function HealthMonitorPage() {
+  const { updateMode, setUpdateMode, lastUpdated } = useLiveMetrics();
+
   return (
     <SabsmsPageShell
       title="Health Monitor"
@@ -62,13 +110,30 @@ export default function HealthMonitorPage() {
         label: "Alert Rules",
         href: "/sabsms/health#alerts",
       }}
-      toolbar={<SabsmsRefreshButton onRefresh={async () => { await new Promise(r => setTimeout(r, 800)) }} />}
+      toolbar={
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 text-sm bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-md">
+            <span className="text-muted-foreground">Mode:</span>
+            <select 
+              className="bg-transparent font-medium outline-none"
+              value={updateMode}
+              onChange={(e) => setUpdateMode(e.target.value as any)}
+            >
+              <option value="smart_polling">Smart Polling</option>
+              <option value="websocket">WebSockets (Real-time)</option>
+            </select>
+          </div>
+          <SabsmsRefreshButton onRefresh={async () => { await new Promise(r => setTimeout(r, 800)) }} />
+        </div>
+      }
     >
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="providers">Providers & Routing</TabsTrigger>
-          <TabsTrigger value="alerts">Alerts & Outages</TabsTrigger>
+          <TabsTrigger value="alerts">Incidents & Alerts</TabsTrigger>
+          <TabsTrigger value="status-page">Status Page</TabsTrigger>
+          <TabsTrigger value="integrations">Integrations</TabsTrigger>
           <TabsTrigger value="audit">Audit Log</TabsTrigger>
         </TabsList>
 
@@ -100,6 +165,11 @@ export default function HealthMonitorPage() {
                 </Button>
               </ZoruCardContent>
             </Card>
+          </div>
+
+          <div className="flex items-center text-xs text-muted-foreground">
+            <Zap className="h-3 w-3 mr-1 text-amber-500" />
+            Last updated: {lastUpdated.toLocaleTimeString()} ({updateMode === 'websocket' ? 'WebSocket Connection' : 'Visibility-Optimized Polling'})
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -271,39 +341,50 @@ export default function HealthMonitorPage() {
               </ZoruCardContent>
             </Card>
           </div>
-
-          <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Routing & Auto-Degrade</ZoruCardTitle>
-              <ZoruCardDescription>Recent automated actions</ZoruCardDescription>
-            </ZoruCardHeader>
-            <ZoruCardContent>
-              <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow>
-                    <ZoruTableHead>Time</ZoruTableHead>
-                    <ZoruTableHead>Event</ZoruTableHead>
-                    <ZoruTableHead>Detail</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
-                  <ZoruTableRow>
-                    <ZoruTableCell>10 mins ago</ZoruTableCell>
-                    <ZoruTableCell><Badge variant="outline">Re-route</Badge></ZoruTableCell>
-                    <ZoruTableCell>Failover to Vonage for UK destinations</ZoruTableCell>
-                  </ZoruTableRow>
-                  <ZoruTableRow>
-                    <ZoruTableCell>1 hour ago</ZoruTableCell>
-                    <ZoruTableCell><Badge variant="secondary" className="bg-amber-100 text-amber-700">Auto-degrade</Badge></ZoruTableCell>
-                    <ZoruTableCell>Twilio DLR dropped below 90%, paused pool B</ZoruTableCell>
-                  </ZoruTableRow>
-                </ZoruTableBody>
-              </Table>
-            </ZoruCardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="alerts" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-medium">Incident History</h3>
+              <p className="text-sm text-muted-foreground">Log of past system incidents and current outages.</p>
+            </div>
+            <Button><Plus className="h-4 w-4 mr-2" /> Report Incident</Button>
+          </div>
+          
+          <Card>
+            <Table>
+               <ZoruTableHeader>
+                 <ZoruTableRow>
+                   <ZoruTableHead>Incident</ZoruTableHead>
+                   <ZoruTableHead>Status</ZoruTableHead>
+                   <ZoruTableHead>Date</ZoruTableHead>
+                   <ZoruTableHead>Resolution</ZoruTableHead>
+                 </ZoruTableRow>
+               </ZoruTableHeader>
+               <ZoruTableBody>
+                 <ZoruTableRow>
+                   <ZoruTableCell className="font-medium">Vodafone UK Gateway Timeout</ZoruTableCell>
+                   <ZoruTableCell><Badge variant="secondary" className="bg-emerald-100 text-emerald-700">Resolved</Badge></ZoruTableCell>
+                   <ZoruTableCell>May 20, 2026</ZoruTableCell>
+                   <ZoruTableCell>Traffic rerouted to secondary provider. Connectivity restored.</ZoruTableCell>
+                 </ZoruTableRow>
+                 <ZoruTableRow>
+                   <ZoruTableCell className="font-medium">US Shortcode Processing Delay</ZoruTableCell>
+                   <ZoruTableCell><Badge variant="secondary" className="bg-emerald-100 text-emerald-700">Resolved</Badge></ZoruTableCell>
+                   <ZoruTableCell>May 18, 2026</ZoruTableCell>
+                   <ZoruTableCell>Increased worker pool size to handle burst traffic.</ZoruTableCell>
+                 </ZoruTableRow>
+                 <ZoruTableRow>
+                   <ZoruTableCell className="font-medium">Webhook Delivery High Latency</ZoruTableCell>
+                   <ZoruTableCell><Badge variant="outline" className="border-amber-200 text-amber-700">Monitoring</Badge></ZoruTableCell>
+                   <ZoruTableCell>Today</ZoruTableCell>
+                   <ZoruTableCell>Investigating database lock contention in webhooks table.</ZoruTableCell>
+                 </ZoruTableRow>
+               </ZoruTableBody>
+            </Table>
+          </Card>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <ZoruCardHeader>
@@ -352,22 +433,7 @@ export default function HealthMonitorPage() {
                     </Label>
                     <Switch id="email-alerts" defaultChecked />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="sabflow-alerts" className="flex flex-col gap-1">
-                      <span>SabFlow Trigger</span>
-                      <span className="text-xs text-muted-foreground">Trigger 'Incident' flow</span>
-                    </Label>
-                    <Switch id="sabflow-alerts" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="webhook-alerts" className="flex flex-col gap-1">
-                      <span>Health Webhook Publisher</span>
-                      <span className="text-xs text-muted-foreground">Post to PagerDuty</span>
-                    </Label>
-                    <Switch id="webhook-alerts" defaultChecked />
-                  </div>
                 </div>
-                
                 <div className="pt-4 border-t">
                   <h4 className="text-sm font-medium mb-3">Active Rules</h4>
                   <div className="bg-slate-50 dark:bg-slate-900 rounded-md p-3 text-sm flex justify-between items-center">
@@ -375,6 +441,131 @@ export default function HealthMonitorPage() {
                     <Badge variant="outline">Active</Badge>
                   </div>
                 </div>
+              </ZoruCardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="status-page" className="space-y-6">
+          <Card>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Automated Status Page</ZoruCardTitle>
+              <ZoruCardDescription>Configure and generate a public-facing status page automatically.</ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent className="space-y-6 max-w-2xl">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Custom Domain / Subdomain</Label>
+                  <div className="flex gap-2">
+                    <Input defaultValue="status.sabsms.com" />
+                    <Button variant="outline">Verify</Button>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Components to Display</Label>
+                  <div className="flex flex-col gap-3 p-4 border rounded-md bg-slate-50 dark:bg-slate-900/50">
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="comp-engine" defaultChecked /> 
+                      <Label htmlFor="comp-engine" className="font-normal cursor-pointer">SMS Delivery Engine</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="comp-api" defaultChecked /> 
+                      <Label htmlFor="comp-api" className="font-normal cursor-pointer">Management API</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="comp-webhooks" defaultChecked /> 
+                      <Label htmlFor="comp-webhooks" className="font-normal cursor-pointer">Webhooks Delivery</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox id="comp-dashboard" defaultChecked /> 
+                      <Label htmlFor="comp-dashboard" className="font-normal cursor-pointer">Dashboard & Portal</Label>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 border rounded-md">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">Auto-publish Incidents</Label>
+                    <p className="text-sm text-muted-foreground">Automatically mirror 'Monitoring' or worse alerts to the public page.</p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4 pt-4 border-t">
+                <Button><Globe className="mr-2 h-4 w-4"/> Publish Changes</Button>
+                <Button variant="secondary"><FileText className="mr-2 h-4 w-4" /> View Live Page</Button>
+              </div>
+            </ZoruCardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="integrations" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <ZoruCardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Monitor className="h-5 w-5 text-purple-600" />
+                    <ZoruCardTitle>Datadog Integration</ZoruCardTitle>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+                <ZoruCardDescription>Export metrics, traces, and logs directly to Datadog for deeper analytics.</ZoruCardDescription>
+              </ZoruCardHeader>
+              <ZoruCardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Datadog API Key</Label>
+                  <Input type="password" defaultValue="************************" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Datadog App Key</Label>
+                  <Input type="password" defaultValue="************************" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Site Region</Label>
+                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                    <option>US1 (datadoghq.com)</option>
+                    <option>US3 (us3.datadoghq.com)</option>
+                    <option>US5 (us5.datadoghq.com)</option>
+                    <option>EU1 (datadoghq.eu)</option>
+                  </select>
+                </div>
+                <Button variant="outline" className="w-full">Test Connection</Button>
+              </ZoruCardContent>
+            </Card>
+
+            <Card>
+              <ZoruCardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Settings className="h-5 w-5 text-orange-500" />
+                    <ZoruCardTitle>Prometheus Exporter</ZoruCardTitle>
+                  </div>
+                  <Switch />
+                </div>
+                <ZoruCardDescription>Enable Prometheus scraping endpoint for metric collection.</ZoruCardDescription>
+              </ZoruCardHeader>
+              <ZoruCardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Metrics Endpoint Path</Label>
+                  <Input defaultValue="/metrics/prometheus" disabled />
+                </div>
+                <div className="space-y-2">
+                  <Label>Bearer Token (Optional)</Label>
+                  <Input type="password" placeholder="Require token for scraping" />
+                </div>
+                <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border">
+                  <code className="text-xs break-all text-slate-600 dark:text-slate-400">
+                    scrape_configs:<br/>
+                    &nbsp;&nbsp;- job_name: 'sabsms-engine'<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;metrics_path: '/metrics/prometheus'<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;static_configs:<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- targets: ['api.sabsms.com']
+                  </code>
+                </div>
+                <Button variant="outline" className="w-full">Regenerate Token</Button>
               </ZoruCardContent>
             </Card>
           </div>

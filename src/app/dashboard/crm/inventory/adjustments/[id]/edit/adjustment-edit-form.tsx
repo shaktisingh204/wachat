@@ -18,18 +18,10 @@ import { EntityFormShell } from '@/components/crm/entity-form-shell';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { updateCrmStockAdjustment } from '@/app/actions/crm-inventory.actions';
+import type { StockAdjustment } from '../types';
 
 export interface AdjustmentEditFormProps {
-    initial: {
-        _id: string;
-        reason: string;
-        notes?: string;
-        quantity: number;
-        productName?: string;
-        warehouseName?: string;
-        referenceNumber?: string;
-        adjustmentNumber?: string;
-    };
+    initial: StockAdjustment;
 }
 
 export function AdjustmentEditForm({ initial }: AdjustmentEditFormProps) {
@@ -95,7 +87,7 @@ export function AdjustmentEditForm({ initial }: AdjustmentEditFormProps) {
                             <div className="space-y-1">
                                 <Label>Quantity</Label>
                                 <Input
-                                    defaultValue={String(initial.quantity)}
+                                    defaultValue={String(initial.quantity ?? 0)}
                                     disabled
                                 />
                             </div>

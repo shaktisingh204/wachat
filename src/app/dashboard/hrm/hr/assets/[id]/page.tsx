@@ -1,3 +1,4 @@
+import { fmtDate, fmtINR } from '@/lib/utils';
 import { Badge, Button, Card } from '@/components/zoruui';
 import {
   notFound,
@@ -34,18 +35,10 @@ const STATUS_TONE: Record<CrmAssetStatus, StatusTone> = {
 function fmtDate(value: unknown): string {
     if (!value) return '—';
     const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    return Number.isNaN(d.getTime()) ? '—' : fmtDate(d);
 }
 
-function fmtMoney(amount: unknown, currency?: string): string {
-    if (amount == null || amount === '') return '—';
-    let n = Number(amount);
-    if (!Number.isFinite(n) && typeof amount === 'string') {
-        n = Number(amount.replace(/[^\d.-]/g, ''));
-    }
-    if (!Number.isFinite(n) || Number.isNaN(n)) return '—';
-    return `${currency || 'INR'} ${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
+
 
 function calculateDepreciation(purchasePrice: unknown, purchaseDate: unknown, currency?: string): string {
     if (purchasePrice == null || purchasePrice === '' || !purchaseDate) return '—';
@@ -65,11 +58,11 @@ function calculateDepreciation(purchasePrice: unknown, purchaseDate: unknown, cu
         months -= 1;
     }
     
-    if (months >= 36) return fmtMoney(0, currency);
-    if (months <= 0) return fmtMoney(price, currency);
+    if (months >= 36) return fmtINR(0, currency);
+    if (months <= 0) return fmtINR(price, currency);
 
     const currentVal = price - (price * (months / 36));
-    return fmtMoney(Math.max(0, currentVal), currency);
+    return fmtINR(Math.max(0, currentVal), currency);
 }
 
 function pretty(s?: string): string {
@@ -164,7 +157,7 @@ export default async function AssetDetailPage({
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Purchase price</div>
-                        <div className="text-zoru-ink">{fmtMoney(asset.purchasePrice, asset.currency)}</div>
+                        <div className="text-zoru-ink">{fmtINR(asset.purchasePrice, asset.currency)}</div>
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Depreciated value (3yr SL)</div>

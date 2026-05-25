@@ -65,7 +65,7 @@ export interface RecurringInvoiceListClientProps {
 function fmtDate(v?: string): string {
   if (!v) return '—';
   const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US', { timeZone: 'UTC' });
 }
 
 function frequencyLabel(f: CrmRecurringInvoiceDoc['frequency']): string {

@@ -33,6 +33,7 @@ import {
   Skeleton,
   Badge,
   useZoruToast,
+  cn,
 } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
@@ -53,6 +54,7 @@ import {
 import { getLibraryTemplates } from '@/app/actions/template.actions';
 import { type LibraryTemplate } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
+import { useTemplateStore } from '../template-store';
 
 /**
  * Wachat Template Library — premade templates grid, rebuilt on
@@ -102,6 +104,13 @@ function TemplateTile({
     }
   };
 
+  const [userRating, setUserRating] = useState<number>(0);
+  const [hoverRating, setHoverRating] = useState<number>(0);
+  const baseRating = 4.5; // Mock base rating for community templates
+  const baseReviews = 12; // Mock reviews count
+  const aggregateRating = userRating ? ((baseRating * baseReviews + userRating) / (baseReviews + 1)) : baseRating;
+  const reviewCount = userRating ? baseReviews + 1 : baseReviews;
+
   return (
     <Card variant="elevated" className="flex flex-col">
       <ZoruCardContent className="flex flex-1 flex-col gap-3 pt-6">
@@ -118,6 +127,37 @@ function TemplateTile({
           A pre-built template for{' '}
           {template.category.replace(/_/g, ' ').toLowerCase()} use cases.
         </p>
+
+        <div className="flex items-center gap-2">
+          <div className="flex items-center">
+            {[1, 2, 3, 4, 5].map((star) => {
+              const active = hoverRating ? star <= hoverRating : star <= Math.round(aggregateRating);
+              return (
+                <button
+                  key={star}
+                  type="button"
+                  className="focus:outline-none"
+                  onMouseEnter={() => setHoverRating(star)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  onClick={() => {
+                    setUserRating(star);
+                    // Could also dispatch a toast or API call here
+                  }}
+                >
+                  <Star
+                    className={cn(
+                      "h-3.5 w-3.5 transition-colors",
+                      active ? "fill-zoru-warning text-zoru-warning" : "text-zoru-line-strong"
+                    )}
+                  />
+                </button>
+              );
+            })}
+          </div>
+          <span className="text-[11px] text-zoru-ink-muted">
+            {aggregateRating.toFixed(1)} ({reviewCount} reviews)
+          </span>
+        </div>
 
         <div className="flex-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
           <div className="mx-auto w-full max-w-xs">
@@ -183,6 +223,8 @@ export default function TemplateLibraryPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [cloneTarget, setCloneTarget] = useState<LibraryTemplate | null>(null);
 
+  const setTemplateToAction = useTemplateStore((s) => s.setTemplateToAction);
+
   useEffect(() => {
     startLoading(async () => {
       const data = await getLibraryTemplates();
@@ -211,14 +253,7 @@ export default function TemplateLibraryPage() {
 
   const onConfirmClone = () => {
     if (!cloneTarget) return;
-    try {
-      localStorage.setItem(
-        'templateToAction',
-        JSON.stringify(cloneTarget),
-      );
-    } catch {
-      // ignore localStorage errors
-    }
+    setTemplateToAction(cloneTarget);
     toast({
       title: 'Template cloned',
       description: `Opening "${cloneTarget.name}" in the builder.`,

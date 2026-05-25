@@ -22,10 +22,12 @@ export function AdManagerProvider({ children }: { children: ReactNode }) {
         const storedAccountId = localStorage.getItem('activeAdAccountAccountId');
 
         if (storedId && storedName && storedAccountId) {
+            const cleanAccountId = storedAccountId.replace(/^act_/, '');
+            const actId = storedId.startsWith('act_') ? storedId : `act_${cleanAccountId}`;
             setActiveAccount({
-                id: storedId,
+                id: actId,
                 name: storedName,
-                account_id: storedAccountId
+                account_id: cleanAccountId
             });
         }
         setIsLoading(false);
@@ -33,8 +35,9 @@ export function AdManagerProvider({ children }: { children: ReactNode }) {
 
     const selectAccount = (account: AdAccount | null) => {
         if (account) {
-            const standardizedAccountId = account.account_id.startsWith('act_') ? account.account_id : `act_${account.account_id}`;
-            const stdAccount = { ...account, account_id: standardizedAccountId };
+            const cleanAccountId = account.account_id.replace(/^act_/, '');
+            const actId = account.id.startsWith('act_') ? account.id : `act_${cleanAccountId}`;
+            const stdAccount = { ...account, id: actId, account_id: cleanAccountId };
             setActiveAccount(stdAccount);
             localStorage.setItem('activeAdAccountId', stdAccount.id);
             localStorage.setItem('activeAdAccountName', stdAccount.name);

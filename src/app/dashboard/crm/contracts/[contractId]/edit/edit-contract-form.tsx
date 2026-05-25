@@ -23,6 +23,7 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { getContractTemplates } from '@/app/actions/worksuite/contracts-ext.actions';
+import { ContractStatusTimeline, type ContractStatus } from './contract-status-timeline';
 
 interface AttachmentRow {
   id: string;
@@ -103,6 +104,7 @@ export function EditContractForm({ initial }: Props) {
   );
   const { toast } = useZoruToast();
 
+  const [status, setStatus] = useState<ContractStatus>((initial.status as ContractStatus) || 'draft');
   const [endDate, setEndDate] = useState(initial.endDate);
   const [autoRenew, setAutoRenew] = useState(initial.autoRenew);
   const [renewalNoticeDays, setRenewalNoticeDays] = useState(
@@ -212,6 +214,11 @@ export function EditContractForm({ initial }: Props) {
                 Title, status, and currency.
               </p>
             </div>
+            
+            <div className="mb-8 mt-2 px-4">
+              <ContractStatusTimeline status={status} />
+            </div>
+
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2 md:col-span-2">
                 <Label
@@ -235,7 +242,7 @@ export function EditContractForm({ initial }: Props) {
                 >
                   Status
                 </Label>
-                <Select name="status" defaultValue={initial.status}>
+                <Select name="status" value={status} onValueChange={(val) => setStatus(val as ContractStatus)}>
                   <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>

@@ -27,6 +27,7 @@ import {
   ZoruTableRow,
   EmptyState,
 } from '@/components/zoruui';
+import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/zoruui/chart';
 import {
   Gauge,
   AlertTriangle,
@@ -42,7 +43,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { SettingsTabs } from '../_components/settings-tabs';
-import { setRateLimitProfile } from '@/app/actions/sabwa.actions';
+import { setRateLimitProfile, getRateLimitProfile } from '@/app/actions/sabwa.actions';
 import type { SabwaRateLimitProfile } from '@/lib/sabwa/types';
 import { useSabwaSession } from '@/lib/sabwa/session-context';
 
@@ -112,25 +113,50 @@ const TIMEZONES = [
   { value: 'Europe/Berlin', label: 'Europe/Berlin (CET/CEST)' },
 ];
 
+const MOCK_USAGE_DATA = [
+  { date: 'Mon', sent: 120, cap: 500 },
+  { date: 'Tue', sent: 340, cap: 500 },
+  { date: 'Wed', sent: 210, cap: 500 },
+  { date: 'Thu', sent: 480, cap: 500 },
+  { date: 'Fri', sent: 890, cap: 2000 },
+  { date: 'Sat', sent: 1500, cap: 2000 },
+  { date: 'Sun', sent: 1100, cap: 2000 },
+];
+
 export default function RateLimitsPage() {
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? '';
   const [profile, setProfile] = React.useState<SabwaRateLimitProfile>('normal');
   const [warmupEnabled, setWarmupEnabled] = React.useState(false);
-  const [sessionAgeDays] = React.useState(2); // Placeholder until session metadata wires in.
+  const [sessionAgeDays, setSessionAgeDays] = React.useState(0);
   const [overrides, setOverrides] = React.useState<Record<string, number>>({});
   const [timezone, setTimezone] = React.useState('UTC');
   const [pending, startTransition] = React.useTransition();
 
-  // Engine does not yet expose a `getRateLimitProfile` action; surface defaults
-  // and warn once so the gap stays visible without scaring the user with a
-  // toast/error UI on every mount.
   React.useEffect(() => {
     if (!sessionId) return;
-    // eslint-disable-next-line no-console
-    console.warn(
-      '[sabwa/settings/rate-limits] No getRateLimitProfile action — showing defaults until engine exposes the GET endpoint.',
-    );
+    
+    let active = true;
+    startTransition(async () => {
+      const res = await getRateLimitProfile(sessionId);
+      if (active && res.ok && res.settings) {
+        setProfile(res.settings.profile);
+        setWarmupEnabled(res.settings.warmupEnabled);
+        if (res.settings.dailyResetTimezone) {
+          setTimezone(res.settings.dailyResetTimezone);
+        }
+        if (res.settings.overrides) {
+          setOverrides(res.settings.overrides);
+        }
+        if (typeof res.settings.sessionAgeDays === 'number') {
+          setSessionAgeDays(res.settings.sessionAgeDays);
+        }
+      }
+    });
+    
+    return () => {
+      active = false;
+    };
   }, [sessionId]);
 
   // Linear ramp 5 → 30 over 7 days (matches anti-ban § 9.2).
@@ -192,6 +218,53 @@ export default function RateLimitsPage() {
         </div>
       </div>
       <SettingsTabs />
+
+      <Card>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Usage Activity</ZoruCardTitle>
+          <ZoruCardDescription>
+            Outbound messages sent over the last 7 days compared to your daily cap.
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          <ZoruChartContainer height={240}>
+            <ZoruChart.LineChart data={MOCK_USAGE_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+              <ZoruChart.XAxis 
+                dataKey="date" 
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 12 }}
+                dy={10}
+              />
+              <ZoruChart.YAxis 
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 12 }}
+              />
+              <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+              <ZoruChart.Line 
+                type="monotone" 
+                dataKey="sent" 
+                name="Messages Sent"
+                stroke={ZORU_CHART_PALETTE[0]} 
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4 }}
+              />
+              <ZoruChart.Line 
+                type="stepAfter" 
+                dataKey="cap" 
+                name="Daily Cap"
+                stroke={ZORU_CHART_PALETTE[2]} 
+                strokeWidth={2}
+                strokeDasharray="4 4"
+                dot={false}
+              />
+            </ZoruChart.LineChart>
+          </ZoruChartContainer>
+        </ZoruCardContent>
+      </Card>
 
       <Card>
         <ZoruCardHeader>

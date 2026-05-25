@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 
 /**
@@ -12,7 +13,7 @@ import { AssetAssignmentForm } from '../_components/asset-assignment-form';
 
 export const dynamic = 'force-dynamic';
 
-export default async function NewAssetAssignmentPage() {
+async function NewAssetAssignmentPageContainer() {
     const session = await getSession();
     if (!session?.user) redirect('/login');
 
@@ -24,4 +25,12 @@ export default async function NewAssetAssignmentPage() {
             <AssetAssignmentForm />
         </EntityListShell>
     );
+}
+
+export default function NewAssetAssignmentPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewAssetAssignmentPageContainer  />
+    </Suspense>
+  );
 }

@@ -1,6 +1,9 @@
+export const dynamic = 'force-dynamic';
 import { HrDetailPage } from '../../_components/hr-detail-page';
 import { getFeedback360, deleteFeedback360 } from '@/app/actions/hr.actions';
 import type { HrFeedback360 } from '@/lib/hr-types';
+import { fmtDate } from '@/lib/utils';
+import { FeedbackChart } from '../_components/feedback-chart';
 
 type Row = HrFeedback360 & {
   _id: string;
@@ -49,11 +52,7 @@ export default async function Feedback360DetailPage({
             { label: 'Status', value: row.status },
             {
               label: 'Submitted',
-              value: row.submitted_at
-                ? new Date(row.submitted_at).toLocaleDateString()
-                : row.submittedAt
-                  ? new Date(row.submittedAt).toLocaleDateString()
-                  : null,
+              value: fmtDate(row.submitted_at || row.submittedAt),
             },
           ],
         },
@@ -65,6 +64,18 @@ export default async function Feedback360DetailPage({
             { label: 'Leadership', value: row.rating_leadership ?? '—' },
             { label: 'Technical', value: row.rating_technical ?? '—' },
             { label: 'Overall', value: row.rating ?? '—' },
+            { 
+              label: 'Visual Breakdown', 
+              value: (
+                <FeedbackChart 
+                  communication={row.rating_communication}
+                  teamwork={row.rating_teamwork}
+                  leadership={row.rating_leadership}
+                  technical={row.rating_technical}
+                />
+              ),
+              fullWidth: true
+            },
           ],
         },
         {

@@ -1,3 +1,5 @@
+import React from "react";
+import { fmtINR } from "@/lib/utils";
 /**
  * /portal/client/estimates — Estimate list.
  *
@@ -8,8 +10,6 @@
 export const dynamic = 'force-dynamic';
 
 import { getClientEstimates } from '@/app/actions/client-portal.actions';
-import { Badge } from '@/components/zoruui/badge';
-import { Button } from '@/components/zoruui/button';
 import {
     Card,
     ZoruCardContent,
@@ -17,36 +17,50 @@ import {
 import {
     Table,
     ZoruTableBody,
-    ZoruTableCell,
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
 } from '@/components/zoruui/table';
 import { EmptyState } from '@/components/zoruui/empty-state';
+import { EstimateRow } from './EstimateRow';
+import { Info } from 'lucide-react';
 
-function fmtDate(iso: string | null): string {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleDateString();
-}
 
-function fmtCurrency(n: number, ccy: string): string {
-    try {
-        return new Intl.NumberFormat(undefined, { style: 'currency', currency: ccy || 'USD' }).format(n);
-    } catch {
-        return String(n);
-    }
-}
-
-export default async function ClientEstimatesPage() {
+async function ClientEstimatesPageContent() {
     const estimates = await getClientEstimates();
+    
+    const pendingEstimates = estimates.filter(est => ['waiting', 'sent', 'Sent', 'revision-requested'].includes(est.status));
+    const pendingTotalsByCurrency = pendingEstimates.reduce((acc, est) => {
+        const ccy = est.currency || 'USD';
+        acc[ccy] = (acc[ccy] || 0) + est.total;
+        return acc;
+    }, {} as Record<string, number>);
 
     return (
-        <div className="flex flex-col gap-4">
-            <div>
-                <h1 className="text-2xl font-semibold text-zoru-ink">Estimates</h1>
-                <p className="text-sm text-zoru-ink-muted">
-                    Review and accept estimates from your account manager.
-                </p>
+        <div className="flex flex-col gap-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 className="text-2xl font-semibold text-zoru-ink">Estimates</h1>
+                    <p className="text-sm text-zoru-ink-muted">
+                        Review and accept estimates from your account manager.
+                    </p>
+                </div>
+                
+                {Object.keys(pendingTotalsByCurrency).length > 0 && (
+                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm flex items-center gap-3 shadow-sm">
+                        <div className="bg-blue-100 p-2 rounded-full">
+                            <Info className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                            <div className="text-blue-900 font-medium">Pending Estimates</div>
+                            <div className="text-blue-700 flex gap-2">
+                                {Object.entries(pendingTotalsByCurrency).map(([ccy, total]) => (
+                                    <span key={ccy} className="font-semibold">{fmtINR(total as number, ccy)}</span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {estimates.length === 0 ? (
@@ -60,6 +74,7 @@ export default async function ClientEstimatesPage() {
                         <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
+                                    <ZoruTableHead className="w-10"></ZoruTableHead>
                                     <ZoruTableHead>Number</ZoruTableHead>
                                     <ZoruTableHead>Valid Till</ZoruTableHead>
                                     <ZoruTableHead>Total</ZoruTableHead>
@@ -68,28 +83,9 @@ export default async function ClientEstimatesPage() {
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
-                                {estimates.map((est) => {
-                                    const waiting = ['waiting', 'sent', 'Sent'].includes(est.status);
-                                    return (
-                                        <ZoruTableRow key={est._id}>
-                                            <ZoruTableCell className="font-medium text-zoru-ink">{est.number}</ZoruTableCell>
-                                            <ZoruTableCell>{fmtDate(est.validTill)}</ZoruTableCell>
-                                            <ZoruTableCell>{fmtCurrency(est.total, est.currency)}</ZoruTableCell>
-                                            <ZoruTableCell>
-                                                <Badge variant="outline">{est.status}</Badge>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
-                                                {waiting && est.publicHash ? (
-                                                    <Button asChild size="sm">
-                                                        <a href={`/share/estimate/${est.publicHash}`}>Review</a>
-                                                    </Button>
-                                                ) : (
-                                                    <span className="text-xs text-zoru-ink-muted">—</span>
-                                                )}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
-                                    );
-                                })}
+                                {estimates.map((est) => (
+                                    <EstimateRow key={est._id} est={est} />
+                                ))}
                             </ZoruTableBody>
                         </Table>
                     </ZoruCardContent>
@@ -97,4 +93,13 @@ export default async function ClientEstimatesPage() {
             )}
         </div>
     );
+}
+
+
+export default function ClientEstimatesPage() {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <ClientEstimatesPageContent  />
+    </React.Suspense>
+  );
 }

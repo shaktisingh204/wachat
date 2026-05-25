@@ -20,24 +20,8 @@ interface RfqVendorBidsCardProps {
   rfqId: string;
 }
 
-function fmtMoney(value?: number | null, currency = 'INR'): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${currency} ${value}`;
-  }
-}
+import { fmtINR, fmtDate } from '@/lib/utils';
 
-function fmtDate(v?: string | null): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
 
 export async function RfqVendorBidsCard({ rfqId }: RfqVendorBidsCardProps) {
   const { bids, error } = await listVendorBids({
@@ -116,7 +100,7 @@ export async function RfqVendorBidsCard({ rfqId }: RfqVendorBidsCardProps) {
                       {b.currency || 'INR'}
                     </td>
                     <td className="p-2 text-right align-middle font-mono tabular-nums text-zoru-ink">
-                      {fmtMoney(b.totals?.total, b.currency)}
+                      {fmtINR(b.totals?.total, b.currency)}
                     </td>
                     <td className="p-2 align-middle">
                       <StatusPill

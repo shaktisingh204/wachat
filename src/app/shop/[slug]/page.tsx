@@ -4,15 +4,30 @@ import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
 import { LayoutGrid } from 'lucide-react';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { EcommPage } from '@/lib/definitions';
+import { Suspense } from 'react';
+import type { Metadata } from 'next';
 
-export default async function ShopPage(props: { params: Promise<{ slug: string }> }) {
-    const params = await props.params;
-    if (!params.slug) {
+export const dynamic = 'force-dynamic';
+
+export async function generateMetadata(
+    { params }: { params: Promise<{ slug: string }> }
+): Promise<Metadata> {
+    const { slug } = await params;
+    const shop = await getEcommShopBySlug(slug);
+    if (!shop) return { title: 'Shop Not Found' };
+    
+    return {
+        title: shop.name,
+        description: `Welcome to ${shop.name}`,
+    };
+}
+
+async function ShopContent({ slug }: { slug: string }) {
+    if (!slug) {
         notFound();
     }
 
-    const shop = await getEcommShopBySlug(params.slug);
-
+    const shop = await getEcommShopBySlug(slug);
     if (!shop) {
         notFound();
     }
@@ -43,3 +58,12 @@ export default async function ShopPage(props: { params: Promise<{ slug: string }
     );
 }
 
+export default async function ShopPage(props: { params: Promise<{ slug: string }> }) {
+    const params = await props.params;
+
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading shop...</div>}>
+            <ShopContent slug={params.slug} />
+        </Suspense>
+    );
+}

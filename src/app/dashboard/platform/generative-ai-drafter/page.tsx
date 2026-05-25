@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getGenerativeAIDrafts } from '@/app/actions/platform/generative-ai-drafter.actions';
 import GenerativeAIDrafterClientPage from './client-page';
 import { Suspense } from 'react';
@@ -8,8 +10,15 @@ export const metadata = {
   title: 'Generative AI Drafter | CRM',
 };
 
-export default async function GenerativeAIDrafterPage() {
-  const drafts = await getGenerativeAIDrafts();
+export default async function GenerativeAIDrafterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const page = typeof params.page === 'string' ? parseInt(params.page, 10) : 1;
+  const limit = 10;
+  const { drafts, total } = await getGenerativeAIDrafts(page, limit);
 
   return (
     <Suspense fallback={
@@ -17,7 +26,7 @@ export default async function GenerativeAIDrafterPage() {
         <div className="flex justify-center items-center py-12"><LoaderCircle className="w-8 h-8 animate-spin text-zoru-accent" /></div>
       </EntityListShell>
     }>
-      <GenerativeAIDrafterClientPage initialData={drafts} />
+      <GenerativeAIDrafterClientPage initialData={drafts} total={total} currentPage={page} limit={limit} />
     </Suspense>
   );
 }

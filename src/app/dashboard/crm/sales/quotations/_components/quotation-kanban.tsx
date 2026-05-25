@@ -47,6 +47,12 @@ function fmtMoney(value: number | undefined | null, currency: string): string {
   }
 }
 
+function fmtDate(v?: string | Date | null): string {
+  if (!v) return '—';
+  const d = v instanceof Date ? v : new Date(v);
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US', { timeZone: 'UTC' });
+}
+
 export function QuotationKanban({ quotations, currency }: QuotationKanbanProps) {
   const router = useRouter();
   const { toast } = useZoruToast();
@@ -224,11 +230,11 @@ export function QuotationKanban({ quotations, currency }: QuotationKanbanProps) 
                       <div className="mt-1.5 flex items-center justify-between gap-2 text-[11.5px] text-zoru-ink-muted">
                         <span className="inline-flex items-center gap-1">
                           <FileText className="h-3 w-3" />
-                          {quotation.date ? new Date(quotation.date).toLocaleDateString() : '—'}
+                          {fmtDate(quotation.date)}
                         </span>
                         <span className="inline-flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {quotation.validUntil ? new Date(quotation.validUntil).toLocaleDateString() : '—'}
+                          {fmtDate(quotation.validUntil)}
                         </span>
                       </div>
                       {quotation.salesAgentId || quotation.clientId ? (

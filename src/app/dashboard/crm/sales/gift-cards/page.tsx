@@ -31,21 +31,21 @@ import {
   Card,
   ZoruDateRangePicker,
   DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   StatCard,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   useZoruToast,
 } from '@/components/zoruui';
 
@@ -88,25 +88,54 @@ type AnyGiftCard = {
   createdAt?: string | Date;
 };
 
+import { fmtDate, fmtINR } from '@/lib/utils';
+
 function getId(c: AnyGiftCard, idx: number): string {
   return typeof c._id === 'string'
     ? c._id
     : (c._id as { toString(): string } | undefined)?.toString?.() ?? String(idx);
 }
 
-function formatDate(value: string | Date | undefined | null): string {
-  if (!value) return '—';
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString();
-}
+function resolveIssuedTo(card: AnyGiftCard): string {
+  if (!card) return '—';
+  if (card.issuedToName) return card.issuedToName;
+  
+  if (card.issuedTo) {
+    if (typeof card.issuedTo === 'string') {
+      return card.issuedTo;
+    }
+    if (typeof card.issuedTo === 'object') {
+       if ('name' in card.issuedTo && typeof (card.issuedTo as any).name === 'string') {
+           return (card.issuedTo as any).name;
+       }
+       if ('displayName' in card.issuedTo && typeof (card.issuedTo as any).displayName === 'string') {
+           return (card.issuedTo as any).displayName;
+       }
+       if ('firstName' in card.issuedTo && typeof (card.issuedTo as any).firstName === 'string') {
+           const first = (card.issuedTo as any).firstName;
+           const last = (card.issuedTo as any).lastName || '';
+           return `${first} ${last}`.trim();
+       }
+       if ('_id' in card.issuedTo) {
+           return `Client ${(card.issuedTo as any)._id.toString().slice(-6)}`;
+       }
+       if (typeof (card.issuedTo as any).toString === 'function' && (card.issuedTo as any).toString() !== '[object Object]') {
+           return (card.issuedTo as any).toString();
+       }
+    }
+  }
 
-function formatAmount(value: number | undefined | null): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  return value.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+  if (card.issuedToId) {
+    if (typeof card.issuedToId === 'string') return card.issuedToId;
+    if (typeof card.issuedToId === 'object' && '_id' in card.issuedToId) {
+        return (card.issuedToId as any)._id.toString();
+    }
+    if (typeof (card.issuedToId as any).toString === 'function') {
+        return (card.issuedToId as any).toString();
+    }
+  }
+  
+  return '—';
 }
 
 function getStatusVariant(
@@ -117,29 +146,6 @@ function getStatusVariant(
   if (s === 'draft' || s === 'pending' || s === 'issued') return 'ghost';
   if (s === 'expired' || s === 'cancelled' || s === 'voided') return 'danger';
   return 'warning';
-}
-
-function resolveIssuedTo(card: AnyGiftCard): string {
-  if (card.issuedToName) return card.issuedToName;
-  
-  if (typeof card.issuedTo === 'string') {
-    return card.issuedTo;
-  }
-  if (card.issuedTo && typeof card.issuedTo === 'object') {
-     if ('name' in card.issuedTo && typeof (card.issuedTo as any).name === 'string') {
-         return (card.issuedTo as any).name;
-     }
-     if (typeof (card.issuedTo as any).toString === 'function') {
-         return (card.issuedTo as any).toString();
-     }
-  }
-
-  if (typeof card.issuedToId === 'string') return card.issuedToId;
-  if (card.issuedToId && typeof (card.issuedToId as any).toString === 'function') {
-      return (card.issuedToId as any).toString();
-  }
-  
-  return '—';
 }
 
 export default function SalesGiftCardsPage(): React.JSX.Element {
@@ -349,16 +355,16 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
                   setPage(1);
                 }}
               >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Status" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
+                <SelectTrigger>
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
                   {STATUS_OPTIONS.map((s) => (
-                    <ZoruSelectItem key={s} value={s}>
+                    <SelectItem key={s} value={s}>
                       {s === 'all' ? 'All statuses' : s[0].toUpperCase() + s.slice(1)}
-                    </ZoruSelectItem>
+                    </SelectItem>
                   ))}
-                </ZoruSelectContent>
+                </SelectContent>
               </Select>
             </div>
             <div className="w-64">
@@ -377,19 +383,19 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
               </Button>
             ) : null}
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                   <Download className="h-4 w-4" /> Export
                 </Button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent align="end">
-                <ZoruDropdownMenuItem onClick={() => exportFile('csv')}>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => exportFile('csv')}>
                   <FileText className="h-4 w-4" /> CSV
-                </ZoruDropdownMenuItem>
-                <ZoruDropdownMenuItem onClick={() => exportFile('xlsx')}>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportFile('xlsx')}>
                   <FileSpreadsheet className="h-4 w-4" /> XLSX
-                </ZoruDropdownMenuItem>
-              </ZoruDropdownMenuContent>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
             </DropdownMenu>
           </div>
         }
@@ -398,40 +404,40 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
             <div className="flex flex-wrap items-center gap-2 text-sm text-zoru-ink">
               <span className="font-medium">{selected.size} selected</span>
               <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
                     Set status
                   </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent>
-                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'active')}>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => runBulk('status', 'active')}>
                     Active
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'redeemed')}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => runBulk('status', 'redeemed')}>
                     Redeemed
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'expired')}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => runBulk('status', 'expired')}>
                     Expired
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'cancelled')}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => runBulk('status', 'cancelled')}>
                     Cancelled
-                  </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
               <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
                     <Download className="h-4 w-4" /> Export selected
                   </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end">
-                  <ZoruDropdownMenuItem onClick={() => exportFile('csv')}>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => exportFile('csv')}>
                     <FileText className="h-4 w-4" /> CSV
-                  </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onClick={() => exportFile('xlsx')}>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => exportFile('xlsx')}>
                     <FileSpreadsheet className="h-4 w-4" /> XLSX
-                  </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
               <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
                 Delete
@@ -485,7 +491,7 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
             />
             <StatCard
               label="Redeemed value"
-              value={formatAmount(kpis.redeemedValue)}
+              value={fmtINR(kpis.redeemedValue)}
               icon={<CreditCard />}
             />
             <StatCard
@@ -498,84 +504,84 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
           <Card className="p-0">
             <div className="overflow-x-auto rounded-lg">
               <Table>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                    <ZoruTableHead className="w-10">
+                <TableHeader>
+                  <TableRow className="border-zoru-line hover:bg-transparent">
+                    <TableHead className="w-10">
                       <input
                         type="checkbox"
                         aria-label="Select all"
                         checked={allSelected}
                         onChange={(e) => handleToggleAll(e.target.checked)}
                       />
-                    </ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Code</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Issued to</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Value</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Balance</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Expiry</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Transferable</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+                    </TableHead>
+                    <TableHead className="text-zoru-ink-muted">Code</TableHead>
+                    <TableHead className="text-zoru-ink-muted">Issued to</TableHead>
+                    <TableHead className="text-zoru-ink-muted">Value</TableHead>
+                    <TableHead className="text-zoru-ink-muted">Balance</TableHead>
+                    <TableHead className="text-zoru-ink-muted">Expiry</TableHead>
+                    <TableHead className="text-zoru-ink-muted">Transferable</TableHead>
+                    <TableHead className="text-zoru-ink-muted">Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {rows.length === 0 ? (
-                    <ZoruTableRow className="border-zoru-line">
-                      <ZoruTableCell
+                    <TableRow className="border-zoru-line">
+                      <TableCell
                         colSpan={8}
                         className="h-24 text-center text-[13px] text-zoru-ink-muted"
                       >
                         {isPending ? 'Loading…' : 'No gift cards match these filters.'}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     rows.map((card, idx) => {
                       const id = getId(card, idx);
                       const checked = selected.has(id);
                       const issuedTo = resolveIssuedTo(card);
                       return (
-                        <ZoruTableRow key={id} className="border-zoru-line">
-                          <ZoruTableCell>
+                        <TableRow key={id} className="border-zoru-line">
+                          <TableCell>
                             <input
                               type="checkbox"
                               aria-label={`Select ${card.code ?? id}`}
                               checked={checked}
                               onChange={() => handleToggleOne(id)}
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
+                          </TableCell>
+                          <TableCell className="text-zoru-ink">
                             <EntityRowLink
                               href={`/dashboard/crm/sales/gift-cards/${id}`}
                               label={card.code || 'Untitled card'}
                               subtitle={issuedTo !== '—' ? issuedTo : undefined}
                             />
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">{issuedTo}</ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
-                            {formatAmount(card.value)}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
-                            {formatAmount(card.balance)}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
-                            {formatDate(card.expiryDate)}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-zoru-ink">
+                          </TableCell>
+                          <TableCell className="text-zoru-ink">{issuedTo}</TableCell>
+                          <TableCell className="text-zoru-ink">
+                            {fmtINR(card.value)}
+                          </TableCell>
+                          <TableCell className="text-zoru-ink">
+                            {fmtINR(card.balance)}
+                          </TableCell>
+                          <TableCell className="text-zoru-ink">
+                            {fmtDate(card.expiryDate)}
+                          </TableCell>
+                          <TableCell className="text-zoru-ink">
                             {card.transferable === true
                               ? 'Yes'
                               : card.transferable === false
                                 ? 'No'
                                 : '—'}
-                          </ZoruTableCell>
-                          <ZoruTableCell>
+                          </TableCell>
+                          <TableCell>
                             <Badge variant={getStatusVariant(card.status)}>
                               {card.status || 'draft'}
                             </Badge>
-                          </ZoruTableCell>
-                        </ZoruTableRow>
+                          </TableCell>
+                        </TableRow>
                       );
                     })
                   )}
-                </ZoruTableBody>
+                </TableBody>
               </Table>
             </div>
           </Card>

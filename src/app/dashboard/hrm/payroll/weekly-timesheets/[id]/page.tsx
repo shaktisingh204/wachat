@@ -3,6 +3,10 @@ import { getWeeklyTimesheetById, getWeeklyEntries } from '@/app/actions/worksuit
 import { LoaderCircle } from 'lucide-react';
 import { TimesheetDetailClient } from './client';
 import type { WsWeeklyTimesheet, WsWeeklyTimesheetEntry } from '@/lib/worksuite/time-types';
+import { notFound } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
+
 
 export default async function WeeklyTimesheetDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -20,24 +24,29 @@ export default async function WeeklyTimesheetDetailPage({ params }: { params: Pr
 }
 
 async function TimesheetFetcher({ id }: { id: string }) {
-  const [sheet, entries] = await Promise.all([
-    getWeeklyTimesheetById(id),
-    getWeeklyEntries(id),
-  ]);
+  try {
+    const [sheet, entries] = await Promise.all([
+      getWeeklyTimesheetById(id),
+      getWeeklyEntries(id),
+    ]);
 
-  if (!sheet || 'error' in sheet) {
+    if (!sheet) {
+      notFound();
+    }
+
+    if ('error' in sheet) {
+      throw new Error((sheet as any).error || 'Failed to load timesheet');
+    }
+
     return (
-      <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
-        Timesheet not found or could not be loaded.
-      </div>
+      <TimesheetDetailClient 
+        initialSheet={sheet as WsWeeklyTimesheet} 
+        initialEntries={entries as WsWeeklyTimesheetEntry[]} 
+        sheetId={id} 
+      />
     );
+  } catch (error) {
+    console.error('Error fetching timesheet:', error);
+    throw error;
   }
-
-  return (
-    <TimesheetDetailClient 
-      initialSheet={sheet as WsWeeklyTimesheet} 
-      initialEntries={entries as WsWeeklyTimesheetEntry[]} 
-      sheetId={id} 
-    />
-  );
 }

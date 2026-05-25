@@ -12,6 +12,8 @@
 import { ObjectId } from 'mongodb';
 
 
+import * as React from 'react';
+import { Suspense } from 'react';
 import { listPurchaseOrders } from '@/app/actions/crm/purchase-orders.actions';
 import { computePurchaseOrderKpis } from '@/app/actions/crm/purchase-orders.kpis';
 import { getSession } from '@/app/actions/user.actions';
@@ -138,7 +140,7 @@ export default async function PurchaseOrdersPage({ searchParams }: PageProps) {
   const kpi = computePurchaseOrderKpis(kpiSource);
 
   return (
-    <>
+    <Suspense fallback={null}>
       <PurchaseOrdersListClient
         orders={rows}
         page={page}
@@ -149,6 +151,6 @@ export default async function PurchaseOrdersPage({ searchParams }: PageProps) {
         currentUserId={session?.user?._id ? String(session.user._id) : null}
         error={error}
       />
-    </>
+    </Suspense>
   );
 }

@@ -37,6 +37,12 @@ import {
   ZoruCardHeader,
   ZoruCardTitle,
   Checkbox,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
   Input,
   Label,
   ZoruRadioCard,
@@ -61,6 +67,7 @@ import {
 } from "./actions";
 import {
   exceedsCostCap,
+  getRecommendedProvider,
   isComplianceRequired,
   listProviders,
   validateProvisionInput,
@@ -170,6 +177,9 @@ export function ProvisionWizard({
   const [available, setAvailable] = React.useState<AvailableNumber[]>([]);
   const [searchPending, startSearch] = useTransition();
   const [provisionPending, startProvision] = useTransition();
+  const [complianceDialogOpen, setComplianceDialogOpen] = React.useState(false);
+  const [complianceMockLoading, setComplianceMockLoading] = React.useState(false);
+  const [localComplianceReady, setLocalComplianceReady] = React.useState(complianceReady);
 
   const providers = React.useMemo(listProviders, []);
 
@@ -180,8 +190,8 @@ export function ProvisionWizard({
 
   const complianceMissing =
     compliance.required &&
-    ((compliance.key === "10dlc" && !complianceReady.tendlc) ||
-      (compliance.key === "dlt" && !complianceReady.dlt));
+    ((compliance.key === "10dlc" && !localComplianceReady.tendlc) ||
+      (compliance.key === "dlt" && !localComplianceReady.dlt));
 
   const selectedRows = React.useMemo(
     () => available.filter((n) => state.selected.has(n.e164)),
@@ -243,6 +253,23 @@ export function ProvisionWizard({
 
   function clearSelected() {
     setState((s) => ({ ...s, selected: new Set() }));
+  }
+
+  function handleRegisterCompliance() {
+    setComplianceMockLoading(true);
+    setTimeout(() => {
+      setComplianceMockLoading(false);
+      setComplianceDialogOpen(false);
+      setLocalComplianceReady((prev) => ({
+        ...prev,
+        tendlc: compliance.key === "10dlc" ? true : prev.tendlc,
+        dlt: compliance.key === "dlt" ? true : prev.dlt,
+      }));
+      toast({
+        title: "Registration submitted",
+        description: `Your ${compliance.key?.toUpperCase()} registration is now active.`,
+      });
+    }, 1500);
   }
 
   function runSearch() {
@@ -346,32 +373,39 @@ export function ProvisionWizard({
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <RadioGroup
-            value={state.provider}
-            onValueChange={(v) => patch({ provider: v as SabsmsProviderId })}
-            className="grid gap-3 md:grid-cols-2 lg:grid-cols-3"
-          >
-            {providers.map((p) => (
-              <ZoruRadioCard
-                key={p.id}
-                value={p.id}
-                label={
-                  <span className="flex items-center gap-2">
-                    {p.label}
-                    {!p.available && (
-                      <Badge variant="secondary">Phase 7</Badge>
-                    )}
-                  </span>
-                }
-                description={
-                  p.available
-                    ? "Available now."
-                    : "Routing + provisioning ships in Phase 7."
-                }
-                disabled={!p.available}
-              />
-            ))}
-          </RadioGroup>
+          <div className="space-y-4">
+            <RadioGroup
+              value={state.provider}
+              onValueChange={(v) => patch({ provider: v as SabsmsProviderId })}
+              className="grid gap-3 md:grid-cols-2 lg:grid-cols-3"
+            >
+              {providers.map((p) => (
+                <ZoruRadioCard
+                  key={p.id}
+                  value={p.id}
+                  label={
+                    <span className="flex items-center gap-2">
+                      {p.label}
+                      {!p.available && (
+                        <Badge variant="secondary">Phase 7</Badge>
+                      )}
+                    </span>
+                  }
+                  description={
+                    p.available
+                      ? "Available now."
+                      : "Routing + provisioning ships in Phase 7."
+                  }
+                  disabled={!p.available}
+                />
+              ))}
+            </RadioGroup>
+            <div className="rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-800">
+              <strong className="font-semibold">Auto-suggest: </strong>
+              {getRecommendedProvider(state.country).reason} (Recommended:{" "}
+              {providers.find(p => p.id === getRecommendedProvider(state.country).provider)?.label})
+            </div>
+          </div>
         </ZoruCardContent>
       </Card>
 
@@ -483,9 +517,23 @@ export function ProvisionWizard({
             {complianceMissing ? "missing" : "ready"}
           </ZoruAlertTitle>
           <ZoruAlertDescription>
-            {complianceMissing
-              ? `Register your ${compliance.key?.toUpperCase()} entity before provisioning a longcode in ${state.country}. Drafts are still allowed.`
-              : `${compliance.key?.toUpperCase()} registration looks ready for this workspace.`}
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div>
+                {complianceMissing
+                  ? `Register your ${compliance.key?.toUpperCase()} entity before provisioning a longcode in ${state.country}. Drafts are still allowed.`
+                  : `${compliance.key?.toUpperCase()} registration looks ready for this workspace.`}
+              </div>
+              {complianceMissing && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setComplianceDialogOpen(true)}
+                  className="bg-white/50 w-fit"
+                >
+                  Start Registration
+                </Button>
+              )}
+            </div>
           </ZoruAlertDescription>
         </Alert>
       )}
@@ -804,6 +852,43 @@ export function ProvisionWizard({
           </Button>
         </div>
       </div>
+
+      <Dialog open={complianceDialogOpen} onOpenChange={setComplianceDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Register for {compliance.key?.toUpperCase()}</DialogTitle>
+            <DialogDescription>
+              Complete your compliance registration to unlock provisioning in {state.country}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Business Name</Label>
+              <Input placeholder="Acme Corp" />
+            </div>
+            <div className="space-y-2">
+              <Label>Tax ID / Registration Number</Label>
+              <Input placeholder="XX-XXXXXXX" />
+            </div>
+            <p className="text-xs text-slate-500">
+              This is a mock registration flow for Phase 1. Submitting will mark your workspace as compliant instantly.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setComplianceDialogOpen(false)}
+              disabled={complianceMockLoading}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleRegisterCompliance} disabled={complianceMockLoading}>
+              {complianceMockLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Submit Registration
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -99,7 +100,7 @@ function CancelScheduleDialog({
           <ZoruAlertDialogDescription>
             &ldquo;{schedule.name}&rdquo; will not be sent at{' '}
             {schedule.scheduledAt
-              ? new Date(schedule.scheduledAt).toLocaleString()
+              ? fmtDate(schedule.scheduledAt)
               : 'its scheduled time'}
             . This action cannot be undone.
           </ZoruAlertDialogDescription>
@@ -378,7 +379,7 @@ export default function BroadcastSchedulerPage() {
                   label="Scheduled at"
                   value={
                     scheduledAt
-                      ? new Date(scheduledAt).toLocaleString()
+                      ? fmtDate(scheduledAt)
                       : '—'
                   }
                 />
@@ -440,7 +441,7 @@ export default function BroadcastSchedulerPage() {
                   </td>
                   <td className="px-5 py-3 text-[13px] text-zoru-ink-muted">
                     {s.scheduledAt
-                      ? new Date(s.scheduledAt).toLocaleString()
+                      ? fmtDate(s.scheduledAt)
                       : '--'}
                   </td>
                   <td className="px-5 py-3">

@@ -1,0 +1,16 @@
+import { Skeleton } from '@/components/zoruui/skeleton';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+
+export default function PettyCashNewLoading() {
+  return (
+    <EntityDetailShell
+      title="Loading..."
+      eyebrow="NEW PETTY CASH"
+      back={{ href: '/dashboard/crm/petty-cash', label: 'All floats' }}
+    >
+      <div className="space-y-4">
+        <Skeleton className="h-[200px] w-full" />
+      </div>
+    </EntityDetailShell>
+  );
+}

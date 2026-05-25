@@ -78,7 +78,7 @@ export default async function EditAwardPage({
                                             {appreciation.summary ? <span className="text-xs text-zoru-ink-muted line-clamp-2">{appreciation.summary}</span> : null}
                                         </div>
                                         <span className="text-xs text-zoru-ink-subtle whitespace-nowrap pt-1">
-                                            {new Date(appreciation.given_on as string).toLocaleDateString()}
+                                            {new Date(appreciation.given_on as string).toISOString().slice(0, 10)}
                                         </span>
                                     </li>
                                 ))}

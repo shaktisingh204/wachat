@@ -140,6 +140,29 @@ export function SalaryStructureClient({
         toast({ title: 'Export successful' });
     };
 
+    const bulkExportPDF = () => {
+        if (selected.size === 0) return;
+        const targets = filteredStructures.filter(s => selected.has(s._id.toString()));
+        import('jspdf').then(({ default: jsPDF }) => {
+            import('jspdf-autotable').then(({ default: autoTable }) => {
+                const doc = new jsPDF();
+                doc.text("Salary Structures", 14, 15);
+                const tableData = targets.map(t => {
+                    const earnings = t.components?.filter(c => c.type === 'earning').length ?? 0;
+                    const deductions = t.components?.filter(c => c.type === 'deduction').length ?? 0;
+                    return [t.name, t.description ?? '', earnings.toString(), deductions.toString()];
+                });
+                autoTable(doc, {
+                    head: [['Name', 'Description', 'Earnings Count', 'Deductions Count']],
+                    body: tableData,
+                    startY: 20,
+                });
+                doc.save(`salary_structures_${Date.now()}.pdf`);
+                toast({ title: 'PDF exported successfully' });
+            });
+        });
+    };
+
     // Real-time Updates Placeholder
     useEffect(() => {
         let ws: WebSocket;
@@ -223,7 +246,10 @@ export function SalaryStructureClient({
                         </div>
                         <div className="flex items-center gap-1">
                             <Button size="sm" variant="outline" onClick={bulkExport} disabled={pending}>
-                                <Download className="h-3.5 w-3.5" /> Export
+                                <Download className="h-3.5 w-3.5" /> CSV
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={bulkExportPDF} disabled={pending}>
+                                <Download className="h-3.5 w-3.5" /> PDF
                             </Button>
                             <Button size="sm" variant="destructive" onClick={bulkDelete} disabled={pending}>
                                 <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -303,8 +329,8 @@ export function SalaryStructureClient({
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <div className="flex flex-wrap gap-1">
-                                                            {(s.components ?? []).slice(0, 3).map((c, i) => (
-                                                                <Badge key={i} variant="secondary" className="text-[10px] px-1.5 py-0 h-4">{c.name}</Badge>
+                                                            {(s.components ?? []).slice(0, 3).map((c) => (
+                                                                <Badge key={c.name} variant="secondary" className="text-[10px] px-1.5 py-0 h-4">{c.name}</Badge>
                                                             ))}
                                                             {(s.components?.length ?? 0) > 3 && (
                                                                 <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">+{(s.components?.length ?? 0) - 3} more</Badge>

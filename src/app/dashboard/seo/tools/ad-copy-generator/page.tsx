@@ -2,31 +2,11 @@
 
 import { Card, ZoruCardContent, Input, Label, Button } from '@/components/zoruui';
 import { useState } from 'react';
-import { Copy, Check, Wand2, Loader2 } from 'lucide-react';
+import { Copy, Check, Wand2, Loader2, Download, AlertCircle } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-
-// Mock backend API call to simulate LLM generation
-const generateMockAdCopy = async (product: string, audience: string, keyword: string, tone: string) => {
-  return new Promise<{ headlines: string[], descriptions: string[] }>((resolve) => {
-    setTimeout(() => {
-      const isUrgent = tone.toLowerCase() === 'urgent';
-      const isFormal = tone.toLowerCase() === 'formal';
-
-      const headlines = [
-        isUrgent ? `Don't Miss Out on ${product}` : isFormal ? `Introducing ${product}` : `Meet ${product}, Your New Favorite`,
-        isUrgent ? `Get 50% Off ${product} Today!` : `${product} — The Best Solution for ${audience}`,
-        `${keyword.charAt(0).toUpperCase() + keyword.slice(1)} Made Easy with ${product}`
-      ];
-
-      const descriptions = [
-        `Looking for ${keyword}? Try ${product} today. Specially designed for ${audience}, it's the perfect way to get results ${isUrgent ? 'fast' : isFormal ? 'efficiently' : 'with a smile'}.`,
-        `${isUrgent ? 'Act now!' : isFormal ? 'Discover the benefits.' : 'Hey there!'} See why ${audience} trust ${product} for all their ${keyword} needs. ${isUrgent ? 'Limited time offer.' : 'Get started today.'}`
-      ];
-      
-      resolve({ headlines, descriptions });
-    }, 1500);
-  });
-};
+import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
+import { generateAdCopyAction } from './actions';
+import { Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
 
 function CopyText({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -61,8 +41,10 @@ export default function AdCopyGeneratorPage() {
   const [audience, setAudience] = useState('small business owners');
   const [keyword, setKeyword] = useState('seo tools');
   const [tone, setTone] = useState('friendly');
+  const [url, setUrl] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<{ headlines: string[], descriptions: string[] }>({
     headlines: [],
     descriptions: []
@@ -70,13 +52,69 @@ export default function AdCopyGeneratorPage() {
 
   const handleGenerate = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const generated = await generateMockAdCopy(product, audience, keyword, tone);
+      let urlContext = '';
+
+      if (url) {
+        try {
+            const fetchRes = await apiFetchUrl(url);
+            if (fetchRes.error) {
+                console.warn("Failed to fetch URL context:", fetchRes.error);
+                setError(`Could not fetch URL context: ${fetchRes.error}`);
+            } else if (fetchRes.body) {
+                const parsed = parseHtml(fetchRes.body);
+                urlContext = `Title: ${parsed.title}\nDescription: ${parsed.metaDescription}\nHeadings: ${parsed.h1.join(', ')} ${parsed.h2.join(', ')}`;
+            }
+        } catch (urlErr: any) {
+            console.warn("Error fetching URL context:", urlErr);
+            setError(`Failed to extract context from URL: ${urlErr.message}`);
+        }
+      }
+
+      const generated = await generateAdCopyAction({
+        product,
+        audience,
+        keyword,
+        tone,
+        urlContext
+      });
+
       setResults(generated);
-    } catch (error) {
-      console.error('Error generating copy', error);
+    } catch (err: any) {
+      console.error('Error generating copy', err);
+      setError(err.message || 'An unexpected error occurred while generating ad copy.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const exportCSV = () => {
+    let csv = 'Type,Text\n';
+    results.headlines.forEach(h => {
+        csv += `Headline,"${h.replace(/"/g, '""')}"\n`;
+    });
+    results.descriptions.forEach(d => {
+        csv += `Description,"${d.replace(/"/g, '""')}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = 'ad-copy.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+  };
+
+  const copyAll = async () => {
+    const text = `Headlines:\n${results.headlines.join('\n')}\n\nDescriptions:\n${results.descriptions.join('\n')}`;
+    try {
+        await navigator.clipboard.writeText(text);
+    } catch (err) {
+        console.error('Failed to copy all', err);
     }
   };
 
@@ -91,10 +129,21 @@ export default function AdCopyGeneratorPage() {
             <option value="friendly">Friendly</option>
             <option value="urgent">Urgent</option>
             <option value="formal">Formal</option>
+            <option value="creative">Creative</option>
+            <option value="humorous">Humorous</option>
           </select>
         </div>
+        <div className="space-y-1 md:col-span-2"><Label>Reference URL (optional context)</Label><Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/product" /></div>
       </div>
       
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <ZoruAlertTitle>Notice</ZoruAlertTitle>
+            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+        </Alert>
+      )}
+
       <Button 
         onClick={handleGenerate} 
         disabled={isLoading || !product || !audience || !keyword}
@@ -107,6 +156,11 @@ export default function AdCopyGeneratorPage() {
       {(results.headlines.length > 0 || results.descriptions.length > 0) && (
         <Card className="animate-in fade-in slide-in-from-bottom-2 duration-300">
           <ZoruCardContent className="p-4 space-y-4">
+            <div className="flex justify-end gap-2 mb-2">
+                <Button variant="outline" size="sm" onClick={copyAll}><Copy className="w-4 h-4 mr-2" /> Copy All</Button>
+                <Button variant="outline" size="sm" onClick={exportCSV}><Download className="w-4 h-4 mr-2" /> Export CSV</Button>
+            </div>
+            
             {results.headlines.length > 0 && (
               <div>
                 <div className="text-sm font-semibold text-zoru-ink mb-2">Headlines</div>

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 /**
  * Candidates list — §1D.1 rebuild.
  *
@@ -22,11 +23,21 @@
 import { getCandidates } from '@/app/actions/hr.actions';
 import { CandidatesView } from './_components/candidates-view';
 
-export default async function CandidatesPage() {
+export const dynamic = 'force-dynamic';
+
+async function CandidatesPageContainer() {
   const raw = await getCandidates();
   const candidates = (raw as any[]).map((c) => ({
     ...c,
     _id: String(c._id),
   }));
   return <CandidatesView initial={candidates as any} />;
+}
+
+export default function CandidatesPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CandidatesPageContainer  />
+    </Suspense>
+  );
 }

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Suspense } from 'react';
 import { getCustomObjects } from '@/app/actions/platform/custom-object-builder.actions';
 import { CustomObjectClient } from './client';

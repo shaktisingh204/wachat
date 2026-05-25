@@ -70,6 +70,11 @@ export default function CrmWebhookDetailPage() {
     const [selected, setSelected] = React.useState<Set<string>>(() => new Set());
     const [saving, setSaving] = React.useState(false);
     const [deleting, setDeleting] = React.useState(false);
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     React.useEffect(() => {
         let mounted = true;
@@ -163,7 +168,7 @@ export default function CrmWebhookDetailPage() {
         router.push('/dashboard/crm/settings/webhooks');
     };
 
-    if (loading) {
+    if (!isMounted || loading) {
         return (
             <div className="flex min-h-full flex-col gap-4 p-4">
                 <Skeleton className="h-8 w-1/3" />

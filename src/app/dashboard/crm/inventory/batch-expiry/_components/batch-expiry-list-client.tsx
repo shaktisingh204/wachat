@@ -89,11 +89,11 @@ export interface BatchExpiryKpi {
 
 const SOON_DAYS = 30;
 
-function daysUntil(expiry: string | undefined): number | null {
+function daysUntil(expiry: string | undefined, now: number): number | null {
   if (!expiry) return null;
   const d = new Date(expiry).getTime();
   if (Number.isNaN(d)) return null;
-  return Math.floor((d - Date.now()) / 86_400_000);
+  return Math.floor((d - now) / 86_400_000);
 }
 
 interface ExpiryFlag {
@@ -102,8 +102,8 @@ interface ExpiryFlag {
   daysLeft: number | null;
 }
 
-function expiryFlag(expiry: string | undefined): ExpiryFlag {
-  const days = daysUntil(expiry);
+function expiryFlag(expiry: string | undefined, now: number): ExpiryFlag {
+  const days = daysUntil(expiry, now);
   if (days == null) return { expired: false, soon: false, daysLeft: null };
   return {
     expired: days < 0,
@@ -175,6 +175,7 @@ function KpiCard({
 interface BatchExpiryListClientProps {
   batches: CrmItemBatchDoc[];
   kpi: BatchExpiryKpi;
+  serverNow?: number;
 }
 
 /* ─── Statuses for the filter dropdown ───────────────────────────── */
@@ -199,7 +200,11 @@ const EXPIRY_OPTIONS: Array<{ value: string; label: string }> = [
 export function BatchExpiryListClient({
   batches: serverBatches,
   kpi,
+  serverNow,
 }: BatchExpiryListClientProps) {
+  // Use client timestamp after mount if desired, but for SSR hydration we use serverNow
+  // Since we only need it for deterministic render, we can just use serverNow ?? Date.now()
+  const now = serverNow ?? Date.now();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useZoruToast();
@@ -274,7 +279,7 @@ export function BatchExpiryListClient({
       if (locationFilter && b.locationId !== locationFilter) return false;
 
       /* Expiry bucket filter */
-      const flag = expiryFlag(b.expiryDate);
+      const flag = expiryFlag(b.expiryDate, now);
       if (expiryFilter === 'expired' && !flag.expired) return false;
       if (expiryFilter === 'soon' && !flag.soon) return false;
       if (expiryFilter === 'safe' && (flag.expired || flag.soon)) return false;
@@ -285,7 +290,7 @@ export function BatchExpiryListClient({
 
       return true;
     });
-  }, [serverBatches, query, statusFilter, locationFilter, expiryFilter, kpiFilter]);
+  }, [serverBatches, query, statusFilter, locationFilter, expiryFilter, kpiFilter, now]);
 
   /* Selection helpers */
   const allSelectedOnPage =
@@ -678,7 +683,7 @@ export function BatchExpiryListClient({
                   </ZoruTableRow>
                 ) : (
                   filtered.map((b) => {
-                    const flag = expiryFlag(b.expiryDate);
+                    const flag = expiryFlag(b.expiryDate, now);
                     const danger = flag.expired || flag.soon;
                     return (
                       <ZoruTableRow

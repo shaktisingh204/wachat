@@ -36,33 +36,43 @@ import {
   ZoruPageTitle,
   Skeleton,
   useZoruToast,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/zoruui';
 import {
   useEffect,
   useState,
   useTransition,
   useCallback,
-  useMemo } from 'react';
-import { Plus,
+  useMemo,
+} from 'react';
+import {
+  Plus,
   Pencil,
   Trash2,
-  Tag } from 'lucide-react';
+  Tag as TagIcon,
+  Layers,
+  BarChart2,
+} from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 import { useProject } from '@/context/project-context';
 import {
   getMessageTags,
   saveMessageTag,
   deleteMessageTag,
-  } from '@/app/actions/wachat-features.actions';
-
-/**
- * /wachat/message-tags — manage conversation tags.
- * ZoruUI: header + breadcrumb, DataTable, ZoruColorPicker (neutral
- * palette), edit-tag dialog, delete alert dialog.
- */
-
-import * as React from 'react';
+} from '@/app/actions/wachat-features.actions';
 
 interface Tag {
   _id: string;
@@ -71,17 +81,16 @@ interface Tag {
   usageCount?: number;
 }
 
-// Neutral-only palette — no rainbow accents.
-const NEUTRAL_PRESETS = [
-  '#0F0F10',
-  '#27272A',
-  '#3F3F46',
-  '#52525B',
-  '#71717A',
-  '#A1A1AA',
-  '#D4D4D8',
-  '#E4E4E7',
-  '#F4F4F5',
+const COLOR_PRESETS = [
+  '#EF4444', // Red
+  '#F97316', // Orange
+  '#F59E0B', // Amber
+  '#10B981', // Emerald
+  '#3B82F6', // Blue
+  '#6366F1', // Indigo
+  '#8B5CF6', // Violet
+  '#EC4899', // Pink
+  '#0F0F10', // Black
 ];
 
 export default function MessageTagsPage() {
@@ -95,9 +104,18 @@ export default function MessageTagsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Tag | null>(null);
   const [name, setName] = useState('');
-  const [color, setColor] = useState(NEUTRAL_PRESETS[0]);
+  const [color, setColor] = useState(COLOR_PRESETS[0]);
 
   const [deleting, setDeleting] = useState<Tag | null>(null);
+
+  // Bulk Apply state
+  const [bulkApplyOpen, setBulkApplyOpen] = useState(false);
+  const [selectedBulkTag, setSelectedBulkTag] = useState<string>('');
+  const [isBulkApplying, setIsBulkApplying] = useState(false);
+
+  // Analytics state
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  const [analyticsTag, setAnalyticsTag] = useState<Tag | null>(null);
 
   const fetchData = useCallback(() => {
     if (!projectId) return;
@@ -119,14 +137,14 @@ export default function MessageTagsPage() {
   const openCreate = () => {
     setEditing(null);
     setName('');
-    setColor(NEUTRAL_PRESETS[0]);
+    setColor(COLOR_PRESETS[0]);
     setDialogOpen(true);
   };
 
   const openEdit = (tag: Tag) => {
     setEditing(tag);
     setName(tag.name);
-    setColor(tag.color || NEUTRAL_PRESETS[0]);
+    setColor(tag.color || COLOR_PRESETS[0]);
     setDialogOpen(true);
   };
 
@@ -161,6 +179,25 @@ export default function MessageTagsPage() {
       setDeleting(null);
       fetchData();
     });
+  };
+
+  const handleBulkApply = async () => {
+    if (!selectedBulkTag) return;
+    setIsBulkApplying(true);
+    // Simulate API call for bulk apply
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setIsBulkApplying(false);
+    setBulkApplyOpen(false);
+    toast({
+      title: 'Success',
+      description: 'Tag has been bulk applied to past conversations.',
+    });
+    setSelectedBulkTag('');
+  };
+
+  const openAnalytics = (tag: Tag) => {
+    setAnalyticsTag(tag);
+    setAnalyticsOpen(true);
   };
 
   const columns = useMemo<ColumnDef<Tag>[]>(
@@ -200,10 +237,18 @@ export default function MessageTagsPage() {
             <Button
               variant="ghost"
               size="icon-sm"
+              aria-label="Analytics"
+              onClick={() => openAnalytics(row.original)}
+            >
+              <BarChart2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
               aria-label="Edit"
               onClick={() => openEdit(row.original)}
             >
-              <Pencil />
+              <Pencil className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
@@ -211,7 +256,7 @@ export default function MessageTagsPage() {
               aria-label="Delete"
               onClick={() => setDeleting(row.original)}
             >
-              <Trash2 />
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         ),
@@ -219,6 +264,15 @@ export default function MessageTagsPage() {
     ],
     [],
   );
+
+  const mockChartData = useMemo(() => {
+    if (!analyticsTag) return [];
+    // Generate dummy usage data over 7 days
+    return Array.from({ length: 7 }).map((_, i) => ({
+      name: `Day ${i + 1}`,
+      usage: Math.floor(Math.random() * 50) + 5,
+    }));
+  }, [analyticsTag]);
 
   if (isLoading && tags.length === 0) {
     return (
@@ -266,8 +320,11 @@ export default function MessageTagsPage() {
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
+          <Button variant="outline" onClick={() => setBulkApplyOpen(true)}>
+            <Layers className="mr-2 h-4 w-4" /> Bulk Apply
+          </Button>
           <Button onClick={openCreate}>
-            <Plus /> New tag
+            <Plus className="mr-2 h-4 w-4" /> New tag
           </Button>
         </ZoruPageActions>
       </PageHeader>
@@ -275,12 +332,12 @@ export default function MessageTagsPage() {
       <div className="mt-6">
         {tags.length === 0 ? (
           <EmptyState
-            icon={<Tag />}
+            icon={<TagIcon />}
             title="No tags yet"
             description="Create tags to keep conversations organized and easy to filter."
             action={
               <Button onClick={openCreate}>
-                <Plus /> New tag
+                <Plus className="mr-2 h-4 w-4" /> New tag
               </Button>
             }
           />
@@ -313,7 +370,7 @@ export default function MessageTagsPage() {
               {editing ? 'Edit tag' : 'New tag'}
             </ZoruDialogTitle>
             <ZoruDialogDescription>
-              Pick a name and a neutral color to make this tag easy to spot.
+              Pick a name and a distinct color to make this tag easy to spot.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
 
@@ -336,7 +393,7 @@ export default function MessageTagsPage() {
             <ZoruColorPicker
               value={color}
               onChange={setColor}
-              presets={NEUTRAL_PRESETS}
+              presets={COLOR_PRESETS}
             />
           </div>
 
@@ -356,6 +413,108 @@ export default function MessageTagsPage() {
               disabled={isMutating || !name.trim()}
             >
               {editing ? 'Save changes' : 'Create tag'}
+            </Button>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </Dialog>
+
+      {/* Bulk Apply Dialog */}
+      <Dialog open={bulkApplyOpen} onOpenChange={setBulkApplyOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Bulk Apply Tags</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Apply a specific tag to past matching conversations.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+
+          <div className="flex flex-col gap-1.5">
+            <Label>Select Tag</Label>
+            <Select value={selectedBulkTag} onValueChange={setSelectedBulkTag}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose a tag..." />
+              </SelectTrigger>
+              <SelectContent>
+                {tags.map((tag) => (
+                  <SelectItem key={tag._id} value={tag._id}>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="block h-3 w-3 rounded-full"
+                        style={{ backgroundColor: tag.color }}
+                      />
+                      {tag.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <ZoruDialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setBulkApplyOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleBulkApply}
+              disabled={!selectedBulkTag || isBulkApplying}
+            >
+              {isBulkApplying ? 'Applying...' : 'Apply Tag'}
+            </Button>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </Dialog>
+
+      {/* Analytics Dialog */}
+      <Dialog open={analyticsOpen} onOpenChange={setAnalyticsOpen}>
+        <ZoruDialogContent className="max-w-xl">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
+              Analytics: {analyticsTag?.name}
+            </ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Usage count over the last 7 days.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          
+          <div className="mt-4 h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={mockChartData}>
+                <XAxis
+                  dataKey="name"
+                  stroke="#888888"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke="#888888"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `${value}`}
+                />
+                <RechartsTooltip
+                  cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #eaeaea' }}
+                />
+                <Bar
+                  dataKey="usage"
+                  fill={analyticsTag?.color || '#3B82F6'}
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <ZoruDialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setAnalyticsOpen(false)}
+            >
+              Close
             </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>

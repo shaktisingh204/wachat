@@ -23,7 +23,7 @@ import {
 } from '@/components/zoruui';
 import { createPermissionGroup } from '@/app/actions/hrm-permission-groups.actions';
 import type { ModulePermission } from '@/app/actions/hrm-permission-groups.actions';
-import { PermissionMatrix } from './permission-matrix';
+import { GroupForm } from './group-form';
 
 interface NewGroupSheetProps {
   onCreated: () => void;
@@ -101,35 +101,14 @@ export function NewGroupSheet({ onCreated }: NewGroupSheetProps): React.JSX.Elem
 
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto py-4">
           {/* Name */}
-          <div className="space-y-2">
-            <Label htmlFor="new-grp-name">
-              Group name <span className="text-zoru-danger-ink">*</span>
-            </Label>
-            <Input
-              id="new-grp-name"
-              placeholder="e.g. Team Lead, Developer, Manager"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <Label htmlFor="new-grp-desc">Description</Label>
-            <Textarea
-              id="new-grp-desc"
-              placeholder="Optional notes about this permission group…"
-              rows={2}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-
-          {/* Permission matrix */}
-          <div className="space-y-2">
-            <Label>Module Permissions</Label>
-            <PermissionMatrix value={permissions} onChange={setPermissions} />
-          </div>
+          <GroupForm
+            name={name}
+            description={description}
+            permissions={permissions}
+            onNameChange={setName}
+            onDescriptionChange={setDescription}
+            onPermissionsChange={setPermissions}
+          />
         </div>
 
         <ZoruSheetFooter className="gap-2 pt-4">

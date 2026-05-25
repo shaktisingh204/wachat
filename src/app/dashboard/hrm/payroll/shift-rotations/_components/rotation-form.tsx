@@ -23,7 +23,8 @@ import { ArrowLeft,
   LoaderCircle,
   Plus,
   Save,
-  Trash2 } from 'lucide-react';
+  Trash2,
+  Download } from 'lucide-react';
 
 // TODO 1E.sweep: frequency/weekday dropdowns -> <EnumFormField enumName="weekday|recurringFrequency">; shift -> <EntityFormField entity="...">; employees -> <EntityMultiFormField entity="employee">. See plan §1E.
 
@@ -93,6 +94,85 @@ function newRowId(): string {
     return `row_${Math.random().toString(36).slice(2, 9)}`;
 }
 
+
+const PatternRowItem = React.memo(function PatternRowItem({
+    row,
+    cycleDays,
+    shifts,
+    updateRow,
+    removeRow,
+}: {
+    row: PatternRow;
+    cycleDays: number;
+    shifts: CrmShiftDoc[];
+    updateRow: (rowId: string, patch: Partial<PatternRow>) => void;
+    removeRow: (rowId: string) => void;
+}) {
+    const shift = shifts.find((s) => s._id === row.shiftId);
+    return (
+        <div className="grid items-end gap-3 rounded-md border border-zoru-line bg-zoru-bg p-3 md:grid-cols-[100px_1fr_auto_auto]">
+            <div className="space-y-1.5">
+                <Label className="text-[12px]">Day offset</Label>
+                <Input
+                    type="number"
+                    min={0}
+                    max={Math.max(0, cycleDays - 1)}
+                    value={row.dayOffset}
+                    onChange={(e) =>
+                        updateRow(row.rowId, {
+                            dayOffset: Number(e.target.value) || 0,
+                        })
+                    }
+                />
+            </div>
+            <div className="space-y-1.5">
+                <Label className="text-[12px]">Shift</Label>
+                <Select
+                    value={row.shiftId || ''}
+                    onValueChange={(v) => updateRow(row.rowId, { shiftId: v })}
+                    disabled={row.isOff}
+                >
+                    <ZoruSelectTrigger>
+                        <ZoruSelectValue
+                            placeholder={
+                                row.isOff ? 'Day off' : shift?.name || 'Pick a shift'
+                            }
+                        />
+                    </ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                        {shifts.map((s) => (
+                            <ZoruSelectItem key={s._id} value={s._id}>
+                                {s.name}
+                            </ZoruSelectItem>
+                        ))}
+                    </ZoruSelectContent>
+                </Select>
+            </div>
+            <label className="flex items-center gap-2 pb-2 text-[12.5px] text-zoru-ink">
+                <Checkbox
+                    checked={!!row.isOff}
+                    onCheckedChange={(v) =>
+                        updateRow(row.rowId, {
+                            isOff: Boolean(v),
+                            shiftId: v ? '' : row.shiftId,
+                        })
+                    }
+                />
+                Off
+            </label>
+            <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => removeRow(row.rowId)}
+                aria-label="Remove pattern row"
+            >
+                <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
+        </div>
+    );
+});
+
 export function RotationForm({ initialData, shifts }: RotationFormProps) {
     const router = useRouter();
     const { toast } = useZoruToast();
@@ -110,6 +190,10 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
     // Manage default dates on the client to prevent hydration mismatch
     const [defaultStartDate, setDefaultStartDate] = React.useState<string>(() => {
         return toDateInput(initialData?.startDate) || '';
+    });
+    
+    const [defaultEndDate, setDefaultEndDate] = React.useState<string>(() => {
+        return toDateInput(initialData?.endDate) || '';
     });
     
     React.useEffect(() => {
@@ -142,6 +226,28 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state]);
+
+    React.useEffect(() => {
+        let ws: WebSocket;
+        try {
+            ws = new WebSocket(process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001');
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'ROTATION_UPDATED' && initialData?._id === data.id) {
+                        toast({
+                            title: 'Rotation Updated',
+                            description: 'Another user has modified this rotation in real-time.',
+                        });
+                    }
+                } catch (err) {}
+            };
+        } catch (err) {}
+        
+        return () => {
+            if (ws) ws.close();
+        };
+    }, [initialData?._id, toast]);
 
     const updateRow = React.useCallback((rowId: string, patch: Partial<PatternRow>) => {
         setPattern((prev) =>
@@ -189,6 +295,28 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
             ),
         [pattern, shifts],
     );
+
+    const exportToCsv = React.useCallback(() => {
+        const csvRows = [];
+        csvRows.push(['Day Offset', 'Shift Name', 'Is Off']);
+        for (const row of pattern) {
+            const shift = shifts.find(s => s._id === row.shiftId);
+            csvRows.push([
+                row.dayOffset,
+                shift ? shift.name : '',
+                row.isOff ? 'Yes' : 'No'
+            ]);
+        }
+        const csvContent = csvRows.map(e => e.join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'pattern.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }, [pattern, shifts]);
 
     return (
         <Card className="p-6">
@@ -283,7 +411,7 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                             id="endDate"
                             name="endDate"
                             type="date"
-                            defaultValue={toDateInput(initialData?.endDate)}
+                            defaultValue={defaultEndDate}
                         />
                     </div>
                 </div>
@@ -335,14 +463,24 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                                 mark it as off.
                             </div>
                         </div>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={addRow}
-                        >
-                            <Plus className="mr-1 h-3.5 w-3.5" /> Add day
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={exportToCsv}
+                            >
+                                <Download className="mr-1 h-3.5 w-3.5" /> Export CSV
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={addRow}
+                            >
+                                <Plus className="mr-1 h-3.5 w-3.5" /> Add day
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -351,80 +489,16 @@ export function RotationForm({ initialData, shifts }: RotationFormProps) {
                                 No pattern entries yet. Add a day to start.
                             </div>
                         ) : (
-                            pattern.map((row) => {
-                                const shift = shifts.find((s) => s._id === row.shiftId);
-                                return (
-                                    <div
-                                        key={row.rowId}
-                                        className="grid items-end gap-3 rounded-md border border-zoru-line bg-zoru-bg p-3 md:grid-cols-[100px_1fr_auto_auto]"
-                                    >
-                                        <div className="space-y-1.5">
-                                            <Label className="text-[12px]">
-                                                Day offset
-                                            </Label>
-                                            <Input
-                                                type="number"
-                                                min={0}
-                                                max={Math.max(0, cycleDays - 1)}
-                                                value={row.dayOffset}
-                                                onChange={(e) =>
-                                                    updateRow(row.rowId, {
-                                                        dayOffset: Number(e.target.value) || 0,
-                                                    })
-                                                }
-                                            />
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <Label className="text-[12px]">Shift</Label>
-                                            <Select
-                                                value={row.shiftId || ''}
-                                                onValueChange={(v) =>
-                                                    updateRow(row.rowId, { shiftId: v })
-                                                }
-                                                disabled={row.isOff}
-                                            >
-                                                <ZoruSelectTrigger>
-                                                    <ZoruSelectValue
-                                                        placeholder={
-                                                            row.isOff
-                                                                ? 'Day off'
-                                                                : shift?.name || 'Pick a shift'
-                                                        }
-                                                    />
-                                                </ZoruSelectTrigger>
-                                                <ZoruSelectContent>
-                                                    {shifts.map((s) => (
-                                                        <ZoruSelectItem key={s._id} value={s._id}>
-                                                            {s.name}
-                                                        </ZoruSelectItem>
-                                                    ))}
-                                                </ZoruSelectContent>
-                                            </Select>
-                                        </div>
-                                        <label className="flex items-center gap-2 pb-2 text-[12.5px] text-zoru-ink">
-                                            <Checkbox
-                                                checked={!!row.isOff}
-                                                onCheckedChange={(v) =>
-                                                    updateRow(row.rowId, {
-                                                        isOff: Boolean(v),
-                                                        shiftId: v ? '' : row.shiftId,
-                                                    })
-                                                }
-                                            />
-                                            Off
-                                        </label>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => removeRow(row.rowId)}
-                                            aria-label="Remove pattern row"
-                                        >
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                    </div>
-                                );
-                            })
+                            pattern.map((row) => (
+                                <PatternRowItem
+                                    key={row.rowId}
+                                    row={row}
+                                    cycleDays={cycleDays}
+                                    shifts={shifts}
+                                    updateRow={updateRow}
+                                    removeRow={removeRow}
+                                />
+                            ))
                         )}
                     </div>
                 </div>

@@ -17,24 +17,9 @@ import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entit
 import { getGiftCardById } from '@/app/actions/crm-gift-cards.actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { GiftCardActions } from './gift-card-actions';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-
-function fmtDate(v: unknown): string {
-    if (!v) return '—';
-    const d = new Date(v as string | number | Date);
-    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-IN');
-}
-
-function fmtMoney(n: unknown, currency = 'INR'): string {
-    const num = typeof n === 'number' ? n : parseFloat(String(n ?? ''));
-    if (isNaN(num)) return '—';
-    try {
-        return new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(num);
-    } catch {
-        return `${currency} ${num}`;
-    }
-}
 
 const STATUS_TONE: Record<string, EntityStatusTone> = {
     active: 'green',
@@ -104,8 +89,8 @@ export default async function GiftCardDetailPage({
                     <Field label="Customer email">
                         {(card.issuedToEmail as string) || '—'}
                     </Field>
-                    <Field label="Value">{fmtMoney(card.value)}</Field>
-                    <Field label="Balance">{fmtMoney(card.balance)}</Field>
+                    <Field label="Value">{fmtINR(card.value)}</Field>
+                    <Field label="Balance">{fmtINR(card.balance)}</Field>
                     <Field label="Expiry">{fmtDate(card.expiryDate)}</Field>
                     <Field label="Transferable">
                         {card.transferable === true ? 'Yes' : 'No'}

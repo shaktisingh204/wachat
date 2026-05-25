@@ -16,7 +16,7 @@ export async function getDripCampaigns() {
     return records.map(r => ({ ...r, _id: r._id.toString() }));
   } catch (error) {
     console.error('Error fetching DripCampaigns:', error);
-    return [];
+    throw new Error('Failed to fetch DripCampaigns');
   }
 }
 

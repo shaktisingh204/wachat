@@ -61,7 +61,7 @@ function fmtMoney(value?: number | null, currency = 'INR'): string {
 function fmtDate(v?: string | null): string {
   if (!v) return '—';
   const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US', { timeZone: 'UTC' });
 }
 
 export function QuotationTable({

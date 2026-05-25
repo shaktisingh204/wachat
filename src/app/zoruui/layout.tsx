@@ -1,5 +1,6 @@
 import { ZoruProvider } from '@/components/zoruui';
 import "@/styles/zoruui.css";
+import { ZoruGalleryLayout } from "./ZoruGalleryLayout";
 
 export const metadata = {
   title: "ZoruUI — SabNode",
@@ -11,5 +12,9 @@ export default function ZoruuiLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <ZoruProvider as="main">{children}</ZoruProvider>;
+  return (
+    <ZoruProvider as="main">
+      <ZoruGalleryLayout>{children}</ZoruGalleryLayout>
+    </ZoruProvider>
+  );
 }

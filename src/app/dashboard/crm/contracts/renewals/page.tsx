@@ -46,6 +46,10 @@ import {
   X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { gsap } from 'gsap';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(useGSAP);
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -100,7 +104,7 @@ function KpiCard({
         ? 'border-amber-400/40 bg-amber-50/40 dark:bg-amber-900/10'
         : 'border-zoru-line bg-zoru-surface';
   return (
-    <div className={`flex flex-col gap-1 rounded-lg border p-3 ${bg}`}>
+    <div className={`kpi-card flex flex-col gap-1 rounded-lg border p-3 ${bg}`}>
       <div className="flex items-center gap-1.5 text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
         {icon}
         {label}
@@ -142,6 +146,27 @@ export default function ContractRenewalsPage() {
   React.useEffect(() => {
     refresh();
   }, [refresh]);
+
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      if (isLoading) return;
+      
+      gsap.fromTo(
+        '.kpi-card',
+        { y: 10, opacity: 0 },
+        { y: 0, opacity: 1, stagger: 0.05, duration: 0.3, ease: 'power2.out', clearProps: 'all' }
+      );
+
+      gsap.fromTo(
+        '.table-row-animate',
+        { x: -10, opacity: 0 },
+        { x: 0, opacity: 1, stagger: 0.03, duration: 0.25, ease: 'power1.out', clearProps: 'all' }
+      );
+    },
+    { scope: containerRef, dependencies: [rows, filtered, isLoading] }
+  );
 
   /* KPI computations */
   const now = Date.now();
@@ -244,6 +269,31 @@ export default function ContractRenewalsPage() {
     });
   }, [selected, router, toast, refresh]);
 
+  /* Bulk remind */
+  const runBulkRemind = React.useCallback(() => {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    
+    const selectedRows = filtered.filter(r => selected.has(r._id));
+    
+    startBulkTransition(async () => {
+      let failed = 0;
+      for (const row of selectedRows) {
+        const res = await sendExpirationReminder(row.contract_id);
+        if (!res.success) failed += 1;
+      }
+      if (failed === 0) {
+        toast({ title: `Sent reminders for ${ids.length} contract${ids.length === 1 ? '' : 's'}` });
+      } else {
+        toast({
+          title: `Sent ${ids.length - failed} reminders, ${failed} failed`,
+          variant: 'destructive',
+        });
+      }
+      setSelected(new Set());
+    });
+  }, [selected, filtered, toast]);
+
   /* Export CSV */
   const handleExportCsv = React.useCallback(() => {
     const exportRows = filtered.filter((r) => selected.size === 0 || selected.has(r._id));
@@ -325,6 +375,14 @@ export default function ContractRenewalsPage() {
               </Button>
               <Button
                 size="sm"
+                variant="outline"
+                onClick={runBulkRemind}
+                disabled={bulkPending}
+              >
+                <Clock className="h-3.5 w-3.5" /> Remind
+              </Button>
+              <Button
+                size="sm"
                 variant="destructive"
                 onClick={() => setBulkDeletePending(true)}
                 disabled={bulkPending}
@@ -338,8 +396,9 @@ export default function ContractRenewalsPage() {
           ) : null
         }
       >
-        {/* KPI strip */}
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div ref={containerRef} className="space-y-4">
+          {/* KPI strip */}
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <KpiCard
             label="Total renewals"
             value={kpi.total.toLocaleString()}
@@ -376,8 +435,8 @@ export default function ContractRenewalsPage() {
         )}
         
         {kpi.due30 > 0 && (
-          <Alert className="mt-4 bg-amber-50/50 text-amber-900 border-amber-200 dark:bg-amber-900/10 dark:text-amber-400 dark:border-amber-900/50">
-            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-500" />
+          <Alert variant="warning" className="mt-4">
+            <AlertTriangle className="h-4 w-4" />
             <ZoruAlertTitle>Upcoming Renewals</ZoruAlertTitle>
             <ZoruAlertDescription>
               There {kpi.due30 === 1 ? 'is' : 'are'} {kpi.due30} contract renewal{kpi.due30 === 1 ? '' : 's'} due within the next 30 days.
@@ -434,7 +493,7 @@ export default function ContractRenewalsPage() {
                   </ZoruTableRow>
                 ) : (
                   filtered.map((r) => (
-                    <ZoruTableRow key={r._id} className="border-zoru-line">
+                    <ZoruTableRow key={r._id} className="table-row-animate border-zoru-line">
                       <ZoruTableCell className="pl-3">
                         <Checkbox
                           checked={selected.has(r._id)}
@@ -494,6 +553,7 @@ export default function ContractRenewalsPage() {
             </Table>
           </div>
         </Card>
+        </div>
       </EntityListShell>
 
       {/* Single delete */}

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import {
     ArrowDownLeft,
     ArrowUpRight,
@@ -8,9 +9,14 @@ import {
     Repeat,
     UserCircle,
     Wallet,
+    Plus,
+    Sparkles,
+    Globe,
+    Zap,
 } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { Button, Skeleton, Card } from '@/components/zoruui';
 
 import {
     HubKpiGrid,
@@ -49,7 +55,74 @@ const QUICK_LINKS: HubQuickLink[] = [
     { href: '/dashboard/crm/banking/reconciliation', title: 'Reconciliation', description: 'Match statement lines against booked entries.', icon: RefreshCcw },
 ];
 
-export default async function CrmBankingHubPage() {
+const SMART_FEATURES = [
+    {
+        title: 'Bank Sync (Plaid)',
+        description: 'Automatically fetch real-time transactions from connected institutions.',
+        icon: Zap,
+        action: 'Connect Bank',
+    },
+    {
+        title: 'AI Auto-Reconciliation',
+        description: 'Automatically match high-confidence statement lines with booked entries.',
+        icon: Sparkles,
+        action: 'Run Matcher',
+    },
+    {
+        title: 'Multi-Currency Adjustments',
+        description: 'Automated FX gain/loss entries based on real-time exchange rates.',
+        icon: Globe,
+        action: 'Review Rates',
+    }
+];
+
+export default function CrmBankingHubPage() {
+    return (
+        <EntityListShell
+            title="Banking"
+            subtitle="Bank accounts, statements, and reconciliation against your books."
+            primaryAction={
+                <Button variant="default" className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Connect Bank
+                </Button>
+            }
+        >
+            <Suspense fallback={<BankingDashboardSkeleton />}>
+                <BankingDashboardData />
+            </Suspense>
+        </EntityListShell>
+    );
+}
+
+function BankingDashboardSkeleton() {
+    return (
+        <div className="flex flex-col gap-6" aria-hidden="true">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                    <Skeleton key={i} className="h-32 w-full rounded-xl" />
+                ))}
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-36 w-full rounded-xl" />
+                ))}
+            </div>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                    <Skeleton className="h-64 w-full rounded-xl" />
+                </div>
+                <div className="lg:col-span-1 flex flex-col gap-3">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <Skeleton key={i} className="h-32 w-full rounded-xl" />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+async function BankingDashboardData() {
     const monthStart = startOfMonth();
 
     const [totalBalance, accountsCount, monthTxnCount, reconciledCount, totalTxnCount, recentTxns] = await Promise.all([
@@ -82,7 +155,7 @@ export default async function CrmBankingHubPage() {
         },
         {
             label: 'Txns This Month',
-            value: monthTxnCount.toLocaleString(),
+            value: monthTxnCount.toLocaleString('en-US'),
             icon: Repeat,
             href: '/dashboard/crm/banking/bank-transactions',
         },
@@ -113,20 +186,51 @@ export default async function CrmBankingHubPage() {
     }));
 
     return (
-        <EntityListShell
-            title="Banking"
-            subtitle="Bank accounts, statements, and reconciliation against your books."
-        >
-            <div className="flex flex-col gap-6">
-                <HubKpiGrid kpis={kpis} />
+        <div className="flex flex-col gap-6">
+            <HubKpiGrid kpis={kpis} />
+            
+            <div className="flex flex-col gap-3">
+                <h2 className="text-[14px] font-medium text-zoru-ink px-1">Navigation</h2>
                 <HubQuickLinkGrid links={QUICK_LINKS} />
-                <HubRecentList
-                    title="Recent transactions"
-                    rows={recentRows}
-                    emptyHint="No bank transactions yet."
-                    viewAllHref="/dashboard/crm/banking/bank-transactions"
-                />
             </div>
-        </EntityListShell>
+
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                    <HubRecentList
+                        title="Recent transactions"
+                        rows={recentRows}
+                        emptyHint="No bank transactions yet."
+                        viewAllHref="/dashboard/crm/banking/bank-transactions"
+                    />
+                </div>
+                
+                <div className="flex flex-col gap-3 lg:col-span-1">
+                    <h2 className="text-[14px] font-medium text-zoru-ink px-1">Smart Features</h2>
+                    {SMART_FEATURES.map((feat) => {
+                        const Icon = feat.icon;
+                        return (
+                            <Card key={feat.title} className="p-4 flex flex-col gap-3">
+                                <div className="flex items-start gap-3">
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+                                        <Icon className="h-4 w-4" strokeWidth={2} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-[13px] font-medium text-zoru-ink">
+                                            {feat.title}
+                                        </h3>
+                                        <p className="mt-0.5 text-[12px] leading-relaxed text-zoru-ink-muted">
+                                            {feat.description}
+                                        </p>
+                                    </div>
+                                </div>
+                                <Button variant="outline" size="sm" className="w-full text-[12px]">
+                                    {feat.action}
+                                </Button>
+                            </Card>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
     );
 }

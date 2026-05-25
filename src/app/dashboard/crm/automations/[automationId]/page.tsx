@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
-import { getAutomationById } from '@/app/actions/crm-automations.actions';
+import { getAutomationById, getAutomationRuns } from '@/app/actions/crm-automations.actions';
 import type { CrmAutomationStatus } from '@/lib/rust-client/crm-automations';
 
 export const dynamic = 'force-dynamic';
@@ -31,11 +31,7 @@ const STATUS_TONE: Record<CrmAutomationStatus, StatusTone> = {
     archived: 'neutral',
 };
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+import { fmtDate } from '@/lib/utils';
 
 export default async function AutomationDetailPage({
     params,
@@ -55,6 +51,7 @@ export default async function AutomationDetailPage({
     const nodes = automation.nodes ?? [];
     const triggerNode = nodes.find((n) => n.type?.startsWith('trigger'));
     const actionNodes = nodes.filter((n) => !n.type?.startsWith('trigger'));
+    const runs = await getAutomationRuns(automationId);
 
     return (
         <EntityDetailShell
@@ -149,6 +146,57 @@ export default async function AutomationDetailPage({
                             );
                         })}
                     </ol>
+                )}
+            </Card>
+
+            {/* Execution History */}
+            <Card className="p-6">
+                <div className="mb-3 flex items-center justify-between">
+                    <div className="text-[15px] font-medium text-zoru-ink">Execution History</div>
+                    <div className="text-[12px] text-zoru-ink-muted">Last 10 runs</div>
+                </div>
+                {runs.length === 0 ? (
+                    <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-6 text-center text-[12.5px] text-zoru-ink-muted">
+                        No executions recorded yet.
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-[13px]">
+                            <thead>
+                                <tr className="border-b border-zoru-line text-zoru-ink-muted">
+                                    <th className="pb-2 font-medium">Status</th>
+                                    <th className="pb-2 font-medium">Started At</th>
+                                    <th className="pb-2 font-medium">Completed At</th>
+                                    <th className="pb-2 font-medium">Feedback</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-zoru-line">
+                                {runs.map((run: any) => {
+                                    const runStatus = run.status || 'unknown';
+                                    const tone = runStatus === 'success' ? 'green' : runStatus === 'failed' ? 'red' : 'amber';
+                                    
+                                    return (
+                                        <tr key={run._id} className="text-zoru-ink">
+                                            <td className="py-3 pr-4">
+                                                <StatusPill label={runStatus} tone={tone} />
+                                            </td>
+                                            <td className="py-3 pr-4">{fmtDate(run.startedAt)}</td>
+                                            <td className="py-3 pr-4">{fmtDate(run.completedAt)}</td>
+                                            <td className="py-3 max-w-[200px] truncate" title={run.error || run.message || '—'}>
+                                                {run.error ? (
+                                                    <span className="text-red-500">{run.error}</span>
+                                                ) : run.message ? (
+                                                    <span className="text-zoru-ink-muted">{run.message}</span>
+                                                ) : (
+                                                    <span className="text-zoru-ink-muted">—</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </Card>
         </EntityDetailShell>

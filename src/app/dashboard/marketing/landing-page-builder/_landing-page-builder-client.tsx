@@ -1,3 +1,4 @@
+import { fmtINR } from "@/lib/utils";
 'use client';
 
 import React, { useState } from 'react';
@@ -27,6 +28,9 @@ import { Label } from '@/components/zoruui';
 import { Badge } from '@/components/zoruui';
 import { useZoruToast } from '@/components/zoruui';
 import { createLandingPage, updateLandingPage, deleteLandingPage } from '@/app/actions/marketing/landing-page-builder.actions';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/zoruui/chart';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/zoruui/card';
 
 export function LandingPageClient({ initialData }: { initialData: any[] }) {
   const [data, setData] = useState(initialData);
@@ -112,9 +116,99 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
     }
   };
 
+  const mockChannelData = [
+    { channel: 'Organic Search', spend: 0, revenue: 12500, roi: 0, cpa: 0 }, // ROI is inf, handled separately
+    { channel: 'Paid Social', spend: 5000, revenue: 15000, roi: 200, cpa: 45 },
+    { channel: 'Paid Search', spend: 8000, revenue: 22000, roi: 175, cpa: 35 },
+    { channel: 'Email Marketing', spend: 500, revenue: 8500, roi: 1600, cpa: 5 },
+    { channel: 'Affiliates', spend: 2000, revenue: 6000, roi: 200, cpa: 25 },
+  ];
+
+  const totalSpend = mockChannelData.reduce((sum, item) => sum + item.spend, 0);
+  const totalRevenue = mockChannelData.reduce((sum, item) => sum + item.revenue, 0);
+  const overallROI = ((totalRevenue - totalSpend) / totalSpend * 100).toFixed(1);
+  const blendedCPA = totalConversions > 0 ? (totalSpend / totalConversions).toFixed(2) : "0.00";
+
   return (
     <div className="flex flex-col gap-6 w-full">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <Tabs defaultValue="dashboard" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="dashboard">Global Campaign Dashboard</TabsTrigger>
+          <TabsTrigger value="landing-pages">Landing Pages</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="dashboard" className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+              label="Total Cross-Channel Spend"
+              value={fmtINR(totalSpend)}
+              icon={<Globe />}
+              delta={5.2}
+              period="vs last month"
+            />
+            <StatCard
+              label="Total Revenue Generated"
+              value={fmtINR(totalRevenue)}
+              icon={<MousePointerClick />}
+              delta={12.4}
+              period="vs last month"
+            />
+            <StatCard
+              label="Overall Campaign ROI"
+              value={`${overallROI}%`}
+              icon={<Percent />}
+              delta={8.1}
+              period="vs last month"
+            />
+            <StatCard
+              label="Blended CPA"
+              value={`$${blendedCPA}`}
+              icon={<Eye />}
+              delta={-2.3}
+              period="vs last month"
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Cross-Channel Revenue vs Spend</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ZoruChartContainer height={300}>
+                  <ZoruChart.BarChart data={mockChannelData}>
+                    <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <ZoruChart.XAxis dataKey="channel" axisLine={false} tickLine={false} />
+                    <ZoruChart.YAxis axisLine={false} tickLine={false} tickFormatter={(val: number) => `$${val/1000}k`} />
+                    <ZoruChart.Tooltip content={<ZoruChartTooltip />} cursor={{ fill: 'var(--zoru-bg-muted)' }} />
+                    <ZoruChart.Bar dataKey="revenue" name="Revenue" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
+                    <ZoruChart.Bar dataKey="spend" name="Spend" fill={ZORU_CHART_PALETTE[3]} radius={[4, 4, 0, 0]} />
+                  </ZoruChart.BarChart>
+                </ZoruChartContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Channel ROI (%)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ZoruChartContainer height={300}>
+                  <ZoruChart.LineChart data={mockChannelData}>
+                    <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <ZoruChart.XAxis dataKey="channel" axisLine={false} tickLine={false} />
+                    <ZoruChart.YAxis axisLine={false} tickLine={false} />
+                    <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                    <ZoruChart.Line type="monotone" dataKey="roi" name="ROI (%)" stroke={ZORU_CHART_PALETTE[0]} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                  </ZoruChart.LineChart>
+                </ZoruChartContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="landing-pages" className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Total Landing Pages"
           value={totalPages}
@@ -254,6 +348,8 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
           </div>
         )}
       </EntityListShell>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

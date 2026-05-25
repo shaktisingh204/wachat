@@ -9,6 +9,9 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
+  Alert,
+  ZoruAlertTitle,
+  ZoruAlertDescription,
   Badge,
   Breadcrumb,
   ZoruBreadcrumbItem,
@@ -121,25 +124,42 @@ export default function NumbersPage() {
   const [removeTarget, setRemoveTarget] = useState<PhoneNumber | null>(null);
 
   const fetchProjectData = useCallback(
-    async (projectId: string) => {
-      startLoadingTransition(async () => {
+    async (projectId: string, isSilent = false) => {
+      const fetcher = async () => {
         try {
           const data = await getProjectById(projectId);
           setProject(data || null);
         } catch {
-          toast({
-            title: 'Error',
-            description: 'Failed to load project numbers. Please try again.',
-            variant: 'destructive',
-          });
+          if (!isSilent) {
+            toast({
+              title: 'Error',
+              description: 'Failed to load project numbers. Please try again.',
+              variant: 'destructive',
+            });
+          }
         }
-      });
+      };
+
+      if (isSilent) {
+        await fetcher();
+      } else {
+        startLoadingTransition(async () => {
+          await fetcher();
+        });
+      }
     },
     [toast],
   );
 
   useEffect(() => {
-    if (activeProjectId) fetchProjectData(activeProjectId);
+    if (activeProjectId) {
+      fetchProjectData(activeProjectId);
+      // Poll every 15 seconds for status updates
+      const intervalId = setInterval(() => {
+        fetchProjectData(activeProjectId, true);
+      }, 15000);
+      return () => clearInterval(intervalId);
+    }
   }, [activeProjectId, fetchProjectData]);
 
   const onSync = () => {
@@ -152,16 +172,30 @@ export default function NumbersPage() {
       return;
     }
     startSyncTransition(async () => {
-      const result = await handleSyncPhoneNumbers(activeProjectId);
-      if (result.error) {
+      try {
+        const result = await Promise.race([
+          handleSyncPhoneNumbers(activeProjectId),
+          new Promise<{ error?: string; message?: string }>((resolve) =>
+            setTimeout(() => resolve({ error: 'Sync is taking too long. Meta API might be slow. Please try again later.' }), 10000)
+          ),
+        ]);
+        
+        if (result.error) {
+          toast({
+            title: 'Sync failed or timed out',
+            description: result.error,
+            variant: 'destructive',
+          });
+        } else {
+          toast({ title: 'Sync successful', description: result.message });
+          await fetchProjectData(activeProjectId);
+        }
+      } catch (err) {
         toast({
-          title: 'Sync failed',
-          description: result.error,
+          title: 'Sync error',
+          description: 'An unexpected error occurred during sync.',
           variant: 'destructive',
         });
-      } else {
-        toast({ title: 'Sync successful', description: result.message });
-        await fetchProjectData(activeProjectId);
       }
     });
   };
@@ -177,6 +211,19 @@ export default function NumbersPage() {
     ).length;
     return { verified, green };
   }, [phoneNumbers]);
+
+  const badQualityNumbers = React.useMemo(() => {
+    return phoneNumbers.filter(
+      (p) => p.quality_rating && ['yellow', 'red', 'low', 'medium'].includes(p.quality_rating.toLowerCase())
+    );
+  }, [phoneNumbers]);
+
+  const alertVariant = React.useMemo(() => {
+    if (badQualityNumbers.some(p => ['red', 'low'].includes((p.quality_rating ?? '').toLowerCase()))) {
+      return 'destructive';
+    }
+    return 'warning';
+  }, [badQualityNumbers]);
 
   return (
     <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
@@ -236,6 +283,20 @@ export default function NumbersPage() {
           </Button>
         </div>
       </div>
+
+      {badQualityNumbers.length > 0 && (
+        <div className="mt-6">
+          <Alert variant={alertVariant}>
+            <AlertCircle className="h-4 w-4" />
+            <ZoruAlertTitle>Action Required: Low Number Quality</ZoruAlertTitle>
+            <ZoruAlertDescription>
+              {badQualityNumbers.length === 1 
+                ? `The number ${badQualityNumbers[0].display_phone_number} has dropped to a ${badQualityNumbers[0].quality_rating} quality rating. Your messaging limits might be affected.` 
+                : `${badQualityNumbers.length} numbers have low quality ratings. Your messaging limits might be affected.`}
+            </ZoruAlertDescription>
+          </Alert>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">

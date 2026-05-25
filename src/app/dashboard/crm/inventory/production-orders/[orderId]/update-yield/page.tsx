@@ -4,13 +4,11 @@ import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components
 import {
   useActionState,
   useEffect } from 'react';
-import { useFormStatus } from 'react-dom';
 import {
   Save,
   LoaderCircle,
-  } from 'lucide-react';
-import { useParams,
-  useRouter } from 'next/navigation';
+} from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
 
 /**
  * Update-yield dialog target — preserved route per §1D scope notes.
@@ -23,27 +21,11 @@ import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { updateProductionOrderYield } from '@/app/actions/crm-production-orders.actions';
 
-export const dynamic = 'force-dynamic';
 
 const initialState: { message?: string; error?: string } = {};
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? (
-        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-      ) : (
-        <Save className="mr-2 h-4 w-4" />
-      )}
-      Update yield
-    </Button>
-  );
-}
-
 export default function UpdateYieldPage() {
   const { orderId } = useParams<{ orderId: string }>();
-  const [state, formAction] = useActionState(updateProductionOrderYield, initialState);
+  const [state, formAction, isPending] = useActionState(updateProductionOrderYield, initialState);
   const router = useRouter();
   const { toast } = useZoruToast();
 
@@ -114,7 +96,14 @@ export default function UpdateYieldPage() {
           </div>
 
           <div className="flex justify-end">
-            <SubmitButton />
+            <Button type="submit" disabled={isPending}>
+              {isPending ? (
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              Update yield
+            </Button>
           </div>
         </form>
       </Card>

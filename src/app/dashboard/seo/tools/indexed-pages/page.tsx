@@ -5,90 +5,138 @@ import {
   Input,
   Card,
   ZoruCardContent,
-  cn,
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
-  SelectItem
+  SelectItem,
 } from '@/components/zoruui';
-import { cn as _zoruCn, useState } from 'react';
-
-void _zoruCn;
+import { useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function IndexedPagesPage() {
   const [domain, setDomain] = useState('');
+  const [exactMatch, setExactMatch] = useState('');
   const [submitted, setSubmitted] = useState('');
+  const [submittedExactMatch, setSubmittedExactMatch] = useState('');
   const [dateRange, setDateRange] = useState('any');
+  const [error, setError] = useState('');
 
   const handleCheck = () => {
-    let cleanedDomain = domain.trim().replace(/^https?:\/\//i, '');
-    // Also remove trailing slashes if any, just in case
+    let cleanedDomain = domain.trim();
+    // Strip HTTP/HTTPS protocols automatically if users mistakenly paste a full URL.
+    cleanedDomain = cleanedDomain.replace(/^https?:\/\//i, '');
     cleanedDomain = cleanedDomain.replace(/\/$/, '');
+    
+    if (!cleanedDomain) {
+      setError('Please enter a valid domain.');
+      setSubmitted('');
+      return;
+    }
+
+    // Better internal validation: Allow domain, subdomain, and optional path
+    const domainRegex = /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:\/.*)?$/;
+    if (!domainRegex.test(cleanedDomain) && !cleanedDomain.startsWith('localhost')) {
+      setError('Invalid domain format. Please enter a valid domain like example.com or example.com/path.');
+      setSubmitted('');
+      return;
+    }
+
+    setError('');
     setDomain(cleanedDomain);
     setSubmitted(cleanedDomain);
+    setSubmittedExactMatch(exactMatch.trim());
+  };
+
+  const getQueryString = () => {
+    let query = `site:${submitted}`;
+    if (submittedExactMatch) {
+      query += ` "${submittedExactMatch}"`;
+    }
+    return encodeURIComponent(query);
   };
 
   const getGoogleUrl = () => {
-    let url = `https://www.google.com/search?q=site:${encodeURIComponent(submitted)}`;
+    let url = `https://www.google.com/search?q=${getQueryString()}`;
     if (dateRange !== 'any') {
       url += `&tbs=qdr:${dateRange}`;
     }
     return url;
   };
 
-  // Bing doesn't support the same simple qdr parameter, so we just use the query.
-  // We can add Bing date filters if needed, but Google is the primary use case.
   const getBingUrl = () => {
-    let url = `https://www.bing.com/search?q=site:${encodeURIComponent(submitted)}`;
+    let url = `https://www.bing.com/search?q=${getQueryString()}`;
     if (dateRange === 'd') {
-      url += `&filters=ex1%3a"ez1"`;
+      url += `&filters=ex1%3a%22ez1%22`;
     } else if (dateRange === 'w') {
-      url += `&filters=ex1%3a"ez2"`;
+      url += `&filters=ex1%3a%22ez2%22`;
     } else if (dateRange === 'm') {
-      url += `&filters=ex1%3a"ez3"`;
+      url += `&filters=ex1%3a%22ez3%22`;
     }
-    // Bing doesn't have an exact 'past hour' or 'past year' in the ez1-ez3 standard range (ez1=24h, ez2=7d, ez3=30d) 
     return url;
   };
 
   return (
-    <ToolShell title="Indexed Pages Checker" description="Open Google's site: query to see indexed pages for a domain.">
-      <div className="flex gap-2">
-        <Input 
-          value={domain} 
-          onChange={(e) => {
-            let val = e.target.value;
-            if (/^https?:\/\//i.test(val)) {
-              val = val.replace(/^https?:\/\//i, '');
-            }
-            setDomain(val);
-          }} 
-          placeholder="example.com" 
-          className="flex-1"
-        />
-        <Select value={dateRange} onValueChange={setDateRange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Any time" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="any">Any time</SelectItem>
-            <SelectItem value="h">Past hour</SelectItem>
-            <SelectItem value="d">Past 24 hours</SelectItem>
-            <SelectItem value="w">Past week</SelectItem>
-            <SelectItem value="m">Past month</SelectItem>
-            <SelectItem value="y">Past year</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button onClick={handleCheck}>Check</Button>
+    <ToolShell title="Indexed Pages Checker" description="Open search engine site: queries to see indexed pages for a domain.">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col md:flex-row gap-2">
+          <Input 
+            value={domain} 
+            onChange={(e) => {
+              let val = e.target.value;
+              if (/^https?:\/\//i.test(val)) {
+                val = val.replace(/^https?:\/\//i, '');
+              }
+              setDomain(val);
+              if (error) setError('');
+            }} 
+            placeholder="example.com" 
+            className="flex-1"
+          />
+          <Input
+            value={exactMatch}
+            onChange={(e) => setExactMatch(e.target.value)}
+            placeholder='Exact match keyword (optional)'
+            className="flex-1"
+          />
+          <Select value={dateRange} onValueChange={setDateRange}>
+            <SelectTrigger className="w-full md:w-[180px]">
+              <SelectValue placeholder="Any time" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any time</SelectItem>
+              <SelectItem value="h">Past hour</SelectItem>
+              <SelectItem value="d">Past 24 hours</SelectItem>
+              <SelectItem value="w">Past week</SelectItem>
+              <SelectItem value="m">Past month</SelectItem>
+              <SelectItem value="y">Past year</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={handleCheck}>Check</Button>
+        </div>
+        
+        {error && (
+          <div className="text-red-500 text-sm font-medium">{error}</div>
+        )}
       </div>
+
       {submitted && (
         <Card className="mt-4">
-          <ZoruCardContent className="p-4 space-y-2">
-            <a className="block text-sm text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer" href={getGoogleUrl()}>🔗 Google: site:{submitted}</a>
-            <a className="block text-sm text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer" href={getBingUrl()}>🔗 Bing: site:{submitted}</a>
+          <ZoruCardContent className="p-4 space-y-4">
+            <h3 className="font-semibold text-lg text-slate-800 dark:text-slate-200">Search Engine Links</h3>
+            <div className="flex flex-col gap-2">
+              <a className="inline-flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors" target="_blank" rel="noopener noreferrer" href={getGoogleUrl()}>
+                <span className="text-xl">🔗</span>
+                <span className="font-medium">Google:</span>
+                <span className="opacity-90 break-all">site:{submitted} {submittedExactMatch ? `"${submittedExactMatch}"` : ''}</span>
+              </a>
+              <a className="inline-flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors" target="_blank" rel="noopener noreferrer" href={getBingUrl()}>
+                <span className="text-xl">🔗</span>
+                <span className="font-medium">Bing:</span>
+                <span className="opacity-90 break-all">site:{submitted} {submittedExactMatch ? `"${submittedExactMatch}"` : ''}</span>
+              </a>
+            </div>
           </ZoruCardContent>
         </Card>
       )}

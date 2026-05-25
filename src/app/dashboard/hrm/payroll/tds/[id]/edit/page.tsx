@@ -8,19 +8,9 @@ import { TdsForm } from '../../_components/tds-form';
 export const dynamic = 'force-dynamic';
 
 async function EditFormLoader({ id }: { id: string }) {
-    try {
-        const row = await getTdsRecordById(id);
-        if (!row) notFound();
-        return <TdsForm initialData={row} />;
-    } catch (error) {
-        console.error('Failed to fetch TDS record:', error);
-        return (
-            <div className="p-6 bg-red-50 text-red-600 rounded-md border border-red-200">
-                <h3 className="text-lg font-medium">Error loading TDS record</h3>
-                <p className="mt-2 text-sm">It may have been deleted or there is a server error.</p>
-            </div>
-        );
-    }
+    const row = await getTdsRecordById(id);
+    if (!row) notFound();
+    return <TdsForm initialData={row} />;
 }
 
 export default async function EditTdsPage({

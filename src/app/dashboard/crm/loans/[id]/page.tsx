@@ -1,4 +1,4 @@
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -65,20 +65,7 @@ function statusTone(status?: string): EntityStatusTone {
   }
 }
 
-function fmtMoney(value: unknown): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 2,
-  }).format(value);
-}
-
-function fmtDate(value: unknown): string {
-  if (!value) return '—';
-  const d = new Date(value as string);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+import { fmtDate, fmtINR as fmtMoney } from '@/lib/utils';
 
 function nextDueRow(loan: LoanDoc): { dueDate?: string; amount?: number } {
   if (!Array.isArray(loan.schedule) || loan.schedule.length === 0) {
@@ -280,33 +267,33 @@ export default async function LoanDetailPage({ params }: PageProps) {
               No payments recorded yet.
             </p>
           ) : (
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted">
-                  <th className="py-2">Date</th>
-                  <th className="py-2 text-right">Amount</th>
-                  <th className="py-2">Mode</th>
-                  <th className="py-2">Txn</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table className="text-[13px]">
+              <TableHeader>
+                <TableRow className="border-b border-zoru-line/60 text-left text-[11px] uppercase text-zoru-ink-muted bg-transparent">
+                  <TableHead className="py-2 h-auto">Date</TableHead>
+                  <TableHead className="py-2 text-right h-auto">Amount</TableHead>
+                  <TableHead className="py-2 h-auto">Mode</TableHead>
+                  <TableHead className="py-2 h-auto">Txn</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {payments.map((p, idx) => (
-                  <tr
+                  <TableRow
                     key={p._id ?? `${p.date}-${idx}`}
                     className="border-b border-zoru-line/40 last:border-0"
                   >
-                    <td className="py-2">{fmtDate(p.date)}</td>
-                    <td className="py-2 text-right font-mono tabular-nums">
+                    <TableCell className="py-2">{fmtDate(p.date)}</TableCell>
+                    <TableCell className="py-2 text-right font-mono tabular-nums">
                       {fmtMoney(p.amount)}
-                    </td>
-                    <td className="py-2">{p.mode || '—'}</td>
-                    <td className="py-2 text-zoru-ink-muted">
+                    </TableCell>
+                    <TableCell className="py-2">{p.mode || '—'}</TableCell>
+                    <TableCell className="py-2 text-zoru-ink-muted">
                       {p.txnId || '—'}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           )}
         </ZoruCardContent>
       </Card>

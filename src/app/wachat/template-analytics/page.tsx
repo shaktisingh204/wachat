@@ -30,6 +30,14 @@ import {
   ZoruTableRow,
   cn,
   useZoruToast,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruAlert,
+  ZoruAlertTitle,
+  ZoruAlertDescription,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -46,6 +54,7 @@ import {
   CircleCheck,
   Eye,
   CircleX,
+  Info,
   } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
@@ -77,12 +86,20 @@ function pct(num: number, den: number): number {
   return Math.round((num / den) * 1000) / 10;
 }
 
+import { fmtDate } from '@/lib/utils';
+function formatDate(date: Date) {
+  return fmtDate(date);
+}
+
 export default function TemplateAnalyticsPage() {
   const { activeProject } = useProject();
   const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
   const [analytics, setAnalytics] = useState<AnalyticsRow[]>([]);
+  const [lastSynced, setLastSynced] = useState<Date | null>(null);
+  const [abTestTemplate1, setAbTestTemplate1] = useState<string>('');
+  const [abTestTemplate2, setAbTestTemplate2] = useState<string>('');
   const [isLoading, startLoading] = useTransition();
 
   const fetchAnalytics = useCallback(
@@ -97,6 +114,7 @@ export default function TemplateAnalyticsPage() {
           });
         } else {
           setAnalytics(res.analytics || []);
+          setLastSynced(new Date());
           if (showToast) {
             toast({
               title: 'Refreshed',
@@ -135,6 +153,27 @@ export default function TemplateAnalyticsPage() {
     [analytics],
   );
 
+  const abTestData = useMemo(() => {
+    if (!abTestTemplate1 || !abTestTemplate2) return [];
+    const t1 = analytics.find((a) => a._id === abTestTemplate1);
+    const t2 = analytics.find((a) => a._id === abTestTemplate2);
+
+    return [
+      {
+        name: t1?._id || abTestTemplate1,
+        Sent: t1?.sent || 0,
+        Delivered: t1?.delivered || 0,
+        Read: t1?.read || 0,
+      },
+      {
+        name: t2?._id || abTestTemplate2,
+        Sent: t2?.sent || 0,
+        Delivered: t2?.delivered || 0,
+        Read: t2?.read || 0,
+      },
+    ];
+  }, [analytics, abTestTemplate1, abTestTemplate2]);
+
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       <Breadcrumb>
@@ -167,7 +206,12 @@ export default function TemplateAnalyticsPage() {
             templates.
           </ZoruPageDescription>
         </ZoruPageHeading>
-        <ZoruPageActions>
+        <ZoruPageActions className="flex items-center gap-3">
+          {lastSynced && (
+            <span className="text-[12px] text-zoru-ink-muted">
+              Last synced: {formatDate(lastSynced)}
+            </span>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -179,6 +223,14 @@ export default function TemplateAnalyticsPage() {
           </Button>
         </ZoruPageActions>
       </PageHeader>
+
+      <ZoruAlert variant="default" className="bg-zoru-surface border-zoru-line shadow-sm">
+        <Info className="h-4 w-4 text-zoru-ink-muted" />
+        <ZoruAlertTitle>Data sync delay</ZoruAlertTitle>
+        <ZoruAlertDescription className="text-zoru-ink-muted">
+          Template analytics heavily rely on Meta webhook deliveries, which can sometimes be delayed. Refresh periodically to get the latest metrics.
+        </ZoruAlertDescription>
+      </ZoruAlert>
 
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -271,6 +323,72 @@ export default function TemplateAnalyticsPage() {
                 />
               </ZoruChart.BarChart>
             </ZoruChartContainer>
+          )}
+        </ZoruCardContent>
+      </Card>
+
+      {/* A/B Testing Card */}
+      <Card>
+        <ZoruCardContent className="pt-6">
+          <div className="mb-4">
+            <h3 className="text-[15px] font-semibold text-zoru-ink">
+              A/B testing comparison
+            </h3>
+            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              Compare performance between two different templates.
+            </p>
+          </div>
+          
+          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-medium text-zoru-ink">Template A</label>
+              <ZoruSelect value={abTestTemplate1} onValueChange={setAbTestTemplate1}>
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue placeholder="Select first template" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {analytics.map((a) => (
+                    <ZoruSelectItem key={a._id} value={a._id || ''}>
+                      {a._id}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </ZoruSelect>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-medium text-zoru-ink">Template B</label>
+              <ZoruSelect value={abTestTemplate2} onValueChange={setAbTestTemplate2}>
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue placeholder="Select second template" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {analytics.map((a) => (
+                    <ZoruSelectItem key={a._id} value={a._id || ''}>
+                      {a._id}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </ZoruSelect>
+            </div>
+          </div>
+          
+          {abTestTemplate1 && abTestTemplate2 ? (
+            <ZoruChartContainer height={280}>
+              <ZoruChart.BarChart data={abTestData}>
+                <ZoruChart.CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
+                <ZoruChart.XAxis dataKey="name" stroke="hsl(var(--zoru-ink-muted))" fontSize={11} tickLine={false} axisLine={false} />
+                <ZoruChart.YAxis stroke="hsl(var(--zoru-ink-muted))" fontSize={11} tickLine={false} axisLine={false} />
+                <ZoruChart.Tooltip content={(props: any) => <ZoruChartTooltip {...props} />} cursor={{ fill: 'hsl(var(--zoru-surface))' }} />
+                <ZoruChart.Legend iconType="circle" wrapperStyle={{ fontSize: 11 }} />
+                <ZoruChart.Bar dataKey="Sent" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
+                <ZoruChart.Bar dataKey="Delivered" fill={ZORU_CHART_PALETTE[1]} radius={[4, 4, 0, 0]} />
+                <ZoruChart.Bar dataKey="Read" fill={ZORU_CHART_PALETTE[2]} radius={[4, 4, 0, 0]} />
+              </ZoruChart.BarChart>
+            </ZoruChartContainer>
+          ) : (
+            <div className="flex h-[280px] items-center justify-center rounded-md border border-dashed border-zoru-line bg-zoru-surface-hover/50">
+              <p className="text-[13px] text-zoru-ink-muted">Select two templates above to compare their performance.</p>
+            </div>
           )}
         </ZoruCardContent>
       </Card>

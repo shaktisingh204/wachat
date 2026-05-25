@@ -10,8 +10,9 @@ import {
     TrendingUp,
     Users,
 } from 'lucide-react';
+import { Suspense } from 'react';
 
-import { Card, ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
+import { ZoruPageDescription, PageHeader, ZoruPageHeading, ZoruPageTitle, EmptyState, Skeleton } from '@/components/zoruui';
 import { getAnalyticsData } from '@/app/actions/crm-analytics.actions';
 import { AnalyticsDashboard } from '@/components/crm/analytics/analytics-dashboard';
 import { getT } from '@/lib/i18n/server';
@@ -53,11 +54,7 @@ const QUICK_LINKS: HubQuickLink[] = [
     },
 ];
 
-export default async function AnalyticsHubPage(props: {
-    searchParams: Promise<{ year?: string }>;
-}) {
-    const searchParams = await props.searchParams;
-    const year = searchParams.year ? parseInt(searchParams.year, 10) : new Date().getFullYear();
+async function AnalyticsContent({ year }: { year: number }) {
     const [t, data, totalDeals, dealsWon] = await Promise.all([
         getT(),
         getAnalyticsData(year),
@@ -101,6 +98,58 @@ export default async function AnalyticsHubPage(props: {
     ];
 
     return (
+        <>
+            <HubKpiGrid kpis={kpis} />
+            <HubQuickLinkGrid links={QUICK_LINKS} />
+
+            {data ? (
+                <AnalyticsDashboard data={data} />
+            ) : (
+                <EmptyState
+                    icon={<TrendingDown />}
+                    title={t('crm.analytics.errorLoad')}
+                    description="Could not fetch analytics data for the selected period."
+                    className="mt-4"
+                />
+            )}
+        </>
+    );
+}
+
+function AnalyticsContentSkeleton() {
+    return (
+        <>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {[1, 2, 3, 4].map((i) => (
+                    <Skeleton key={i} className="h-32 w-full rounded-xl" />
+                ))}
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {[1, 2, 3, 4].map((i) => (
+                    <Skeleton key={i} className="h-24 w-full rounded-xl" />
+                ))}
+            </div>
+
+            <div className="mt-6 flex flex-col gap-6">
+                <Skeleton className="h-[400px] w-full rounded-xl" />
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <Skeleton className="h-[300px] w-full rounded-xl" />
+                    <Skeleton className="h-[300px] w-full rounded-xl" />
+                </div>
+            </div>
+        </>
+    );
+}
+
+export default async function AnalyticsHubPage(props: {
+    searchParams: Promise<{ year?: string }>;
+}) {
+    const searchParams = await props.searchParams;
+    const year = searchParams.year ? parseInt(searchParams.year, 10) : new Date().getFullYear();
+    const t = await getT();
+
+    return (
         <div className="flex w-full flex-col gap-6">
             <PageHeader>
                 <div className="flex items-start gap-3">
@@ -116,18 +165,9 @@ export default async function AnalyticsHubPage(props: {
                 </div>
             </PageHeader>
 
-            <HubKpiGrid kpis={kpis} />
-            <HubQuickLinkGrid links={QUICK_LINKS} />
-
-            {data ? (
-                <AnalyticsDashboard data={data} />
-            ) : (
-                <Card className="p-6">
-                    <p className="py-8 text-center text-[13px] text-zoru-ink-muted">
-                        {t('crm.analytics.errorLoad')}
-                    </p>
-                </Card>
-            )}
+            <Suspense fallback={<AnalyticsContentSkeleton />}>
+                <AnalyticsContent year={year} />
+            </Suspense>
         </div>
     );
 }

@@ -19,8 +19,8 @@ export default function KeywordRankCheckerPage() {
     keyword: string; 
     domain: string;
     url?: string;
-    mocked?: boolean;
     message?: string;
+    serpResults?: { rank: number; url: string; title: string; snippet?: string }[];
   } | null>(null);
 
   const run = async () => {
@@ -39,8 +39,8 @@ export default function KeywordRankCheckerPage() {
           keyword, 
           domain, 
           url: res.url, 
-          mocked: res.mocked, 
-          message: res.message 
+          message: res.message,
+          serpResults: res.serpResults
         });
       }
     } catch (err: any) {
@@ -51,10 +51,10 @@ export default function KeywordRankCheckerPage() {
   };
 
   return (
-    <ToolShell title="Keyword Rank Checker" description="Check keyword ranking for a domain. (Requires SERP API for production data.)">
+    <ToolShell title="Keyword Rank Checker" description="Check true keyword ranking for a domain using a SERP API.">
       <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/30">
         <ZoruCardContent className="p-3 text-xs">
-          Production rank data requires a SERP API provider (DataForSEO or SerpApi). Set DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD, or SERPAPI_KEY environment variables.
+          Rank data requires a SERP API provider (DataForSEO, SerpApi, or ScaleSERP). Set DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD, SERPAPI_KEY, or SCALESERP_KEY environment variables. If no keys are provided, it will fallback to scraping a free SERP provider.
         </ZoruCardContent>
       </Card>
       
@@ -86,46 +86,84 @@ export default function KeywordRankCheckerPage() {
       </Button>
       
       {result && (
-        <Card>
-          <ZoruCardContent className="p-6 text-center">
-            {result.rank > 0 ? (
-              <>
-                <div className="text-5xl font-bold text-green-600 dark:text-green-400">
-                  #{result.rank}
-                </div>
-                <div className="text-sm text-muted-foreground mt-2">
-                  {result.keyword} → {result.domain}
-                </div>
-                {result.url && (
-                  <div className="text-xs text-muted-foreground mt-4 truncate px-4">
-                    <a href={result.url} target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-500">
-                      {result.url}
-                    </a>
+        <div className="space-y-4">
+          <Card>
+            <ZoruCardContent className="p-6 text-center">
+              {result.rank > 0 ? (
+                <>
+                  <div className="text-5xl font-bold text-green-600 dark:text-green-400">
+                    #{result.rank}
                   </div>
-                )}
-                {result.mocked && (
-                  <div className="text-xs text-amber-600 dark:text-amber-400 mt-2 font-medium">
-                    {result.message}
+                  <div className="text-sm text-muted-foreground mt-2">
+                    {result.keyword} → {result.domain}
                   </div>
-                )}
-              </>
-            ) : (
-              <>
-                <div className="text-3xl font-semibold text-muted-foreground">
-                  Not found in top 100
-                </div>
-                <div className="text-sm text-muted-foreground mt-2">
-                  {result.keyword} → {result.domain}
-                </div>
-                {result.mocked && (
-                  <div className="text-xs text-amber-600 dark:text-amber-400 mt-2 font-medium">
-                    {result.message}
+                  {result.url && (
+                    <div className="text-xs text-muted-foreground mt-4 truncate px-4">
+                      <a href={result.url} target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-500">
+                        {result.url}
+                      </a>
+                    </div>
+                  )}
+
+                </>
+              ) : (
+                <>
+                  <div className="text-3xl font-semibold text-muted-foreground">
+                    Not found in results
                   </div>
-                )}
-              </>
-            )}
-          </ZoruCardContent>
-        </Card>
+                  <div className="text-sm text-muted-foreground mt-2">
+                    {result.keyword} → {result.domain}
+                  </div>
+                </>
+              )}
+            </ZoruCardContent>
+          </Card>
+          
+          {result.serpResults && result.serpResults.length > 0 && (
+            <Card>
+              <div className="p-4 border-b">
+                <h3 className="font-semibold text-lg">Top SERP Results</h3>
+              </div>
+              <ZoruCardContent className="p-0">
+                <div className="divide-y">
+                  {result.serpResults.map((item, idx) => (
+                    <div 
+                      key={idx} 
+                      className={cn(
+                        "p-4 hover:bg-muted/50 transition-colors",
+                        item.url.includes(result.domain) && "bg-green-50/50 dark:bg-green-950/20"
+                      )}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="text-lg font-bold text-muted-foreground w-8 text-center shrink-0">
+                          {item.rank}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <a 
+                            href={item.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-base font-medium text-blue-600 dark:text-blue-400 hover:underline line-clamp-1"
+                          >
+                            {item.title}
+                          </a>
+                          <div className="text-xs text-green-700 dark:text-green-500 mt-1 truncate">
+                            {item.url}
+                          </div>
+                          {item.snippet && (
+                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                              {item.snippet}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ZoruCardContent>
+            </Card>
+          )}
+        </div>
       )}
     </ToolShell>
   );

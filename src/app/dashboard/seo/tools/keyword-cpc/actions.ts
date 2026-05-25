@@ -1,6 +1,6 @@
 'use server';
 
-export async function getLiveCpcData(keyword: string) {
+export async function getLiveCpcData(keyword: string, location_name: string = "United States", language_name: string = "English") {
   const login = process.env.DATAFORSEO_LOGIN;
   const password = process.env.DATAFORSEO_PASSWORD;
 
@@ -11,8 +11,8 @@ export async function getLiveCpcData(keyword: string) {
   try {
     const post_array = [{
       keyword: keyword,
-      location_name: "United States",
-      language_name: "English"
+      location_name: location_name,
+      language_name: language_name
     }];
 
     const response = await fetch('https://api.dataforseo.com/v3/dataforseo_labs/google/keyword_metrics/live', {
@@ -39,7 +39,8 @@ export async function getLiveCpcData(keyword: string) {
           cpc: item.keyword_info.cpc,
           search_volume: item.keyword_info.search_volume,
           competition: item.keyword_info.competition,
-          competition_level: item.keyword_info.competition_level
+          competition_level: item.keyword_info.competition_level,
+          monthly_searches: item.keyword_info.monthly_searches || []
         }
       };
     }

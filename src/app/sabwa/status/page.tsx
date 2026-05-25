@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -26,6 +27,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   Textarea,
+  Input,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -43,26 +45,8 @@ import {
   Type as TypeIcon,
   Users,
   X,
-  } from "lucide-react";
-
-/**
- * /sabwa/status — Status / Stories.
- *
- * Two views (segmented buttons — no tab UI):
- *  - My status: list of your posted statuses with views + reposters.
- *    "Post new status" button opens a composer with two modes:
- *    text (background colour picker) or media (SabFilePickerButton).
- *    Privacy: everyone / contacts except / only share with.
- *  - Friends: card grid of contacts who posted recently, opens a
- *    swipeable viewer dialog with prev/next + tap-zone navigation.
- *
- * Data layer: until the engine ships status fetch/post endpoints,
- * we keep "My posted statuses" as in-page state (composer pushes to
- * an array). Friends' statuses are sourced from chats of
- * `type === 'status'` if any exist; otherwise we show an empty state.
- *
- * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports.
- */
+  MessageCircle,
+} from "lucide-react";
 
 import * as React from "react";
 import Link from "next/link";
@@ -71,6 +55,7 @@ import { SabFilePickerButton } from "@/components/sabfiles";
 import type { SabFilePick } from "@/components/sabfiles";
 import { useChats } from "@/lib/sabwa/use-sabwa-data";
 import { useSabwaSession } from "@/lib/sabwa/session-context";
+import { listMyStatuses, postMyStatus, sendMessage } from "@/app/actions/sabwa.actions";
 
 type Audience = "everyone" | "except" | "only";
 type StatusView = "my" | "friends";
@@ -91,7 +76,7 @@ const TEXT_BG_COLOURS: { label: string; value: string }[] = [
 ];
 
 interface PostedStatus {
-  id: string;
+  _id: string;
   ts: Date;
   kind: "text" | "media";
   body?: string;
@@ -110,12 +95,13 @@ interface FriendStatusEntry {
   preview?: string;
 }
 
-function timeAgo(ts: Date): string {
-  const diff = Date.now() - ts.getTime();
+function timeAgo(ts: Date | string): string {
+  const dateObj = typeof ts === 'string' ? new Date(ts) : ts;
+  const diff = Date.now() - dateObj.getTime();
   if (diff < 60_000) return "just now";
   if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m`;
   if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h`;
-  return ts.toLocaleDateString();
+  return dateObj.toLocaleDateString();
 }
 
 export default function SabWaStatusPage() {
@@ -124,8 +110,23 @@ export default function SabWaStatusPage() {
   const sessionId = activeSession?.id ?? '';
   const { data: chats } = useChats(sessionId);
 
-  // ── Posted (in-memory) ─────────────────────────────────────────────
+  // ── Posted (from DB) ─────────────────────────────────────────────
   const [posted, setPosted] = React.useState<PostedStatus[]>([]);
+  const [loadingStatuses, setLoadingStatuses] = React.useState(false);
+
+  const fetchStatuses = React.useCallback(async () => {
+    if (!sessionId) return;
+    setLoadingStatuses(true);
+    const res = await listMyStatuses(sessionId);
+    if (res.ok && res.data) {
+      setPosted(res.data);
+    }
+    setLoadingStatuses(false);
+  }, [sessionId]);
+
+  React.useEffect(() => {
+    fetchStatuses();
+  }, [fetchStatuses]);
 
   // ── Active view (segmented switcher) ───────────────────────────────
   const [view, setView] = React.useState<StatusView>("my");
@@ -157,6 +158,7 @@ export default function SabWaStatusPage() {
   );
   const [composerAudience, setComposerAudience] =
     React.useState<Audience>("everyone");
+  const [isPosting, setIsPosting] = React.useState(false);
 
   const resetComposer = React.useCallback(() => {
     setComposerText("");
@@ -166,7 +168,7 @@ export default function SabWaStatusPage() {
     setComposerMode("text");
   }, []);
 
-  const handlePost = React.useCallback(() => {
+  const handlePost = React.useCallback(async () => {
     if (composerMode === "text" && !composerText.trim()) {
       toast.toast({ title: "Type something to post", variant: "destructive" });
       return;
@@ -175,25 +177,34 @@ export default function SabWaStatusPage() {
       toast.toast({ title: "Pick media to post", variant: "destructive" });
       return;
     }
-    const entry: PostedStatus = {
-      id: `status-${Date.now()}`,
-      ts: new Date(),
+    
+    setIsPosting(true);
+    const data = {
       kind: composerMode,
       body: composerMode === "text" ? composerText : composerMedia?.name,
       bgColour: composerMode === "text" ? composerBg : undefined,
       mediaUrl: composerMode === "media" ? composerMedia?.url : undefined,
       mediaName: composerMode === "media" ? composerMedia?.name : undefined,
       audience: composerAudience,
-      viewers: [],
-      reposters: [],
     };
-    setPosted((prev) => [entry, ...prev]);
-    toast.toast({
-      title: "Status posted",
-      description: "Your status has been queued for delivery.",
-    });
-    setComposerOpen(false);
-    resetComposer();
+    
+    const res = await postMyStatus(sessionId, data);
+    if (res.ok && res.data) {
+      setPosted((prev) => [res.data, ...prev]);
+      toast.toast({
+        title: "Status posted",
+        description: "Your status has been updated.",
+      });
+      setComposerOpen(false);
+      resetComposer();
+    } else {
+      toast.toast({
+        title: "Failed to post status",
+        description: res.error || "Unknown error",
+        variant: "destructive",
+      });
+    }
+    setIsPosting(false);
   }, [
     composerMode,
     composerText,
@@ -202,22 +213,66 @@ export default function SabWaStatusPage() {
     composerAudience,
     toast,
     resetComposer,
+    sessionId
   ]);
+
+  // ── Viewers List ───────────────────────────────────────────────────
+  const [viewersDialogOpen, setViewersDialogOpen] = React.useState(false);
+  const [activeStatusForViewers, setActiveStatusForViewers] = React.useState<PostedStatus | null>(null);
+
+  const openViewers = React.useCallback((s: PostedStatus) => {
+    setActiveStatusForViewers(s);
+    setViewersDialogOpen(true);
+  }, []);
 
   // ── Friends viewer ─────────────────────────────────────────────────
   const [viewerIndex, setViewerIndex] = React.useState<number | null>(null);
   const viewerEntry =
     viewerIndex !== null ? friendStatuses[viewerIndex] ?? null : null;
 
-  const closeViewer = React.useCallback(() => setViewerIndex(null), []);
+  const [replyText, setReplyText] = React.useState("");
+  const [isReplying, setIsReplying] = React.useState(false);
+
+  const closeViewer = React.useCallback(() => {
+    setViewerIndex(null);
+    setReplyText("");
+  }, []);
   const viewerPrev = React.useCallback(() => {
     setViewerIndex((i) => (i === null ? null : Math.max(0, i - 1)));
+    setReplyText("");
   }, []);
   const viewerNext = React.useCallback(() => {
     setViewerIndex((i) =>
       i === null ? null : Math.min(friendStatuses.length - 1, i + 1),
     );
+    setReplyText("");
   }, [friendStatuses.length]);
+
+  const handleReply = React.useCallback(async () => {
+    if (!replyText.trim() || !viewerEntry) return;
+    setIsReplying(true);
+    const res = await sendMessage({
+      sessionId,
+      jid: viewerEntry.jid,
+      type: "text",
+      body: replyText,
+    });
+    if (res.ok) {
+      toast.toast({
+        title: "Reply sent",
+        description: `Sent to ${viewerEntry.name}`,
+      });
+      setReplyText("");
+      closeViewer();
+    } else {
+      toast.toast({
+        title: "Failed to send reply",
+        description: res.error || "An error occurred",
+        variant: "destructive",
+      });
+    }
+    setIsReplying(false);
+  }, [replyText, viewerEntry, sessionId, toast, closeViewer]);
 
   if (!sessionId) {
     return (
@@ -418,7 +473,7 @@ export default function SabWaStatusPage() {
               >
                 Cancel
               </Button>
-              <Button type="button" onClick={handlePost}>
+              <Button type="button" disabled={isPosting} onClick={handlePost}>
                 <Send className="mr-2 h-4 w-4" /> Post
               </Button>
             </ZoruDialogFooter>
@@ -457,7 +512,9 @@ export default function SabWaStatusPage() {
       {/* My status */}
       {view === "my" ? (
         <div className="space-y-3">
-          {posted.length === 0 ? (
+          {loadingStatuses ? (
+            <div className="py-10 text-center text-sm text-zoru-ink-muted">Loading statuses...</div>
+          ) : posted.length === 0 ? (
             <Card className="border-dashed">
               <ZoruCardContent className="flex flex-col items-center gap-3 p-10 text-center">
                 <CircleDot className="h-7 w-7 text-zoru-ink-muted" />
@@ -473,7 +530,7 @@ export default function SabWaStatusPage() {
           ) : (
             <ul className="grid gap-3 sm:grid-cols-2">
               {posted.map((s) => (
-                <li key={s.id}>
+                <li key={s._id}>
                   <Card>
                     <ZoruCardContent className="space-y-3 p-3">
                       {s.kind === "text" ? (
@@ -494,10 +551,15 @@ export default function SabWaStatusPage() {
                         </div>
                       ) : null}
                       <div className="flex flex-wrap items-center gap-2 text-[11.5px]">
-                        <Badge variant="ghost">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-auto p-1 px-2"
+                          onClick={() => openViewers(s)}
+                        >
                           <Eye className="mr-1 h-3 w-3" />
                           {s.viewers.length} views
-                        </Badge>
+                        </Button>
                         <Badge variant="ghost">
                           <Repeat2 className="mr-1 h-3 w-3" />
                           {s.reposters.length} reposters
@@ -578,6 +640,47 @@ export default function SabWaStatusPage() {
         </div>
       )}
 
+      {/* Viewers Dialog */}
+      <Dialog
+        open={viewersDialogOpen}
+        onOpenChange={(o) => {
+          if (!o) setViewersDialogOpen(false);
+        }}
+      >
+        <ZoruDialogContent className="max-w-sm">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Viewers</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              People who have viewed this status.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="max-h-[300px] overflow-y-auto pt-4 space-y-3">
+            {activeStatusForViewers?.viewers.length === 0 ? (
+              <div className="py-4 text-center text-sm text-zoru-ink-muted">No viewers yet.</div>
+            ) : (
+              activeStatusForViewers?.viewers.map((v, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div
+                    aria-hidden
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface text-xs font-semibold text-zoru-ink"
+                  >
+                    {v.name.slice(0, 1).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium text-zoru-ink">
+                      {v.name}
+                    </div>
+                    <div className="text-[11.5px] text-zoru-ink-muted">
+                      {timeAgo(v.ts)}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </ZoruDialogContent>
+      </Dialog>
+
       {/* Friend status viewer */}
       <Dialog
         open={viewerEntry !== null}
@@ -623,6 +726,27 @@ export default function SabWaStatusPage() {
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
+          </div>
+          
+          {/* Reply section */}
+          <div className="pt-4 mt-2 border-t border-zoru-line flex gap-2">
+            <Input 
+              placeholder="Reply to status..."
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleReply();
+              }}
+              className="flex-1"
+            />
+            <Button 
+              type="button"
+              disabled={isReplying || !replyText.trim()}
+              onClick={handleReply}
+              size="icon"
+            >
+              <MessageCircle className="h-4 w-4" />
+            </Button>
           </div>
         </ZoruDialogContent>
       </Dialog>

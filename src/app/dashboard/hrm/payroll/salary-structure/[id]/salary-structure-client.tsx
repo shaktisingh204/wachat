@@ -6,6 +6,7 @@ import { Pencil, Download, FileText, Check, X, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import React from "react";
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 // Mock WebSocket hook
 function useSalaryStructureWebsocket(id: string, onUpdate: (data: any) => void) {
@@ -33,7 +34,7 @@ function ClientDate({ date }: { date: string | undefined | null }) {
     useEffect(() => setMounted(true), []);
     if (!mounted || !date) return <span>—</span>;
     const d = new Date(date);
-    return <span>{Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString()}</span>;
+    return <span>{Number.isNaN(d.getTime()) ? '—' : fmtDate(d)}</span>;
 }
 
 // Reusable inline form component
@@ -85,7 +86,7 @@ function InlineEditForm({
     }
     return (
         <div className="flex items-center gap-2 group cursor-pointer" onClick={() => setIsEditing(true)}>
-            <span className="font-mono text-zoru-ink">₹{new Intl.NumberFormat('en-IN').format(initialValue)}</span>
+            <span className="font-mono text-zoru-ink">{fmtINR(initialValue)}</span>
             <Pencil className="h-3 w-3 text-zoru-ink-muted opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
     );
@@ -256,10 +257,6 @@ export function SalaryStructureClient({ doc }: { doc: any }) {
         a.click();
     };
 
-    const handleExportPDF = () => {
-        toast.success("Generating PDF...");
-        setTimeout(() => toast.success("PDF downloaded successfully!"), 1000);
-    };
 
     // Memoize expensive calculations
     const computedGross = useMemo(() => {
@@ -274,6 +271,34 @@ export function SalaryStructureClient({ doc }: { doc: any }) {
 
     const gross = doc.gross ?? computedGross;
     const net = doc.net ?? gross - computedDeductions;
+
+    const handleExportPDF = () => {
+        import('jspdf').then(({ default: jsPDF }) => {
+            import('jspdf-autotable').then(({ default: autoTable }) => {
+                const pdfDoc = new jsPDF();
+                pdfDoc.text(`Salary Structure - ${doc.employeeName || doc.employeeId || 'Draft'}`, 14, 15);
+                const tableData = [
+                    ['Basic', optimisticDoc.basic?.toString() || '0'],
+                    ['HRA', doc.hra?.toString() || '0'],
+                    ['DA', doc.da?.toString() || '0'],
+                    ['Other Allowances', doc.otherAllowances?.toString() || '0'],
+                    ['Gross', gross.toString()],
+                    ['PF (Employer)', (doc.pfEmployer ?? 0).toString()],
+                    ['PF (Employee)', doc.pfEmployee?.toString() || '0'],
+                    ['ESI', doc.esi?.toString() || '0'],
+                    ['Professional Tax', doc.professionalTax?.toString() || '0'],
+                    ['Net', net.toString()],
+                ];
+                autoTable(pdfDoc, {
+                    head: [['Component', 'Amount']],
+                    body: tableData,
+                    startY: 20,
+                });
+                pdfDoc.save(`salary_structure_${doc.id || 'draft'}.pdf`);
+                toast.success("PDF exported successfully!");
+            });
+        });
+    };
 
     return (
         <>
@@ -344,25 +369,25 @@ export function SalaryStructureClient({ doc }: { doc: any }) {
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">HRA</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    ₹{new Intl.NumberFormat('en-IN').format(doc.hra ?? 0)}
+                                    {fmtINR(doc.hra ?? 0)}
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">DA</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    ₹{new Intl.NumberFormat('en-IN').format(doc.da ?? 0)}
+                                    {fmtINR(doc.da ?? 0)}
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">Other allowances</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    ₹{new Intl.NumberFormat('en-IN').format(doc.otherAllowances ?? 0)}
+                                    {fmtINR(doc.otherAllowances ?? 0)}
                                 </dd>
                             </div>
                             <div className="mt-2 flex items-center justify-between border-t border-zoru-line pt-2">
                                 <dt className="font-medium text-zoru-ink">Gross</dt>
                                 <dd className="font-mono font-medium text-zoru-ink">
-                                    ₹{new Intl.NumberFormat('en-IN').format(gross)}
+                                    {fmtINR(gross)}
                                 </dd>
                             </div>
                         </dl>
@@ -376,25 +401,25 @@ export function SalaryStructureClient({ doc }: { doc: any }) {
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">PF (employer)</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    ₹{new Intl.NumberFormat('en-IN').format(doc.pfEmployer ?? 0)}
+                                    {fmtINR(doc.pfEmployer ?? 0)}
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">PF (employee)</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    ₹{new Intl.NumberFormat('en-IN').format(doc.pfEmployee ?? 0)}
+                                    {fmtINR(doc.pfEmployee ?? 0)}
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">ESI</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    ₹{new Intl.NumberFormat('en-IN').format(doc.esi ?? 0)}
+                                    {fmtINR(doc.esi ?? 0)}
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between">
                                 <dt className="text-zoru-ink-muted">Professional tax</dt>
                                 <dd className="font-mono text-zoru-ink">
-                                    ₹{new Intl.NumberFormat('en-IN').format(doc.professionalTax ?? 0)}
+                                    {fmtINR(doc.professionalTax ?? 0)}
                                 </dd>
                             </div>
                             <div className="mt-2 flex items-center justify-between border-t border-zoru-line pt-2">
@@ -402,7 +427,7 @@ export function SalaryStructureClient({ doc }: { doc: any }) {
                                     Total deductions
                                 </dt>
                                 <dd className="font-mono font-medium text-zoru-ink">
-                                    ₹{new Intl.NumberFormat('en-IN').format(computedDeductions)}
+                                    {fmtINR(computedDeductions)}
                                 </dd>
                             </div>
                         </dl>
@@ -414,7 +439,7 @@ export function SalaryStructureClient({ doc }: { doc: any }) {
                         Net salary
                     </div>
                     <div className="font-mono text-[18px] font-medium text-zoru-ink">
-                        ₹{new Intl.NumberFormat('en-IN').format(net)}
+                        {fmtINR(net)}
                     </div>
                 </div>
             </Card>

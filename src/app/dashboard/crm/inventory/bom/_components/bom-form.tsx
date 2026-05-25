@@ -114,7 +114,7 @@ export function BomForm({ initial }: BomFormProps) {
         if (seed.length === 0) {
             return [
                 {
-                    id: uuidv4(),
+                    id: 'row-0',
                     itemId: '',
                     itemName: '',
                     qty: 1,
@@ -125,8 +125,8 @@ export function BomForm({ initial }: BomFormProps) {
                 },
             ];
         }
-        return seed.map((c) => ({
-            id: uuidv4(),
+        return seed.map((c, idx) => ({
+            id: `row-${idx}`,
             itemId: c.itemId ?? '',
             itemName: c.itemName ?? '',
             qty: typeof c.qty === 'number' ? c.qty : 1,

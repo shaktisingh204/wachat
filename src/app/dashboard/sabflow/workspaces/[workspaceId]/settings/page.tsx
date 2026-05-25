@@ -28,15 +28,12 @@ import { WorkspaceSettingsPage } from "@/components/sabflow/workspaces/Workspace
  * stub rendered with ZoruUI primitives.
  */
 
+import React, { Suspense } from 'react';
+import WorkspaceSettingsLoading from './loading';
+
 export const dynamic = "force-dynamic";
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ workspaceId: string }>;
-}) {
-  const { workspaceId } = await params;
-
+async function WorkspaceSettingsData({ workspaceId }: { workspaceId: string }) {
   const session = await getSession();
   if (!session?.user) {
     redirect("/login");
@@ -79,7 +76,6 @@ export default async function Page({
     );
   }
 
-  // Composite — kept opaque, owns its own header chrome.
   return (
     <WorkspaceSettingsPage
       workspaceId={workspaceId}
@@ -87,5 +83,18 @@ export default async function Page({
       currentUserRole={role}
       currentUserId={session.user._id.toString()}
     />
+  );
+}
+
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ workspaceId: string }>;
+}) {
+  const { workspaceId } = await params;
+  return (
+    <Suspense fallback={<WorkspaceSettingsLoading />}>
+      <WorkspaceSettingsData workspaceId={workspaceId} />
+    </Suspense>
   );
 }

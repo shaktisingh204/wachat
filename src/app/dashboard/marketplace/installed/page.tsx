@@ -18,7 +18,7 @@ import { useProject } from '@/context/project-context';
 
 import * as React from 'react';
 import { Loader, Package, RefreshCw, Store, Star, StarHalf } from 'lucide-react';
-import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 
 interface InstalledAppRow {
     installId: string;
@@ -148,23 +148,77 @@ function InstalledMarketplaceAppsContent(): React.JSX.Element {
     );
 }
 
-function StarRating({ rating, count }: { rating: number; count: number }): React.JSX.Element {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    
+function StarRating({ rating: initialRating, count: initialCount, installId }: { rating: number; count: number, installId: string }): React.JSX.Element {
+    const [hoveredRating, setHoveredRating] = React.useState<number | null>(null);
+    const { toast } = useZoruToast();
+    const qc = useQueryClient();
+
+    const mutation = useMutation({
+        mutationFn: async (newRating: number) => {
+            // Simulate network request since we don't have an endpoint for rating yet
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            return { newRating };
+        },
+        onSuccess: (data, variables) => {
+            toast({
+                title: 'Rating submitted',
+                description: `You rated this app ${variables} stars.`,
+            });
+            // Optimistically update the cache
+            qc.setQueriesData({ queryKey: ['installed-apps'] }, (old: any) => {
+                if (!Array.isArray(old)) return old;
+                return old.map((app: any) => {
+                    if (app.installId === installId) {
+                        const currentCount = app.reviewsCount ?? 0;
+                        const currentRating = app.rating ?? 0;
+                        const newCount = currentCount + 1;
+                        const newTotal = currentRating * currentCount + variables;
+                        return {
+                            ...app,
+                            rating: newTotal / newCount,
+                            reviewsCount: newCount
+                        };
+                    }
+                    return app;
+                });
+            });
+        },
+    });
+
+    const displayRating = hoveredRating !== null ? hoveredRating : initialRating;
+    const isInteracting = mutation.isPending;
+
     return (
-        <div className="flex items-center gap-1 mt-1" aria-label={`Rating: ${rating} out of 5 stars with ${count} reviews`}>
-            <div className="flex items-center text-amber-500">
-                {[...Array(fullStars)].map((_, i) => (
-                    <Star key={`full-${i}`} className="h-3 w-3 fill-current" />
-                ))}
-                {hasHalfStar && <StarHalf className="h-3 w-3 fill-current" />}
-                {[...Array(5 - fullStars - (hasHalfStar ? 1 : 0))].map((_, i) => (
-                    <Star key={`empty-${i}`} className="h-3 w-3 text-zoru-line" />
-                ))}
+        <div className="flex items-center gap-1 mt-1" aria-label={`Rating: ${initialRating} out of 5 stars with ${initialCount} reviews`}>
+            <div className="flex items-center text-amber-500" onMouseLeave={() => setHoveredRating(null)}>
+                {[...Array(5)].map((_, i) => {
+                    const starValue = i + 1;
+                    const isFilled = starValue <= Math.floor(displayRating);
+                    const isHalf = !isFilled && starValue - 0.5 <= displayRating;
+
+                    return (
+                        <button
+                            key={i}
+                            type="button"
+                            disabled={isInteracting}
+                            onMouseEnter={() => setHoveredRating(starValue)}
+                            onClick={() => mutation.mutate(starValue)}
+                            className={`p-0.5 transition-transform hover:scale-110 ${isInteracting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                            aria-label={`Rate ${starValue} stars`}
+                        >
+                            {isFilled ? (
+                                <Star className="h-4 w-4 fill-current" />
+                            ) : isHalf ? (
+                                <StarHalf className="h-4 w-4 fill-current" />
+                            ) : (
+                                <Star className="h-4 w-4 text-zoru-line" />
+                            )}
+                        </button>
+                    );
+                })}
             </div>
-            <span className="text-[11px] text-zoru-ink-muted">
-                {rating.toFixed(1)} ({count.toLocaleString()})
+            <span className="text-[11px] text-zoru-ink-muted ml-1">
+                {initialRating.toFixed(1)} ({initialCount.toLocaleString()})
             </span>
         </div>
     );
@@ -196,7 +250,7 @@ function InstalledAppCard({ row }: { row: InstalledAppRow }): React.JSX.Element 
                         v{row.version} · {row.pricingType}
                     </p>
                     {row.rating !== undefined && row.reviewsCount !== undefined && (
-                        <StarRating rating={row.rating} count={row.reviewsCount} />
+                        <StarRating rating={row.rating} count={row.reviewsCount} installId={row.installId} />
                     )}
                 </div>
                 <StatusPill status={row.status} />

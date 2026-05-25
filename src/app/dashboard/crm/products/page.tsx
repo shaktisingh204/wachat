@@ -119,6 +119,12 @@ export default function CrmProductsPage() {
 
   // Bulk import
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    // Focus search input after mount to completely eliminate hydration warnings
+    searchInputRef.current?.focus();
+  }, []);
 
   const handleBulkImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -297,6 +303,7 @@ export default function CrmProductsPage() {
         </ZoruLabel>
         <div className="relative">
           <ZoruInput
+            ref={searchInputRef}
             placeholder="Name, SKU, or scan barcode..."
             value={search}
             onChange={(e) => {
@@ -304,7 +311,6 @@ export default function CrmProductsPage() {
               setPage(1);
             }}
             className="pl-9"
-            autoFocus // Barcode scanners need focus
           />
           <ScanBarcode className="absolute left-3 top-2.5 h-4 w-4 text-zoru-ink-muted" />
         </div>

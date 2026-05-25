@@ -18,6 +18,10 @@ export type SabflowBlock = {
   copySnippet: string;
   dependencies: string[];
   icon: string;
+  workspaceId?: string;
+  isMarketplace?: boolean;
+  downloads?: number;
+  author?: string;
 };
 
 export const MOCK_BLOCKS: SabflowBlock[] = [
@@ -37,6 +41,7 @@ export const MOCK_BLOCKS: SabflowBlock[] = [
     copySnippet: "<Block id=\"blk_send_sms\" to=\"{{contact.phone}}\" body=\"Hello!\" />",
     dependencies: ["provider_twilio", "compliance_10dlc"],
     icon: "MessageSquare",
+    workspaceId: "local",
   },
   {
     id: "blk_inbound_sms",
@@ -54,6 +59,7 @@ export const MOCK_BLOCKS: SabflowBlock[] = [
     copySnippet: "<Trigger type=\"inbound_sms\" />",
     dependencies: [],
     icon: "Inbox",
+    workspaceId: "local",
   },
   {
     id: "blk_check_consent",
@@ -71,6 +77,10 @@ export const MOCK_BLOCKS: SabflowBlock[] = [
     copySnippet: "<Block id=\"blk_check_consent\" phone=\"{{contact.phone}}\" />",
     dependencies: ["db_consent"],
     icon: "ShieldCheck",
+    workspaceId: "ws_other",
+    isMarketplace: true,
+    downloads: 1450,
+    author: "Compliance Co",
   },
   {
     id: "blk_delay",
@@ -88,6 +98,28 @@ export const MOCK_BLOCKS: SabflowBlock[] = [
     copySnippet: "<Block id=\"blk_delay\" durationSeconds={3600} />",
     dependencies: [],
     icon: "Clock",
+    workspaceId: "local",
+  },
+  {
+    id: "blk_sentiment_analysis",
+    name: "Sentiment Analysis",
+    type: "action",
+    category: "logic",
+    status: "ga",
+    creditCost: 2,
+    usageCount: 8900,
+    compatibility: { wachat: true, sabwa: true, crm: true },
+    description: "Analyzes message text and returns sentiment score.",
+    schema: "{\n  \"text\": \"string\"\n}",
+    exampleWorkflow: "Action: Sentiment Analysis -> Branch: If Negative -> Alert Agent",
+    changelog: "v2.0: Improved accuracy.",
+    copySnippet: "<Block id=\"blk_sentiment_analysis\" text=\"{{message.body}}\" />",
+    dependencies: ["ai_engine"],
+    icon: "Brain",
+    workspaceId: "ws_ai_labs",
+    isMarketplace: true,
+    downloads: 5600,
+    author: "AI Labs",
   }
 ];
 

@@ -5,10 +5,20 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, useZoruToast, ZoruSelect, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/zoruui';
 import { createGenerativeAIDraft, updateGenerativeAIDraftStatus, deleteGenerativeAIDraft } from '@/app/actions/platform/generative-ai-drafter.actions';
 import type { GenerativeAIDraft } from '@/types/platform';
-import { LoaderCircle, Plus, Trash2, CheckCircle, XCircle, Bot, Cpu } from 'lucide-react';
+import { LoaderCircle, Plus, Trash2, CheckCircle, XCircle, Bot, Cpu, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export default function GenerativeAIDrafterClientPage({ initialData }: { initialData: GenerativeAIDraft[] }) {
+export default function GenerativeAIDrafterClientPage({ 
+  initialData, 
+  total,
+  currentPage,
+  limit
+}: { 
+  initialData: GenerativeAIDraft[],
+  total: number,
+  currentPage: number,
+  limit: number
+}) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isPending, startTransition] = useTransition();
@@ -67,8 +77,10 @@ export default function GenerativeAIDrafterClientPage({ initialData }: { initial
   const filteredData = initialData.filter(d => 
     d.prompt.toLowerCase().includes(query.toLowerCase()) || 
     d.entityType.includes(query.toLowerCase()) ||
-    d.aiModel?.includes(query.toLowerCase())
+    (d.aiModel && d.aiModel.toLowerCase().includes(query.toLowerCase()))
   );
+
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <EntityListShell
@@ -76,6 +88,34 @@ export default function GenerativeAIDrafterClientPage({ initialData }: { initial
       subtitle="Draft emails, proposals, and contracts instantly using AI."
       primaryAction={<Button onClick={() => setDialogOpen(true)}><Plus className="w-4 h-4 mr-2" />New Draft</Button>}
       search={{ value: query, onChange: setQuery, placeholder: 'Search drafts...' }}
+      pagination={
+        totalPages > 1 ? (
+          <div className="flex items-center justify-between border-t border-zoru-line pt-4 mt-4">
+            <span className="text-sm text-zoru-ink-light">
+              Showing {Math.min((currentPage - 1) * limit + 1, total)} to {Math.min(currentPage * limit, total)} of {total} entries
+            </span>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => router.push(`?page=${currentPage - 1}`)} 
+                disabled={currentPage <= 1}
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" /> Previous
+              </Button>
+              <span className="text-sm px-2">Page {currentPage} of {totalPages}</span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => router.push(`?page=${currentPage + 1}`)} 
+                disabled={currentPage >= totalPages}
+              >
+                Next <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+          </div>
+        ) : null
+      }
     >
       <div className="grid gap-6">
         {filteredData.map(item => (
@@ -139,7 +179,7 @@ export default function GenerativeAIDrafterClientPage({ initialData }: { initial
             </div>
             <div className="grid gap-2">
               <Label>Content Type</Label>
-              <ZoruSelect value={form.entityType} onValueChange={v => setForm({ ...form, entityType: v })}>
+              <ZoruSelect value={form.entityType} onValueChange={(v) => setForm({ ...form, entityType: v })}>
                 <ZoruSelectTrigger><ZoruSelectValue placeholder="Select type" /></ZoruSelectTrigger>
                 <ZoruSelectContent>
                   <ZoruSelectItem value="email">Email</ZoruSelectItem>
@@ -169,3 +209,4 @@ export default function GenerativeAIDrafterClientPage({ initialData }: { initial
     </EntityListShell>
   );
 }
+

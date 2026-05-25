@@ -5,22 +5,22 @@ import {
   Checkbox,
   StatCard,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   Input,
   Badge,
   DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -100,7 +100,7 @@ const PRIORITY_TONE: Record<string, 'neutral' | 'blue' | 'amber' | 'red'> = {
 function fmtDate(v: unknown): string {
   if (!v) return '—';
   const d = new Date(v as string | Date);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return Number.isNaN(d.getTime()) ? '—' : d.toISOString().split('T')[0];
 }
 
 function isResolved(s: string | undefined): boolean {
@@ -339,30 +339,30 @@ export default function ProjectIssuesPage() {
         filters={
           <>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+              <SelectTrigger className="h-9 w-[160px] text-[13px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
                 {STATUS_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
+                  <SelectItem key={o.value} value={o.value}>
                     {o.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-              <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                <ZoruSelectValue placeholder="Priority" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All priorities</ZoruSelectItem>
+              <SelectTrigger className="h-9 w-[160px] text-[13px]">
+                <SelectValue placeholder="Priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All priorities</SelectItem>
                 {PRIORITY_OPTIONS.map((o) => (
-                  <ZoruSelectItem key={o.value} value={o.value}>
+                  <SelectItem key={o.value} value={o.value}>
                     {o.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
             <Input
               value={projectFilter}
@@ -512,45 +512,45 @@ function IssuesTable({
   return (
     <div className="overflow-x-auto rounded-lg border border-zoru-line">
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-            <ZoruTableHead className="w-10">
+        <TableHeader>
+          <TableRow className="border-zoru-line hover:bg-transparent">
+            <TableHead className="w-10">
               <Checkbox
                 checked={allChecked || (someChecked ? 'indeterminate' : false)}
                 onCheckedChange={(v) => onToggleAll(!!v)}
                 aria-label="Select all"
               />
-            </ZoruTableHead>
-            <ZoruTableHead>Title</ZoruTableHead>
-            <ZoruTableHead>Project</ZoruTableHead>
-            <ZoruTableHead>Priority</ZoruTableHead>
-            <ZoruTableHead>Reporter</ZoruTableHead>
-            <ZoruTableHead>Assignee</ZoruTableHead>
-            <ZoruTableHead>Status</ZoruTableHead>
-            <ZoruTableHead>Created</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+            </TableHead>
+            <TableHead>Title</TableHead>
+            <TableHead>Project</TableHead>
+            <TableHead>Priority</TableHead>
+            <TableHead>Reporter</TableHead>
+            <TableHead>Assignee</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Created</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {rows.map((r) => {
             const priorityLower = (r.priority ?? 'medium').toLowerCase();
             return (
-              <ZoruTableRow key={r._id} className="border-zoru-line transition-colors">
-                <ZoruTableCell>
+              <TableRow key={r._id} className="border-zoru-line transition-colors">
+                <TableCell>
                   <Checkbox
                     checked={selection.has(r._id)}
                     onCheckedChange={() => onToggle(r._id)}
                     aria-label={`Select ${r.title}`}
                   />
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </TableCell>
+                <TableCell>
                   <EntityRowLink
                     href={`/dashboard/crm/projects/issues/${r._id}`}
                     label={r.title}
                     subtitle={r.description || undefined}
                   />
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </TableCell>
+                <TableCell>
                   {r.projectId ? (
                     <EntityPickerChip
                       entity="project"
@@ -560,14 +560,14 @@ function IssuesTable({
                   ) : (
                     <span className="text-[12px] text-zoru-ink-muted">—</span>
                   )}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </TableCell>
+                <TableCell>
                   <StatusPill
                     label={r.priority || 'medium'}
                     tone={PRIORITY_TONE[priorityLower] ?? 'neutral'}
                   />
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </TableCell>
+                <TableCell>
                   {r.reporterUserId ? (
                     <EntityPickerChip
                       entity="user"
@@ -579,8 +579,8 @@ function IssuesTable({
                       {r.reporterName || '—'}
                     </span>
                   )}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </TableCell>
+                <TableCell>
                   {r.assigneeUserId ? (
                     <EntityPickerChip
                       entity="user"
@@ -592,16 +592,16 @@ function IssuesTable({
                       {r.assigneeName || 'Unassigned'}
                     </span>
                   )}
-                </ZoruTableCell>
-                <ZoruTableCell>
+                </TableCell>
+                <TableCell>
                   <StatusPill label={r.status} tone={statusToTone(r.status)} />
-                </ZoruTableCell>
-                <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                </TableCell>
+                <TableCell className="text-[12.5px] text-zoru-ink-muted">
                   {fmtDate(r.createdAt)}
-                </ZoruTableCell>
-                <ZoruTableCell className="text-right">
+                </TableCell>
+                <TableCell className="text-right">
                   <DropdownMenu>
-                    <ZoruDropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild>
                       <button
                         type="button"
                         aria-label={`Actions for ${r.title}`}
@@ -609,31 +609,31 @@ function IssuesTable({
                       >
                         <MoreHorizontal className="h-4 w-4" />
                       </button>
-                    </ZoruDropdownMenuTrigger>
-                    <ZoruDropdownMenuContent align="end">
-                      <ZoruDropdownMenuItem asChild>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
                         <Link href={`/dashboard/crm/projects/issues/${r._id}`}>
                           <Eye className="mr-1.5 h-3.5 w-3.5" /> View
                         </Link>
-                      </ZoruDropdownMenuItem>
-                      <ZoruDropdownMenuItem asChild>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
                         <Link href={`/dashboard/crm/projects/issues/${r._id}/edit`}>
                           <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
                         </Link>
-                      </ZoruDropdownMenuItem>
-                      <ZoruDropdownMenuItem
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
                         onClick={() => onDelete(r._id)}
                         className="text-zoru-danger"
                       >
                         <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
-                      </ZoruDropdownMenuItem>
-                    </ZoruDropdownMenuContent>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
                   </DropdownMenu>
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </TableCell>
+              </TableRow>
             );
           })}
-        </ZoruTableBody>
+        </TableBody>
       </Table>
     </div>
   );

@@ -161,6 +161,9 @@ export function ActivityRow({
     currentUserId,
     actorLabel,
 }: ActivityRowProps): React.JSX.Element {
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => { setMounted(true); }, []);
+
     const tone = toneFor(entry.action);
     const verb = verbFor(entry.action);
     const actor = actorDisplay(entry.actorId, currentUserId, actorLabel);
@@ -198,9 +201,9 @@ export function ActivityRow({
                     ) : null}
                     <span
                         className="ml-auto text-[11.5px] text-zoru-ink-muted"
-                        title={absoluteTime(entry.createdAt)}
+                        title={mounted ? absoluteTime(entry.createdAt) : entry.createdAt}
                     >
-                        {relativeTime(entry.createdAt)}
+                        {mounted ? relativeTime(entry.createdAt) : entry.createdAt.slice(0, 10)}
                     </span>
                 </div>
                 {entry.reason ? (

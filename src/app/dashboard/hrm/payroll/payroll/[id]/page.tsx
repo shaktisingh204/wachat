@@ -19,6 +19,7 @@ import {
     getPayrollRunPayslips,
 } from '@/app/actions/crm-payroll-runs.actions';
 import type { CrmPayrollRunStatus } from '@/app/actions/crm-payroll-runs.actions';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,17 +38,6 @@ const MONTH_LABELS = [
     'July', 'August', 'September', 'October', 'November', 'December',
 ] as const;
 
-const inr = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-});
-
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
 
 interface PayslipRow {
     _id?: string;
@@ -140,7 +130,7 @@ export default async function PayrollRunDetailPage({
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Run date</div>
-                        <div className="text-zoru-ink">{fmtDate(run.run_date)}</div>
+                        <div className="text-zoru-ink">{fmtDate(run.run_date, 'MMM d, yyyy')}</div>
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Run by</div>
@@ -157,19 +147,19 @@ export default async function PayrollRunDetailPage({
                     <div>
                         <div className="text-zoru-ink-muted">Total gross</div>
                         <div className="font-mono text-zoru-ink">
-                            {inr.format(run.total_gross ?? 0)}
+                            {fmtINR(run.total_gross ?? 0)}
                         </div>
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Total deductions</div>
                         <div className="font-mono text-zoru-ink">
-                            {inr.format(totalDeductions)}
+                            {fmtINR(totalDeductions)}
                         </div>
                     </div>
                     <div>
                         <div className="text-zoru-ink-muted">Total net</div>
                         <div className="font-mono text-zoru-ink">
-                            {inr.format(run.total_net ?? 0)}
+                            {fmtINR(run.total_net ?? 0)}
                         </div>
                     </div>
                     {run.notes ? (
@@ -216,10 +206,10 @@ export default async function PayrollRunDetailPage({
                                             {p.employeeId ?? '—'}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-right font-mono text-zoru-ink">
-                                            {inr.format(p.grossSalary ?? 0)}
+                                            {fmtINR(p.grossSalary ?? 0)}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-right font-mono text-zoru-ink">
-                                            {inr.format(p.netPay ?? 0)}
+                                            {fmtINR(p.netPay ?? 0)}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="capitalize text-zoru-ink">
                                             {(p.status ?? '—').replace(/_/g, ' ')}

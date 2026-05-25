@@ -51,7 +51,7 @@ function fmtMoney(value?: number, currency?: string): string {
 function fmtDate(v?: string): string {
   if (!v) return '—';
   const d = new Date(v);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US', { timeZone: 'UTC' });
 }
 
 function modeLabel(mode: string | undefined): string {

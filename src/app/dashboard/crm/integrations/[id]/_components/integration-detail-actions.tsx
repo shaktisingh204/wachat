@@ -138,3 +138,45 @@ export function IntegrationDeleteButton({
     </>
   );
 }
+
+import { RefreshCw } from 'lucide-react';
+import { triggerManualSync } from '@/app/actions/crm-integrations.actions';
+
+export function IntegrationSyncButton({
+  integrationId,
+}: {
+  integrationId: string;
+}) {
+  const [pending, start] = useTransition();
+  const router = useRouter();
+  const { toast } = useZoruToast();
+
+  return (
+    <Button
+      variant="outline"
+      disabled={pending}
+      onClick={() =>
+        start(async () => {
+          const res = await triggerManualSync(integrationId);
+          if (res.success) {
+            toast({
+              title: 'Sync triggered',
+              description: 'The integration is now syncing.',
+            });
+            router.refresh();
+          } else {
+            toast({
+              title: 'Sync Failed',
+              description: res.error ?? 'Could not start sync.',
+              variant: 'destructive',
+            });
+          }
+        })
+      }
+    >
+      <RefreshCw className={`mr-2 h-4 w-4 ${pending ? 'animate-spin' : ''}`} />
+      Manual Sync
+    </Button>
+  );
+}
+

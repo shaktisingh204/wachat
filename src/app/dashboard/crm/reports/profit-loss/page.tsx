@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+import React, { Suspense } from 'react';
 
 import {
   Card,
@@ -16,13 +16,13 @@ import { StatCard, fmtMoney, fmtPct } from '../_components/report-toolbar';
 import { ProfitLossStackedBar } from '../_components/finance-charts';
 import { getProfitLossDeepDB } from '../_components/finance-data';
 import { PlFilterToolbar } from './_components/pl-filter-toolbar';
-import type { ProfitLossStackedRow } from '@/lib/worksuite/report-types';
+import ReportsLoading from '../loading';
 
 const PAGE_SIZES = [10, 20, 50, 100];
 
+export const dynamic = 'force-dynamic';
 
-
-export default async function ProfitLossPage(props: {
+interface PageProps {
   searchParams: Promise<{
     from?: string;
     to?: string;
@@ -31,16 +31,23 @@ export default async function ProfitLossPage(props: {
     granularity?: string;
     department?: string;
   }>;
+}
+
+/* ─── Server Container ────────────────────────────────────────────── */
+
+async function ProfitLossContainer({
+  searchParams,
+}: {
+  searchParams: Awaited<PageProps['searchParams']>;
 }) {
-  const sp = await props.searchParams;
-  const page = Math.max(1, Number(sp.page) || 1);
-  const limit = PAGE_SIZES.includes(Number(sp.limit)) ? Number(sp.limit) : 20;
-  const isQuarterly = (sp.granularity ?? 'monthly') === 'quarterly';
+  const page = Math.max(1, Number(searchParams.page) || 1);
+  const limit = PAGE_SIZES.includes(Number(searchParams.limit)) ? Number(searchParams.limit) : 20;
+  const isQuarterly = (searchParams.granularity ?? 'monthly') === 'quarterly';
 
   const data = await getProfitLossDeepDB({
-    fyAnchor: sp.from,
-    granularity: sp.granularity ?? 'monthly',
-    department: sp.department,
+    fyAnchor: searchParams.from,
+    granularity: searchParams.granularity ?? 'monthly',
+    department: searchParams.department,
   });
 
   if (!data) return null;
@@ -68,10 +75,10 @@ export default async function ProfitLossPage(props: {
       subtitle={`Revenue − COGS − OpEx by ${isQuarterly ? 'quarter' : 'month'} · ${fyLabel}`}
       primaryAction={
         <PlFilterToolbar
-          from={sp.from}
-          to={sp.to}
-          granularity={sp.granularity ?? 'monthly'}
-          department={sp.department ?? ''}
+          from={searchParams.from}
+          to={searchParams.to}
+          granularity={searchParams.granularity ?? 'monthly'}
+          department={searchParams.department ?? ''}
           exportHeaders={exportHeaders}
           exportRows={exportRows}
         />
@@ -164,7 +171,6 @@ export default async function ProfitLossPage(props: {
                 </ZoruTableRow>
               ) : (
                 pageRows.map((r) => {
-                  // Drill-down: link period to income report filtered to that month/quarter
                   const periodHref = `/dashboard/crm/reports/income?from=${r.period.length === 7 ? `${r.period}-01` : `${r.period.split('-')[0]}-${String((Number(r.period.split('Q')[1]) - 1) * 3 + 1).padStart(2, '0')}-01`}`;
                   return (
                     <ZoruTableRow key={r.period} className="border-zoru-line">
@@ -233,5 +239,15 @@ export default async function ProfitLossPage(props: {
         </div>
       </Card>
     </EntityListShell>
+  );
+}
+
+export default async function ProfitLossPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+
+  return (
+    <Suspense fallback={<ReportsLoading />}>
+      <ProfitLossContainer searchParams={sp} />
+    </Suspense>
   );
 }

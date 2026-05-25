@@ -24,3 +24,25 @@ export async function deleteOnboardingTask(id: string) {
   revalidatePath('/dashboard/hrm-advanced/employee-onboarding');
   return result;
 }
+
+export async function bulkDeleteOnboardingTasks(ids: string[]) {
+  // In a real implementation, you'd use a bulk delete operation
+  // For now, we'll map over them
+  for (const id of ids) {
+    await hrDelete(COLLECTION, id);
+  }
+  revalidatePath('/dashboard/hrm-advanced/employee-onboarding');
+  return { success: true };
+}
+
+export async function bulkCompleteOnboardingTasks(ids: string[]) {
+  for (const id of ids) {
+    // Assuming hrList or similar can fetch by ID, or we just patch
+    // For simplicity, we just send a save with isCompleted: true
+    // Need to fetch first if we want to retain other fields, but hrSave 
+    // usually does an upsert/merge if we pass _id
+    await hrSave(COLLECTION, { _id: id, isCompleted: true } as any);
+  }
+  revalidatePath('/dashboard/hrm-advanced/employee-onboarding');
+  return { success: true };
+}

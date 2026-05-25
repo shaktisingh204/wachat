@@ -54,7 +54,16 @@ export function ValidityCountdown({ validUpto, status }: ValidityCountdownProps)
     <div className="flex flex-col gap-0.5">
       <Badge variant={tone}>{`Expires in ${formatDelta(delta)}`}</Badge>
       <span className="text-[11px] text-zoru-ink-muted">
-        {new Date(target).toLocaleString()}
+        {(() => {
+          const date = new Date(target);
+          const day = String(date.getUTCDate()).padStart(2, '0');
+          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          const month = months[date.getUTCMonth()];
+          const year = date.getUTCFullYear();
+          const hours = String(date.getUTCHours()).padStart(2, '0');
+          const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+          return `${day} ${month} ${year} ${hours}:${minutes} UTC`;
+        })()}
       </span>
     </div>
   );

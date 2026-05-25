@@ -53,10 +53,21 @@ export type HrCandidate = Owned & {
 export type HrInterview = Owned & {
   candidateId: ObjectId;
   roundNumber: number;
+  roundName?: string;
   interviewerName?: string;
+  interviewerEmail?: string;
+  interviewerPhone?: string;
   scheduledAt: Date;
+  durationMinutes?: number;
+  type?: string;
+  location?: string;
+  meetingLink?: string;
   mode: 'in-person' | 'phone' | 'video';
   status: 'scheduled' | 'completed' | 'cancelled' | 'no-show';
+  result?: string;
+  rating?: number;
+  strengths?: string;
+  weaknesses?: string;
   feedback?: string;
   recommendation?: 'strong-hire' | 'hire' | 'no-hire' | 'strong-no-hire';
 };

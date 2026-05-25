@@ -3,16 +3,19 @@
 import { Card, ZoruCardContent, Textarea } from '@/components/zoruui';
 import { useMemo, useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { countWords, ngramDensity } from '@/lib/seo-tools/text-utils';
 
 export default function KeywordDensityPage() {
   const [text, setText] = useState('');
+  const [filterStopwords, setFilterStopwords] = useState(true);
   
-  const density1 = useMemo(() => ngramDensity(text, 1).slice(0, 30), [text]);
-  const density2 = useMemo(() => ngramDensity(text, 2).slice(0, 30), [text]);
-  const density3 = useMemo(() => ngramDensity(text, 3).slice(0, 30), [text]);
+  const density1 = useMemo(() => ngramDensity(text, 1, filterStopwords).slice(0, 30), [text, filterStopwords]);
+  const density2 = useMemo(() => ngramDensity(text, 2, filterStopwords).slice(0, 30), [text, filterStopwords]);
+  const density3 = useMemo(() => ngramDensity(text, 3, filterStopwords).slice(0, 30), [text, filterStopwords]);
   const total = useMemo(() => countWords(text), [text]);
 
   const renderTable = (density: { word: string; count: number; density: number }[]) => (
@@ -55,11 +58,24 @@ export default function KeywordDensityPage() {
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste or type your content…"
-        className="min-h-[240px]"
+        className="min-h-[240px] mb-4"
       />
-      <div className="text-sm text-muted-foreground mb-4">Total words: {total}</div>
       
-      <Tabs defaultValue="1-word">
+      <div className="flex items-center justify-between mb-4">
+        <div className="text-sm text-muted-foreground">Total words: {total}</div>
+        <div className="flex items-center space-x-2">
+          <Switch 
+            id="stopword-filter" 
+            checked={filterStopwords} 
+            onCheckedChange={setFilterStopwords} 
+          />
+          <Label htmlFor="stopword-filter" className="text-sm font-medium">
+            Exclude Stopwords
+          </Label>
+        </div>
+      </div>
+      
+      <Tabs defaultValue="2-word">
         <TabsList className="mb-4">
           <TabsTrigger value="1-word">1-Word (Unigrams)</TabsTrigger>
           <TabsTrigger value="2-word">2-Word (Bigrams)</TabsTrigger>

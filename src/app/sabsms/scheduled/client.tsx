@@ -62,6 +62,8 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
   const [selectedSend, setSelectedSend] = useState<ScheduledSend | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [now, setNow] = useState(new Date());
+
   
   // Conflicts
   const [quietConflicts, setQuietConflicts] = useState<Set<string>>(new Set());
@@ -113,6 +115,25 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
     reload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workspaceId, monthCursor]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const futureSends = sends.filter(s => new Date(s.sendAt) > now).sort((a, b) => new Date(a.sendAt).getTime() - new Date(b.sendAt).getTime());
+  const nextSend = futureSends[0];
+
+  const getCountdownString = (target: Date) => {
+    const diff = target.getTime() - now.getTime();
+    if (diff <= 0) return "Sending now...";
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((diff % (1000 * 60)) / 1000);
+    return `${d > 0 ? d + "d " : ""}${h}h ${m}m ${s}s`;
+  };
+
 
   const handleDragStart = (e: React.DragEvent, sendId: string) => {
     e.dataTransfer.setData("sendId", sendId);
@@ -229,6 +250,26 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
         </div>
       }
     >
+      {nextSend && (
+        <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100">
+          <ZoruCardContent className="p-4 flex items-center justify-between">
+            <div className="flex items-center">
+              <Clock className="w-5 h-5 text-blue-600 mr-3" />
+              <div>
+                <h3 className="text-sm font-semibold text-blue-900">Next Scheduled Send: {nextSend.name}</h3>
+                <p className="text-xs text-blue-700 mt-1">
+                  Scheduled for {format(new Date(nextSend.sendAt), "PPP p")} Local ({new Date(nextSend.sendAt).toISOString().substring(11, 16)} UTC)
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-blue-900 tabular-nums">{getCountdownString(new Date(nextSend.sendAt))}</div>
+              <div className="text-xs text-blue-700 uppercase tracking-wider">Countdown</div>
+            </div>
+          </ZoruCardContent>
+        </Card>
+      )}
+
       <div className="flex space-x-6">
         {/* Main Area */}
         <div className="flex-1">
@@ -288,12 +329,15 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
                               draggable
                               onDragStart={(e) => handleDragStart(e, s.id)}
                               onClick={() => openDrawer(s)}
-                              className="text-xs p-1.5 rounded bg-blue-50 border border-blue-100 text-blue-800 cursor-pointer hover:bg-blue-100 flex items-center shadow-sm"
+                              className="text-xs p-1.5 rounded bg-blue-50 border border-blue-100 text-blue-800 cursor-pointer hover:bg-blue-100 flex items-start shadow-sm"
                             >
-                              <GripVertical className="w-3 h-3 mr-1 opacity-50 flex-shrink-0" />
-                              <span className="truncate flex-1 font-medium">{format(new Date(s.sendAt), "HH:mm")} {s.name}</span>
-                              {quietConflicts.has(s.id) && <AlertCircle className="w-3 h-3 text-rose-500 ml-1 flex-shrink-0" />}
-                              {campaignConflicts.has(s.id) && <AlertCircle className="w-3 h-3 text-amber-500 ml-1 flex-shrink-0" />}
+                              <GripVertical className="w-3 h-3 mr-1 opacity-50 flex-shrink-0 mt-0.5" />
+                              <div className="truncate flex-1 flex flex-col">
+                                <span className="font-medium truncate">{format(new Date(s.sendAt), "HH:mm")} {s.name}</span>
+                                <span className="text-[10px] text-blue-600/70 truncate">{new Date(s.sendAt).toISOString().substring(11, 16)} UTC</span>
+                              </div>
+                              {quietConflicts.has(s.id) && <AlertCircle className="w-3 h-3 text-rose-500 ml-1 flex-shrink-0 mt-0.5" />}
+                              {campaignConflicts.has(s.id) && <AlertCircle className="w-3 h-3 text-amber-500 ml-1 flex-shrink-0 mt-0.5" />}
                             </div>
                           ))}
                         </div>
@@ -311,7 +355,15 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
                   rowKey={r => r.id}
                   onRowClick={openDrawer}
                   columns={[
-                    { id: "time", header: "Send At", render: r => format(new Date(r.sendAt), "MMM d, HH:mm") },
+                    { id: "time", header: "Send At", render: r => {
+                      const dt = new Date(r.sendAt);
+                      return (
+                        <div className="flex flex-col">
+                          <span className="font-medium text-slate-900">{format(dt, "MMM d, HH:mm")} (Local)</span>
+                          <span className="text-[10px] text-slate-500">{dt.toISOString().substring(11, 16)} (UTC)</span>
+                        </div>
+                      );
+                    } },
                     { id: "name", header: "Name", render: r => <div className="font-medium text-slate-900">{r.name}</div> },
                     { id: "sender", header: "Sender", render: r => <Badge variant="outline">{r.senderId}</Badge> },
                     { id: "count", header: "Recipients", render: r => r.recipientCount.toLocaleString() },
@@ -372,7 +424,8 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <span className="text-xs text-slate-500">Scheduled For</span>
-                <div className="font-medium">{format(new Date(selectedSend.sendAt), "PPP p")}</div>
+                <div className="font-medium">{format(new Date(selectedSend.sendAt), "PPP p")} (Local)</div>
+                <div className="text-xs text-slate-500">{new Date(selectedSend.sendAt).toISOString().substring(0, 16).replace("T", " ")} (UTC)</div>
               </div>
               <div className="space-y-1">
                 <span className="text-xs text-slate-500">Recipient TZ</span>

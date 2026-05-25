@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getSalesForecasts } from '@/app/actions/platform/ai-sales-forecasting.actions';
 import { ClientSalesForecastingPage } from './client-page';
 

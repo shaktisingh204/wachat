@@ -19,8 +19,8 @@ export const dynamic = 'force-dynamic';
 const SOON_DAYS = 30;
 const NEAR_EXPIRY_DAYS = 90;
 
-function computeKpi(batches: CrmItemBatchDoc[]): BatchExpiryKpi {
-  const now = Date.now();
+function computeKpi(batches: CrmItemBatchDoc[], serverNow?: number): BatchExpiryKpi {
+  const now = serverNow ?? Date.now();
   const soonCutoff = now + SOON_DAYS * 86_400_000;
   const nearCutoff = now + NEAR_EXPIRY_DAYS * 86_400_000;
 
@@ -50,12 +50,16 @@ function computeKpi(batches: CrmItemBatchDoc[]): BatchExpiryKpi {
 
 export default async function BatchExpiryPage() {
   const batches = await getCrmItemBatches();
-  const kpi = computeKpi(batches);
+  const serverNow = Date.now();
+  
+  // Optional: pass serverNow to computeKpi so they share the exact same timestamp
+  const kpi = computeKpi(batches, serverNow);
 
   return (
     <BatchExpiryListClient
       batches={batches}
       kpi={kpi}
+      serverNow={serverNow}
     />
   );
 }

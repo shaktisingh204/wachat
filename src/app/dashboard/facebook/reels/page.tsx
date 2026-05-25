@@ -61,9 +61,9 @@ import {
   publishPageReel,
   } from "@/app/actions/facebook.actions";
 import {
-  presignUpload,
   confirmUpload,
   } from "@/app/actions/sabfiles.actions";
+import { useProject } from "@/context/project-context";
 
 /**
  * /dashboard/facebook/reels — Meta Suite Reels manager, ZoruUI rebuild.
@@ -264,15 +264,15 @@ export default function ReelsPage() {
     });
   }, [projectId]);
 
+  const { activeProjectId } = useProject();
+
   useEffect(() => {
     document.title = "Reels · Meta Suite · SabNode";
-    const stored =
-      typeof window !== "undefined"
-        ? localStorage.getItem("activeProjectId")
-        : null;
-    setProjectId(stored);
-    setProjectIdReady(true);
-  }, []);
+    if (activeProjectId !== undefined) {
+      setProjectId(activeProjectId);
+      setProjectIdReady(true);
+    }
+  }, [activeProjectId]);
 
   useEffect(() => {
     if (projectId) fetchReels();

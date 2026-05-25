@@ -172,6 +172,8 @@ pub struct TrackClickQuery {
     pub referrer: Option<String>,
     #[serde(default)]
     pub ip: Option<String>,
+    #[serde(default)]
+    pub password: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -855,13 +857,15 @@ pub async fn track_click(
                 utm_params: None,
                 split_targets: None,
                 is_expired: None,
+                pixel_ids: None,
+                is_expired: None,
             });
         }
     }
 
     // Check password protection
     if let Ok(ph) = doc.get_str("passwordHash") {
-        if !ph.is_empty() {
+        if !ph.is_empty() && q.password.as_deref() != Some(ph) {
             return Ok(TrackClickResult {
                 original_url: None,
                 error: None,

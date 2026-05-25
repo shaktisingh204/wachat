@@ -9,7 +9,7 @@
  * Section switching uses a segmented button group (no-tab-ui compliant).
  */
 
-import { useState, useCallback, useTransition } from 'react';
+import { useState, useCallback, useTransition, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/components/zoruui';
 import type {
@@ -21,9 +21,12 @@ import type {
 
 import { ProfileCard } from './profile-card';
 import { KpiStrip } from './kpi-strip';
-import { TeamGrid } from './team-grid';
-import { MyTasksTable, MyCreatedTasksTable } from './tasks-panel';
-import { Users, ClipboardList, ClipboardCheck } from 'lucide-react';
+import { Users, ClipboardList, ClipboardCheck, Loader2 } from 'lucide-react';
+
+// Lazy loaded components for better loading states
+const TeamGrid = lazy(() => import('./team-grid').then(m => ({ default: m.TeamGrid })));
+const MyTasksTable = lazy(() => import('./tasks-panel').then(m => ({ default: m.MyTasksTable })));
+const MyCreatedTasksTable = lazy(() => import('./tasks-panel').then(m => ({ default: m.MyCreatedTasksTable })));
 
 interface PortalShellProps {
     profile: PortalEmployeeProfile;
@@ -46,6 +49,14 @@ const SECTIONS: SectionDef[] = [
     { id: 'my-tasks', label: 'Tasks Assigned to Me', icon: <ClipboardList className="h-3.5 w-3.5 shrink-0" /> },
     { id: 'created-tasks', label: 'Tasks I Assigned', icon: <ClipboardCheck className="h-3.5 w-3.5 shrink-0" /> },
 ];
+
+function SectionLoader() {
+    return (
+        <div className="flex h-32 items-center justify-center rounded-lg border border-zoru-line bg-zoru-surface-2">
+            <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+        </div>
+    );
+}
 
 export function PortalShell({
     profile,
@@ -105,7 +116,9 @@ export function PortalShell({
                             Your direct reports — click a card to assign a task.
                         </p>
                     </div>
-                    <TeamGrid members={team} onTaskAssigned={refresh} />
+                    <Suspense fallback={<SectionLoader />}>
+                        <TeamGrid members={team} onTaskAssigned={refresh} />
+                    </Suspense>
                 </section>
             )}
 
@@ -117,7 +130,9 @@ export function PortalShell({
                             Open tasks you need to complete. Hit &ldquo;Done&rdquo; to mark complete.
                         </p>
                     </div>
-                    <MyTasksTable tasks={myTasks} onRefresh={refresh} />
+                    <Suspense fallback={<SectionLoader />}>
+                        <MyTasksTable tasks={myTasks} onRefresh={refresh} />
+                    </Suspense>
                 </section>
             )}
 
@@ -129,7 +144,9 @@ export function PortalShell({
                             Open tasks you have delegated to your team.
                         </p>
                     </div>
-                    <MyCreatedTasksTable tasks={createdTasks} />
+                    <Suspense fallback={<SectionLoader />}>
+                        <MyCreatedTasksTable tasks={createdTasks} />
+                    </Suspense>
                 </section>
             )}
         </div>

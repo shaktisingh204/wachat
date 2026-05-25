@@ -47,9 +47,11 @@ import {
   forceLogout,
   inviteMember,
   loadMemberAudit,
+  removeMember,
   resendInvite,
   revokeInvite,
   updateMemberCaps,
+  updateMemberDataAccess,
   updateMemberRole,
   type MemberAuditEntry,
   type Role,
@@ -68,7 +70,7 @@ function formatRelative(iso?: string): string {
   if (diff < 60_000) return "just now";
   if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`;
   if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`;
-  return new Date(iso).toLocaleDateString();
+  return fmtDate(iso);
 }
 
 export function TeamTable({ initialRows, total }: TeamTableProps) {
@@ -97,6 +99,12 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
     open: false,
     rateLimit: "",
     dailyCap: "",
+  });
+
+  const [dataAccessEditor, setDataAccessEditor] = React.useState<{ open: boolean; member?: TeamMemberRow; allowedCampaigns: string; allowedTags: string }>({
+    open: false,
+    allowedCampaigns: "",
+    allowedTags: "",
   });
 
   const [bulkRoleEditor, setBulkRoleEditor] = React.useState<{ open: boolean; role: Role }>({
@@ -150,6 +158,15 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
 
   async function handleUpdateRole() {
     if (!roleEditor.member) return;
+
+    if (roleEditor.member.role === "sabsms_admin" && roleEditor.role !== "sabsms_admin") {
+      const adminCount = rows.filter(r => r.status === "active" && r.role === "sabsms_admin").length;
+      if (adminCount <= 1) {
+        feedbackResult({ ok: false, error: "Cannot downgrade the last active admin." }, "");
+        return;
+      }
+    }
+
     await withBusy("role", async () => {
       const res = await updateMemberRole({ memberId: roleEditor.member!.id, role: roleEditor.role });
       feedbackResult(res, "Role updated");
@@ -162,9 +179,19 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
 
   async function handleBulkRole() {
     if (selectedIds.length === 0) return;
+
+    if (bulkRoleEditor.role !== "sabsms_admin") {
+      const activeAdmins = rows.filter(r => r.status === "active" && r.role === "sabsms_admin");
+      const adminsToDowngrade = activeAdmins.filter(r => selectedIds.includes(r.id));
+      if (activeAdmins.length > 0 && adminsToDowngrade.length === activeAdmins.length) {
+        feedbackResult({ ok: false, error: "Cannot downgrade the last active admin(s)." }, "");
+        return;
+      }
+    }
+
     await withBusy("bulkRole", async () => {
       const res = await bulkReassignRole({ memberIds: selectedIds, role: bulkRoleEditor.role });
-      feedbackResult(res, `Updated ${res.updated} roles`);
+      feedbackResult(res, "Roles updated");
       if (res.ok) {
         setRows((prev) => prev.map((r) => (selectedIds.includes(r.id) ? { ...r, role: bulkRoleEditor.role } : r)));
         setBulkRoleEditor({ open: false, role: "agent" });
@@ -183,6 +210,18 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
       if (res.ok) {
         setRows((prev) => prev.map((r) => (r.id === capsEditor.member!.id ? { ...r, rateLimitOverride, dailySendCap } : r)));
         setCapsEditor({ open: false, rateLimit: "", dailyCap: "" });
+      }
+    });
+  }
+
+  async function handleUpdateDataAccess() {
+    if (!dataAccessEditor.member) return;
+    await withBusy("dataAccess", async () => {
+      const res = await updateMemberDataAccess({ memberId: dataAccessEditor.member!.id, allowedCampaigns: dataAccessEditor.allowedCampaigns, allowedTags: dataAccessEditor.allowedTags });
+      feedbackResult(res, "Data access updated");
+      if (res.ok) {
+        setRows((prev) => prev.map((r) => (r.id === dataAccessEditor.member!.id ? { ...r, allowedCampaigns: dataAccessEditor.allowedCampaigns, allowedTags: dataAccessEditor.allowedTags } : r)));
+        setDataAccessEditor({ open: false, allowedCampaigns: "", allowedTags: "" });
       }
     });
   }
@@ -230,7 +269,7 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
       header: "API Usage",
       width: "100px",
       align: "right",
-      render: (r) => <span className="text-xs text-slate-600">{r.apiKeyUsage.toLocaleString()} reqs</span>,
+      render: (r) => <span className="text-xs text-slate-600">{fmtQty(r.apiKeyUsage)} reqs</span>,
     },
     {
       id: "flags",
@@ -341,6 +380,11 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
             onSelect: (r) => setCapsEditor({ open: true, member: r, rateLimit: String(r.rateLimitOverride || ""), dailyCap: String(r.dailySendCap || "") }),
           },
           {
+            label: "Edit data access",
+            icon: <Shield className="h-4 w-4" />,
+            onSelect: (r) => setDataAccessEditor({ open: true, member: r, allowedCampaigns: r.allowedCampaigns || "", allowedTags: r.allowedTags || "" }),
+          },
+          {
             label: "View audit log",
             icon: <Users className="h-4 w-4" />,
             onSelect: openAuditDrawer,
@@ -371,6 +415,25 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
               const res = await revokeInvite({ memberId: r.id });
               feedbackResult(res, "Invite revoked");
               if (res.ok) setRows((prev) => prev.filter((row) => row.id !== r.id));
+            },
+          },
+          {
+            label: "Remove member",
+            icon: <Trash2 className="h-4 w-4 text-rose-500" />,
+            destructive: true,
+            onSelect: async (r) => {
+              if (r.role === "sabsms_admin" && r.status === "active") {
+                const adminCount = rows.filter(row => row.status === "active" && row.role === "sabsms_admin").length;
+                if (adminCount <= 1) {
+                  return feedbackResult({ ok: false, error: "Cannot remove the last active admin." }, "");
+                }
+              }
+              const res = await removeMember({ memberId: r.id });
+              feedbackResult(res, "Member removed");
+              if (res.ok) {
+                setRows((prev) => prev.filter((row) => row.id !== r.id));
+                setSelectedIds((prev) => prev.filter((id) => id !== r.id));
+              }
             },
           },
         ]}
@@ -493,6 +556,30 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
         </ZoruDialogContent>
       </Dialog>
 
+      {/* Data Access Editor */}
+      <Dialog open={dataAccessEditor.open} onOpenChange={(o) => setDataAccessEditor((p) => ({ ...p, open: o }))}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Granular Data Access</ZoruDialogTitle>
+            <ZoruDialogDescription>Restrict {dataAccessEditor.member?.email}&apos;s access to specific campaigns or data by tags/IDs.</ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <Label>Allowed Campaigns (Comma separated IDs)</Label>
+              <Input type="text" value={dataAccessEditor.allowedCampaigns} onChange={(e) => setDataAccessEditor((p) => ({ ...p, allowedCampaigns: e.target.value }))} placeholder="e.g. camp_123, camp_456 (Leave blank for all)" />
+            </div>
+            <div className="space-y-1">
+              <Label>Allowed Contact Tags (Comma separated)</Label>
+              <Input type="text" value={dataAccessEditor.allowedTags} onChange={(e) => setDataAccessEditor((p) => ({ ...p, allowedTags: e.target.value }))} placeholder="e.g. VIP, EU-Region (Leave blank for all)" />
+            </div>
+          </div>
+          <ZoruDialogFooter>
+            <Button variant="outline" onClick={() => setDataAccessEditor({ open: false, allowedCampaigns: "", allowedTags: "" })}>Cancel</Button>
+            <Button onClick={handleUpdateDataAccess} disabled={busy !== null}>Save Restrictions</Button>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </Dialog>
+
       {/* Audit drawer */}
       <SabsmsDetailDrawer
         open={auditDrawer.open}
@@ -510,7 +597,7 @@ export function TeamTable({ initialRows, total }: TeamTableProps) {
               <li key={e.id} className="rounded-md border border-slate-200 bg-white p-3">
                 <div className="flex justify-between text-xs text-slate-500">
                   <span>{e.actor}</span>
-                  <span>{new Date(e.at).toLocaleString()}</span>
+                  <span>{formatUTC(e.at, true)}</span>
                 </div>
                 <div className="mt-1 font-medium">{e.kind}</div>
                 {e.detail && <div className="mt-1 text-sm text-slate-600">{e.detail}</div>}

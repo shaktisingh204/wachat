@@ -42,12 +42,9 @@ import { EntityRowLink } from '@/components/crm/entity-row-link';
 import type { CrmStockAdjustment } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { StockAdjustment } from '../types';
+import { fmtDate } from '@/lib/utils';
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function impactOf(adj: StockAdjustment): number {
     const qty = Number(adj.quantity || 0);

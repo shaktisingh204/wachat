@@ -20,7 +20,8 @@ async function loadPools(workspaceId: string): Promise<PoolRow[]> {
       healthComplaint: 0.05,
       monthlyCost: 45.0,
       capacityMsgsSec: 50,
-      status: "active"
+      status: "active",
+      geomatch: true
     },
     {
       id: "pool-2",
@@ -35,7 +36,8 @@ async function loadPools(workspaceId: string): Promise<PoolRow[]> {
       healthComplaint: 0.01,
       monthlyCost: 120.0,
       capacityMsgsSec: 300,
-      status: "active"
+      status: "active",
+      geomatch: false
     },
     {
       id: "pool-3",
@@ -50,7 +52,8 @@ async function loadPools(workspaceId: string): Promise<PoolRow[]> {
       healthComplaint: 0.15,
       monthlyCost: 18.0,
       capacityMsgsSec: 10,
-      status: "degraded"
+      status: "degraded",
+      geomatch: false
     }
   ];
 }

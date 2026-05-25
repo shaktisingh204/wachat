@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -227,7 +228,7 @@ export default function DeliveryReportsPage() {
                       <Badge variant="danger">{m.status}</Badge>
                     </ZoruTableCell>
                     <ZoruTableCell className="whitespace-nowrap text-zoru-ink-muted">
-                      {m.timestamp ? new Date(m.timestamp).toLocaleString() : '-'}
+                      {m.timestamp ? fmtDate(m.timestamp) : '-'}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <Button
@@ -272,7 +273,7 @@ export default function DeliveryReportsPage() {
                 label="Timestamp"
                 value={
                   detailRow.timestamp
-                    ? new Date(detailRow.timestamp).toLocaleString()
+                    ? fmtDate(detailRow.timestamp)
                     : '-'
                 }
               />

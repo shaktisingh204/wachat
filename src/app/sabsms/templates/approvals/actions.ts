@@ -618,3 +618,167 @@ function escapeCsv(s: string): string {
 // wordDiff lives in ./heuristics.ts so the test suite can exercise it
 // without pulling server-only imports.
 
+
+export async function bulkApproveSelected(input: {
+  ids: string[];
+  notes: string;
+}): Promise<ApprovalResult & { count?: number }> {
+  const session = await resolveSession();
+  if (!session.ok) return session;
+  if (!input.notes.trim()) return { ok: false, error: "Reviewer notes are required" };
+  const { cols } = await getSabsmsCollections();
+  const now = new Date();
+  
+  const objectIds = input.ids.filter(ObjectId.isValid).map((id) => new ObjectId(id));
+  if (objectIds.length === 0) return { ok: true, count: 0 };
+  
+  const docs = (await cols.templates
+    .find({
+      _id: { $in: objectIds },
+      workspaceId: session.workspaceId,
+      status: "submitted",
+    })
+    .toArray()) as ApprovalTemplateDoc[];
+  if (docs.length === 0) return { ok: true, count: 0 };
+
+  await Promise.all(
+    docs.map((d) =>
+      cols.templates.updateOne(
+        { _id: d._id! },
+        {
+          $set: {
+            status: "approved" as SabsmsTemplateStatus,
+            reviewerNotes: input.notes.trim(),
+            updatedAt: now,
+            lastApprovedBodies: d.bodies,
+            lastApprovedAt: now,
+          },
+          $push: {
+            approvalHistory: {
+              at: now,
+              kind: "approved" as const,
+              reviewerId: session.reviewerId,
+              notes: input.notes.trim(),
+              reasonCode: "bulk_selected",
+            } as never,
+          },
+        },
+      ),
+    ),
+  );
+  revalidatePath("/sabsms/templates/approvals");
+  revalidatePath("/sabsms/templates");
+  return { ok: true, count: docs.length };
+}
+
+export async function bulkRejectSelected(input: {
+  ids: string[];
+  notes: string;
+  reasonCode?: string;
+}): Promise<ApprovalResult & { count?: number }> {
+  const session = await resolveSession();
+  if (!session.ok) return session;
+  if (!input.notes.trim()) return { ok: false, error: "Reviewer notes are required" };
+  const { cols } = await getSabsmsCollections();
+  const now = new Date();
+  
+  const objectIds = input.ids.filter(ObjectId.isValid).map((id) => new ObjectId(id));
+  if (objectIds.length === 0) return { ok: true, count: 0 };
+  
+  const docs = (await cols.templates
+    .find({
+      _id: { $in: objectIds },
+      workspaceId: session.workspaceId,
+      status: "submitted",
+    })
+    .toArray()) as ApprovalTemplateDoc[];
+  if (docs.length === 0) return { ok: true, count: 0 };
+
+  await Promise.all(
+    docs.map((d) =>
+      cols.templates.updateOne(
+        { _id: d._id! },
+        {
+          $set: {
+            status: "rejected" as SabsmsTemplateStatus,
+            reviewerNotes: input.notes.trim(),
+            updatedAt: now,
+          },
+          $push: {
+            approvalHistory: {
+              at: now,
+              kind: "rejected" as const,
+              reviewerId: session.reviewerId,
+              notes: input.notes.trim(),
+              reasonCode: input.reasonCode,
+            } as never,
+          },
+        },
+      ),
+    ),
+  );
+  revalidatePath("/sabsms/templates/approvals");
+  revalidatePath("/sabsms/templates");
+  return { ok: true, count: docs.length };
+}
+
+export async function runAutomatedApprovals(rules: Record<string, string>): Promise<ApprovalResult & { count?: number }> {
+  const session = await resolveSession();
+  if (!session.ok) return session;
+  const { cols } = await getSabsmsCollections();
+  const now = new Date();
+  
+  const docs = (await cols.templates
+    .find({
+      workspaceId: session.workspaceId,
+      status: "submitted",
+    })
+    .toArray()) as ApprovalTemplateDoc[];
+    
+  let approvedCount = 0;
+  
+  for (const doc of docs) {
+    const patternStr = rules[doc.category];
+    if (!patternStr) continue;
+    
+    let regex: RegExp;
+    try {
+      regex = new RegExp(patternStr, "i");
+    } catch {
+      continue;
+    }
+    
+    // Check if any body matches the regex
+    const matches = doc.bodies.some(body => regex.test(body.content));
+    if (matches) {
+      await cols.templates.updateOne(
+        { _id: doc._id! },
+        {
+          $set: {
+            status: "approved" as SabsmsTemplateStatus,
+            reviewerNotes: "Auto-approved based on regex rule.",
+            updatedAt: now,
+            lastApprovedBodies: doc.bodies,
+            lastApprovedAt: now,
+          },
+          $push: {
+            approvalHistory: {
+              at: now,
+              kind: "approved" as const,
+              reviewerId: session.reviewerId,
+              notes: "Auto-approved based on regex rule.",
+              reasonCode: "auto_rule",
+            } as never,
+          },
+        }
+      );
+      approvedCount++;
+    }
+  }
+  
+  if (approvedCount > 0) {
+    revalidatePath("/sabsms/templates/approvals");
+    revalidatePath("/sabsms/templates");
+  }
+  return { ok: true, count: approvedCount };
+}

@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
@@ -148,7 +149,7 @@ export default function TwoFactorSetupPage() {
                     </p>
                   </div>
                   <div className="text-xs text-zoru-ink-muted sm:text-right whitespace-nowrap">
-                    {new Date(attempt.createdAt).toLocaleString()}
+                    {fmtDate(attempt.createdAt)}
                   </div>
                 </div>
               ))}

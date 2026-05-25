@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 /**
  * New integration page — server wrapper around `<IntegrationForm />`.
@@ -6,6 +7,7 @@ import { redirect } from 'next/navigation';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
+import { ZoruWaterLoader } from '@/components/zoruui';
 
 import { IntegrationForm } from '../_components/integration-form';
 
@@ -21,7 +23,9 @@ export default async function NewIntegrationPage() {
             title="New custom integration"
             back={{ href: '/dashboard/crm/integrations', label: 'Integrations' }}
         >
-            <IntegrationForm />
+            <Suspense fallback={<div className="flex h-64 items-center justify-center"><ZoruWaterLoader /></div>}>
+                <IntegrationForm />
+            </Suspense>
         </EntityDetailShell>
     );
 }

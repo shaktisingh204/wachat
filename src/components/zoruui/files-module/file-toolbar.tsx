@@ -8,6 +8,7 @@ import {
   Trash2,
   Upload,
   X,
+  FolderPlus,
 } from "lucide-react";
 
 import { cn } from "../lib/cn";
@@ -28,6 +29,7 @@ export interface ZoruFileToolbarProps {
   view: ZoruFileView;
   onViewChange: (view: ZoruFileView) => void;
   onUpload?: () => void;
+  onNewFolder?: () => void;
   /** Selected file count (drives bulk actions slot). */
   selectionCount?: number;
   onClearSelection?: () => void;
@@ -41,6 +43,7 @@ export function ZoruFileToolbar({
   view,
   onViewChange,
   onUpload,
+  onNewFolder,
   selectionCount = 0,
   onClearSelection,
   onDeleteSelection,
@@ -118,6 +121,11 @@ export function ZoruFileToolbar({
             <List className="h-4 w-4" />
           </button>
         </div>
+        {onNewFolder && (
+          <Button variant="outline" onClick={onNewFolder}>
+            <FolderPlus /> New Folder
+          </Button>
+        )}
         {onUpload && (
           <Button onClick={onUpload}>
             <Upload /> Upload

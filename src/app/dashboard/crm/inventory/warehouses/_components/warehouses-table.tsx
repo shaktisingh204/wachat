@@ -155,15 +155,15 @@ function WarehouseRow({
 }: RowProps) {
     const id = String(w._id);
     const statusLabel =
-        (w as any).status || ((w as any).archived ? 'archived' : 'active');
-    const cap = (w as any).capacityUnits as number | undefined;
-    const sqft = (w as any).capacitySqft as number | undefined;
+        w.status || (w.archived ? 'archived' : 'active');
+    const cap = w.capacityUnits;
+    const sqft = w.capacitySqft;
 
     return (
         <ZoruTableRow
             className={[
                 'border-zoru-line transition-colors',
-                (w as any).archived ? 'opacity-70' : '',
+                w.archived ? 'opacity-70' : '',
                 selected ? 'bg-zoru-surface-2/70' : '',
             ].join(' ')}
         >
@@ -193,10 +193,10 @@ function WarehouseRow({
                 {w.city || '—'}
             </ZoruTableCell>
             <ZoruTableCell className="text-[12.5px]">
-                {(w as any).managerId ? (
+                {w.managerId ? (
                     <EntityPickerChip
                         entity="employee"
-                        id={String((w as any).managerId)}
+                        id={String(w.managerId)}
                         fallback={w.managerName || 'Manager'}
                     />
                 ) : w.managerName ? (
@@ -260,7 +260,7 @@ function WarehouseRow({
                         <ZoruDropdownMenuSeparator />
                         <ZoruDropdownMenuItem onClick={() => onArchive(id)}>
                             <Archive className="mr-1.5 h-3.5 w-3.5" />
-                            {(w as any).archived ? 'Restore' : 'Archive'}
+                            {w.archived ? 'Restore' : 'Archive'}
                         </ZoruDropdownMenuItem>
                         <ZoruDropdownMenuItem
                             onClick={() => onDelete(id)}

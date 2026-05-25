@@ -13,6 +13,7 @@
  */
 
 import { ObjectId, type Filter } from "mongodb";
+import { after } from "next/server";
 
 import { getCachedSession } from "@/lib/server-cache";
 import {
@@ -38,6 +39,7 @@ export interface SuppressionRow {
   tag?: string;
   createdAt: string;
   lastTouchedAt?: string;
+  expiresAt?: string;
 }
 
 export interface SuppressionFilters {
@@ -111,6 +113,7 @@ function projectSuppression(
     tag: doc.tag,
     createdAt: toIso(doc.createdAt) ?? new Date().toISOString(),
     lastTouchedAt: toIso(doc.lastTouchedAt),
+    expiresAt: toIso(doc.expiresAt),
   };
 }
 
@@ -287,13 +290,14 @@ export type ActionResult =
 /**
  * Bulk-import suppressions from a CSV blob staged in SabFiles.
  *
- * The action expects the SabFiles URL of a CSV with a single
- * `phone` column (E.164). Each phone is hashed before insert.
+ * Uses `after()` to process the CSV in the background to avoid blocking
+ * the event loop, and writes an audit log entry for each suppression.
  */
 export async function bulkImportSuppressions(input: {
   sabFileUrl: string;
   source?: SabsmsSuppressionSource;
   reason?: string;
+  expiresInDays?: number;
 }): Promise<{ ok: true; imported: number } | { ok: false; error: string }> {
   const ws = await resolveWorkspace();
   if (!ws.ok) return ws;
@@ -327,29 +331,122 @@ export async function bulkImportSuppressions(input: {
   }
 
   const { cols } = await getSabsmsCollections();
-  const now = new Date();
   const source = input.source ?? "import";
-  const ops = phones.map((phone) => {
-    const phoneHash = hashPhone(phone);
-    return {
-      updateOne: {
-        filter: { workspaceId: ws.workspaceId, phoneHash },
-        update: {
-          $setOnInsert: {
-            workspaceId: ws.workspaceId,
-            phoneHash,
-            source,
-            reason: input.reason,
-            createdAt: now,
+
+  let expiresAt: Date | undefined;
+  if (input.expiresInDays) {
+    expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + input.expiresInDays);
+  }
+
+  after(async () => {
+    // Process in chunks to prevent blocking event loop for too long
+    const CHUNK_SIZE = 1000;
+    for (let i = 0; i < phones.length; i += CHUNK_SIZE) {
+      const chunk = phones.slice(i, i + CHUNK_SIZE);
+      const now = new Date();
+      
+      const ops = chunk.map((phone) => {
+        const phoneHash = hashPhone(phone);
+        return {
+          updateOne: {
+            filter: { workspaceId: ws.workspaceId, phoneHash },
+            update: {
+              $setOnInsert: {
+                workspaceId: ws.workspaceId,
+                phoneHash,
+                source,
+                reason: input.reason,
+                createdAt: now,
+                ...(expiresAt ? { expiresAt } : {}),
+              },
+              $set: { lastTouchedAt: now },
+            },
+            upsert: true,
           },
-          $set: { lastTouchedAt: now },
+        };
+      });
+
+      const auditOps = chunk.map((phone) => ({
+        workspaceId: ws.workspaceId,
+        phoneHash: hashPhone(phone),
+        kind: "opt_out_manual" as const,
+        captureMethod: "import" as const,
+        source: "sabsms.suppressions.import",
+        metadata: { 
+          reason: input.reason,
+          suppressedByUserId: ws.userId
         },
-        upsert: true,
-      },
-    };
+        createdAt: now,
+      }));
+
+      await Promise.all([
+        cols.suppressions.bulkWrite(ops, { ordered: false }),
+        cols.consentLog.insertMany(auditOps, { ordered: false })
+      ]);
+
+      // Yield event loop
+      await new Promise(r => setTimeout(r, 0));
+    }
   });
-  const res = await cols.suppressions.bulkWrite(ops, { ordered: false });
-  return { ok: true, imported: (res.upsertedCount ?? 0) + (res.modifiedCount ?? 0) };
+
+  return { ok: true, imported: phones.length };
+}
+
+export async function addSuppression(input: {
+  phone: string;
+  source: SabsmsSuppressionSource;
+  reason?: string;
+  expiresInDays?: number;
+}): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+
+  const phoneHash = hashPhone(input.phone);
+  const now = new Date();
+  
+  let expiresAt: Date | undefined;
+  if (input.expiresInDays) {
+    expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + input.expiresInDays);
+  }
+
+  const { cols } = await getSabsmsCollections();
+  
+  const res = await cols.suppressions.findOneAndUpdate(
+    { workspaceId: ws.workspaceId, phoneHash },
+    {
+      $setOnInsert: {
+        workspaceId: ws.workspaceId,
+        phoneHash,
+        source: input.source,
+        reason: input.reason,
+        createdAt: now,
+        ...(expiresAt ? { expiresAt } : {}),
+      },
+      $set: { lastTouchedAt: now },
+    },
+    { upsert: true, returnDocument: 'after' }
+  );
+
+  if (!res) {
+    return { ok: false, error: "Failed to create suppression" };
+  }
+
+  await cols.consentLog.insertOne({
+    workspaceId: ws.workspaceId,
+    phoneHash,
+    kind: "opt_out_manual",
+    captureMethod: "api",
+    source: "sabsms.suppressions.add",
+    metadata: { 
+      reason: input.reason,
+      suppressedByUserId: ws.userId
+    },
+    createdAt: now,
+  });
+
+  return { ok: true, id: String(res._id) };
 }
 
 export async function updateSuppressionReason(input: {

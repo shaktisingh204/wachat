@@ -1,3 +1,4 @@
+import React from "react";
 import { RouteComingSoon } from "@/components/zoruui";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,7 @@ const TITLES: Record<string, string> = {
   settings: "Settings — Coming in Phase 1.5",
 };
 
-export default async function SabsmsCatchAllPage({
+async function SabsmsCatchAllPageContent({
   params,
 }: {
   params: Promise<{ slug: string[] }>;
@@ -33,5 +34,18 @@ export default async function SabsmsCatchAllPage({
       parentHref="/sabsms"
       parentLabel="Back to SabSMS overview"
     />
+  );
+}
+
+
+export default function SabsmsCatchAllPage({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <SabsmsCatchAllPageContent params={params} />
+    </React.Suspense>
   );
 }

@@ -27,14 +27,22 @@ export function EstimateAcceptForm({ token }: { token: string }) {
       return;
     }
     setBusy(true);
-    const res = await acceptEstimatePublic(token, {
-      name: name.trim(),
-      email: email.trim(),
-      signatureDataUrl: dataUrl,
-    });
+    let res;
+    try {
+      res = await acceptEstimatePublic(token, {
+        name: name.trim(),
+        email: email.trim(),
+        signatureDataUrl: dataUrl,
+      });
+    } catch (err: any) {
+      setBusy(false);
+      setError(err.message || 'An unexpected error occurred.');
+      return;
+    }
+    
     setBusy(false);
     if (!res.success) {
-      setError(res.error);
+      setError(res.error || 'Failed to accept estimate');
       return;
     }
     router.push('/p/thanks?type=estimate');

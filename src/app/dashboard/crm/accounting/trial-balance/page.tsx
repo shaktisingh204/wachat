@@ -19,6 +19,7 @@ import {
     LoaderCircle,
     Scale,
     XCircle,
+    FileText,
 } from 'lucide-react';
 
 import {
@@ -39,11 +40,18 @@ import {
     ZoruTableHead,
     ZoruTableHeader,
     ZoruTableRow,
+    Sheet,
+    ZoruSheetContent,
+    ZoruSheetHeader,
+    ZoruSheetTitle,
+    ZoruSheetDescription,
+    Badge,
+    Card,
 } from '@/components/zoruui';
 import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
-import { generateTrialBalanceData } from '@/app/actions/crm-accounting.actions';
+import { generateTrialBalanceData, getVoucherEntriesForAccount } from '@/app/actions/crm-accounting.actions';
 import { getSession } from '@/app/actions';
 import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
 import { fmtMoney, fmtNumber } from '@/app/dashboard/crm/reports/_components/report-toolbar';
@@ -100,6 +108,31 @@ export default function TrialBalancePage(): React.JSX.Element {
     const [refreshing, setRefreshing] = React.useState(false);
     const [page, setPage] = React.useState(1);
     const [limit, setLimit] = React.useState(20);
+
+    // General Ledger Drawer State
+    const [selectedAccount, setSelectedAccount] = React.useState<TrialBalanceEntry | null>(null);
+    const [voucherEntries, setVoucherEntries] = React.useState<any[]>([]);
+    const [isLoadingEntries, setIsLoadingEntries] = React.useState(false);
+
+    const loadEntries = React.useCallback(async (accountId: string) => {
+        setIsLoadingEntries(true);
+        try {
+            const entries = await getVoucherEntriesForAccount(accountId);
+            setVoucherEntries(entries);
+        } catch (err) {
+            console.error('[TrialBalance] failed to load voucher entries:', err);
+        } finally {
+            setIsLoadingEntries(false);
+        }
+    }, []);
+
+    React.useEffect(() => {
+        if (selectedAccount) {
+            loadEntries(selectedAccount.accountId);
+        } else {
+            setVoucherEntries([]);
+        }
+    }, [selectedAccount, loadEntries]);
 
     const load = React.useCallback(() => {
         if (!range?.from || !range?.to) return;
@@ -217,18 +250,23 @@ export default function TrialBalancePage(): React.JSX.Element {
         .sort((a, b) => Math.abs(b.closingBalance) - Math.abs(a.closingBalance));
 
     const chartData = chartDataRaw
-        .slice(0, 11)
+        .slice(0, 12)
         .map((e) => ({
             name: e.accountName.length > 18 ? `${e.accountName.slice(0, 16)}…` : e.accountName,
             value: e.closingBalance * (e.closingBalanceType === 'Dr' ? 1 : -1),
         }));
 
-    if (chartDataRaw.length > 11) {
-        const othersValue = chartDataRaw.slice(11).reduce((sum, e) => sum + (e.closingBalance * (e.closingBalanceType === 'Dr' ? 1 : -1)), 0);
-        chartData.push({
-            name: 'Others',
-            value: othersValue
-        });
+    if (chartDataRaw.length > 12) {
+        const remaining = chartDataRaw.slice(12);
+        const othersDr = remaining.filter((e) => e.closingBalanceType === 'Dr').reduce((sum, e) => sum + e.closingBalance, 0);
+        const othersCr = remaining.filter((e) => e.closingBalanceType === 'Cr').reduce((sum, e) => sum + e.closingBalance, 0);
+        
+        if (othersDr > 0) {
+            chartData.push({ name: 'Others (Dr)', value: othersDr });
+        }
+        if (othersCr > 0) {
+            chartData.push({ name: 'Others (Cr)', value: -othersCr });
+        }
     }
 
     const filters = (
@@ -308,10 +346,21 @@ export default function TrialBalancePage(): React.JSX.Element {
                     pageRows.map((e) => (
                         <ZoruTableRow key={e.accountId} className="border-border">
                             <ZoruTableCell>
-                                <EntityRowLink
-                                    href={`/dashboard/crm/accounting/charts/${e.accountId}`}
-                                    label={e.accountName}
-                                />
+                                <div className="flex items-center gap-2">
+                                    <EntityRowLink
+                                        href={`/dashboard/crm/accounting/charts/${e.accountId}`}
+                                        label={e.accountName}
+                                    />
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-6 w-6 p-0 shrink-0 text-muted-foreground hover:text-foreground"
+                                        onClick={() => setSelectedAccount(e)}
+                                        title="View General Ledger"
+                                    >
+                                        <FileText className="h-3.5 w-3.5" />
+                                    </Button>
+                                </div>
                             </ZoruTableCell>
                             <ZoruTableCell className="text-right font-mono text-foreground">
                                 {Math.abs(e.openingBalance).toFixed(2)} {e.openingBalanceType}
@@ -348,35 +397,124 @@ export default function TrialBalancePage(): React.JSX.Element {
     );
 
     return (
-        <ReportShell
-            title="Trial Balance"
-            subtitle="Debit/credit summary across every account for the selected fiscal range."
-            back={{ href: '/dashboard/crm/accounting', label: 'Back to Accounting' }}
-            dateRange={range}
-            onDateRangeChange={handleDateRangeChange}
-            onRefresh={load}
-            refreshing={refreshing || isLoading}
-            onExportCsv={onCsv}
-            onExportXlsx={onXlsx}
-            filters={filters}
-            kpis={<ReportKpiStrip cards={kpis} />}
-            chart={chart}
-            table={<div className="overflow-x-auto">{table}</div>}
-            pagination={
-                <PaginationBar
-                    page={page}
-                    limit={limit}
-                    hasMore={hasMore}
-                    total={filteredEntries.length}
-                    pageSizes={[10, 20, 50, 100, 250]}
-                    controlled={{
-                        onChange: (next) => {
-                            setPage(next.page);
-                            setLimit(next.limit);
-                        },
-                    }}
-                />
-            }
-        />
+        <>
+            <ReportShell
+                title="Trial Balance"
+                subtitle="Debit/credit summary across every account for the selected fiscal range."
+                back={{ href: '/dashboard/crm/accounting', label: 'Back to Accounting' }}
+                dateRange={range}
+                onDateRangeChange={handleDateRangeChange}
+                onRefresh={load}
+                refreshing={refreshing || isLoading}
+                onExportCsv={onCsv}
+                onExportXlsx={onXlsx}
+                filters={filters}
+                kpis={<ReportKpiStrip cards={kpis} />}
+                chart={chart}
+                table={<div className="overflow-x-auto">{table}</div>}
+                pagination={
+                    <PaginationBar
+                        page={page}
+                        limit={limit}
+                        hasMore={hasMore}
+                        total={filteredEntries.length}
+                        pageSizes={[10, 20, 50, 100, 250]}
+                        controlled={{
+                            onChange: (next) => {
+                                setPage(next.page);
+                                setLimit(next.limit);
+                            },
+                        }}
+                    />
+                }
+            />
+
+            {/* General Ledger Sliding Drawer */}
+            <Sheet open={!!selectedAccount} onOpenChange={(open) => { if (!open) setSelectedAccount(null); }}>
+                <ZoruSheetContent side="right" className="sm:max-w-md md:max-w-lg w-full flex flex-col h-full bg-background border-l border-border p-0">
+                    <div className="p-6 border-b border-border">
+                        <ZoruSheetHeader className="pr-8">
+                            <ZoruSheetTitle className="text-[16px] font-bold text-foreground flex flex-wrap items-center gap-2">
+                                <span>{selectedAccount?.accountName}</span>
+                            </ZoruSheetTitle>
+                            <ZoruSheetDescription className="text-[12.5px] text-muted-foreground mt-1">
+                                General Ledger Vouchers &amp; Transaction Entries
+                            </ZoruSheetDescription>
+                        </ZoruSheetHeader>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                        {selectedAccount && (
+                            <div className="bg-secondary p-4 rounded-lg border border-border flex justify-between items-center">
+                                <div>
+                                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Current Balance</div>
+                                    <div className="text-[18px] font-mono font-bold text-foreground mt-0.5">
+                                        {fmtMoney(selectedAccount.closingBalance)} {selectedAccount.closingBalanceType ?? 'Dr'}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="space-y-4">
+                            <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                                <span>Voucher Entries Feed</span>
+                                {!isLoadingEntries && (
+                                    <Badge variant="ghost">
+                                        {voucherEntries.length} {voucherEntries.length === 1 ? 'entry' : 'entries'}
+                                    </Badge>
+                                )}
+                            </h4>
+                            
+                            {isLoadingEntries ? (
+                                <div className="flex justify-center p-8">
+                                    <span className="text-[12px] text-muted-foreground font-medium">Fetching general ledger...</span>
+                                </div>
+                            ) : voucherEntries.length === 0 ? (
+                                <Card className="p-8 text-center text-[12.5px] text-muted-foreground">
+                                    No voucher entries found for this account.
+                                </Card>
+                            ) : (
+                                <div className="space-y-3">
+                                    {voucherEntries.map((entry) => (
+                                        <Card key={entry._id} className="p-3 bg-card hover:bg-secondary transition-colors border border-border">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div className="font-mono text-[11px] font-medium text-muted-foreground">
+                                                    {new Date(entry.date).toLocaleDateString()}
+                                                </div>
+                                                <div className="font-mono text-[10px] bg-secondary border border-border px-1.5 py-0.5 rounded text-foreground">
+                                                    {entry.voucherNumber}
+                                                </div>
+                                            </div>
+                                            <div className="text-[13px] text-foreground font-medium leading-tight mb-2">
+                                                {entry.note || 'No description provided'}
+                                            </div>
+                                            <div className="flex items-center justify-between border-t border-border pt-2 mt-2">
+                                                <div className="text-[11px] text-muted-foreground">
+                                                    Amount
+                                                </div>
+                                                <div className="flex gap-4">
+                                                    {entry.debit > 0 && (
+                                                        <div className="text-right">
+                                                            <span className="text-[10px] text-muted-foreground mr-1.5 uppercase font-bold">Dr</span>
+                                                            <span className="font-mono text-[13px] text-foreground font-bold">{fmtMoney(entry.debit)}</span>
+                                                        </div>
+                                                    )}
+                                                    {entry.credit > 0 && (
+                                                        <div className="text-right">
+                                                            <span className="text-[10px] text-muted-foreground mr-1.5 uppercase font-bold">Cr</span>
+                                                            <span className="font-mono text-[13px] text-foreground font-bold">{fmtMoney(entry.credit)}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </ZoruSheetContent>
+            </Sheet>
+        </>
     );
 }

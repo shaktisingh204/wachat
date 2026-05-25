@@ -12,15 +12,20 @@ import {
   ZoruSelectValue,
   Textarea,
   useZoruToast,
+  Checkbox,
+  ZoruFileUploadCard,
+  type ZoruFileUploadItem
 } from '@/components/zoruui';
 import {
   useActionState,
   useEffect,
   useState,
-  useTransition } from 'react';
+  useTransition,
+  useRef
+} from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
-import { LoaderCircle, UploadCloud } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
@@ -30,6 +35,10 @@ import {
   getFileFolders,
 } from '@/app/actions/worksuite/files.actions';
 import type { WsFileFolder } from '@/lib/worksuite/file-types';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+
+gsap.registerPlugin(useGSAP);
 
 const initialState: { message?: string; error?: string; id?: string } = {};
 
@@ -37,32 +46,17 @@ function SubmitBtn() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" size="lg" disabled={pending}>
-      {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
       Save file record
     </Button>
   );
 }
 
 function ChunkedFileUploader({ onUploadSuccess }: { onUploadSuccess: (url: string, file: File) => void }) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [uploading, setUploading] = useState(false);
+  const [items, setItems] = useState<ZoruFileUploadItem[]>([]);
 
-  const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) uploadFile(file);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) uploadFile(file);
-  };
-
-  const uploadFile = async (file: File) => {
-    setUploading(true);
-    setProgress(0);
+  const uploadFile = async (item: ZoruFileUploadItem) => {
+    const file = item.file;
     const chunkSize = 1024 * 1024;
     const totalChunks = Math.ceil(file.size / chunkSize);
     const fileId = Date.now().toString() + '_' + Math.random().toString(36).substring(7);
@@ -82,44 +76,49 @@ function ChunkedFileUploader({ onUploadSuccess }: { onUploadSuccess: (url: strin
           body: formData,
         });
         const data = await res.json();
+        
+        const currentProgress = Math.round(((i + 1) / totalChunks) * 100);
+        setItems((prev) => prev.map((p) => p.id === item.id ? { ...p, progress: currentProgress } : p));
+        
         if (data.url) {
+          setItems((prev) => prev.map((p) => p.id === item.id ? { ...p, status: 'done', progress: 100 } : p));
           onUploadSuccess(data.url, file);
         }
-        setProgress(Math.round(((i + 1) / totalChunks) * 100));
       } catch (err) {
         console.error('Upload failed', err);
-        setUploading(false);
+        setItems((prev) => prev.map((p) => p.id === item.id ? { ...p, status: 'error', errorMessage: 'Upload failed' } : p));
         return;
       }
     }
-    setUploading(false);
+  };
+
+  const handleFilesSelected = (files: File[]) => {
+    const newItems: ZoruFileUploadItem[] = files.map((file) => ({
+      id: Math.random().toString(36).substring(7),
+      file,
+      progress: 0,
+      status: 'uploading'
+    }));
+    
+    // We only support single file for this form
+    setItems(newItems);
+    
+    // Start upload
+    newItems.forEach(uploadFile);
+  };
+
+  const handleRemove = (id: string) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
   return (
-    <div
-      className={`relative rounded-xl border-2 border-dashed p-8 text-center transition-colors ${
-        isDragging ? 'border-primary bg-primary/5' : 'border-zoru-line bg-zoru-surface'
-      }`}
-      onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-      onDragLeave={() => setIsDragging(false)}
-      onDrop={handleDrop}
-    >
-      <input type="file" className="absolute inset-0 cursor-pointer opacity-0" onChange={handleChange} disabled={uploading} />
-      <UploadCloud className="mx-auto mb-4 h-10 w-10 text-zoru-ink-muted" />
-      {uploading ? (
-        <div>
-          <p className="mb-2 text-sm font-medium text-zoru-ink">Uploading... {progress}%</p>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-zoru-surface-2">
-            <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
-          </div>
-        </div>
-      ) : (
-        <div>
-          <p className="text-sm font-medium text-zoru-ink">Drag and drop file here</p>
-          <p className="mt-1 text-xs text-zoru-ink-muted">or click to browse</p>
-        </div>
-      )}
-    </div>
+    <ZoruFileUploadCard
+      multiple={false}
+      hint="Drag and drop a file or click to browse"
+      onFilesSelected={handleFilesSelected}
+      items={items}
+      onRemove={handleRemove}
+    />
   );
 }
 
@@ -131,10 +130,24 @@ export default function NewFileRecordPage() {
   const [url, setUrl] = useState('');
   const [_, startTransition] = useTransition();
 
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useGSAP(() => {
+    gsap.fromTo(
+      formRef.current,
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
+    );
+  }, { scope: formRef });
+
   useEffect(() => {
     startTransition(async () => {
-      const f = await getFileFolders();
-      setFolders(f as unknown as WsFileFolder[]);
+      try {
+        const f = await getFileFolders();
+        setFolders(f as unknown as WsFileFolder[]);
+      } catch (e) {
+        console.error('Failed to load folders', e);
+      }
     });
   }, []);
 
@@ -157,9 +170,8 @@ export default function NewFileRecordPage() {
       title="Attach a file"
       back={{ href: '/dashboard/crm/files', label: 'Files' }}
     >
-
       <Card className="p-6">
-        <form action={formAction} className="space-y-5">
+        <form ref={formRef} action={formAction} className="space-y-5">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="filename">Filename *</Label>
@@ -200,9 +212,6 @@ export default function NewFileRecordPage() {
               }}
             />
             <input type="hidden" name="url" value={url} />
-            <p className="text-[11.5px] text-zoru-ink-muted">
-              Drop a file to upload or click to browse.
-            </p>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -262,12 +271,7 @@ export default function NewFileRecordPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="is_public"
-              name="is_public"
-              className="h-4 w-4"
-            />
+            <Checkbox id="is_public" name="is_public" />
             <Label htmlFor="is_public" className="cursor-pointer">
               Publicly accessible
             </Label>

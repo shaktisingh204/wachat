@@ -3,6 +3,7 @@
 import { Card, ZoruCardContent, cn } from '@/components/zoruui';
 import { cn as _zoruCn, useState } from 'react';
 import EXIF from 'exif-js';
+import { fmtDate } from '@/lib/utils';
 
 void _zoruCn;
 
@@ -42,7 +43,7 @@ export default function ImageMetadataPage() {
         name: file.name,
         size: file.size,
         type: file.type,
-        lastModified: new Date(file.lastModified).toLocaleString(),
+        lastModified: fmtDate(new Date(file.lastModified)),
         width: img.naturalWidth,
         height: img.naturalHeight,
       });
@@ -50,34 +51,43 @@ export default function ImageMetadataPage() {
     };
     img.src = URL.createObjectURL(file);
 
-    // Extract EXIF data
-    EXIF.getData(file as any, function(this: any) {
-      const allTags = EXIF.getAllTags(this);
-      
-      const filteredTags: any = {};
-      
-      // Filter out maker notes and thumbnails which can be huge arrays
-      Object.keys(allTags).forEach(key => {
-        if (key !== 'MakerNote' && key !== 'thumbnail' && key !== 'userComment') {
-          if (Array.isArray(allTags[key]) && allTags[key].length > 10) return;
-          filteredTags[key] = allTags[key];
+    // Extract EXIF data using ArrayBuffer directly to avoid browser File parsing issues
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const buffer = e.target?.result as ArrayBuffer;
+      if (!buffer) return;
+      try {
+        const allTags: any = EXIF.readFromBinaryFile(buffer);
+        if (!allTags || typeof allTags !== 'object') return;
+        
+        const filteredTags: any = {};
+        
+        // Filter out maker notes and thumbnails which can be huge arrays
+        Object.keys(allTags).forEach(key => {
+          if (key !== 'MakerNote' && key !== 'thumbnail' && key !== 'userComment') {
+            if (Array.isArray(allTags[key]) && allTags[key].length > 10) return;
+            filteredTags[key] = allTags[key];
+          }
+        });
+        
+        if (Object.keys(filteredTags).length > 0) {
+          setExifData(filteredTags);
         }
-      });
-      
-      if (Object.keys(filteredTags).length > 0) {
-        setExifData(filteredTags);
-      }
 
-      const lat = EXIF.getTag(this, "GPSLatitude");
-      const lon = EXIF.getTag(this, "GPSLongitude");
-      const latRef = EXIF.getTag(this, "GPSLatitudeRef");
-      const lonRef = EXIF.getTag(this, "GPSLongitudeRef");
+        const lat = allTags.GPSLatitude;
+        const lon = allTags.GPSLongitude;
+        const latRef = allTags.GPSLatitudeRef;
+        const lonRef = allTags.GPSLongitudeRef;
 
-      const coords = formatGPS(lat, latRef, lon, lonRef);
-      if (coords) {
-        setGpsData(coords);
+        const coords = formatGPS(lat, latRef, lon, lonRef);
+        if (coords) {
+          setGpsData(coords);
+        }
+      } catch (err) {
+        console.error("EXIF extraction error", err);
       }
-    });
+    };
+    reader.readAsArrayBuffer(file);
   };
 
   return (

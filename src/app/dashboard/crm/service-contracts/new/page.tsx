@@ -25,8 +25,6 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { saveServiceContract } from '@/app/actions/crm-service-contracts.actions';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
-export const dynamic = 'force-dynamic';
-
 const initialState: { message?: string; error?: string; id?: string } = {
   message: '',
   error: '',

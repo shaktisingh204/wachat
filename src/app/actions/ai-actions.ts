@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { generatePostSuggestions } from '@/ai/flows/generate-post-suggestions';
 import { intelligentTranslate } from '@/ai/flows/intelligent-translate-flow';
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
+import { generateBusinessDescription } from '@/ai/flows/generate-business-description';
 
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
   if (!topic) {
@@ -53,5 +54,17 @@ export async function handleTranslateMessage(text: string): Promise<{ translated
     return { translatedText: result.translatedText };
   } catch (e: any) {
     return { error: e.message || 'Translation failed.' };
+  }
+}
+
+export async function handleGenerateBusinessDescription(topic: string): Promise<{ description?: string; error?: string }> {
+  if (!topic) {
+    return { error: 'Topic cannot be empty.' };
+  }
+  try {
+    const result = await generateBusinessDescription({ topic });
+    return { description: result.description };
+  } catch (e: any) {
+    return { error: e.message || 'Failed to generate description. Please try again.' };
   }
 }

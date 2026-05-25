@@ -278,3 +278,60 @@ export async function revokeApiToken(
         return { ok: false, error: 'Failed to revoke token.' };
     }
 }
+
+export interface TestApiTokenResult {
+    ok: true;
+    name: string;
+    scopes: OAuthScope[];
+    expiresAt: string | null;
+    status: 'valid' | 'expired' | 'revoked';
+}
+
+/** Test an API token to verify if it is active, not revoked, and not expired. */
+export async function testApiToken(
+    id: string,
+): Promise<TestApiTokenResult | { ok: false; error: string }> {
+    const session = await getSession();
+    if (!session?.user) return { ok: false, error: 'Authentication required.' };
+
+    const guard = await requirePermission('crm_settings', 'view');
+    if (!guard.ok) return { ok: false, error: guard.error };
+
+    if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+        return { ok: false, error: 'Invalid token id.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const doc = await db.collection('crm_api_tokens').findOne({
+            _id: new ObjectId(id),
+            tenantUserId: String(session.user._id),
+        });
+        if (!doc) return { ok: false, error: 'Token not found.' };
+
+        const isRevoked = doc.revoked === true;
+        let isExpired = false;
+        if (doc.expiresAt) {
+            const exp = new Date(doc.expiresAt).getTime();
+            if (exp < Date.now()) {
+                isExpired = true;
+            }
+        }
+
+        let status: 'valid' | 'expired' | 'revoked' = 'valid';
+        if (isRevoked) status = 'revoked';
+        else if (isExpired) status = 'expired';
+
+        return {
+            ok: true,
+            name: String(doc.name ?? ''),
+            scopes: Array.isArray(doc.scopes) ? (doc.scopes as string[]).filter(isOAuthScope) : [],
+            expiresAt: typeof doc.expiresAt === 'string' ? doc.expiresAt : null,
+            status,
+        };
+    } catch (e) {
+        console.error('[crm-api-tokens] test failed:', e);
+        return { ok: false, error: 'Failed to test token.' };
+    }
+}
+

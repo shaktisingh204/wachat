@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import {
   Badge,
   Button,
@@ -19,6 +20,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
+
+export const dynamic = 'force-dynamic';
 
 type AnyCase = {
   _id?: { toString(): string } | string;
@@ -50,7 +53,7 @@ function getStatusVariant(status?: string): 'success' | 'warning' | 'danger' | '
   return 'warning';
 }
 
-export default async function DisciplinaryPage() {
+async function DisciplinaryPageContainer() {
   const session = await getSession();
   let cases: AnyCase[] = [];
   let loadError = false;
@@ -253,5 +256,13 @@ export default async function DisciplinaryPage() {
         </div>
       </Card>
     </EntityListShell>
+  );
+}
+
+export default function DisciplinaryPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DisciplinaryPageContainer  />
+    </Suspense>
   );
 }

@@ -15,6 +15,7 @@ import {
   ShieldOff,
   Tag,
   Trash2,
+  LogOut,
 } from "lucide-react";
 
 import {
@@ -54,6 +55,7 @@ import {
   loadSegmentActivity,
   refreshSegment,
   tagSegment,
+  exportSegmentToCrm,
   type SegmentActivityEntry,
   type SegmentListRow,
 } from "./actions";
@@ -179,6 +181,17 @@ export function SegmentsTable({
       ),
     );
     setBanner({ kind: "ok", message: `Re-evaluated "${row.name}" — ${res.size} members.` });
+  }
+
+  async function handleExportToCrm(row: SegmentListRow) {
+    setBusy(`exportCrm:${row.id}`);
+    const res = await exportSegmentToCrm(row.id);
+    setBusy(null);
+    if (!res.ok) return setBanner({ kind: "err", message: res.error });
+    setBanner({
+      kind: "ok",
+      message: `Exported ${res.pushed} members from "${row.name}" to CRM.`,
+    });
   }
 
   async function handleDuplicate(row: SegmentListRow) {
@@ -475,6 +488,11 @@ export function SegmentsTable({
       label: "Tag / label",
       icon: <Tag className="h-3.5 w-3.5" />,
       onSelect: openTagDialog,
+    },
+    {
+      label: "Export to CRM",
+      icon: <LogOut className="h-3.5 w-3.5" />,
+      onSelect: handleExportToCrm,
     },
     {
       label: "Convert to suppressions",

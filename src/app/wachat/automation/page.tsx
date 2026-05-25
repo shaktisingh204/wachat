@@ -73,8 +73,6 @@ import {
 
 import * as React from 'react';
 
-export const dynamic = 'force-dynamic';
-
 const MODEL_OPTIONS = [
   {
     value: 'meta-native',

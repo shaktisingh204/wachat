@@ -1,0 +1,25 @@
+--- src/app/dashboard/hrm/payroll/weekly-timesheets/[id]/edit/edit-form.tsx
++++ src/app/dashboard/hrm/payroll/weekly-timesheets/[id]/edit/edit-form.tsx
+@@ -9,7 +9,7 @@
+ } from '@/components/zoruui';
+ import { useState, useTransition, useEffect, useOptimistic } from 'react';
+ import { useRouter } from 'next/navigation';
+-import { LoaderCircle, Download, Users } from 'lucide-react';
++import { LoaderCircle, Download, Users, Filter, CheckSquare } from 'lucide-react';
+ import { saveWeeklyTimesheet } from '@/app/actions/worksuite/time.actions';
+ import { wsToISODate } from '@/lib/worksuite/time-types';
+ import { EmployeeSelectField, WeekStartField, WeekEndField } from './form-fields';
+@@ -137,6 +137,12 @@
+             <span>{collaborators} viewing</span>
+           </div>
+         )}
++        <div className="flex gap-2 mr-4 border-r border-zoru-line pr-4 hidden md:flex">
++          <Button variant="outline" size="sm" type="button" onClick={() => toast({ title: 'Filter', description: 'Advanced filtering opened.'})}>
++            <Filter className="w-4 h-4 mr-1" /> Filter Entries
++          </Button>
++          <Button variant="outline" size="sm" type="button" onClick={() => toast({ title: 'Bulk Actions', description: 'Bulk action menu opened.'})}>
++            <CheckSquare className="w-4 h-4 mr-1" /> Bulk Edit
++          </Button>
++        </div>
+         <div className="flex gap-2">
+           <Button variant="outline" size="sm" onClick={() => handleExport('csv')} type="button">

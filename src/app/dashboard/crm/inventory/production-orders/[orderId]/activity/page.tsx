@@ -6,11 +6,13 @@
  * `entityKind: 'production_order'` audit stream.
  */
 
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getProductionOrderById } from '@/app/actions/crm-production-orders.actions';
+import { Skeleton } from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,7 +36,17 @@ export default async function ProductionOrderActivityPage({ params }: PageProps)
         label: 'Back to order',
       }}
     >
-      <EntityAuditTimeline entityKind="production_order" entityId={orderId} />
+      <Suspense
+        fallback={
+          <div className="space-y-4 rounded-lg border border-border bg-card p-6">
+            <Skeleton className="h-16 w-full rounded-md" />
+            <Skeleton className="h-16 w-full rounded-md" />
+            <Skeleton className="h-16 w-full rounded-md" />
+          </div>
+        }
+      >
+        <EntityAuditTimeline entityKind="production_order" entityId={orderId} />
+      </Suspense>
     </EntityDetailShell>
   );
 }

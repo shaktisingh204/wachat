@@ -2,12 +2,15 @@
 
 import * as React from 'react';
 
+export interface GanttCoordinate {
+  x: number;
+  y: number;
+}
+
 export interface GanttDependencyLineProps {
   linkId: string;
-  sourceX: number;
-  sourceY: number;
-  targetX: number;
-  targetY: number;
+  source: GanttCoordinate;
+  target: GanttCoordinate;
   onClick?: (linkId: string) => void;
 }
 
@@ -18,22 +21,20 @@ export interface GanttDependencyLineProps {
  */
 export function GanttDependencyLine({
   linkId,
-  sourceX,
-  sourceY,
-  targetX,
-  targetY,
+  source,
+  target,
   onClick,
 }: GanttDependencyLineProps) {
   const STEP = 12;
   // If the target is to the left of the source we wrap the line around
   // to make a backwards-pointing arrow look sensible.
-  const midX = Math.max(sourceX + STEP, targetX - STEP);
+  const midX = Math.max(source.x + STEP, target.x - STEP);
   const d = [
-    `M ${sourceX} ${sourceY}`,
-    `L ${sourceX + STEP} ${sourceY}`,
-    `L ${midX} ${sourceY}`,
-    `L ${midX} ${targetY}`,
-    `L ${targetX} ${targetY}`,
+    `M ${source.x} ${source.y}`,
+    `L ${source.x + STEP} ${source.y}`,
+    `L ${midX} ${source.y}`,
+    `L ${midX} ${target.y}`,
+    `L ${target.x} ${target.y}`,
   ].join(' ');
 
   return (

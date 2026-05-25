@@ -1,9 +1,10 @@
+import React, { Suspense } from "react";
 import { getCachedSession } from "@/lib/server-cache";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-
 import { loadWebhooks, type WebhookListFilters } from "./actions";
 import { WebhooksTable } from "./webhooks-table";
 import { StatCard } from "@/components/zoruui";
+import { fmtQty } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +21,59 @@ function toArray(value: string | string[] | undefined): string[] | undefined {
   return Array.isArray(value) ? value : [value];
 }
 
-export default async function SabsmsWebhooksPage({ searchParams }: PageProps) {
+async function WebhooksDataLoader({ searchParams }: PageProps) {
   const sp = await searchParams;
+  const session = await getCachedSession();
+  const workspaceId = String(
+    (session?.user as { _id?: unknown } | undefined)?._id ?? "",
+  );
+
+  if (!workspaceId) return null;
+
+  const filters: WebhookListFilters = {
+    q: sp.q,
+    status: toArray(sp.status),
+    event: toArray(sp.event),
+  };
+
+  const rows = await loadWebhooks(workspaceId, filters);
+
+  return (
+    <>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+        <StatCard
+          label="Total Webhooks"
+          value={fmtQty(rows.length)}
+          delta={2}
+          period="vs last month"
+        />
+        <StatCard
+          label="Active Endpoints"
+          value={fmtQty(rows.filter((r) => r.isActive).length)}
+          delta={5}
+          period="vs last month"
+        />
+        <StatCard
+          label="Avg Success Rate"
+          value="99.9%"
+          delta={0.1}
+          period="vs last month"
+        />
+        <StatCard
+          label="Failed Deliveries (24h)"
+          value="12"
+          delta={-5}
+          invertDelta
+          period="vs last month"
+        />
+      </div>
+
+      <WebhooksTable workspaceId={workspaceId} initialRows={rows} />
+    </>
+  );
+}
+
+export default async function SabsmsWebhooksPage(props: PageProps) {
   const session = await getCachedSession();
   const workspaceId = String(
     (session?.user as { _id?: unknown } | undefined)?._id ?? "",
@@ -41,14 +93,6 @@ export default async function SabsmsWebhooksPage({ searchParams }: PageProps) {
     );
   }
 
-  const filters: WebhookListFilters = {
-    q: sp.q,
-    status: toArray(sp.status),
-    event: toArray(sp.event),
-  };
-
-  const rows = await loadWebhooks(workspaceId, filters);
-
   return (
     <SabsmsPageShell
       eyebrow="SabSMS"
@@ -57,7 +101,7 @@ export default async function SabsmsWebhooksPage({ searchParams }: PageProps) {
       breadcrumbs={[{ label: "Webhooks" }]}
       primaryAction={{
         label: "Add endpoint",
-        href: "#new-webhook", // Typically this opens a modal or navigates to a new page
+        href: "#new-webhook",
       }}
       secondaryActions={[
         {
@@ -84,36 +128,9 @@ export default async function SabsmsWebhooksPage({ searchParams }: PageProps) {
         </ul>
       }
     >
-      {/* KPI Strip */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-        <StatCard
-          label="Total Webhooks"
-          value={rows.length.toLocaleString()}
-          delta={2}
-          period="vs last month"
-        />
-        <StatCard
-          label="Active Endpoints"
-          value={rows.filter((r) => r.isActive).length.toLocaleString()}
-          delta={5}
-          period="vs last month"
-        />
-        <StatCard
-          label="Avg Success Rate"
-          value="99.9%"
-          delta={0.1}
-          period="vs last month"
-        />
-        <StatCard
-          label="Failed Deliveries (24h)"
-          value="12"
-          delta={-5}
-          invertDelta
-          period="vs last month"
-        />
-      </div>
-
-      <WebhooksTable workspaceId={workspaceId} initialRows={rows} />
+      <Suspense fallback={<div className="h-96 w-full animate-pulse bg-slate-100 rounded-xl" />}>
+        <WebhooksDataLoader {...props} />
+      </Suspense>
     </SabsmsPageShell>
   );
 }

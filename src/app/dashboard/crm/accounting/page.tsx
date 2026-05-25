@@ -29,6 +29,7 @@ import {
     startOfMonth,
     sumByUser,
 } from '../_components/hub-data';
+import { AccountingHubActions } from './_components/accounting-actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -110,6 +111,7 @@ export default async function CrmAccountingHubPage() {
         <EntityListShell
             title="Accounting"
             subtitle="Books, vouchers, and the four primary financial reports."
+            primaryAction={<AccountingHubActions />}
         >
             <div className="flex flex-col gap-6">
                 <HubKpiGrid kpis={kpis} />

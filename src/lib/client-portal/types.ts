@@ -63,6 +63,20 @@ export type ClientEstimate = {
     publicHash?: string | null;
 };
 
+export type ClientContractSignature = {
+    fullName: string;
+    signedAt: string | null;
+    place?: string;
+    party?: string;
+};
+
+export type ClientContractAmendment = {
+    _id: string;
+    title: string;
+    createdAt: string | null;
+    status: string;
+};
+
 export type ClientContract = {
     _id: string;
     title: string;
@@ -74,6 +88,8 @@ export type ClientContract = {
     status: string;
     signedAt: string | null;
     publicHash?: string | null;
+    signatures?: ClientContractSignature[];
+    amendments?: ClientContractAmendment[];
 };
 
 export type ClientTicket = {
@@ -85,6 +101,8 @@ export type ClientTicket = {
     description?: string;
     lastReplyAt: string | null;
     createdAt: string | null;
+    dueBy?: string | null;
+    awaitingClientResponse?: boolean;
 };
 
 export type ClientTicketReply = {
@@ -110,6 +128,12 @@ export type ClientProfile = {
     name: string;
     email: string;
     mobile?: string;
+    avatarUrl?: string;
+    twoFactorEnabled?: boolean;
+    notificationPreferences?: {
+        email: boolean;
+        sms: boolean;
+    };
     company?: {
         companyName?: string;
         contactName?: string;

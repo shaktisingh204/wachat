@@ -1589,3 +1589,12 @@ export async function getAdAccountCapabilities(adAccountId: string): Promise<Act
         },
     });
 }
+
+export async function getAdAccountTransactions(adAccountId: string): Promise<ActionResult<any[]>> {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/transactions`, {
+        params: {
+            fields: 'id,account_id,app_amount,billing_start_time,billing_end_time,charge_type,currency,provider_amount,status,time,tracking_id,transaction_type,tx_type,vat_invoice_id,download_invoice_uri'
+        }
+    });
+    return res.error ? { error: res.error } : { data: res.data?.data || [] };
+}

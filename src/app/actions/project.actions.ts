@@ -122,6 +122,14 @@ export async function handleUpdateProjectSettings(
     const projectId = formData.get('projectId') as string;
     const messagesPerSecond = formData.get('messagesPerSecond') as string;
 
+    const timezone = formData.get('timezone') as string;
+    const defaultLanguage = formData.get('defaultLanguage') as string;
+    
+    const widgetButtonColor = formData.get('widgetButtonColor') as string;
+    const widgetHeaderTitle = formData.get('widgetHeaderTitle') as string;
+    const widgetHeaderSubtitle = formData.get('widgetHeaderSubtitle') as string;
+    const widgetHeaderAvatarUrl = formData.get('widgetHeaderAvatarUrl') as string;
+
     if (!projectId) {
         return { error: 'Missing project ID.' };
     }
@@ -135,9 +143,27 @@ export async function handleUpdateProjectSettings(
 
     try {
         const { db } = await connectToDatabase();
+        
+        const updateDoc: any = { 
+            messagesPerSecond: mps,
+        };
+        
+        if (timezone) updateDoc.timezone = timezone;
+        if (defaultLanguage) updateDoc.defaultLanguage = defaultLanguage;
+        
+        const existingProject = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
+        
+        updateDoc.widgetSettings = {
+            ...(existingProject?.widgetSettings || {}),
+        };
+        if (widgetButtonColor) updateDoc.widgetSettings.buttonColor = widgetButtonColor;
+        if (widgetHeaderTitle) updateDoc.widgetSettings.headerTitle = widgetHeaderTitle;
+        if (widgetHeaderSubtitle) updateDoc.widgetSettings.headerSubtitle = widgetHeaderSubtitle;
+        if (widgetHeaderAvatarUrl) updateDoc.widgetSettings.headerAvatarUrl = widgetHeaderAvatarUrl;
+
         const result = await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
-            { $set: { messagesPerSecond: mps } }
+            { $set: updateDoc }
         );
 
         if (result.matchedCount === 0) {

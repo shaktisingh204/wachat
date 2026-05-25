@@ -8,8 +8,6 @@ import {
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
   Button,
-  Card,
-  ZoruCardContent,
   EmptyState,
   ZoruPageDescription,
   PageHeader,
@@ -24,12 +22,10 @@ import { useRouter } from 'next/navigation';
 import { CircleAlert } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { AgentsRolesSettingsTab } from '@/components/wabasimplify/agents-roles-settings-tab';
 import { getSession } from '@/app/actions/index.ts';
+import { AgentsSettingsClient } from './client-page';
 
 import * as React from 'react';
-
-export const dynamic = 'force-dynamic';
 
 export default function AgentsSettingsPage() {
   const router = useRouter();
@@ -89,22 +85,18 @@ export default function AgentsSettingsPage() {
 
       <PageHeader>
         <ZoruPageHeading>
-          <ZoruPageTitle>Agents & roles</ZoruPageTitle>
+          <ZoruPageTitle>Agents, Roles & Routing</ZoruPageTitle>
           <ZoruPageDescription>
-            Invite teammates and configure role-based permissions.
+            Invite teammates, configure role-based permissions, and manage conversation routing logic.
           </ZoruPageDescription>
         </ZoruPageHeading>
       </PageHeader>
 
-      <Card>
-        <ZoruCardContent>
-          {user ? (
-            <AgentsRolesSettingsTab project={activeProject} user={user} />
-          ) : (
-            <Skeleton className="h-40 w-full" />
-          )}
-        </ZoruCardContent>
-      </Card>
+      {user ? (
+        <AgentsSettingsClient project={activeProject} />
+      ) : (
+        <Skeleton className="h-40 w-full" />
+      )}
     </div>
   );
 }

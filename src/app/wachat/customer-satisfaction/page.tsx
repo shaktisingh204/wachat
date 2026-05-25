@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -268,7 +269,7 @@ export default function CustomerSatisfactionPage() {
                   <Stars count={r.rating} />
                   <div className="min-w-0 flex-1">
                     <span className="text-[11px] text-zoru-ink-subtle">
-                      {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : ''}
+                      {r.createdAt ? fmtDate(r.createdAt) : ''}
                     </span>
                     {r.feedback && (
                       <p className="mt-0.5 text-[12.5px] leading-relaxed text-zoru-ink-muted">
@@ -310,7 +311,7 @@ export default function CustomerSatisfactionPage() {
                         <Badge variant="danger">{r.rating} stars</Badge>
                         <span className="text-[11px] text-zoru-ink-subtle">
                           {r.createdAt
-                            ? new Date(r.createdAt).toLocaleString()
+                            ? fmtDate(r.createdAt)
                             : ''}
                         </span>
                       </div>

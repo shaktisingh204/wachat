@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import {
-  Badge,
   Card,
-  ZoruCardContent,
-  ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
+  ZoruCardDescription,
+  ZoruCardContent,
+  Badge,
   Dialog,
   ZoruDialogTrigger,
   ZoruDialogContent,
@@ -21,7 +21,7 @@ import {
 import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
 import type { App, AppPricing } from "@/lib/marketplace";
-import { installMarketplaceAppAction } from "./actions";
+import { installMarketplaceAppAction, submitAppReviewAction } from "./actions";
 
 function PriceBadge({ pricing }: { pricing: AppPricing }) {
   if (pricing.type === "free") {
@@ -44,9 +44,12 @@ function PriceBadge({ pricing }: { pricing: AppPricing }) {
   );
 }
 
-export function AppCardClient({ app }: { app: App }) {
+export function AppCardClient({ app, isInstalled }: { app: App; isInstalled?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [installing, setInstalling] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [submittingRating, setSubmittingRating] = useState(false);
   const { toast } = useZoruToast();
   const router = useRouter();
 
@@ -59,8 +62,7 @@ export function AppCardClient({ app }: { app: App }) {
         description: `${app.manifest.name} has been successfully installed.`,
         variant: "default",
       });
-      setIsOpen(false);
-      router.refresh(); // Refresh data like installCount
+      router.refresh(); // Refresh data like installCount and isInstalled status
     } catch (err: any) {
       toast({
         title: "Install failed",
@@ -72,10 +74,33 @@ export function AppCardClient({ app }: { app: App }) {
     }
   };
 
+  const handleRate = async (value: number) => {
+    if (!isInstalled) return;
+    setRating(value);
+    setSubmittingRating(true);
+    try {
+      await submitAppReviewAction(app.appId, value);
+      toast({
+        title: "Rating submitted",
+        description: `Thank you for rating ${app.manifest.name}.`,
+        variant: "default",
+      });
+      router.refresh();
+    } catch (err: any) {
+      toast({
+        title: "Failed to submit rating",
+        description: err.message || "An error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmittingRating(false);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <ZoruDialogTrigger asChild>
-        <button className="group focus:outline-none text-left h-full">
+        <button className="group focus:outline-none text-left h-full w-full">
           <Card interactive className="h-full flex flex-col">
             <ZoruCardHeader>
               <div className="flex items-start justify-between gap-3">
@@ -196,6 +221,33 @@ export function AppCardClient({ app }: { app: App }) {
             </div>
             <PriceBadge pricing={app.manifest.pricing} />
           </div>
+
+          {isInstalled && (
+            <div className="flex items-center justify-between bg-zoru-surface-1 p-3 rounded-lg border border-zoru-line">
+              <div className="text-sm font-medium">Rate this App</div>
+              <div className="flex items-center gap-1" onMouseLeave={() => setHoverRating(0)}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    disabled={submittingRating}
+                    onMouseEnter={() => setHoverRating(star)}
+                    onClick={() => handleRate(star)}
+                    className="focus:outline-none transition-colors"
+                  >
+                    <Star
+                      className={`w-5 h-5 ${
+                        (hoverRating || rating) >= star
+                          ? "fill-zoru-warning text-zoru-warning"
+                          : "text-zoru-line"
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-between text-sm text-zoru-ink-muted pt-2 border-t border-zoru-line">
             <span>Version {app.manifest.version}</span>
             <span>{app.installCount.toLocaleString()} total installs</span>
@@ -204,11 +256,17 @@ export function AppCardClient({ app }: { app: App }) {
         
         <ZoruDialogFooter>
           <Button variant="outline" onClick={() => setIsOpen(false)} disabled={installing}>
-            Cancel
+            Close
           </Button>
-          <Button onClick={handleInstall} disabled={installing}>
-            {installing ? "Installing..." : "Install App"}
-          </Button>
+          {!isInstalled ? (
+            <Button onClick={handleInstall} disabled={installing}>
+              {installing ? "Installing..." : "Install App"}
+            </Button>
+          ) : (
+            <Button disabled variant="secondary">
+              Installed
+            </Button>
+          )}
         </ZoruDialogFooter>
       </ZoruDialogContent>
     </Dialog>

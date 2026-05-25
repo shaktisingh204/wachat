@@ -1,6 +1,7 @@
 'use client';
 
-import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { Badge, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Skeleton } from '@/components/zoruui';
+import { use } from 'react';
 import {
   formatDistanceToNow } from 'date-fns';
 
@@ -26,14 +27,14 @@ import type { CrmLead, WithId } from '@/lib/definitions';
 export interface LeadsDetailRailProps {
     leadId: string;
     lead: WithId<CrmLead>;
-    counts: CrmLeadRelatedCounts;
+    countsPromise: Promise<CrmLeadRelatedCounts>;
     onSaved: () => void;
 }
 
 export function LeadsDetailRail({
     leadId,
     lead,
-    counts,
+    countsPromise,
     onSaved,
 }: LeadsDetailRailProps) {
     const status = (lead.status as string) || 'New';
@@ -104,7 +105,7 @@ export function LeadsDetailRail({
                         label="Next follow-up"
                         value={
                             lead.nextFollowUp
-                                ? new Date(lead.nextFollowUp).toLocaleDateString()
+                                ? new Date(lead.nextFollowUp).toLocaleDateString('en-US', { timeZone: 'UTC' })
                                 : 'Not set'
                         }
                     />
@@ -116,30 +117,54 @@ export function LeadsDetailRail({
                 <ZoruCardHeader>
                     <ZoruCardTitle>Related</ZoruCardTitle>
                 </ZoruCardHeader>
-                <ZoruCardContent className="space-y-2 text-sm">
-                    <RelatedLink
-                        label="Deals"
-                        count={counts.deals}
-                        href={`/dashboard/crm/sales-crm/deals?leadId=${leadId}`}
-                    />
-                    <RelatedLink
-                        label="Tasks"
-                        count={counts.tasks}
-                        href={`/dashboard/crm/sales-crm/tasks?linkedKind=lead&linkedId=${leadId}`}
-                    />
-                    <RelatedLink
-                        label="Tickets"
-                        count={counts.tickets}
-                        href={`/dashboard/crm/tickets?leadId=${leadId}`}
-                    />
-                    <RelatedLink
-                        label="Quotations"
-                        count={counts.quotations}
-                        href={`/dashboard/crm/sales-crm/quotations?leadId=${leadId}`}
-                    />
-                </ZoruCardContent>
+                <React.Suspense
+                    fallback={
+                        <ZoruCardContent className="space-y-2 text-sm">
+                            <Skeleton className="h-9 w-full" />
+                            <Skeleton className="h-9 w-full" />
+                            <Skeleton className="h-9 w-full" />
+                            <Skeleton className="h-9 w-full" />
+                        </ZoruCardContent>
+                    }
+                >
+                    <RelatedCardsContent leadId={leadId} countsPromise={countsPromise} />
+                </React.Suspense>
             </Card>
         </>
+    );
+}
+
+function RelatedCardsContent({
+    leadId,
+    countsPromise,
+}: {
+    leadId: string;
+    countsPromise: Promise<CrmLeadRelatedCounts>;
+}) {
+    const counts = use(countsPromise);
+    return (
+        <ZoruCardContent className="space-y-2 text-sm">
+            <RelatedLink
+                label="Deals"
+                count={counts.deals}
+                href={`/dashboard/crm/sales-crm/deals?leadId=${leadId}`}
+            />
+            <RelatedLink
+                label="Tasks"
+                count={counts.tasks}
+                href={`/dashboard/crm/sales-crm/tasks?linkedKind=lead&linkedId=${leadId}`}
+            />
+            <RelatedLink
+                label="Tickets"
+                count={counts.tickets}
+                href={`/dashboard/crm/tickets?leadId=${leadId}`}
+            />
+            <RelatedLink
+                label="Quotations"
+                count={counts.quotations}
+                href={`/dashboard/crm/sales-crm/quotations?leadId=${leadId}`}
+            />
+        </ZoruCardContent>
     );
 }
 

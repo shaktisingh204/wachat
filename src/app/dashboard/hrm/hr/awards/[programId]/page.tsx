@@ -1,3 +1,4 @@
+import { fmtDate, fmtINR } from '@/lib/utils';
 import {
   Badge,
   Button,
@@ -51,7 +52,7 @@ const AWARDS_LIST_HREF = '/dashboard/hrm/hr/awards';
 function fmtDate(v: unknown): string {
     if (!v) return '—';
     const d = new Date(v as any);
-    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    return isNaN(d.getTime()) ? '—' : fmtDate(d);
 }
 
 function fmtINR(n: unknown): string {

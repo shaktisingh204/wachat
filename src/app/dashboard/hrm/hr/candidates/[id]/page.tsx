@@ -1,3 +1,5 @@
+import { fmtDate } from '@/lib/utils';
+import { Suspense } from 'react';
 import { Button } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
@@ -37,16 +39,18 @@ import { StatusPill,
  */
 
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
-import { InlineNoteComposer } from '../../_components/inline-note-composer';
-import { ParseResumeButton } from '../../_components/parse-resume-button';
-import { CalendlySchedulingCard } from '../../_components/calendly-scheduling-card';
-import { ScorecardCreator } from '../../_components/scorecard-creator';
+import { InlineNoteComposer } from '../_components/inline-note-composer';
+import { ParseResumeButton } from '../_components/parse-resume-button';
+import { CalendlySchedulingCard } from '../_components/calendly-scheduling-card';
+import { ScorecardCreator } from '../_components/scorecard-creator';
+
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function CandidateDetailPage({ params }: PageProps) {
+async function CandidateDetailPageContainer({ params }: PageProps) {
   const { id } = await params;
   const raw = await getCandidateById(id);
   if (!raw) notFound();
@@ -143,7 +147,7 @@ export default async function CandidateDetailPage({ params }: PageProps) {
               <span className="text-zoru-ink-muted">Applied: </span>
               <span className="text-zoru-ink">
                 {c.applied_at
-                  ? new Date(c.applied_at).toLocaleDateString()
+                  ? fmtDate(c.applied_at)
                   : '—'}
               </span>
             </p>
@@ -259,7 +263,7 @@ export default async function CandidateDetailPage({ params }: PageProps) {
 function fmtDate(d?: string | Date | null) {
   if (!d) return '—';
   try {
-    return new Date(d).toLocaleDateString();
+    return fmtDate(d);
   } catch {
     return '—';
   }
@@ -270,4 +274,12 @@ function fmtCurrency(v: any, curr: any) {
   const n = Number(v);
   if (!Number.isFinite(n)) return String(v);
   return `${n.toLocaleString()} ${curr || ''}`.trim();
+}
+
+export default function CandidateDetailPage({ params }: PageProps) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CandidateDetailPageContainer params={params} />
+    </Suspense>
+  );
 }

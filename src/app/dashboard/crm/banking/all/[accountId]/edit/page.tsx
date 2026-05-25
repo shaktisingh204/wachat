@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
@@ -5,11 +6,30 @@ import { getCrmPaymentAccountById } from '@/app/actions/crm-payment-accounts.act
 
 import { PaymentAccountFormClient } from '../../_components/payment-account-form-client';
 
-export default async function EditPaymentAccountPage(props: {
+interface EditPaymentAccountPageProps {
     params: Promise<{ accountId: string }>;
-}) {
+}
+
+export async function generateMetadata(props: EditPaymentAccountPageProps): Promise<Metadata> {
     const { accountId } = await props.params;
     const account = await getCrmPaymentAccountById(accountId);
+
+    if (!account) {
+        return {
+            title: 'Account Not Found',
+        };
+    }
+
+    return {
+        title: `Edit ${account.accountName} | SabNode CRM`,
+        description: `Edit payment account details for ${account.accountName}.`,
+    };
+}
+
+export default async function EditPaymentAccountPage(props: EditPaymentAccountPageProps) {
+    const { accountId } = await props.params;
+    const account = await getCrmPaymentAccountById(accountId);
+    
     if (!account) notFound();
 
     return (

@@ -1,3 +1,4 @@
+import React from "react";
 /**
  * /portal/client/knowledge-base — Read-only article list with search +
  * category sidebar. Search is server-driven via the `q` and `category`
@@ -24,7 +25,7 @@ function fmtDate(iso: string | null): string {
     return new Date(iso).toLocaleDateString();
 }
 
-export default async function ClientKnowledgeBasePage({
+async function ClientKnowledgeBasePageContent({
     searchParams,
 }: {
     searchParams: Promise<{ q?: string; category?: string }>;
@@ -111,4 +112,17 @@ export default async function ClientKnowledgeBasePage({
             </div>
         </div>
     );
+}
+
+
+export default function ClientKnowledgeBasePage({
+    searchParams,
+}: {
+    searchParams: Promise<{ q?: string; category?: string }>;
+}) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <ClientKnowledgeBasePageContent searchParams={searchParams} />
+    </React.Suspense>
+  );
 }

@@ -185,6 +185,9 @@ export function ActivityPageClient({
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [bulkWorking, setBulkWorking] = React.useState(false);
 
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => { setMounted(true); }, []);
+
   // Re-sync feed when server re-renders.
   React.useEffect(() => {
     setFeedRows(initialFeed.items);
@@ -667,7 +670,7 @@ export function ActivityPageClient({
                                     : ''
                                 }
                               >
-                                {new Date(a.dueDate).toLocaleDateString()}
+                                {mounted ? new Date(a.dueDate).toLocaleDateString() : a.dueDate.slice(0, 10)}
                               </span>
                             ) : (
                               '—'

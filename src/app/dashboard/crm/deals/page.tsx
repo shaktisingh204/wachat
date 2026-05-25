@@ -1,14 +1,49 @@
-/**
- * Legacy deals list — redirects to the canonical Sales CRM deals route.
- *
- * The CRM rebuild (CRM_REBUILD_PLAN §1D) consolidated the duplicate
- * `/dashboard/crm/deals` + `/dashboard/crm/sales-crm/deals` trees onto
- * the latter. This file is a permanent 308 so deep links from old
- * dashboards / notifications continue to resolve.
- */
+import { listDeals } from '@/app/actions/crm/deals.actions';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { DealListClient } from './_components/deal-list-client';
+import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
 
-import { permanentRedirect } from 'next/navigation';
+export const dynamic = 'force-dynamic';
 
-export default function LegacyDealsRedirect() {
-  permanentRedirect('/dashboard/crm/sales-crm/deals');
+interface SearchParams {
+  page?: string;
+  limit?: string;
+  q?: string;
+}
+
+interface PageProps {
+  searchParams: Promise<SearchParams>;
+}
+
+export default async function DealsPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const limit = Math.min(Math.max(1, Number(sp.limit) || 50), 200);
+  const q = sp.q?.trim() || '';
+
+  const { deals, total, hasMore, error } = await listDeals({
+    page,
+    limit,
+    search: q || undefined,
+  });
+
+  const stages = getDealStagesForIndustry();
+
+  return (
+    <EntityListShell
+      title="Deals"
+      subtitle="Pipeline opportunities — track value, stage, and forecast in one place."
+    >
+      <DealListClient
+        deals={deals || []}
+        total={total || 0}
+        page={page}
+        limit={limit}
+        hasMore={hasMore || false}
+        initialQuery={q}
+        error={error}
+        stages={stages}
+      />
+    </EntityListShell>
+  );
 }

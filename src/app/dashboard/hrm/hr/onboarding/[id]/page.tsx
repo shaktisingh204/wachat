@@ -14,6 +14,7 @@
  *   `getOnboardingById` server action when the collection ships one.
  */
 
+import * as React from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -25,7 +26,8 @@ import {
   Activity,
 } from 'lucide-react';
 
-import { getOnboardingTemplates } from '@/app/actions/hr.actions';
+import { getOnboardingById } from '@/app/actions/crm-onboarding.actions';
+import { fmtDate } from '@/lib/utils';
 import {
   markOnboardingComplete,
   sendOnboardingWelcomeKit,
@@ -44,10 +46,10 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function OnboardingDetailPage({ params }: PageProps) {
-  const { id } = await params;
-  const all = (await getOnboardingTemplates()) as any[];
-  const o = all.find((x) => String(x._id) === id);
+export const dynamic = 'force-dynamic';
+
+async function OnboardingDetailContainer({ id }: { id: string }) {
+  const o = await getOnboardingById(id);
   if (!o) notFound();
 
   const status = o.status || 'pending';
@@ -55,7 +57,7 @@ export default async function OnboardingDetailPage({ params }: PageProps) {
 
   return (
     <RecruitmentDetailShell
-      title={o.task_name || o.name || 'Onboarding'}
+      title={o.employeeName || 'Onboarding'}
       eyebrow="ONBOARDING"
       status={{ label: status, tone: tone as any }}
       back={{ href: '/dashboard/hrm/hr/onboarding', label: 'All onboarding' }}
@@ -109,11 +111,11 @@ export default async function OnboardingDetailPage({ params }: PageProps) {
       rightRail={
         <>
           <RailCard title="Employee">
-            {o.employee_id ? (
+            {o.employeeId ? (
               <RailLink
-                href={`/dashboard/hrm/hr/directory/${o.employee_id}`}
+                href={`/dashboard/hrm/hr/directory/${o.employeeId}`}
                 label="Linked employee"
-                hint={String(o.employee_id)}
+                hint={String(o.employeeId)}
               />
             ) : (
               <p className="px-2 py-1.5 text-zoru-ink-muted">No employee.</p>
@@ -122,19 +124,19 @@ export default async function OnboardingDetailPage({ params }: PageProps) {
           <RailCard title="Chain — next step">
             <RailLink
               href={`/dashboard/hrm/hr/probation/new?fromKind=onboarding&fromId=${id}${
-                o.employee_id ? `&employeeId=${o.employee_id}` : ''
+                o.employeeId ? `&employeeId=${o.employeeId}` : ''
               }`}
               label="Start probation"
               hint="Move to probation"
             />
           </RailCard>
-          {Array.isArray(o.tasks) && o.tasks.length > 0 ? (
+          {Array.isArray(o.checklist) && o.checklist.length > 0 ? (
             <RailCard title="Checklist">
               <p className="text-zoru-ink-muted">
-                {o.tasks.length} item{o.tasks.length === 1 ? '' : 's'}
+                {o.checklist.length} item{o.checklist.length === 1 ? '' : 's'}
               </p>
               <ul className="space-y-1 text-zoru-ink">
-                {o.tasks.slice(0, 6).map((t: any, i: number) => (
+                {o.checklist.slice(0, 6).map((t: any, i: number) => (
                   <li key={i}>• {t.title}</li>
                 ))}
               </ul>
@@ -145,29 +147,29 @@ export default async function OnboardingDetailPage({ params }: PageProps) {
       audit={<EntityAuditTimeline entityKind="onboarding" entityId={id} />}
     >
       <DetailCard
-        title="Task"
+        title="Employee Information"
         rows={[
-          { label: 'Task name', value: o.task_name },
+          { label: 'Name', value: o.employeeName },
           {
-            label: 'Employee',
-            value: o.employee_id ? (
+            label: 'Employee ID',
+            value: o.employeeId ? (
               <Link
-                href={`/dashboard/hrm/hr/directory/${o.employee_id}`}
+                href={`/dashboard/hrm/hr/directory/${o.employeeId}`}
                 className="text-zoru-ink hover:underline"
               >
-                {String(o.employee_id)}
+                {String(o.employeeId)}
               </Link>
             ) : (
               '—'
             ),
           },
-          { label: 'Assigned to', value: o.assigned_to },
-          { label: 'Due date', value: fmtDate(o.due_date) },
+          { label: 'Job ID', value: o.jobId },
+          { label: 'Joining date', value: fmtDate(o.joiningDate) },
           {
             label: 'Status',
             value: <StatusPill label={status} tone={tone} />,
           },
-          { label: 'Category', value: o.category },
+          { label: 'Department', value: o.departmentId },
         ]}
       />
       {o.description ? (
@@ -175,10 +177,10 @@ export default async function OnboardingDetailPage({ params }: PageProps) {
           <p className="whitespace-pre-wrap">{o.description}</p>
         </DetailCard>
       ) : null}
-      {Array.isArray(o.tasks) && o.tasks.length > 0 ? (
+      {Array.isArray(o.checklist) && o.checklist.length > 0 ? (
         <DetailCard title="Checklist">
           <ul className="space-y-1.5">
-            {o.tasks.map((t: any, i: number) => (
+            {o.checklist.map((t: any, i: number) => (
               <li
                 key={i}
                 className="flex items-start gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-2"
@@ -187,8 +189,8 @@ export default async function OnboardingDetailPage({ params }: PageProps) {
                 <span className="flex min-w-0 flex-col">
                   <span className="text-zoru-ink">{t.title}</span>
                   <span className="text-[11.5px] text-zoru-ink-muted">
-                    {t.dueDays ? `Due in ${t.dueDays} days` : '—'}
-                    {t.assignee ? ` · ${t.assignee}` : ''}
+                    {t.dueDate ? `Due ${fmtDate(t.dueDate)}` : '—'}
+                    {t.assigneeId ? ` · ${t.assigneeId}` : ''}
                     {t.category ? ` · ${t.category}` : ''}
                   </span>
                 </span>
@@ -206,11 +208,11 @@ export default async function OnboardingDetailPage({ params }: PageProps) {
   );
 }
 
-function fmtDate(d?: string | Date | null) {
-  if (!d) return '—';
-  try {
-    return new Date(d).toLocaleDateString();
-  } catch {
-    return '—';
-  }
+export default async function OnboardingDetailPage({ params }: PageProps) {
+  const { id } = await params;
+  return (
+    <React.Suspense fallback={<div className="p-4">Loading onboarding...</div>}>
+      <OnboardingDetailContainer id={id} />
+    </React.Suspense>
+  );
 }

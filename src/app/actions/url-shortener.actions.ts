@@ -90,12 +90,14 @@ export async function getShortUrls(): Promise<{
 export async function trackClickAndGetUrl(
     shortCode: string,
     hostname: string | null,
+    password?: string | null,
 ): Promise<{
     originalUrl: string | null;
     error?: string;
     passwordHash?: string | null;
     utmParams?: Record<string, string> | null;
     isExpired?: boolean | null;
+    pixelIds?: { facebook?: string; google?: string; tiktok?: string } | null;
 }> {
     try {
         const headerList = await headers();
@@ -105,6 +107,7 @@ export async function trackClickAndGetUrl(
             userAgent: headerList.get('user-agent'),
             referrer: headerList.get('referer'),
             ip: headerList.get('x-forwarded-for') || headerList.get('x-real-ip'),
+            password,
         });
         return {
             originalUrl: result.originalUrl ?? null,
@@ -112,6 +115,7 @@ export async function trackClickAndGetUrl(
             passwordHash: result.passwordHash,
             utmParams: result.utmParams as Record<string, string> | null,
             isExpired: result.isExpired,
+            pixelIds: result.pixelIds,
         };
     } catch (e) {
         console.error('Error tracking click:', e);

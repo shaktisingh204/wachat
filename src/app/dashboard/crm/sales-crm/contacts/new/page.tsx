@@ -18,8 +18,6 @@ import {
     type ContactFormPrefill,
 } from '../_components/contacts-form';
 
-export const dynamic = 'force-dynamic';
-
 export default function NewContactPage() {
     const params = useSearchParams();
     const accountId = params.get('accountId') ?? '';

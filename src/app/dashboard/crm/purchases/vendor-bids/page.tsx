@@ -12,6 +12,7 @@
  * only).
  */
 
+import React, { Suspense } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listVendorBids } from '@/app/actions/crm/vendor-bids.actions';
 import type { CrmVendorBidDoc } from '@/lib/rust-client/crm-vendor-bids';
@@ -21,6 +22,7 @@ import type {
   VendorBidKpiSummary,
   VendorBidListRow,
 } from './_components/types';
+import PurchasesLoading from '../loading';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,8 +51,6 @@ function maxLeadTime(items?: CrmVendorBidDoc['items']): number | undefined {
 function toRow(doc: CrmVendorBidDoc): VendorBidListRow {
   const rawStatus = (typeof doc.status === 'string' ? doc.status : 'submitted').toLowerCase();
   const idStr = String(doc._id);
-  // The Rust DTO doesn't carry an explicit human bid-number; use the
-  // last 6 of the ObjectId so the list still has a stable handle.
   const bidNo = `VB-${idStr.slice(-6).toUpperCase()}`;
   return {
     _id: idStr,
@@ -58,14 +58,14 @@ function toRow(doc: CrmVendorBidDoc): VendorBidListRow {
     vendorId: doc.vendorId,
     vendorName: doc.vendorName,
     rfqId: doc.rfqId,
-    submittedAt: doc.submittedAt ?? doc.createdAt ?? doc.audit?.createdAt,
+    submittedAt: (doc.submittedAt ?? doc.createdAt ?? doc.audit?.createdAt) ? new Date(doc.submittedAt ?? doc.createdAt ?? doc.audit?.createdAt).toISOString() : undefined,
     currency: doc.currency,
     total: doc.totals?.total,
     budget: doc.totals?.total ? doc.totals.total * 1.15 : undefined,
     leadTimeDays: maxLeadTime(doc.items),
     status: rawStatus,
-    createdAt: doc.createdAt ?? doc.audit?.createdAt,
-    updatedAt: doc.updatedAt ?? doc.audit?.updatedAt,
+    createdAt: (doc.createdAt ?? doc.audit?.createdAt) ? new Date(doc.createdAt ?? doc.audit?.createdAt).toISOString() : undefined,
+    updatedAt: (doc.updatedAt ?? doc.audit?.updatedAt) ? new Date(doc.updatedAt ?? doc.audit?.updatedAt).toISOString() : undefined,
   };
 }
 
@@ -76,9 +76,6 @@ function computeKpi(rows: VendorBidListRow[]): VendorBidKpiSummary {
   let awarded = 0;
   let rejected = 0;
   for (const r of rows) {
-    // The Rust DTO doesn't model `draft` directly; bids land on the
-    // server as `submitted`. We surface a `draft` bucket for parity
-    // with §1D and to make room for a future client-side draft flow.
     if (r.status === 'draft') draft += 1;
     else if (r.status === 'submitted') submitted += 1;
     else if (r.status === 'shortlisted') shortlisted += 1;
@@ -86,6 +83,36 @@ function computeKpi(rows: VendorBidListRow[]): VendorBidKpiSummary {
     else if (r.status === 'rejected') rejected += 1;
   }
   return { draft, submitted, shortlisted, awarded, rejected };
+}
+
+/* ─── Server Container ────────────────────────────────────────────── */
+
+async function VendorBidListContainer({ page, limit, q }: { page: number; limit: number; q: string }) {
+  const { bids, hasMore, error } = await listVendorBids({
+    page,
+    limit,
+    q: q || undefined,
+  });
+
+  if (error) {
+    throw new Error(error);
+  }
+
+  const rows = bids.map(toRow);
+  const kpi = computeKpi(rows);
+
+  return (
+    <VendorBidListClient
+      bids={rows}
+      page={page}
+      limit={limit}
+      hasMore={hasMore}
+      initialQuery={q}
+      kpi={kpi}
+      defaultCurrency="INR"
+      error={error}
+    />
+  );
 }
 
 /* ─── Page ────────────────────────────────────────────────────────── */
@@ -96,30 +123,14 @@ export default async function VendorBidsPage({ searchParams }: PageProps) {
   const limit = Math.min(Math.max(1, Number(sp.limit) || 50), 200);
   const q = (sp.q ?? '').trim();
 
-  const { bids, hasMore, error } = await listVendorBids({
-    page,
-    limit,
-    q: q || undefined,
-  });
-
-  const rows = bids.map(toRow);
-  const kpi = computeKpi(rows);
-
   return (
     <EntityListShell
       title="Vendor Bids"
       subtitle="Vendor responses to your RFQs — submitted, shortlisted, awarded, rejected."
     >
-      <VendorBidListClient
-        bids={rows}
-        page={page}
-        limit={limit}
-        hasMore={hasMore}
-        initialQuery={q}
-        kpi={kpi}
-        defaultCurrency="INR"
-        error={error}
-      />
+      <Suspense fallback={<PurchasesLoading />}>
+        <VendorBidListContainer page={page} limit={limit} q={q} />
+      </Suspense>
     </EntityListShell>
   );
 }

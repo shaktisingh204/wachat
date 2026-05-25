@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getNativeAppAPIKeys } from '@/app/actions/platform/native-app-apis.actions';
 import NativeAppAPIsClient from './client';
 

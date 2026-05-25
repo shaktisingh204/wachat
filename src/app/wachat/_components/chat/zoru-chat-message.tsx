@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -74,7 +75,7 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
 
     const formatTimestamp = (date: Date | string | undefined) => {
         if (!date) return '';
-        return new Date(date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+        return fmtDate(date);
     };
 
     return (

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Download, Pencil, Share2, Trash2 } from "lucide-react";
+import { Download, FolderOpen, Pencil, Share2, Star, StarOff, Trash2 } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -32,6 +32,9 @@ export interface ZoruFilesPageProps {
   onDownload?: (file: ZoruFileEntity) => void;
   onShareInvite?: (file: ZoruFileEntity, email: string, access: "viewer" | "editor") => void;
   onCopyShareLink?: (url: string) => void;
+  onNewFolder?: () => void;
+  onStar?: (file: ZoruFileEntity, star: boolean) => void;
+  onNavigateFolder?: (file: ZoruFileEntity) => void;
   /** Empty-state node for when there are no files. */
   empty?: React.ReactNode;
   className?: string;
@@ -52,6 +55,9 @@ export function ZoruFilesPage({
   onDownload,
   onShareInvite,
   onCopyShareLink,
+  onNewFolder,
+  onStar,
+  onNavigateFolder,
   empty,
   className,
 }: ZoruFilesPageProps) {
@@ -82,12 +88,19 @@ export function ZoruFilesPage({
           view={view}
           onViewChange={setView}
           onUpload={onUpload ? () => setUploadOpen(true) : undefined}
+          onNewFolder={onNewFolder}
         />
 
         {view === "grid" ? (
           <ZoruFileGrid
             files={filtered}
-            onOpen={setPreviewFile}
+            onOpen={(file) => {
+              if (file.isFolder && onNavigateFolder) {
+                onNavigateFolder(file);
+              } else {
+                setPreviewFile(file);
+              }
+            }}
             onAction={(file) => {
               setActionTarget(file);
               setMenuOpen(true);
@@ -97,7 +110,13 @@ export function ZoruFilesPage({
         ) : (
           <ZoruFileList
             files={filtered}
-            onOpen={setPreviewFile}
+            onOpen={(file) => {
+              if (file.isFolder && onNavigateFolder) {
+                onNavigateFolder(file);
+              } else {
+                setPreviewFile(file);
+              }
+            }}
             onAction={(file) => {
               setActionTarget(file);
               setMenuOpen(true);
@@ -120,6 +139,15 @@ export function ZoruFilesPage({
           <span aria-hidden className="sr-only" />
         </ZoruDropdownMenuTrigger>
         <ZoruDropdownMenuContent align="end" className="w-44">
+          {actionTarget?.isFolder && onNavigateFolder && (
+            <ZoruDropdownMenuItem
+              onSelect={() => {
+                if (actionTarget) onNavigateFolder(actionTarget);
+              }}
+            >
+              <FolderOpen /> Open
+            </ZoruDropdownMenuItem>
+          )}
           <ZoruDropdownMenuItem
             onSelect={() => {
               if (actionTarget) setRenameFile(actionTarget);
@@ -128,6 +156,23 @@ export function ZoruFilesPage({
           >
             <Pencil /> Rename
           </ZoruDropdownMenuItem>
+          {onStar && (
+            <ZoruDropdownMenuItem
+              onSelect={() => {
+                if (actionTarget) onStar(actionTarget, !actionTarget.starred);
+              }}
+            >
+              {actionTarget?.starred ? (
+                <>
+                  <StarOff /> Unstar
+                </>
+              ) : (
+                <>
+                  <Star /> Star
+                </>
+              )}
+            </ZoruDropdownMenuItem>
+          )}
           <ZoruDropdownMenuItem
             onSelect={() => {
               if (actionTarget) setShareFile(actionTarget);

@@ -24,3 +24,11 @@ export async function deleteAttendanceRecord(id: string) {
   revalidatePath('/dashboard/hrm-advanced/geofenced-attendance');
   return result;
 }
+
+export async function bulkDeleteAttendanceRecords(ids: string[]) {
+  const { hrBulkDelete } = await import('@/lib/hr-crud');
+  const result = await hrBulkDelete(COLLECTION, ids);
+  if (!result.success) throw new Error(result.error);
+  revalidatePath('/dashboard/hrm-advanced/geofenced-attendance');
+  return result;
+}

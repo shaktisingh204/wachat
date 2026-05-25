@@ -27,6 +27,7 @@ import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Download, Eye } 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createTaxRecord, updateTaxRecord, deleteTaxRecord, exportTaxRecordsCSV, TaxRecord } from '@/app/actions/finance/taxes.actions';
 import { toast } from 'sonner';
+import { fmtINR } from '@/lib/utils';
 
 export function TaxRecordListClient({ initialItems, error, initialPeriod }: { initialItems: TaxRecord[], error?: string, initialPeriod?: string }) {
   const router = useRouter();
@@ -217,6 +218,8 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
               <Label>TaxableIncome</Label>
               <Input 
                 name="taxableIncome" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.taxableIncome : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("taxableIncome")} 
               />
@@ -225,6 +228,8 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
               <Label>TaxOwed</Label>
               <Input 
                 name="taxOwed" 
+                type="number"
+                step="any"
                 defaultValue={editingId ? items.find(i => i._id === editingId)?.taxOwed : ''} 
                 required={!['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'].includes("taxOwed")} 
               />
@@ -258,11 +263,11 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
       <div className="grid gap-4 md:grid-cols-3 mb-6">
         <div className="rounded-xl border bg-white p-6 shadow-sm">
           <div className="text-sm font-medium text-muted-foreground mb-2">Total Taxable Income</div>
-          <div className="text-2xl font-bold">${totalTaxable.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{fmtINR(totalTaxable)}</div>
         </div>
         <div className="rounded-xl border bg-white p-6 shadow-sm">
           <div className="text-sm font-medium text-muted-foreground mb-2">Total Tax Owed</div>
-          <div className="text-2xl font-bold">${totalOwed.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{fmtINR(totalOwed)}</div>
         </div>
         <div className="rounded-xl border bg-white p-6 shadow-sm max-h-[120px] overflow-y-auto">
           <div className="text-sm font-medium text-muted-foreground mb-2">By Jurisdiction (Owed)</div>
@@ -270,7 +275,7 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
             {Object.entries(byJurisdiction).map(([j, vals]: [string, any]) => (
               <div key={j} className="flex justify-between text-sm">
                 <span>{j}</span>
-                <span className="font-semibold">${vals.owed.toLocaleString()}</span>
+                <span className="font-semibold">{fmtINR(vals.owed)}</span>
               </div>
             ))}
             {Object.keys(byJurisdiction).length === 0 && (
@@ -320,7 +325,7 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
             ) : (
               filteredItems.map((item) => (
                 <ZoruTableRow key={item._id}>
-                  <ZoruTableCell>{String(item.taxPeriod ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.jurisdiction ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.taxableIncome ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.taxOwed ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.isFiled ?? '')}</ZoruTableCell>
+                  <ZoruTableCell>{String(item.taxPeriod ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.jurisdiction ?? '')}</ZoruTableCell><ZoruTableCell>{fmtINR(item.taxableIncome)}</ZoruTableCell><ZoruTableCell>{fmtINR(item.taxOwed)}</ZoruTableCell><ZoruTableCell>{String(item.isFiled ?? '')}</ZoruTableCell>
                   <ZoruTableCell>
                     <DropdownMenu>
                       <ZoruDropdownMenuTrigger asChild>

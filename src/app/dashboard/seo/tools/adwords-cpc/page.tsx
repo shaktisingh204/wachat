@@ -3,6 +3,7 @@
 import { Card, ZoruCardContent, Input, Label, Button } from '@/components/zoruui';
 import { useMemo, useState } from 'react';
 import { Copy, Check, Download } from 'lucide-react';
+import { fmtINR } from '@/lib/utils';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
@@ -24,14 +25,14 @@ export default function AdwordsCpcPage() {
   }, [numBudget, numCpc, numCvr]);
 
   const handleCopy = () => {
-    const text = `AdWords CPC Estimation:
-Budget: $${numBudget}
-CPC: $${numCpc}
+const text = `AdWords CPC Estimation:
+Budget: ${fmtINR(numBudget)}
+CPC: ${fmtINR(numCpc)}
 Conversion Rate: ${numCvr}%
 ---
 Estimated Clicks: ${clicks.toFixed(0)}
 Estimated Conversions: ${conversions.toFixed(1)}
-Estimated Cost Per Acquisition (CPA): $${cpa.toFixed(2)}`;
+Estimated Cost Per Acquisition (CPA): ${fmtINR(cpa)}`;
     
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -64,7 +65,7 @@ Estimated CPA,${cpa.toFixed(2)}`;
     <ToolShell title="AdWords CPC Calculator" description="Estimate clicks, conversions, and CPA from budget + CPC.">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="space-y-2">
-          <Label>Budget ($)</Label>
+          <Label>Budget (₹)</Label>
           <Input 
             type="number" 
             min="0"
@@ -73,7 +74,7 @@ Estimated CPA,${cpa.toFixed(2)}`;
           />
         </div>
         <div className="space-y-2">
-          <Label>CPC ($)</Label>
+          <Label>CPC (₹)</Label>
           <Input 
             type="number" 
             step="0.01" 
@@ -110,7 +111,7 @@ Estimated CPA,${cpa.toFixed(2)}`;
         </Card>
         <Card>
           <ZoruCardContent className="p-6">
-            <div className="text-3xl font-semibold text-zoru-ink">${cpa.toFixed(2)}</div>
+            <div className="text-3xl font-semibold text-zoru-ink">{fmtINR(cpa)}</div>
             <div className="text-sm text-zoru-ink-muted mt-1">Cost per acquisition (CPA)</div>
           </ZoruCardContent>
         </Card>

@@ -52,6 +52,7 @@ import {
 import {
   GanttArrowDefs,
   GanttDependencyLine,
+  type GanttCoordinate,
 } from './_components/gantt-dependency-line';
 
 type Project = WsProject & { _id: string };
@@ -61,6 +62,12 @@ type GanttLink = WsGanttLink & { _id: string };
 interface PositionedTask {
   task: GanttBarTask;
   rowIndex: number;
+}
+
+interface LinkLineGeometry {
+  linkId: string;
+  source: GanttCoordinate;
+  target: GanttCoordinate;
 }
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -101,11 +108,16 @@ interface DragState {
 
 export default function GanttPage() {
   const { toast } = useZoruToast();
+  const [hasMounted, setHasMounted] = React.useState<boolean>(false);
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = React.useState<string>('');
   const [tasks, setTasks] = React.useState<Task[]>([]);
   const [links, setLinks] = React.useState<GanttLink[]>([]);
   const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
   const [saving, setSaving] = React.useState(false);
   const [deletingLink, setDeletingLink] = React.useState<GanttLink | null>(
     null,
@@ -515,7 +527,7 @@ export default function GanttPage() {
   const rowYCenter = (i: number): number =>
     i * GANTT_ROW_HEIGHT + GANTT_ROW_HEIGHT / 2;
 
-  const linkLines = React.useMemo(() => {
+  const linkLines = React.useMemo<LinkLineGeometry[]>(() => {
     const idx = new Map<string, number>();
     positioned.forEach((p, i) => idx.set(p.task._id, i));
     return links
@@ -529,17 +541,13 @@ export default function GanttPage() {
         const sourceY = rowYCenter(sIdx);
         const targetX = xFromMs(targetTask.startMs);
         const targetY = rowYCenter(tIdx);
-        return { linkId: l._id, sourceX, sourceY, targetX, targetY };
+        return {
+          linkId: l._id,
+          source: { x: sourceX, y: sourceY },
+          target: { x: targetX, y: targetY },
+        };
       })
-      .filter(
-        (x): x is {
-          linkId: string;
-          sourceX: number;
-          sourceY: number;
-          targetX: number;
-          targetY: number;
-        } => x !== null,
-      );
+      .filter((x): x is LinkLineGeometry => x !== null);
   }, [links, positioned, xFromMs]);
 
   /* ── Delete link dialog ───────────────────────────────────────── */
@@ -565,7 +573,7 @@ export default function GanttPage() {
 
   /* ── Render ───────────────────────────────────────────────────── */
 
-  if (loading && projects.length === 0) {
+  if (!hasMounted || (loading && projects.length === 0)) {
     return (
       <div className="flex w-full flex-col gap-6">
         <Skeleton className="h-10 w-64" />
@@ -585,7 +593,10 @@ export default function GanttPage() {
           );
           const sourceX = xFromMs(sourceTask.task.dueMs) + DAY_WIDTH;
           const sourceY = rowYCenter(sourceIdx);
-          return { sourceX, sourceY, targetX: drag.pointerX, targetY: drag.pointerY ?? sourceY };
+          return {
+            source: { x: sourceX, y: sourceY },
+            target: { x: drag.pointerX, y: drag.pointerY ?? sourceY },
+          };
         })()
       : null;
 
@@ -753,10 +764,8 @@ export default function GanttPage() {
                         <GanttDependencyLine
                           key={l.linkId}
                           linkId={l.linkId}
-                          sourceX={l.sourceX}
-                          sourceY={l.sourceY}
-                          targetX={l.targetX}
-                          targetY={l.targetY}
+                          source={l.source}
+                          target={l.target}
                           onClick={() => link && setDeletingLink(link)}
                         />
                       );
@@ -764,10 +773,10 @@ export default function GanttPage() {
                   </g>
                   {linkPreview ? (
                     <line
-                      x1={linkPreview.sourceX}
-                      y1={linkPreview.sourceY}
-                      x2={linkPreview.targetX}
-                      y2={linkPreview.targetY}
+                      x1={linkPreview.source.x}
+                      y1={linkPreview.source.y}
+                      x2={linkPreview.target.x}
+                      y2={linkPreview.target.y}
                       stroke="#0ea5e9"
                       strokeWidth={1.5}
                       strokeDasharray="4 3"

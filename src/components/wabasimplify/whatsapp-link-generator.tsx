@@ -25,6 +25,7 @@ import type { Project } from '@/lib/definitions';
 import { Link, Copy, Check } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { WhatsAppIcon } from './custom-sidebar-components';
+import { saveGeneratedLink } from '@/app/wachat/integrations/whatsapp-link-generator/actions';
 
 interface WhatsappLinkGeneratorProps {
   project: WithId<Project>;
@@ -89,7 +90,17 @@ export function WhatsappLinkGenerator({ project }: WhatsappLinkGeneratorProps) {
                     value={generatedLink}
                     className="font-mono text-xs"
                 />
-                <Button variant="outline" size="icon" onClick={() => copy(generatedLink)} disabled={!generatedLink}>
+                <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => {
+                        copy(generatedLink);
+                        if (generatedLink) {
+                            saveGeneratedLink(project._id.toString(), generatedLink).catch(console.error);
+                        }
+                    }} 
+                    disabled={!generatedLink}
+                >
                     {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 </Button>
             </div>

@@ -16,6 +16,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { formatUTC, fmtQty, fmtDate } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import {
   ArchiveX,
@@ -39,6 +40,7 @@ import {
   SabsmsRefreshButton,
   SabsmsSavedViews,
   rowsToCsv,
+  useSabsmsUrlState,
   type SabsmsBulkAction,
   type SabsmsColumn,
   type SabsmsRowAction,
@@ -79,6 +81,10 @@ import type { TemplateRow } from "./projection";
 interface TemplatesTableProps {
   workspaceId: string;
   initialRows: TemplateRow[];
+  totalCount: number;
+  page: number;
+  limit: number;
+  availableTags?: string[];
 }
 
 const STATUS_VARIANT: Record<
@@ -123,9 +129,10 @@ const SORT_OPTIONS = [
   { value: "usage", label: "Usage count" },
 ];
 
-export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: TemplatesTableProps) {
+export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCount, page, limit, availableTags = [] }: TemplatesTableProps) {
   const router = useRouter();
   const { toast } = useZoruToast();
+  const urlState = useSabsmsUrlState();
 
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [auditId, setAuditId] = React.useState<string | null>(null);
@@ -411,7 +418,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
           className="inline-flex items-center gap-1 font-mono text-xs text-slate-700 hover:text-amber-700"
         >
           <BarChart3 className="h-3.5 w-3.5" />
-          {row.usageCount.toLocaleString()}
+          {fmtQty(row.usageCount)}
         </Link>
       ),
       width: "100px",
@@ -421,7 +428,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
       header: "Updated",
       render: (row) => (
         <span className="text-xs text-slate-500">
-          {row.updatedAt ? new Date(row.updatedAt).toLocaleDateString() : "—"}
+          {row.updatedAt ? fmtDate(row.updatedAt) : "—"}
         </span>
       ),
       width: "120px",
@@ -487,6 +494,9 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
           { key: "status", label: "Status", options: STATUS_OPTIONS, multi: true },
           { key: "category", label: "Category", options: CATEGORY_OPTIONS, multi: true },
           { key: "locale", label: "Language", options: LOCALE_OPTIONS, multi: true },
+          ...(availableTags.length > 0
+            ? [{ key: "tags", label: "Tags", options: availableTags.map((t) => ({ value: t, label: t })), multi: true }]
+            : []),
         ]}
         sortOptions={SORT_OPTIONS}
         defaultSort="newest"
@@ -566,6 +576,11 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
         selectedIds={selectedIds}
         onSelectionChange={setSelectedIds}
         bulkActions={bulkActions}
+        total={totalCount}
+        page={page}
+        pageSize={limit}
+        onPageChange={(p) => urlState.setOne("page", p)}
+        onPageSizeChange={(s) => urlState.set({ limit: s, page: 1 })}
         emptyTitle="No templates yet"
         emptyDescription="Create your first SMS template or import a JSON bundle to get started."
         emptyAction={{
@@ -596,7 +611,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows }: Templ
                 <div className="flex-1">
                   <p className="text-sm text-slate-700">{e.detail}</p>
                   <p className="text-xs text-slate-500">
-                    {new Date(e.at).toLocaleString()}
+                    {formatUTC(e.at, true)}
                   </p>
                 </div>
               </li>

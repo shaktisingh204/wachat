@@ -7,8 +7,14 @@
 
 export const dynamic = 'force-dynamic';
 
+import { Suspense } from 'react';
 import { StockTransfersListClient } from './_components/stock-transfers-list-client';
+import StockTransfersLoading from './loading';
 
 export default function StockTransfersPage() {
-    return <StockTransfersListClient />;
+    return (
+        <Suspense fallback={<StockTransfersLoading />}>
+            <StockTransfersListClient />
+        </Suspense>
+    );
 }

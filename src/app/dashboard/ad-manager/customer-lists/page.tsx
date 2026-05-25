@@ -66,15 +66,23 @@ self.onmessage = async function(e) {
 export default function CustomerListsPage() {
     const { toast } = useToast();
     const { activeAccount } = useAdManager();
+    
+    // Form state
     const [name, setName] = React.useState('New customer list');
     const [csv, setCsv] = React.useState('');
+    const [audienceType, setAudienceType] = React.useState<'EMAIL' | 'PHONE' | 'EMAIL_LTV'>('EMAIL');
+    
+    // UI state
     const [uploading, setUploading] = React.useState(false);
     const [progress, setProgress] = React.useState(0);
     const [isDragging, setIsDragging] = React.useState(false);
+    
+    // Refs for lifecycle
     const fileInputRef = React.useRef<HTMLInputElement>(null);
+    const abortControllerRef = React.useRef<AbortController | null>(null);
+    const workerRef = React.useRef<Worker | null>(null);
 
-    const [audienceType, setAudienceType] = React.useState<'EMAIL' | 'PHONE' | 'EMAIL_LTV'>('EMAIL');
-
+    // Initialize from sessionStorage on mount (Hydration safe)
     React.useEffect(() => {
         const savedName = sessionStorage.getItem('am_audience_name');
         const savedCsv = sessionStorage.getItem('am_audience_csv');
@@ -84,6 +92,7 @@ export default function CustomerListsPage() {
         if (savedType) setAudienceType(savedType);
     }, []);
 
+    // Sync to sessionStorage
     React.useEffect(() => {
         sessionStorage.setItem('am_audience_name', name);
     }, [name]);
@@ -95,6 +104,19 @@ export default function CustomerListsPage() {
     React.useEffect(() => {
         sessionStorage.setItem('am_audience_type', audienceType);
     }, [audienceType]);
+
+    // Cleanup worker and upload on unmount
+    React.useEffect(() => {
+        return () => {
+            if (workerRef.current) {
+                workerRef.current.terminate();
+                workerRef.current = null;
+            }
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+    }, []);
 
     const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
     const isValidPhone = (phone: string) => phone.replace(/\D/g, '').length >= 10;
@@ -160,8 +182,16 @@ export default function CustomerListsPage() {
             toast({ title: 'No valid data found', description: 'Make sure each line has valid data.', variant: 'destructive' });
             return;
         }
+
+        // Setup abort controller for this upload
+        if (abortControllerRef.current) abortControllerRef.current.abort();
+        const abortController = new AbortController();
+        abortControllerRef.current = abortController;
+        const signal = abortController.signal;
+
         setUploading(true);
         setProgress(0);
+
         try {
             // 1) Create audience
             const isLtv = audienceType === 'EMAIL_LTV';
@@ -171,23 +201,44 @@ export default function CustomerListsPage() {
                 customer_file_source: 'USER_PROVIDED_ONLY',
                 is_value_based: isLtv ? 1 : 0
             });
+            if (signal.aborted) throw new Error('Upload aborted');
+            
             if (created.error || !(created.data as any)?.id) {
                 throw new Error(created.error || 'Failed to create audience');
             }
             const audienceId = (created.data as any).id;
 
             // 2) Hash using Web Worker
+            if (workerRef.current) {
+                workerRef.current.terminate();
+            }
             const blob = new Blob([workerCode], { type: 'application/javascript' });
             const workerUrl = URL.createObjectURL(blob);
             const worker = new Worker(workerUrl);
+            workerRef.current = worker;
 
             const hashed: any[][] = [];
             const chunkSize = 5000;
             
             for (let i = 0; i < items.length; i += chunkSize) {
+                if (signal.aborted) {
+                    worker.terminate();
+                    workerRef.current = null;
+                    throw new Error('Upload aborted');
+                }
+                
                 const chunk = items.slice(i, i + chunkSize);
-                const hashedChunk = await new Promise<any[][]>((resolve) => {
+                const hashedChunk = await new Promise<any[][]>((resolve, reject) => {
                     worker.onmessage = (e) => resolve(e.data.hashedChunk);
+                    worker.onerror = (e) => reject(new Error('Worker error: ' + e.message));
+                    
+                    // Abort handling during worker operation
+                    signal.addEventListener('abort', () => {
+                        worker.terminate();
+                        workerRef.current = null;
+                        reject(new Error('Upload aborted'));
+                    });
+                    
                     worker.postMessage({ chunk, type: audienceType });
                 });
                 hashed.push(...hashedChunk);
@@ -195,23 +246,34 @@ export default function CustomerListsPage() {
             }
             
             worker.terminate();
+            workerRef.current = null;
             URL.revokeObjectURL(workerUrl);
 
             // 3) Upload users
+            if (signal.aborted) throw new Error('Upload aborted');
+            
             const schema = isLtv ? ['EMAIL', 'LOOKALIKE_VALUE'] : [audienceType === 'PHONE' ? 'PHONE' : 'EMAIL'];
             const added = await addUsersToCustomAudience(audienceId, schema, hashed);
+            
+            if (signal.aborted) throw new Error('Upload aborted');
             if (added.error) throw new Error(added.error);
 
             toast({ title: 'Upload complete', description: `${hashed.length} items hashed & uploaded.` });
+            
+            // Success, clear state
             setCsv('');
             setName('New customer list');
             sessionStorage.removeItem('am_audience_csv');
             sessionStorage.removeItem('am_audience_name');
         } catch (e: any) {
-            toast({ title: 'Upload failed', description: e.message, variant: 'destructive' });
+            if (e.message !== 'Upload aborted') {
+                toast({ title: 'Upload failed', description: e.message, variant: 'destructive' });
+            }
         } finally {
-            setUploading(false);
-            setProgress(0);
+            if (!signal.aborted) {
+                setUploading(false);
+                setProgress(0);
+            }
         }
     };
 
@@ -236,7 +298,7 @@ export default function CustomerListsPage() {
                     <Badge variant="success">Privacy-safe</Badge>
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                    Upload emails to create a Custom Audience. Everything is SHA-256 hashed in your browser before
+                    Upload {audienceType === 'PHONE' ? 'phone numbers' : 'emails'} to create a Custom Audience. Everything is SHA-256 hashed in your browser before
                     it ever touches the network.
                 </p>
             </div>
@@ -245,7 +307,7 @@ export default function CustomerListsPage() {
                 <AlertCircle className="h-4 w-4" />
                 <ZoruAlertTitle>Hashing happens on your device</ZoruAlertTitle>
                 <ZoruAlertDescription>
-                    Raw emails never leave your browser. Only hashed values are sent to Meta — Meta rehashes on their
+                    Raw {audienceType === 'PHONE' ? 'phone numbers' : 'emails'} never leave your browser. Only hashed values are sent to Meta — Meta rehashes on their
                     end to match against their user graph without ever seeing the plaintext.
                 </ZoruAlertDescription>
             </Alert>
@@ -253,8 +315,8 @@ export default function CustomerListsPage() {
             <Card>
                 <ZoruCardHeader>
                     <ZoruCardTitle className="text-base flex items-center justify-between">
-                        Upload
-                        <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                        Upload Data
+                        <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
                             <FileText className="h-4 w-4 mr-2" /> Load from CSV
                         </Button>
                         <input
@@ -270,17 +332,22 @@ export default function CustomerListsPage() {
                         />
                     </ZoruCardTitle>
                 </ZoruCardHeader>
-                <ZoruCardContent className="space-y-3">
+                <ZoruCardContent className="space-y-4">
                     <div className="flex gap-4">
                         <div className="space-y-2 flex-1">
                             <Label>Audience name</Label>
-                            <Input value={name} onChange={(e) => setName(e.target.value)} />
+                            <Input 
+                                value={name} 
+                                onChange={(e) => setName(e.target.value)} 
+                                disabled={uploading}
+                            />
                         </div>
                         <div className="space-y-2 w-1/3">
                             <Label>Data type</Label>
                             <select 
                                 value={audienceType}
                                 onChange={(e) => setAudienceType(e.target.value as any)}
+                                disabled={uploading}
                                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
                             >
                                 <option value="EMAIL">Email Only</option>
@@ -291,11 +358,12 @@ export default function CustomerListsPage() {
                     </div>
                     <div 
                         className={`space-y-2 relative rounded-md transition-all ${isDragging ? 'ring-2 ring-indigo-500 bg-indigo-50/50' : ''}`}
-                        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                        onDragOver={(e) => { e.preventDefault(); if (!uploading) setIsDragging(true); }}
                         onDragLeave={() => setIsDragging(false)}
                         onDrop={(e) => {
                             e.preventDefault();
                             setIsDragging(false);
+                            if (uploading) return;
                             const file = e.dataTransfer.files?.[0];
                             if (file && file.name.endsWith('.csv')) {
                                 handleFileUpload(file);
@@ -313,6 +381,7 @@ export default function CustomerListsPage() {
                         <Textarea
                             value={csv}
                             onChange={(e) => setCsv(e.target.value)}
+                            disabled={uploading}
                             placeholder={
                                 audienceType === 'EMAIL' ? 'jane@example.com\njohn@example.com\n…' :
                                 audienceType === 'PHONE' ? '14155552671\n14155552672\n…' :
@@ -321,20 +390,21 @@ export default function CustomerListsPage() {
                             className={`min-h-64 font-mono text-xs ${isDragging ? 'opacity-50 pointer-events-none' : ''}`}
                         />
                         {isDragging && (
-                            <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                 <span className="font-semibold text-indigo-600 bg-white/80 px-4 py-2 rounded-full shadow">Drop CSV here</span>
                             </div>
                         )}
                     </div>
-                    {/* Valid items count display */}
+                    
                     {parsedLines.length > 0 && (
                         <div className="flex items-center gap-3 text-sm">
                             <Badge variant="success">{validItems.length} valid item{validItems.length !== 1 ? 's' : ''} ready to upload</Badge>
                             {invalidCount > 0 && (
-                                <Badge variant="danger">{invalidCount} invalid</Badge>
+                                <Badge variant="destructive">{invalidCount} invalid</Badge>
                             )}
                         </div>
                     )}
+                    
                     <Button
                         className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white relative overflow-hidden"
                         onClick={upload}
@@ -346,7 +416,7 @@ export default function CustomerListsPage() {
                                 style={{ width: `${progress}%` }} 
                             />
                         )}
-                        <Upload className="h-4 w-4 mr-1 relative z-10" />
+                        <Upload className="h-4 w-4 mr-2 relative z-10" />
                         <span className="relative z-10">
                             {uploading ? `Hashing & uploading… ${progress}%` : `Hash & upload${validItems.length > 0 ? ` (${validItems.length})` : ''}`}
                         </span>
@@ -356,3 +426,4 @@ export default function CustomerListsPage() {
         </div>
     );
 }
+

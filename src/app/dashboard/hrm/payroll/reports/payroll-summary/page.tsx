@@ -352,7 +352,7 @@ export default function PayrollSummaryPage() {
                                             <td className="px-4 py-3 text-zoru-ink-muted">{row.department}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">
                                                 {fmt(row.grossSalary)}
-                                                {prevRow && <br/><DeltaBadge current={row.grossSalary} previous={prevRow.grossSalary} />}
+                                                {prevRow && <><br/><DeltaBadge current={row.grossSalary} previous={prevRow.grossSalary} /></>}
                                             </td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.pf)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.esi)}</td>
@@ -360,11 +360,11 @@ export default function PayrollSummaryPage() {
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.professionalTax)}</td>
                                             <td className="px-4 py-3 text-right font-mono font-semibold text-red-600">
                                                 {fmt(row.totalDeductions)}
-                                                {prevRow && <br/><DeltaBadge current={row.totalDeductions} previous={prevRow.totalDeductions} invertColor />}
+                                                {prevRow && <><br/><DeltaBadge current={row.totalDeductions} previous={prevRow.totalDeductions} invertColor /></>}
                                             </td>
                                             <td className="px-4 py-3 text-right font-mono font-bold text-green-600">
                                                 {fmt(row.netPay)}
-                                                {prevRow && <br/><DeltaBadge current={row.netPay} previous={prevRow.netPay} />}
+                                                {prevRow && <><br/><DeltaBadge current={row.netPay} previous={prevRow.netPay} /></>}
                                             </td>
                                         </tr>
                                     )})}

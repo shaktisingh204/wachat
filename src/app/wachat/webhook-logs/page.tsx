@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -24,12 +25,15 @@ import {
   ZoruSheetTitle,
   Skeleton,
   useZoruToast,
+  Input,
 } from '@/components/zoruui';
 import {
   useEffect,
   useState,
   useTransition,
-  useCallback } from 'react';
+  useCallback,
+  useMemo,
+} from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Eye,
   Loader2,
@@ -38,7 +42,7 @@ import { Eye,
   Webhook } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { getWebhookLogs } from '@/app/actions/wachat-features.actions';
+import { getWebhookLogs, replayWebhookLog } from '@/app/actions/wachat-features.actions';
 
 /**
  * Wachat Webhook Logs — ZoruUI migration.
@@ -66,6 +70,19 @@ export default function WebhookLogsPage() {
   const [previewLog, setPreviewLog] = useState<WebhookLog | null>(null);
   const [retryLog, setRetryLog] = useState<WebhookLog | null>(null);
   const [isLoading, startLoading] = useTransition();
+  const [isRetrying, startRetrying] = useTransition();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredLogs = useMemo(() => {
+    if (!searchQuery.trim()) return logs;
+    const lower = searchQuery.toLowerCase();
+    return logs.filter((l) => {
+      if ((l.event || l.type || '').toLowerCase().includes(lower)) return true;
+      if (l.payload && JSON.stringify(l.payload).toLowerCase().includes(lower)) return true;
+      if (l.body && JSON.stringify(l.body).toLowerCase().includes(lower)) return true;
+      return false;
+    });
+  }, [logs, searchQuery]);
 
   const fetchLogs = useCallback(
     (pid: string) => {
@@ -99,7 +116,7 @@ export default function WebhookLogsPage() {
           const t = row.original.receivedAt;
           return (
             <span className="font-mono text-[12.5px] tabular-nums text-zoru-ink-muted">
-              {t ? new Date(t).toLocaleString() : '--'}
+              {t ? fmtDate(t) : '--'}
             </span>
           );
         },
@@ -219,9 +236,15 @@ export default function WebhookLogsPage() {
         ) : (
           <DataTable
             columns={columns}
-            data={logs}
-            filterColumn="event"
-            filterPlaceholder="Filter events…"
+            data={filteredLogs}
+            toolbar={
+              <Input
+                placeholder="Search events and payloads…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="max-w-sm"
+              />
+            }
             empty={
               <EmptyState
                 compact
@@ -245,7 +268,7 @@ export default function WebhookLogsPage() {
             </ZoruSheetTitle>
             <ZoruSheetDescription>
               {previewLog?.receivedAt
-                ? new Date(previewLog.receivedAt).toLocaleString()
+                ? fmtDate(previewLog.receivedAt)
                 : 'Full payload'}
             </ZoruSheetDescription>
           </ZoruSheetHeader>
@@ -275,15 +298,22 @@ export default function WebhookLogsPage() {
               Cancel
             </Button>
             <Button
+              disabled={isRetrying}
               onClick={() => {
-                toast({
-                  title: 'Retry queued',
-                  description: 'The event will be re-delivered shortly.',
+                if (!projectId || !retryLog) return;
+                startRetrying(async () => {
+                  const payload = retryLog.payload ?? retryLog.body;
+                  const res = await replayWebhookLog(projectId, payload);
+                  if (res.error) {
+                    toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                  } else {
+                    toast({ title: 'Retry queued', description: res.message || 'The event will be re-delivered shortly.' });
+                    setRetryLog(null);
+                  }
                 });
-                setRetryLog(null);
               }}
             >
-              <RotateCcw /> Retry
+              {isRetrying ? <Loader2 className="animate-spin" /> : <RotateCcw />} Retry
             </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>

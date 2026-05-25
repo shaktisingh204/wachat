@@ -8,6 +8,8 @@ import { getPolicies } from '@/app/actions/crm-policies.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { HrOverviewClient } from './_components/hr-overview-client';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
   const session = await getSession();
   if (!session?.user) {
@@ -38,11 +40,11 @@ export default async function Page() {
   const rawPolicies = policiesRes?.items || [];
   const rawEmployees = employeesList || [];
 
-  // Deeply serialize complex database objects (like ObjectId) to prevent Next.js serialization warnings
-  const activeOnboardings = JSON.parse(JSON.stringify(rawOnboardings));
-  const jobs = JSON.parse(JSON.stringify(rawJobs));
-  const announcements = JSON.parse(JSON.stringify(rawAnnouncements));
-  const policies = JSON.parse(JSON.stringify(rawPolicies));
+  // Use proper DTO mappers rather than double-serializing the entire payload
+  const activeOnboardings = rawOnboardings.map(o => ({ ...o, _id: String(o._id) }));
+  const jobs = rawJobs.map(j => ({ ...j, _id: String(j._id) }));
+  const announcements = rawAnnouncements.map(a => ({ ...a, _id: String(a._id) }));
+  const policies = rawPolicies.map(p => ({ ...p, _id: String(p._id) }));
 
   const totalEmployeesCount = rawEmployees.length;
   const activeEmployeesCount = rawEmployees.filter((e: any) => e?.status?.toLowerCase() === 'active').length || totalEmployeesCount;

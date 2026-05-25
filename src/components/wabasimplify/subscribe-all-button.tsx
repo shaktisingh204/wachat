@@ -1,6 +1,17 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import {
+  Button,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
 import {
   useTransition,
   useState,
@@ -38,18 +49,36 @@ export function SubscribeAllButton() {
   };
 
   return (
-    <Button onClick={onSubscribe} variant="outline" disabled={isPending}>
-      {isPending ? (
-        <>
-          <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-          Subscribing...
-        </>
-      ) : (
-        <>
-          <Rss className="mr-2 h-4 w-4" />
-          Subscribe All to Webhooks
-        </>
-      )}
-    </Button>
+    <ZoruAlertDialog>
+      <ZoruAlertDialogTrigger asChild>
+        <Button variant="outline" disabled={isPending}>
+          {isPending ? (
+            <>
+              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+              Subscribing...
+            </>
+          ) : (
+            <>
+              <Rss className="mr-2 h-4 w-4" />
+              Subscribe All to Webhooks
+            </>
+          )}
+        </Button>
+      </ZoruAlertDialogTrigger>
+      <ZoruAlertDialogContent>
+        <ZoruAlertDialogHeader>
+          <ZoruAlertDialogTitle>Subscribe All Projects?</ZoruAlertDialogTitle>
+          <ZoruAlertDialogDescription>
+            This will attempt to subscribe all projects to webhook events. Are you sure you want to proceed?
+          </ZoruAlertDialogDescription>
+        </ZoruAlertDialogHeader>
+        <ZoruAlertDialogFooter>
+          <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+          <ZoruAlertDialogAction onClick={onSubscribe}>
+            Continue
+          </ZoruAlertDialogAction>
+        </ZoruAlertDialogFooter>
+      </ZoruAlertDialogContent>
+    </ZoruAlertDialog>
   );
 }

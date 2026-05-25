@@ -33,6 +33,7 @@ export interface PoolRow {
   monthlyCost: number;
   capacityMsgsSec: number;
   status: string;
+  geomatch: boolean;
 }
 
 interface PoolClientProps {
@@ -66,7 +67,14 @@ export function PoolClient({ rows }: PoolClientProps) {
     {
       id: "strategy",
       header: "Rotation Strategy",
-      render: (r) => <span className="text-xs capitalize">{r.rotationStrategy.replace(/-/g, ' ')}</span>,
+      render: (r) => (
+        <div className="flex flex-col gap-1">
+          <span className="text-xs capitalize">{r.rotationStrategy.replace(/-/g, ' ')}</span>
+          {r.geomatch && (
+            <span className="text-[10px] text-blue-600 font-medium">Geomatch Enabled</span>
+          )}
+        </div>
+      ),
       width: "140px",
     },
     {
@@ -270,6 +278,13 @@ export function PoolClient({ rows }: PoolClientProps) {
                       <div className="flex items-center justify-between">
                         <Label>Per-pool Throttle (msg/s)</Label>
                         <Input type="number" defaultValue={detailRow?.throttlePerSecond} className="w-[100px]" />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col space-y-1">
+                          <Label>Geographic Matching</Label>
+                          <span className="text-[10px] text-slate-500">Send from a number with the same area code as the recipient</span>
+                        </div>
+                        <Switch checked={detailRow?.geomatch} />
                       </div>
                       <div className="flex items-center justify-between mt-2 pt-2 border-t">
                         <Label>Health-based degrade rules</Label>

@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -190,7 +191,7 @@ export default function ChatRatingsPage() {
                 )}
               </div>
               <span className="shrink-0 text-[11.5px] text-zoru-ink-muted">
-                {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '--'}
+                {r.createdAt ? fmtDate(r.createdAt) : '--'}
               </span>
             </div>
           ))}

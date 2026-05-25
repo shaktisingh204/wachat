@@ -10,7 +10,7 @@
  */
 
 import { useState, useTransition } from 'react';
-import { Star } from 'lucide-react';
+import { Star, Copy, ExternalLink, CheckCircle2 } from 'lucide-react';
 import {
   Button,
   Label,
@@ -21,9 +21,15 @@ import {
 import {
   submitProjectRating,
   type PublicProjectRatingCategories,
+  type SyndicationUrl,
 } from '@/app/actions/public-project-rating.actions';
 
-type Props = { hash: string };
+type Props = { 
+  hash: string;
+  alreadyRated?: boolean;
+  existingRating?: { overall: number; comment: string };
+  syndicationUrls?: SyndicationUrl[];
+};
 
 const CATEGORIES: { key: keyof PublicProjectRatingCategories; label: string }[] =
   [
@@ -33,7 +39,12 @@ const CATEGORIES: { key: keyof PublicProjectRatingCategories; label: string }[] 
     { key: 'value', label: 'Value for money' },
   ];
 
-export function PublicRatingForm({ hash }: Props): React.ReactElement {
+export function PublicRatingForm({ 
+  hash, 
+  alreadyRated, 
+  existingRating, 
+  syndicationUrls = [] 
+}: Props): React.ReactElement {
   const [overall, setOverall] = useState(0);
   const [categories, setCategories] = useState<PublicProjectRatingCategories>({
     communication: 0,
@@ -45,8 +56,23 @@ export function PublicRatingForm({ hash }: Props): React.ReactElement {
   const [raterName, setRaterName] = useState('');
   const [raterEmail, setRaterEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState(Boolean(alreadyRated));
+  const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  const finalOverall = alreadyRated ? existingRating?.overall ?? 0 : overall;
+  const finalComment = alreadyRated ? existingRating?.comment ?? '' : comment;
+
+  const handleCopy = async () => {
+    if (!finalComment) return;
+    try {
+      await navigator.clipboard.writeText(finalComment);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text', err);
+    }
+  };
 
   const setCategory = (
     key: keyof PublicProjectRatingCategories,
@@ -86,10 +112,59 @@ export function PublicRatingForm({ hash }: Props): React.ReactElement {
   };
 
   if (submitted) {
+    const isPositive = finalOverall >= 4;
+    const hasSyndication = isPositive && syndicationUrls.length > 0;
+
     return (
-      <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-        <p className="font-semibold">Thank you!</p>
-        <p className="mt-1">Your feedback has been recorded.</p>
+      <div className="space-y-4">
+        <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+          <p className="font-semibold">Thank you!</p>
+          <p className="mt-1">
+            {alreadyRated 
+              ? "You've already submitted feedback for this project."
+              : "Your feedback has been recorded."}
+          </p>
+        </div>
+
+        {hasSyndication && (
+          <div className="rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
+            <h3 className="font-semibold text-zinc-900">Share your experience</h3>
+            <p className="mt-1 text-sm text-zinc-600">
+              We appreciate your positive feedback! It would mean the world to us if you could share it on these platforms:
+            </p>
+            
+            {finalComment.trim().length > 0 && (
+              <div className="mt-4 rounded bg-zinc-50 p-3 text-sm text-zinc-800 relative group border border-zinc-100">
+                <p className="whitespace-pre-wrap pr-20">{finalComment}</p>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  type="button"
+                  className="absolute top-2 right-2 h-8 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity bg-white"
+                  onClick={handleCopy}
+                >
+                  {copied ? (
+                    <CheckCircle2 className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
+                  ) : (
+                    <Copy className="mr-1.5 h-3.5 w-3.5" />
+                  )}
+                  {copied ? 'Copied!' : 'Copy'}
+                </Button>
+              </div>
+            )}
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {syndicationUrls.map((link) => (
+                <Button key={link.url} variant="outline" asChild>
+                  <a href={link.url} target="_blank" rel="noopener noreferrer">
+                    {link.platform}
+                    <ExternalLink className="ml-2 h-4 w-4 text-zinc-400" />
+                  </a>
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }

@@ -7,7 +7,6 @@
  * `<SabsmsPageShell>`. Async params per Next.js 16.
  */
 
-import { notFound } from "next/navigation";
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 
@@ -25,7 +24,29 @@ export default async function SabsmsNumberDetailPage({ params }: PageProps) {
   const detail = await loadNumberDetail(id);
 
   if (!detail) {
-    notFound();
+    return (
+      <SabsmsPageShell
+        eyebrow="Numbers"
+        title="Number not found"
+        description="The number you are looking for does not exist or you do not have permission to view it."
+        breadcrumbs={[
+          { label: "Numbers", href: "/sabsms/numbers" },
+          { label: "Not found" },
+        ]}
+      >
+        <div className="flex h-64 flex-col items-center justify-center space-y-4 rounded-lg border border-dashed border-slate-300 bg-slate-50">
+          <p className="text-sm text-slate-500">
+            This number has been released or does not exist in your workspace.
+          </p>
+          <a
+            href="/sabsms/numbers"
+            className="inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-slate-50 hover:bg-slate-900/90"
+          >
+            Back to numbers
+          </a>
+        </div>
+      </SabsmsPageShell>
+    );
   }
 
   return (

@@ -1,15 +1,16 @@
 'use client';
 
-import { Textarea, Checkbox, Label } from '@/components/zoruui';
+import { Textarea, Checkbox, Label, Button } from '@/components/zoruui';
 import { useState, useEffect } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { minifyHtml } from './actions';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Copy, Check } from 'lucide-react';
 
 export default function HtmlMinifierPage() {
   const [text, setText] = useState('');
   const [minifiedText, setMinifiedText] = useState('');
   const [isPending, setIsPending] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [options, setOptions] = useState({
     collapseWhitespace: true,
     removeComments: true,
@@ -48,6 +49,13 @@ export default function HtmlMinifierPage() {
     return () => clearTimeout(timeout);
   }, [text, options]);
 
+  const handleCopy = async () => {
+    if (!minifiedText) return;
+    await navigator.clipboard.writeText(minifiedText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const savedPercent = text.length ? ((1 - minifiedText.length / text.length) * 100).toFixed(1) : '0.0';
 
   return (
@@ -75,18 +83,30 @@ export default function HtmlMinifierPage() {
           ))}
         </div>
 
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center min-w-[100px]">
-            {isPending ? (
-              <span className="flex items-center text-primary"><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Minifying...</span>
-            ) : (
-              <span>Processed</span>
-            )}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center min-w-[100px]">
+              {isPending ? (
+                <span className="flex items-center text-primary"><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Minifying...</span>
+              ) : (
+                <span>Processed</span>
+              )}
+            </div>
+            <div>
+              {text.length} → {minifiedText.length} bytes 
+              {text.length > 0 && ` (${savedPercent}% saved)`}
+            </div>
           </div>
-          <div>
-            {text.length} → {minifiedText.length} bytes 
-            {text.length > 0 && ` (${savedPercent}% saved)`}
-          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleCopy}
+            disabled={!minifiedText}
+            className="h-8"
+          >
+            {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+            {copied ? 'Copied' : 'Copy'}
+          </Button>
         </div>
 
         <Textarea 

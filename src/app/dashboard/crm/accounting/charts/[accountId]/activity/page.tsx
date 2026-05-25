@@ -4,6 +4,8 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getCrmChartOfAccountById } from '@/app/actions/crm-accounting.actions';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ChartOfAccountActivityPage(props: {
     params: Promise<{ accountId: string }>;
 }) {
@@ -13,8 +15,8 @@ export default async function ChartOfAccountActivityPage(props: {
 
     return (
         <EntityDetailShell
-            eyebrow="CHART OF ACCOUNT"
-            title={account.name}
+            eyebrow="CHART OF ACCOUNT ACTIVITY"
+            title={`${account.name} — Activity`}
             back={{ href: `/dashboard/crm/accounting/charts/${accountId}`, label: 'Back to account' }}
         >
             <EntityAuditTimeline entityKind="chart_of_account" entityId={accountId} />

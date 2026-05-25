@@ -46,7 +46,7 @@ import type { DateRange } from 'react-day-picker';
 
 import { LeadsTable } from './_components/leads-table';
 import { LeadsKanban } from './_components/leads-kanban';
-import { LeadsKpiStrip } from './_components/leads-kpi-strip';
+import { LeadsKpiStripAsync, LeadsKpiStripSkeleton } from './_components/leads-kpi-strip';
 import { LeadsHeaderTools, type LeadsViewMode } from './_components/leads-header-tools';
 import { LeadsBulkBar, LeadsFiltersRow, buildLeadsViewState, type LeadsStatusFilter } from './_components/leads-filters';
 import { LeadsProvider } from './_components/leads-context';
@@ -71,7 +71,7 @@ export default function AllLeadsPage() {
     const [total, setTotal] = React.useState(0);
     const [page, setPage] = React.useState(1);
     const [isPending, startTransition] = React.useTransition();
-    const [kpis, setKpis] = React.useState<CrmLeadKpis>(EMPTY_KPIS);
+    const [kpisPromise, setKpisPromise] = React.useState<Promise<CrmLeadKpis>>(() => Promise.resolve(EMPTY_KPIS));
 
     // Filters
     const [search, setSearch] = React.useState('');
@@ -127,14 +127,11 @@ export default function AllLeadsPage() {
     }, [statusFilter, sourceFilter, pipelineFilter, ownerFilter, dateRange, minValue, maxValue]);
 
     const fetchData = React.useCallback(() => {
+        setKpisPromise(getCrmLeadKpis().then(res => res ?? EMPTY_KPIS));
         startTransition(async () => {
-            const [{ leads: rows, total: count }, kpiData] = await Promise.all([
-                getCrmLeads(page, LEADS_PER_PAGE, search, filters),
-                getCrmLeadKpis(),
-            ]);
+            const { leads: rows, total: count } = await getCrmLeads(page, LEADS_PER_PAGE, search, filters);
             setLeads(rows);
             setTotal(count);
-            setKpis(kpiData ?? EMPTY_KPIS);
         });
     }, [page, search, filters]);
 
@@ -380,22 +377,6 @@ export default function AllLeadsPage() {
     // Funnel stages — derived from KPIs + a quick projection over the
     // currently loaded page for the Contacted/Proposal buckets that
     // aren't broken out in the server aggregate.
-    const funnelStages = React.useMemo(() => {
-        const counters = { Contacted: 0, Proposal: 0 } as Record<string, number>;
-        for (const l of leads) {
-            const s = String((l as any).status ?? '').trim();
-            if (s === 'Contacted') counters.Contacted += 1;
-            if (s === 'Proposal' || (l as any).stage === 'Proposal') counters.Proposal += 1;
-        }
-        return [
-            { key: 'New', label: 'New', count: kpis.newCount },
-            { key: 'Contacted', label: 'Contacted', count: counters.Contacted },
-            { key: 'Qualified', label: 'Qualified', count: kpis.qualifiedCount },
-            { key: 'Proposal', label: 'Proposal', count: counters.Proposal },
-            { key: 'Won', label: 'Won', count: kpis.wonCount },
-        ];
-    }, [kpis, leads]);
-
     return (
         <>
             <EntityListShell
@@ -519,14 +500,16 @@ export default function AllLeadsPage() {
                 }
             >
                 <div className="flex flex-col gap-4">
-                    <LeadsKpiStrip
-                        kpis={kpis}
-                        statusFilter={statusFilter}
-                        hasActiveFilters={hasActiveFilters}
-                        funnelStages={funnelStages}
-                        onClearAll={clearFilters}
-                        onPickStatus={setFilterFromKpi}
-                    />
+                    <React.Suspense fallback={<LeadsKpiStripSkeleton />}>
+                        <LeadsKpiStripAsync
+                            kpisPromise={kpisPromise}
+                            leads={leads}
+                            statusFilter={statusFilter}
+                            hasActiveFilters={hasActiveFilters}
+                            onClearAll={clearFilters}
+                            onPickStatus={setFilterFromKpi}
+                        />
+                    </React.Suspense>
 
                     <LeadsProvider leads={displayedLeads}>
                         <div className={view === 'table' ? 'block' : 'hidden'}>

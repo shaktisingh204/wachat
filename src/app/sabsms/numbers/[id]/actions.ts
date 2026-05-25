@@ -116,6 +116,7 @@ export interface NumberDetailView {
     createdAt: string;
     detail: Record<string, unknown>;
   }>;
+  projectedUsageCost: number; // 30-day projected cost based on last 30 days of usage
   carrier: {
     operator: string;
     country: string;
@@ -273,6 +274,10 @@ export async function loadNumberDetail(
       ).toISOString(),
       detail: (a.detail as Record<string, unknown>) ?? {},
     })),
+    projectedUsageCost: aggregateCost(outbound as never, now, 30).reduce(
+      (sum, p) => sum + p.cost,
+      0,
+    ),
     // TODO(engine): carrier lookup ships with the HLR feature — Phase 7.
     carrier: {
       operator: "—",

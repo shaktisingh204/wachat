@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -183,7 +184,7 @@ export default function ContactImportHistoryPage() {
                   </td>
                   <td className="px-5 py-3 text-[12px] text-zoru-ink-muted whitespace-nowrap">
                     {imp.importedAt
-                      ? new Date(imp.importedAt).toLocaleString()
+                      ? fmtDate(imp.importedAt)
                       : '—'}
                   </td>
                   <td className="px-5 py-3 text-right text-[13px] text-zoru-ink tabular-nums">
@@ -232,7 +233,7 @@ export default function ContactImportHistoryPage() {
             </ZoruSheetTitle>
             <ZoruSheetDescription>
               {selected?.importedAt
-                ? new Date(selected.importedAt).toLocaleString()
+                ? fmtDate(selected.importedAt)
                 : '—'}
             </ZoruSheetDescription>
           </ZoruSheetHeader>

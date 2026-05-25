@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { PaymentAccountFormClient } from '../../all/_components/payment-account-form-client';
 
@@ -17,7 +18,9 @@ export default function NewBankAccountPage() {
             title="New Bank Account"
             back={{ href: BASE, label: 'Bank Accounts' }}
         >
-            <PaymentAccountFormClient />
+            <Suspense fallback={<div className="h-[400px] w-full animate-pulse rounded-xl bg-secondary/50" />}>
+                <PaymentAccountFormClient />
+            </Suspense>
         </EntityDetailShell>
     );
 }

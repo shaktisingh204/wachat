@@ -1,6 +1,8 @@
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { VoucherBookForm } from '../_components/voucher-book-form';
 import { NewVoucherEntryClient } from './voucher-entry-client';
+import { getSession } from '@/app/actions/user.actions';
+import { getVoucherBooks } from '@/app/actions/crm-vouchers.actions';
 
 /**
  * /new for the Voucher Books module is dual-purpose:
@@ -17,7 +19,18 @@ export default async function NewVoucherRoute(props: {
     const { mode, bookId } = await props.searchParams;
 
     if (mode === 'entry') {
-        return <NewVoucherEntryClient presetBookId={bookId} />;
+        const [session, voucherBooks] = await Promise.all([
+            getSession(),
+            getVoucherBooks(),
+        ]);
+        
+        return (
+            <NewVoucherEntryClient 
+                presetBookId={bookId} 
+                initialUser={(session?.user as { businessProfile?: { name?: string } }) ?? null}
+                initialVoucherBooks={voucherBooks}
+            />
+        );
     }
 
     return (

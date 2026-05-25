@@ -4,12 +4,6 @@ import {
   Button,
   Card,
   Input,
-  Label,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   useZoruToast,
   ZoruCheckbox,
 } from '@/components/zoruui';
@@ -31,14 +25,16 @@ import autoTable from 'jspdf-autotable';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { saveWeeklyTimesheet } from '@/app/actions/worksuite/time.actions';
 import { wsToISODate } from '@/lib/worksuite/time-types';
+import { TimesheetRow, EmployeeLite } from './TimesheetRow';
 
-export type EmployeeLite = { _id: string; firstName?: string; lastName?: string };
+export type { EmployeeLite };
 
 type TimesheetEntry = {
   id: string;
   userId: string;
   weekStart: string;
   weekEnd: string;
+  status?: 'saving' | 'saved' | 'error';
 };
 
 function addDaysToDate(dateStr: string, days: number): string {
@@ -90,8 +86,9 @@ export function NewTimesheetClient({ employees }: { employees: EmployeeLite[] })
   // WebSockets for collaborative editing (Dummy)
   useEffect(() => {
     if (!isMounted) return;
+    let ws: WebSocket;
     try {
-      const ws = new WebSocket('wss://echo.websocket.org');
+      ws = new WebSocket('wss://echo.websocket.org');
       ws.onopen = () => {
          console.log('WS connected for collaborative editing.');
          ws.send(JSON.stringify({ type: 'join', room: 'new_timesheets' }));
@@ -99,130 +96,146 @@ export function NewTimesheetClient({ employees }: { employees: EmployeeLite[] })
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          if (data && data.type === 'remote_update') {
-             toast({ title: 'Collaborative Update', description: 'Another user modified the form.' });
+          if (data.type === 'update') {
+             console.log('Received collaborative update', data);
           }
-        } catch(e) {}
+        } catch { }
       };
-      return () => ws.close();
-    } catch(e) {
+    } catch (e) {
       console.warn('WebSocket failed to connect', e);
     }
-  }, [isMounted, toast]);
-
-  const addEntry = () => {
-    setEntries((prev) => [
-      ...prev,
-      {
-        id: generateId(),
-        userId: '',
-        weekStart: getInitialWeekStart(),
-        weekEnd: addDaysToDate(getInitialWeekStart(), 6),
-      }
-    ]);
-  };
-
-  const removeEntry = (id: string) => {
-    setEntries((prev) => prev.filter(e => e.id !== id));
-    setSelectedIds(prev => {
-      const next = new Set(prev);
-      next.delete(id);
-      return next;
-    });
-  };
-
-  const removeSelected = () => {
-    setEntries((prev) => prev.filter(e => !selectedIds.has(e.id)));
-    setSelectedIds(new Set());
-  };
-
-  const updateEntry = useCallback((id: string, field: keyof TimesheetEntry, value: string) => {
-    setEntries(prev => prev.map(e => {
-      if (e.id === id) {
-        const next = { ...e, [field]: value };
-        if (field === 'weekStart') {
-          next.weekEnd = addDaysToDate(value, 6);
-        }
-        return next;
-      }
-      return e;
-    }));
-  }, []);
+    return () => {
+      if (ws) ws.close();
+    };
+  }, [isMounted]);
 
   const filteredEntries = useMemo(() => {
     if (!filterText) return entries;
     const lower = filterText.toLowerCase();
     return entries.filter(e => {
-      const emp = employees.find(em => em._id === e.userId);
-      const name = emp ? `${emp.firstName} ${emp.lastName}`.toLowerCase() : '';
-      return name.includes(lower) || e.weekStart.includes(lower);
+       const emp = employees.find(x => x._id === e.userId);
+       const name = emp ? `${emp.firstName || ''} ${emp.lastName || ''}`.toLowerCase() : '';
+       return name.includes(lower) || e.weekStart.includes(lower) || e.weekEnd.includes(lower);
     });
   }, [entries, filterText, employees]);
 
-  // Virtualization for large lists
   const parentRef = useRef<HTMLDivElement>(null);
+  
   const virtualizer = useVirtualizer({
     count: filteredEntries.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 100, // height of one row
+    estimateSize: () => 56, // row height
     overscan: 5,
   });
 
-  const toggleSelect = (id: string) => {
-    const next = new Set(selectedIds);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    setSelectedIds(next);
-  };
+  const addEntry = useCallback(() => {
+    setEntries(prev => [
+      ...prev,
+      {
+        id: generateId(),
+        userId: '',
+        weekStart: prev.length ? prev[prev.length - 1].weekStart : getInitialWeekStart(),
+        weekEnd: prev.length ? prev[prev.length - 1].weekEnd : addDaysToDate(getInitialWeekStart(), 6),
+      }
+    ]);
+  }, []);
 
-  const toggleSelectAll = () => {
+  const updateEntry = useCallback((id: string, field: keyof TimesheetEntry, value: string) => {
+    setEntries(prev => prev.map(e => {
+      if (e.id !== id) return e;
+      const updated = { ...e, [field]: value };
+      if (field === 'weekStart') {
+        updated.weekEnd = addDaysToDate(value, 6);
+      }
+      return updated;
+    }));
+  }, []);
+
+  const removeEntry = useCallback((id: string) => {
+    setEntries(prev => prev.filter(e => e.id !== id));
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
     if (selectedIds.size === filteredEntries.length && filteredEntries.length > 0) {
       setSelectedIds(new Set());
     } else {
       setSelectedIds(new Set(filteredEntries.map(e => e.id)));
     }
-  };
+  }, [filteredEntries, selectedIds.size]);
+
+  const removeSelected = useCallback(() => {
+    setEntries(prev => prev.filter(e => !selectedIds.has(e.id)));
+    setSelectedIds(new Set());
+  }, [selectedIds]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const toSave = entries.filter(e => e.userId && e.weekStart);
-    if (toSave.length === 0) {
-      toast({
-        title: 'Missing fields',
-        description: 'Please ensure at least one entry has an employee and week start selected.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    // Optimistic mutation / save
     startSave(async () => {
       let successCount = 0;
-      let firstId = null;
-      for (const entry of toSave) {
-        const fd = new FormData();
-        fd.append('user_id', entry.userId);
-        fd.append('week_start_date', entry.weekStart);
-        fd.append('week_end_date', entry.weekEnd);
-        fd.append('total_hours', '0');
-        fd.append('total_minutes', '0');
-        fd.append('status', 'draft');
+      let firstId: string | undefined;
 
-        const res = await saveWeeklyTimesheet(null, fd);
-        if (res.error) {
-          toast({ title: 'Error', description: `Failed to save for ${entry.userId}: ${res.error}`, variant: 'destructive' });
-        } else {
-          successCount++;
-          if (!firstId && res.id) firstId = res.id;
+      // Optimistic UI updates - set status to saving
+      setEntries(prev => prev.map(entry => ({ ...entry, status: 'saving' })));
+
+      const updatedEntries = [...entries];
+
+      for (let i = 0; i < updatedEntries.length; i++) {
+        const entry = updatedEntries[i];
+        if (!entry.userId) {
+          toast({ title: 'Error', description: 'Employee is required for all entries.', variant: 'destructive' });
+          setEntries(prev => prev.map(e => e.id === entry.id ? { ...e, status: 'error' } : e));
+          continue;
+        }
+
+        try {
+          const res = await saveWeeklyTimesheet({
+            userId: entry.userId,
+            weekStart: entry.weekStart,
+            weekEnd: entry.weekEnd,
+            status: 'draft',
+          });
+
+          if (res.error) {
+            toast({ title: 'Error', description: `Failed to save for employee: ${res.error}`, variant: 'destructive' });
+            setEntries(prev => prev.map(e => e.id === entry.id ? { ...e, status: 'error' } : e));
+          } else {
+            successCount++;
+            if (!firstId && res.id) firstId = res.id;
+            setEntries(prev => prev.map(e => e.id === entry.id ? { ...e, status: 'saved' } : e));
+          }
+        } catch (error: any) {
+          toast({ title: 'Error', description: `Network error for employee: ${error.message}`, variant: 'destructive' });
+          setEntries(prev => prev.map(e => e.id === entry.id ? { ...e, status: 'error' } : e));
         }
       }
 
       if (successCount > 0) {
-        toast({ title: 'Success', description: `Created ${successCount} timesheet(s) as draft.` });
-        if (successCount === 1 && firstId) {
-          router.push(`/dashboard/hrm/payroll/weekly-timesheets/${firstId}`);
-        } else {
-          router.push('/dashboard/hrm/payroll/weekly-timesheets');
+        toast({ title: 'Success', description: `Successfully created ${successCount} timesheet(s).` });
+        
+        // Remove successfully saved entries
+        setEntries(prev => prev.filter(e => e.status !== 'saved'));
+        
+        // If all saved, redirect
+        if (successCount === entries.length) {
+          if (successCount === 1 && firstId) {
+            router.push(`/dashboard/hrm/payroll/weekly-timesheets/${firstId}`);
+          } else {
+            router.push('/dashboard/hrm/payroll/weekly-timesheets');
+          }
         }
       }
     });
@@ -307,10 +320,10 @@ export function NewTimesheetClient({ employees }: { employees: EmployeeLite[] })
             checked={selectedIds.size === filteredEntries.length && filteredEntries.length > 0} 
             onCheckedChange={toggleSelectAll} 
           />
-          <div className="w-[30%]">Employee</div>
-          <div className="w-[30%]">Week Start</div>
-          <div className="w-[30%]">Week End</div>
-          <div className="w-[10%] text-right">Actions</div>
+          <div className="w-[25%]">Employee</div>
+          <div className="w-[25%]">Week Start</div>
+          <div className="w-[25%]">Week End</div>
+          <div className="w-[15%] text-right">Actions</div>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
@@ -328,75 +341,24 @@ export function NewTimesheetClient({ employees }: { employees: EmployeeLite[] })
               {virtualizer.getVirtualItems().map((virtualItem) => {
                 const entry = filteredEntries[virtualItem.index];
                 return (
-                  <div
+                  <TimesheetRow
                     key={entry.id}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: `${virtualItem.size}px`,
-                      transform: `translateY(${virtualItem.start}px)`,
-                    }}
-                    className="flex items-center gap-4 px-4 border-b border-zoru-line/50 hover:bg-zoru-bg/50 transition-colors"
-                  >
-                    <ZoruCheckbox 
-                      checked={selectedIds.has(entry.id)}
-                      onCheckedChange={() => toggleSelect(entry.id)}
-                    />
-                    
-                    <div className="w-[30%]">
-                      <Select 
-                        value={entry.userId} 
-                        onValueChange={(val) => updateEntry(entry.id, 'userId', val)}
-                      >
-                        <ZoruSelectTrigger className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
-                          <ZoruSelectValue placeholder="Select employee" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                          {employees.map((e) => (
-                            <ZoruSelectItem key={e._id} value={e._id}>
-                              {[e.firstName, e.lastName].filter(Boolean).join(' ') || 'Unnamed'}
-                            </ZoruSelectItem>
-                          ))}
-                        </ZoruSelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="w-[30%]">
-                      <Input
-                        type="date"
-                        value={entry.weekStart}
-                        onChange={(e) => updateEntry(entry.id, 'weekStart', e.target.value)}
-                        required
-                        className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                      />
-                    </div>
-
-                    <div className="w-[30%]">
-                      <Input
-                        type="date"
-                        value={entry.weekEnd}
-                        readOnly
-                        className="h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px] opacity-60"
-                      />
-                    </div>
-
-                    <div className="w-[10%] flex justify-end">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="text-zoru-danger-ink hover:bg-zoru-danger-bg hover:text-zoru-danger-ink"
-                        onClick={() => removeEntry(entry.id)}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+                    entry={entry}
+                    employees={employees}
+                    isSelected={selectedIds.has(entry.id)}
+                    virtualItem={virtualItem}
+                    onToggleSelect={toggleSelect}
+                    onUpdate={updateEntry}
+                    onRemove={removeEntry}
+                  />
                 );
               })}
             </div>
+            {filteredEntries.length === 0 && (
+              <div className="p-8 text-center text-sm text-zoru-ink-muted border-t border-zoru-line/50">
+                No entries found.
+              </div>
+            )}
           </div>
 
           <div className="flex gap-2 justify-end mt-4 pt-4 border-t border-zoru-line">

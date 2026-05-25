@@ -2,8 +2,8 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, ZoruCardContent, Button, Input, Label } from '@/components/zoruui';
-import { CheckCircle2, Eraser, LoaderCircle, Terminal } from 'lucide-react';
+import { Card, ZoruCardContent, Button, Input, Label, Checkbox } from '@/components/zoruui';
+import { CheckCircle2, Eraser, LoaderCircle, Terminal, AlertCircle } from 'lucide-react';
 import { signContractPublic } from '@/app/actions/worksuite/public.actions';
 import { SignaturePad, type SignaturePadHandle } from '../../_components/signature-pad';
 
@@ -14,6 +14,7 @@ export function ContractSignForm({ token }: { token: string }) {
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [identityVerified, setIdentityVerified] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
 
   const submit = async () => {
@@ -25,6 +26,10 @@ export function ContractSignForm({ token }: { token: string }) {
     const dataUrl = padRef.current?.toDataUrl();
     if (!dataUrl) {
       setError('Please draw your signature.');
+      return;
+    }
+    if (!identityVerified) {
+      setError('Please verify your identity to proceed.');
       return;
     }
     setBusy(true);
@@ -97,10 +102,29 @@ export function ContractSignForm({ token }: { token: string }) {
           </p>
         </div>
 
+        <div className="flex items-start gap-2 mt-2">
+          <Checkbox 
+            id="identity_verified" 
+            checked={identityVerified}
+            onCheckedChange={(checked) => setIdentityVerified(checked === true)}
+            disabled={busy}
+            className="mt-0.5"
+          />
+          <Label 
+            htmlFor="identity_verified" 
+            className="text-[11.5px] leading-tight font-medium text-muted-foreground cursor-pointer"
+          >
+            I verify my identity and agree that this signature is legally binding. I authorize the storage of this signature along with my IP and request metadata for audit purposes.
+          </Label>
+        </div>
+
         {error ? (
-          <p className="text-[12px] font-mono text-danger font-medium bg-danger/5 border border-danger/25 p-2.5 rounded-lg">
-            ERR_SIGN_FAILED: {error}
-          </p>
+          <div className="flex items-start gap-2 bg-danger/5 border border-danger/25 p-2.5 rounded-lg text-danger">
+            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <p className="text-[12px] font-mono font-medium">
+              ERR_SIGN_FAILED: {error}
+            </p>
+          </div>
         ) : null}
 
         <div className="mt-2 flex flex-wrap gap-2 justify-between">

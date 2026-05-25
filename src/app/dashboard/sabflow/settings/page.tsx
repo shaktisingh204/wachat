@@ -43,6 +43,7 @@ import {
     type SabflowVariableEntry,
 } from '@/app/actions/sabflow-settings.actions';
 import { sabflowSettingsSchema } from '@/app/actions/sabflow-settings.schema';
+import type { z } from 'zod';
 /**
  * /dashboard/sabflow/settings — module-level SabFlow settings.
  *
@@ -54,15 +55,11 @@ import { sabflowSettingsSchema } from '@/app/actions/sabflow-settings.schema';
 
 import * as React from 'react';
 import Link from 'next/link';
+import { fmtDate } from '@/lib/utils';
 
 function formatTimestamp(iso?: string): string {
     if (!iso) return 'Never';
-    try {
-        const d = new Date(iso);
-        return d.toLocaleString();
-    } catch {
-        return 'Unknown';
-    }
+    return fmtDate(iso);
 }
 
 function SectionHeader({ title, description }: { title: string; description: string }) {
@@ -104,6 +101,15 @@ export default function SabflowSettingsPage() {
     const [isLoading, startLoading] = useTransition();
     const [savingSection, setSavingSection] = useState<string | null>(null);
     const [, startSaving] = useTransition();
+
+    const parsedSettings = settings ? sabflowSettingsSchema.safeParse(settings) : null;
+    const validationIssues = parsedSettings && !parsedSettings.success ? parsedSettings.error.issues : [];
+
+    function getError(path: (string | number)[]) {
+        return validationIssues.find((i) => 
+            i.path.length === path.length && i.path.every((p, idx) => p === path[idx])
+        )?.message;
+    }
 
     useEffect(() => {
         startLoading(async () => {
@@ -236,6 +242,7 @@ export default function SabflowSettingsPage() {
                         commitSave('defaults', { defaults: settings.defaults }, 'Defaults')
                     }
                     saving={savingSection === 'defaults'}
+                    getError={(path) => getError(['defaults', ...path])}
                 />
 
                 <Separator />
@@ -247,6 +254,7 @@ export default function SabflowSettingsPage() {
                         commitSave('retention', { retention: settings.retention }, 'Retention')
                     }
                     saving={savingSection === 'retention'}
+                    getError={(path) => getError(['retention', ...path])}
                 />
 
                 <Separator />
@@ -258,6 +266,7 @@ export default function SabflowSettingsPage() {
                         commitSave('runLimits', { runLimits: settings.runLimits }, 'Run limits')
                     }
                     saving={savingSection === 'runLimits'}
+                    getError={(path) => getError(['runLimits', ...path])}
                 />
 
                 <Separator />
@@ -269,6 +278,7 @@ export default function SabflowSettingsPage() {
                         commitSave('webhooks', { webhooks: settings.webhooks }, 'Webhooks')
                     }
                     saving={savingSection === 'webhooks'}
+                    getError={(path) => getError(['webhooks', ...path])}
                 />
 
                 <Separator />
@@ -280,6 +290,7 @@ export default function SabflowSettingsPage() {
                         commitSave('variables', { variables: settings.variables }, 'Variables')
                     }
                     saving={savingSection === 'variables'}
+                    getError={(path) => getError(['variables', ...path])}
                 />
             </div>
 
@@ -303,11 +314,13 @@ function DefaultsSection({
     onChange,
     onSave,
     saving,
+    getError,
 }: {
     value: SabflowSettings['defaults'];
     onChange: (v: SabflowSettings['defaults']) => void;
     onSave: () => void;
     saving: boolean;
+    getError: (path: (string | number)[]) => string | undefined;
 }) {
     return (
         <Card className="p-6">
@@ -343,7 +356,11 @@ function DefaultsSection({
                                 executionTimeout: safeNumber(e.target.value, value.executionTimeout),
                             })
                         }
+                        className={getError(['executionTimeout']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
                     />
+                    {getError(['executionTimeout']) && (
+                        <p className="text-[11.5px] text-red-500">{getError(['executionTimeout'])}</p>
+                    )}
                 </div>
             </div>
         </Card>
@@ -355,11 +372,13 @@ function RetentionSection({
     onChange,
     onSave,
     saving,
+    getError,
 }: {
     value: SabflowSettings['retention'];
     onChange: (v: SabflowSettings['retention']) => void;
     onSave: () => void;
     saving: boolean;
+    getError: (path: (string | number)[]) => string | undefined;
 }) {
     return (
         <Card className="p-6">
@@ -389,7 +408,11 @@ function RetentionSection({
                                 ),
                             })
                         }
+                        className={getError(['keepRunHistoryDays']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
                     />
+                    {getError(['keepRunHistoryDays']) && (
+                        <p className="text-[11.5px] text-red-500">{getError(['keepRunHistoryDays'])}</p>
+                    )}
                 </div>
                 <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
                     <div>
@@ -418,11 +441,13 @@ function RunLimitsSection({
     onChange,
     onSave,
     saving,
+    getError,
 }: {
     value: SabflowSettings['runLimits'];
     onChange: (v: SabflowSettings['runLimits']) => void;
     onSave: () => void;
     saving: boolean;
+    getError: (path: (string | number)[]) => string | undefined;
 }) {
     return (
         <Card className="p-6">
@@ -452,7 +477,11 @@ function RunLimitsSection({
                                 ),
                             })
                         }
+                        className={getError(['maxConcurrentRuns']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
                     />
+                    {getError(['maxConcurrentRuns']) && (
+                        <p className="text-[11.5px] text-red-500">{getError(['maxConcurrentRuns'])}</p>
+                    )}
                 </div>
                 <div className="grid gap-1.5">
                     <Label htmlFor="rl-steps">Max steps per run</Label>
@@ -467,7 +496,11 @@ function RunLimitsSection({
                                 maxStepsPerRun: safeNumber(e.target.value, value.maxStepsPerRun),
                             })
                         }
+                        className={getError(['maxStepsPerRun']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
                     />
+                    {getError(['maxStepsPerRun']) && (
+                        <p className="text-[11.5px] text-red-500">{getError(['maxStepsPerRun'])}</p>
+                    )}
                 </div>
             </div>
         </Card>
@@ -479,11 +512,13 @@ function WebhooksSection({
     onChange,
     onSave,
     saving,
+    getError,
 }: {
     value: SabflowSettings['webhooks'];
     onChange: (v: SabflowSettings['webhooks']) => void;
     onSave: () => void;
     saving: boolean;
+    getError: (path: (string | number)[]) => string | undefined;
 }) {
     const [isTesting, startTesting] = useTransition();
 
@@ -529,7 +564,11 @@ function WebhooksSection({
                         placeholder="https://example.com/webhooks/sabflow"
                         value={value.url}
                         onChange={(e) => onChange({ ...value, url: e.target.value })}
+                        className={getError(['url']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
                     />
+                    {getError(['url']) && (
+                        <p className="text-[11.5px] text-red-500">{getError(['url'])}</p>
+                    )}
                 </div>
                 <div className="grid gap-1.5">
                     <Label htmlFor="wh-retry">Retry attempts</Label>
@@ -545,7 +584,11 @@ function WebhooksSection({
                                 retryAttempts: safeNumber(e.target.value, value.retryAttempts),
                             })
                         }
+                        className={getError(['retryAttempts']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
                     />
+                    {getError(['retryAttempts']) && (
+                        <p className="text-[11.5px] text-red-500">{getError(['retryAttempts'])}</p>
+                    )}
                 </div>
                 <div className="grid gap-1.5 sm:col-span-3">
                     <Label htmlFor="wh-secret">Signing secret</Label>
@@ -567,11 +610,13 @@ function VariablesSection({
     onChange,
     onSave,
     saving,
+    getError,
 }: {
     value: SabflowVariableEntry[];
     onChange: (v: SabflowVariableEntry[]) => void;
     onSave: () => void;
     saving: boolean;
+    getError: (path: (string | number)[]) => string | undefined;
 }) {
     function updateRow(index: number, patch: Partial<SabflowVariableEntry>) {
         const next = value.map((row, i) => (i === index ? { ...row, ...patch } : row));
@@ -625,7 +670,11 @@ function VariablesSection({
                                     placeholder="API_BASE_URL"
                                     value={row.key}
                                     onChange={(e) => updateRow(idx, { key: e.target.value })}
+                                    className={getError([idx, 'key']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
                                 />
+                                {getError([idx, 'key']) && (
+                                    <p className="text-[11.5px] text-red-500">{getError([idx, 'key'])}</p>
+                                )}
                             </div>
                             <div className="grid gap-1.5">
                                 <Label
@@ -639,7 +688,11 @@ function VariablesSection({
                                     placeholder="https://api.example.com"
                                     value={row.value}
                                     onChange={(e) => updateRow(idx, { value: e.target.value })}
+                                    className={getError([idx, 'value']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
                                 />
+                                {getError([idx, 'value']) && (
+                                    <p className="text-[11.5px] text-red-500">{getError([idx, 'value'])}</p>
+                                )}
                             </div>
                             <Button
                                 variant="outline"

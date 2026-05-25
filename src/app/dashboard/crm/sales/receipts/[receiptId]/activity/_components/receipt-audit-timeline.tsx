@@ -84,13 +84,13 @@ function relativeTime(iso: string): string {
     if (abs < 3600) return RTF.format(Math.round(diffSec / 60), 'minute');
     if (abs < 86_400) return RTF.format(Math.round(diffSec / 3600), 'hour');
     if (abs < 604_800) return RTF.format(Math.round(diffSec / 86_400), 'day');
-    return new Date(iso).toLocaleDateString();
+    return new Date(iso).toLocaleDateString('en-US', { timeZone: 'UTC' });
 }
 
 function absoluteTime(iso: string): string {
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return '';
-    return `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+    return `${d.toLocaleDateString('en-US', { timeZone: 'UTC' })} ${d.toLocaleTimeString('en-US', { timeZone: 'UTC' })}`;
 }
 
 /* ─── Actor naming ──────────────────────────────────────────────────── */

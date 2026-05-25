@@ -9,52 +9,84 @@ import {
   ZoruCardDescription,
   Textarea,
   Badge,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
   cn,
-  Input,
 } from '@/components/zoruui';
-import { cn as _zoruCn, useState } from 'react';
+import { useState } from 'react';
 
-void _zoruCn;
-
-import { Download, Layers, Play, Sparkles } from 'lucide-react';
+import { Download, Layers, Play, Sparkles, Copy, Check } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { apiFetchUrl } from '@/lib/seo-tools/api-client';
 
-// Simple client-side clustering for demo (avoiding complex python backend for now)
-// Groups by "common 2-word stems" or "intent words"
-function clusterKeywords(keywords: string[]) {
+async function fetchSemanticTopics(kw: string): Promise<string[]> {
+    try {
+        const res = await apiFetchUrl(`https://api.datamuse.com/words?ml=${encodeURIComponent(kw)}&max=3`);
+        if (res.body) {
+            const data = JSON.parse(res.body);
+            if (Array.isArray(data)) {
+                return data.map((d: any) => d.word);
+            }
+        }
+    } catch (e) {
+        console.error("NLP error for", kw, e);
+    }
+    return [];
+}
+
+async function clusterKeywordsNLP(keywords: string[]) {
     const clusters: Record<string, string[]> = {};
-    const intents = ['buy', 'price', 'cost', 'cheap', 'best', 'review', 'vs', 'how', 'what', 'why', 'guide'];
+    const kwTopics: Record<string, string[]> = {};
+
+    // Process in batches of 5 to avoid overwhelming the proxy
+    const batchSize = 5;
+    for (let i = 0; i < keywords.length; i += batchSize) {
+        const batch = keywords.slice(i, i + batchSize);
+        await Promise.all(batch.map(async (kw) => {
+            const topics = await fetchSemanticTopics(kw);
+            kwTopics[kw] = topics;
+        }));
+        if (i + batchSize < keywords.length) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+    }
+
+    const topicFreq: Record<string, number> = {};
+    Object.values(kwTopics).forEach(topics => {
+        topics.forEach(t => {
+            topicFreq[t] = (topicFreq[t] || 0) + 1;
+        });
+    });
 
     keywords.forEach(kw => {
-        const lower = kw.toLowerCase().trim();
-        if (!lower) return;
+        const topics = kwTopics[kw] || [];
+        let bestTopic = '';
+        let bestFreq = 0;
 
-        let found = false;
-
-        // 1. Intent Clustering
-        for (const intent of intents) {
-            if (lower.includes(intent)) {
-                const key = `Intent: ${intent.charAt(0).toUpperCase() + intent.slice(1)}`;
-                if (!clusters[key]) clusters[key] = [];
-                clusters[key].push(kw);
-                found = true;
-                break;
+        for (const t of topics) {
+            // Must appear at least twice across all keywords to form a meaningful cluster
+            if (topicFreq[t] > 1 && topicFreq[t] > bestFreq) {
+                bestFreq = topicFreq[t];
+                bestTopic = t;
             }
         }
 
-        if (!found) {
-            // 2. Topic Clustering (Naive: First word that isn't stopword)
-            const parts = lower.split(' ');
-            if (parts.length > 1) {
-                const topic = parts[1].length > 3 ? parts[1] : parts[0];
-                // Very naive, but shows the UI concept
-                const key = `Topic: ${topic.charAt(0).toUpperCase() + topic.slice(1)}`;
+        if (bestTopic) {
+            const key = bestTopic.charAt(0).toUpperCase() + bestTopic.slice(1);
+            if (!clusters[key]) clusters[key] = [];
+            clusters[key].push(kw);
+        } else {
+            // Intent fallback or Uncategorized
+            const intents = ['buy', 'price', 'cost', 'cheap', 'best', 'review', 'vs', 'how', 'what', 'why', 'guide'];
+            const lower = kw.toLowerCase();
+            let intentFound = '';
+            for (const intent of intents) {
+                if (lower.includes(intent)) {
+                    intentFound = intent;
+                    break;
+                }
+            }
+
+            if (intentFound) {
+                const key = `Intent: ${intentFound.charAt(0).toUpperCase() + intentFound.slice(1)}`;
                 if (!clusters[key]) clusters[key] = [];
                 clusters[key].push(kw);
             } else {
@@ -63,6 +95,7 @@ function clusterKeywords(keywords: string[]) {
             }
         }
     });
+
     return clusters;
 }
 
@@ -70,27 +103,57 @@ export default function KeywordClusteringPage() {
     const [input, setInput] = useState('');
     const [results, setResults] = useState<Record<string, string[]> | null>(null);
     const [loading, setLoading] = useState(false);
+    const [copied, setCopied] = useState(false);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
     const handleCluster = async () => {
         if (!input.trim()) return;
         setLoading(true);
-        // Simulate processing delay
-        await new Promise(r => setTimeout(r, 1000));
+        setErrorMsg(null);
+        setResults(null);
+        
+        try {
+            const keywords = Array.from(new Set(input.split('\n').map(k => k.trim()).filter(k => k)));
+            if (keywords.length === 0) {
+                toast({ title: "No keywords", description: "Please enter some keywords.", variant: "destructive" });
+                setLoading(false);
+                return;
+            }
 
-        const keywords = input.split('\n').map(k => k.trim()).filter(k => k);
-        const data = clusterKeywords(keywords);
-        setResults(data);
-        setLoading(false);
-        toast({ title: "Clustering Complete", description: `Grouped ${keywords.length} keywords.` });
+            const data = await clusterKeywordsNLP(keywords);
+            
+            // Clean up single item clusters into Uncategorized to make it neater
+            const finalData: Record<string, string[]> = {};
+            const uncategorized = [...(data['Uncategorized'] || [])];
+            
+            Object.entries(data).forEach(([cluster, kws]) => {
+                if (cluster !== 'Uncategorized') {
+                    if (kws.length === 1 && !cluster.startsWith('Intent:')) {
+                        uncategorized.push(kws[0]);
+                    } else {
+                        finalData[cluster] = kws;
+                    }
+                }
+            });
+            if (uncategorized.length > 0) {
+                finalData['Uncategorized'] = uncategorized;
+            }
+
+            setResults(finalData);
+            toast({ title: "Clustering Complete", description: `Grouped ${keywords.length} keywords using NLP.` });
+        } catch (err: any) {
+            setErrorMsg(err.message || 'Failed to cluster keywords.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleExport = () => {
         if (!results) return;
-        // Generate CSV
         let csv = 'Cluster,Keyword\n';
         Object.entries(results).forEach(([cluster, kws]) => {
             kws.forEach(kw => {
-                csv += `"${cluster}","${kw}"\n`;
+                csv += `"${cluster.replace(/"/g, '""')}","${kw.replace(/"/g, '""')}"\n`;
             });
         });
 
@@ -100,26 +163,55 @@ export default function KeywordClusteringPage() {
         a.href = url;
         a.download = 'keyword-clusters.csv';
         a.click();
+        window.URL.revokeObjectURL(url);
+    };
+
+    const handleCopy = () => {
+        if (!results) return;
+        let text = '';
+        Object.entries(results).forEach(([cluster, kws]) => {
+            text += `[${cluster}]\n`;
+            kws.forEach(kw => {
+                text += `${kw}\n`;
+            });
+            text += '\n';
+        });
+
+        navigator.clipboard.writeText(text.trim());
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
                         <Layers className="h-8 w-8 text-primary" />
                         Keyword Clustering
                     </h1>
                     <p className="text-muted-foreground mt-1">
-                        Group thousands of keywords into topical clusters for pSEO.
+                        Group thousands of keywords into topical semantic clusters using NLP.
                     </p>
                 </div>
                 {results && (
-                    <Button variant="outline" onClick={handleExport}>
-                        <Download className="h-4 w-4 mr-2" /> Export CSV
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" onClick={handleCopy} className="whitespace-nowrap">
+                            {copied ? <Check className="h-4 w-4 mr-2 text-green-500" /> : <Copy className="h-4 w-4 mr-2" />}
+                            {copied ? 'Copied' : 'Copy Text'}
+                        </Button>
+                        <Button variant="outline" onClick={handleExport} className="whitespace-nowrap">
+                            <Download className="h-4 w-4 mr-2" /> Export CSV
+                        </Button>
+                    </div>
                 )}
             </div>
+
+            {errorMsg && (
+                <div className="p-4 rounded-md bg-red-50 text-red-600 border border-red-200">
+                    {errorMsg}
+                </div>
+            )}
 
             <div className="grid gap-6 md:grid-cols-2">
                 <Card className="h-full">
@@ -145,7 +237,7 @@ export default function KeywordClusteringPage() {
 
                 <Card className="h-full flex flex-col">
                     <ZoruCardHeader>
-                        <ZoruCardTitle>Clusters</ZoruCardTitle>
+                        <ZoruCardTitle>Semantic Clusters</ZoruCardTitle>
                         <ZoruCardDescription>
                             {results
                                 ? `${Object.keys(results).length} groups found.`
@@ -154,8 +246,8 @@ export default function KeywordClusteringPage() {
                     </ZoruCardHeader>
                     <ZoruCardContent className="flex-1 overflow-y-auto max-h-[500px]">
                         {!results ? (
-                            <div className="h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-md">
-                                Run clustering to see results.
+                            <div className="h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-md p-6 text-center">
+                                Run clustering to group keywords by semantic meaning.
                             </div>
                         ) : (
                             <div className="space-y-6">
@@ -165,9 +257,9 @@ export default function KeywordClusteringPage() {
                                             <Badge variant="secondary">{kws.length}</Badge>
                                             <h3 className="font-semibold text-sm">{cluster}</h3>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-2 pl-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-2">
                                             {kws.map((kw, i) => (
-                                                <div key={i} className="text-xs p-1 hover:bg-muted rounded text-muted-foreground">
+                                                <div key={i} className="text-xs p-1.5 bg-muted/30 hover:bg-muted rounded text-muted-foreground border border-transparent hover:border-border transition-colors">
                                                     {kw}
                                                 </div>
                                             ))}

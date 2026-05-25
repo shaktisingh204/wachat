@@ -22,6 +22,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   Label,
+  Progress,
 } from '@/components/zoruui';
 import {
   Users,
@@ -160,6 +161,12 @@ function AudienceRow({
           <p className="text-[13px] font-medium text-foreground truncate">{audience.name}</p>
           {audience.description && (
             <p className="text-[11px] text-muted-foreground truncate mt-0.5">{audience.description}</p>
+          )}
+          {isPopulating && (
+            <div className="mt-2.5 flex items-center gap-2 max-w-[200px]">
+              <Progress value={65} className="h-1.5 flex-1" indicatorClassName="bg-warning animate-pulse" />
+              <span className="text-[10px] text-muted-foreground font-medium">Populating...</span>
+            </div>
           )}
         </div>
 
@@ -472,6 +479,98 @@ function CreateAudienceSheet({
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  Sync CRM Dialog                                                    */
+/* ------------------------------------------------------------------ */
+function SyncCrmDialog({
+  open,
+  onOpenChange,
+  onCreated,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onCreated: () => void;
+}) {
+  const { toast } = useToast();
+  const { activeAccount } = useAdManager();
+  const [submitting, setSubmitting] = React.useState(false);
+
+  const [segment, setSegment] = React.useState('all');
+  const [audienceName, setAudienceName] = React.useState('CRM - All Customers');
+
+  const submit = async () => {
+    if (!activeAccount) return;
+    setSubmitting(true);
+    const res = await createCustomAudience(activeAccount.account_id, {
+      name: audienceName,
+      description: `Synced from CRM segment: ${segment}`,
+      subtype: 'CUSTOM',
+    });
+    setSubmitting(false);
+
+    if (res.error) {
+      toast({ title: 'Sync failed', description: res.error, variant: 'destructive' });
+      return;
+    }
+
+    toast({ title: 'CRM Data Synced', description: 'Audience created successfully.' });
+    onOpenChange(false);
+    onCreated();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="max-w-md">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>Sync CRM Data</ZoruDialogTitle>
+          <ZoruDialogDescription>
+            Import your Wachat CRM contacts to create a custom audience on Meta.
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
+
+        <div className="space-y-4 py-2">
+          <div className="space-y-1.5">
+            <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              Audience Name
+            </Label>
+            <Input
+              value={audienceName}
+              onChange={(e) => setAudienceName(e.target.value)}
+              placeholder="e.g. High Value Customers"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              CRM Segment
+            </Label>
+            <Select value={segment} onValueChange={setSegment}>
+              <ZoruSelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px] text-foreground">
+                <ZoruSelectValue placeholder="Select segment" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="all">All Contacts</ZoruSelectItem>
+                <ZoruSelectItem value="active">Active Subscribers</ZoruSelectItem>
+                <ZoruSelectItem value="inactive">Inactive / Churned</ZoruSelectItem>
+                <ZoruSelectItem value="high_value">High Value (LTV &gt; $500)</ZoruSelectItem>
+              </ZoruSelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <ZoruDialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button variant="default" onClick={submit} disabled={submitting || !audienceName.trim()}>
+            {submitting ? 'Syncing...' : 'Sync & Create'}
+          </Button>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </Dialog>
+  );
+}
+
 /* ================================================================== */
 /*  Main page                                                          */
 /* ================================================================== */
@@ -484,6 +583,7 @@ export default function AudiencesPage() {
   const [search, setSearch] = React.useState('');
   const [tab, setTab] = React.useState<'custom' | 'lookalike'>('custom');
   const [sheetOpen, setSheetOpen] = React.useState(false);
+  const [syncOpen, setSyncOpen] = React.useState(false);
 
   /* ---- load ---- */
   const load = React.useCallback(async () => {
@@ -544,7 +644,7 @@ export default function AudiencesPage() {
           </Badge>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => toast({ title: 'Syncing CRM...' })}>
+          <Button variant="outline" onClick={() => setSyncOpen(true)}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Sync CRM
           </Button>
@@ -613,6 +713,13 @@ export default function AudiencesPage() {
         onOpenChange={setSheetOpen}
         onCreated={load}
         audiences={audiences}
+      />
+
+      {/* sync dialog */}
+      <SyncCrmDialog
+        open={syncOpen}
+        onOpenChange={setSyncOpen}
+        onCreated={load}
       />
     </div>
   );

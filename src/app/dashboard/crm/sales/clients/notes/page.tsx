@@ -42,10 +42,10 @@ import {
   Input,
   Label,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   useZoruToast,
 } from '@/components/zoruui';
 
@@ -366,14 +366,14 @@ export default function ClientNotesPage() {
                 setStatusFilter(v as typeof statusFilter)
               }
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All notes</ZoruSelectItem>
-                <ZoruSelectItem value="pinned">Pinned</ZoruSelectItem>
-                <ZoruSelectItem value="unpinned">Unpinned</ZoruSelectItem>
-              </ZoruSelectContent>
+              <SelectTrigger>
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All notes</SelectItem>
+                <SelectItem value="pinned">Pinned</SelectItem>
+                <SelectItem value="unpinned">Unpinned</SelectItem>
+              </SelectContent>
             </Select>
           </div>
           <div className="w-56">
@@ -383,17 +383,17 @@ export default function ClientNotesPage() {
                 setClientFilter(v === 'all' ? '' : v)
               }
             >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Client" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All clients</ZoruSelectItem>
+              <SelectTrigger>
+                <SelectValue placeholder="Client" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All clients</SelectItem>
                 {clientOptions.map((c) => (
-                  <ZoruSelectItem key={c.id} value={c.id}>
+                  <SelectItem key={c.id} value={c.id}>
                     {c.label}
-                  </ZoruSelectItem>
+                  </SelectItem>
                 ))}
-              </ZoruSelectContent>
+              </SelectContent>
             </Select>
           </div>
           <div className="flex items-center gap-2">
@@ -737,13 +737,13 @@ export default function ClientNotesPage() {
                   value={pinned}
                   onValueChange={(v) => setPinned(v as 'yes' | 'no')}
                 >
-                  <ZoruSelectTrigger className="mt-1.5">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="no">No</ZoruSelectItem>
-                    <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
-                  </ZoruSelectContent>
+                  <SelectTrigger className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="yes">Yes</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="flex justify-end gap-2 pt-2">

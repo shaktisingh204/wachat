@@ -31,8 +31,11 @@ import {
 
 import { cn } from '@/lib/utils';
 import { useAdManager } from '@/context/ad-manager-context';
-import { getAdAccounts,
-  deleteAdAccount } from '@/app/actions/ad-manager.actions';
+import { 
+  getAdAccounts,
+  deleteAdAccount,
+  getAdAccountDetails 
+} from '@/app/actions/ad-manager.actions';
 
 /**
  * /dashboard/ad-manager/ad-accounts — Manage connected Meta ad accounts.
@@ -49,7 +52,25 @@ import {
 } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
 
-import type { AdAccount } from '@/lib/definitions';
+export interface AdAccount {
+  id: string;
+  name: string;
+  account_id: string;
+  currency?: string;
+  account_status?: number;
+  last_used_time?: string;
+  created_time?: string;
+  timezone_name?: string;
+  business_country_code?: string;
+  amount_spent?: string;
+  balance?: string;
+  spend_cap?: string;
+  disable_reason?: number;
+  min_daily_budget?: number;
+  min_campaign_group_spend_cap?: number;
+  age?: number;
+  is_prepay_account?: boolean;
+}
 
 /* ── loading skeleton ──────────────────────────────────────────── */
 
@@ -345,6 +366,8 @@ export default function AdAccountsPage() {
   const { toast } = useToast();
   const router = useRouter();
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
   const fetchAccounts = () => {
     startPageLoad(async () => {
       const { accounts: data, error } = await getAdAccounts();
@@ -358,6 +381,42 @@ export default function AdAccountsPage() {
         setAccounts(data || []);
       }
     });
+  };
+
+  const handleBulkSync = async () => {
+    if (accounts.length === 0) return;
+    setIsSyncing(true);
+    let errorCount = 0;
+    const updatedAccounts = [...accounts];
+
+    for (let i = 0; i < updatedAccounts.length; i++) {
+      const acc = updatedAccounts[i];
+      const { data, error } = await getAdAccountDetails(acc.id);
+      if (data && !error) {
+        updatedAccounts[i] = {
+          ...acc,
+          ...data,
+        };
+      } else {
+        errorCount++;
+      }
+    }
+
+    setAccounts(updatedAccounts);
+    setIsSyncing(false);
+
+    if (errorCount === 0) {
+      toast({
+        title: 'Sync complete',
+        description: 'Successfully refreshed all ad accounts.',
+      });
+    } else {
+      toast({
+        title: 'Sync finished with errors',
+        description: `Failed to refresh ${errorCount} account(s).`,
+        variant: 'destructive',
+      });
+    }
   };
 
   useEffect(() => {
@@ -412,8 +471,8 @@ export default function AdAccountsPage() {
         description="Connect and manage your Meta ad accounts to run campaigns."
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="md" onClick={() => fetchAccounts()} disabled={isPageLoading}>
-              <LoaderCircle className={cn("h-3.5 w-3.5", isPageLoading && "animate-spin")} />
+            <Button variant="outline" size="md" onClick={handleBulkSync} disabled={isPageLoading || isSyncing || accounts.length === 0}>
+              <LoaderCircle className={cn("h-3.5 w-3.5", (isPageLoading || isSyncing) && "animate-spin")} />
               Sync Accounts
             </Button>
             <Link href="/api/auth/ad-manager/login" className="shrink-0">

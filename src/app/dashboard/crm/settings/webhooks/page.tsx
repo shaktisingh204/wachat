@@ -98,6 +98,7 @@ export default function CrmWebhooksListPage() {
   const [eventFilter, setEventFilter] = React.useState('');
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [bulkPending, startBulk] = React.useTransition();
+  const [mounted, setMounted] = React.useState(false);
 
   const refresh = React.useCallback(async () => {
     setLoading(true);
@@ -110,8 +111,20 @@ export default function CrmWebhooksListPage() {
   }, []);
 
   React.useEffect(() => {
+    setMounted(true);
     void refresh();
   }, [refresh]);
+
+  if (!mounted) {
+    return (
+      <div className="flex h-60 items-center justify-center">
+        <span className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-zoru-ink-muted border-t-transparent" />
+          Loading webhooks...
+        </span>
+      </div>
+    );
+  }
 
   /* ── KPIs ──────────────────────────────────────────────────────── */
 

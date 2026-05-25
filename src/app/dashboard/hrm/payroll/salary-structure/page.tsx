@@ -3,6 +3,9 @@ import { getSalaryStructures } from '@/app/actions/crm-payroll.actions';
 import { SalaryStructureClient } from './_components/salary-structure-client';
 import { LoaderCircle } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
+
 export default async function SalaryStructurePage() {
     return (
         <Suspense fallback={<SalaryStructureLoading />}>

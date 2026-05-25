@@ -15,27 +15,30 @@ import {
   PageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
+  Button,
+  Skeleton,
 } from '@/components/zoruui';
 import {
   Check,
-  Route } from 'lucide-react';
-
-/**
- * Wachat WhatsApp Ads — Facebook integration roadmap (ZoruUI).
- *
- * Static grid of Card tiles, one per phase, with a status badge.
- */
-
+  Route,
+  ThumbsUp,
+  RefreshCw,
+} from 'lucide-react';
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 
 type RoadmapStatus = 'Completed' | 'In Progress' | 'Planned';
 
-const ROADMAP_PHASES: Array<{
+type RoadmapPhase = {
   phase: string;
   title: string;
   milestones: string[];
   status: RoadmapStatus;
-}> = [
+  votes: number;
+};
+
+// Mock data to simulate external project management tool state
+const INITIAL_ROADMAP: RoadmapPhase[] = [
   {
     phase: 'MVP',
     title: 'Minimum Viable Product',
@@ -45,6 +48,7 @@ const ROADMAP_PHASES: Array<{
       'Basic campaign creation',
     ],
     status: 'Completed',
+    votes: 120,
   },
   {
     phase: 'Phase 2',
@@ -55,6 +59,7 @@ const ROADMAP_PHASES: Array<{
       'Sync leads from Lead Ads',
     ],
     status: 'In Progress',
+    votes: 85,
   },
   {
     phase: 'Phase 3',
@@ -65,6 +70,7 @@ const ROADMAP_PHASES: Array<{
       'A/B testing for creatives and copy',
     ],
     status: 'Planned',
+    votes: 215,
   },
   {
     phase: 'Phase 4',
@@ -75,8 +81,18 @@ const ROADMAP_PHASES: Array<{
       'Full support for catalog-based ads',
     ],
     status: 'Planned',
+    votes: 42,
   },
 ];
+
+// Mock API call to fetch live roadmap status from Linear/Jira
+const fetchLiveRoadmap = async (): Promise<RoadmapPhase[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([...INITIAL_ROADMAP]);
+    }, 1200);
+  });
+};
 
 function statusVariant(
   status: RoadmapStatus,
@@ -87,6 +103,35 @@ function statusVariant(
 }
 
 export default function AdsRoadmapPage() {
+  const [phases, setPhases] = useState<RoadmapPhase[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadRoadmap = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await fetchLiveRoadmap();
+      setPhases(data);
+    } catch (err) {
+      setError('Failed to sync with Linear. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadRoadmap();
+  }, []);
+
+  const handleVote = (phaseName: string) => {
+    setPhases((prev) =>
+      prev.map((p) =>
+        p.phase === phaseName ? { ...p, votes: p.votes + 1 } : p
+      )
+    );
+  };
+
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       <Breadcrumb>
@@ -119,38 +164,71 @@ export default function AdsRoadmapPage() {
             API.
           </ZoruPageDescription>
         </ZoruPageHeading>
-        <ZoruPageActions />
+        <ZoruPageActions>
+          <Button variant="outline" size="sm" onClick={loadRoadmap} disabled={isLoading}>
+            <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            Sync with Linear
+          </Button>
+        </ZoruPageActions>
       </PageHeader>
 
+      {error && (
+        <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2">
-        {ROADMAP_PHASES.map((phase) => (
-          <Card key={phase.phase} className="flex flex-col gap-4 p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
-                  {phase.phase}
-                </p>
-                <h3 className="mt-1 text-[16px] tracking-tight text-zoru-ink">
-                  {phase.title}
-                </h3>
-              </div>
-              <Badge variant={statusVariant(phase.status)}>
-                {phase.status}
-              </Badge>
-            </div>
-            <ul className="flex flex-col gap-2.5">
-              {phase.milestones.map((milestone) => (
-                <li
-                  key={milestone}
-                  className="flex items-start gap-2.5 text-[13px] text-zoru-ink"
-                >
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-zoru-ink-muted" />
-                  <span>{milestone}</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-        ))}
+        {isLoading && phases.length === 0
+          ? Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i} className="flex flex-col gap-4 p-5">
+                <Skeleton className="h-4 w-1/4" />
+                <Skeleton className="h-6 w-1/2" />
+                <Skeleton className="h-20 w-full" />
+              </Card>
+            ))
+          : phases.map((phase) => (
+              <Card key={phase.phase} className="flex flex-col gap-4 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
+                      {phase.phase}
+                    </p>
+                    <h3 className="mt-1 text-[16px] tracking-tight text-zoru-ink">
+                      {phase.title}
+                    </h3>
+                  </div>
+                  <Badge variant={statusVariant(phase.status)}>
+                    {phase.status}
+                  </Badge>
+                </div>
+                <ul className="flex flex-col gap-2.5 mb-2">
+                  {phase.milestones.map((milestone) => (
+                    <li
+                      key={milestone}
+                      className="flex items-start gap-2.5 text-[13px] text-zoru-ink"
+                    >
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                      <span>{milestone}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-auto flex items-center justify-between border-t border-zoru-border pt-4">
+                  <span className="text-sm font-medium text-zoru-ink-subtle">
+                    {phase.votes} votes
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => handleVote(phase.phase)}
+                  >
+                    <ThumbsUp className="h-4 w-4" />
+                    Upvote
+                  </Button>
+                </div>
+              </Card>
+            ))}
       </div>
     </div>
   );

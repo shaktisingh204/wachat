@@ -242,7 +242,17 @@ export function PendingApprovalsClient({
                   <ZoruTableCell className="text-zoru-ink-muted">{row.email}</ZoruTableCell>
                   <ZoruTableCell>{row.company || '—'}</ZoruTableCell>
                   <ZoruTableCell className="text-zoru-ink-muted">
-                    {new Date(row.signedUpAt).toLocaleString()}
+                    {(() => {
+                      const date = new Date(row.signedUpAt);
+                      if (Number.isNaN(date.getTime())) return '—';
+                      const day = String(date.getUTCDate()).padStart(2, '0');
+                      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                      const month = months[date.getUTCMonth()];
+                      const year = date.getUTCFullYear();
+                      const hours = String(date.getUTCHours()).padStart(2, '0');
+                      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+                      return `${day} ${month} ${year} ${hours}:${minutes} UTC`;
+                    })()}
                   </ZoruTableCell>
                   <ZoruTableCell>
                     <Badge variant={row.daysPending > 7 ? 'destructive' : 'ghost'}>

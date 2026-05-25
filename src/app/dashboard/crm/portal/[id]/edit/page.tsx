@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 
+import React from 'react';
 import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
@@ -97,7 +98,11 @@ export default async function PortalEditPage({ params }: PageProps) {
                     </Card>
                 </>
             }
-            audit={<EntityAuditTimeline entityKind="portal_user" entityId={id} />}
+            audit={
+                <React.Suspense fallback={<div className="h-64 w-full animate-pulse bg-zoru-surface-2 rounded-md" />}>
+                    <EntityAuditTimeline entityKind="portal_user" entityId={id} />
+                </React.Suspense>
+            }
         >
             <PortalEditForm user={{ ...user, _id: String(user._id ?? id) }} />
         </EntityDetailShell>

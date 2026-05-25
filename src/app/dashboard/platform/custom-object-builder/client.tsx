@@ -1,19 +1,21 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import useSWR from 'swr';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter, useZoruToast } from '@/components/zoruui';
-import { createCustomObject, deleteCustomObject } from '@/app/actions/platform/custom-object-builder.actions';
+import { createCustomObject, deleteCustomObject, getCustomObjects } from '@/app/actions/platform/custom-object-builder.actions';
 import type { CustomObjectDefinition } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, Database } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 export function CustomObjectClient({ initialData }: { initialData: CustomObjectDefinition[] }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isPending, startTransition] = useTransition();
   const { toast } = useZoruToast();
-  const router = useRouter();
+  const { data: objects = initialData, mutate } = useSWR<CustomObjectDefinition[]>('custom-objects', getCustomObjects, {
+    fallbackData: initialData,
+  });
 
   const [form, setForm] = useState({ singularName: '', pluralName: '', apiIdentifier: '', fields: '' });
 
@@ -28,7 +30,7 @@ export function CustomObjectClient({ initialData }: { initialData: CustomObjectD
         toast({ title: 'Custom object created', variant: 'success' });
         setDialogOpen(false);
         setForm({ singularName: '', pluralName: '', apiIdentifier: '', fields: '' });
-        router.refresh();
+        await mutate();
       } catch (err) {
         toast({ title: 'Error creating custom object', variant: 'destructive' });
       }
@@ -41,14 +43,14 @@ export function CustomObjectClient({ initialData }: { initialData: CustomObjectD
       try {
         await deleteCustomObject(id);
         toast({ title: 'Custom object deleted', variant: 'success' });
-        router.refresh();
+        await mutate();
       } catch (err) {
         toast({ title: 'Error deleting custom object', variant: 'destructive' });
       }
     });
   };
 
-  const filteredData = initialData.filter(d => d.pluralName.toLowerCase().includes(query.toLowerCase()));
+  const filteredData = objects.filter(d => d.pluralName.toLowerCase().includes(query.toLowerCase()));
 
   return (
     <EntityListShell

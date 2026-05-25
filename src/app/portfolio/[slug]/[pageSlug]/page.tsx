@@ -1,8 +1,12 @@
+import React from "react";
 import { notFound } from 'next/navigation';
 import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
 import { connectToDatabase } from '@/lib/mongodb';
 import { WebsitePage } from '@/lib/definitions';
 import { ObjectId } from 'mongodb';
+
+export const dynamic = 'force-dynamic';
+
 
 async function getPageBySlug(siteSlug: string, pageSlug: string) {
     const { db } = await connectToDatabase();
@@ -13,7 +17,7 @@ async function getPageBySlug(siteSlug: string, pageSlug: string) {
     return page;
 }
 
-export default async function WebsiteSubPage(props: { params: Promise<{ slug: string, pageSlug: string }> }) {
+async function WebsiteSubPageContent(props: { params: Promise<{ slug: string, pageSlug: string }> }) {
     const params = await props.params;
     if (!params.slug || !params.pageSlug) {
         notFound();
@@ -52,4 +56,13 @@ export async function generateStaticParams() {
         console.error("Failed to generate static params for site pages:", e);
         return [];
     }
+}
+
+
+export default function WebsiteSubPage(props: { params: Promise<{ slug: string, pageSlug: string }> }) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <WebsiteSubPageContent params={params} />
+    </React.Suspense>
+  );
 }

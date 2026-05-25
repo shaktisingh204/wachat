@@ -2,10 +2,6 @@
 
 import {
   Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
   Input,
   Label,
   Textarea,
@@ -54,9 +50,9 @@ interface LineRow {
     costPerUnit: string;
 }
 
-function newLine(): LineRow {
+function createEmptyLine(key: string): LineRow {
     return {
-        key: Math.random().toString(36).slice(2),
+        key,
         productId: '',
         qtyBefore: '',
         qtyAfter: '',
@@ -72,12 +68,19 @@ export default function NewStockAdjustmentPage() {
 
     const [warehouseId, setWarehouseId] = React.useState<string>('');
     const [approverId, setApproverId] = React.useState<string>('');
-    const [lines, setLines] = React.useState<LineRow[]>([newLine()]);
+    const [lines, setLines] = React.useState<LineRow[]>([createEmptyLine('initial-row')]);
     const [barcode, setBarcode] = React.useState('');
     const [isScanning, setIsScanning] = React.useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const attachmentInputRef = React.useRef<HTMLInputElement>(null);
     const [attachments, setAttachments] = React.useState<string[]>([]);
+    
+    // Deterministic date initialization
+    const [date, setDate] = React.useState<string>('');
+
+    React.useEffect(() => {
+        setDate(new Date().toISOString().slice(0, 10));
+    }, []);
 
     const handleBarcodeScan = async (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
@@ -167,7 +170,7 @@ export default function NewStockAdjustmentPage() {
         );
     };
 
-    const addLine = () => setLines((prev) => [...prev, newLine()]);
+    const addLine = () => setLines((prev) => [...prev, createEmptyLine(Math.random().toString(36).slice(2))]);
     const removeLine = (idx: number) =>
         setLines((prev) =>
             prev.length === 1 ? prev : prev.filter((_, i) => i !== idx),
@@ -251,7 +254,7 @@ export default function NewStockAdjustmentPage() {
         </>
     );
 
-    const today = new Date().toISOString().slice(0, 10);
+    // Return shell safely. Date updates in useEffect to prevent hydration mismatch.
 
     return (
         <EntityFormShell
@@ -276,7 +279,8 @@ export default function NewStockAdjustmentPage() {
                                     type="date"
                                     id="date"
                                     name="date"
-                                    defaultValue={today}
+                                    value={date}
+                                    onChange={(e) => setDate(e.target.value)}
                                     required
                                 />
                             </div>

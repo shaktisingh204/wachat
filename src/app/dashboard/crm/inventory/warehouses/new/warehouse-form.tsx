@@ -272,7 +272,7 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                                     id="capacityUnits"
                                     name="capacityUnits"
                                     defaultValue={
-                                        (initialData as any)?.capacityUnits ?? ''
+                                        initialData?.capacityUnits ?? ''
                                     }
                                 />
                             </div>
@@ -286,7 +286,7 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                                     id="capacitySqft"
                                     name="capacitySqft"
                                     defaultValue={
-                                        (initialData as any)?.capacitySqft ?? ''
+                                        initialData?.capacitySqft ?? ''
                                     }
                                 />
                             </div>
@@ -295,7 +295,7 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                                     id="climateControlled"
                                     name="climateControlled"
                                     defaultChecked={
-                                        !!(initialData as any)?.climateControlled
+                                        !!initialData?.climateControlled
                                     }
                                 />
                                 <Label

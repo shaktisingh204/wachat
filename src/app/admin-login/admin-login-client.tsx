@@ -1,17 +1,58 @@
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
+import React, { useState, useTransition, useEffect, Component, ReactNode } from 'react';
 import Link from 'next/link';
 import { handleAdminLogin, setupInitialAdmin } from '@/app/actions/admin.actions';
 import { useRouter } from 'next/navigation';
 import { Shield, Eye, EyeOff, LoaderCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// ZoruUI Components
+import { Button } from '@/components/zoruui/button';
+import { Input } from '@/components/zoruui/input';
+import { Label } from '@/components/zoruui/label';
+
+// --- Error Boundary ---
+class ErrorBoundary extends Component<{ children: ReactNode, fallback: ReactNode }, { hasError: boolean }> {
+    constructor(props: { children: ReactNode, fallback: ReactNode }) {
+        super(props);
+        this.state = { hasError: false };
+    }
+    static getDerivedStateFromError() {
+        return { hasError: true };
+    }
+    render() {
+        if (this.state.hasError) {
+            return this.props.fallback;
+        }
+        return this.props.children;
+    }
+}
+
 const initialState = { success: false, error: undefined as string | undefined };
 
 type Mode = 'login' | 'setup';
 
 export default function AdminLoginClient({ initialMode }: { initialMode: Mode }) {
+    return (
+        <ErrorBoundary fallback={
+            <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
+                <div className="p-6 bg-white rounded-xl shadow-lg border border-red-100 flex flex-col items-center gap-4 text-center">
+                    <AlertCircle className="h-10 w-10 text-red-500" />
+                    <div>
+                        <h2 className="text-lg font-semibold text-slate-900">Something went wrong</h2>
+                        <p className="text-sm text-slate-500">There was a problem loading the admin portal.</p>
+                    </div>
+                    <Button variant="outline" onClick={() => window.location.reload()}>Reload Page</Button>
+                </div>
+            </div>
+        }>
+            <AdminLoginClientContent initialMode={initialMode} />
+        </ErrorBoundary>
+    );
+}
+
+function AdminLoginClientContent({ initialMode }: { initialMode: Mode }) {
     const [mode, setMode] = useState<Mode>(initialMode);
     const [state, setState] = useState(initialState);
     const [isPending, startTransition] = useTransition();
@@ -22,7 +63,6 @@ export default function AdminLoginClient({ initialMode }: { initialMode: Mode })
     const loginAction = (formData: FormData) => {
         startTransition(async () => {
             const result = await handleAdminLogin(initialState, formData);
-            // Server signals "no admin configured" — swap to setup form.
             if (!result.success && result.error === 'NEEDS_SETUP') {
                 setMode('setup');
                 setState(initialState);
@@ -42,6 +82,16 @@ export default function AdminLoginClient({ initialMode }: { initialMode: Mode })
     useEffect(() => {
         if (state.success) router.push('/admin/dashboard');
     }, [state.success, router]);
+
+    const handleSsoLogin = () => {
+        // Redirect to SAML/SSO for admin
+        window.location.href = '/api/auth/saml?admin=true';
+    };
+
+    const handleGoogleLogin = () => {
+        // Redirect to Google OAuth for admin
+        window.location.href = '/api/crm/auth/google?admin=true';
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 relative overflow-hidden">
@@ -126,6 +176,45 @@ export default function AdminLoginClient({ initialMode }: { initialMode: Mode })
                         />
                     )}
 
+                    {/* SSO section only for login */}
+                    {mode === 'login' && (
+                        <div className="space-y-4">
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <span className="w-full border-t border-slate-200" />
+                                </div>
+                                <div className="relative flex justify-center text-xs uppercase">
+                                    <span className="bg-white/80 backdrop-blur-xl px-2 text-slate-500 font-medium">Or continue with</span>
+                                </div>
+                            </div>
+                            
+                            <div className="flex flex-col gap-3">
+                                <Button
+                                    variant="outline"
+                                    type="button"
+                                    block
+                                    onClick={handleSsoLogin}
+                                    leading={
+                                        <svg className="h-4 w-4 text-slate-700 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                    }
+                                >
+                                    Corporate SSO (SAML)
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    type="button"
+                                    block
+                                    onClick={handleGoogleLogin}
+                                    leading={
+                                        <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                                    }
+                                >
+                                    Google Workspace
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Footer note */}
                     <p className="text-center text-xs text-slate-500">
                         {mode === 'setup'
@@ -161,38 +250,43 @@ function LoginForm({
     return (
         <form action={action} className="space-y-4">
             <Field label="Admin Email">
-                <input
+                <Input
                     id="email"
                     name="email"
                     type="email"
                     required
                     autoComplete="email"
                     placeholder="admin@example.com"
-                    className={inputClass}
                 />
             </Field>
 
             <Field label="Password">
                 <div className="relative">
-                    <input
+                    <Input
                         id="password"
                         name="password"
                         type={showPassword ? 'text' : 'password'}
                         required
                         autoComplete="current-password"
                         placeholder="••••••••••••"
-                        className={cn(inputClass, 'pr-12')}
+                        className="pr-12"
                     />
                     <PasswordToggle show={showPassword} onToggle={() => setShowPassword(v => !v)} />
                 </div>
             </Field>
 
-            <SubmitButton
-                pending={isPending}
-                pendingLabel="Authenticating…"
-                label="Sign In to Admin Panel"
-                variant="amber"
-            />
+            <Button
+                variant="primary"
+                type="submit"
+                disabled={isPending}
+                block
+                className="bg-amber-500 hover:bg-amber-400 border-amber-500 hover:border-amber-400 text-zinc-950 shadow-amber-500/25 mt-2"
+            >
+                {isPending
+                    ? <><LoaderCircle className="h-4 w-4 animate-spin mr-2 inline-block" /> Authenticating…</>
+                    : 'Sign In to Admin Panel'
+                }
+            </Button>
         </form>
     );
 }
@@ -215,20 +309,19 @@ function SetupForm({
     return (
         <form action={action} className="space-y-4">
             <Field label="Admin Email">
-                <input
+                <Input
                     id="email"
                     name="email"
                     type="email"
                     required
                     autoComplete="email"
                     placeholder="you@company.com"
-                    className={inputClass}
                 />
             </Field>
 
             <Field label="Password" hint="Minimum 10 characters">
                 <div className="relative">
-                    <input
+                    <Input
                         id="password"
                         name="password"
                         type={showPassword ? 'text' : 'password'}
@@ -236,7 +329,7 @@ function SetupForm({
                         minLength={10}
                         autoComplete="new-password"
                         placeholder="At least 10 characters"
-                        className={cn(inputClass, 'pr-12')}
+                        className="pr-12"
                     />
                     <PasswordToggle show={showPassword} onToggle={() => setShowPassword(v => !v)} />
                 </div>
@@ -244,7 +337,7 @@ function SetupForm({
 
             <Field label="Confirm Password">
                 <div className="relative">
-                    <input
+                    <Input
                         id="confirmPassword"
                         name="confirmPassword"
                         type={showConfirm ? 'text' : 'password'}
@@ -252,36 +345,35 @@ function SetupForm({
                         minLength={10}
                         autoComplete="new-password"
                         placeholder="Repeat password"
-                        className={cn(inputClass, 'pr-12')}
+                        className="pr-12"
                     />
                     <PasswordToggle show={showConfirm} onToggle={() => setShowConfirm(v => !v)} />
                 </div>
             </Field>
 
-            <SubmitButton
-                pending={isPending}
-                pendingLabel="Creating admin…"
-                label="Create admin account"
-                variant="indigo"
-            />
+            <Button
+                variant="primary"
+                type="submit"
+                disabled={isPending}
+                block
+                className="bg-indigo-600 hover:bg-indigo-500 border-indigo-600 hover:border-indigo-500 text-white shadow-indigo-600/25 mt-2"
+            >
+                {isPending
+                    ? <><LoaderCircle className="h-4 w-4 animate-spin mr-2 inline-block" /> Creating admin…</>
+                    : 'Create admin account'
+                }
+            </Button>
         </form>
     );
 }
 
 /* ---------- small UI primitives ---------- */
 
-const inputClass = cn(
-    'w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-3',
-    'text-slate-900 placeholder:text-slate-500 text-sm',
-    'focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20',
-    'transition-all duration-200'
-);
-
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
     return (
         <div className="space-y-1.5">
             <div className="flex items-baseline justify-between">
-                <label className="text-xs font-medium text-slate-700 uppercase tracking-wider">{label}</label>
+                <Label className="text-xs uppercase tracking-wider text-slate-700">{label}</Label>
                 {hint && <span className="text-[10.5px] text-slate-500">{hint}</span>}
             </div>
             {children}
@@ -294,7 +386,7 @@ function PasswordToggle({ show, onToggle }: { show: boolean; onToggle: () => voi
         <button
             type="button"
             onClick={onToggle}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-900 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-900 transition-colors z-10"
             tabIndex={-1}
         >
             {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -302,27 +394,3 @@ function PasswordToggle({ show, onToggle }: { show: boolean; onToggle: () => voi
     );
 }
 
-function SubmitButton({ pending, pendingLabel, label, variant }: {
-    pending: boolean; pendingLabel: string; label: string; variant: 'amber' | 'indigo';
-}) {
-    const color = variant === 'amber'
-        ? 'bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-amber-500/25'
-        : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/25';
-    return (
-        <button
-            type="submit"
-            disabled={pending}
-            className={cn(
-                'w-full rounded-xl font-semibold text-sm py-3 px-4',
-                'transition-all duration-200 flex items-center justify-center gap-2',
-                'disabled:opacity-60 disabled:cursor-not-allowed shadow-lg',
-                color,
-            )}
-        >
-            {pending
-                ? <><LoaderCircle className="h-4 w-4 animate-spin" /> {pendingLabel}</>
-                : label
-            }
-        </button>
-    );
-}

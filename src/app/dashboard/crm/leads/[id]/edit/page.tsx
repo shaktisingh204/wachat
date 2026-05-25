@@ -23,11 +23,12 @@ export default async function EditLeadPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [{ lead }, customFields] = await Promise.all([
+  const [{ lead, error }, customFields] = await Promise.all([
     getLead(id),
     getCustomFieldsFor('lead') as Promise<WsCustomField[]>,
   ]);
 
+  if (error) throw new Error(error);
   if (!lead) notFound();
 
   const fullName =

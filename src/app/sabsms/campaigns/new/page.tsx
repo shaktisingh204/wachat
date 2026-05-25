@@ -1,3 +1,4 @@
+import React from "react";
 import { ObjectId } from "mongodb";
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
@@ -74,7 +75,7 @@ function campaignToDraft(
   };
 }
 
-export default async function NewCampaignPage({ searchParams }: PageProps) {
+async function NewCampaignPageContent({ searchParams }: PageProps) {
   const sp = await searchParams;
   const session = await getCachedSession();
   const workspaceId = String((session?.user as any)?._id ?? "");
@@ -161,5 +162,14 @@ export default async function NewCampaignPage({ searchParams }: PageProps) {
         drips={drips}
       />
     </SabsmsPageShell>
+  );
+}
+
+
+export default function NewCampaignPage({ searchParams }: PageProps) {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <NewCampaignPageContent searchParams={searchParams} />
+    </React.Suspense>
   );
 }

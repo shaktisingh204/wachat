@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -402,7 +403,7 @@ export default function BroadcastSegmentsPage() {
                     )}
                 </div>
                 <p className="mt-3 text-[11px] text-zoru-ink-muted">
-                  Created {new Date(seg.createdAt).toLocaleDateString()}
+                  Created {fmtDate(seg.createdAt)}
                 </p>
               </Card>
             );

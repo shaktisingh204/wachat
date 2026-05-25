@@ -35,7 +35,9 @@ import {
   Phone,
   Clock,
   Smartphone,
-  } from 'lucide-react';
+  Battery,
+  MonitorSmartphone,
+} from 'lucide-react';
 
 /**
  * /sabwa/settings — Profile sub-page (default route).
@@ -80,6 +82,9 @@ export default function ProfileSettingsPage() {
   const [lastConnectedAt, setLastConnectedAt] = React.useState<
     string | undefined
   >(undefined);
+  const [deviceMeta, setDeviceMeta] = React.useState<
+    SabwaProfile['deviceMeta'] | undefined
+  >(undefined);
 
   // Track the original pic id so we know when the "Push to WhatsApp" will
   // change the picture (and trigger the confirm dialog).
@@ -97,6 +102,7 @@ export default function ProfileSettingsPage() {
     setPhoneE164(p.phoneE164);
     setStatus(p.status ?? 'pending');
     setLastConnectedAt(p.lastConnectedAt);
+    setDeviceMeta(p.deviceMeta);
   }, []);
 
   React.useEffect(() => {
@@ -109,10 +115,15 @@ export default function ProfileSettingsPage() {
     getProfile(sessionId)
       .then((res) => {
         if (cancelled) return;
-        if (res.ok) hydrate(res.profile);
+        if (res.ok) {
+          hydrate(res.profile);
+        } else {
+          toast.error(res.error || 'Failed to load profile');
+        }
       })
-      .catch(() => {
-        // Phase 1 stubs throw NOT_IMPLEMENTED — leave the form blank.
+      .catch((e) => {
+        if (cancelled) return;
+        toast.error((e as Error).message || 'Failed to load profile');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -250,6 +261,35 @@ export default function ProfileSettingsPage() {
               </span>
             </div>
           </div>
+          {deviceMeta && (
+            <>
+              <div className="space-y-1">
+                <Label className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+                  Device Platform
+                </Label>
+                <div className="flex items-center gap-2 text-sm text-zoru-ink">
+                  <MonitorSmartphone className="h-4 w-4 text-zoru-ink-muted" />
+                  <span>
+                    {deviceMeta.platform ?? 'Unknown'}
+                    {deviceMeta.appVersion ? ` (v${deviceMeta.appVersion})` : ''}
+                  </span>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs uppercase tracking-wide text-zoru-ink-muted">
+                  Battery Level
+                </Label>
+                <div className="flex items-center gap-2 text-sm text-zoru-ink">
+                  <Battery className="h-4 w-4 text-zoru-ink-muted" />
+                  <span>
+                    {deviceMeta.batteryLevel !== undefined
+                      ? `${deviceMeta.batteryLevel}%`
+                      : 'Unknown'}
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
         </ZoruCardContent>
       </Card>
 

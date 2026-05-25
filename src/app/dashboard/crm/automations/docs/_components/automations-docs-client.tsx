@@ -41,6 +41,19 @@ import {
 } from '@/app/actions/crm-automations.actions';
 import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 
+// A small hydration-safe date formatter
+function safeFormatDate(dateStr: string | Date): string {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    // Use ISO string slice to ensure consistent SSR and CSR rendering.
+    // E.g. "2024-03-12"
+    return d.toISOString().split('T')[0];
+  } catch {
+    return String(dateStr);
+  }
+}
+
 /* ── static docs data ───────────────────────────────────────────────────── */
 
 interface BlockDoc {
@@ -346,7 +359,7 @@ export function AutomationsDocsClient({
       a.trigger ?? '',
       String(a.actionsCount ?? 0),
       a.isActive ? 'active' : 'paused',
-      a.lastRunAt ? new Date(a.lastRunAt).toLocaleDateString() : '',
+      a.lastRunAt ? safeFormatDate(a.lastRunAt) : '',
       String(a.runCount ?? 0),
     ]);
     downloadCsv(`automations-${dateStamp()}.csv`, headers, rows);
@@ -500,9 +513,7 @@ export function AutomationsDocsClient({
                           )}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                          {a.lastRunAt
-                            ? new Date(a.lastRunAt).toLocaleDateString()
-                            : '—'}
+                          {a.lastRunAt ? safeFormatDate(a.lastRunAt) : '—'}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                           {a.runCount ?? 0}

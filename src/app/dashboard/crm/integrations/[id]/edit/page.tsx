@@ -1,6 +1,5 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
+import { Suspense } from 'react';
+import { notFound, redirect } from 'next/navigation';
 
 /**
  * Edit integration page — loads the doc by id and passes it to
@@ -12,6 +11,7 @@ import {
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getIntegrationById } from '@/app/actions/crm-integrations.actions';
+import { Skeleton } from '@/components/zoruui';
 
 import { IntegrationForm } from '../../_components/integration-form';
 
@@ -38,7 +38,9 @@ export default async function EditIntegrationPage({
             title={`Edit · ${integration.name}`}
             back={{ href: `${BASE}/${id}`, label: 'Back to detail' }}
         >
-            <IntegrationForm initialData={integration} />
+            <Suspense fallback={<Skeleton className="h-[600px] w-full rounded-md" />}>
+                <IntegrationForm initialData={integration} />
+            </Suspense>
         </EntityDetailShell>
     );
 }

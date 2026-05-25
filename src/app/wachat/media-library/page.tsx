@@ -36,8 +36,6 @@ import {
 
 import * as React from 'react';
 
-export const dynamic = 'force-dynamic';
-
 type MediaItem = {
   _id: string;
   name: string;

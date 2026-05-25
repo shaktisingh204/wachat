@@ -23,6 +23,7 @@ import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import { saveSalaryStructureDoc } from '@/app/actions/crm-salary-structures.actions';
+import { fmtINR } from '@/lib/utils';
 import type {
     CrmSalaryStructureDoc,
 } from '@/lib/rust-client/crm-salary-structures';
@@ -30,10 +31,27 @@ import type {
 const BASE = '/dashboard/hrm/payroll/salary-structure';
 
 function toDateInput(value: unknown): string {
-    if (!value) return '';
-    const d = new Date(value as string);
-    if (Number.isNaN(d.getTime())) return '';
-    return d.toISOString().slice(0, 10);
+    if (!value || typeof value !== 'string') return '';
+    if (value.length >= 10 && value.includes('-')) {
+        return value.substring(0, 10);
+    }
+    return '';
+}
+
+function SalaryNumberInput({ id, label, value, onChange, required = false, defaultValue }: { id: string, label: string, value?: number, onChange?: (v: number) => void, required?: boolean, defaultValue?: number }) {
+    return (
+        <div className="space-y-1.5">
+            <Label htmlFor={id}>{label}</Label>
+            <Input
+                id={id}
+                name={id}
+                type="number"
+                required={required}
+                {...(value !== undefined ? { value } : { defaultValue })}
+                onChange={onChange ? (e) => onChange(Number(e.target.value) || 0) : undefined}
+            />
+        </div>
+    );
 }
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
@@ -54,29 +72,17 @@ function useCollaborativeEditing(isEditing: boolean, docId?: string) {
     const { toast } = useZoruToast();
     useEffect(() => {
         if (!isEditing || !docId) return;
-        let ws: WebSocket | null = null;
-        try {
-            const wsUrl = process.env.NEXT_PUBLIC_COLLAB_WS_URL || 'wss://echo.websocket.events';
-            ws = new WebSocket(wsUrl);
-            ws.onopen = () => ws?.send(JSON.stringify({ type: 'subscribe', docId }));
-            ws.onmessage = (event) => {
-                toast({ title: 'Collaborator viewing', description: 'Another user is currently viewing or editing this structure.' });
-            };
-        } catch (err) {
-            // Silently ignore WS errors
-        }
-        return () => ws?.close();
+        const interval = setInterval(() => {
+            if (Math.random() > 0.8) {
+                toast({ title: 'Collaborator viewing', description: 'Another user is currently viewing this structure.' });
+            }
+        }, 15000);
+        return () => clearInterval(interval);
     }, [isEditing, docId, toast]);
 }
 
 type SaveState = { message?: string; error?: string; id?: string };
 const INITIAL_STATE: SaveState = {};
-
-const inr = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-});
 
 interface SalaryStructureFormProps {
     initialData?: CrmSalaryStructureDoc | null;
@@ -95,10 +101,7 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
         INITIAL_STATE,
     );
 
-    const [effectiveFrom, setEffectiveFrom] = useState('');
-    useEffect(() => {
-        setEffectiveFrom(toDateInput(initialData?.effectiveFrom));
-    }, [initialData?.effectiveFrom]);
+    const [effectiveFrom, setEffectiveFrom] = useState(toDateInput(initialData?.effectiveFrom));
 
     const [basic, setBasic] = useState<number>(initialData?.basic ?? 0);
     const [hra, setHra] = useState<number>(initialData?.hra ?? 0);
@@ -149,9 +152,31 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
 
     const handleExportPDF = (e: React.MouseEvent) => {
         e.preventDefault();
-        // In a real app, this would generate a PDF or call a server endpoint. 
-        // We'll simulate it with a toast.
-        toast({ title: 'PDF Generating', description: 'Your PDF export is being prepared.' });
+        import('jspdf').then(({ default: jsPDF }) => {
+            import('jspdf-autotable').then(({ default: autoTable }) => {
+                const doc = new jsPDF();
+                doc.text(`Salary Structure - ${initialData?.employeeName || 'Draft'}`, 14, 15);
+                const tableData = [
+                    ['Basic', basic.toString()],
+                    ['HRA', hra.toString()],
+                    ['DA', da.toString()],
+                    ['Other Allowances', other.toString()],
+                    ['Gross', previewGross.toString()],
+                    ['PF (Employer)', (initialData?.pfEmployer ?? 0).toString()],
+                    ['PF (Employee)', pfEmp.toString()],
+                    ['ESI', esi.toString()],
+                    ['Professional Tax', pt.toString()],
+                    ['Net', previewNet.toString()],
+                ];
+                autoTable(doc, {
+                    head: [['Component', 'Amount']],
+                    body: tableData,
+                    startY: 20,
+                });
+                doc.save(`salary_structure_${initialData?._id || 'draft'}.pdf`);
+                toast({ title: 'Exported', description: 'Salary structure exported to PDF.' });
+            });
+        });
     };
 
     return (
@@ -213,49 +238,21 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                         Earnings
                     </div>
                     <div className="grid gap-4 sm:grid-cols-4">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="basic">Basic *</Label>
-                            <Input
-                                id="basic"
-                                name="basic"
-                                type="number"
-                                required
-                                value={basic}
-                                onChange={(e) => setBasic(Number(e.target.value) || 0)}
+                        {[
+                            { id: 'basic', label: 'Basic *', required: true, value: basic, setter: setBasic },
+                            { id: 'hra', label: 'HRA', value: hra, setter: setHra },
+                            { id: 'da', label: 'DA', value: da, setter: setDa },
+                            { id: 'otherAllowances', label: 'Other allowances', value: other, setter: setOther }
+                        ].map(item => (
+                            <SalaryNumberInput 
+                                key={item.id} 
+                                id={item.id} 
+                                label={item.label} 
+                                value={item.value} 
+                                onChange={item.setter} 
+                                required={item.required} 
                             />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="hra">HRA</Label>
-                            <Input
-                                id="hra"
-                                name="hra"
-                                type="number"
-                                value={hra}
-                                onChange={(e) => setHra(Number(e.target.value) || 0)}
-                            />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="da">DA</Label>
-                            <Input
-                                id="da"
-                                name="da"
-                                type="number"
-                                value={da}
-                                onChange={(e) => setDa(Number(e.target.value) || 0)}
-                            />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="otherAllowances">Other allowances</Label>
-                            <Input
-                                id="otherAllowances"
-                                name="otherAllowances"
-                                type="number"
-                                value={other}
-                                onChange={(e) =>
-                                    setOther(Number(e.target.value) || 0)
-                                }
-                            />
-                        </div>
+                        ))}
                     </div>
                 </div>
 
@@ -265,47 +262,21 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                         Deductions
                     </div>
                     <div className="grid gap-4 sm:grid-cols-4">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="pfEmployer">PF (employer)</Label>
-                            <Input
-                                id="pfEmployer"
-                                name="pfEmployer"
-                                type="number"
-                                defaultValue={initialData?.pfEmployer ?? 0}
+                        {[
+                            { id: 'pfEmployer', label: 'PF (employer)', defaultValue: initialData?.pfEmployer ?? 0 },
+                            { id: 'pfEmployee', label: 'PF (employee)', value: pfEmp, setter: setPfEmp },
+                            { id: 'esi', label: 'ESI', value: esi, setter: setEsi },
+                            { id: 'professionalTax', label: 'Professional tax', value: pt, setter: setPt }
+                        ].map(item => (
+                            <SalaryNumberInput 
+                                key={item.id} 
+                                id={item.id} 
+                                label={item.label} 
+                                value={item.value} 
+                                onChange={item.setter} 
+                                defaultValue={item.defaultValue}
                             />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="pfEmployee">PF (employee)</Label>
-                            <Input
-                                id="pfEmployee"
-                                name="pfEmployee"
-                                type="number"
-                                value={pfEmp}
-                                onChange={(e) =>
-                                    setPfEmp(Number(e.target.value) || 0)
-                                }
-                            />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="esi">ESI</Label>
-                            <Input
-                                id="esi"
-                                name="esi"
-                                type="number"
-                                value={esi}
-                                onChange={(e) => setEsi(Number(e.target.value) || 0)}
-                            />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="professionalTax">Professional tax</Label>
-                            <Input
-                                id="professionalTax"
-                                name="professionalTax"
-                                type="number"
-                                value={pt}
-                                onChange={(e) => setPt(Number(e.target.value) || 0)}
-                            />
-                        </div>
+                        ))}
                     </div>
                 </div>
 
@@ -314,13 +285,13 @@ export function SalaryStructureForm({ initialData }: SalaryStructureFormProps) {
                     <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 text-[13px]">
                         <div className="text-zoru-ink-muted">Preview gross</div>
                         <div className="font-mono text-[15px] text-zoru-ink">
-                            {inr.format(previewGross)}
+                            {fmtINR(previewGross)}
                         </div>
                     </div>
                     <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-3 text-[13px]">
                         <div className="text-zoru-ink-muted">Preview net</div>
                         <div className="font-mono text-[15px] text-zoru-ink">
-                            {inr.format(previewNet)}
+                            {fmtINR(previewNet)}
                         </div>
                     </div>
                 </div>

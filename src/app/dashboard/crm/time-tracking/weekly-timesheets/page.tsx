@@ -1,7 +1,5 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -75,9 +73,13 @@ import { format, parseISO } from 'date-fns';
 function fmtDate(v: unknown): string {
   if (!v) return '—';
   try {
-    const d = typeof v === 'string' ? parseISO(v) : new Date(v as any);
-    if (Number.isNaN(d.getTime())) return '—';
-    return format(d, 'yyyy-MM-dd');
+    const date = typeof v === 'string' ? parseISO(v) : new Date(v as any);
+    if (Number.isNaN(date.getTime())) return '—';
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getUTCMonth()];
+    const year = date.getUTCFullYear();
+    return `${day} ${month} ${year}`;
   } catch {
     return '—';
   }
@@ -86,9 +88,15 @@ function fmtDate(v: unknown): string {
 function fmtDateTime(v: unknown): string {
   if (!v) return '—';
   try {
-    const d = typeof v === 'string' ? parseISO(v) : new Date(v as any);
-    if (Number.isNaN(d.getTime())) return '—';
-    return format(d, 'PPpp');
+    const date = typeof v === 'string' ? parseISO(v) : new Date(v as any);
+    if (Number.isNaN(date.getTime())) return '—';
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getUTCMonth()];
+    const year = date.getUTCFullYear();
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    return `${day} ${month} ${year} ${hours}:${minutes} UTC`;
   } catch {
     return '—';
   }

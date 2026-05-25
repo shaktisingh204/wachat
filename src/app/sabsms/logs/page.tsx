@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ObjectId } from "mongodb";
+import { FileSearch, Inbox, Eye } from "lucide-react";
 
 import {
   Badge,
@@ -20,12 +22,16 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
+  Dialog,
+  ZoruDialogTrigger,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
 } from "@/components/zoruui";
 import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
 import { connectToDatabase } from "@/lib/mongodb";
 import type { SabsmsMessageStatus } from "@/lib/sabsms/types";
-import { FileSearch, Inbox } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -39,10 +45,12 @@ interface LogRow {
   provider: string;
   segments?: number;
   cost?: number;
+  currency?: string;
   queuedAt?: string;
   sentAt?: string;
   deliveredAt?: string;
   error?: string;
+  rawJson: string;
 }
 
 const PAGE_SIZE = 50;
@@ -50,22 +58,51 @@ const PAGE_SIZE = 50;
 async function loadLogs(
   workspaceId: string,
   statusFilter: string | undefined,
-  page: number,
-): Promise<{ rows: LogRow[]; total: number }> {
+  cursor: string | undefined,
+  dir: "next" | "prev" | undefined,
+): Promise<{ rows: LogRow[]; hasNext: boolean; hasPrev: boolean }> {
   const { db } = await connectToDatabase();
   const col = db.collection(SABSMS_COLLECTIONS.messages);
   const filter: Record<string, unknown> = { workspaceId };
   if (statusFilter) filter.status = statusFilter;
 
-  const [docs, total] = await Promise.all([
-    col
-      .find(filter)
-      .sort({ createdAt: -1 })
-      .skip(page * PAGE_SIZE)
-      .limit(PAGE_SIZE)
-      .toArray(),
-    col.countDocuments(filter),
-  ]);
+  if (cursor) {
+    try {
+      if (dir === "prev") {
+        filter._id = { $gt: new ObjectId(cursor) };
+      } else {
+        filter._id = { $lt: new ObjectId(cursor) };
+      }
+    } catch {
+      // Invalid cursor ignored
+    }
+  }
+
+  const sortDir = dir === "prev" ? 1 : -1;
+
+  const docs = await col
+    .find(filter)
+    .sort({ _id: sortDir })
+    .limit(PAGE_SIZE + 1)
+    .toArray();
+
+  let hasNext = false;
+  let hasPrev = false;
+
+  if (dir === "prev") {
+    if (docs.length > PAGE_SIZE) {
+      hasPrev = true;
+      docs.pop();
+    }
+    docs.reverse();
+    hasNext = true;
+  } else {
+    if (docs.length > PAGE_SIZE) {
+      hasNext = true;
+      docs.pop();
+    }
+    hasPrev = !!cursor;
+  }
 
   const rows: LogRow[] = docs.map((d: any) => ({
     id: String(d._id),
@@ -77,15 +114,17 @@ async function loadLogs(
     provider: d.provider,
     segments: d.segmentsCount,
     cost: d.cost,
+    currency: d.currency,
     queuedAt: d.queuedAt ? new Date(d.queuedAt).toISOString() : undefined,
     sentAt: d.sentAt ? new Date(d.sentAt).toISOString() : undefined,
     deliveredAt: d.deliveredAt
       ? new Date(d.deliveredAt).toISOString()
       : undefined,
     error: d.errorMessage,
+    rawJson: JSON.stringify(d, null, 2),
   }));
 
-  return { rows, total };
+  return { rows, hasNext, hasPrev };
 }
 
 function statusBadge(s: SabsmsMessageStatus) {
@@ -108,9 +147,12 @@ function formatTimestamp(iso?: string): string {
   });
 }
 
-function formatCost(c?: number): string {
+function formatCost(c?: number, currency: string = "USD"): string {
   if (c === undefined || c === null) return "—";
-  return `$${(c / 100).toFixed(4)}`;
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: currency.toUpperCase(),
+  }).format(c / 100);
 }
 
 const FILTERS: Array<{ value: string; label: string }> = [
@@ -124,25 +166,31 @@ const FILTERS: Array<{ value: string; label: string }> = [
 export default async function SabsmsLogsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; page?: string }>;
+  searchParams: Promise<{ status?: string; cursor?: string; dir?: "next" | "prev" }>;
 }) {
   const sp = await searchParams;
   const session = await getCachedSession();
   const workspaceId = String((session?.user as any)?._id ?? "");
   const statusFilter = sp.status || undefined;
-  const page = Math.max(0, parseInt(sp.page ?? "0", 10) || 0);
 
-  const { rows, total } = workspaceId
-    ? await loadLogs(workspaceId, statusFilter, page)
-    : { rows: [], total: 0 };
+  const { rows, hasNext, hasPrev } = workspaceId
+    ? await loadLogs(workspaceId, statusFilter, sp.cursor, sp.dir)
+    : { rows: [], hasNext: false, hasPrev: false };
 
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const buildHref = (next: { status?: string; page?: number }) => {
+  const buildHref = (next: { status?: string; cursor?: string; dir?: "next" | "prev"; clearCursor?: boolean }) => {
     const params = new URLSearchParams();
     const status = next.status ?? statusFilter;
     if (status) params.set("status", status);
-    const p = next.page ?? page;
-    if (p > 0) params.set("page", String(p));
+    
+    if (!next.clearCursor) {
+      if (next.cursor) {
+        params.set("cursor", next.cursor);
+      }
+      if (next.dir) {
+        params.set("dir", next.dir);
+      }
+    }
+
     const q = params.toString();
     return q ? `/sabsms/logs?${q}` : "/sabsms/logs";
   };
@@ -154,14 +202,6 @@ export default async function SabsmsLogsPage({
           <ZoruPageTitle>Message logs</ZoruPageTitle>
           <ZoruPageDescription>
             Every outbound and inbound message written by the engine.
-            {total > 0 && (
-              <>
-                {" "}
-                <span className="text-slate-500">
-                  · {total.toLocaleString()} total
-                </span>
-              </>
-            )}
           </ZoruPageDescription>
         </ZoruPageHeading>
         <ZoruPageActions>
@@ -189,7 +229,7 @@ export default async function SabsmsLogsPage({
                   variant={active ? "default" : "outline"}
                   size="sm"
                 >
-                  <Link href={buildHref({ status: f.value, page: 0 })}>
+                  <Link href={buildHref({ status: f.value, clearCursor: true })}>
                     {f.label}
                   </Link>
                 </Button>
@@ -227,6 +267,7 @@ export default async function SabsmsLogsPage({
                   <ZoruTableHead className="w-[60px] text-right">Seg</ZoruTableHead>
                   <ZoruTableHead className="w-[80px] text-right">Cost</ZoruTableHead>
                   <ZoruTableHead className="w-[150px]">When</ZoruTableHead>
+                  <ZoruTableHead className="w-[50px]"></ZoruTableHead>
                 </ZoruTableRow>
               </ZoruTableHeader>
               <ZoruTableBody>
@@ -254,12 +295,31 @@ export default async function SabsmsLogsPage({
                       {r.segments ?? "—"}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right text-xs">
-                      {formatCost(r.cost)}
+                      {formatCost(r.cost, r.currency)}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-xs text-slate-500">
                       {formatTimestamp(
                         r.deliveredAt || r.sentAt || r.queuedAt,
                       )}
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <Dialog>
+                        <ZoruDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </ZoruDialogTrigger>
+                        <ZoruDialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+                          <ZoruDialogHeader>
+                            <ZoruDialogTitle>Message Payload</ZoruDialogTitle>
+                          </ZoruDialogHeader>
+                          <div className="flex-1 overflow-auto bg-slate-950 p-4 rounded-md mt-4">
+                            <pre className="text-xs text-slate-50 font-mono">
+                              {r.rawJson}
+                            </pre>
+                          </div>
+                        </ZoruDialogContent>
+                      </Dialog>
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ))}
@@ -269,29 +329,34 @@ export default async function SabsmsLogsPage({
         </ZoruCardContent>
       </Card>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-slate-600">
-          <span>
-            Page {page + 1} of {totalPages}
-          </span>
+      {(hasPrev || hasNext) && (
+        <div className="flex items-center justify-end text-sm text-slate-600">
           <div className="flex gap-2">
             <Button
-              asChild
+              asChild={hasPrev}
               variant="outline"
               size="sm"
-              disabled={page === 0}
+              disabled={!hasPrev}
             >
-              <Link href={buildHref({ page: Math.max(0, page - 1) })}>
-                Previous
-              </Link>
+              {hasPrev ? (
+                <Link href={buildHref({ cursor: rows[0]?.id, dir: "prev" })}>
+                  Previous
+                </Link>
+              ) : (
+                <span>Previous</span>
+              )}
             </Button>
             <Button
-              asChild
+              asChild={hasNext}
               variant="outline"
               size="sm"
-              disabled={page + 1 >= totalPages}
+              disabled={!hasNext}
             >
-              <Link href={buildHref({ page: page + 1 })}>Next</Link>
+              {hasNext ? (
+                <Link href={buildHref({ cursor: rows[rows.length - 1]?.id, dir: "next" })}>Next</Link>
+              ) : (
+                <span>Next</span>
+              )}
             </Button>
           </div>
         </div>

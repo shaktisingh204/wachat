@@ -32,23 +32,23 @@ import {
   ZoruCardTitle,
   Checkbox,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Input,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
   useZoruToast,
 } from '@/components/zoruui';
 
@@ -88,11 +88,7 @@ type UrgencyBucket = 'all' | '0-30' | '31-60' | '61-90';
 
 /* ─── Pure helpers ───────────────────────────────────────────────── */
 
-function fmtDate(value: unknown): string {
-  if (!value) return '—';
-  const d = new Date(value as string);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+import { fmtDate } from '@/lib/utils';
 
 function daysBetween(now: Date, then: Date): number {
   const ms = then.getTime() - now.getTime();
@@ -483,15 +479,15 @@ export default function ContractRenewalsPage() {
             value={bucketFilter}
             onValueChange={(v) => setBucketFilter(v as UrgencyBucket)}
           >
-            <ZoruSelectTrigger className="w-44">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All urgency</ZoruSelectItem>
-              <ZoruSelectItem value="0-30">0 – 30 days</ZoruSelectItem>
-              <ZoruSelectItem value="31-60">31 – 60 days</ZoruSelectItem>
-              <ZoruSelectItem value="61-90">61 – 90 days</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger className="w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All urgency</SelectItem>
+              <SelectItem value="0-30">0 – 30 days</SelectItem>
+              <SelectItem value="31-60">31 – 60 days</SelectItem>
+              <SelectItem value="61-90">61 – 90 days</SelectItem>
+            </SelectContent>
           </Select>
           <Select
             value={autoRenewFilter}
@@ -499,14 +495,14 @@ export default function ContractRenewalsPage() {
               setAutoRenewFilter(v as 'all' | 'yes' | 'no')
             }
           >
-            <ZoruSelectTrigger className="w-40">
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">Auto-renew: all</ZoruSelectItem>
-              <ZoruSelectItem value="yes">Auto-renew: on</ZoruSelectItem>
-              <ZoruSelectItem value="no">Auto-renew: off</ZoruSelectItem>
-            </ZoruSelectContent>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Auto-renew: all</SelectItem>
+              <SelectItem value="yes">Auto-renew: on</SelectItem>
+              <SelectItem value="no">Auto-renew: off</SelectItem>
+            </SelectContent>
           </Select>
         </div>
       }
@@ -559,9 +555,9 @@ export default function ContractRenewalsPage() {
 
         <div className="overflow-x-auto rounded-b-lg border-t border-zoru-line">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="w-10">
+            <TableHeader>
+              <TableRow className="border-zoru-line hover:bg-transparent">
+                <TableHead className="w-10">
                   <Checkbox
                     checked={
                       allChecked || (someChecked ? 'indeterminate' : false)
@@ -569,60 +565,60 @@ export default function ContractRenewalsPage() {
                     onCheckedChange={toggleAll}
                     aria-label="Select all visible"
                   />
-                </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                </TableHead>
+                <TableHead className="text-zoru-ink-muted">
                   Title
-                </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                </TableHead>
+                <TableHead className="text-zoru-ink-muted">
                   Counterparty
-                </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                </TableHead>
+                <TableHead className="text-zoru-ink-muted">
                   Type
-                </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                </TableHead>
+                <TableHead className="text-zoru-ink-muted">
                   Expiry
-                </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                </TableHead>
+                <TableHead className="text-zoru-ink-muted">
                   Days left
-                </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">
+                </TableHead>
+                <TableHead className="text-zoru-ink-muted">
                   Auto-renew
-                </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted text-right">
+                </TableHead>
+                <TableHead className="text-zoru-ink-muted text-right">
                   Open
-                </ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {loading ? (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell
+                <TableRow className="border-zoru-line">
+                  <TableCell
                     colSpan={8}
                     className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     Loading renewals…
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </TableCell>
+                </TableRow>
               ) : loadError ? (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell
+                <TableRow className="border-zoru-line">
+                  <TableCell
                     colSpan={8}
                     className="h-24 text-center text-[13px] text-red-500"
                   >
                     {loadError}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </TableCell>
+                </TableRow>
               ) : filtered.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell
+                <TableRow className="border-zoru-line">
+                  <TableCell
                     colSpan={8}
                     className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     {rows.length === 0
                       ? `Nothing expiring in the next ${RENEWAL_WINDOW_DAYS} days.`
                       : 'No contracts match your filters.'}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </TableCell>
+                </TableRow>
               ) : (
                 filtered.map((c) => {
                   const expiry = c.expiryDate
@@ -635,46 +631,46 @@ export default function ContractRenewalsPage() {
                   const counterparty =
                     c.partyB ?? c.counterparty ?? c.partyName ?? '—';
                   return (
-                    <ZoruTableRow
+                    <TableRow
                       key={c._id}
                       className="border-zoru-line"
                     >
-                      <ZoruTableCell>
+                      <TableCell>
                         <Checkbox
                           checked={selected.has(c._id)}
                           onCheckedChange={() => toggleOne(c._id)}
                           aria-label={`Select ${c.title ?? c._id}`}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="font-medium text-zoru-ink">
+                      </TableCell>
+                      <TableCell className="font-medium text-zoru-ink">
                         <EntityRowLink
                           href={`${CONTRACTS_BASE}/${c._id}`}
                           label={c.title ?? 'Untitled contract'}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      </TableCell>
+                      <TableCell className="text-zoru-ink">
                         {counterparty}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      </TableCell>
+                      <TableCell className="text-zoru-ink">
                         {c.contractType ?? '—'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
+                      </TableCell>
+                      <TableCell className="text-zoru-ink">
                         {fmtDate(c.expiryDate)}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </TableCell>
+                      <TableCell>
                         <StatusPill
                           label={urgencyLabel(daysLeft)}
                           tone={urgencyTone(daysLeft)}
                         />
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </TableCell>
+                      <TableCell>
                         {c.autoRenew ? (
                           <Badge variant="success">On</Badge>
                         ) : (
                           <Badge variant="ghost">Off</Badge>
                         )}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </TableCell>
+                      <TableCell className="text-right">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -685,24 +681,24 @@ export default function ContractRenewalsPage() {
                             <ArrowRight className="ml-1 h-3.5 w-3.5" />
                           </Link>
                         </Button>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </TableCell>
+                    </TableRow>
                   );
                 })
               )}
-            </ZoruTableBody>
+            </TableBody>
           </Table>
         </div>
       </Card>
 
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Automated Renewal Reminders</ZoruDialogTitle>
-            <ZoruDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Automated Renewal Reminders</DialogTitle>
+            <DialogDescription>
               Configure background email reminders for contracts approaching their expiry date.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+            </DialogDescription>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="flex items-center gap-3">
               <Checkbox id="enableAuto" defaultChecked={true} />
@@ -724,14 +720,14 @@ export default function ContractRenewalsPage() {
               </label>
             </div>
           </div>
-          <ZoruDialogFooter>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setShowSettings(false)}>Cancel</Button>
             <Button onClick={() => {
               toast({ title: 'Settings saved', description: 'Automated renewal reminders have been configured.' });
               setShowSettings(false);
             }}>Save preferences</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </EntityListShell>
   );

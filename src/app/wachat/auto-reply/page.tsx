@@ -50,8 +50,6 @@ import { OptInOutForm } from '@/app/wachat/_components/opt-in-out-form';
 
 import * as React from 'react';
 
-export const dynamic = 'force-dynamic';
-
 const RULE_TYPES = [
   {
     key: 'welcomeMessage',

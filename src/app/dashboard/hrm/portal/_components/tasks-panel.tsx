@@ -57,11 +57,7 @@ function ClientDate({ iso }: { iso: string | null }) {
             setDateStr('—');
             return;
         }
-        setDateStr(new Date(iso).toLocaleDateString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-        }));
+        setDateStr(fmtDate(iso));
     }, [iso]);
 
     return <>{dateStr}</>;
@@ -96,16 +92,8 @@ function exportToPDF(data: any[], filename: string) {
     URL.revokeObjectURL(url);
 }
 
-// ─── Realtime Hook Placeholder ────────────────────────────────────────────────
-
-function useRealtimeUpdates(onUpdate: () => void) {
-    useEffect(() => {
-        const interval = setInterval(() => {
-            // onUpdate(); // Simulation placeholder
-        }, 30000);
-        return () => clearInterval(interval);
-    }, [onUpdate]);
-}
+import { useRealtimeUpdates } from './use-realtime';
+import { fmtDate } from '@/lib/utils';
 
 // ─── My Tasks (assigned to me) ────────────────────────────────────────────────
 
@@ -124,7 +112,7 @@ export function MyTasksTable({ tasks, onRefresh }: MyTasksTableProps) {
             state.map(task => completedTaskIds.includes(task._id) ? { ...task, status: 'Completed' } : task)
     );
 
-    useRealtimeUpdates(() => {
+    useRealtimeUpdates('portal-tasks', () => {
         if (onRefresh) onRefresh();
     });
 
@@ -410,6 +398,9 @@ export function MyCreatedTasksTable({ tasks }: MyCreatedTasksTableProps) {
                 <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={handleExportCSV}>
                         <Download className="mr-1.5 h-4 w-4" /> CSV
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => exportToPDF(filteredTasks, 'Assigned_Tasks')}>
+                        <FileText className="mr-1.5 h-4 w-4" /> PDF
                     </Button>
                 </div>
             </div>

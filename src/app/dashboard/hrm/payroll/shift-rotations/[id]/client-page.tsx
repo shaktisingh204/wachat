@@ -30,6 +30,7 @@ import {
   saveShiftRotation,
   saveRotationSequence,
   deleteRotationSequence,
+  getRotationSequences,
 } from '@/app/actions/worksuite/shifts.actions';
 import type {
   WsShiftRotation,
@@ -96,6 +97,49 @@ function AddSequenceForm({
   );
 }
 
+function RotationDetailsForm({
+  rotation,
+  saveRotationField,
+}: {
+  rotation: WsShiftRotation;
+  saveRotationField: (partial: Partial<WsShiftRotation>) => void;
+}) {
+  return (
+    <Card className="p-6 mb-6">
+      <h2 className="mb-3 text-[16px] text-zoru-ink">Rotation Details</h2>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-[12px] text-zoru-ink-muted">Name</Label>
+          <Input
+            defaultValue={rotation.name}
+            onBlur={(e) =>
+              e.target.value !== rotation.name &&
+              saveRotationField({ name: e.target.value })
+            }
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-[12px] text-zoru-ink-muted">Description</Label>
+          <Input
+            defaultValue={rotation.description}
+            onBlur={(e) =>
+              e.target.value !== rotation.description &&
+              saveRotationField({ description: e.target.value })
+            }
+          />
+        </div>
+        <label className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink w-fit">
+          <Checkbox
+            checked={rotation.is_active}
+            onCheckedChange={(v) => saveRotationField({ is_active: Boolean(v) })}
+          />
+          <span>Active</span>
+        </label>
+      </div>
+    </Card>
+  );
+}
+
 export default function ShiftRotationClient({
   id,
   initialRotation,
@@ -113,15 +157,55 @@ export default function ShiftRotationClient({
   const [pending, startTransition] = useTransition();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState<'default' | 'duration-asc' | 'duration-desc'>('default');
   const [selectedSequences, setSelectedSequences] = useState<Set<string>>(new Set());
 
-  // Mock Real-time updates
+  // Real-time updates via WebSockets (Collaborative Editing)
   useEffect(() => {
-    const interval = setInterval(() => {
-      // Mock background polling for collaborative updates. In a real app this would fetch or use WS.
+    // Setup standard WebSocket connection
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || `wss://${window.location.host}/api/ws`;
+    let ws: WebSocket;
+    
+    try {
+      ws = new WebSocket(wsUrl);
+      
+      ws.onmessage = async (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'ROTATION_UPDATED' && data.rotationId === id) {
+            // Re-fetch sequences from server action
+            const updatedSequences = await getRotationSequences(id);
+            setSequences(updatedSequences);
+            toast({ title: 'Real-time update', description: 'Rotation was modified by another user.', variant: 'info' });
+          }
+        } catch (e) {
+          // Ignore parse errors
+        }
+      };
+    } catch (err) {
+      console.warn('WebSocket could not be connected', err);
+    }
+
+    // Fallback polling if WS is unavailable
+    const interval = setInterval(async () => {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        try {
+          const updatedSequences = await getRotationSequences(id);
+          // Only update if there is a length or content difference (simple length check for mock)
+          if (updatedSequences.length !== sequences.length) {
+            setSequences(updatedSequences);
+          }
+        } catch (e) {
+          // Ignore polling errors
+        }
+      }
     }, 15000);
-    return () => clearInterval(interval);
-  }, [id]);
+
+    return () => {
+      clearInterval(interval);
+      if (ws) ws.close();
+    };
+  }, [id, sequences.length, toast]);
 
   const saveRotationField = (partial: Partial<WsShiftRotation>) => {
     startTransition(async () => {
@@ -209,13 +293,26 @@ export default function ShiftRotationClient({
   
   // Memoized Filtering & Calculations
   const filteredSequences = useMemo(() => {
-    if (!searchQuery.trim()) return sequences;
-    const lowerQ = searchQuery.toLowerCase();
-    return sequences.filter(seq => {
-      const sh = shiftById(seq.shift_id);
-      return sh?.name.toLowerCase().includes(lowerQ);
-    });
-  }, [sequences, searchQuery, shiftById]);
+    let result = sequences;
+    if (searchQuery.trim()) {
+      const lowerQ = searchQuery.toLowerCase();
+      result = result.filter(seq => {
+        const sh = shiftById(seq.shift_id);
+        return sh?.name.toLowerCase().includes(lowerQ);
+      });
+    }
+
+    if (sortOrder === 'duration-asc') {
+      result = [...result].sort((a, b) => Number(a.duration_days) - Number(b.duration_days));
+    } else if (sortOrder === 'duration-desc') {
+      result = [...result].sort((a, b) => Number(b.duration_days) - Number(a.duration_days));
+    } else {
+      // default: sequence_order
+      result = [...result].sort((a, b) => Number(a.sequence_order) - Number(b.sequence_order));
+    }
+
+    return result;
+  }, [sequences, searchQuery, shiftById, sortOrder]);
   
   const totalCycle = useMemo(() => sequences.reduce((acc, s) => acc + Number(s.duration_days ?? 0), 0), [sequences]);
 
@@ -275,38 +372,7 @@ export default function ShiftRotationClient({
 
   return (
     <>
-      <Card className="p-6 mb-6">
-        <h2 className="mb-3 text-[16px] text-zoru-ink">Rotation Details</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-[12px] text-zoru-ink-muted">Name</Label>
-            <Input
-              defaultValue={rotation.name}
-              onBlur={(e) =>
-                e.target.value !== rotation.name &&
-                saveRotationField({ name: e.target.value })
-              }
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-[12px] text-zoru-ink-muted">Description</Label>
-            <Input
-              defaultValue={rotation.description}
-              onBlur={(e) =>
-                e.target.value !== rotation.description &&
-                saveRotationField({ description: e.target.value })
-              }
-            />
-          </div>
-          <label className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink w-fit">
-            <Checkbox
-              checked={rotation.is_active}
-              onCheckedChange={(v) => saveRotationField({ is_active: Boolean(v) })}
-            />
-            <span>Active</span>
-          </label>
-        </div>
-      </Card>
+      <RotationDetailsForm rotation={rotation} saveRotationField={saveRotationField} />
 
       <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -327,14 +393,26 @@ export default function ShiftRotationClient({
         </div>
 
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 bg-zoru-surface-2 p-3 rounded-lg border border-zoru-line">
-          <div className="relative w-full max-w-xs">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
-            <Input 
-              placeholder="Filter by shift name..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8"
-            />
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative w-full max-w-xs">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+              <Input 
+                placeholder="Filter by shift name..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8"
+              />
+            </div>
+            <Select value={sortOrder} onValueChange={(v: any) => setSortOrder(v)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Order (Default)</SelectItem>
+                <SelectItem value="duration-asc">Duration (Asc)</SelectItem>
+                <SelectItem value="duration-desc">Duration (Desc)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           {selectedSequences.size > 0 && (
             <Button variant="outline" className="text-zoru-danger-ink" onClick={bulkDelete} disabled={pending}>

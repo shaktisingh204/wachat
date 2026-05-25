@@ -144,6 +144,7 @@ const INDEXES: Record<
   suppressions: [
     [{ workspaceId: 1, phoneHash: 1 }, { unique: true }],
     [{ workspaceId: 1, source: 1, createdAt: -1 }],
+    [{ expiresAt: 1 }, { expireAfterSeconds: 0 }],
   ],
   consentLog: [
     [{ workspaceId: 1, phoneHash: 1, createdAt: -1 }],
@@ -285,6 +286,8 @@ export const SabsmsNumberSchema = z.object({
   }),
   status: z.enum(['active', 'pending', 'releasing', 'released']),
   monthlyCost: z.number().optional(),
+  webhookUrl: z.string().optional(),
+  routingUrl: z.string().optional(),
   createdAt: z.date(),
   releasedAt: z.date().optional(),
 });
@@ -458,6 +461,7 @@ export const SabsmsSuppressionSchema = z.object({
   source: SabsmsSuppressionSourceSchema,
   reason: z.string().optional(),
   createdAt: z.date(),
+  expiresAt: z.date().optional(),
 });
 
 export const SabsmsConsentEventSchema = z.object({

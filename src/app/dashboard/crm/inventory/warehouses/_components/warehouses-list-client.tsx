@@ -141,7 +141,7 @@ export function WarehousesListClient() {
     // KPI "climate-controlled" works as a client predicate (no server flag yet).
     const displayedRows = React.useMemo(() => {
         if (!climateOnly) return rows;
-        return rows.filter((w) => !!(w as any).climateControlled);
+        return rows.filter((w) => !!w.climateControlled);
     }, [rows, climateOnly]);
 
     const hasActiveFilters =
@@ -185,8 +185,8 @@ export function WarehousesListClient() {
     async function handleConfirmArchive() {
         if (!archiveTargetId || !archiveTarget) return;
         const archived =
-            !!(archiveTarget as any).archived ||
-            ((archiveTarget as any).status as string)?.toLowerCase() ===
+            !!archiveTarget.archived ||
+            archiveTarget.status?.toLowerCase() ===
                 'archived';
         const res = archived
             ? await unarchiveCrmWarehouse(archiveTargetId)
@@ -268,10 +268,10 @@ export function WarehousesListClient() {
                 type: w.type,
                 city: w.city,
                 managerName: w.managerName,
-                capacityUnits: (w as any).capacityUnits,
-                capacitySqft: (w as any).capacitySqft,
+                capacityUnits: w.capacityUnits,
+                capacitySqft: w.capacitySqft,
                 isDefault: w.isDefault,
-                status: (w as any).status,
+                status: w.status,
             })),
         );
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -417,17 +417,17 @@ export function WarehousesListClient() {
                 open={!!archiveTargetId}
                 onOpenChange={(o) => !o && setArchiveTargetId(null)}
                 title={
-                    (archiveTarget as any)?.archived
+                    archiveTarget?.archived
                         ? 'Restore this warehouse?'
                         : 'Archive this warehouse?'
                 }
                 description={
-                    (archiveTarget as any)?.archived
+                    archiveTarget?.archived
                         ? `"${archiveTarget?.name}" will be restored to your active list.`
                         : `"${archiveTarget?.name}" will be hidden from default views. You can restore it later.`
                 }
                 confirmLabel={
-                    (archiveTarget as any)?.archived ? 'Restore' : 'Archive'
+                    archiveTarget?.archived ? 'Restore' : 'Archive'
                 }
                 confirmTone="primary"
                 onConfirm={handleConfirmArchive}

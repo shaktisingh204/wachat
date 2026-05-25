@@ -14,6 +14,27 @@ const mockHistoryData = [
 ];
 
 export function ProductHistoryGraph() {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <Card className="mt-6">
+        <ZoruCardHeader>
+          <ZoruCardTitle className="text-lg">Price & Stock History</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent className="h-64 flex items-center justify-center bg-zinc-50 dark:bg-zinc-900/50">
+          <div className="flex flex-col items-center gap-2">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-zoru-ink border-t-transparent" />
+            <span className="text-sm text-zoru-ink-muted">Loading chart...</span>
+          </div>
+        </ZoruCardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="mt-6">
       <ZoruCardHeader>

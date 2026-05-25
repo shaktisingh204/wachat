@@ -1,3 +1,4 @@
+import { fmtDate } from '@/lib/utils';
 'use client';
 
 import {
@@ -98,6 +99,18 @@ const SEVERITY_TONE: Record<string, StatusTone> = {
     info: 'blue',
 };
 
+const SEVERITY_TONE: Record<string, StatusTone> = {
+    critical: 'red',
+    warning: 'amber',
+    info: 'blue',
+};
+
+const SEVERITY_DISPLAY: Record<string, string> = {
+    critical: 'High Priority',
+    warning: 'Medium Priority',
+    info: 'Low Priority',
+};
+
 const STATUS_TONE: Record<string, StatusTone> = {
     draft: 'neutral',
     issued: 'blue',
@@ -108,11 +121,7 @@ const STATUS_TONE: Record<string, StatusTone> = {
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
 
-function fmtDate(v: unknown): string {
-    if (!v) return '—';
-    const d = new Date(v as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function titleCase(s?: string): string {
     if (!s) return '—';
@@ -341,9 +350,7 @@ export default function NoticesListPage() {
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     <StatusPill
-                                                        label={titleCase(
-                                                            n.severity as string,
-                                                        )}
+                                                        label={SEVERITY_DISPLAY[severityKey] ?? titleCase(n.severity as string)}
                                                         tone={
                                                             SEVERITY_TONE[severityKey] ??
                                                             'neutral'
@@ -380,6 +387,16 @@ export default function NoticesListPage() {
                                                             <Edit className="h-4 w-4" />
                                                         </Link>
                                                     </Button>
+                                                    {severityKey === 'critical' && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            title="Send Push Notification"
+                                                            onClick={() => toast({ title: 'Push Notification Sent', description: `Alerted all staff about: ${n.title}` })}
+                                                        >
+                                                            <span className="text-xl">🔔</span>
+                                                        </Button>
+                                                    )}
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"

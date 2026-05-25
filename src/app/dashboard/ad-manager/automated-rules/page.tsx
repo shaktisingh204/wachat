@@ -47,6 +47,27 @@ const ACTION_TYPES = ['PAUSE', 'UNPAUSE', 'CHANGE_BUDGET'] as const;
 const METRIC_FIELDS = ['spend', 'cpc', 'ctr', 'impressions', 'reach'] as const;
 const OPERATORS = ['GREATER_THAN', 'LESS_THAN'] as const;
 
+const RULE_TEMPLATES = [
+  {
+    name: 'Stop Loss',
+    entityType: 'AD',
+    actionType: 'PAUSE',
+    conditions: [
+      { metricField: 'spend', operator: 'GREATER_THAN', value: '50' },
+      { metricField: 'ctr', operator: 'LESS_THAN', value: '1' }
+    ]
+  },
+  {
+    name: 'Scale Winners',
+    entityType: 'CAMPAIGN',
+    actionType: 'CHANGE_BUDGET',
+    conditions: [
+      { metricField: 'cpc', operator: 'LESS_THAN', value: '0.5' },
+      { metricField: 'ctr', operator: 'GREATER_THAN', value: '3' }
+    ]
+  }
+];
+
 export default function AutomatedRulesPage() {
     const { activeAccount } = useAdManager();
     const { toast } = useToast();
@@ -63,6 +84,32 @@ export default function AutomatedRulesPage() {
     const [conditions, setConditions] = React.useState<Array<{ metricField: string; operator: string; value: string }>>([
         { metricField: 'spend', operator: 'GREATER_THAN', value: '' }
     ]);
+    const [mockData, setMockData] = React.useState<Record<string, string>>({
+        spend: '100',
+        cpc: '1.5',
+        ctr: '2',
+        impressions: '1000',
+        reach: '800'
+    });
+
+    const evaluatePreview = () => {
+        if (!conditions || conditions.length === 0) return null;
+        let isComplete = true;
+        const result = conditions.every(c => {
+            if (!c.value) {
+                isComplete = false;
+                return false;
+            }
+            const actual = Number(mockData[c.metricField]);
+            const target = Number(c.value);
+            if (isNaN(actual) || isNaN(target)) return false;
+            if (c.operator === 'GREATER_THAN') return actual > target;
+            if (c.operator === 'LESS_THAN') return actual < target;
+            return false;
+        });
+        if (!isComplete) return null;
+        return result;
+    };
 
     const fetchRules = React.useCallback(async () => {
         if (!activeAccount) return;
@@ -237,6 +284,27 @@ export default function AutomatedRulesPage() {
                     </ZoruDialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
+                            <Label>Templates</Label>
+                            <div className="flex flex-wrap gap-2">
+                                {RULE_TEMPLATES.map((t) => (
+                                    <Button 
+                                        key={t.name} 
+                                        variant="outline" 
+                                        size="sm" 
+                                        onClick={() => {
+                                            setName(t.name);
+                                            setEntityType(t.entityType);
+                                            setActionType(t.actionType);
+                                            setConditions([...t.conditions]);
+                                        }}
+                                    >
+                                        {t.name}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
                             <Label>Rule name *</Label>
                             <Input placeholder="e.g. Pause low CTR campaigns" value={name} onChange={e => setName(e.target.value)} />
                         </div>
@@ -332,6 +400,32 @@ export default function AutomatedRulesPage() {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+                        
+                        <div className="space-y-3 border p-4 rounded-lg bg-secondary/30">
+                            <Label className="text-base font-medium">Logic Preview</Label>
+                            <div className="grid grid-cols-5 gap-2">
+                                {METRIC_FIELDS.map(m => (
+                                    <div key={m} className="space-y-1">
+                                        <Label className="text-xs uppercase">{m}</Label>
+                                        <Input 
+                                            className="text-xs h-8"
+                                            value={mockData[m] || ''}
+                                            onChange={e => setMockData(prev => ({...prev, [m]: e.target.value}))}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-2 flex items-center gap-2 text-sm">
+                                <span>Preview Result:</span>
+                                {evaluatePreview() === true ? (
+                                    <Badge className="bg-green-500">Will Trigger</Badge>
+                                ) : evaluatePreview() === false ? (
+                                    <Badge variant="secondary">Will Not Trigger</Badge>
+                                ) : (
+                                    <Badge variant="outline">Incomplete Conditions</Badge>
+                                )}
+                            </div>
                         </div>
                     </div>
                     <ZoruDialogFooter>

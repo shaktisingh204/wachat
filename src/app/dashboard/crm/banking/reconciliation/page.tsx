@@ -20,6 +20,9 @@ import { getSession } from '@/app/actions/user.actions';
 import { ObjectId } from 'mongodb';
 import { ReconciliationListClient } from './_components/reconciliation-list-client';
 
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/zoruui';
+
 export const dynamic = 'force-dynamic';
 
 async function listReconciliations() {
@@ -40,12 +43,16 @@ async function listReconciliations() {
   }
 }
 
-export default async function BankReconciliationPage() {
+async function BankReconciliationData() {
   const [kpis, records] = await Promise.all([
     getCrmReconciliationKpis(),
     listReconciliations(),
   ]);
 
+  return <ReconciliationListClient kpis={kpis} records={records} />;
+}
+
+export default function BankReconciliationPage() {
   return (
     <EntityListShell
       title="Bank Reconciliation"
@@ -59,7 +66,9 @@ export default async function BankReconciliationPage() {
         </Button>
       }
     >
-      <ReconciliationListClient kpis={kpis} records={records} />
+      <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+        <BankReconciliationData />
+      </Suspense>
     </EntityListShell>
   );
 }

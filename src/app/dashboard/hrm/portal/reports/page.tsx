@@ -28,16 +28,14 @@ import { ReportsInboxTable } from './_components/reports-inbox-table';
 import { HistoryTable } from './_components/history-table';
 import { ReportsFilter } from './_components/reports-filter';
 import { ReportsErrorBoundary } from './_components/error-boundary';
+import { ReportsKpiStripSkeleton } from './_components/reports-kpi-strip';
+import { HistoryTableSkeleton } from './_components/history-table';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 // ─── CSV/PDF export helpers ───────────────────────────────────────────────────
 
-function fmtDate(iso: string | undefined): string {
-  if (!iso) return '';
-  const d = new Date(iso);
-  return isNaN(d.getTime()) ? '' : d.toLocaleString();
-}
+import { fmtDate } from '@/lib/utils';
 
 function escapeCsv(v: string): string {
   if (v.includes(',') || v.includes('"') || v.includes('\n')) {
@@ -109,8 +107,15 @@ export type StatusFilter = 'all' | 'unacknowledged' | 'acknowledged';
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function TaskReportsPage() {
+  return (
+    <ReportsErrorBoundary>
+      <TaskReportsContent />
+    </ReportsErrorBoundary>
+  );
+}
+
+function TaskReportsContent() {
   const { toast } = useZoruToast();
-  const [mounted, setMounted] = React.useState(false);
 
   // View selector: 'inbox' | 'history'
   const [view, setView] = React.useState<'inbox' | 'history'>('inbox');
@@ -118,14 +123,11 @@ export default function TaskReportsPage() {
 
   // Inbox state
   const [inboxReports, setInboxReports] = React.useState<HrmTaskReport[]>([]);
-  const [kpis, setKpis] = React.useState<KpiItem[]>([]);
+  const [kpisPromise, setKpisPromise] = React.useState<Promise<KpiItem[]> | null>(null);
   const [inboxLoading, setInboxLoading] = React.useState(true);
-  const [kpisLoading, setKpisLoading] = React.useState(true);
-  const [error, setError] = React.useState<Error | null>(null);
 
   // History state
-  const [historyReports, setHistoryReports] = React.useState<HrmTaskReport[]>([]);
-  const [historyLoading, setHistoryLoading] = React.useState(true);
+  const [historyPromise, setHistoryPromise] = React.useState<Promise<HrmTaskReport[]> | null>(null);
 
   // Filters
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
@@ -141,46 +143,32 @@ export default function TaskReportsPage() {
   const [bulkAcking, setBulkAcking] = React.useState(false);
   const [exporting, setExporting] = React.useState(false);
 
-  // ── Initial load & Mismatch fix ──────────────────────────────────────────
+  // ── Initial load ──────────────────────────────────────────
 
   React.useEffect(() => {
-    setMounted(true);
+    const kpisP = getReportKpis();
+    setKpisPromise(kpisP);
+    
+    const historyP = getMyCompletionHistory();
+    setHistoryPromise(historyP);
+
     void (async () => {
       try {
-        const [reports, reportKpis, directReports] = await Promise.all([
+        const [reports, directReports] = await Promise.all([
           getMyTaskReports(),
-          getReportKpis(),
           getMyDirectReports(),
         ]);
         setInboxReports(reports);
-        setKpis(reportKpis);
         const hasReports = directReports.length > 0;
         setHasDirectReports(hasReports);
         if (!hasReports) setView('history');
       } catch (err) {
-        setError(err instanceof Error ? err : new Error(String(err)));
+        toast({ title: 'Error', description: String(err), variant: 'destructive' });
       } finally {
         setInboxLoading(false);
-        setKpisLoading(false);
       }
     })();
-
-    void (async () => {
-      try {
-        const history = await getMyCompletionHistory();
-        setHistoryReports(history);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error(String(err)));
-      } finally {
-        setHistoryLoading(false);
-      }
-    })();
-  }, []);
-
-  // Throw to boundary if explicit error during mount fetching
-  if (error) {
-    throw error;
-  }
+  }, [toast]);
 
   // ── Real-time collaborative updates (Mocked WebSocket) ───────────────────
 
@@ -210,16 +198,17 @@ export default function TaskReportsPage() {
           : statusFilter === 'acknowledged'
             ? true
             : false;
-      const [reports, reportKpis] = await Promise.all([
+      const [reports, reportKpisP] = await Promise.all([
         getMyTaskReports({
           acknowledged: ack,
           from: fromDate || undefined,
           to: toDate || undefined,
         }),
-        getReportKpis(),
+        getReportKpis(), // We trigger the fetch
       ]);
       setInboxReports(reports);
-      setKpis(reportKpis);
+      // For KPI we set a new resolved promise to update it
+      setKpisPromise(Promise.resolve(reportKpisP));
     } catch (err) {
       toast({ title: 'Refresh failed', description: String(err), variant: 'destructive' });
     } finally {
@@ -228,8 +217,8 @@ export default function TaskReportsPage() {
   }, [statusFilter, fromDate, toDate, toast]);
 
   React.useEffect(() => {
-    if (view === 'inbox' && mounted) void refreshInbox();
-  }, [view, refreshInbox, mounted]);
+    if (view === 'inbox') void refreshInbox();
+  }, [view, refreshInbox]);
 
   // ── Worker search filter (client-side) ──────────────────────────────────
 
@@ -351,15 +340,10 @@ export default function TaskReportsPage() {
     });
   }, [filteredInbox]);
 
-  if (!mounted) {
-    return <div className="p-6">Loading...</div>; // Prevent hydration mismatch entirely
-  }
-
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <ReportsErrorBoundary>
-      <div className="space-y-6 p-6">
+    <div className="space-y-6 p-6">
         {/* Header */}
         <div>
           <h1 className="text-[20px] font-semibold text-zoru-ink">Task Reports</h1>
@@ -396,8 +380,8 @@ export default function TaskReportsPage() {
         {view === 'inbox' && (
           <div className="space-y-5">
             {/* KPI strip */}
-            <React.Suspense fallback={<div className="h-20 bg-zoru-surface animate-pulse rounded-lg" />}>
-              <ReportsKpiStrip kpis={kpis} loading={kpisLoading} />
+            <React.Suspense fallback={<ReportsKpiStripSkeleton />}>
+              {kpisPromise && <ReportsKpiStrip kpisPromise={kpisPromise} />}
             </React.Suspense>
 
             {/* Filter row */}
@@ -498,12 +482,11 @@ export default function TaskReportsPage() {
             <p className="text-[13px] text-zoru-ink-muted">
               Tasks you have completed. Read-only — your manager will acknowledge each entry.
             </p>
-            <React.Suspense fallback={<div className="h-64 bg-zoru-surface animate-pulse rounded-lg" />}>
-              <HistoryTable reports={historyReports} loading={historyLoading} />
+            <React.Suspense fallback={<HistoryTableSkeleton />}>
+              {historyPromise && <HistoryTable reportsPromise={historyPromise} />}
             </React.Suspense>
           </div>
         )}
       </div>
-    </ReportsErrorBoundary>
   );
 }

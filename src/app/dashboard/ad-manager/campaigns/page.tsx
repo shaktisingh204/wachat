@@ -1,8 +1,7 @@
 'use client';
 
-import { Button, Card, Badge } from '@/components/zoruui';
-import {
-  useRouter } from 'next/navigation';
+import { Button, Card, Badge, Input } from '@/components/zoruui';
+import { useRouter } from 'next/navigation';
 import {
   Megaphone,
   Play,
@@ -14,11 +13,12 @@ import {
   Plus,
   Edit2,
   Check,
-  X } from 'lucide-react';
+  X,
+  RefreshCw,
+  AlertCircle
+} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { Input } from '@/components/zoruui';
-
 import * as React from 'react';
 
 import { useAdManager } from '@/context/ad-manager-context';
@@ -29,8 +29,21 @@ import {
   updateEntityStatus,
   deleteCampaign,
   duplicateCampaign,
+  updateCampaign,
+  getInsights
 } from '@/app/actions/ad-manager.actions';
 import { formatMoney, formatNumber } from '@/components/wabasimplify/ad-manager/constants';
+import { QueryClient, QueryClientProvider, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 /* ── Types ─────────────────────────────────────────────────────── */
 
@@ -49,6 +62,7 @@ type Campaign = {
   cost_per_result?: number;
   spend?: string;
   created_time?: string;
+  roas?: number;
 };
 
 /* ── Helpers ───────────────────────────────────────────────────── */
@@ -147,6 +161,28 @@ function NoAccountState() {
   );
 }
 
+/* ── Error state ──────────────────────────────────────────── */
+
+function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
+        <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-500" strokeWidth={2} />
+      </div>
+      <div>
+        <p className="text-[15px] font-semibold text-foreground">Failed to load campaigns</p>
+        <p className="mt-1 max-w-sm text-[13px] text-muted-foreground leading-relaxed">
+          {error}
+        </p>
+      </div>
+      <Button size="sm" onClick={onRetry}>
+        <RefreshCw className="mr-2 h-4 w-4" />
+        Retry
+      </Button>
+    </div>
+  );
+}
+
 /* ── Row actions dropdown ──────────────────────────────────────── */
 
 function RowActions({
@@ -237,45 +273,88 @@ function RowActions({
   );
 }
 
-/* ── Main page ─────────────────────────────────────────────────── */
+/* ── Main content ─────────────────────────────────────────────────── */
 
-export default function CampaignsPage() {
+function CampaignsContent() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { activeAccount, isLoading: accountLoading } = useAdManager();
   const { search } = useAdManagerShell();
 
-  const [campaigns, setCampaigns] = React.useState<Campaign[]>([]);
-  const [loading, setLoading] = React.useState(true);
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('ALL');
+  const [minRoasFilter, setMinRoasFilter] = React.useState<string>('');
   const [maxCpaFilter, setMaxCpaFilter] = React.useState<string>('');
-  const [refreshKey, setRefreshKey] = React.useState(0);
   const [actionLoading, setActionLoading] = React.useState<string | null>(null);
   
   const [editingBudgetId, setEditingBudgetId] = React.useState<string | null>(null);
   const [editingBudgetValue, setEditingBudgetValue] = React.useState<string>('');
 
-  /* Fetch campaigns */
-  React.useEffect(() => {
-    if (!activeAccount) {
-      setCampaigns([]);
-      setLoading(false);
-      return;
+  const { data: campaignsData, isLoading: campaignsLoading, isError, error, refetch } = useQuery({
+    queryKey: ['campaigns', activeAccount?.account_id],
+    queryFn: async () => {
+      if (!activeAccount?.account_id) return [];
+      const res = await listCampaigns(activeAccount.account_id);
+      if (res.error) throw new Error(res.error);
+      return res.data as Campaign[];
+    },
+    enabled: !!activeAccount?.account_id,
+  });
+
+  const { data: insightsData, isLoading: insightsLoading } = useQuery({
+    queryKey: ['campaign-insights', activeAccount?.account_id],
+    queryFn: async () => {
+      if (!activeAccount?.account_id) return [];
+      const res = await getInsights(activeAccount.account_id, {
+        level: 'campaign',
+        date_preset: 'maximum',
+        fields: ['campaign_id', 'spend', 'actions', 'action_values', 'cost_per_action_type', 'purchase_roas']
+      });
+      if (res.error) throw new Error(res.error);
+      return res.data || [];
+    },
+    enabled: !!activeAccount?.account_id,
+  });
+
+  const campaignsWithMetrics = React.useMemo(() => {
+    if (!campaignsData) return [];
+    
+    // Map insights by campaign_id
+    const insightsMap = new Map();
+    if (insightsData) {
+      insightsData.forEach((insight: any) => {
+        insightsMap.set(insight.campaign_id, insight);
+      });
     }
-    let cancelled = false;
-    setLoading(true);
 
-    listCampaigns(activeAccount.account_id).then((res) => {
-      if (cancelled) return;
-      if (res.data) setCampaigns(res.data);
-      setLoading(false);
+    return campaignsData.map((c) => {
+      const insight = insightsMap.get(c.id);
+      let costPerResult = undefined;
+      let roas = undefined;
+
+      if (insight) {
+        // Try to get CPA from cost_per_action_type (e.g. for conversions/purchases)
+        if (insight.cost_per_action_type && insight.cost_per_action_type.length > 0) {
+          const action = insight.cost_per_action_type.find((a: any) => a.action_type === 'omni_purchase' || a.action_type === 'purchase');
+          if (action) costPerResult = parseFloat(action.value);
+        }
+        
+        if (insight.purchase_roas && insight.purchase_roas.length > 0) {
+          const roasAction = insight.purchase_roas.find((a: any) => a.action_type === 'omni_purchase' || a.action_type === 'purchase');
+          if (roasAction) roas = parseFloat(roasAction.value);
+        }
+      }
+
+      return {
+        ...c,
+        cost_per_result: costPerResult ?? c.cost_per_result,
+        roas: roas,
+      };
     });
-
-    return () => { cancelled = true; };
-  }, [activeAccount, refreshKey]);
+  }, [campaignsData, insightsData]);
 
   /* Filtered list */
   const filtered = React.useMemo(() => {
-    let list = campaigns;
+    let list = campaignsWithMetrics;
     if (statusFilter !== 'ALL') {
       list = list.filter(
         (c) => c.effective_status?.toUpperCase() === statusFilter,
@@ -291,8 +370,14 @@ export default function CampaignsPage() {
         list = list.filter(c => (c.cost_per_result != null ? c.cost_per_result <= maxCpa : false));
       }
     }
+    if (minRoasFilter) {
+      const minRoas = Number(minRoasFilter);
+      if (!isNaN(minRoas)) {
+        list = list.filter(c => (c.roas != null ? c.roas >= minRoas : false));
+      }
+    }
     return list;
-  }, [campaigns, statusFilter, search, maxCpaFilter]);
+  }, [campaignsWithMetrics, statusFilter, search, maxCpaFilter, minRoasFilter]);
 
   /* Actions */
   const handleToggleStatus = async (c: Campaign) => {
@@ -300,29 +385,38 @@ export default function CampaignsPage() {
     setActionLoading(c.id);
     await updateEntityStatus(c.id, 'campaign', next);
     setActionLoading(null);
-    setRefreshKey((k) => k + 1);
+    queryClient.invalidateQueries({ queryKey: ['campaigns', activeAccount?.account_id] });
   };
 
   const handleDuplicate = async (c: Campaign) => {
     setActionLoading(c.id);
     await duplicateCampaign(c.id);
     setActionLoading(null);
-    setRefreshKey((k) => k + 1);
+    queryClient.invalidateQueries({ queryKey: ['campaigns', activeAccount?.account_id] });
   };
 
   const handleDelete = async (c: Campaign) => {
     setActionLoading(c.id);
     await deleteCampaign(c.id);
     setActionLoading(null);
-    setRefreshKey((k) => k + 1);
+    queryClient.invalidateQueries({ queryKey: ['campaigns', activeAccount?.account_id] });
   };
 
   const handleSaveBudget = async (c: Campaign) => {
     setActionLoading(c.id);
     const newVal = Math.round(Number(editingBudgetValue) * 100);
+    
+    // Optimistic update
+    queryClient.setQueryData(['campaigns', activeAccount?.account_id], (old: any) => {
+      if (!old) return old;
+      return old.map((camp: Campaign) => camp.id === c.id ? { ...camp, daily_budget: newVal.toString() } : camp);
+    });
+
     const res = await updateCampaign(c.id, { daily_budget: newVal });
-    if (!res.error) {
-      setCampaigns(prev => prev.map(camp => camp.id === c.id ? { ...camp, daily_budget: newVal.toString() } : camp));
+    if (res.error) {
+      // Revert on error
+      queryClient.invalidateQueries({ queryKey: ['campaigns', activeAccount?.account_id] });
+      alert(`Failed to update budget: ${res.error}`);
     }
     setEditingBudgetId(null);
     setActionLoading(null);
@@ -346,6 +440,8 @@ export default function CampaignsPage() {
     { label: 'Paused', value: 'PAUSED' },
   ];
 
+  const loading = campaignsLoading || accountLoading;
+
   return (
     <div>
       {/* Breadcrumbs */}
@@ -368,13 +464,15 @@ export default function CampaignsPage() {
             variant="outline"
             size="sm"
             onClick={() => {
-              const headers = ['id', 'name', 'status', 'objective', 'budget'];
+              const headers = ['id', 'name', 'status', 'objective', 'budget', 'cpa', 'roas'];
               const csvRows = filtered.map((c) => [
                 c.id,
                 `"${(c.name || '').replace(/"/g, '""')}"`,
                 c.effective_status || c.status,
                 c.objective || '',
                 budgetDisplay(c),
+                c.cost_per_result ?? '',
+                c.roas ?? '',
               ].join(','));
               const csv = [headers.join(','), ...csvRows].join('\n');
               const blob = new Blob([csv], { type: 'text/csv' });
@@ -399,7 +497,7 @@ export default function CampaignsPage() {
       </div>
 
       {/* Filter bar */}
-      <div className="flex items-center justify-between gap-3 mb-4">
+      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
         <div className="flex items-center gap-1.5">
           {filterPills.map((pill) => (
             <Button
@@ -414,20 +512,31 @@ export default function CampaignsPage() {
         </div>
         <div className="flex items-center gap-2">
             <Input 
+                type="number"
                 placeholder="Max CPA ($)" 
                 value={maxCpaFilter} 
                 onChange={(e) => setMaxCpaFilter(e.target.value)} 
+                className="w-32 h-8 text-sm" 
+            />
+            <Input 
+                type="number"
+                placeholder="Min ROAS" 
+                value={minRoasFilter} 
+                onChange={(e) => setMinRoasFilter(e.target.value)} 
                 className="w-32 h-8 text-sm" 
             />
         </div>
         <Button
           variant="ghost"
           size="icon-sm"
-          className="h-8 w-8"
-          onClick={() => setRefreshKey((k) => k + 1)}
+          className="h-8 w-8 ml-auto"
+          onClick={() => {
+            queryClient.invalidateQueries({ queryKey: ['campaigns', activeAccount?.account_id] });
+            queryClient.invalidateQueries({ queryKey: ['campaign-insights', activeAccount?.account_id] });
+          }}
         >
           <RefreshCw
-            className={cn('h-3.5 w-3.5 text-muted-foreground', loading && 'animate-spin')}
+            className={cn('h-3.5 w-3.5 text-muted-foreground', (loading || insightsLoading) && 'animate-spin')}
             strokeWidth={2}
           />
         </Button>
@@ -437,6 +546,8 @@ export default function CampaignsPage() {
       <Card className="p-0 overflow-hidden">
         {loading ? (
           <TableSkeleton />
+        ) : isError ? (
+          <ErrorState error={(error as Error)?.message || 'An unknown error occurred'} onRetry={() => refetch()} />
         ) : filtered.length === 0 ? (
           <EmptyState />
         ) : (
@@ -455,8 +566,11 @@ export default function CampaignsPage() {
               <span className="w-[120px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Budget
               </span>
-              <span className="w-[80px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide text-right">
+              <span className="w-[70px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide text-right">
                 CPA
+              </span>
+              <span className="w-[70px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide text-right">
+                ROAS
               </span>
               <span className="w-[44px]" />
             </div>
@@ -520,8 +634,13 @@ export default function CampaignsPage() {
                   </div>
 
                   {/* CPA */}
-                  <span className="w-[80px] text-[13px] text-foreground tabular-nums text-right">
+                  <span className="w-[70px] text-[13px] text-foreground tabular-nums text-right">
                     {c.cost_per_result != null ? `$${c.cost_per_result.toFixed(2)}` : '-'}
+                  </span>
+
+                  {/* ROAS */}
+                  <span className="w-[70px] text-[13px] text-foreground tabular-nums text-right">
+                    {c.roas != null ? `${c.roas.toFixed(2)}x` : '-'}
                   </span>
 
                   {/* Actions */}
@@ -540,5 +659,13 @@ export default function CampaignsPage() {
         )}
       </Card>
     </div>
+  );
+}
+
+export default function CampaignsPage() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <CampaignsContent />
+    </QueryClientProvider>
   );
 }

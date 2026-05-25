@@ -1,3 +1,4 @@
+import { fmtDate } from "@/lib/utils";
 'use client';
 
 import {
@@ -27,7 +28,6 @@ import {
 import {
   useEffect,
   useState,
-  useTransition,
   useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight,
@@ -61,14 +61,15 @@ function PageSkeleton() {
 
 function DomainMappingDialog({ site, onUpdate }: { site: WithId<Website>, onUpdate: () => void }) {
   const [open, setOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const customDomain = formData.get('customDomain') as string;
 
-    startTransition(async () => {
+    setIsPending(true);
+    try {
       const res = await updateSiteDomain(site._id.toString(), customDomain);
       if (res.error) {
         toast.error(res.error);
@@ -77,7 +78,11 @@ function DomainMappingDialog({ site, onUpdate }: { site: WithId<Website>, onUpda
         setOpen(false);
         onUpdate();
       }
-    });
+    } catch (err: any) {
+      toast.error(err.message || 'An unexpected error occurred.');
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
@@ -139,7 +144,7 @@ function SiteCard({ site, onUpdate }: { site: WithId<Website>, onUpdate: () => v
       <ZoruCardContent className="flex-grow space-y-4">
         <div>
           <p className="text-sm text-zoru-ink-muted">
-            Created: {new Date(site.createdAt).toLocaleDateString()}
+            Created: {fmtDate(site.createdAt)}
           </p>
           {site.customDomain && (
             <p className="text-sm font-medium mt-1">
@@ -160,13 +165,21 @@ function SiteCard({ site, onUpdate }: { site: WithId<Website>, onUpdate: () => v
 
 export default function WebsiteBuilderDashboard() {
   const [sites, setSites] = useState<WithId<Website>[]>([]);
-  const [isLoading, startLoading] = useTransition();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(() => {
-    startLoading(async () => {
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
       const data = await getSites();
       setSites(data);
-    });
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch sites.');
+      toast.error('Failed to load your websites.');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -174,6 +187,33 @@ export default function WebsiteBuilderDashboard() {
   }, [fetchData]);
 
   if (isLoading) return <PageSkeleton />;
+
+  if (error) {
+    return (
+      <div className="flex flex-col gap-8">
+        <PageHeader>
+          <ZoruPageHeading>
+            <ZoruPageTitle>
+              <span className="inline-flex items-center gap-3">
+                <Globe className="h-7 w-7" />
+                Website builder
+              </span>
+            </ZoruPageTitle>
+            <ZoruPageDescription>
+              Create and manage your public-facing websites.
+            </ZoruPageDescription>
+          </ZoruPageHeading>
+        </PageHeader>
+        <div className="p-4 bg-red-50 text-red-600 rounded-md border border-red-200">
+          <p className="font-semibold">Error</p>
+          <p>{error}</p>
+          <Button variant="outline" className="mt-4" onClick={fetchData}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">

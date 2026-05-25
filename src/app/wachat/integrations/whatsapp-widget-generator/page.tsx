@@ -18,6 +18,7 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
+import { formatUTC } from '@/lib/utils';
 import { BarChart3,
   Eye,
   RefreshCw,
@@ -28,6 +29,30 @@ import type { WithId,
 import { getProjectById } from '@/app/actions/project.actions';
 import { useProject } from '@/context/project-context';
 import { WhatsAppWidgetGenerator } from '@/components/wabasimplify/whatsapp-widget-generator';
+import React from 'react';
+
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error?: Error }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Alert variant="destructive">
+          <ZoruAlertTitle>Something went wrong</ZoruAlertTitle>
+          <ZoruAlertDescription>{this.state.error?.message || "An unexpected error occurred."}</ZoruAlertDescription>
+        </Alert>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function PageSkeleton() {
   return (
@@ -144,7 +169,9 @@ export default function WhatsappWidgetGeneratorPage() {
               />
             </div>
 
-            <WhatsAppWidgetGenerator project={project} />
+            <ErrorBoundary>
+              <WhatsAppWidgetGenerator project={project} />
+            </ErrorBoundary>
           </>
         )}
       </div>

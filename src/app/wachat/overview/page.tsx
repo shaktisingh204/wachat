@@ -16,6 +16,7 @@ import {
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
+  ZoruDropdownMenuCheckboxItem,
   EmptyState,
   ZoruPageDescription,
   PageHeader,
@@ -24,12 +25,8 @@ import {
   Skeleton,
   cn,
 } from '@/components/zoruui';
-import {
-  useRouter } from 'next/navigation';
-import { useEffect,
-  useMemo,
-  useState,
-  useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState, useTransition, useCallback } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import {
   ArrowUpRight,
@@ -48,20 +45,25 @@ import {
   TrendingDown,
   TrendingUp,
   Users,
-  } from 'lucide-react';
+  LayoutTemplate,
+} from 'lucide-react';
+import dynamic from 'next/dynamic';
 
 import { useProject } from '@/context/project-context';
 import {
   getDashboardStats,
   getDashboardChartData,
-  } from '@/app/actions/dashboard.actions';
+} from '@/app/actions/dashboard.actions';
 import { getBroadcasts } from '@/app/actions/broadcast.actions';
+
+const OverviewChart = dynamic(() => import('./overview-chart'), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[300px] w-full" />,
+});
 
 /**
  * Wachat Overview — project-scoped dashboard.
  */
-
-import * as React from 'react';
 
 type Stats = {
   totalMessages: number;
@@ -90,6 +92,16 @@ type RecentBroadcast = {
   errorCount?: number;
   status?: string;
   createdAt?: string | Date;
+};
+
+type WidgetKey = 'kpi' | 'funnel' | 'actions' | 'chart' | 'campaigns';
+
+const DEFAULT_LAYOUT: Record<WidgetKey, boolean> = {
+  kpi: true,
+  funnel: true,
+  actions: true,
+  chart: true,
+  campaigns: true,
 };
 
 function compact(n: number | null | undefined): string {
@@ -123,7 +135,28 @@ export default function OverviewPage() {
   const [broadcasts, setBroadcasts] = useState<RecentBroadcast[]>([]);
   const [loading, startTransition] = useTransition();
 
-  const reload = React.useCallback(() => {
+  const [layout, setLayout] = useState<Record<WidgetKey, boolean>>(DEFAULT_LAYOUT);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('wachat-overview-layout');
+      if (stored) {
+        setLayout({ ...DEFAULT_LAYOUT, ...JSON.parse(stored) });
+      }
+    } catch (err) {
+      // ignore
+    }
+  }, []);
+
+  const toggleWidget = (key: WidgetKey) => {
+    setLayout((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      localStorage.setItem('wachat-overview-layout', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const reload = useCallback(() => {
     if (!projectId) return;
     startTransition(() => {
       Promise.all([
@@ -131,14 +164,14 @@ export default function OverviewPage() {
         getDashboardChartData(projectId),
         getBroadcasts(projectId, 1, 5),
       ]).then(([s, c, b]) => {
-        setStats(s);
+        setStats(s as Stats);
         setChart((c as ChartPoint[]) || []);
         setBroadcasts(b.broadcasts || []);
       });
     });
   }, [projectId]);
 
-  const handleRefresh = React.useCallback(() => {
+  const handleRefresh = useCallback(() => {
     router.refresh();
     reload();
   }, [router, reload]);
@@ -244,19 +277,47 @@ export default function OverviewPage() {
           <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
-                Last 30 days
+                <LayoutTemplate className="h-3.5 w-3.5" />
+                Customize
                 <ChevronDown className="h-3 w-3 opacity-60" />
               </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuLabel>Time range</ZoruDropdownMenuLabel>
+              <ZoruDropdownMenuLabel>Widgets</ZoruDropdownMenuLabel>
               <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem onSelect={handleRefresh}>Refresh now</ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem onSelect={() => router.push('/wachat/analytics')}>
-                Open analytics
-              </ZoruDropdownMenuItem>
+              <ZoruDropdownMenuCheckboxItem
+                checked={layout.kpi}
+                onCheckedChange={() => toggleWidget('kpi')}
+              >
+                KPI Grid
+              </ZoruDropdownMenuCheckboxItem>
+              <ZoruDropdownMenuCheckboxItem
+                checked={layout.funnel}
+                onCheckedChange={() => toggleWidget('funnel')}
+              >
+                Delivery Funnel
+              </ZoruDropdownMenuCheckboxItem>
+              <ZoruDropdownMenuCheckboxItem
+                checked={layout.actions}
+                onCheckedChange={() => toggleWidget('actions')}
+              >
+                Quick Actions
+              </ZoruDropdownMenuCheckboxItem>
+              <ZoruDropdownMenuCheckboxItem
+                checked={layout.chart}
+                onCheckedChange={() => toggleWidget('chart')}
+              >
+                Activity Chart
+              </ZoruDropdownMenuCheckboxItem>
+              <ZoruDropdownMenuCheckboxItem
+                checked={layout.campaigns}
+                onCheckedChange={() => toggleWidget('campaigns')}
+              >
+                Recent Campaigns
+              </ZoruDropdownMenuCheckboxItem>
             </ZoruDropdownMenuContent>
           </DropdownMenu>
+
           <Button variant="outline" size="sm" onClick={handleRefresh}>
             <RefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} />
             Refresh
@@ -273,223 +334,244 @@ export default function OverviewPage() {
       </div>
 
       {/* KPI grid */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        <Kpi
-          icon={<Send className="h-4 w-4" />}
-          label="Messages sent"
-          value={compact(stats?.totalSent)}
-          hint={`${compact(stats?.totalMessages)} total`}
-          delta={derived?.trend.delta}
-          up={derived?.trend.up}
-        />
-        <Kpi
-          icon={<CheckCheck className="h-4 w-4" />}
-          label="Delivery rate"
-          value={`${derived?.deliveryRate ?? 0}%`}
-          hint={`${compact(stats?.totalDelivered)} delivered`}
-        />
-        <Kpi
-          icon={<Eye className="h-4 w-4" />}
-          label="Read rate"
-          value={`${derived?.readRate ?? 0}%`}
-          hint={`${compact(stats?.totalRead)} read`}
-        />
-        <Kpi
-          icon={<CircleX className="h-4 w-4" />}
-          label="Failed"
-          value={compact(stats?.totalFailed)}
-          hint={`${derived?.failRate ?? 0}% fail rate`}
-        />
-      </div>
-
-      {/* Funnel + quick actions */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm text-zoru-ink">Delivery funnel</div>
-              <div className="mt-1 text-[11.5px] text-zoru-ink-muted">
-                How your messages moved through WhatsApp
-              </div>
-            </div>
-            <Button size="sm" variant="outline" onClick={() => router.push('/wachat/broadcasts')}>
-              <TrendingUp className="h-3 w-3" />
-              Campaigns
-            </Button>
-          </div>
-
-          <div className="mt-5 flex flex-col gap-3">
-            <FunnelBar
-              label="Queued"
-              count={stats?.totalMessages ?? 0}
-              total={stats?.totalMessages ?? 0}
-              tone="neutral"
-            />
-            <FunnelBar
-              label="Sent"
-              count={stats?.totalSent ?? 0}
-              total={stats?.totalMessages ?? 0}
-              tone="info"
-            />
-            <FunnelBar
-              label="Delivered"
-              count={stats?.totalDelivered ?? 0}
-              total={stats?.totalMessages ?? 0}
-              tone="success"
-            />
-            <FunnelBar
-              label="Read"
-              count={stats?.totalRead ?? 0}
-              total={stats?.totalMessages ?? 0}
-              tone="warning"
-            />
-            <FunnelBar
-              label="Failed"
-              count={stats?.totalFailed ?? 0}
-              total={stats?.totalMessages ?? 0}
-              tone="danger"
-            />
-          </div>
-        </Card>
-
-        <div className="flex flex-col gap-2">
-          {[
-            { icon: <Inbox className="h-4 w-4" />, label: 'Open Live Chat', href: '/wachat/chat' },
-            { icon: <BookCopy className="h-4 w-4" />, label: 'Manage templates', href: '/wachat/templates' },
-            { icon: <Users className="h-4 w-4" />, label: 'Import contacts', href: '/wachat/contacts' },
-            {
-              icon: <Send className="h-4 w-4" />,
-              label: 'Start a broadcast',
-              href: '/wachat/broadcasts',
-              primary: true,
-            },
-          ].map((item) => (
-            <Button
-              key={item.label}
-              block
-              variant={item.primary ? 'default' : 'outline'}
-              onClick={() => router.push(item.href)}
-            >
-              {item.icon}
-              {item.label}
-            </Button>
-          ))}
-          <Button
-            variant="ghost"
-            size="sm"
-            block
-            onClick={() => router.push('/wachat/integrations')}
-          >
-            Connect an integration
-            <ArrowUpRight className="h-3 w-3" />
-          </Button>
+      {layout.kpi && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <Kpi
+            icon={<Send className="h-4 w-4" />}
+            label="Messages sent"
+            value={compact(stats?.totalSent)}
+            hint={`${compact(stats?.totalMessages)} total`}
+            delta={derived?.trend.delta}
+            up={derived?.trend.up}
+          />
+          <Kpi
+            icon={<CheckCheck className="h-4 w-4" />}
+            label="Delivery rate"
+            value={`${derived?.deliveryRate ?? 0}%`}
+            hint={`${compact(stats?.totalDelivered)} delivered`}
+          />
+          <Kpi
+            icon={<Eye className="h-4 w-4" />}
+            label="Read rate"
+            value={`${derived?.readRate ?? 0}%`}
+            hint={`${compact(stats?.totalRead)} read`}
+          />
+          <Kpi
+            icon={<CircleX className="h-4 w-4" />}
+            label="Failed"
+            value={compact(stats?.totalFailed)}
+            hint={`${derived?.failRate ?? 0}% fail rate`}
+          />
         </div>
-      </div>
+      )}
 
-      {/* Recent campaigns */}
-      <div>
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-[22px] tracking-tight leading-none text-zoru-ink">
-              Recent campaigns
-            </h2>
-            <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
-              {stats?.totalCampaigns ?? 0} campaigns all-time · {broadcasts.length} shown
-            </p>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Button
-              variant="outline"
-              size="icon-sm"
-              aria-label="New campaign"
-              onClick={() => router.push('/wachat/broadcasts')}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon-sm"
-              aria-label="More"
-              onClick={() => router.push('/wachat/broadcasts')}
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        <Card className="mt-5 p-6">
-          {broadcasts.length === 0 ? (
-            <EmptyState
-              icon={<MessagesSquare className="h-10 w-10" />}
-              title="No campaigns yet"
-              description="Launch your first WhatsApp broadcast to reach your audience."
-              action={
-                <Button size="sm" onClick={() => router.push('/wachat/broadcasts')}>
-                  Create broadcast
-                </Button>
-              }
-            />
-          ) : (
-            <div className="flex flex-col gap-3">
-              {broadcasts.map((b) => {
-                const total = b.contactCount ?? 0;
-                const delivered = b.deliveredCount ?? 0;
-                const rate = pct(delivered, total);
-                const s = (b.status || '').toLowerCase();
-                const variant: 'success' | 'danger' | 'warning' =
-                  s === 'completed'
-                    ? 'success'
-                    : s === 'failed' || s === 'cancelled' || s === 'partial failure'
-                      ? 'danger'
-                      : 'warning';
-                const createdDate = b.createdAt ? new Date(b.createdAt as any) : null;
-                return (
-                  <div
-                    key={b._id?.toString?.()}
-                    className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-zoru-line p-3"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm text-zoru-ink">
-                        {b.fileName || b.templateName || 'Untitled campaign'}
-                      </p>
-                      <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
-                        {b.templateName && (
-                          <>
-                            <span className="text-zoru-ink">{b.templateName}</span>
-                            <span>·</span>
-                          </>
-                        )}
-                        <span>
-                          {createdDate
-                            ? formatDistanceToNow(createdDate, { addSuffix: true })
-                            : 'unknown time'}
-                        </span>
-                        <Badge variant={variant}>{b.status || 'unknown'}</Badge>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex flex-col items-end pr-1 text-[11.5px]">
-                        <div className="text-zoru-ink">{rate}%</div>
-                        <div className="text-zoru-ink-muted">
-                          {compact(delivered)}/{compact(total)}
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="View broadcast"
-                        onClick={() => router.push(`/wachat/broadcasts/${b._id}/report`)}
-                      >
-                        <ArrowUpRight className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
+      {/* Middle row: Funnel / Actions / Chart */}
+      {(layout.funnel || layout.actions || layout.chart) && (
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          {layout.funnel && (
+            <Card className="p-6 col-span-1">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-zoru-ink">Delivery funnel</div>
+                  <div className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                    How your messages moved through WhatsApp
                   </div>
-                );
-              })}
+                </div>
+                <Button size="sm" variant="outline" onClick={() => router.push('/wachat/broadcasts')}>
+                  <TrendingUp className="h-3 w-3" />
+                </Button>
+              </div>
+
+              <div className="mt-5 flex flex-col gap-3">
+                <FunnelBar
+                  label="Queued"
+                  count={stats?.totalMessages ?? 0}
+                  total={stats?.totalMessages ?? 0}
+                  tone="neutral"
+                />
+                <FunnelBar
+                  label="Sent"
+                  count={stats?.totalSent ?? 0}
+                  total={stats?.totalMessages ?? 0}
+                  tone="info"
+                />
+                <FunnelBar
+                  label="Delivered"
+                  count={stats?.totalDelivered ?? 0}
+                  total={stats?.totalMessages ?? 0}
+                  tone="success"
+                />
+                <FunnelBar
+                  label="Read"
+                  count={stats?.totalRead ?? 0}
+                  total={stats?.totalMessages ?? 0}
+                  tone="warning"
+                />
+                <FunnelBar
+                  label="Failed"
+                  count={stats?.totalFailed ?? 0}
+                  total={stats?.totalMessages ?? 0}
+                  tone="danger"
+                />
+              </div>
+            </Card>
+          )}
+
+          {layout.chart && (
+            <Card className={cn("p-6", (!layout.funnel && !layout.actions) ? "col-span-1 lg:col-span-3" : layout.funnel && layout.actions ? "col-span-1" : "col-span-1 lg:col-span-2")}>
+              <div className="mb-4">
+                <div className="text-sm text-zoru-ink">Messaging Activity</div>
+                <div className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                  Last 30 days performance
+                </div>
+              </div>
+              <OverviewChart data={chart} />
+            </Card>
+          )}
+
+          {layout.actions && (
+            <div className={cn("flex flex-col gap-2", (!layout.funnel && !layout.chart) ? "col-span-1 lg:col-span-3" : "col-span-1")}>
+              {[
+                { icon: <Inbox className="h-4 w-4" />, label: 'Open Live Chat', href: '/wachat/chat' },
+                { icon: <BookCopy className="h-4 w-4" />, label: 'Manage templates', href: '/wachat/templates' },
+                { icon: <Users className="h-4 w-4" />, label: 'Import contacts', href: '/wachat/contacts' },
+                {
+                  icon: <Send className="h-4 w-4" />,
+                  label: 'Start a broadcast',
+                  href: '/wachat/broadcasts',
+                  primary: true,
+                },
+              ].map((item) => (
+                <Button
+                  key={item.label}
+                  block
+                  variant={item.primary ? 'default' : 'outline'}
+                  onClick={() => router.push(item.href)}
+                >
+                  {item.icon}
+                  {item.label}
+                </Button>
+              ))}
+              <Button
+                variant="ghost"
+                size="sm"
+                block
+                onClick={() => router.push('/wachat/integrations')}
+              >
+                Connect an integration
+                <ArrowUpRight className="h-3 w-3" />
+              </Button>
             </div>
           )}
-        </Card>
-      </div>
+        </div>
+      )}
+
+      {/* Recent campaigns */}
+      {layout.campaigns && (
+        <div>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-[22px] tracking-tight leading-none text-zoru-ink">
+                Recent campaigns
+              </h2>
+              <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
+                {stats?.totalCampaigns ?? 0} campaigns all-time · {broadcasts.length} shown
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="outline"
+                size="icon-sm"
+                aria-label="New campaign"
+                onClick={() => router.push('/wachat/broadcasts')}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon-sm"
+                aria-label="More"
+                onClick={() => router.push('/wachat/broadcasts')}
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          <Card className="mt-5 p-6">
+            {broadcasts.length === 0 ? (
+              <EmptyState
+                icon={<MessagesSquare className="h-10 w-10" />}
+                title="No campaigns yet"
+                description="Launch your first WhatsApp broadcast to reach your audience."
+                action={
+                  <Button size="sm" onClick={() => router.push('/wachat/broadcasts')}>
+                    Create broadcast
+                  </Button>
+                }
+              />
+            ) : (
+              <div className="flex flex-col gap-3">
+                {broadcasts.map((b) => {
+                  const total = b.contactCount ?? 0;
+                  const delivered = b.deliveredCount ?? 0;
+                  const rate = pct(delivered, total);
+                  const s = (b.status || '').toLowerCase();
+                  const variant: 'success' | 'danger' | 'warning' =
+                    s === 'completed'
+                      ? 'success'
+                      : s === 'failed' || s === 'cancelled' || s === 'partial failure'
+                        ? 'danger'
+                        : 'warning';
+                  const createdDate = b.createdAt ? new Date(b.createdAt as any) : null;
+                  return (
+                    <div
+                      key={b._id?.toString?.()}
+                      className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-zoru-line p-3"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm text-zoru-ink">
+                          {b.fileName || b.templateName || 'Untitled campaign'}
+                        </p>
+                        <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
+                          {b.templateName && (
+                            <>
+                              <span className="text-zoru-ink">{b.templateName}</span>
+                              <span>·</span>
+                            </>
+                          )}
+                          <span>
+                            {createdDate
+                              ? formatDistanceToNow(createdDate, { addSuffix: true })
+                              : 'unknown time'}
+                          </span>
+                          <Badge variant={variant}>{b.status || 'unknown'}</Badge>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex flex-col items-end pr-1 text-[11.5px]">
+                          <div className="text-zoru-ink">{rate}%</div>
+                          <div className="text-zoru-ink-muted">
+                            {compact(delivered)}/{compact(total)}
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label="View broadcast"
+                          onClick={() => router.push(`/wachat/broadcasts/${b._id}/report`)}
+                        >
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

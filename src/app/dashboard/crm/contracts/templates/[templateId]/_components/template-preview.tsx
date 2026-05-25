@@ -1,8 +1,12 @@
 'use client';
 
 import * as React from 'react';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 
 import { Input, Label } from '@/components/zoruui';
+
+gsap.registerPlugin(useGSAP);
 
 interface TemplatePreviewProps {
   body: string;
@@ -13,8 +17,8 @@ const SAMPLE_DEFAULTS: Record<string, string> = {
   client_name: 'Acme Corp',
   company_name: 'Your Company Pvt Ltd',
   contract_number: 'CTR-2026-0042',
-  start_date: new Date().toLocaleDateString(),
-  end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+  start_date: '2026-01-01',
+  end_date: '2026-12-31',
   value: '50,000',
   currency: 'INR',
   signer_name: 'Jane Doe',
@@ -29,6 +33,8 @@ function applySample(template: string, values: Record<string, string>): string {
 }
 
 export function TemplatePreview({ body, variables }: TemplatePreviewProps) {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  
   const initial = React.useMemo(() => {
     const seed: Record<string, string> = {};
     for (const key of variables) {
@@ -48,9 +54,22 @@ export function TemplatePreview({ body, variables }: TemplatePreviewProps) {
     [body, values],
   );
 
+  useGSAP(
+    () => {
+      gsap.from('.stagger-item', {
+        opacity: 0,
+        y: 10,
+        stagger: 0.05,
+        duration: 0.4,
+        ease: 'power2.out',
+      });
+    },
+    { scope: containerRef }
+  );
+
   return (
-    <div className="grid gap-4 md:grid-cols-[200px_1fr]">
-      <div className="space-y-3">
+    <div ref={containerRef} className="grid gap-4 md:grid-cols-[200px_1fr]">
+      <div className="space-y-3 stagger-item">
         <p className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
           Sample values
         </p>
@@ -60,7 +79,7 @@ export function TemplatePreview({ body, variables }: TemplatePreviewProps) {
           </p>
         ) : (
           variables.map((v) => (
-            <div key={v}>
+            <div key={v} className="stagger-item">
               <Label
                 htmlFor={`preview-${v}`}
                 className="text-[11.5px] text-zoru-ink-muted"
@@ -79,7 +98,7 @@ export function TemplatePreview({ body, variables }: TemplatePreviewProps) {
           ))
         )}
       </div>
-      <div className="rounded-md border border-zoru-line bg-zoru-surface p-4">
+      <div className="rounded-md border border-zoru-line bg-zoru-surface p-4 stagger-item">
         <pre className="whitespace-pre-wrap break-words font-sans text-[13px] leading-relaxed text-zoru-ink">
           {rendered || (
             <span className="text-zoru-ink-muted">Empty template.</span>

@@ -37,7 +37,8 @@ import {
   BarChart3,
   MoreVertical,
   Plus,
-  Network
+  Network,
+  X
 } from "lucide-react";
 
 interface Provider {
@@ -58,8 +59,35 @@ const initialProviders: Provider[] = [
   { id: "p4", name: "Sinch Backup", region: "Asia Pacific", latency: "220ms", successRate: "97.20%", status: "inactive", costPerSms: "$0.0090", capacity: "200/sec" },
 ];
 
-function SortableItem({ provider, index }: { provider: Provider; index: number }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: provider.id });
+function RuleCard({ title, description, enabled, onToggle, thresholdLabel, thresholdValue }: any) {
+  return (
+    <div className={`p-4 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.04] transition-colors ${enabled ? 'opacity-100' : 'opacity-60'}`}>
+      <div className="flex justify-between items-start mb-3">
+        <div>
+          <h4 className={`${enabled ? 'text-white' : 'text-gray-300'} font-medium mb-1`}>{title}</h4>
+          <p className="text-sm text-gray-500">{description}</p>
+        </div>
+        <div 
+          onClick={onToggle}
+          className={`w-10 h-5 rounded-full flex items-center p-1 cursor-pointer transition-colors ${enabled ? 'bg-indigo-500' : 'bg-white/10'}`}
+        >
+          <div className={`w-3.5 h-3.5 rounded-full shadow-sm transition-transform duration-200 ${enabled ? 'bg-white translate-x-4' : 'bg-gray-400 translate-x-0'}`}></div>
+        </div>
+      </div>
+      {(thresholdLabel || thresholdValue) && (
+        <div className="flex items-center space-x-3 mt-4">
+          <div className="flex-1 bg-black/40 rounded-lg border border-white/10 px-3 py-2 flex items-center justify-between">
+            <span className="text-sm text-gray-400">{thresholdLabel}</span>
+            <span className="text-sm font-mono text-white">{thresholdValue}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SortableItem({ provider, index, disabled }: { provider: Provider; index: number; disabled?: boolean }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: provider.id, disabled });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -81,9 +109,9 @@ function SortableItem({ provider, index }: { provider: Provider; index: number }
         <div className="flex flex-col items-center justify-center w-12 bg-white/[0.02] border-r border-white/5 font-mono text-sm text-gray-400">
           <span className="mb-2">#{index + 1}</span>
           <div
-            {...attributes}
-            {...listeners}
-            className="p-2 cursor-grab active:cursor-grabbing hover:bg-white/10 rounded-md transition-colors"
+            {...(disabled ? {} : attributes)}
+            {...(disabled ? {} : listeners)}
+            className={`p-2 rounded-md transition-colors ${disabled ? 'opacity-30 cursor-not-allowed' : 'cursor-grab active:cursor-grabbing hover:bg-white/10'}`}
           >
             <GripVertical className="w-4 h-4 text-gray-500" />
           </div>
@@ -174,6 +202,87 @@ export default function RoutingPage() {
   const [providers, setProviders] = useState<Provider[]>(initialProviders);
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  const [rules, setRules] = useState({
+    lcr: false,
+    latency: true,
+    errorRate: true,
+    geoRouting: false,
+  });
+
+  const conflicts = React.useMemo(() => {
+    const issues = [];
+    if (rules.lcr && rules.geoRouting) {
+      issues.push("Conflict Detected: Least-Cost Routing and Strict Geo-Routing are both enabled. This may cause routing loops or priority overrides.");
+    }
+    return issues;
+  }, [rules]);
+
+  const [isSimulateOpen, setIsSimulateOpen] = useState(false);
+  const [simNumber, setSimNumber] = useState("");
+  const [simResult, setSimResult] = useState<any>(null);
+  const [isSimulating, setIsSimulating] = useState(false);
+
+  const runSimulation = () => {
+    setIsSimulating(true);
+    setSimResult(null);
+    
+    setTimeout(() => {
+      const steps: string[] = [];
+      let selected = null;
+      let reason = "";
+
+      steps.push(`Analyzing destination number: ${simNumber}`);
+
+      if (rules.lcr && rules.geoRouting) {
+        steps.push(`Conflict Detected: Applying Strict Geo-Routing over LCR to resolve loop.`);
+      }
+
+      if (rules.geoRouting) {
+        steps.push("Geo-Routing rule enabled.");
+        if (simNumber.startsWith("+44") || simNumber.startsWith("+3")) {
+          steps.push("Destination mapped to Europe region.");
+          selected = providers.find(p => p.region.includes("Europe"));
+          reason = "Strict Geo-Routing (Europe)";
+        } else if (simNumber.startsWith("+1")) {
+          steps.push("Destination mapped to US region.");
+          selected = providers.find(p => p.region.includes("US"));
+          reason = "Strict Geo-Routing (US East)";
+        } else {
+          steps.push("No specific geo-mapping found, falling back to general rules.");
+        }
+      }
+
+      if (!selected && rules.lcr) {
+        steps.push("Least-Cost Routing (LCR) enabled. Finding cheapest active provider.");
+        const activeCheap = [...providers]
+          .filter(p => p.status !== "inactive")
+          .sort((a, b) => parseFloat(a.costPerSms.replace('$', '')) - parseFloat(b.costPerSms.replace('$', '')));
+        
+        if (activeCheap.length > 0) {
+          selected = activeCheap[0];
+          reason = "Least-Cost Routing";
+        }
+      }
+
+      if (!selected) {
+        steps.push("Using Priority Waterfall list.");
+        selected = providers.find(p => p.status === "active") || providers[0];
+        reason = "Highest Priority Active Provider";
+      }
+
+      if (selected) {
+        steps.push(`Selected Provider: ${selected.name}`);
+      }
+
+      setSimResult({
+        providerName: selected?.name || "None",
+        reason: reason,
+        steps: steps
+      });
+      setIsSimulating(false);
+    }, 800);
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -229,7 +338,10 @@ export default function RoutingPage() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl font-medium transition-all text-white flex items-center space-x-2">
+            <button 
+              onClick={() => setIsSimulateOpen(true)}
+              className="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl font-medium transition-all text-white flex items-center space-x-2"
+            >
               <Settings className="w-4 h-4" />
               <span>Simulate</span>
             </button>
@@ -281,7 +393,7 @@ export default function RoutingPage() {
               <SortableContext items={providers.map(p => p.id)} strategy={verticalListSortingStrategy}>
                 <div className="space-y-4">
                   {providers.map((provider, index) => (
-                    <SortableItem key={provider.id} provider={provider} index={index} />
+                    <SortableItem key={provider.id} provider={provider} index={index} disabled={rules.lcr} />
                   ))}
                 </div>
               </SortableContext>
@@ -330,57 +442,57 @@ export default function RoutingPage() {
               <h3 className="text-xl font-semibold text-white">Rule Evaluation</h3>
             </div>
 
-            <div className="space-y-6">
-              {/* Timeout Rule */}
-              <div className="p-4 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.04] transition-colors">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h4 className="text-white font-medium mb-1">Latency Timeout</h4>
-                    <p className="text-sm text-gray-500">Switch to next provider if response exceeds threshold.</p>
-                  </div>
-                  <div className="w-10 h-5 bg-indigo-500 rounded-full flex items-center p-1 cursor-pointer">
-                    <div className="w-3.5 h-3.5 bg-white rounded-full translate-x-4.5 shadow-sm"></div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 mt-4">
-                  <div className="flex-1 bg-black/40 rounded-lg border border-white/10 px-3 py-2 flex items-center justify-between">
-                    <span className="text-sm text-gray-400">Threshold</span>
-                    <span className="text-sm font-mono text-white">350ms</span>
-                  </div>
-                </div>
+            {conflicts.length > 0 && (
+              <div className="mb-6 space-y-3">
+                {conflicts.map((conflict, i) => (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }} 
+                    animate={{ opacity: 1, height: 'auto' }} 
+                    key={i} 
+                    className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start space-x-3 text-red-400"
+                  >
+                    <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm">{conflict}</p>
+                  </motion.div>
+                ))}
               </div>
+            )}
 
-              {/* Error Rate Rule */}
-              <div className="p-4 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.04] transition-colors">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h4 className="text-white font-medium mb-1">Error Rate Tripwire</h4>
-                    <p className="text-sm text-gray-500">Temporarily disable provider on high failure rate.</p>
-                  </div>
-                  <div className="w-10 h-5 bg-indigo-500 rounded-full flex items-center p-1 cursor-pointer">
-                    <div className="w-3.5 h-3.5 bg-white rounded-full translate-x-4.5 shadow-sm"></div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 mt-4">
-                  <div className="flex-1 bg-black/40 rounded-lg border border-white/10 px-3 py-2 flex items-center justify-between">
-                    <span className="text-sm text-gray-400">Threshold</span>
-                    <span className="text-sm font-mono text-white">&gt; 5% / 5m</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Geo Routing Rule */}
-              <div className="p-4 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.04] transition-colors opacity-60">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h4 className="text-gray-300 font-medium mb-1">Strict Geo-Routing</h4>
-                    <p className="text-sm text-gray-500">Force routing through specific regions based on destination.</p>
-                  </div>
-                  <div className="w-10 h-5 bg-white/10 rounded-full flex items-center p-1 cursor-pointer">
-                    <div className="w-3.5 h-3.5 bg-gray-400 rounded-full shadow-sm"></div>
-                  </div>
-                </div>
-              </div>
+            <div className="space-y-4">
+              <RuleCard 
+                title="Least-Cost Routing (LCR)"
+                description="Automatically select the cheapest provider."
+                enabled={rules.lcr}
+                onToggle={() => {
+                  const newState = !rules.lcr;
+                  setRules(r => ({ ...r, lcr: newState }));
+                  if (newState) {
+                    setProviders(prev => [...prev].sort((a, b) => parseFloat(a.costPerSms.replace('$', '')) - parseFloat(b.costPerSms.replace('$', ''))));
+                  }
+                }}
+              />
+              <RuleCard 
+                title="Latency Timeout"
+                description="Switch to next provider if response exceeds threshold."
+                enabled={rules.latency}
+                onToggle={() => setRules(r => ({ ...r, latency: !r.latency }))}
+                thresholdLabel="Threshold"
+                thresholdValue="350ms"
+              />
+              <RuleCard 
+                title="Error Rate Tripwire"
+                description="Temporarily disable provider on high failure rate."
+                enabled={rules.errorRate}
+                onToggle={() => setRules(r => ({ ...r, errorRate: !r.errorRate }))}
+                thresholdLabel="Threshold"
+                thresholdValue="> 5% / 5m"
+              />
+              <RuleCard 
+                title="Strict Geo-Routing"
+                description="Force routing through specific regions based on destination."
+                enabled={rules.geoRouting}
+                onToggle={() => setRules(r => ({ ...r, geoRouting: !r.geoRouting }))}
+              />
 
               <button className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 border-dashed rounded-xl text-gray-400 hover:text-white font-medium transition-all flex items-center justify-center space-x-2">
                 <Plus className="w-4 h-4" />
@@ -390,6 +502,78 @@ export default function RoutingPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* Simulation Modal */}
+      {isSimulateOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-[#0f1115] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden"
+          >
+            <div className="p-6 border-b border-white/10 flex justify-between items-center">
+              <h3 className="text-xl font-bold text-white flex items-center">
+                <Settings className="w-5 h-5 mr-2 text-indigo-400" />
+                Routing Simulation
+              </h3>
+              <button onClick={() => setIsSimulateOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Destination Phone Number</label>
+                <input 
+                  type="text" 
+                  value={simNumber}
+                  onChange={(e) => setSimNumber(e.target.value)}
+                  placeholder="+1 234 567 8900"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+              <button 
+                onClick={runSimulation}
+                disabled={!simNumber || isSimulating}
+                className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white font-medium transition-colors"
+              >
+                {isSimulating ? "Simulating..." : "Run Simulation"}
+              </button>
+              
+              {simResult && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-6 p-4 bg-white/5 border border-white/10 rounded-xl space-y-3"
+                >
+                  <h4 className="text-sm font-medium text-gray-400">Simulation Result</h4>
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg">
+                      <CheckCircle2 className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{simResult.providerName}</p>
+                      <p className="text-sm text-gray-500">Reason: {simResult.reason}</p>
+                    </div>
+                  </div>
+                  {simResult.steps && (
+                    <div className="mt-4 pt-4 border-t border-white/10">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Evaluation Steps</p>
+                      <ul className="space-y-2 text-sm text-gray-400">
+                        {simResult.steps.map((step: string, i: number) => (
+                          <li key={i} className="flex items-start">
+                            <ArrowRight className="w-4 h-4 mr-2 mt-0.5 text-indigo-400 flex-shrink-0" />
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

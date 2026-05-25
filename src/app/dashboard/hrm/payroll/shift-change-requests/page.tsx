@@ -31,7 +31,10 @@ import { Check, Plus, X, Download, RefreshCw, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import Papa from 'papaparse';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { NewShiftChangeRequestForm } from './_components/new-shift-change-request-form';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
@@ -115,21 +118,33 @@ function ShiftChangeRequestsContent() {
   // Filter state
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [employeeFilter, setEmployeeFilter] = useState<string>('all');
+  const [dateFilter, setDateFilter] = useState<{ start: string; end: string }>({ start: '', end: '' });
 
   // Bulk action state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  // Real-time polling
+  // WebSockets simulation for collaborative editing
   useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const newReqs = await getShiftChangeRequests();
-        setRequests(newReqs);
-      } catch (err) {
-        // Silently fail polling
-      }
-    }, 15000); // Poll every 15s
-    return () => clearInterval(interval);
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/api/realtime/shift-change-requests`;
+    let ws: WebSocket;
+    try {
+      ws = new WebSocket(wsUrl);
+      ws.onmessage = async (event) => {
+        try {
+          const newReqs = await getShiftChangeRequests();
+          setRequests(newReqs);
+        } catch (e) {
+          console.error(e);
+        }
+      };
+    } catch(e) {
+      console.warn("WebSocket not supported or failed to connect, falling back to static data.");
+    }
+
+    return () => {
+      if (ws) ws.close();
+    };
   }, []);
 
   const empMap = useMemo(() => {
@@ -147,10 +162,12 @@ function ShiftChangeRequestsContent() {
   const filteredRequests = useMemo(() => {
     return requests.filter(r => {
       if (statusFilter !== 'all' && r.status !== statusFilter) return false;
-      if (employeeFilter !== 'all' && r.user_id !== employeeFilter) return false;
+      if (employeeFilter !== 'all' && String(r.user_id) !== employeeFilter) return false;
+      if (dateFilter.start && new Date(r.date) < new Date(dateFilter.start)) return false;
+      if (dateFilter.end && new Date(r.date) > new Date(dateFilter.end)) return false;
       return true;
     });
-  }, [requests, statusFilter, employeeFilter]);
+  }, [requests, statusFilter, employeeFilter, dateFilter]);
 
   const toggleSelection = (id: string) => {
     const next = new Set(selectedIds);
@@ -230,10 +247,10 @@ function ShiftChangeRequestsContent() {
 
   const handleExportCSV = () => {
     const data = filteredRequests.map(r => ({
-      Employee: empMap.get(r.user_id)?.firstName ? `${empMap.get(r.user_id)?.firstName} ${empMap.get(r.user_id)?.lastName}` : r.user_id,
+      Employee: empMap.get(String(r.user_id))?.firstName ? `${empMap.get(String(r.user_id))?.firstName} ${empMap.get(String(r.user_id))?.lastName}` : String(r.user_id),
       Date: format(new Date(r.date), 'PP'),
-      "Current Shift": shiftMap.get(r.current_shift_id)?.name || r.current_shift_id,
-      "Requested Shift": shiftMap.get(r.requested_shift_id)?.name || r.requested_shift_id,
+      "Current Shift": shiftMap.get(String(r.current_shift_id))?.name || String(r.current_shift_id),
+      "Requested Shift": shiftMap.get(String(r.requested_shift_id))?.name || String(r.requested_shift_id),
       Reason: r.reason || '',
       Status: r.status,
     }));
@@ -244,8 +261,29 @@ function ShiftChangeRequestsContent() {
     a.href = url;
     a.download = `shift-change-requests-${format(new Date(), 'yyyy-MM-dd')}.csv`;
     a.click();
-    URL.revokeObjectURL(url);
     toast.success('Exported to CSV');
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Shift Change Requests", 14, 15);
+    const tableData = filteredRequests.map(r => {
+      const empName = empMap.get(String(r.user_id))?.firstName ? `${empMap.get(String(r.user_id))?.firstName} ${empMap.get(String(r.user_id))?.lastName}` : String(r.user_id);
+      return [
+        empName,
+        format(new Date(r.date), 'PP'),
+        shiftMap.get(String(r.current_shift_id))?.name || String(r.current_shift_id),
+        shiftMap.get(String(r.requested_shift_id))?.name || String(r.requested_shift_id),
+        r.status
+      ];
+    });
+    autoTable(doc, {
+      head: [['Employee', 'Date', 'Current Shift', 'Requested Shift', 'Status']],
+      body: tableData,
+      startY: 20,
+    });
+    doc.save(`shift-change-requests-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+    toast.success('Exported to PDF');
   };
 
   const handleCreateRequest = async (data: any) => {
@@ -276,6 +314,10 @@ function ShiftChangeRequestsContent() {
           <Button variant="outline" onClick={handleExportCSV}>
             <Download className="h-4 w-4" strokeWidth={1.75} />
             Export CSV
+          </Button>
+          <Button variant="outline" onClick={handleExportPDF}>
+            <Download className="h-4 w-4" strokeWidth={1.75} />
+            Export PDF
           </Button>
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4" strokeWidth={1.75} />
@@ -320,6 +362,21 @@ function ShiftChangeRequestsContent() {
                 <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
               </ZoruSelectContent>
             </Select>
+
+            <Input 
+              type="date"
+              className="w-[130px] h-8 text-xs"
+              value={dateFilter.start}
+              onChange={(e) => setDateFilter(prev => ({ ...prev, start: e.target.value }))}
+              placeholder="Start Date"
+            />
+            <Input 
+              type="date"
+              className="w-[130px] h-8 text-xs"
+              value={dateFilter.end}
+              onChange={(e) => setDateFilter(prev => ({ ...prev, end: e.target.value }))}
+              placeholder="End Date"
+            />
           </div>
         </div>
 
@@ -357,9 +414,9 @@ function ShiftChangeRequestsContent() {
               >
                 {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                   const r = filteredRequests[virtualRow.index];
-                  const emp = empMap.get(r.user_id);
-                  const cur = shiftMap.get(r.current_shift_id);
-                  const req = shiftMap.get(r.requested_shift_id);
+                  const emp = empMap.get(String(r.user_id));
+                  const cur = shiftMap.get(String(r.current_shift_id));
+                  const req = shiftMap.get(String(r.requested_shift_id));
                   const isSelected = selectedIds.has(String(r._id));
 
                   return (
@@ -382,10 +439,10 @@ function ShiftChangeRequestsContent() {
                         />
                       </div>
                       <div className="truncate text-[13px] text-zoru-ink">
-                        {emp ? `${emp.firstName} ${emp.lastName}` : r.user_id}
+                        {emp ? `${emp.firstName} ${emp.lastName}` : String(r.user_id)}
                       </div>
                       <div className="truncate text-[13px] text-zoru-ink">
-                        {format(new Date(r.date), 'PP')}
+                        <ClientDate date={r.date} />
                       </div>
                       <div className="truncate">
                         <ShiftCell shift={cur} />
@@ -447,154 +504,6 @@ function ShiftChangeRequestsContent() {
   );
 }
 
-function NewShiftChangeRequestForm({
-  employees,
-  shifts,
-  onCancel,
-  onSubmit,
-}: {
-  employees: WithId<CrmEmployee>[];
-  shifts: WsEmployeeShift[];
-  onCancel: () => void;
-  onSubmit: (data: any) => Promise<void>;
-}) {
-  const [newUserId, setNewUserId] = useState('');
-  const [newDate, setNewDate] = useState('');
-  const [newCurrentShiftId, setNewCurrentShiftId] = useState('');
-  const [newRequestedShiftId, setNewRequestedShiftId] = useState('');
-  const [newReason, setNewReason] = useState('');
-  const [formError, setFormError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!newUserId || !newDate || !newCurrentShiftId || !newRequestedShiftId) {
-      setFormError('Employee, date, current shift and requested shift are all required.');
-      return;
-    }
-    setFormError(null);
-    setIsSubmitting(true);
-    try {
-      await onSubmit({
-        user_id: newUserId,
-        date: new Date(newDate),
-        current_shift_id: newCurrentShiftId,
-        requested_shift_id: newRequestedShiftId,
-        reason: newReason,
-        status: 'pending',
-      });
-      // Reset form
-      setNewUserId('');
-      setNewDate('');
-      setNewCurrentShiftId('');
-      setNewRequestedShiftId('');
-      setNewReason('');
-    } catch (err: any) {
-      setFormError(err.message || 'Failed to submit request');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
-      <div className="flex flex-col gap-1.5">
-        <Label className="text-[12px] text-zoru-ink-muted">
-          Employee <span className="text-zoru-danger-ink">*</span>
-        </Label>
-        <Select value={newUserId} onValueChange={setNewUserId}>
-          <ZoruSelectTrigger>
-            <ZoruSelectValue placeholder="Select employee" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            {employees.map((e) => (
-              <ZoruSelectItem key={String(e._id)} value={String(e._id)}>
-                {e.firstName} {e.lastName}
-              </ZoruSelectItem>
-            ))}
-          </ZoruSelectContent>
-        </Select>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <Label className="text-[12px] text-zoru-ink-muted">
-          Date <span className="text-zoru-danger-ink">*</span>
-        </Label>
-        <Input
-          type="date"
-          value={newDate}
-          onChange={(e) => setNewDate(e.target.value)}
-          required
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-[12px] text-zoru-ink-muted">
-            Current Shift <span className="text-zoru-danger-ink">*</span>
-          </Label>
-          <Select value={newCurrentShiftId} onValueChange={setNewCurrentShiftId}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Current" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {shifts.map((s) => (
-                <ZoruSelectItem key={String(s._id)} value={String(s._id)}>
-                  {s.name}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-[12px] text-zoru-ink-muted">
-            Requested Shift <span className="text-zoru-danger-ink">*</span>
-          </Label>
-          <Select value={newRequestedShiftId} onValueChange={setNewRequestedShiftId}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Requested" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {shifts.map((s) => (
-                <ZoruSelectItem key={String(s._id)} value={String(s._id)}>
-                  {s.name}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <Label className="text-[12px] text-zoru-ink-muted">Reason (optional)</Label>
-        <textarea
-          value={newReason}
-          onChange={(e) => setNewReason(e.target.value)}
-          rows={3}
-          placeholder="Explain the reason for the shift change…"
-          className="w-full resize-none rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink placeholder:text-zoru-ink-muted focus:outline-none focus:ring-1 focus:ring-ring"
-        />
-      </div>
-
-      {formError ? (
-        <div className="rounded-lg border border-rose-50 bg-rose-50/50 px-3 py-2 text-[13px] text-zoru-danger-ink">
-          {formError}
-        </div>
-      ) : null}
-
-      <ZoruDialogFooter>
-        <Button variant="outline" type="button" onClick={onCancel} disabled={isSubmitting}>
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving…' : 'Submit Request'}
-        </Button>
-      </ZoruDialogFooter>
-    </form>
-  );
-}
-
 function variant(s: WsShiftChangeStatus): 'warning' | 'success' | 'danger' {
   if (s === 'approved') return 'success';
   if (s === 'rejected') return 'danger';
@@ -613,4 +522,11 @@ function ShiftCell({ shift }: { shift?: WsEmployeeShift }) {
       <span className="truncate">{shift.name}</span>
     </span>
   );
+}
+
+function ClientDate({ date }: { date: string | Date }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return <span className="opacity-0">00/00/0000</span>;
+  return <span>{format(new Date(date), 'PP')}</span>;
 }

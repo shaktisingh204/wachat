@@ -19,6 +19,7 @@ import {
   Input,
   Label,
   Skeleton,
+  EmptyState,
 } from '@/components/zoruui';
 import {
   Package,
@@ -42,6 +43,11 @@ export default function CatalogsPage() {
     const [dialogOpen, setDialogOpen] = React.useState(false);
     const [submitting, setSubmitting] = React.useState(false);
     const [name, setName] = React.useState('');
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const fetchCatalogs = React.useCallback(async () => {
         if (!activeAccount) return;
@@ -70,6 +76,17 @@ export default function CatalogsPage() {
             fetchCatalogs();
         }
     };
+
+    if (!isMounted) {
+        return (
+            <div className="space-y-6">
+                <AmBreadcrumb page="Catalogs" />
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-40" />)}
+                </div>
+            </div>
+        );
+    }
 
     if (!activeAccount) {
         return (
@@ -116,20 +133,18 @@ export default function CatalogsPage() {
                     {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-40" />)}
                 </div>
             ) : catalogs.length === 0 ? (
-                <Card className="border-dashed">
-                    <ZoruCardContent className="py-16 text-center">
-                        <Package className="h-12 w-12 mx-auto text-muted-foreground" />
-                        <p className="mt-3 font-semibold">No catalogs yet</p>
-                        <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1">
-                            Create a catalog from your Shopify/WooCommerce store or upload a CSV feed.
-                        </p>
-                        <Button variant="outline" className="mt-4" asChild>
+                <EmptyState
+                    icon={<Package />}
+                    title="No catalogs yet"
+                    description="Create a catalog from your Shopify/WooCommerce store or upload a CSV feed."
+                    action={
+                        <Button variant="outline" asChild>
                             <a href="https://business.facebook.com/commerce" target="_blank" rel="noreferrer">
                                 Open Commerce Manager <ExternalLink className="h-3 w-3 ml-1" />
                             </a>
                         </Button>
-                    </ZoruCardContent>
-                </Card>
+                    }
+                />
             ) : (
                 <>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -45,8 +45,8 @@ export async function getAdvancedGscData(projectId: string, startDate: string, e
         });
 
         return { success: true, rows: res.data.rows || [], siteUrl };
-    } catch (e: any) {
+    } catch (e: unknown) {
         console.error("GSC Data Fetch Failed", e);
-        return { error: e.message };
+        return { error: e instanceof Error ? e.message : 'Unknown error' };
     }
 }

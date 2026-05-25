@@ -74,6 +74,40 @@ export function EventsCalendar({ events }: EventsCalendarProps): React.JSX.Eleme
     const today = new Date();
     const isCurrentMonth = today.getFullYear() === year && today.getMonth() === monthIdx;
 
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return (
+            <Card>
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="flex items-center gap-2 text-[14px] font-semibold text-zoru-ink">
+                        <CalendarDays className="h-4 w-4" />
+                        Loading calendar...
+                    </h3>
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                    {DAYS.map((d) => (
+                        <div
+                            key={d}
+                            className="py-2 text-center text-[11.5px] font-semibold uppercase tracking-wide text-zoru-ink-muted"
+                        >
+                            {d}
+                        </div>
+                    ))}
+                    {Array.from({ length: 35 }).map((_, i) => (
+                        <div
+                            key={i}
+                            className="min-h-[88px] rounded-md border border-zoru-line bg-zoru-bg p-1.5"
+                        />
+                    ))}
+                </div>
+            </Card>
+        );
+    }
+
     return (
         <Card>
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">

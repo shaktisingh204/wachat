@@ -4,7 +4,9 @@ import { Button, Input, Card, ZoruCardContent, cn } from '@/components/zoruui';
 import { Alert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui/alert';
 import { Switch } from '@/components/zoruui/switch';
 import { Label } from '@/components/zoruui/label';
-import { useState } from 'react';
+import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/zoruui';
+import { useMemo, useState } from 'react';
+import { fmtINR } from '@/lib/utils';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { Info, TriangleAlert, Loader2 } from 'lucide-react';
 import { getLiveCpcData } from './actions';
@@ -35,10 +37,18 @@ function estimateCpc(kw: string): { low: number; high: number; intent: string } 
 export default function KeywordCpcPage() {
   const [kw, setKw] = useState('');
   const [useLiveApi, setUseLiveApi] = useState(false);
+  const [location, setLocation] = useState('United States');
+  const [language, setLanguage] = useState('English');
   const [loading, setLoading] = useState(false);
   
   const [heuristicResult, setHeuristicResult] = useState<ReturnType<typeof estimateCpc> | null>(null);
-  const [apiResult, setApiResult] = useState<{cpc: number | null, search_volume: number | null, competition: number | null, competition_level: string | null} | null>(null);
+  const [apiResult, setApiResult] = useState<{
+    cpc: number | null;
+    search_volume: number | null;
+    competition: number | null;
+    competition_level: string | null;
+    monthly_searches?: Array<{year: number, month: number, search_volume: number}>;
+  } | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const run = async () => {
@@ -53,7 +63,7 @@ export default function KeywordCpcPage() {
       setHeuristicResult(estimateCpc(s));
     } else {
       setLoading(true);
-      const res = await getLiveCpcData(s);
+      const res = await getLiveCpcData(s, location, language);
       setLoading(false);
       
       if (res.error) {
@@ -97,6 +107,26 @@ export default function KeywordCpcPage() {
             onKeyDown={(e) => e.key === 'Enter' && run()}
             disabled={loading}
           />
+          {useLiveApi && (
+            <>
+              <Input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Location (e.g., United States)"
+                disabled={loading}
+                className="w-40 hidden md:block"
+                title="Location"
+              />
+              <Input
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                placeholder="Language (e.g., English)"
+                disabled={loading}
+                className="w-32 hidden lg:block"
+                title="Language"
+              />
+            </>
+          )}
           <Button onClick={run} disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             Estimate
@@ -155,7 +185,7 @@ export default function KeywordCpcPage() {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Average CPC</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-bold">${apiResult.cpc?.toFixed(2) ?? '0.00'}</span>
+                  <span className="text-4xl font-bold">{apiResult.cpc != null ? fmtINR(apiResult.cpc, 'USD') : fmtINR(0, 'USD')}</span>
                 </div>
               </div>
               <div>
@@ -174,6 +204,48 @@ export default function KeywordCpcPage() {
             <p className="text-xs text-muted-foreground mt-4 border-t pt-4">
               Production-grade estimate retrieved via DataForSEO Live API.
             </p>
+          </ZoruCardContent>
+        </Card>
+      )}
+
+      {apiResult && useLiveApi && apiResult.monthly_searches && apiResult.monthly_searches.length > 0 && (
+        <Card className="mt-4">
+          <ZoruCardContent className="p-6">
+            <h4 className="text-sm font-semibold mb-4">Monthly Search Volume Trend</h4>
+            <ZoruChartContainer height={300}>
+              <ZoruChart.ResponsiveContainer>
+                <ZoruChart.AreaChart
+                  data={apiResult.monthly_searches.map(m => ({
+                    date: `${m.month}/${m.year}`,
+                    volume: m.search_volume
+                  }))}
+                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                >
+                  <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+                  <ZoruChart.XAxis 
+                    dataKey="date" 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tick={{ fontSize: 12, fill: 'hsl(var(--zoru-ink-muted))' }}
+                    dy={10}
+                  />
+                  <ZoruChart.YAxis 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tick={{ fontSize: 12, fill: 'hsl(var(--zoru-ink-muted))' }}
+                  />
+                  <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                  <ZoruChart.Area
+                    type="monotone"
+                    dataKey="volume"
+                    name="Search Volume"
+                    stroke={ZORU_CHART_PALETTE[0]}
+                    fill={ZORU_CHART_PALETTE[0]}
+                    fillOpacity={0.1}
+                  />
+                </ZoruChart.AreaChart>
+              </ZoruChart.ResponsiveContainer>
+            </ZoruChartContainer>
           </ZoruCardContent>
         </Card>
       )}

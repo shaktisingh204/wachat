@@ -6,6 +6,9 @@ import EditRoadmapForm from './edit-roadmap-form';
 import { LoaderCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
+
 export default async function EditRoadmapPage({
   params,
 }: {

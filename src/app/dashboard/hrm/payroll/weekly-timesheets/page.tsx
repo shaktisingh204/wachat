@@ -3,23 +3,29 @@ import { getWeeklyTimesheets } from '@/app/actions/worksuite/time.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { WeeklyTimesheetsClient } from './components/weekly-timesheets-client';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { LocalErrorBoundary } from './components/local-error-boundary';
+
+export const dynamic = 'force-dynamic';
+
 
 export default function WeeklyTimesheetsPage() {
   return (
-    <Suspense 
-      fallback={
-        <EntityListShell
-          title="Weekly Timesheets"
-          subtitle="Track, submit, and approve weekly hour logs across your team."
-        >
-          <div className="p-12 text-center text-sm text-zoru-ink-muted">
-            Loading timesheets...
-          </div>
-        </EntityListShell>
-      }
+    <EntityListShell
+      title="Weekly Timesheets"
+      subtitle="Track, submit, and approve weekly hour logs across your team."
     >
-      <DataLoader />
-    </Suspense>
+      <LocalErrorBoundary>
+        <Suspense 
+          fallback={
+            <div className="p-12 text-center text-sm text-zoru-ink-muted">
+              Loading timesheets...
+            </div>
+          }
+        >
+          <DataLoader />
+        </Suspense>
+      </LocalErrorBoundary>
+    </EntityListShell>
   );
 }
 

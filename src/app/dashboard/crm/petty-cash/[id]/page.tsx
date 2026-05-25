@@ -68,24 +68,7 @@ function statusTone(status?: string): EntityStatusTone {
   }
 }
 
-function fmtMoney(value: unknown, currency?: string): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: currency || 'INR',
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `${currency ?? 'INR'} ${value}`;
-  }
-}
-
-function fmtDate(v: unknown): string {
-  if (!v) return '—';
-  const d = new Date(v as string);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+import { fmtDate, fmtINR as fmtMoney } from '@/lib/utils';
 
 function daysSince(value?: string): string {
   if (!value) return 'Never';

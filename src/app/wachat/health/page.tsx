@@ -18,6 +18,16 @@ import {
   ZoruPageTitle,
   cn,
   useZoruToast,
+  Alert,
+  ZoruAlertTitle,
+  ZoruAlertDescription,
+  ZoruChart,
+  ZoruChartContainer,
+  ZoruChartTooltip,
+  Tooltip,
+  ZoruTooltipContent,
+  ZoruTooltipProvider,
+  ZoruTooltipTrigger,
 } from '@/components/zoruui';
 import {
   useCallback,
@@ -37,6 +47,9 @@ import {
   RefreshCw,
   Smartphone,
   TriangleAlert,
+  ExternalLink,
+  Info,
+  TrendingDown,
   } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
@@ -52,8 +65,6 @@ import {
  */
 
 import * as React from 'react';
-
-export const dynamic = 'force-dynamic';
 
 type PhoneHealth = {
   phoneNumberId: string;
@@ -116,6 +127,31 @@ function entityIcon(type?: string) {
       return <Circle className={cls} />;
   }
 }
+
+function categorizeError(err: any) {
+  const desc = (err.error_description || err.message || '').toLowerCase();
+  if (desc.includes('policy') || desc.includes('violation')) return { type: 'Policy Violation', variant: 'danger' as const };
+  if (desc.includes('limit') || desc.includes('rate')) return { type: 'Rate Limit', variant: 'warning' as const };
+  if (desc.includes('payment') || desc.includes('billing')) return { type: 'Billing Issue', variant: 'danger' as const };
+  if (desc.includes('quality') || desc.includes('spam')) return { type: 'Quality Drop', variant: 'warning' as const };
+  return { type: 'System Error', variant: 'ghost' as const };
+}
+
+const MOCK_QUALITY_HISTORY = [
+  { date: 'Oct 01', value: 3, rating: 'High', event: null },
+  { date: 'Oct 05', value: 3, rating: 'High', event: null },
+  { date: 'Oct 10', value: 2, rating: 'Medium', event: 'Diwali Promo (Spam reports increased)' },
+  { date: 'Oct 15', value: 1, rating: 'Low', event: 'Mass Broadcast (High block rate)' },
+  { date: 'Oct 20', value: 2, rating: 'Medium', event: null },
+  { date: 'Oct 25', value: 3, rating: 'High', event: null },
+];
+
+const yAxisFormatter = (val: number) => {
+  if (val === 3) return 'High';
+  if (val === 2) return 'Medium';
+  if (val === 1) return 'Low';
+  return '';
+};
 
 export default function HealthPage() {
   const { activeProject } = useProject();
@@ -222,6 +258,21 @@ export default function HealthPage() {
         </Button>
       </div>
 
+      {/* Alerts/notifications when health drops */}
+      {overallColor !== 'muted' && overallColor !== 'green' && (
+        <Alert variant={overallColor === 'red' ? 'destructive' : 'warning'}>
+          {overallColor === 'red' ? <Ban className="h-4 w-4" /> : <TriangleAlert className="h-4 w-4" />}
+          <ZoruAlertTitle>
+            {overallColor === 'red' ? 'Messaging Disabled' : 'Account Warning'}
+          </ZoruAlertTitle>
+          <ZoruAlertDescription className="mt-1">
+            {overallColor === 'red'
+              ? 'Your WhatsApp Business Account is currently unable to send messages. Please resolve the critical errors below.'
+              : 'Your account is facing warnings that could lead to messaging restrictions. Maintain high message quality to avoid further drops.'}
+          </ZoruAlertDescription>
+        </Alert>
+      )}
+
       {/* Overall messaging status */}
       {wabaHealth && (
         <Card className="overflow-hidden p-0">
@@ -292,24 +343,54 @@ export default function HealthPage() {
 
                     {errors.length > 0 && (
                       <div className="ml-11 mt-3 space-y-2">
-                        {errors.map((err: any, j: number) => (
-                          <div
-                            key={j}
-                            className="flex items-start gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-danger/30 bg-zoru-danger/5 px-3 py-2.5"
-                          >
-                            <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zoru-danger" />
-                            <div className="min-w-0">
-                              <p className="text-xs text-zoru-danger-ink">
-                                {err.error_description || err.message || 'Unknown error'}
-                              </p>
-                              {err.possible_solution && (
-                                <p className="mt-1 text-[11px] text-zoru-ink-muted">
-                                  {err.possible_solution}
-                                </p>
+                        {errors.map((err: any, j: number) => {
+                          const errMeta = categorizeError(err);
+                          return (
+                            <div
+                              key={j}
+                              className={cn(
+                                "flex flex-col gap-2 rounded-[var(--zoru-radius-sm)] border px-3 py-2.5",
+                                errMeta.variant === 'danger' ? "border-zoru-danger/30 bg-zoru-danger/5" :
+                                errMeta.variant === 'warning' ? "border-zoru-warning/30 bg-zoru-warning/5" :
+                                "border-zoru-line bg-zoru-surface-2"
                               )}
+                            >
+                              <div className="flex items-start gap-2">
+                                {errMeta.variant === 'danger' ? (
+                                  <Ban className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zoru-danger" />
+                                ) : (
+                                  <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zoru-warning" />
+                                )}
+                                <div className="min-w-0 flex-1">
+                                  <div className="mb-1 flex items-center gap-2">
+                                    <Badge variant={errMeta.variant} className="text-[9px] uppercase">
+                                      {errMeta.type}
+                                    </Badge>
+                                  </div>
+                                  <p className={cn(
+                                    "text-xs font-medium",
+                                    errMeta.variant === 'danger' ? "text-zoru-danger-ink" : "text-zoru-warning-ink"
+                                  )}>
+                                    {err.error_description || err.message || 'Unknown error'}
+                                  </p>
+                                  {err.possible_solution && (
+                                    <p className="mt-1 text-[11px] text-zoru-ink-muted">
+                                      {err.possible_solution}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="ml-5 flex items-center gap-2">
+                                <Button size="sm" variant="outline" className="h-7 text-[11px]" asChild>
+                                  <a href="https://business.facebook.com/wa/manage/phone-numbers" target="_blank" rel="noreferrer">
+                                    <ExternalLink className="mr-1.5 h-3 w-3" />
+                                    File Dispute
+                                  </a>
+                                </Button>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -360,7 +441,81 @@ export default function HealthPage() {
                   </div>
                 </div>
 
-                <div className="mt-3 flex items-center justify-between border-t border-zoru-line pt-3">
+                <div className="mt-4 border-t border-zoru-line pt-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-[12px] font-medium text-zoru-ink">Quality History</h3>
+                    <ZoruTooltipProvider>
+                      <Tooltip>
+                        <ZoruTooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-6 w-6">
+                            <Info className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                          </Button>
+                        </ZoruTooltipTrigger>
+                        <ZoruTooltipContent>
+                          <p className="max-w-[200px] text-xs">
+                            Track your quality rating over time to see if specific campaigns caused a drop in quality.
+                          </p>
+                        </ZoruTooltipContent>
+                      </Tooltip>
+                    </ZoruTooltipProvider>
+                  </div>
+                  
+                  <ZoruChartContainer height={140}>
+                    <ZoruChart.LineChart data={MOCK_QUALITY_HISTORY} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                      <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+                      <ZoruChart.XAxis 
+                        dataKey="date" 
+                        tickLine={false} 
+                        axisLine={false} 
+                        tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 10 }} 
+                        dy={5}
+                      />
+                      <ZoruChart.YAxis 
+                        tickLine={false} 
+                        axisLine={false} 
+                        tickFormatter={yAxisFormatter}
+                        tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 10 }}
+                        domain={[1, 3]}
+                        ticks={[1, 2, 3]}
+                      />
+                      <ZoruChart.Tooltip
+                        content={({ active, payload, label }) => {
+                          if (!active || !payload?.length) return null;
+                          const data = payload[0].payload;
+                          return (
+                            <div className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-xs shadow-[var(--zoru-shadow-sm)]">
+                              <p className="mb-1 font-medium text-zoru-ink">{label}</p>
+                              <div className="flex items-center gap-2 text-zoru-ink-muted">
+                                <span className={cn(
+                                  "h-1.5 w-1.5 rounded-full",
+                                  data.value === 3 ? "bg-zoru-success" : data.value === 2 ? "bg-zoru-warning" : "bg-zoru-danger"
+                                )} />
+                                <span>Rating:</span>
+                                <span className="font-medium text-zoru-ink">{data.rating}</span>
+                              </div>
+                              {data.event && (
+                                <div className="mt-1 flex items-start gap-1.5 border-t border-zoru-line pt-1 text-[10px] text-zoru-warning-ink">
+                                  <TrendingDown className="mt-0.5 h-3 w-3 shrink-0" />
+                                  <span className="max-w-[120px] leading-tight">{data.event}</span>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }}
+                      />
+                      <ZoruChart.Line 
+                        type="monotone" 
+                        dataKey="value" 
+                        stroke="hsl(var(--zoru-ink))" 
+                        strokeWidth={2} 
+                        dot={{ r: 3, fill: "var(--zoru-bg)", strokeWidth: 2 }}
+                        activeDot={{ r: 5 }}
+                      />
+                    </ZoruChart.LineChart>
+                  </ZoruChartContainer>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between border-t border-zoru-line pt-4">
                   <div className="flex items-center gap-3 text-[11px] text-zoru-ink-muted">
                     {phone.commerceSettings && (
                       <>

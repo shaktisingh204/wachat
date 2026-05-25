@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import {
     AlertTriangle,
     ArrowRightLeft,
@@ -13,9 +14,11 @@ import {
     TrendingUp,
     Truck,
     Warehouse,
+    Loader2,
 } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { type CrmStockAdjustmentDoc } from '@/lib/rust-client/crm-stock-adjustments';
 
 import {
     HubKpiGrid,
@@ -27,24 +30,14 @@ import {
 } from '../_components/hub-kpi-grid';
 import {
     countByUser,
-    formatCurrency,
-    formatDate,
     recentByUser,
     sumByUser,
 } from '../_components/hub-data';
+import { fmtDate, fmtINR } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
-interface AdjustmentDoc {
-    _id: string;
-    reason?: string;
-    itemName?: string;
-    quantity?: number;
-    qty?: number;
-    direction?: string;
-    createdAt?: string;
-    movementType?: string;
-}
+type LegacyAdjustmentDoc = CrmStockAdjustmentDoc & { itemName?: string; qty?: number; direction?: string; movementType?: string };
 
 const QUICK_LINKS: HubQuickLink[] = [
     { href: '/dashboard/crm/inventory/items', title: 'Items', description: 'Products, SKUs, services, and their pricing.', icon: Package },
@@ -63,7 +56,7 @@ const QUICK_LINKS: HubQuickLink[] = [
     { href: '/dashboard/crm/inventory/pnl', title: 'Inventory P&L', description: 'Profit and loss attributable to inventory.', icon: TrendingUp },
 ];
 
-export default async function CrmInventoryHubPage() {
+async function InventoryOverviewData() {
     const [itemCount, warehouseCount, lowStockCount, stockValue, recentAdjustments] = await Promise.all([
         countByUser('crm_items'),
         countByUser('crm_warehouses'),
@@ -71,7 +64,7 @@ export default async function CrmInventoryHubPage() {
             $expr: { $lte: ['$currentStock', '$reorderLevel'] },
         }),
         sumByUser('crm_items', 'stockValue'),
-        recentByUser<AdjustmentDoc>('crm_stock_adjustments', {
+        recentByUser<LegacyAdjustmentDoc>('crm_stock_adjustments', {
             sortField: 'createdAt',
             limit: 5,
         }),
@@ -94,7 +87,7 @@ export default async function CrmInventoryHubPage() {
         },
         {
             label: 'Stock Value',
-            value: formatCurrency(stockValue),
+            value: fmtINR(stockValue),
             icon: TrendingUp,
             href: '/dashboard/crm/inventory/stock-value',
         },
@@ -110,25 +103,41 @@ export default async function CrmInventoryHubPage() {
         id: String(a._id),
         primary: a.itemName || a.reason || 'Stock adjustment',
         secondary: a.movementType || a.direction || 'adjustment',
-        trailing: `${a.quantity ?? a.qty ?? 0} · ${formatDate(a.createdAt)}`,
+        trailing: `${a.quantity ?? a.qty ?? 0} · ${fmtDate(a.createdAt)}`,
         href: '/dashboard/crm/inventory/adjustments',
     }));
 
+    return (
+        <div className="flex flex-col gap-6">
+            <HubKpiGrid kpis={kpis} />
+            <HubQuickLinkGrid links={QUICK_LINKS} />
+            <HubRecentList
+                title="Recent stock movements"
+                rows={recentRows}
+                emptyHint="No stock movements yet."
+                viewAllHref="/dashboard/crm/inventory/all-transactions"
+            />
+        </div>
+    );
+}
+
+function InventoryLoading() {
+    return (
+        <div className="flex h-64 w-full items-center justify-center rounded-lg border border-dashed border-zoru-line">
+            <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-subtle" />
+        </div>
+    );
+}
+
+export default function CrmInventoryHubPage() {
     return (
         <EntityListShell
             title="Inventory"
             subtitle="Items, warehouses, stock movements, and inventory valuation."
         >
-            <div className="flex flex-col gap-6">
-                <HubKpiGrid kpis={kpis} />
-                <HubQuickLinkGrid links={QUICK_LINKS} />
-                <HubRecentList
-                    title="Recent stock movements"
-                    rows={recentRows}
-                    emptyHint="No stock movements yet."
-                    viewAllHref="/dashboard/crm/inventory/all-transactions"
-                />
-            </div>
+            <Suspense fallback={<InventoryLoading />}>
+                <InventoryOverviewData />
+            </Suspense>
         </EntityListShell>
     );
 }

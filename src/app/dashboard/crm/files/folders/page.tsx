@@ -25,9 +25,12 @@ import {
 import type { WsFileStorage } from '@/lib/worksuite/file-types';
 import { FoldersBrowserClient } from './_components/folders-browser-client';
 
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/zoruui';
+
 export const dynamic = 'force-dynamic';
 
-export default async function FileFoldersPage() {
+async function FileFoldersData() {
   const [folderTree, rootFiles, stats] = await Promise.all([
     getFolderTree(),
     getFiles(null),
@@ -35,15 +38,23 @@ export default async function FileFoldersPage() {
   ]);
 
   return (
+    <FoldersBrowserClient
+      folderTree={folderTree}
+      initialFiles={rootFiles as WsFileStorage[]}
+      stats={stats}
+    />
+  );
+}
+
+export default function FileFoldersPage() {
+  return (
     <EntityListShell
       title="Files &amp; Folders"
       subtitle="Organize and browse all CRM files. Upload via the library — no external URLs."
     >
-      <FoldersBrowserClient
-        folderTree={folderTree}
-        initialFiles={rootFiles as WsFileStorage[]}
-        stats={stats}
-      />
+      <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
+        <FileFoldersData />
+      </Suspense>
     </EntityListShell>
   );
 }

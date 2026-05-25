@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { ShiftForm } from '../_components/shift-form';
+import { ShiftForm } from '../../_components/shift-form';
 import type { CrmShiftDoc } from '@/lib/rust-client/crm-shifts';
 import { 
     Button, 
@@ -24,7 +24,9 @@ export function EditShiftClient({ initial }: { initial: CrmShiftDoc }) {
     
     // WebSockets simulation for collaborative editing
     const [collabStatus, setCollabStatus] = useState<string>('Connected');
+    const [mounted, setMounted] = useState(false);
     useEffect(() => {
+        setMounted(true);
         const interval = setInterval(() => {
             const random = Math.random();
             if (random > 0.8) setCollabStatus('Another user is editing...');
@@ -32,6 +34,18 @@ export function EditShiftClient({ initial }: { initial: CrmShiftDoc }) {
         }, 5000);
         return () => clearInterval(interval);
     }, []);
+
+    const lastUpdated = useMemo(() => {
+        if (!initial.updatedAt || !mounted) return null;
+        try {
+            return new Intl.DateTimeFormat('en-US', {
+                dateStyle: 'medium',
+                timeStyle: 'short'
+            }).format(new Date(initial.updatedAt));
+        } catch {
+            return null;
+        }
+    }, [initial.updatedAt, mounted]);
 
     // Mock data for assignments
     const [assignments, setAssignments] = useState(
@@ -88,8 +102,13 @@ export function EditShiftClient({ initial }: { initial: CrmShiftDoc }) {
         <div className="mx-auto flex max-w-6xl flex-col gap-6 lg:flex-row">
             <div className="flex-1 space-y-6">
                 <Card className="p-6">
-                    <div className="mb-4 flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-zoru-ink">Edit Shift</h2>
+                    <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 className="text-xl font-semibold text-zoru-ink">Edit Shift</h2>
+                            {mounted && lastUpdated && (
+                                <p className="text-xs text-zoru-ink-muted mt-1">Last updated: {lastUpdated}</p>
+                            )}
+                        </div>
                         <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
                             <span className="flex h-2 w-2 rounded-full bg-green-500" />
                             {collabStatus}

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   Badge,
   Button,
+  Checkbox,
   Input,
   Label,
   Textarea,
@@ -29,9 +30,10 @@ function statusVariant(s: SabsmsMessageStatus) {
   return 'secondary' as const;
 }
 
-export function SabsmsDebugSendForm() {
+export function SabsmsDebugSendForm({ engineHealthy = true }: { engineHealthy?: boolean }) {
   const [to, setTo] = useState('');
   const [body, setBody] = useState('SabSMS debug send 🚀');
+  const [dryRun, setDryRun] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [messageId, setMessageId] = useState<string | null>(null);
   const [status, setStatus] = useState<SabsmsMessageStatus | null>(null);
@@ -47,13 +49,15 @@ export function SabsmsDebugSendForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!engineHealthy) return;
+
     setError(null);
     setMessage(null);
     setMessageId(null);
     setStatus(null);
     setSubmitting(true);
 
-    const res = await sendDebugSms({ to, body });
+    const res = await sendDebugSms({ to, body, dryRun });
     setSubmitting(false);
     if (!res.ok) {
       setError(res.error);
@@ -109,9 +113,23 @@ export function SabsmsDebugSendForm() {
       </div>
 
       <div className="flex items-center gap-3">
-        <Button type="submit" disabled={submitting || !to || !body}>
+        <Button type="submit" disabled={submitting || !to || !body || !engineHealthy}>
           {submitting ? 'Sending…' : 'Send debug SMS'}
         </Button>
+        <div className="flex items-center gap-2 ml-2">
+          <Checkbox 
+            id="sabsms-debug-dryrun" 
+            checked={dryRun} 
+            onCheckedChange={(checked) => setDryRun(checked === true)} 
+            disabled={submitting || !engineHealthy}
+          />
+          <Label htmlFor="sabsms-debug-dryrun" className="text-sm cursor-pointer font-normal">
+            Dry run (test engine ingestion without hitting Twilio)
+          </Label>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-3">
         {status && (
           <Badge variant={statusVariant(status)}>{status}</Badge>
         )}

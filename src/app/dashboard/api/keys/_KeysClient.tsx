@@ -33,6 +33,7 @@ interface KeyRow {
   createdAt: string;
   lastUsedAt?: string;
   scopes?: string[];
+  key?: string;
 }
 
 interface Props {
@@ -158,6 +159,7 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
           <ZoruTableHeader>
             <ZoruTableRow>
               <ZoruTableHead>Name</ZoruTableHead>
+              <ZoruTableHead>Key</ZoruTableHead>
               <ZoruTableHead>Scopes</ZoruTableHead>
               <ZoruTableHead>Requests</ZoruTableHead>
               <ZoruTableHead>Created</ZoruTableHead>
@@ -181,6 +183,9 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
             {keys.map((k) => (
               <ZoruTableRow key={k._id}>
                 <ZoruTableCell>{k.name}</ZoruTableCell>
+                <ZoruTableCell className="font-mono text-sm text-zoru-ink">
+                  {maskKey(k.key)}
+                </ZoruTableCell>
                 <ZoruTableCell>
                     {k.scopes && k.scopes.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
@@ -205,17 +210,29 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
                   )}
                 </ZoruTableCell>
                 <ZoruTableCell className="text-right">
-                  {!k.revoked ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRevoke(k._id)}
-                      disabled={busy}
-                      className="text-zoru-danger hover:text-zoru-danger"
-                    >
-                      Revoke
-                    </Button>
-                  ) : null}
+                  <div className="flex justify-end gap-2">
+                    {k.key ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigator.clipboard.writeText(k.key!)}
+                        title="Copy key"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    ) : null}
+                    {!k.revoked ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRevoke(k._id)}
+                        disabled={busy}
+                        className="text-zoru-danger hover:text-zoru-danger"
+                      >
+                        Revoke
+                      </Button>
+                    ) : null}
+                  </div>
                 </ZoruTableCell>
               </ZoruTableRow>
             ))}
@@ -272,8 +289,16 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
 
 function formatDate(iso: string): string {
   try {
-    return new Date(iso).toLocaleString();
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return d.toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
   } catch {
     return iso;
   }
+}
+
+function maskKey(key?: string) {
+  if (!key || typeof key !== 'string') return '—';
+  if (key.length <= 12) return '•'.repeat(key.length);
+  return key.slice(0, 8) + '…' + key.slice(-4);
 }
