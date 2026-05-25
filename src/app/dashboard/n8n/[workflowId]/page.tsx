@@ -24,5 +24,3 @@ export default async function WorkflowEditorRoute({ params }: Props) {
   );
 }
 
-export const dynamic = 'force-dynamic';
-

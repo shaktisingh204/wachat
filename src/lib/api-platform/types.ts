@@ -37,6 +37,17 @@ export type OAuthScope =
  */
 export type RateLimitTier = 'FREE' | 'PRO' | 'ENTERPRISE';
 
+/**
+ * Requests per minute allowed for each tier. Lives here (not in
+ * `rate-limit.ts`) so it can be imported by client-safe modules like
+ * `openapi.ts` without dragging in the ioredis dependency chain.
+ */
+export const TIER_LIMITS: Record<RateLimitTier, number> = {
+  FREE: 60,
+  PRO: 600,
+  ENTERPRISE: 6000,
+};
+
 /* ── API keys ────────────────────────────────────────────────────────────── */
 
 /**

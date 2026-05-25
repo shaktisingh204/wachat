@@ -15,7 +15,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { WithId } from 'mongodb';
 import { Copy, Pencil } from 'lucide-react';
-import dynamic from 'next/dynamic';
+import nextDynamic from 'next/dynamic';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { Button, Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, Skeleton } from '@/components/zoruui';
@@ -28,7 +28,7 @@ import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 export const dynamic = 'force-dynamic';
 
 // Dynamic import with for zero hydration discrepancies in ProductHistoryGraph
-const ProductHistoryGraph = dynamic(
+const ProductHistoryGraph = nextDynamic(
   () => import('../_components/product-history-graph').then((m) => m.ProductHistoryGraph),
   {  loading: () => <ProductHistoryGraphSkeleton /> }
 );

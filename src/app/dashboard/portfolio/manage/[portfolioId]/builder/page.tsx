@@ -19,8 +19,6 @@ const WebsiteBuilder = nextDynamic(
     }
 );
 
-export const dynamic = 'force-dynamic';
-
 export default async function WebsiteBuilderPage(props: { params: Promise<{ portfolioId: string }> }) {
     const params = await props.params;
     const [site, pages] = await Promise.all([

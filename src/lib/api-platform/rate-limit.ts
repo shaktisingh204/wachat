@@ -21,19 +21,11 @@
 // import 'server-only';
 
 import Redis from 'ioredis';
-import type { RateLimitTier } from './types';
+import { TIER_LIMITS, type RateLimitTier } from './types';
 
 /* ── Tier configuration ──────────────────────────────────────────────────── */
 
-/**
- * Requests per minute allowed for each tier.  These are also exposed via
- * the `OpenAPI` spec so SDK authors can surface them to end users.
- */
-export const TIER_LIMITS: Record<RateLimitTier, number> = {
-  FREE: 60,
-  PRO: 600,
-  ENTERPRISE: 6000,
-};
+export { TIER_LIMITS };
 
 /** Window over which the per-tier limit applies, in seconds. */
 const WINDOW_SECONDS = 60;

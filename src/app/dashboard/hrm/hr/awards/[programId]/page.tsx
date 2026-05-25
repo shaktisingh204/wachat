@@ -51,15 +51,6 @@ const AWARDS_LIST_HREF = '/dashboard/hrm/hr/awards';
 
 
 
-function fmtINR(n: unknown): string {
-    if (typeof n !== 'number' || isNaN(n)) return '—';
-    try {
-        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n);
-    } catch {
-        return `₹${n}`;
-    }
-}
-
 function statusVariant(status?: string): 'success' | 'ghost' | 'warning' | 'danger' {
     const s = (status || '').toLowerCase();
     if (s === 'active') return 'success';

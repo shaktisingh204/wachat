@@ -7,7 +7,7 @@
  * routes themselves and we can introspect it from tests.
  */
 
-import { TIER_LIMITS } from './rate-limit';
+import { TIER_LIMITS } from './types';
 
 /** A subset of OpenAPI 3.1 we actually use. */
 export interface OpenApiSpec {
