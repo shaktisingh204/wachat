@@ -1,0 +1,1 @@
+export function EntityErrorState({ title, message, retry }: any) { return <div><h2>{title}</h2><p>{message}</p><button onClick={retry}>Retry</button></div>; }

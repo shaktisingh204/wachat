@@ -1,0 +1,1 @@
+export function StateCard({ title, children }: any) { return <div><h3>{title}</h3>{children}</div>; }

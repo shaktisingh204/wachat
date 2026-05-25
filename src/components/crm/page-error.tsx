@@ -1,0 +1,1 @@
+export function PageError({ error, reset }: any) { return <div><h2>Page Error</h2><p>{error?.message}</p><button onClick={reset}>Retry</button></div>; }

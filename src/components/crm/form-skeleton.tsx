@@ -1,0 +1,1 @@
+export function FormSkeleton() { return <div>Loading form...</div>; }
