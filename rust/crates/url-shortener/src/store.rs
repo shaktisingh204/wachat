@@ -857,8 +857,6 @@ pub async fn track_click(
                 utm_params: None,
                 split_targets: None,
                 is_expired: None,
-                pixel_ids: None,
-                is_expired: None,
             });
         }
     }
