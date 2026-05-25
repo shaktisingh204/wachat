@@ -200,25 +200,104 @@ sudo nano /etc/nginx/sites-available/sabnode.com
 
 **Nginx Configuration:**
 ```nginx
+# Rate limiting zone
+limit_req_zone $binary_remote_addr zone=api:10m rate=30r/s;
+
 upstream sabnode_app {
     server 127.0.0.1:3002;
     keepalive 64;
 }
 
+# Redirect www to non-www
 server {
     listen 80;
-    server_name sabnode.com www.sabnode.com;
+    listen [::]:80;
+    server_name www.sabnode.com;
+    return 301 https://$host$request_uri;
+}
 
+server {
+    listen 80;
+    listen [::]:80;
+    server_name sabnode.com;
+
+    # Max upload size (matches Next.js serverActions bodySizeLimit)
     client_max_body_size 50M;
 
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css text/xml application/json application/javascript
+               application/xml+rss application/atom+xml image/svg+xml;
+
+    # Static files from Next.js standalone build — cache aggressively
+    location /_next/static/ {
+        proxy_pass http://sabnode_app;
+        proxy_cache_valid 200 365d;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
+    # API rate limiting
+    location /api/ {
+        limit_req zone=api burst=50 nodelay;
+        proxy_pass http://sabnode_app;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 300s;
+    }
+
+    # Meta/Facebook Webhook endpoint — higher rate limit
+    location /api/webhook {
+        limit_req zone=api burst=200 nodelay;
+        proxy_pass http://sabnode_app;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 300s;
+    }
+
+    # All other requests → Next.js
     location / {
         proxy_pass http://sabnode_app;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 120s;
+        proxy_send_timeout 120s;
     }
+
+    # Health check endpoint
+    location /health {
+        access_log off;
+        proxy_pass http://sabnode_app;
+    }
+
+    # Block common exploit paths
+    location ~ /\. { deny all; }
+    location ~ ^/(wp-admin|wp-login|xmlrpc) { return 444; }
 }
 ```
 
