@@ -88,6 +88,15 @@ export function fmtText(value: unknown): string {
   return String(value);
 }
 
+export function fmtDate(value: unknown): string {
+  if (value === null || value === undefined || value === '') return '—';
+  try {
+    return utilsFmtDate(value as string | number | Date);
+  } catch {
+    return '—';
+  }
+}
+
 /** Truncate an arbitrary id/string for display ("…1f3a"). */
 export function fmtShortId(value: unknown): string {
   const s = value === null || value === undefined ? '' : String(value);
