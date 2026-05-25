@@ -77,7 +77,7 @@ function exportToPDF(data: ProjectWithIg[]) {
   doc.save('instagram_connections.pdf');
 }
 
-import { useRef } from 'react';
+
 
 export default function ConnectionsClient({ initialProjects }: { initialProjects: ProjectWithIg[] }) {
   const [projects, setProjects] = useState<ProjectWithIg[]>(initialProjects);

@@ -7,7 +7,7 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 
 const DashboardGrid = dynamic(() => import('../dashboard-grid').then((mod) => mod.DashboardGrid), {
-    ssr: false,
+    
     loading: () => (
         <div className="mt-4 flex h-64 items-center justify-center text-sm text-zoru-ink-muted">
             Loading public dashboard widgets...

@@ -82,8 +82,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
     const warehouse = await getCrmWarehouseById(id);
     if (!warehouse) notFound();
 
-    const warehouse = await getCrmWarehouseById(id);
-    if (!warehouse) notFound();
+    
 
     const archived = !!(warehouse as any).archived;
     const status =

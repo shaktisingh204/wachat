@@ -37,11 +37,7 @@ interface AttendanceTableProps {
   filtersActive: boolean;
 }
 
-function fmtDate(v?: string): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function fmtTime(v?: string): string {
   if (!v) return '—';

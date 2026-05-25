@@ -248,14 +248,7 @@ export function ProbationView({ initial }: { initial: Probation[] }) {
   );
 }
 
-function fmtDate(d?: string | Date | null) {
-  if (!d) return '—';
-  try {
-    return fmtDate(d);
-  } catch {
-    return '—';
-  }
-}
+
 function shorten(s: string) {
   if (s.length <= 12) return s;
   return `${s.slice(0, 6)}…${s.slice(-4)}`;

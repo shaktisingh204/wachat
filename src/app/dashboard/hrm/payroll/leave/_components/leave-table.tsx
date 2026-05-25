@@ -37,11 +37,7 @@ interface LeaveTableProps {
   filtersActive: boolean;
 }
 
-function fmtDate(iso: string | null | undefined): string {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? '—' : format(d, 'dd MMM yyyy');
-}
+
 
 export function LeaveTable({
   rows,

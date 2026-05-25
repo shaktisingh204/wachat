@@ -32,7 +32,7 @@ import type {
   WsLeaveBalanceEmployee,
   WsLeaveType,
 } from '@/lib/worksuite/leave-types';
-import { useToast } from '@/components/zoruui/use-zoru-toast';
+import { useZoruToast as useToast } from '@/components/zoruui/use-zoru-toast';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 5 }, (_, i) => currentYear - i);

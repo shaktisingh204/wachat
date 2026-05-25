@@ -258,14 +258,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
   );
 }
 
-function fmtDate(d?: string | Date | null) {
-  if (!d) return '—';
-  try {
-    return new Date(d).toLocaleDateString();
-  } catch {
-    return '—';
-  }
-}
+
 function fmtMoney(v: any, curr: any) {
   if (v == null || v === '') return '—';
   const n = Number(v);

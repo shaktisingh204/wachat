@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useZoruToast } from '@/components/zoruui/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui/use-zoru-toast';
 import {
   Button,
   Input,

@@ -31,11 +31,7 @@ const inr = new Intl.NumberFormat('en-IN', {
     maximumFractionDigits: 0,
 });
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function fmtPeriod(p: string | undefined): string {
     if (!p) return '—';

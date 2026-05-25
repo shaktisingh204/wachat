@@ -43,11 +43,7 @@ interface EmployeesTableProps {
   isLoading?: boolean;
 }
 
-function fmtDate(v?: string | null): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function fmtTenure(joining?: string | null, exit?: string | null): string {
   if (!joining) return '—';

@@ -16,10 +16,7 @@ interface EmployeeDashboardClientProps {
   upcomingHolidays: any[];
 }
 
-function fmtDate(dateString: string) {
-  const d = new Date(dateString);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
-}
+
 
 export function EmployeeDashboardClient({
   employee,

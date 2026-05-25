@@ -260,14 +260,7 @@ async function CandidateDetailPageContainer({ params }: PageProps) {
   );
 }
 
-function fmtDate(d?: string | Date | null) {
-  if (!d) return '—';
-  try {
-    return fmtDate(d);
-  } catch {
-    return '—';
-  }
-}
+
 
 function fmtCurrency(v: any, curr: any) {
   if (v == null || v === '') return '—';

@@ -111,11 +111,7 @@ function toDateInput(value: unknown): string {
     return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
 }
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function fileNameFromUrl(u?: string): string {
     if (!u) return '';

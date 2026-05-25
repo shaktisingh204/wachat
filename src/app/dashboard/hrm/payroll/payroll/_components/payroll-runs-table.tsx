@@ -52,11 +52,7 @@ interface PayrollRunsTableProps {
   hasActiveFilters: boolean;
 }
 
-function fmtDate(value: string | undefined): string {
-  if (!value) return '—';
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? '—' : format(d, 'dd MMM yyyy');
-}
+
 
 export function periodLabel(run: CrmPayrollRunDoc): string {
   if (!run.periodFrom || !run.periodTo) return '—';

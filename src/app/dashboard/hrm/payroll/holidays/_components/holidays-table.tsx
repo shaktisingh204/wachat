@@ -46,11 +46,7 @@ export function locationsText(h: HolidayRow): string {
   return '';
 }
 
-function fmtDate(value: unknown): string {
-  if (!value) return '—';
-  const d = new Date(value as string | number | Date);
-  return Number.isNaN(d.getTime()) ? '—' : format(d, 'dd MMM yyyy');
-}
+
 
 interface HolidaysTableProps {
   rows: HolidayRow[];

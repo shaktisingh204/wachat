@@ -31,14 +31,7 @@ const STATUS_VARIANT: Record<WsWeeklyTimesheetStatus, StatusVariant> = {
   rejected: 'danger',
 };
 
-function fmtDate(v: unknown): string {
-  if (!v) return '—';
-  try {
-    return format(new Date(v as any), 'EEE dd MMM');
-  } catch {
-    return '—';
-  }
-}
+
 
 export function TimesheetDetailClient({
   initialSheet,

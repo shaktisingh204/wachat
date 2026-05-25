@@ -1,6 +1,5 @@
 import { fmtDate } from '@/lib/utils';
 export const dynamic = 'force-dynamic';
-import { fmtDate } from '@/lib/utils';
 import { Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';

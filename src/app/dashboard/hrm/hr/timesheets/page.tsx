@@ -60,11 +60,7 @@ const STATUS_TONE: Record<CrmTimesheetStatus, StatusTone> = {
     archived: 'neutral',
 };
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : fmtDate(d);
-}
+
 
 export default function TimesheetsListPage(): React.JSX.Element {
     const [timesheets, setTimesheets] = React.useState<CrmTimesheetDoc[]>([]);

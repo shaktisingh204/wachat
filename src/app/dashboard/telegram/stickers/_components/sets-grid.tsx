@@ -39,15 +39,9 @@ import {
   RefreshCw,
   Archive,
 } from 'lucide-react';
-import {
-  Search,
-  SlidersHorizontal, SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
-import {
-  Search,
-  SlidersHorizontal, useProject } from '@/context/project-context';
-import {
-  Search,
-  SlidersHorizontal, TelegramProjectGate } from '../../_components/telegram-project-gate';
+import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../../_components/telegram-project-gate';
 import type {
     SetRow,
     StickerRow,

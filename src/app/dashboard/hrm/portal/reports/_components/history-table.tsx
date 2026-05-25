@@ -11,12 +11,7 @@ interface HistoryTableProps {
   reportsPromise: Promise<HrmTaskReport[]>;
 }
 
-function fmtDate(iso: string | undefined): string {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return '—';
-  return fmtDate(d);
-}
+
 
 export function HistoryTable({ reportsPromise }: HistoryTableProps) {
   const reports = React.use(reportsPromise);

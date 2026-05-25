@@ -4,7 +4,7 @@ import { SignJWT, jwtVerify } from 'jose';
 import { nanoid } from 'nanoid';
 import type { SessionPayload, AdminSessionPayload } from './definitions';
 import * as admin from 'firebase-admin';
-import { serviceAccount } from './firebase/service-account';
+const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT) : {};
 import { cookies } from 'next/headers';
 
 const SALT_ROUNDS = 10;

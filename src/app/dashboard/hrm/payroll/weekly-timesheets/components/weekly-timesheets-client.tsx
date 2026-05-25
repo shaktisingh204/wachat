@@ -62,15 +62,7 @@ const STATUS_VARIANT: Record<WsWeeklyTimesheetStatus, StatusVariant> = {
 };
 
 // Fixed client-side formatting to prevent hydration mismatch
-function fmtDate(v: unknown, isMounted: boolean): string {
-  if (!v || !isMounted) return '—';
-  try {
-    const d = new Date(v as any);
-    return format(d, 'dd MMM yyyy');
-  } catch {
-    return '—';
-  }
-}
+
 
 function fmtHours(h: number, m: number): string {
   return `${h}h ${String(m).padStart(2, '0')}m`;

@@ -23,7 +23,7 @@ import {
   ZoruDropdownMenuTrigger,
   Badge,
 } from '@/components/zoruui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Download, Eye } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createTaxRecord, updateTaxRecord, deleteTaxRecord, exportTaxRecordsCSV, TaxRecord } from '@/app/actions/finance/taxes.actions';
 import { toast } from 'sonner';

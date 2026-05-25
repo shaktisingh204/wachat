@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 
 const DashboardEditor = dynamic(
     () => import('../../_components/dashboard-editor').then((mod) => mod.DashboardEditor),
-    { ssr: false }
+    { }
 );
 
 interface PageProps {

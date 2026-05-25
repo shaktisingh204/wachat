@@ -27,10 +27,10 @@ import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 
 export const dynamic = 'force-dynamic';
 
-// Dynamic import with ssr: false for zero hydration discrepancies in ProductHistoryGraph
+// Dynamic import with for zero hydration discrepancies in ProductHistoryGraph
 const ProductHistoryGraph = dynamic(
   () => import('../_components/product-history-graph').then((m) => m.ProductHistoryGraph),
-  { ssr: false, loading: () => <ProductHistoryGraphSkeleton /> }
+  {  loading: () => <ProductHistoryGraphSkeleton /> }
 );
 
 function ProductHistoryGraphSkeleton() {

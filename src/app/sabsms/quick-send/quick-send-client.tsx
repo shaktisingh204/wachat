@@ -197,7 +197,7 @@ export function QuickSendClient({
   const requires10DLC = activeSender?.country === "US" || (!activeSender && parsed.rows.some((r) => r.phone.startsWith("+1")));
   const requiresDLT = activeSender?.country === "IN" || (!activeSender && parsed.rows.some((r) => r.phone.startsWith("+91")));
 
-  const canLaunch =
+  // const canLaunch =
     parsed.rows.length > 0 &&
     body.trim().length > 0 &&
     launchState.kind !== "submitting" &&

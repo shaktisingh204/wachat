@@ -33,11 +33,7 @@ const STATUS_TONE: Record<CrmPfEsiStatus, StatusTone> = {
     archived: 'neutral',
 };
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function inr(n: unknown): string {
     if (typeof n !== 'number' || !Number.isFinite(n)) return '—';

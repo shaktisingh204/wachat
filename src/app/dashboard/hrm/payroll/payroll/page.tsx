@@ -76,11 +76,7 @@ function periodLabel(r: CrmPayrollRunDoc): string {
     return `${m} ${r.period_year ?? ''}`.trim();
 }
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function statusLabel(s: string): string {
     return s.replace(/_/g, ' ');

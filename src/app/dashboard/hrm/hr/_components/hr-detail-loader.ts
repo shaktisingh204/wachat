@@ -55,12 +55,7 @@ export async function getHrEntityById(
 
 /* ─── Display helpers ────────────────────────────────────────────────── */
 
-export function fmtDate(value: unknown): string {
-  if (!value) return '—';
-  const d = new Date(value as any);
-  if (Number.isNaN(d.getTime())) return '—';
-  return utilsFmtDate(d);
-}
+export 
 
 export function fmtCurrency(value: unknown, currency = 'INR'): string {
   if (value === null || value === undefined || value === '') return '—';

@@ -32,11 +32,7 @@ import {
 
 export const dynamic = 'force-dynamic';
 
-function fmtDate(v: unknown): string {
-    if (!v) return '—';
-    const d = new Date(v as any);
-    return isNaN(d.getTime()) ? '—' : fmtDate(d);
-}
+
 
 type SeverityVariant = 'danger' | 'warning' | 'ghost' | 'success';
 type StatusVariant = 'warning' | 'ghost' | 'success' | 'danger';

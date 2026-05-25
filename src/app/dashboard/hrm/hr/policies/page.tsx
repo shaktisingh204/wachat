@@ -70,11 +70,7 @@ function categoryLabel(c?: string): string {
     return c.replace(/_/g, ' ');
 }
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : fmtDate(d);
-}
+
 
 export default function PoliciesListPage() {
     const [policies, setPolicies] = React.useState<CrmPolicyDoc[]>([]);

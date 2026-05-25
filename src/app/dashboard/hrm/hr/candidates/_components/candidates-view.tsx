@@ -398,14 +398,7 @@ export function CandidatesView({ initial, kpis }: CandidatesViewProps) {
   );
 }
 
-function fmtDate(d?: string | Date | null) {
-  if (!d) return '—';
-  try {
-    return fmtDate(d);
-  } catch {
-    return '—';
-  }
-}
+
 
 function shorten(s: string) {
   if (s.length <= 10) return s;

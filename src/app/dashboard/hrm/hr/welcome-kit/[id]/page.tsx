@@ -28,11 +28,7 @@ const STATUS_TONE: Record<CrmWelcomeKitStatus, StatusTone> = {
     archived: 'neutral',
 };
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : fmtDate(d);
-}
+
 
 export default async function WelcomeKitDetailPage({
     params,

@@ -93,11 +93,7 @@ const CATEGORY_OPTIONS: { value: CategoryFilter; label: string }[] = [
 
 // Severity → StatusPill tone. The brief calls out: critical→danger (red),
 // warning→amber, info→blue.
-const SEVERITY_TONE: Record<string, StatusTone> = {
-    critical: 'red',
-    warning: 'amber',
-    info: 'blue',
-};
+
 
 const SEVERITY_TONE: Record<string, StatusTone> = {
     critical: 'red',

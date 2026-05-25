@@ -72,11 +72,7 @@ const STATUS_TONE: Record<CrmAssetAssignmentStatus, StatusTone> = {
     archived: 'neutral',
 };
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : fmtDate(d);
-}
+
 
 export default function AssetAssignmentsListPage() {
     const [rows, setRows] = React.useState<CrmAssetAssignmentDoc[]>([]);

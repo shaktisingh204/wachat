@@ -49,11 +49,7 @@ const AWARDS_LIST_HREF = '/dashboard/hrm/hr/awards';
 /* Helpers                                                              */
 /* ------------------------------------------------------------------ */
 
-function fmtDate(v: unknown): string {
-    if (!v) return '—';
-    const d = new Date(v as any);
-    return isNaN(d.getTime()) ? '—' : fmtDate(d);
-}
+
 
 function fmtINR(n: unknown): string {
     if (typeof n !== 'number' || isNaN(n)) return '—';

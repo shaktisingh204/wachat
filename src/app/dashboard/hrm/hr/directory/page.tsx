@@ -54,12 +54,7 @@ function initials(name: string) {
   return name.slice(0, 2).toUpperCase();
 }
 
-function fmtDate(v: unknown): string {
-  if (!v) return '';
-  const d = new Date(v as any);
-  if (isNaN(d.getTime())) return '';
-  return fmtDate(d);
-}
+
 
 // Stable avatar color per employee based on first letter
 const AVATAR_COLORS = [

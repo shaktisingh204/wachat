@@ -17,12 +17,7 @@ interface ReportsInboxTableProps {
   acknowledging: Set<string>;
 }
 
-function fmtDate(iso: string | undefined): string {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return '—';
-  return fmtDate(d);
-}
+
 
 function workerInitials(name: string): string {
   const parts = name.trim().split(' ');

@@ -18,11 +18,7 @@ interface PageProps {
 
 export const dynamic = 'force-dynamic';
 
-function fmtDate(v?: string): string {
-  if (!v) return 'record';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? 'record' : d.toLocaleDateString();
-}
+
 
 export default async function AttendanceActivityPage({ params }: PageProps) {
   const { id } = await params;

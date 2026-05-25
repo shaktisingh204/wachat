@@ -61,10 +61,7 @@ function toDateInput(v: any): string {
   try { return new Date(v).toISOString().slice(0, 10); } catch { return ''; }
 }
 
-function fmtDate(v: any): string {
-  if (!v) return '—';
-  try { return format(new Date(v), 'dd MMM yyyy'); } catch { return '—'; }
-}
+
 
 function expiryVariant(v: any): 'success' | 'warning' | 'danger' | 'secondary' {
   if (!v) return 'secondary';

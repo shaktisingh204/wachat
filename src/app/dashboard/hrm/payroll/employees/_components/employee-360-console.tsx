@@ -29,11 +29,7 @@ interface Employee360ConsoleProps {
   auditTimeline: React.ReactNode;
 }
 
-function fmtDate(v?: string): string {
-  if (!v) return '—';
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
+
 
 function fmtDateTime(v?: string): string {
   if (!v) return '—';

@@ -18,7 +18,7 @@
  * vs. a full Lua-script approach and keeps the code readable.
  */
 
-import 'server-only';
+// import 'server-only';
 
 import Redis from 'ioredis';
 import type { RateLimitTier } from './types';

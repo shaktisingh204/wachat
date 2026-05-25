@@ -1392,7 +1392,7 @@ export interface HrDisciplinaryCase {
   resolvedAt?: string;
 }
 
-export async function getDisciplinaryCases(): Promise<HrDisciplinaryCase[]> {
+/* export async function getDisciplinaryCases(): Promise<HrDisciplinaryCase[]> {
   const session = await getSession();
   if (!session?.user?._id) return [];
   try {
@@ -1407,7 +1407,7 @@ export async function getDisciplinaryCases(): Promise<HrDisciplinaryCase[]> {
   } catch {
     return [];
   }
-}
+} */
 
 export async function bulkCloseDisciplinaryCases(ids: string[]) {
   const r = await hrBulkUpdateStatus('crm_disciplinary_cases', ids, 'closed', {
