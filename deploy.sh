@@ -36,10 +36,22 @@ fi
 USE_CORES=$CORES
 if [ "$USE_CORES" -lt 1 ]; then USE_CORES=1; fi
 
+# Cap the Next.js build worker pool. Turbopack spawns one worker per
+# NEXT_CPU_COUNT and each worker's V8 heap can grow to several GB, so
+# on a 32-core box "all cores" produces ~30 workers and saturates RAM
+# (every observed OOM kill on this server traced back to that).
+# 8 is a comfortable upper bound — slower than 32 workers but reliable.
+BUILD_CORES=$USE_CORES
+if [ "$BUILD_CORES" -gt 8 ]; then BUILD_CORES=8; fi
+
 export NEXT_TELEMETRY_DISABLED=1
-export NEXT_CPU_COUNT=$USE_CORES
+export NEXT_CPU_COUNT=$BUILD_CORES
 export UV_THREADPOOL_SIZE=$USE_CORES
-export NODE_OPTIONS="--max-old-space-size=240000"
+# Per-worker V8 heap ceiling. 4 GiB × BUILD_CORES workers keeps total
+# build memory bounded (≤32 GiB at BUILD_CORES=8). Setting it absurdly
+# high (e.g. 240 GiB) does NOT speed builds and removes the natural
+# back-pressure that prevents the OOM killer from firing.
+export NODE_OPTIONS="--max-old-space-size=4096"
 export GENERATE_SOURCEMAP=false
 # NOTE: do NOT export NODE_ENV=production at the top of the script.
 # npm@8+ skips devDependencies whenever NODE_ENV=production, which strips
