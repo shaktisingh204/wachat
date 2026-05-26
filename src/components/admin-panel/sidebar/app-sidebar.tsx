@@ -240,7 +240,7 @@ function InlineProjectSwitcher() {
                     })}
                     <ZoruDropdownMenuSeparator />
                     <ZoruDropdownMenuItem asChild>
-                        <Link href="/dashboard/wachat/setup" className="flex items-center gap-2 px-2 py-2 text-xs text-muted-foreground rounded-md">
+                        <Link href="/wachat/setup" className="flex items-center gap-2 px-2 py-2 text-xs text-muted-foreground rounded-md">
                             + Add project
                         </Link>
                     </ZoruDropdownMenuItem>

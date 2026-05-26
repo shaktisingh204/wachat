@@ -27,7 +27,7 @@ export default function ManualSetupDocsPage() {
     <div className="flex flex-col gap-10 pb-10">
       <div>
         <Button variant="ghost" asChild className="mb-4 -ml-4">
-          <Link href="/dashboard/wachat/setup">
+          <Link href="/wachat/setup">
             <ChevronLeft className="mr-2 h-4 w-4" />
             Back to Setup Options
           </Link>

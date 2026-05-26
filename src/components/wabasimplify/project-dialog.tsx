@@ -94,7 +94,7 @@ export function CreateProjectDialog() {
             <ZoruDialogTitle>Manual Project Setup</ZoruDialogTitle>
             <ZoruDialogDescription>
                Enter your WABA ID, App ID, and a permanent Access Token. For help finding these, please consult the{' '}
-              <Link href="/dashboard/wachat/setup/docs" className="text-primary hover:underline" onClick={() => setOpen(false)}>
+              <Link href="/wachat/setup/docs" className="text-primary hover:underline" onClick={() => setOpen(false)}>
                   manual setup guide
               </Link>.
             </ZoruDialogDescription>

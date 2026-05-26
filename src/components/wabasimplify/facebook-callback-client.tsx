@@ -22,7 +22,7 @@ export function FacebookCallbackClient({ code, error, stateFromUrl }: { code?: s
         description: error,
         variant: 'destructive',
       });
-      router.push('/dashboard/wachat/setup');
+      router.push('/wachat/setup');
       return;
     }
 
@@ -45,7 +45,7 @@ export function FacebookCallbackClient({ code, error, stateFromUrl }: { code?: s
             description: result.error || 'An unknown error occurred.',
             variant: 'destructive',
           });
-          router.replace('/dashboard/wachat/setup');
+          router.replace('/wachat/setup');
         }
       });
     }

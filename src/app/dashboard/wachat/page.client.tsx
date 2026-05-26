@@ -128,7 +128,7 @@ export default function GlobalWachatDashboardPage() {
           title="Welcome to WhatsApp Chat"
           description="You haven't connected any WhatsApp Business Accounts yet. Connect your first account to unlock messaging, automation, and live chat."
           action={
-            <Link href="/dashboard/wachat/setup">
+            <Link href="/wachat/setup">
               <Button size="md" className="bg-emerald-600 hover:bg-emerald-700 text-white">
                 <Plus className="mr-2" />
                 Connect WhatsApp Account

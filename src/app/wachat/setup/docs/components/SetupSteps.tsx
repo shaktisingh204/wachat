@@ -104,7 +104,7 @@ export function ConnectToSabNodeCard() {
       <ZoruCardContent>
         <p className="text-sm">
           Go back to the{' '}
-          <Link href="/dashboard/wachat/setup" className="text-primary hover:underline">
+          <Link href="/wachat/setup" className="text-primary hover:underline">
             Setup Page
           </Link>
           , open the "Manual Setup" dialog, and paste your{' '}

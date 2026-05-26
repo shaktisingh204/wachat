@@ -1725,7 +1725,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         items: [
           leaf("home", "Home", "/dashboard", Home, p),
           leaf("notifications", "Notifications", "/dashboard/notifications", Bell, p),
-          leaf("setup", "Setup", "/dashboard/wachat/setup", Sparkles, p),
+          leaf("setup", "Setup", "/wachat/setup", Sparkles, p),
           leaf("notif-prefs", "Notification prefs", "/dashboard/notification-preferences", BellOff, p),
           leaf("credit-usage", "Credit usage", "/dashboard/credit-usage", Coins, p),
           leaf("billing", "Billing", "/dashboard/billing", CreditCard, p),

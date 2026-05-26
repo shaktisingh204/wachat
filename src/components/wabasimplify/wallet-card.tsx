@@ -91,57 +91,51 @@ export function WalletCard({ user }: { user: WithId<User> }) {
     const currency = user.wallet?.currency || 'INR';
 
     return (
-        <Card className="relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-zoru-primary to-zoru-primary-active text-zoru-on-primary">
-            {/* Glossy decorative background element */}
-            <div className="absolute top-0 right-0 -mr-16 -mt-16 h-48 w-48 rounded-full bg-white opacity-5 blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-48 w-48 rounded-full bg-zoru-info opacity-10 blur-3xl pointer-events-none" />
-
-            <ZoruCardHeader className="relative z-10 pb-2">
+        <Card className="relative overflow-hidden bg-zoru-bg border border-zoru-line shadow-md text-zoru-ink">
+            <ZoruCardHeader className="pb-2 bg-zoru-surface-2 border-b border-zoru-line">
                 <div className="flex items-center justify-between">
-                    <ZoruCardTitle className="flex items-center gap-2 text-zoru-on-primary font-medium text-lg tracking-tight">
-                        <IndianRupee className="h-5 w-5 opacity-80" />
+                    <ZoruCardTitle className="flex items-center gap-2 text-zoru-ink text-lg tracking-tight">
+                        <IndianRupee className="h-5 w-5 text-zoru-ink-muted" />
                         Wallet Balance
                     </ZoruCardTitle>
-                    <div className="h-2 w-2 rounded-full bg-zoru-success shadow-[0_0_8px_hsl(var(--zoru-success))] animate-pulse" />
+                    <div className="h-2 w-2 rounded-full bg-zoru-success animate-pulse" />
                 </div>
             </ZoruCardHeader>
-            <ZoruCardContent className="relative z-10 space-y-6">
-                {/* Payment result banners */}
+            <ZoruCardContent className="space-y-6 pt-6">
                 {paymentStatus === 'success' && paymentType === 'wallet' && (
-                    <div className="flex items-center gap-2 rounded-lg bg-zoru-success/20 p-3 text-sm text-zoru-success-soft border border-zoru-success/30 backdrop-blur-sm">
-                        <CheckCircle2 className="h-4 w-4" />
+                    <div className="flex items-center gap-2 rounded-lg bg-zoru-success/10 p-3 text-sm text-zoru-success-ink border border-zoru-success/30">
+                        <CheckCircle2 className="h-4 w-4 text-zoru-success" />
                         Wallet topped up successfully!
                     </div>
                 )}
                 {paymentStatus === 'failed' && (
-                    <div className="flex items-center gap-2 rounded-lg bg-zoru-danger/20 p-3 text-sm text-zoru-danger-soft border border-zoru-danger/30 backdrop-blur-sm">
-                        <AlertCircle className="h-4 w-4" />
+                    <div className="flex items-center gap-2 rounded-lg bg-zoru-danger/10 p-3 text-sm text-zoru-danger-ink border border-zoru-danger/30">
+                        <AlertCircle className="h-4 w-4 text-zoru-danger" />
                         Payment failed. Please try again.
                     </div>
                 )}
 
                 <div className="flex flex-col">
-                    <div className="text-4xl md:text-5xl font-extrabold tracking-tighter text-white drop-shadow-md">
+                    <div className="text-4xl md:text-5xl font-extrabold tracking-tighter text-zoru-ink-strong">
                         {new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(balance / 100)}
                     </div>
-                    <p className="text-xs text-white/80 mt-1 uppercase tracking-wider font-medium">Available Funds</p>
+                    <p className="text-xs text-zoru-ink-muted mt-1 uppercase tracking-wider font-medium">Available Funds</p>
                 </div>
 
-                <div className="rounded-xl bg-black/20 p-4 backdrop-blur-md border border-white/15 shadow-inner">
+                <div className="rounded-xl bg-zoru-surface-2 p-4 border border-zoru-line">
                     <form onSubmit={handleAddFunds} className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="amount" className="text-white/80 text-xs uppercase tracking-wider">Quick Top-Up</Label>
-                            {/* Quick amount pills */}
+                            <Label htmlFor="amount" className="text-zoru-ink-muted text-xs uppercase tracking-wider">Quick Top-Up</Label>
                             <div className="flex flex-wrap gap-2">
                                 {QUICK_AMOUNTS.map((a) => (
                                     <button
                                         key={a}
                                         type="button"
                                         onClick={() => setAmount(a)}
-                                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-300 ${
+                                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
                                             amount === a
-                                                ? 'bg-white text-zoru-primary shadow-lg scale-105'
-                                                : 'bg-white/20 text-white hover:bg-white/30 border border-white/15'
+                                                ? 'bg-zoru-primary text-zoru-on-primary shadow-sm'
+                                                : 'bg-zoru-bg text-zoru-ink border border-zoru-line hover:border-zoru-line-strong'
                                         }`}
                                     >
                                         ₹{a.toLocaleString('en-IN')}
@@ -152,7 +146,7 @@ export function WalletCard({ user }: { user: WithId<User> }) {
 
                         <div className="flex gap-2">
                             <div className="relative flex-1">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 font-medium">₹</span>
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zoru-ink-muted font-medium z-10">₹</span>
                                 <Input
                                     id="amount"
                                     name="amount"
@@ -162,13 +156,13 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                                     min="100"
                                     max="100000"
                                     step="100"
-                                    className="pl-7 bg-black/20 border-white/25 text-white placeholder:text-white/50 focus-visible:ring-white/30 focus-visible:border-white/50 rounded-lg h-10"
+                                    className="pl-7 bg-zoru-bg border-zoru-line text-zoru-ink rounded-lg h-10"
                                 />
                             </div>
-                            <Button 
-                                type="submit" 
+                            <Button
+                                type="submit"
                                 disabled={isPending}
-                                className="bg-white text-zoru-primary hover:bg-white/90 shadow-glow rounded-lg h-10 px-6 font-bold"
+                                className="bg-zoru-primary text-zoru-on-primary hover:bg-zoru-primary-hover rounded-lg h-10 px-6 font-bold"
                             >
                                 {isPending ? (
                                     <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -179,8 +173,8 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                         </div>
                     </form>
                 </div>
-                
-                <p className="text-center text-[10px] text-white/60 uppercase tracking-widest font-medium flex items-center justify-center gap-1.5">
+
+                <p className="text-center text-[10px] text-zoru-ink-subtle uppercase tracking-widest font-medium flex items-center justify-center gap-1.5">
                     <Lock className="h-3 w-3" /> Secure payment via PayU
                 </p>
             </ZoruCardContent>
