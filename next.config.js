@@ -18,6 +18,16 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '50mb',
     },
+    // Cap the static-page-collection worker pool. Default is
+    // `os.cpus().length - 1`, which on the 32-core build host means
+    // up to 31 worker processes during "Collecting page data". Each
+    // worker can hold a multi-GB Node heap, and with 9k+ API routes to
+    // chew through the peak working set easily passes the box's
+    // 125 GB RAM + 32 GB swap and triggers the OOM-killer. Cap to 8
+    // workers (peak ~32 GB) — slower wall-clock for this phase, but
+    // it actually completes.
+    cpus: 8,
+    workerThreads: false,
   },
   // Heavy CJS packages that ship Node-only requires (`fs`, `dgram`, native
   // bindings, optional deps). Listed here so Next treats them as runtime

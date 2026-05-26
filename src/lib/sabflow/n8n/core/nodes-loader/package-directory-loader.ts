@@ -93,13 +93,13 @@ export class PackageDirectoryLoader extends DirectoryLoader {
 
 	protected readJSONSync<T>(file: string): T {
 		const filePath = this.resolvePath(file);
-		const fileString = readFileSync(filePath, 'utf8');
+		const fileString = readFileSync(/*turbopackIgnore: true*/ filePath, 'utf8');
 		return this.parseJSON<T>(fileString, filePath);
 	}
 
 	protected async readJSON<T>(file: string): Promise<T> {
 		const filePath = this.resolvePath(file);
-		const fileString = await readFile(filePath, 'utf8');
+		const fileString = await readFile(/*turbopackIgnore: true*/ filePath, 'utf8');
 		return this.parseJSON<T>(fileString, filePath);
 	}
 }

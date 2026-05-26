@@ -191,7 +191,7 @@ export class InstanceSettings {
 	private loadOrCreate(): Settings {
 		const encryptionKeyFromEnv = this.config.encryptionKey || undefined;
 		if (existsSync(this.settingsFile)) {
-			const content = readFileSync(this.settingsFile, 'utf8');
+			const content = readFileSync(/*turbopackIgnore: true*/ this.settingsFile, 'utf8');
 			this.ensureSettingsFilePermissions();
 
 			const settings = jsonParse<Settings>(content, {
