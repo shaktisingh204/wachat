@@ -10,8 +10,8 @@ export default function Loading() {
             <ShieldCheck className="h-3.5 w-3.5" />
             Admin · SabFlow Marketplace
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Review Queue</h1>
-          <p className="text-sm text-slate-500 mt-1">Loading review queue...</p>
+          <h1 className="text-2xl font-bold text-zoru-ink">Review Queue</h1>
+          <p className="text-sm text-zoru-ink-muted mt-1">Loading review queue...</p>
         </div>
       </div>
       <div className="flex flex-col items-center justify-center py-20">

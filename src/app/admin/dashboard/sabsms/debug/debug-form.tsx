@@ -107,7 +107,7 @@ export function SabsmsDebugSendForm({ engineHealthy = true }: { engineHealthy?: 
           value={body}
           onChange={(e) => setBody(e.target.value)}
         />
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-zoru-ink-muted">
           {body.length} chars · GSM-7 splits at 160/153, UCS-2 at 70/67.
         </p>
       </div>
@@ -134,7 +134,7 @@ export function SabsmsDebugSendForm({ engineHealthy = true }: { engineHealthy?: 
           <Badge variant={statusVariant(status)}>{status}</Badge>
         )}
         {messageId && (
-          <code className="rounded bg-slate-100 px-2 py-1 text-xs">
+          <code className="rounded bg-zoru-surface px-2 py-1 text-xs">
             {messageId}
           </code>
         )}
@@ -147,9 +147,9 @@ export function SabsmsDebugSendForm({ engineHealthy = true }: { engineHealthy?: 
       )}
 
       {message && (
-        <div className="rounded border border-slate-200 bg-slate-50 p-3 text-xs">
-          <div className="mb-2 font-semibold text-slate-700">Message doc</div>
-          <pre className="overflow-x-auto text-[11px] leading-relaxed text-slate-700">
+        <div className="rounded border border-zoru-line bg-zoru-surface p-3 text-xs">
+          <div className="mb-2 font-semibold text-zoru-ink">Message doc</div>
+          <pre className="overflow-x-auto text-[11px] leading-relaxed text-zoru-ink">
 {JSON.stringify(message, null, 2)}
           </pre>
         </div>

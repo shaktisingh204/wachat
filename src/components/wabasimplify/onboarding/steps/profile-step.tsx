@@ -155,7 +155,11 @@ export function ProfileStep({
                         <ZoruSelectTrigger id="role">
                             <ZoruSelectValue placeholder="Select your role" />
                         </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <ZoruSelectContent
+                            position="popper"
+                            sideOffset={6}
+                            className="zoruui z-[60] bg-zoru-bg border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-lg)]"
+                        >
                             {ROLES.map((r) => (
                                 <ZoruSelectItem key={r} value={r}>
                                     {r}
@@ -175,7 +179,11 @@ export function ProfileStep({
                         <ZoruSelectTrigger id="country">
                             <ZoruSelectValue placeholder="Where are you based?" />
                         </ZoruSelectTrigger>
-                        <ZoruSelectContent>
+                        <ZoruSelectContent
+                            position="popper"
+                            sideOffset={6}
+                            className="zoruui z-[60] bg-zoru-bg border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-lg)]"
+                        >
                             {COUNTRIES.map((c) => (
                                 <ZoruSelectItem key={c} value={c}>
                                     {c}

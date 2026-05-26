@@ -145,8 +145,8 @@ export default async function MarketplaceQueuePage({ searchParams }: PageProps) 
             <ShieldCheck className="h-3.5 w-3.5" />
             Admin · SabFlow Marketplace
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Review Queue</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold text-zoru-ink">Review Queue</h1>
+          <p className="text-sm text-zoru-ink-muted mt-1">
             Approve or reject user-submitted workflow templates.
             {total > 0 && ` ${total} submission${total === 1 ? '' : 's'} in this view.`}
           </p>
@@ -154,7 +154,7 @@ export default async function MarketplaceQueuePage({ searchParams }: PageProps) 
       </div>
 
       {/* Status filter tabs */}
-      <div className="flex gap-1 border-b border-slate-200">
+      <div className="flex gap-1 border-b border-zoru-line">
         {tabs.map((tab) => {
           const isActive =
             (tab.value === '' && !statusFilter) || tab.value === statusFilter;
@@ -170,7 +170,7 @@ export default async function MarketplaceQueuePage({ searchParams }: PageProps) 
                 'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
                 isActive
                   ? 'border-amber-500 text-amber-700'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300',
+                  : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line',
               ].join(' ')}
             >
               {tab.label}

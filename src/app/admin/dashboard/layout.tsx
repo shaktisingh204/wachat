@@ -1,3 +1,4 @@
+import "@/styles/zoruui.css";
 import React from 'react';
 import { redirect } from 'next/navigation';
 import { getAdminSession } from '@/lib/admin-session';
@@ -18,7 +19,7 @@ export default async function AdminDashboardLayout({
     }
 
     return (
-        <div className="flex h-screen bg-slate-50 overflow-hidden">
+        <div className="zoruui flex h-screen bg-zoru-surface text-zoru-ink overflow-hidden">
             {/* Sidebar */}
             <AdminSidebarNav />
 
@@ -30,7 +31,7 @@ export default async function AdminDashboardLayout({
                         <React.Suspense fallback={
                             <div className="space-y-4">
                                 {[...Array(3)].map((_, i) => (
-                                    <div key={i} className="h-32 rounded-2xl bg-white animate-pulse" />
+                                    <div key={i} className="h-32 rounded-2xl bg-zoru-bg animate-pulse" />
                                 ))}
                             </div>
                         }>

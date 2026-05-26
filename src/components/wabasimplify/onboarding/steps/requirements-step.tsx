@@ -196,7 +196,7 @@ export function RequirementsStep({
             <div className="space-y-3">
                 <div className="flex items-end justify-between">
                     <Label>Modules to turn on *</Label>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-zoru-ink-muted">
                         {selected.length} selected
                     </span>
                 </div>
@@ -211,27 +211,27 @@ export function RequirementsStep({
                                 onClick={() => toggle(m.id)}
                                 disabled={isPending}
                                 className={cn(
-                                    'flex items-start gap-3 rounded-xl border p-4 text-left transition',
+                                    'flex items-start gap-3 rounded-xl border border-zoru-line p-4 text-left transition',
                                     active
-                                        ? 'border-primary bg-primary/5 shadow-sm'
-                                        : 'hover:border-primary/60 hover:bg-muted/50'
+                                        ? 'border-zoru-primary bg-zoru-primary/5 shadow-sm'
+                                        : 'hover:border-zoru-primary/60 hover:bg-zoru-surface/50'
                                 )}
                             >
                                 <div
                                     className={cn(
                                         'rounded-lg p-2',
                                         active
-                                            ? 'bg-primary text-primary-foreground'
-                                            : 'bg-muted text-muted-foreground'
+                                            ? 'bg-zoru-primary text-zoru-on-primary'
+                                            : 'bg-zoru-surface text-zoru-ink-muted'
                                     )}
                                 >
                                     <Icon className="h-4 w-4" />
                                 </div>
                                 <div className="flex-1">
-                                    <p className="text-sm font-semibold">
+                                    <p className="text-sm font-semibold text-zoru-ink">
                                         {m.name}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-xs text-zoru-ink-muted">
                                         {m.description}
                                     </p>
                                 </div>
@@ -281,10 +281,10 @@ export function RequirementsStep({
                                         onClick={() => setTimeline(t)}
                                         disabled={isPending}
                                         className={cn(
-                                            'rounded-full border px-4 py-1.5 text-xs font-medium transition',
+                                            'rounded-full border border-zoru-line px-4 py-1.5 text-xs font-medium text-zoru-ink transition',
                                             active
-                                                ? 'border-primary bg-primary text-primary-foreground'
-                                                : 'hover:border-primary/60'
+                                                ? 'border-zoru-primary bg-zoru-primary text-zoru-on-primary'
+                                                : 'hover:border-zoru-primary/60'
                                         )}
                                     >
                                         {t}

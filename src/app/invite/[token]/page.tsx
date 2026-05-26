@@ -1,9 +1,9 @@
+import "@/styles/zoruui.css";
+
 import Link from 'next/link';
 import { LuArrowRight, LuMailX } from 'react-icons/lu';
 
-import { ClayBadge } from '@/components/clay/clay-badge';
-import { ClayButton } from '@/components/clay/clay-button';
-import { ClayCard } from '@/components/clay/clay-card';
+import { Badge, Button, Card } from '@/components/zoruui';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { getInvitationByToken, rememberPendingInviteToken } from '@/app/actions/team.actions';
 import { getSession } from '@/app/actions/user.actions';
@@ -29,32 +29,30 @@ export default async function InvitePage({
     if (!invitation) {
         return (
             <InviteShell>
-                <ClayCard variant="floating" className="w-full max-w-[420px]">
+                <Card className="w-full max-w-[420px] p-7">
                     <div className="flex flex-col items-center gap-4 text-center">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-50 text-destructive">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-danger/10 text-zoru-danger-ink">
                             <LuMailX className="h-5 w-5" strokeWidth={2} />
                         </span>
-                        <ClayBadge tone="red" dot>
+                        <Badge tone="red">
                             Invitation not found
-                        </ClayBadge>
-                        <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-foreground">
+                        </Badge>
+                        <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-zoru-ink">
                             This invite link isn't valid
                         </h1>
-                        <p className="text-[13px] text-muted-foreground">
+                        <p className="text-[13px] text-zoru-ink-muted">
                             The link may have been mistyped or the invitation was revoked.
                             Ask the sender to send a fresh invitation.
                         </p>
                         <Link href="/">
-                            <ClayButton
-                                variant="obsidian"
-                                size="md"
-                                trailing={<LuArrowRight className="h-3.5 w-3.5" />}
-                            >
+                            {/* TODO(zoru): port ClayButton 'obsidian' variant; using default Button for now */}
+                            <Button>
                                 Back to SabNode
-                            </ClayButton>
+                                <LuArrowRight className="ml-2 h-3.5 w-3.5" />
+                            </Button>
                         </Link>
                     </div>
-                </ClayCard>
+                </Card>
             </InviteShell>
         );
     }
@@ -87,21 +85,21 @@ export default async function InvitePage({
 function InviteShell({ children }: { children: React.ReactNode }) {
     return (
         <div
-            className="clay-outer-shell relative flex min-h-screen flex-col items-center justify-center px-4 py-10"
+            className="zoruui relative flex min-h-screen flex-col items-center justify-center bg-zoru-bg text-zoru-ink px-4 py-10"
             style={{ fontFamily: 'var(--font-sab-sans), system-ui, sans-serif' }}
         >
-            <div className="clay-enter flex w-full flex-col items-center gap-8">
+            <div className="flex w-full flex-col items-center gap-8">
                 <Link
                     href="/"
-                    className="inline-flex items-center gap-2 text-foreground hover:opacity-80 transition-opacity"
+                    className="inline-flex items-center gap-2 text-zoru-ink hover:opacity-80 transition-opacity"
                 >
                     <SabNodeLogo className="h-8 w-8" />
                     <span className="text-[14px] font-semibold tracking-[-0.01em]">SabNode</span>
                 </Link>
                 {children}
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-[11px] text-zoru-ink-muted">
                     Didn't expect this email?{' '}
-                    <Link href="/" className="text-accent-foreground underline-offset-2 hover:underline">
+                    <Link href="/" className="text-zoru-ink underline-offset-2 hover:underline">
                         Report it
                     </Link>
                 </p>

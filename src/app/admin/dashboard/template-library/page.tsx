@@ -94,8 +94,8 @@ export default function AdminTemplateLibraryPage() {
             {/* Header */}
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Template Library</h1>
-                    <p className="text-sm text-slate-500 mt-1">Manage global templates available to all users.</p>
+                    <h1 className="text-2xl font-bold text-zoru-ink">Template Library</h1>
+                    <p className="text-sm text-zoru-ink-muted mt-1">Manage global templates available to all users.</p>
                 </div>
                 <Button asChild className="bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-lg shadow-amber-500/25">
                     <Link href="/admin/dashboard/template-library/create">
@@ -106,21 +106,21 @@ export default function AdminTemplateLibraryPage() {
             </div>
 
             {/* Category manager */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-                <h2 className="text-sm font-semibold text-slate-900 mb-3">Category Manager</h2>
+            <div className="rounded-2xl border border-zoru-line bg-zoru-bg p-5">
+                <h2 className="text-sm font-semibold text-zoru-ink mb-3">Category Manager</h2>
                 <AdminTemplateCategoryManager />
             </div>
 
             <div className="grid gap-5 xl:grid-cols-2">
                 {/* Custom templates */}
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 flex flex-col min-w-0">
+                <div className="rounded-2xl border border-zoru-line bg-zoru-bg p-5 flex flex-col min-w-0">
                     <div className="flex items-center gap-2 mb-4">
                         <BookCopy className="h-4 w-4 text-amber-600" />
-                        <h2 className="font-semibold text-slate-900 text-sm">Custom Templates</h2>
-                        <span className="ml-auto text-xs text-slate-500">{customTemplates.length} total</span>
+                        <h2 className="font-semibold text-zoru-ink text-sm">Custom Templates</h2>
+                        <span className="ml-auto text-xs text-zoru-ink-muted">{customTemplates.length} total</span>
                     </div>
                     {isLoading ? (
-                        <div className="flex justify-center p-10"><LoaderCircle className="animate-spin text-slate-400 h-6 w-6" /></div>
+                        <div className="flex justify-center p-10"><LoaderCircle className="animate-spin text-zoru-ink-muted h-6 w-6" /></div>
                     ) : (
                         <TemplateTable
                             data={customTemplates}
@@ -132,14 +132,14 @@ export default function AdminTemplateLibraryPage() {
                 </div>
 
                 {/* Pre-made templates */}
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 flex flex-col min-w-0">
+                <div className="rounded-2xl border border-zoru-line bg-zoru-bg p-5 flex flex-col min-w-0">
                     <div className="flex items-center gap-2 mb-4">
-                        <Lock className="h-4 w-4 text-slate-500" />
-                        <h2 className="font-semibold text-slate-900 text-sm">Pre-made Templates</h2>
-                        <span className="ml-auto text-xs text-slate-500">{premadeTemplates.length} total</span>
+                        <Lock className="h-4 w-4 text-zoru-ink-muted" />
+                        <h2 className="font-semibold text-zoru-ink text-sm">Pre-made Templates</h2>
+                        <span className="ml-auto text-xs text-zoru-ink-muted">{premadeTemplates.length} total</span>
                     </div>
                     {isLoading ? (
-                        <div className="flex justify-center p-10"><LoaderCircle className="animate-spin text-slate-400 h-6 w-6" /></div>
+                        <div className="flex justify-center p-10"><LoaderCircle className="animate-spin text-zoru-ink-muted h-6 w-6" /></div>
                     ) : (
                         <TemplateTable
                             data={premadeTemplates}

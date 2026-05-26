@@ -235,10 +235,10 @@ export function BusinessStep({
                                 disabled={isPending}
                                 aria-pressed={active}
                                 className={cn(
-                                    'flex items-start gap-3 rounded-xl border p-4 text-left transition',
+                                    'flex items-start gap-3 rounded-xl border border-zoru-line p-4 text-left transition',
                                     active
-                                        ? 'border-primary bg-primary/5 shadow-sm'
-                                        : 'hover:border-primary/60 hover:bg-muted/50'
+                                        ? 'border-zoru-primary bg-zoru-primary/5 shadow-sm'
+                                        : 'hover:border-zoru-primary/60 hover:bg-zoru-surface/50'
                                 )}
                             >
                                 <span
@@ -246,8 +246,8 @@ export function BusinessStep({
                                     className={cn(
                                         'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition',
                                         active
-                                            ? 'border-primary bg-primary text-primary-foreground'
-                                            : 'border-muted-foreground/40 bg-background'
+                                            ? 'border-zoru-primary bg-zoru-primary text-zoru-on-primary'
+                                            : 'border-zoru-line bg-zoru-bg'
                                     )}
                                 >
                                     {active ? (
@@ -255,10 +255,10 @@ export function BusinessStep({
                                     ) : null}
                                 </span>
                                 <div>
-                                    <p className="text-sm font-semibold">
+                                    <p className="text-sm font-semibold text-zoru-ink">
                                         {uc.label}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-xs text-zoru-ink-muted">
                                         {uc.description}
                                     </p>
                                 </div>

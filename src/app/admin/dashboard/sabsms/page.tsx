@@ -120,7 +120,7 @@ export default async function SabsmsAdminOverviewPage() {
           <ZoruPageTitle>SabSMS</ZoruPageTitle>
           <ZoruPageDescription>
             Rust engine at{' '}
-            <code className="rounded bg-slate-100 px-1 py-0.5 text-xs">
+            <code className="rounded bg-zoru-surface px-1 py-0.5 text-xs">
               {process.env.SABSMS_ENGINE_URL ?? 'http://localhost:4002'}
             </code>{' '}
             ·{' '}
@@ -149,7 +149,7 @@ export default async function SabsmsAdminOverviewPage() {
               <Badge variant="destructive">unreachable</Badge>
             )}
             {health.version && (
-              <span className="text-slate-600">version {health.version}</span>
+              <span className="text-zoru-ink-muted">version {health.version}</span>
             )}
             {health.error && (
               <span className="text-rose-600">{health.error}</span>

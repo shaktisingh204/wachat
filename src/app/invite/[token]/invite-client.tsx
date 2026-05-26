@@ -14,9 +14,7 @@ import {
     LuX,
 } from 'react-icons/lu';
 
-import { ClayBadge } from '@/components/clay/clay-badge';
-import { ClayButton } from '@/components/clay/clay-button';
-import { ClayCard } from '@/components/clay/clay-card';
+import { Badge, Button, Card, type ZoruBadgeProps } from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
 import type { InvitationView } from '@/app/actions/team.actions';
 import {
@@ -42,7 +40,7 @@ export function InviteClient({
     const router = useRouter();
     const { toast } = useToast();
     const [pending, setPending] = React.useState<PendingState>(false);
-    
+
     // Fix Hydration mismatch
     const [mounted, setMounted] = React.useState(false);
     React.useEffect(() => {
@@ -51,7 +49,7 @@ export function InviteClient({
 
     const expiresIn = React.useMemo(() => formatExpiresIn(invitation.expiresAt), [invitation.expiresAt]);
 
-    const statusTone: Record<InvitationView['status'], React.ComponentProps<typeof ClayBadge>['tone']> = {
+    const statusTone: Record<InvitationView['status'], NonNullable<ZoruBadgeProps['tone']>> = {
         pending: 'amber',
         accepted: 'green',
         expired: 'red',
@@ -133,13 +131,10 @@ export function InviteClient({
     };
 
     return (
-        <ClayCard
-            variant="floating"
-            padded={false}
-            className="w-full max-w-[480px] overflow-hidden"
-        >
+        // TODO(zoru): port ClayCard floating variant accent header to Zoru
+        <Card className="w-full max-w-[480px] overflow-hidden p-0">
             {/* Rose accent header */}
-            <div className="relative h-[6px] w-full bg-primary" />
+            <div className="relative h-[6px] w-full bg-zoru-primary" />
 
             <div className="flex flex-col gap-6 p-7 sm:p-9">
                 <HeaderSection invitation={invitation} statusTone={statusTone} />
@@ -154,7 +149,7 @@ export function InviteClient({
                     <MetaRow
                         icon={<LuClock className="h-3.5 w-3.5" strokeWidth={1.75} />}
                         label="Expires"
-                        value={mounted ? expiresIn : <span className="inline-block h-3 w-16 animate-pulse rounded bg-border" />}
+                        value={mounted ? expiresIn : <span className="inline-block h-3 w-16 animate-pulse rounded bg-zoru-line" />}
                     />
                     <MetaRow
                         icon={<LuUserPlus className="h-3.5 w-3.5" strokeWidth={1.75} />}
@@ -174,49 +169,49 @@ export function InviteClient({
                     <LoggedOutAuthBlock pending={pending} onCarryToken={onCarryToken} />
                 )}
 
-                <div className="border-t border-border pt-4 text-[11.5px] leading-relaxed text-muted-foreground">
+                <div className="border-t border-zoru-line pt-4 text-[11.5px] leading-relaxed text-zoru-ink-muted">
                     By accepting you agree to SabNode's terms. Only admins in{' '}
-                    <span className="text-foreground">{invitation.projectName || 'this workspace'}</span> can see your
+                    <span className="text-zoru-ink">{invitation.projectName || 'this workspace'}</span> can see your
                     role and activity within the team.
                 </div>
             </div>
-        </ClayCard>
+        </Card>
     );
 }
 
-function HeaderSection({ 
-    invitation, 
-    statusTone 
-}: { 
-    invitation: InvitationView; 
-    statusTone: Record<InvitationView['status'], React.ComponentProps<typeof ClayBadge>['tone']> 
+function HeaderSection({
+    invitation,
+    statusTone,
+}: {
+    invitation: InvitationView;
+    statusTone: Record<InvitationView['status'], NonNullable<ZoruBadgeProps['tone']>>;
 }) {
     return (
         <>
             <div className="flex items-center justify-between gap-2">
-                <ClayBadge tone="rose-soft" dot>
+                <Badge tone="rose-soft">
                     Team invitation
-                </ClayBadge>
-                <ClayBadge tone={statusTone[invitation.status]} dot>
+                </Badge>
+                <Badge tone={statusTone[invitation.status]}>
                     {invitation.status === 'pending' && invitation.isExpired
                         ? 'Expired'
                         : capitalize(invitation.status)}
-                </ClayBadge>
+                </Badge>
             </div>
 
             <div className="flex flex-col gap-2">
-                <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-foreground">
+                <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-zoru-ink">
                     You're invited to {invitation.projectName || 'the team'}
                 </h1>
-                <p className="text-[13.5px] leading-relaxed text-muted-foreground">
-                    <span className="font-medium text-foreground">
+                <p className="text-[13.5px] leading-relaxed text-zoru-ink-muted">
+                    <span className="font-medium text-zoru-ink">
                         {invitation.inviterName || invitation.inviterEmail || 'A SabNode user'}
                     </span>{' '}
-                    invited <span className="font-medium text-foreground">{invitation.inviteeEmail}</span> to join
+                    invited <span className="font-medium text-zoru-ink">{invitation.inviteeEmail}</span> to join
                     as a{' '}
-                    <ClayBadge tone="neutral" className="align-middle">
+                    <Badge tone="neutral" className="align-middle">
                         {prettyRole(invitation.role)}
-                    </ClayBadge>
+                    </Badge>
                     .
                 </p>
             </div>
@@ -238,38 +233,33 @@ function MatchedAuthBlock({
     return (
         <ActionBlock
             primary={
-                <ClayButton
-                    variant="obsidian"
+                <Button
                     size="lg"
                     onClick={onAccept}
                     disabled={!!pending}
-                    leading={
-                        pending === 'accept' ? (
-                            <LuLoader className="h-4 w-4 animate-spin" />
-                        ) : (
-                            <LuCheck className="h-4 w-4" strokeWidth={2.25} />
-                        )
-                    }
                 >
-                    Accept & join
-                </ClayButton>
+                    {pending === 'accept' ? (
+                        <LuLoader className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <LuCheck className="mr-2 h-4 w-4" strokeWidth={2.25} />
+                    )}
+                    Accept &amp; join
+                </Button>
             }
             secondary={
-                <ClayButton
-                    variant="pill"
+                <Button
                     size="lg"
+                    variant="outline"
                     onClick={onDecline}
                     disabled={!!pending}
-                    leading={
-                        pending === 'decline' ? (
-                            <LuLoader className="h-4 w-4 animate-spin" />
-                        ) : (
-                            <LuX className="h-4 w-4" strokeWidth={2.25} />
-                        )
-                    }
                 >
+                    {pending === 'decline' ? (
+                        <LuLoader className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <LuX className="mr-2 h-4 w-4" strokeWidth={2.25} />
+                    )}
                     Decline
-                </ClayButton>
+                </Button>
             }
             hint={`You'll join as ${auth.name || auth.email}.`}
         />
@@ -284,26 +274,23 @@ function MismatchAuthBlock({
     invitation: InvitationView;
 }) {
     return (
-        <div className="flex flex-col gap-4 rounded-lg border border-amber-50 bg-amber-50/40 p-4">
-            <p className="text-[13px] leading-relaxed text-foreground">
+        <div className="flex flex-col gap-4 rounded-lg border border-zoru-warning/30 bg-zoru-warning/10 p-4">
+            <p className="text-[13px] leading-relaxed text-zoru-ink">
                 This invitation was sent to{' '}
                 <span className="font-medium">{invitation.inviteeEmail}</span>, but you're signed in as{' '}
                 <span className="font-medium">{auth.loggedInEmail}</span>.
             </p>
             <div className="flex flex-wrap gap-2">
                 <Link href="/api/auth/logout">
-                    <ClayButton
-                        variant="obsidian"
-                        size="md"
-                        trailing={<LuArrowRight className="h-3.5 w-3.5" />}
-                    >
+                    <Button>
                         Switch account
-                    </ClayButton>
+                        <LuArrowRight className="ml-2 h-3.5 w-3.5" />
+                    </Button>
                 </Link>
                 <Link href="/">
-                    <ClayButton variant="pill" size="md">
+                    <Button variant="outline">
                         Stay signed in
-                    </ClayButton>
+                    </Button>
                 </Link>
             </div>
         </div>
@@ -320,32 +307,29 @@ function LoggedOutAuthBlock({
     return (
         <ActionBlock
             primary={
-                <ClayButton
-                    variant="obsidian"
+                <Button
                     size="lg"
                     onClick={() => onCarryToken('/onboarding')}
                     disabled={!!pending}
-                    leading={
-                        pending === 'carry' ? (
-                            <LuLoader className="h-4 w-4 animate-spin" />
-                        ) : (
-                            <LuUserPlus className="h-4 w-4" strokeWidth={2.25} />
-                        )
-                    }
                 >
+                    {pending === 'carry' ? (
+                        <LuLoader className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <LuUserPlus className="mr-2 h-4 w-4" strokeWidth={2.25} />
+                    )}
                     Create account
-                </ClayButton>
+                </Button>
             }
             secondary={
-                <ClayButton
-                    variant="pill"
+                <Button
                     size="lg"
+                    variant="outline"
                     onClick={() => onCarryToken('/login')}
                     disabled={!!pending}
-                    leading={<LuLogIn className="h-4 w-4" strokeWidth={2.25} />}
                 >
+                    <LuLogIn className="mr-2 h-4 w-4" strokeWidth={2.25} />
                     I have an account
-                </ClayButton>
+                </Button>
             }
             hint={`You'll be attached to the team automatically after you sign in.`}
         />
@@ -362,15 +346,15 @@ function MetaRow({
     value: React.ReactNode;
 }) {
     return (
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2.5">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-card text-muted-foreground">
+        <div className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2.5">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zoru-bg text-zoru-ink-muted">
                 {icon}
             </span>
             <div className="flex min-w-0 flex-col">
-                <span className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
+                <span className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-zoru-ink-muted">
                     {label}
                 </span>
-                <span className="truncate text-[12.5px] text-foreground">{value}</span>
+                <span className="truncate text-[12.5px] text-zoru-ink">{value}</span>
             </div>
         </div>
     );
@@ -391,7 +375,7 @@ function ActionBlock({
                 {primary}
                 {secondary}
             </div>
-            {hint ? <p className="text-[11.5px] text-muted-foreground">{hint}</p> : null}
+            {hint ? <p className="text-[11.5px] text-zoru-ink-muted">{hint}</p> : null}
         </div>
     );
 }
@@ -415,18 +399,19 @@ function StatusBlock({ invitation }: { invitation: InvitationView }) {
                 tone: 'neutral' as const,
             };
     return (
-        <div className="flex flex-col gap-3 rounded-lg border border-border bg-secondary p-4">
+        <div className="flex flex-col gap-3 rounded-lg border border-zoru-line bg-zoru-surface p-4">
             <div className="flex items-center gap-2">
-                <ClayBadge tone={copy.tone} dot>
+                <Badge tone={copy.tone}>
                     {capitalize(invitation.status)}
-                </ClayBadge>
-                <span className="text-[13px] font-medium text-foreground">{copy.title}</span>
+                </Badge>
+                <span className="text-[13px] font-medium text-zoru-ink">{copy.title}</span>
             </div>
-            <p className="text-[12.5px] text-muted-foreground">{copy.body}</p>
+            <p className="text-[12.5px] text-zoru-ink-muted">{copy.body}</p>
             <Link href="/">
-                <ClayButton variant="pill" size="md" trailing={<LuArrowRight className="h-3.5 w-3.5" />}>
+                <Button variant="outline">
                     Back to SabNode
-                </ClayButton>
+                    <LuArrowRight className="ml-2 h-3.5 w-3.5" />
+                </Button>
             </Link>
         </div>
     );

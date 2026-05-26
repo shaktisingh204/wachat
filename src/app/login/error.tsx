@@ -17,12 +17,12 @@ export default function LoginErrorBoundary({
     }, [error]);
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center bg-background">
+        <div className="zoruui flex min-h-screen flex-col items-center justify-center p-6 text-center bg-zoru-bg text-zoru-ink">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10 text-destructive mb-6">
                 <AlertTriangle className="h-10 w-10" />
             </div>
             <h2 className="mb-2 text-2xl font-bold tracking-tight">Login Error</h2>
-            <p className="mb-6 max-w-md text-muted-foreground text-sm">
+            <p className="mb-6 max-w-md text-zoru-ink-muted text-sm">
                 We encountered an unexpected error while trying to load the login page.
                 Please try again or refresh the page. If the issue persists, contact support.
             </p>

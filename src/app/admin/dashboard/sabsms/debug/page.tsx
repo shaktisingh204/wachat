@@ -41,7 +41,7 @@ export default async function SabsmsAdminDebugPage() {
           <ZoruPageDescription>
             Push a real SMS through the Rust engine to verify the pipeline.
             Uses the Twilio credentials configured on the engine
-            (<code className="rounded bg-slate-100 px-1 py-0.5 text-xs">SABSMS_TWILIO_*</code>).
+            (<code className="rounded bg-zoru-surface px-1 py-0.5 text-xs">SABSMS_TWILIO_*</code>).
           </ZoruPageDescription>
         </ZoruPageHeading>
       </PageHeader>

@@ -41,16 +41,16 @@ function AuditTableSkeleton() {
     return (
         <div className="space-y-6 animate-pulse">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="h-24 rounded-2xl bg-slate-100"></div>
-                <div className="h-24 rounded-2xl bg-slate-100"></div>
-                <div className="h-24 rounded-2xl bg-slate-100"></div>
+                <div className="h-24 rounded-2xl bg-zoru-surface"></div>
+                <div className="h-24 rounded-2xl bg-zoru-surface"></div>
+                <div className="h-24 rounded-2xl bg-zoru-surface"></div>
             </div>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <div className="h-48 rounded-2xl bg-slate-100"></div>
-                <div className="h-48 rounded-2xl bg-slate-100"></div>
-                <div className="h-48 rounded-2xl bg-slate-100"></div>
+                <div className="h-48 rounded-2xl bg-zoru-surface"></div>
+                <div className="h-48 rounded-2xl bg-zoru-surface"></div>
+                <div className="h-48 rounded-2xl bg-zoru-surface"></div>
             </div>
-            <div className="h-96 rounded-2xl bg-slate-100"></div>
+            <div className="h-96 rounded-2xl bg-zoru-surface"></div>
         </div>
     );
 }
@@ -70,10 +70,10 @@ export default async function AuditLogAdminPage({
         <div className="space-y-6">
             <div className="flex items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">
+                    <h1 className="text-2xl font-bold text-zoru-ink">
                         Compliance audit log
                     </h1>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-zoru-ink-muted">
                         Tamper-evident, hash-chained record of every privileged
                         action.  Use the filters below to investigate access,
                         diagnose failures, and export evidence for regulators.
@@ -88,12 +88,12 @@ export default async function AuditLogAdminPage({
             {/* Tenant + range form — server-rendered GET so the URL is shareable. */}
             <form
                 method="GET"
-                className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white p-4"
+                className="flex flex-wrap items-end gap-3 rounded-2xl border border-zoru-line bg-zoru-bg p-4"
             >
                 <div className="flex-1 min-w-[200px]">
                     <label
                         htmlFor="tenantId"
-                        className="text-xs font-medium text-slate-500"
+                        className="text-xs font-medium text-zoru-ink-muted"
                     >
                         Tenant ID
                     </label>
@@ -101,13 +101,13 @@ export default async function AuditLogAdminPage({
                         id="tenantId"
                         name="tenantId"
                         defaultValue={tenantId}
-                        className="mt-1 w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                        className="mt-1 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-sm text-zoru-ink focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/20"
                     />
                 </div>
                 <div>
                     <label
                         htmlFor="days"
-                        className="text-xs font-medium text-slate-500"
+                        className="text-xs font-medium text-zoru-ink-muted"
                     >
                         Window (days)
                     </label>
@@ -118,12 +118,12 @@ export default async function AuditLogAdminPage({
                         min={1}
                         max={365}
                         defaultValue={sp.days ?? '7'}
-                        className="mt-1 w-28 rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                        className="mt-1 w-28 rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-sm text-zoru-ink focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/20"
                     />
                 </div>
                 <button
                     type="submit"
-                    className="rounded-md bg-slate-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+                    className="rounded-md bg-amber-500 px-4 py-1.5 text-sm font-medium text-zinc-950 hover:bg-amber-400"
                 >
                     Apply
                 </button>

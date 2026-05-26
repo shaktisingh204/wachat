@@ -1,5 +1,6 @@
 'use client';
 
+import "@/styles/zoruui.css";
 import { useEffect, useState, useTransition, useRef } from 'react';
 import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';

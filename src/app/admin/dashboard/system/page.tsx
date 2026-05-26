@@ -1,4 +1,4 @@
-import { Separator } from '@/components/zoruui';
+import { Card, Separator } from '@/components/zoruui';
 import { ShieldCheck, AlertTriangle, Zap, RefreshCw, Image as ImageIcon } from 'lucide-react';
 
 import { SubscribeAllButton } from '@/components/wabasimplify/subscribe-all-button';
@@ -26,20 +26,20 @@ function SectionCard({
     children: React.ReactNode;
 }) {
     return (
-        <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-start gap-3">
-                <div className={`mt-0.5 h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${warning ? 'bg-amber-100 border border-amber-200' : 'bg-slate-100 border border-slate-300'}`}>
-                    <Icon className={`h-4 w-4 ${warning ? 'text-amber-600' : 'text-slate-700'}`} />
+        <Card className="rounded-2xl border border-zoru-line bg-zoru-bg overflow-hidden p-0">
+            <div className="px-6 py-4 border-b border-zoru-line flex items-start gap-3">
+                <div className={`mt-0.5 h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${warning ? 'bg-amber-100 border border-amber-200' : 'bg-zoru-surface border border-zoru-line'}`}>
+                    <Icon className={`h-4 w-4 ${warning ? 'text-amber-600' : 'text-zoru-ink'}`} />
                 </div>
                 <div>
-                    <h2 className="font-semibold text-slate-900">{title}</h2>
-                    <p className="text-xs text-slate-500 mt-0.5">{description}</p>
+                    <h2 className="font-semibold text-zoru-ink">{title}</h2>
+                    <p className="text-xs text-zoru-ink-muted mt-0.5">{description}</p>
                 </div>
             </div>
             <div className="px-6 py-5">
                 {children}
             </div>
-        </div>
+        </Card>
     );
 }
 
@@ -48,8 +48,8 @@ export default function SystemHealthPage() {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-slate-900">System Health & Actions</h1>
-                <p className="text-sm text-slate-500 mt-1">Administrative controls and system-wide tasks. Use with caution.</p>
+                <h1 className="text-2xl font-bold text-zoru-ink">System Health & Actions</h1>
+                <p className="text-sm text-zoru-ink-muted mt-1">Administrative controls and system-wide tasks. Use with caution.</p>
             </div>
 
             {/* Warning banner */}

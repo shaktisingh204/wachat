@@ -17,7 +17,7 @@ export default function ErrorBoundary({
   }, [error])
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-muted">
+    <div className="flex h-screen w-screen items-center justify-center bg-zoru-surface">
       <Card className="max-w-sm text-center">
         <ZoruCardHeader>
           <div className="flex justify-center mb-4">

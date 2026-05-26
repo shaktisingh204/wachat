@@ -121,13 +121,13 @@ function SectionCard({
     return (
         <Card
             className={cn(
-                'rounded-2xl border-slate-200 bg-white backdrop-blur-xl shadow-sm overflow-hidden',
+                'rounded-2xl border-zoru-line bg-zoru-bg backdrop-blur-xl shadow-sm overflow-hidden',
                 premium && 'ring-1 ring-amber-500/40 shadow-amber-500/10',
             )}
         >
             <ZoruCardHeader
                 className={cn(
-                    'border-b border-slate-200 bg-gradient-to-r to-transparent',
+                    'border-b border-zoru-line bg-gradient-to-r to-transparent',
                     styles.glow,
                 )}
             >
@@ -176,14 +176,14 @@ function Field({
 }) {
     return (
         <div className="space-y-1.5">
-            <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
+            <Label className="text-xs font-medium text-zoru-ink-muted">{label}</Label>
             {children}
-            {hint && <p className="text-[10px] text-muted-foreground/70">{hint}</p>}
+            {hint && <p className="text-[10px] text-zoru-ink-muted/70">{hint}</p>}
         </div>
     );
 }
 
-const inputClass = 'rounded-xl bg-white border-slate-200 backdrop-blur focus-visible:ring-primary/40';
+const inputClass = 'rounded-xl bg-zoru-bg border-zoru-line backdrop-blur focus-visible:ring-primary/40';
 
 export default function PlanEditor({ planId, initialPlan, initialHistory }: { planId: string, initialPlan: WithId<Plan> | null, initialHistory: (WithId<Plan> & { versionedAt: Date | string })[] }) {
     
@@ -229,7 +229,7 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
             <input type="hidden" name="planId" value={plan?._id.toString() || 'new'} />
 
             {/* Header */}
-            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-primary/5 via-white to-violet-50 p-6">
+            <div className="relative overflow-hidden rounded-2xl border border-zoru-line bg-gradient-to-br from-primary/5 via-zoru-bg to-violet-50 p-6">
                 <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
                 <div className="absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-violet-100 blur-3xl pointer-events-none" />
                 <div className="relative">
@@ -238,7 +238,7 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                         variant="ghost"
                         asChild
                         size="sm"
-                        className="-ml-2 mb-2 hover:bg-slate-50 rounded-lg"
+                        className="-ml-2 mb-2 hover:bg-zoru-surface rounded-lg"
                     >
                         <Link href="/admin/dashboard/plans">
                             <ChevronLeft className="mr-1 h-4 w-4" />
@@ -252,7 +252,7 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                     <h1 className="text-2xl md:text-3xl text-zoru-ink">
                         {isNew ? 'Create a new plan' : plan?.name}
                     </h1>
-                    <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+                    <p className="text-sm text-zoru-ink-muted mt-1 max-w-2xl">
                         Configure pricing, usage limits, and the master permission ceiling for
                         every module in the app.
                     </p>
@@ -361,8 +361,8 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                             </Field>
                         </div>
 
-                        <div className="mt-6 flex flex-wrap gap-4 pt-4 border-t border-slate-200">
-                            <div className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-2">
+                        <div className="mt-6 flex flex-wrap gap-4 pt-4 border-t border-zoru-line">
+                            <div className="flex items-center gap-2 rounded-xl bg-zoru-bg border border-zoru-line px-4 py-2">
                                 <Switch
                                     id="isPublic"
                                     name="isPublic"
@@ -372,7 +372,7 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     Publicly visible
                                 </Label>
                             </div>
-                            <div className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-2">
+                            <div className="flex items-center gap-2 rounded-xl bg-zoru-bg border border-zoru-line px-4 py-2">
                                 <Switch
                                     id="isDefault"
                                     name="isDefault"
@@ -526,7 +526,7 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     </Field>
                                 </div>
                             </div>
-                            <div className="pt-4 border-t border-slate-200">
+                            <div className="pt-4 border-t border-zoru-line">
                                 <div className="text-xs font-semibold text-sky-600 mb-3 uppercase tracking-wide">
                                     Other channels
                                 </div>
@@ -1122,17 +1122,17 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                         {initialHistory && initialHistory.length > 0 ? (
                             <div className="space-y-4">
                                 {initialHistory.map((h, i) => (
-                                    <div key={i} className="p-4 border rounded-xl bg-slate-50">
+                                    <div key={i} className="p-4 border border-zoru-line rounded-xl bg-zoru-surface">
                                         <div className="flex justify-between items-center">
-                                            <div className="font-semibold">{h.name} <span className="text-muted-foreground text-sm font-normal">v{initialHistory.length - i}</span></div>
-                                            <div className="text-xs text-muted-foreground">{new Date(h.versionedAt).toLocaleString()}</div>
+                                            <div className="font-semibold text-zoru-ink">{h.name} <span className="text-zoru-ink-muted text-sm font-normal">v{initialHistory.length - i}</span></div>
+                                            <div className="text-xs text-zoru-ink-muted">{new Date(h.versionedAt).toLocaleString()}</div>
                                         </div>
-                                        <div className="text-sm mt-2">Price: {h.price} {h.currency}</div>
+                                        <div className="text-sm mt-2 text-zoru-ink">Price: {h.price} {h.currency}</div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-sm text-muted-foreground">No history available for this plan.</div>
+                            <div className="text-sm text-zoru-ink-muted">No history available for this plan.</div>
                         )}
                     </SectionCard>
                 </div>
@@ -1145,8 +1145,8 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                     'fixed bottom-6 inset-x-0 z-20 flex justify-center pointer-events-none px-4',
                 )}
             >
-                <div className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-xl shadow-2xl shadow-slate-400/20 px-4 py-3">
-                    <span className="text-xs text-muted-foreground hidden sm:inline">
+                <div className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-zoru-line bg-zoru-bg/90 backdrop-blur-xl shadow-2xl shadow-zoru-ink/10 px-4 py-3">
+                    <span className="text-xs text-zoru-ink-muted hidden sm:inline">
                         Changes take effect immediately after saving.
                     </span>
                     <SubmitButton />

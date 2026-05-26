@@ -103,8 +103,8 @@ function ForgotPasswordForm() {
                 <SubmitButton />
             </ZoruCardContent>
             <ZoruCardFooter className="justify-center">
-                <p className="text-sm text-muted-foreground">
-                    <Link href="/login" className="font-semibold text-foreground hover:text-primary">&larr; Back to Sign In</Link>
+                <p className="text-sm text-zoru-ink-muted">
+                    <Link href="/login" className="font-semibold text-zoru-ink hover:text-zoru-primary">&larr; Back to Sign In</Link>
                 </p>
             </ZoruCardFooter>
         </form>
@@ -128,8 +128,8 @@ function Footer() {
 
     return (
         <div className="absolute bottom-6 text-center w-full">
-            <p className="text-xs text-muted-foreground">
-                © {new Date().getFullYear()} SabNode. All Rights Reserved. | <Link href="/privacy-policy" className="hover:text-primary">Privacy Policy</Link>
+            <p className="text-xs text-zoru-ink-muted">
+                © {new Date().getFullYear()} SabNode. All Rights Reserved. | <Link href="/privacy-policy" className="hover:text-zoru-primary">Privacy Policy</Link>
             </p>
         </div>
     );
@@ -137,7 +137,7 @@ function Footer() {
 
 export default function ForgotPasswordPage() {
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-auth-texture p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-zoru-bg p-4 sm:p-6 lg:p-8">
             <div className="absolute top-6 left-6 sm:top-8 sm:left-8">
                 <Link href="/">
                     <SabNodeLogo className="w-24 h-auto" />

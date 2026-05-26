@@ -20,12 +20,12 @@ const data = [
 
 export function GrowthChart() {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6">
+    <div className="rounded-2xl border border-zoru-line bg-zoru-bg p-6">
       <div className="mb-6">
-        <h2 className="text-lg font-semibold text-slate-900">
+        <h2 className="text-lg font-semibold text-zoru-ink">
           Platform Growth
         </h2>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-zoru-ink-muted">
           Users and Revenue over the last 7 months
         </p>
       </div>

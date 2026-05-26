@@ -25,8 +25,8 @@ export default async function PlansManagementPage() {
             {/* Header */}
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Subscription Plans</h1>
-                    <p className="text-sm text-slate-500 mt-1">Create and manage platform subscription tiers.</p>
+                    <h1 className="text-2xl font-bold text-zoru-ink">Subscription Plans</h1>
+                    <p className="text-sm text-zoru-ink-muted mt-1">Create and manage platform subscription tiers.</p>
                 </div>
                 <Button asChild className="bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-lg shadow-amber-500/25">
                     <Link href="/admin/dashboard/plans/new">

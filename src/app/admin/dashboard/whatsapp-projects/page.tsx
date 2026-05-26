@@ -32,7 +32,7 @@ const STATUS_STYLES: Record<string, string> = {
     failed: 'bg-red-100 text-red-600 border-red-200',
     rejected: 'bg-red-100 text-red-600 border-red-200',
     'partial failure': 'bg-amber-100 text-amber-600 border-amber-200',
-    unknown: 'bg-slate-200 text-slate-500 border-slate-300',
+    unknown: 'bg-zoru-surface text-zoru-ink-muted border-zoru-line',
 };
 
 function statusStyle(status?: string) {
@@ -91,18 +91,18 @@ function WhatsAppProjectsContent() {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-slate-900">WhatsApp Projects</h1>
-                <p className="text-sm text-slate-500 mt-1">All connected WhatsApp Business Accounts across the platform.</p>
+                <h1 className="text-2xl font-bold text-zoru-ink">WhatsApp Projects</h1>
+                <p className="text-sm text-zoru-ink-muted mt-1">All connected WhatsApp Business Accounts across the platform.</p>
             </div>
 
             {/* Table card */}
-            <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+            <div className="rounded-2xl border border-zoru-line bg-zoru-bg overflow-hidden">
+                <div className="px-6 py-4 border-b border-zoru-line flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                        <MessageSquare className="h-4 w-4 text-slate-500" />
-                        <span className="font-medium text-slate-900 text-sm">
+                        <MessageSquare className="h-4 w-4 text-zoru-ink-muted" />
+                        <span className="font-medium text-zoru-ink text-sm">
                             Connected Accounts
-                            <span className="ml-2 text-slate-500 font-normal">({totalProjects})</span>
+                            <span className="ml-2 text-zoru-ink-muted font-normal">({totalProjects})</span>
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -140,34 +140,34 @@ function WhatsAppProjectsContent() {
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
-                            <tr className="border-b border-slate-200">
+                            <tr className="border-b border-zoru-line">
                                 {['Project', 'Owner', 'WABA ID', 'Status', ''].map((h, i) => (
-                                    <th key={i} className={`px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider ${i === 4 ? 'text-right' : 'text-left'}`}>
+                                    <th key={i} className={`px-6 py-3 text-xs font-semibold text-zoru-ink-muted uppercase tracking-wider ${i === 4 ? 'text-right' : 'text-left'}`}>
                                         {h}
                                     </th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-200">
+                        <tbody className="divide-y divide-[color:var(--zoru-line)]">
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={5} className="px-6 py-12 text-center">
-                                        <LoaderCircle className="mx-auto h-5 w-5 animate-spin text-slate-500" />
+                                        <LoaderCircle className="mx-auto h-5 w-5 animate-spin text-zoru-ink-muted" />
                                     </td>
                                 </tr>
                             ) : projects.length > 0 ? (
                                 projects.map(project => (
-                                    <tr key={project._id.toString()} className={`hover:bg-slate-50 transition-colors ${project.isArchived ? 'opacity-60' : ''}`}>
-                                        <td className="px-6 py-3.5 font-medium text-slate-900">
+                                    <tr key={project._id.toString()} className={`hover:bg-zoru-surface transition-colors ${project.isArchived ? 'opacity-60' : ''}`}>
+                                        <td className="px-6 py-3.5 font-medium text-zoru-ink">
                                             <div className="flex items-center gap-2">
-                                                <Link 
+                                                <Link
                                                     href={`/wachat?projectId=${project._id}`}
-                                                    className="hover:underline text-slate-900 font-medium"
+                                                    className="hover:underline text-zoru-ink font-medium"
                                                 >
                                                     {project.name}
                                                 </Link>
                                                 {project.isArchived && (
-                                                    <span className="inline-flex items-center gap-1 rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+                                                    <span className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface px-2 py-0.5 text-[10px] font-medium text-zoru-ink-muted">
                                                         <Archive className="h-3 w-3" />
                                                         Archived
                                                     </span>
@@ -175,10 +175,10 @@ function WhatsAppProjectsContent() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-3.5">
-                                            <p className="font-medium text-slate-900">{project.owner?.name || '—'}</p>
-                                            <p className="text-xs text-slate-500">{project.owner?.email || '—'}</p>
+                                            <p className="font-medium text-zoru-ink">{project.owner?.name || '—'}</p>
+                                            <p className="text-xs text-zoru-ink-muted">{project.owner?.email || '—'}</p>
                                         </td>
-                                        <td className="px-6 py-3.5 font-mono text-xs text-slate-500">{project.wabaId || '—'}</td>
+                                        <td className="px-6 py-3.5 font-mono text-xs text-zoru-ink-muted">{project.wabaId || '—'}</td>
                                         <td className="px-6 py-3.5">
                                             <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${statusStyle(project.reviewStatus)}`}>
                                                 {project.reviewStatus?.replace(/_/g, ' ') || 'Unknown'}
@@ -195,7 +195,7 @@ function WhatsAppProjectsContent() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-16 text-center text-slate-500">
+                                    <td colSpan={5} className="px-6 py-16 text-center text-zoru-ink-muted">
                                         No WhatsApp projects found.
                                     </td>
                                 </tr>
@@ -205,15 +205,15 @@ function WhatsAppProjectsContent() {
                 </div>
 
                 {/* Pagination */}
-                <div className="px-6 py-3 border-t border-slate-200 flex items-center justify-between">
-                    <span className="text-xs text-slate-500">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
+                <div className="px-6 py-3 border-t border-zoru-line flex items-center justify-between">
+                    <span className="text-xs text-zoru-ink-muted">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
                     <div className="flex gap-2">
                         <Button variant="outline" size="sm" asChild disabled={currentPage <= 1}
-                            className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
+                            className="border-zoru-line bg-zoru-surface text-zoru-ink hover:bg-zoru-surface hover:text-zoru-ink disabled:opacity-40">
                             <Link href={createPageURL(currentPage - 1)}>Previous</Link>
                         </Button>
                         <Button variant="outline" size="sm" asChild disabled={currentPage >= totalPages}
-                            className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
+                            className="border-zoru-line bg-zoru-surface text-zoru-ink hover:bg-zoru-surface hover:text-zoru-ink disabled:opacity-40">
                             <Link href={createPageURL(currentPage + 1)}>Next</Link>
                         </Button>
                     </div>
@@ -225,7 +225,7 @@ function WhatsAppProjectsContent() {
 
 export default function WhatsAppProjectsPage() {
     return (
-        <Suspense fallback={<div className="p-8 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-slate-500" /></div>}>
+        <Suspense fallback={<div className="p-8 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" /></div>}>
             <WhatsAppProjectsContent />
         </Suspense>
     );

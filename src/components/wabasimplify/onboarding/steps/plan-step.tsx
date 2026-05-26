@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Alert, ZoruAlertDescription, ZoruAlertTitle, Select } from '@/components/zoruui';
+import { Button, Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import {
   AlertCircle,
   Check,
@@ -311,47 +311,47 @@ export function PlanStep({
                                 onClick={() => setChosen(plan._id)}
                                 disabled={isPending}
                                 className={cn(
-                                    'relative flex flex-col rounded-2xl border p-6 text-left transition',
+                                    'relative flex flex-col rounded-2xl border border-zoru-line bg-zoru-bg p-6 text-left transition',
                                     active
-                                        ? 'border-primary bg-primary/5 shadow-md'
-                                        : 'hover:border-primary/60 hover:shadow-sm'
+                                        ? 'border-zoru-primary bg-zoru-primary/5 shadow-md'
+                                        : 'hover:border-zoru-primary/60 hover:shadow-sm'
                                 )}
                             >
                                 {recommended && (
-                                    <span className="absolute -top-3 left-4 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+                                    <span className="absolute -top-3 left-4 inline-flex items-center gap-1 rounded-full bg-zoru-primary px-3 py-1 text-xs font-semibold text-zoru-on-primary">
                                         <Sparkles className="h-3 w-3" />
                                         Recommended
                                     </span>
                                 )}
                                 <div className="flex items-start justify-between">
                                     <div>
-                                        <h3 className="text-lg font-bold">
+                                        <h3 className="text-lg font-bold text-zoru-ink">
                                             {plan.name}
                                         </h3>
                                         {plan.appCategory && (
-                                            <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                                            <p className="text-xs uppercase tracking-wider text-zoru-ink-muted">
                                                 {plan.appCategory}
                                             </p>
                                         )}
                                     </div>
                                     {active && (
-                                        <Check className="h-5 w-5 text-primary" />
+                                        <Check className="h-5 w-5 text-zoru-primary" />
                                     )}
                                 </div>
 
                                 <div className="mt-4 flex items-baseline gap-1">
-                                    <span className="text-3xl font-bold">
+                                    <span className="text-3xl font-bold text-zoru-ink">
                                         {main}
                                     </span>
-                                    <span className="text-xs text-muted-foreground">
+                                    <span className="text-xs text-zoru-ink-muted">
                                         {suffix}
                                     </span>
                                 </div>
 
                                 {selectedModules.length > 0 && (
-                                    <p className="mt-2 text-xs text-muted-foreground">
+                                    <p className="mt-2 text-xs text-zoru-ink-muted">
                                         Covers{' '}
-                                        <span className="font-semibold text-foreground">
+                                        <span className="font-semibold text-zoru-ink">
                                             {score}
                                         </span>{' '}
                                         of {selectedModules.length} modules you
@@ -392,14 +392,14 @@ export function PlanStep({
                     })}
                 </div>
 
-                <div className="rounded-xl border bg-muted/40 p-4 text-sm">
+                <div className="rounded-xl border border-zoru-line bg-zoru-surface/40 p-4 text-sm">
                     <div className="flex items-start gap-3">
-                        <ShieldCheck className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                        <p className="text-muted-foreground">
+                        <ShieldCheck className="mt-0.5 h-4 w-4 text-zoru-ink-muted" />
+                        <p className="text-zoru-ink-muted">
                             Payments are processed securely via PayU — the
                             next screen is PayU's hosted checkout. You can
                             upgrade, downgrade, or cancel anytime from{' '}
-                            <span className="font-medium text-foreground">
+                            <span className="font-medium text-zoru-ink">
                                 Settings → Billing
                             </span>
                             .
@@ -454,13 +454,13 @@ function PlanFeatureLine({
         <li
             className={cn(
                 'flex items-center gap-2',
-                enabled ? 'text-foreground' : 'text-muted-foreground/60 line-through'
+                enabled ? 'text-zoru-ink' : 'text-zoru-ink-muted/60 line-through'
             )}
         >
             <Check
                 className={cn(
                     'h-3.5 w-3.5',
-                    enabled ? 'text-primary' : 'text-muted-foreground/40'
+                    enabled ? 'text-zoru-primary' : 'text-zoru-ink-muted/40'
                 )}
             />
             {label}

@@ -45,15 +45,15 @@ export function AdminSidebarNav() {
             : pathname.startsWith(item.href);
 
     return (
-        <aside className="w-64 shrink-0 flex flex-col bg-white border-r border-slate-200 h-full">
+        <aside className="zoruui w-64 shrink-0 flex flex-col bg-zinc-950 border-r border-zinc-800/80 h-full text-zinc-100">
             {/* Logo */}
-            <div className="h-16 px-5 flex items-center gap-3 border-b border-slate-200 shrink-0">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 border border-amber-200">
-                    <Shield className="h-4 w-4 text-amber-600" />
+            <div className="h-16 px-5 flex items-center gap-3 border-b border-zinc-800/80 shrink-0">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/30 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.05)]">
+                    <Shield className="h-4 w-4 text-amber-400" />
                 </div>
                 <div className="flex flex-col leading-none">
                     <SabNodeLogo className="w-20 h-auto" />
-                    <span className="text-[10px] font-semibold text-amber-600/80 uppercase tracking-widest mt-0.5">
+                    <span className="text-[10px] font-semibold text-amber-400/90 uppercase tracking-widest mt-0.5">
                         Admin
                     </span>
                 </div>
@@ -61,7 +61,7 @@ export function AdminSidebarNav() {
 
             {/* Nav */}
             <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
-                <p className="px-3 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <p className="px-3 mb-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
                     Management
                 </p>
                 {navItems.map((item) => {
@@ -71,19 +71,19 @@ export function AdminSidebarNav() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
+                                'group relative flex items-center gap-3 rounded-lg pl-3 pr-3 py-2.5 text-sm font-medium transition-all duration-150',
                                 active
-                                    ? 'bg-amber-100 text-amber-600'
-                                    : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                                    ? 'bg-amber-500/10 text-amber-400 border-l-2 border-amber-500 pl-[10px]'
+                                    : 'border-l-2 border-transparent text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100'
                             )}
                         >
                             <item.icon className={cn(
                                 'h-4 w-4 shrink-0 transition-colors',
-                                active ? 'text-amber-600' : 'text-slate-500 group-hover:text-slate-900'
+                                active ? 'text-amber-400' : 'text-zinc-500 group-hover:text-zinc-200'
                             )} />
                             <span className="flex-1 truncate">{item.label}</span>
                             {active && (
-                                <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                                <span className="h-1.5 w-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
                             )}
                         </Link>
                     );
@@ -91,11 +91,11 @@ export function AdminSidebarNav() {
             </nav>
 
             {/* Footer */}
-            <div className="px-3 py-4 border-t border-slate-200 shrink-0 space-y-1">
+            <div className="px-3 py-4 border-t border-zinc-800/80 shrink-0 space-y-1">
                 <Link
                     href="/"
                     target="_blank"
-                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-all"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100 transition-all"
                 >
                     <ChevronRight className="h-4 w-4" />
                     <span>View Live Site</span>
@@ -103,7 +103,7 @@ export function AdminSidebarNav() {
                 <Link
                     href="/api/auth/admin-logout"
                     prefetch={false}
-                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 hover:bg-red-500/10 hover:text-red-400 transition-all"
                 >
                     <LogOut className="h-4 w-4" />
                     <span>Sign Out</span>

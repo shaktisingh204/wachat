@@ -1,3 +1,5 @@
+import "@/styles/zoruui.css";
+
 import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, Button } from '@/components/zoruui';
 import { Suspense } from 'react'
 import { LoaderCircle, AlertCircle } from 'lucide-react'
@@ -44,49 +46,53 @@ export default async function FacebookCallbackPage({
   // 2. Inline fallback for invalid code or errors (fails entirely)
   if (error || !code || !state) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-muted">
-        <Card className="max-w-sm text-center">
-          <ZoruCardHeader>
-            <div className="flex justify-center mb-4">
-              <AlertCircle className="h-10 w-10 text-destructive" />
+      <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
+        <div className="flex h-screen w-screen items-center justify-center bg-zoru-surface">
+          <Card className="max-w-sm text-center">
+            <ZoruCardHeader>
+              <div className="flex justify-center mb-4">
+                <AlertCircle className="h-10 w-10 text-destructive" />
+              </div>
+              <ZoruCardTitle>Connection Failed</ZoruCardTitle>
+              <ZoruCardDescription>
+                {error
+                  ? `Error: ${error}`
+                  : "No connection code or state was provided. The process might have been cancelled."}
+              </ZoruCardDescription>
+            </ZoruCardHeader>
+            <div className="p-6 pt-0">
+              <Link href={getRedirectPath(state)}>
+                <Button variant="outline" className="w-full">Return to Dashboard</Button>
+              </Link>
             </div>
-            <ZoruCardTitle>Connection Failed</ZoruCardTitle>
-            <ZoruCardDescription>
-              {error 
-                ? `Error: ${error}` 
-                : "No connection code or state was provided. The process might have been cancelled."}
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <div className="p-6 pt-0">
-             <Link href={getRedirectPath(state)}>
-               <Button variant="outline" className="w-full">Return to Dashboard</Button>
-             </Link>
-          </div>
-        </Card>
+          </Card>
+        </div>
       </div>
     )
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex h-screen w-screen items-center justify-center bg-muted">
-          <Card className="max-w-sm text-center">
-            <ZoruCardHeader>
-              <div className="flex justify-center mb-4">
-                <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
-              </div>
-              <ZoruCardTitle>Loading...</ZoruCardTitle>
-            </ZoruCardHeader>
-          </Card>
-        </div>
-      }
-    >
-      <FacebookCallbackClient
-        code={code}
-        error={error}
-        stateFromUrl={state}
-      />
-    </Suspense>
+    <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
+      <Suspense
+        fallback={
+          <div className="flex h-screen w-screen items-center justify-center bg-zoru-surface">
+            <Card className="max-w-sm text-center">
+              <ZoruCardHeader>
+                <div className="flex justify-center mb-4">
+                  <LoaderCircle className="h-10 w-10 animate-spin text-zoru-primary" />
+                </div>
+                <ZoruCardTitle>Loading...</ZoruCardTitle>
+              </ZoruCardHeader>
+            </Card>
+          </div>
+        }
+      >
+        <FacebookCallbackClient
+          code={code}
+          error={error}
+          stateFromUrl={state}
+        />
+      </Suspense>
+    </div>
   )
 }

@@ -12,7 +12,7 @@ import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, Loader2, Inbox, Eye } from 'lucide-react';
-import { Button, Badge } from '@/components/zoruui';
+import { Button, Badge, Label, Textarea, Checkbox } from '@/components/zoruui';
 import type { SubmissionRow } from '../page';
 
 interface Props {
@@ -45,23 +45,23 @@ function RejectModal({ submissionIds, submissionNames, onConfirm, onClose, isPen
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-xl">
-        <div className="px-6 py-4 border-b border-slate-200">
-          <h2 className="text-base font-semibold text-slate-900">Reject submission{submissionIds.length > 1 ? 's' : ''}</h2>
-          <p className="text-sm text-slate-500 mt-0.5 truncate">&ldquo;{submissionNames}&rdquo;</p>
+      <div className="w-full max-w-md rounded-2xl border border-zoru-line bg-zoru-bg shadow-xl">
+        <div className="px-6 py-4 border-b border-zoru-line">
+          <h2 className="text-base font-semibold text-zoru-ink">Reject submission{submissionIds.length > 1 ? 's' : ''}</h2>
+          <p className="text-sm text-zoru-ink-muted mt-0.5 truncate">&ldquo;{submissionNames}&rdquo;</p>
         </div>
         <div className="px-6 py-5 space-y-3">
-          <label className="block text-sm font-medium text-slate-700">Reason <span className="text-red-500">*</span></label>
-          <textarea
-            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400 resize-none"
+          <Label className="block text-sm font-medium text-zoru-ink">Reason <span className="text-red-500">*</span></Label>
+          <Textarea
             rows={4}
             placeholder="Explain why this template was rejected so the author can improve it…"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             disabled={isPending}
+            className="resize-none"
           />
         </div>
-        <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-200">
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-zoru-line">
           <Button variant="outline" size="sm" onClick={onClose} disabled={isPending}>Cancel</Button>
           <Button size="sm" className="bg-red-600 hover:bg-red-500 text-white" disabled={!reason.trim() || isPending} onClick={() => onConfirm(submissionIds, reason.trim())}>
             {isPending ? <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />Rejecting…</> : 'Reject'}
@@ -83,36 +83,36 @@ interface PreviewModalProps {
 function PreviewModal({ submission, onClose, onApprove, onReject, isPending }: PreviewModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-xl flex flex-col max-h-[90vh]">
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-slate-900">Template Preview</h2>
+      <div className="w-full max-w-lg rounded-2xl border border-zoru-line bg-zoru-bg shadow-xl flex flex-col max-h-[90vh]">
+        <div className="px-6 py-4 border-b border-zoru-line flex items-center justify-between">
+          <h2 className="text-base font-semibold text-zoru-ink">Template Preview</h2>
           <StatusBadge status={submission.status} />
         </div>
         <div className="px-6 py-5 space-y-4 overflow-y-auto">
           <div>
-            <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Name</h3>
-            <p className="text-base font-medium text-slate-900">{submission.name}</p>
+            <h3 className="text-sm font-medium text-zoru-ink-muted uppercase tracking-wider mb-1">Name</h3>
+            <p className="text-base font-medium text-zoru-ink">{submission.name}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Author</h3>
-            <p className="text-sm text-slate-900">{submission.authorName ?? submission.authorId}</p>
+            <h3 className="text-sm font-medium text-zoru-ink-muted uppercase tracking-wider mb-1">Author</h3>
+            <p className="text-sm text-zoru-ink">{submission.authorName ?? submission.authorId}</p>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Category</h3>
-            <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">{submission.category}</span>
+            <h3 className="text-sm font-medium text-zoru-ink-muted uppercase tracking-wider mb-1">Category</h3>
+            <span className="inline-flex items-center rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-0.5 text-xs font-medium text-zoru-ink-muted">{submission.category}</span>
           </div>
           {submission.description && (
             <div>
-              <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Description</h3>
-              <p className="text-sm text-slate-700 whitespace-pre-wrap">{submission.description}</p>
+              <h3 className="text-sm font-medium text-zoru-ink-muted uppercase tracking-wider mb-1">Description</h3>
+              <p className="text-sm text-zoru-ink whitespace-pre-wrap">{submission.description}</p>
             </div>
           )}
           {submission.tags && submission.tags.length > 0 && (
             <div>
-              <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1">Tags</h3>
+              <h3 className="text-sm font-medium text-zoru-ink-muted uppercase tracking-wider mb-1">Tags</h3>
               <div className="flex flex-wrap gap-1.5">
                 {submission.tags.map(tag => (
-                  <span key={tag} className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">{tag}</span>
+                  <span key={tag} className="inline-flex items-center rounded-full bg-zoru-surface px-2.5 py-0.5 text-xs font-medium text-zoru-ink-muted">{tag}</span>
                 ))}
               </div>
             </div>
@@ -124,7 +124,7 @@ function PreviewModal({ submission, onClose, onApprove, onReject, isPending }: P
             </div>
           )}
         </div>
-        <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-zoru-line bg-zoru-surface rounded-b-2xl">
           <Button variant="outline" size="sm" onClick={onClose} disabled={isPending}>Close</Button>
           {submission.status === 'pending' && (
             <>
@@ -221,15 +221,15 @@ export function SubmissionQueueClient({ rows, currentPage, totalPages, statusFil
 
   if (rows.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white py-16 text-slate-500 relative">
+      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-zoru-line bg-zoru-bg py-16 text-zoru-ink-muted relative">
         {isPending && (
-          <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center rounded-2xl">
+          <div className="absolute inset-0 bg-zoru-bg/50 z-10 flex items-center justify-center rounded-2xl">
             <Loader2 className="h-8 w-8 text-amber-500 animate-spin" />
           </div>
         )}
-        <Inbox className="h-8 w-8 text-slate-300" />
+        <Inbox className="h-8 w-8 text-zoru-ink-muted" />
         <p className="text-sm font-medium">No submissions found.</p>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-zoru-ink-muted">
           {statusFilter === 'pending'
             ? 'The queue is clear — no templates awaiting review.'
             : 'No submissions match this filter.'}
@@ -263,44 +263,44 @@ export function SubmissionQueueClient({ rows, currentPage, totalPages, statusFil
         </div>
       )}
 
-      <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden relative">
+      <div className="rounded-2xl border border-zoru-line bg-zoru-bg overflow-hidden relative">
         {isPending && (
-          <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center">
+          <div className="absolute inset-0 bg-zoru-bg/50 z-10 flex items-center justify-center">
             <Loader2 className="h-8 w-8 text-amber-500 animate-spin" />
           </div>
         )}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
+              <tr className="border-b border-zoru-line bg-zoru-surface">
                 <th className="px-5 py-3 text-left w-10">
-                  <input type="checkbox" className="rounded border-slate-300 text-amber-600 focus:ring-amber-500" checked={isAllSelected} onChange={toggleAll} disabled={pendingRowsCount === 0 || isPending} />
+                  <Checkbox checked={isAllSelected} onCheckedChange={() => toggleAll()} disabled={pendingRowsCount === 0 || isPending} />
                 </th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Template</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Author</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Category</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Status</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Submitted</th>
-                <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Actions</th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zoru-ink-muted">Template</th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zoru-ink-muted">Author</th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zoru-ink-muted">Category</th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zoru-ink-muted">Status</th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zoru-ink-muted">Submitted</th>
+                <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zoru-ink-muted">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-zoru-line">
               {rows.map((row) => (
-                <tr key={row.id} className="hover:bg-slate-50 transition-colors">
+                <tr key={row.id} className="hover:bg-zoru-surface transition-colors">
                   <td className="px-5 py-4">
-                    <input type="checkbox" className="rounded border-slate-300 text-amber-600 focus:ring-amber-500" checked={selectedIds.has(row.id)} onChange={() => toggleSelection(row.id)} disabled={row.status !== 'pending' || isPending} />
+                    <Checkbox checked={selectedIds.has(row.id)} onCheckedChange={() => toggleSelection(row.id)} disabled={row.status !== 'pending' || isPending} />
                   </td>
                   <td className="px-5 py-4">
-                    <p className="font-medium text-slate-900 truncate max-w-xs">{row.name}</p>
+                    <p className="font-medium text-zoru-ink truncate max-w-xs">{row.name}</p>
                     {row.rejectionReason && <p className="mt-0.5 text-xs text-red-500 truncate max-w-xs">{row.rejectionReason}</p>}
                   </td>
-                  <td className="px-5 py-4 text-slate-600"><span className="truncate max-w-[140px] block">{row.authorName ?? row.authorId}</span></td>
-                  <td className="px-5 py-4"><span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">{row.category}</span></td>
+                  <td className="px-5 py-4 text-zoru-ink-muted"><span className="truncate max-w-[140px] block">{row.authorName ?? row.authorId}</span></td>
+                  <td className="px-5 py-4"><span className="inline-flex items-center rounded-full border border-zoru-line bg-zoru-surface px-2 py-0.5 text-[11px] font-medium text-zoru-ink-muted">{row.category}</span></td>
                   <td className="px-5 py-4"><StatusBadge status={row.status} /></td>
-                  <td className="px-5 py-4 text-slate-500 tabular-nums whitespace-nowrap">{new Date(row.submittedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                  <td className="px-5 py-4 text-zoru-ink-muted tabular-nums whitespace-nowrap">{new Date(row.submittedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-2">
-                      <Button size="sm" variant="outline" className="text-slate-600 border-slate-200" onClick={() => setPreviewTarget(row)}>
+                      <Button size="sm" variant="outline" className="text-zoru-ink-muted border-zoru-line" onClick={() => setPreviewTarget(row)}>
                         <Eye className="mr-1 h-3.5 w-3.5" /> Preview
                       </Button>
                       {row.status === 'pending' && (
@@ -322,8 +322,8 @@ export function SubmissionQueueClient({ rows, currentPage, totalPages, statusFil
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-slate-200 px-5 py-3">
-            <span className="text-xs text-slate-500">Page {currentPage} of {totalPages}</span>
+          <div className="flex items-center justify-between border-t border-zoru-line px-5 py-3">
+            <span className="text-xs text-zoru-ink-muted">Page {currentPage} of {totalPages}</span>
             <div className="flex gap-1">
               {currentPage > 1 ? <Link href={pageHref(currentPage - 1)}><Button variant="outline" size="sm"><ChevronLeft className="h-4 w-4" /></Button></Link> : <Button variant="outline" size="sm" disabled><ChevronLeft className="h-4 w-4" /></Button>}
               {currentPage < totalPages ? <Link href={pageHref(currentPage + 1)}><Button variant="outline" size="sm"><ChevronRight className="h-4 w-4" /></Button></Link> : <Button variant="outline" size="sm" disabled><ChevronRight className="h-4 w-4" /></Button>}

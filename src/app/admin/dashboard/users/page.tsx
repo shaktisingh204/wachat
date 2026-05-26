@@ -67,8 +67,8 @@ export default async function AdminUsersPage({
             {/* Header */}
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Users</h1>
-                    <p className="text-sm text-slate-500 mt-1">Manage accounts, permissions, and plans.</p>
+                    <h1 className="text-2xl font-bold text-zoru-ink">Users</h1>
+                    <p className="text-sm text-zoru-ink-muted mt-1">Manage accounts, permissions, and plans.</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-600">

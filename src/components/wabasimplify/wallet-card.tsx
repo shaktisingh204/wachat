@@ -124,10 +124,10 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                     <div className="text-4xl md:text-5xl font-extrabold tracking-tighter text-white drop-shadow-md">
                         {new Intl.NumberFormat('en-IN', { style: 'currency', currency, maximumFractionDigits: 0 }).format(balance / 100)}
                     </div>
-                    <p className="text-xs text-white/60 mt-1 uppercase tracking-wider font-medium">Available Funds</p>
+                    <p className="text-xs text-white/80 mt-1 uppercase tracking-wider font-medium">Available Funds</p>
                 </div>
 
-                <div className="rounded-xl bg-black/20 p-4 backdrop-blur-md border border-white/10 shadow-inner">
+                <div className="rounded-xl bg-black/20 p-4 backdrop-blur-md border border-white/15 shadow-inner">
                     <form onSubmit={handleAddFunds} className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="amount" className="text-white/80 text-xs uppercase tracking-wider">Quick Top-Up</Label>
@@ -141,7 +141,7 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                                         className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-300 ${
                                             amount === a
                                                 ? 'bg-white text-zoru-primary shadow-lg scale-105'
-                                                : 'bg-white/10 text-white hover:bg-white/20 border border-white/5'
+                                                : 'bg-white/20 text-white hover:bg-white/30 border border-white/15'
                                         }`}
                                     >
                                         ₹{a.toLocaleString('en-IN')}
@@ -162,7 +162,7 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                                     min="100"
                                     max="100000"
                                     step="100"
-                                    className="pl-7 bg-black/20 border-white/10 text-white placeholder:text-white/30 focus-visible:ring-white/30 focus-visible:border-white/50 rounded-lg h-10"
+                                    className="pl-7 bg-black/20 border-white/25 text-white placeholder:text-white/50 focus-visible:ring-white/30 focus-visible:border-white/50 rounded-lg h-10"
                                 />
                             </div>
                             <Button 
@@ -180,7 +180,7 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                     </form>
                 </div>
                 
-                <p className="text-center text-[10px] text-white/40 uppercase tracking-widest font-medium flex items-center justify-center gap-1.5">
+                <p className="text-center text-[10px] text-white/60 uppercase tracking-widest font-medium flex items-center justify-center gap-1.5">
                     <Lock className="h-3 w-3" /> Secure payment via PayU
                 </p>
             </ZoruCardContent>

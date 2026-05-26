@@ -49,13 +49,13 @@ function SortablePlanCard({ plan }: { plan: any }) {
         <div
             ref={setNodeRef}
             style={style}
-            className={`rounded-2xl border ${isDragging ? 'border-amber-500 shadow-xl' : 'border-slate-200'} bg-white p-5 flex flex-col gap-4 hover:border-slate-300 transition-colors relative group`}
+            className={`rounded-2xl border ${isDragging ? 'border-amber-500 shadow-xl' : 'border-zoru-line'} bg-zoru-bg p-5 flex flex-col gap-4 hover:border-zoru-line transition-colors relative group`}
         >
             {/* Drag Handle */}
-            <div 
-                {...attributes} 
-                {...listeners} 
-                className="absolute top-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing p-1 rounded-md hover:bg-slate-100 text-slate-400 transition-opacity"
+            <div
+                {...attributes}
+                {...listeners}
+                className="absolute top-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing p-1 rounded-md hover:bg-zoru-surface text-zoru-ink-muted transition-opacity"
             >
                 <GripHorizontal className="w-5 h-5" />
             </div>
@@ -63,12 +63,12 @@ function SortablePlanCard({ plan }: { plan: any }) {
             {/* Plan name + badges */}
             <div className="flex items-start justify-between gap-2 mt-2">
                 <div className="flex items-center gap-2.5">
-                    <div className="h-9 w-9 rounded-xl bg-slate-100 border border-slate-300 flex items-center justify-center shrink-0">
-                        <CreditCard className="h-4 w-4 text-slate-700" />
+                    <div className="h-9 w-9 rounded-xl bg-zoru-surface border border-zoru-line flex items-center justify-center shrink-0">
+                        <CreditCard className="h-4 w-4 text-zoru-ink" />
                     </div>
                     <div>
-                        <h3 className="font-semibold text-slate-900">{plan.name}</h3>
-                        <p className="text-xs text-slate-500">{plan.appCategory || 'All-In-One'}</p>
+                        <h3 className="font-semibold text-zoru-ink">{plan.name}</h3>
+                        <p className="text-xs text-zoru-ink-muted">{plan.appCategory || 'All-In-One'}</p>
                     </div>
                 </div>
                 <div className="flex gap-1.5 shrink-0 flex-wrap justify-end">
@@ -86,9 +86,9 @@ function SortablePlanCard({ plan }: { plan: any }) {
             </div>
 
             {/* Price */}
-            <div className="rounded-xl bg-slate-100 border border-slate-200 px-4 py-3">
-                <span className="text-2xl font-bold text-slate-900">{plan.currency} {plan.price}</span>
-                <span className="text-sm text-slate-500">/month</span>
+            <div className="rounded-xl bg-zoru-surface border border-zoru-line px-4 py-3">
+                <span className="text-2xl font-bold text-zoru-ink">{plan.currency} {plan.price}</span>
+                <span className="text-sm text-zoru-ink-muted">/month</span>
             </div>
 
             {/* Limits grid */}
@@ -102,16 +102,16 @@ function SortablePlanCard({ plan }: { plan: any }) {
                     ['Meta Flows', plan.metaFlowLimit ?? '—'],
                 ].map(([label, val]) => (
                     <div key={label as string} className="flex flex-col gap-0.5">
-                        <span className="text-slate-500">{label}</span>
-                        <span className="font-semibold text-slate-900">{val}</span>
+                        <span className="text-zoru-ink-muted">{label}</span>
+                        <span className="font-semibold text-zoru-ink">{val}</span>
                     </div>
                 ))}
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-2 pt-1 border-t border-slate-200 mt-auto">
+            <div className="flex items-center gap-2 pt-1 border-t border-zoru-line mt-auto">
                 <Button asChild variant="ghost" size="sm"
-                    className="flex-1 border border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900 rounded-xl">
+                    className="flex-1 border border-zoru-line text-zoru-ink hover:bg-zoru-surface hover:text-zoru-ink rounded-xl">
                     <Link href={`/admin/dashboard/plans/${plan._id.toString()}`}>
                         <Edit className="mr-1.5 h-3.5 w-3.5" />
                         Edit
@@ -157,10 +157,10 @@ export function SortablePlansGrid({ initialPlans, fetchFailed }: { initialPlans:
 
     if (plans.length === 0) {
         return (
-            <div className="rounded-2xl border border-slate-200 bg-white p-16 text-center">
-                <CreditCard className="mx-auto h-10 w-10 text-slate-400 mb-4" />
-                <h3 className="text-slate-700 font-medium">No plans yet</h3>
-                <p className="text-slate-500 text-sm mt-1">Create your first subscription plan to get started.</p>
+            <div className="rounded-2xl border border-zoru-line bg-zoru-bg p-16 text-center">
+                <CreditCard className="mx-auto h-10 w-10 text-zoru-ink-muted mb-4" />
+                <h3 className="text-zoru-ink font-medium">No plans yet</h3>
+                <p className="text-zoru-ink-muted text-sm mt-1">Create your first subscription plan to get started.</p>
                 <Button asChild className="mt-4 bg-amber-500 hover:bg-amber-400 text-zinc-950">
                     <Link href="/admin/dashboard/plans/new">
                         <PlusCircle className="mr-2 h-4 w-4" />

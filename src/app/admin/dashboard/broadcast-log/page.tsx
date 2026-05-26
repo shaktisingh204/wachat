@@ -18,10 +18,10 @@ const BROADCASTS_PER_PAGE = 20;
 
 const STATUS_STYLES: Record<string, string> = {
     completed: 'bg-emerald-100 text-emerald-600 border-emerald-200',
-    queued: 'bg-slate-200 text-slate-700 border-slate-400',
+    queued: 'bg-zoru-surface text-zoru-ink border-zoru-line',
     processing: 'bg-blue-100 text-blue-600 border-blue-200',
     'partial failure': 'bg-amber-100 text-amber-600 border-amber-200',
-    cancelled: 'bg-slate-200 text-slate-500 border-slate-300',
+    cancelled: 'bg-zoru-surface text-zoru-ink-muted border-zoru-line',
     failed: 'bg-red-500/15 text-red-600 border-red-500/30',
 };
 
@@ -114,13 +114,13 @@ function BroadcastLogContent() {
             {/* Header */}
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Broadcast Log</h1>
-                    <p className="text-sm text-slate-500 mt-1">System-wide raw log of all broadcasts for debugging.</p>
+                    <h1 className="text-2xl font-bold text-zoru-ink">Broadcast Log</h1>
+                    <p className="text-sm text-zoru-ink-muted mt-1">System-wide raw log of all broadcasts for debugging.</p>
                 </div>
                 <Button
                     onClick={() => fetchBroadcasts(currentPage)}
                     disabled={isLoading}
-                    className="border border-slate-300 bg-slate-100 text-slate-900 hover:bg-slate-200 hover:text-slate-900"
+                    className="border border-zoru-line bg-zoru-surface text-zoru-ink hover:bg-zoru-surface hover:text-zoru-ink"
                     variant="outline"
                     size="sm"
                 >
@@ -133,39 +133,39 @@ function BroadcastLogContent() {
             </div>
 
             {/* Table card */}
-            <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-200 flex items-center gap-2">
-                    <Radio className="h-4 w-4 text-slate-500" />
-                    <span className="font-medium text-slate-900 text-sm">
+            <div className="rounded-2xl border border-zoru-line bg-zoru-bg overflow-hidden">
+                <div className="px-6 py-4 border-b border-zoru-line flex items-center gap-2">
+                    <Radio className="h-4 w-4 text-zoru-ink-muted" />
+                    <span className="font-medium text-zoru-ink text-sm">
                         All Broadcasts
-                        <span className="ml-2 text-slate-500 font-normal">({total.toLocaleString()} total)</span>
+                        <span className="ml-2 text-zoru-ink-muted font-normal">({total.toLocaleString()} total)</span>
                     </span>
                 </div>
 
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
-                            <tr className="border-b border-slate-200">
+                            <tr className="border-b border-zoru-line">
                                 {['Timestamp', 'Status', 'Template', 'Project ID', 'Stats'].map(h => (
-                                    <th key={h} className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider first:pl-6">
+                                    <th key={h} className="text-left px-6 py-3 text-xs font-semibold text-zoru-ink-muted uppercase tracking-wider first:pl-6">
                                         {h}
                                     </th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-200">
+                        <tbody className="divide-y divide-[color:var(--zoru-line)]">
                             {isLoading ? (
                                 [...Array(6)].map((_, i) => (
                                     <tr key={i}>
                                         <td colSpan={5} className="px-6 py-3">
-                                            <div className="h-4 rounded bg-slate-100 animate-pulse w-full" />
+                                            <div className="h-4 rounded bg-zoru-surface animate-pulse w-full" />
                                         </td>
                                     </tr>
                                 ))
                             ) : broadcasts.length > 0 ? (
                                 broadcasts.map((b) => (
-                                    <tr key={b._id.toString()} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-3.5 text-xs text-slate-700 whitespace-nowrap">
+                                    <tr key={b._id.toString()} className="hover:bg-zoru-surface transition-colors">
+                                        <td className="px-6 py-3.5 text-xs text-zoru-ink whitespace-nowrap">
                                             {new Date(b.createdAt).toLocaleString()}
                                         </td>
                                         <td className="px-6 py-3.5">
@@ -173,22 +173,22 @@ function BroadcastLogContent() {
                                                 {b.status?.toLowerCase() || 'unknown'}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-3.5 font-medium text-slate-900">
+                                        <td className="px-6 py-3.5 font-medium text-zoru-ink">
                                             {b.templateName || '—'}
                                         </td>
-                                        <td className="px-6 py-3.5 font-mono text-xs text-slate-500">
+                                        <td className="px-6 py-3.5 font-mono text-xs text-zoru-ink-muted">
                                             {b.projectId?.toString() || '—'}
                                         </td>
                                         <td className="px-6 py-3.5 text-xs">
                                             <span className="text-emerald-600">{b.successCount || 0} sent</span>
-                                            <span className="text-slate-500 mx-1">/</span>
+                                            <span className="text-zoru-ink-muted mx-1">/</span>
                                             <span className="text-red-600">{b.errorCount || 0} failed</span>
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-16 text-center text-slate-500">
+                                    <td colSpan={5} className="px-6 py-16 text-center text-zoru-ink-muted">
                                         No broadcasts found.
                                     </td>
                                 </tr>
@@ -198,14 +198,14 @@ function BroadcastLogContent() {
                 </div>
 
                 {/* Pagination */}
-                <div className="px-6 py-3 border-t border-slate-200 flex items-center justify-between">
-                    <span className="text-xs text-slate-500">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
+                <div className="px-6 py-3 border-t border-zoru-line flex items-center justify-between">
+                    <span className="text-xs text-zoru-ink-muted">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
                     <div className="flex gap-2">
                         <Button
                             variant="outline" size="sm"
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage <= 1 || isLoading}
-                            className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40"
+                            className="border-zoru-line bg-zoru-surface text-zoru-ink hover:bg-zoru-surface hover:text-zoru-ink disabled:opacity-40"
                         >
                             Previous
                         </Button>
@@ -213,7 +213,7 @@ function BroadcastLogContent() {
                             variant="outline" size="sm"
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage >= totalPages || isLoading}
-                            className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40"
+                            className="border-zoru-line bg-zoru-surface text-zoru-ink hover:bg-zoru-surface hover:text-zoru-ink disabled:opacity-40"
                         >
                             Next
                         </Button>
@@ -228,7 +228,7 @@ export default function BroadcastLogPage() {
     return (
         <Suspense fallback={
             <div className="flex h-64 items-center justify-center">
-                <LoaderCircle className="h-8 w-8 animate-spin text-slate-400" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
             </div>
         }>
             <BroadcastLogContent />

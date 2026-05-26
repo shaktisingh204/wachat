@@ -158,14 +158,14 @@ export function OnboardingWizard({
             <section className="space-y-6">
                 <header className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-zoru-primary">
                             Step {currentIndex + 1} of {STEP_ORDER.length}
                         </p>
                         {signedInUser && step !== 'account' && step !== 'complete' && (
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-muted-foreground"
+                                className="text-zoru-ink-muted"
                                 onClick={handleSkip}
                                 disabled={isSkipping}
                             >
@@ -181,12 +181,12 @@ export function OnboardingWizard({
                     <h1 className="text-3xl font-bold tracking-tight">
                         {STEP_META[step].title}
                     </h1>
-                    <p className="text-muted-foreground">
+                    <p className="text-zoru-ink-muted">
                         {STEP_META[step].subtitle}
                     </p>
                 </header>
 
-                <div className="rounded-2xl border bg-card p-6 shadow-sm sm:p-8">
+                <div className="rounded-2xl border border-zoru-line bg-zoru-surface p-6 shadow-sm sm:p-8">
                     {step === 'account' && (
                         <AccountStep
                             onAccountCreated={handleAccountCreated}
@@ -271,20 +271,20 @@ function StepNav({ currentStep }: { currentStep: WizardStep }) {
                         key={stepKey}
                         className={cn(
                             'flex items-start gap-3 rounded-xl px-3 py-3 transition',
-                            active && 'bg-primary/10',
-                            !active && 'hover:bg-muted/50'
+                            active && 'bg-zoru-primary/10',
+                            !active && 'hover:bg-zoru-surface/60'
                         )}
                     >
                         <div
                             className={cn(
                                 'mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold',
                                 done &&
-                                    'border-primary bg-primary text-primary-foreground',
+                                    'border-zoru-primary bg-zoru-primary text-zoru-primary-ink',
                                 active &&
-                                    'border-primary bg-primary/20 text-primary',
+                                    'border-zoru-primary bg-zoru-primary/20 text-zoru-primary',
                                 !done &&
                                     !active &&
-                                    'border-border bg-card text-muted-foreground'
+                                    'border-zoru-line bg-zoru-surface text-zoru-ink-muted'
                             )}
                         >
                             {done ? (
@@ -297,12 +297,12 @@ function StepNav({ currentStep }: { currentStep: WizardStep }) {
                             <p
                                 className={cn(
                                     'text-sm font-semibold',
-                                    active ? 'text-foreground' : 'text-muted-foreground'
+                                    active ? 'text-zoru-ink' : 'text-zoru-ink-muted'
                                 )}
                             >
                                 {STEP_META[stepKey].title}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-zoru-ink-muted">
                                 {STEP_META[stepKey].subtitle}
                             </p>
                         </div>

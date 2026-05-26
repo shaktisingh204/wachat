@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/zoruui";
 import { AlertTriangle } from "lucide-react";
 
 export default function Error({
@@ -16,10 +16,10 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center bg-background rounded-lg border border-border mt-4">
+    <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center bg-zoru-bg rounded-lg border border-zoru-line mt-4">
       <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
-      <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
-      <p className="text-muted-foreground mb-6 max-w-md">
+      <h2 className="text-xl font-bold mb-2 text-zoru-ink">Something went wrong</h2>
+      <p className="text-zoru-ink-muted mb-6 max-w-md">
         An error occurred while loading this page. Please try again or contact support if the issue persists.
       </p>
       <Button onClick={() => reset()} variant="default">
