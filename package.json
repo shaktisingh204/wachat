@@ -35,7 +35,9 @@
     "api:gen": "tsx tools/api-codegen/generate.ts",
     "api:gen:check": "tsx tools/api-codegen/generate.ts --check",
     "api:lint": "tsx tools/api-codegen/lint.ts",
-    "api:test": "tsx --test tools/api-codegen/__tests__/*.test.ts"
+    "api:test": "tsx --test tools/api-codegen/__tests__/*.test.ts",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.193",
@@ -118,6 +120,7 @@
     "cmdk": "^1.0.0",
     "country-state-city": "^3.2.1",
     "cron": "^4.4.0",
+    "dagre": "^0.8.5",
     "date-fns": "^4.3.0",
     "dequal": "^2.0.3",
     "diff": "^9.0.0",
@@ -240,6 +243,7 @@
     "usehooks-ts": "^3.1.1",
     "uuid": "^13.0.0",
     "vaul": "^1.1.2",
+    "ws": "^8.21.0",
     "xml2js": "^0.6.2",
     "yjs": "^13.6.30",
     "zod": "^4.3.6",
@@ -270,8 +274,10 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.2.4",
+    "@playwright/test": "^1.60.0",
     "@sentry/types": "^10.50.0",
     "@types/bcryptjs": "^2.4.6",
+    "@types/dagre": "^0.7.54",
     "@types/diff": "^7.0.2",
     "@types/dompurify": "^3.0.5",
     "@types/express": "^5.0.6",
@@ -300,6 +306,7 @@
     "@types/swagger-ui-react": "^5.18.0",
     "@types/turndown": "^5.0.6",
     "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.18.1",
     "@types/xml2js": "^0.4.14",
     "@types/zxcvbn": "^4.4.5",
     "genkit-cli": "^0.0.2",

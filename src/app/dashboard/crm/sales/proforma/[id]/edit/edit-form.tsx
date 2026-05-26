@@ -78,7 +78,7 @@ export function EditProformaForm({
 
     return (
         <form action={formAction}>
-            <Card className="max-w-2xl p-6">
+            <Card className="w-full p-6">
                 <input type="hidden" name="proformaId" value={proformaId} />
 
                 <div className="space-y-5">

@@ -14,6 +14,11 @@ use lettre::{Address, AsyncTransport, Message, Tokio1Executor};
 use crate::providers::{EmailProvider, OutboundMessage, ProviderReceipt};
 use crate::settings::SmtpConfig;
 
+use std::collections::HashMap;
+use std::sync::{Mutex, OnceLock};
+
+static TRANSPORT_POOL: OnceLock<Mutex<HashMap<SmtpConfig, AsyncSmtpTransport<Tokio1Executor>>>> = OnceLock::new();
+
 pub struct SmtpProvider {
     cfg: SmtpConfig,
 }
@@ -23,10 +28,16 @@ impl SmtpProvider {
         Self { cfg }
     }
 
-    /// Build the lettre transport. We lazily construct per-send to keep
-    /// the impl simple — the connection pool inside lettre persists
-    /// behind the scenes via its connection cache.
-    fn build_transport(&self) -> Result<AsyncSmtpTransport<Tokio1Executor>> {
+    /// Build or retrieve the lettre transport from the global pool.
+    /// The connection pool inside lettre persists behind the scenes
+    /// because we cache and clone the `AsyncSmtpTransport` per config.
+    fn get_transport(&self) -> Result<AsyncSmtpTransport<Tokio1Executor>> {
+        let mut map = TRANSPORT_POOL.get_or_init(|| Mutex::new(HashMap::new())).lock().unwrap();
+        
+        if let Some(transport) = map.get(&self.cfg) {
+            return Ok(transport.clone());
+        }
+
         let use_tls = self.cfg.use_tls.unwrap_or(self.cfg.port == 465);
         let builder = if use_tls {
             AsyncSmtpTransport::<Tokio1Executor>::relay(&self.cfg.host)?
@@ -41,14 +52,17 @@ impl SmtpProvider {
             }
             _ => builder,
         };
-        Ok(builder.build())
+        
+        let transport = builder.build();
+        map.insert(self.cfg.clone(), transport.clone());
+        Ok(transport)
     }
 }
 
 #[async_trait]
 impl EmailProvider for SmtpProvider {
     async fn send(&self, msg: OutboundMessage) -> Result<ProviderReceipt> {
-        let transport = self.build_transport()?;
+        let transport = self.get_transport()?;
 
         let from = mailbox(&msg.from_email, msg.from_name.as_str().into())?;
         let to = mailbox(&msg.to_email, msg.to_name.as_deref())?;

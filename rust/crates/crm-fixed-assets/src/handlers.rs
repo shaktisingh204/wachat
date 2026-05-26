@@ -443,7 +443,7 @@ pub async fn create_asset(
 ///
 /// Only fields explicitly sent on the body are modified. `updatedAt`
 /// and `updatedBy` are always refreshed. Server-managed fields
-/// (`accumulatedDepreciation`, `netBookValue`, `retireOrSell`) are
+/// (`accumulatedDepreciation`, `netBookValue`) are
 /// NOT mutable here — use the `/depreciate` endpoint. Fails with 404
 /// if the asset doesn't exist OR isn't owned by the caller.
 #[instrument(skip_all, fields(user_id = %user.user_id, asset_id = %asset_id))]
@@ -524,6 +524,23 @@ pub async fn update_asset(
         input.custodian_employee_id.as_ref(),
     )?;
     set_opt_oid(&mut set, "amcContractId", input.amc_contract_id.as_ref())?;
+
+    if let Some(entry) = &input.retire_or_sell {
+        let mut doc = doc! {
+            "at": bson::DateTime::from_chrono(entry.at),
+            "mode": &entry.mode,
+        };
+        if let Some(sale_amount) = entry.sale_amount {
+            doc.insert("saleAmount", sale_amount);
+        }
+        if let Some(buyer) = &entry.buyer {
+            doc.insert("buyer", buyer);
+        }
+        if let Some(note) = &entry.note {
+            doc.insert("note", note);
+        }
+        set.insert("retireOrSell", doc);
+    }
 
     let mut filter = base_ownership_filter(user_id);
     filter.insert("_id", asset_oid);

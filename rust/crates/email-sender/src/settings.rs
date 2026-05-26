@@ -44,7 +44,7 @@ pub struct EmailSettingsDoc {
     pub brevo: Option<BrevoConfig>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, Hash, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct SmtpConfig {
     pub host: String,

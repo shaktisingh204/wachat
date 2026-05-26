@@ -1,5 +1,8 @@
 pub mod rules;
 
+#[cfg(test)]
+mod tests;
+
 use std::sync::Arc;
 use crate::error::Result;
 use crate::models::MessageContext;

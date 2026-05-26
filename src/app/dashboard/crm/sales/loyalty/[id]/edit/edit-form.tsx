@@ -65,7 +65,7 @@ export function EditLoyaltyForm({
 
     return (
         <form action={formAction}>
-            <Card className="max-w-xl p-6">
+            <Card className="w-full p-6">
                 <input type="hidden" name="loyaltyId" value={loyaltyId} />
 
                 <div className="space-y-5">

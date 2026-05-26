@@ -1,0 +1,69 @@
+# Phase — axum router(s) for the SabChat **SSO + SCIM** HTTP surface.
+#
+# Owns two router builders mounted from the orchestrating `api` crate:
+#   * `sabchat_sso::router()`      → `/v1/sabchat/sso`        (admin, AuthUser)
+#   * `sabchat_sso::scim_router()` → `/v1/sabchat/scim/v2`    (Bearer SCIM token)
+#
+# Per the slice contract this crate is a leaf:
+#   * No `[workspace]` table.
+#   * Does NOT modify `rust/Cargo.toml`; the orchestrator wires it in.
+[package]
+name = "sabchat-sso"
+version = "0.1.0"
+edition = "2024"
+description = "Axum routers that mount the SabChat SSO config + SCIM 2.0 provisioning surface (`/v1/sabchat/sso/*` + `/v1/sabchat/scim/v2/*`)."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabchat_sso"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — same feature union as sibling routers so the api crate
+# resolves a single set of cargo features at build time.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId construction (config / token / user / group ids on the
+# wire are hex strings; we parse via `oid_from_str` from `sabnode-db`).
+bson = { version = "2", features = ["chrono-0_4"] }
+
+# Wall-clock for `createdAt` / `updatedAt` / `lastUsedAt`.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo driver wrappers + futures combinators (for `cursor.try_collect`).
+mongodb = "3"
+futures = "0.3"
+
+# Tracing for handler-level spans.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal`.
+anyhow = "1"
+
+# Base64 — used by the stub SAML response decoder.
+base64 = "0.22"
+
+# Randomness — opaque SCIM tokens are 32 bytes from the OS RNG.
+rand = "0.8"
+hex = "0.4"
+
+# OpenAPI annotations to keep parity with sibling routers.
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+# Sibling crates — shared error envelope, JWT extractor, Mongo handle,
+# and the shared SabChat DTO surface (kept on the dep graph for parity
+# with the other sabchat-* routers even where this leaf does not name
+# a type directly).
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+sabchat-types = { path = "../sabchat-types" }
+
+[lints]
+workspace = true

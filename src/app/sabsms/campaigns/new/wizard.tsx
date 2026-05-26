@@ -24,6 +24,23 @@ import {
   saveDraft,
   testSend,
 } from "./actions";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  horizontalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { StepAudience, type ContactOption, type SegmentOption } from "./steps/step-audience";
 import { StepCompliance } from "./steps/step-compliance";
 import { StepReview } from "./steps/step-review";
@@ -85,6 +102,7 @@ export function CampaignWizard({
   });
 
   const [stepId, setStepId] = React.useState<WizardStepId>("template");
+  const [steps, setSteps] = React.useState(WIZARD_STEPS);
   const [busy, setBusy] = React.useState<null | "save" | "launch" | "test" | "abort">(null);
   const [banner, setBanner] = React.useState<
     | { kind: "ok"; message: string }
@@ -93,7 +111,7 @@ export function CampaignWizard({
   >(null);
   const [testTo, setTestTo] = React.useState("");
 
-  const stepIndex = WIZARD_STEPS.findIndex((s) => s.id === stepId);
+  const stepIndex = steps.findIndex((s) => s.id === stepId);
 
   function patchDraft(patch: Partial<CampaignDraft>) {
     setDraft((d) => ({ ...d, ...patch, updatedAt: new Date().toISOString() }));
@@ -120,16 +138,16 @@ export function CampaignWizard({
 
   const goPrev = React.useCallback(() => {
     setStepId((cur) => {
-      const i = WIZARD_STEPS.findIndex((s) => s.id === cur);
-      return i > 0 ? WIZARD_STEPS[i - 1]!.id : cur;
+      const i = steps.findIndex((s) => s.id === cur);
+      return i > 0 ? steps[i - 1]!.id : cur;
     });
-  }, []);
+  }, [steps]);
   const goNext = React.useCallback(() => {
     setStepId((cur) => {
-      const i = WIZARD_STEPS.findIndex((s) => s.id === cur);
-      return i < WIZARD_STEPS.length - 1 ? WIZARD_STEPS[i + 1]!.id : cur;
+      const i = steps.findIndex((s) => s.id === cur);
+      return i < steps.length - 1 ? steps[i + 1]!.id : cur;
     });
-  }, []);
+  }, [steps]);
 
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -250,7 +268,7 @@ export function CampaignWizard({
 
   return (
     <div className="space-y-5">
-      <Stepper stepId={stepId} onJump={goTo} />
+      <Stepper stepId={stepId} steps={steps} setSteps={setSteps} onJump={goTo} />
 
       {banner && (
         <div
@@ -367,7 +385,7 @@ export function CampaignWizard({
             type="button"
             variant="outline"
             onClick={goNext}
-            disabled={stepIndex === WIZARD_STEPS.length - 1}
+            disabled={stepIndex === steps.length - 1}
           >
             Next
           </Button>
@@ -425,54 +443,104 @@ export function CampaignWizard({
 
 interface StepperProps {
   stepId: WizardStepId;
+  steps: typeof WIZARD_STEPS;
+  setSteps: React.Dispatch<React.SetStateAction<typeof WIZARD_STEPS>>;
   onJump: (id: WizardStepId) => void;
 }
 
-function Stepper({ stepId, onJump }: StepperProps) {
+function SortableStep({
+  s,
+  active,
+  onJump,
+}: {
+  s: (typeof WIZARD_STEPS)[0];
+  active: boolean;
+  onJump: (id: WizardStepId) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: s.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
   return (
-    <nav
-      aria-label="Wizard steps"
-      className="flex flex-wrap items-center gap-2"
-    >
-      {WIZARD_STEPS.map((s, i) => {
-        const active = s.id === stepId;
-        return (
-          <React.Fragment key={s.id}>
-            {i > 0 && (
-              <span
-                aria-hidden
-                className="h-px w-6 bg-slate-300"
-              />
-            )}
-            <button
-              type="button"
-              onClick={() => onJump(s.id)}
-              className={`flex items-center gap-2 rounded border px-3 py-1.5 text-sm transition ${
-                active
-                  ? "border-slate-900 bg-slate-900 text-white"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-slate-400"
-              }`}
-              aria-current={active ? "step" : undefined}
-            >
-              <span
-                className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs ${
-                  active
-                    ? "bg-white text-slate-900"
-                    : "bg-slate-100 text-slate-600"
-                }`}
-              >
-                {s.index}
-              </span>
-              <span>{s.label}</span>
-              {active && (
-                <Badge variant="secondary" className="ml-1 text-[10px]">
-                  current
-                </Badge>
-              )}
-            </button>
-          </React.Fragment>
-        );
-      })}
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          onJump(s.id);
+        }}
+        className={`flex items-center gap-2 rounded border px-3 py-1.5 text-sm transition ${
+          active
+            ? "border-slate-900 bg-slate-900 text-white"
+            : "border-slate-200 bg-white text-slate-600 hover:border-slate-400"
+        } cursor-grab active:cursor-grabbing`}
+        aria-current={active ? "step" : undefined}
+      >
+        <span
+          className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs ${
+            active ? "bg-white text-slate-900" : "bg-slate-100 text-slate-600"
+          }`}
+        >
+          {s.index}
+        </span>
+        <span>{s.label}</span>
+        {active && (
+          <Badge variant="secondary" className="ml-1 text-[10px]">
+            current
+          </Badge>
+        )}
+      </button>
+    </div>
+  );
+}
+
+function Stepper({ stepId, steps, setSteps, onJump }: StepperProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setSteps((items) => {
+        const oldIndex = items.findIndex((i) => i.id === active.id);
+        const newIndex = items.findIndex((i) => i.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }
+
+  return (
+    <nav aria-label="Wizard steps">
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={steps.map((s) => s.id)}
+          strategy={horizontalListSortingStrategy}
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            {steps.map((s, i) => {
+              const isActive = s.id === stepId;
+              return (
+                <React.Fragment key={s.id}>
+                  {i > 0 && (
+                    <span aria-hidden className="h-px w-6 bg-slate-300" />
+                  )}
+                  <SortableStep s={s} active={isActive} onJump={onJump} />
+                </React.Fragment>
+              );
+            })}
+          </div>
+        </SortableContext>
+      </DndContext>
     </nav>
   );
 }

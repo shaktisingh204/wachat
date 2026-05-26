@@ -16,7 +16,7 @@ export default function NewBankAccountError({
     }, [error]);
 
     return (
-        <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+        <div className="w-full px-6 pt-6 pb-10">
             <EmptyState
                 icon={<AlertTriangle />}
                 title="Something went wrong"

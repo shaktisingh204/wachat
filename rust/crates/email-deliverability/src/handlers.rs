@@ -638,3 +638,91 @@ fn doc_to_json(d: &Document) -> Result<Value> {
 // Suppress unused warning when MongoHandle is only used through state.
 #[allow(dead_code)]
 fn _types(_: &MongoHandle) {}
+
+// ===========================================================================
+// Webhooks (SES / Sendgrid)
+// ===========================================================================
+
+async fn resolve_provider_token(
+    mongo: &sabnode_db::mongo::MongoHandle,
+    provider: &str,
+    token: &str,
+) -> Result<String> {
+    let coll = mongo.collection::<Document>(SETTINGS_COLL);
+    let path = format!("providerSecrets.{}", provider);
+    let d = coll
+        .find_one(doc! { &path: token })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("email_settings.find_one")))?
+        .ok_or_else(|| ApiError::Unauthorized("invalid provider token".to_owned()))?;
+    let user_id = d
+        .get_object_id("userId")
+        .map(|o| o.to_hex())
+        .or_else(|_| d.get_str("userId").map(|s| s.to_owned()))
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("email_settings.userId missing")))?;
+    Ok(user_id)
+}
+
+#[instrument(skip_all, fields(provider = "ses"))]
+pub async fn ses_webhook(
+    State(state): State<EmailDeliverabilityState>,
+    Path(token): Path<String>,
+    Json(payload): Json<Value>,
+) -> Result<Json<MessageResponse>> {
+    let _tenant_id = resolve_provider_token(&state.mongo, "ses", &token).await?;
+
+    // SES sends an SNS envelope. If it's a Bounce, we pause warmups for the domain.
+    // The message is embedded as a JSON string in payload["Message"].
+    if let Some(msg_str) = payload.get("Message").and_then(|v| v.as_str()) {
+        if let Ok(msg) = serde_json::from_str::<Value>(msg_str) {
+            let event_type = msg.get("notificationType").or(msg.get("eventType")).and_then(|v| v.as_str()).unwrap_or("");
+            if event_type == "Bounce" || event_type == "Complaint" {
+                if let Some(mail) = msg.get("mail") {
+                    if let Some(source) = mail.get("source").and_then(|v| v.as_str()) {
+                        let domain = source.split('@').last().unwrap_or(source);
+                        let coll = state.mongo.collection::<Document>(WARMUP_COLL);
+                        let _ = coll.update_many(
+                            doc! { "userId": &_tenant_id, "domain": domain },
+                            doc! { "$set": { "status": "paused" } }
+                        ).await;
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(Json(MessageResponse {
+        message: "ok".to_owned(),
+    }))
+}
+
+#[instrument(skip_all, fields(provider = "sendgrid"))]
+pub async fn sendgrid_webhook(
+    State(state): State<EmailDeliverabilityState>,
+    Path(token): Path<String>,
+    Json(events): Json<Vec<Value>>,
+) -> Result<Json<MessageResponse>> {
+    let _tenant_id = resolve_provider_token(&state.mongo, "sendgrid", &token).await?;
+
+    for event in events {
+        let event_type = event.get("event").and_then(|v| v.as_str()).unwrap_or("");
+        if event_type == "bounce" || event_type == "spamreport" || event_type == "dropped" {
+            // Sendgrid doesn't provide the sender domain natively in the bounce payload
+            // but we can extract it from the 'email' if we assume bouncing to the same domain? No.
+            // Usually, custom args could pass domain, but if missing, we just pause all active warmups?
+            // Actually, if we get a bounce, we might check if 'sg_message_id' matches something?
+            // Let's try to extract domain from a custom arg if available.
+            if let Some(domain) = event.get("domain").and_then(|v| v.as_str()) {
+                let coll = state.mongo.collection::<Document>(WARMUP_COLL);
+                let _ = coll.update_many(
+                    doc! { "userId": &_tenant_id, "domain": domain },
+                    doc! { "$set": { "status": "paused" } }
+                ).await;
+            }
+        }
+    }
+
+    Ok(Json(MessageResponse {
+        message: "ok".to_owned(),
+    }))
+}

@@ -29,6 +29,12 @@ export {
 } from "./radio-group";
 export { Switch, ZoruBouncyToggle, type ZoruBouncyToggleProps } from "./switch";
 export {
+  TagPicker,
+  ZoruTagPicker,
+  type ZoruTagPickerProps,
+  type ZoruTagPickerTag,
+} from "./tag-picker";
+export {
   Select,
   ZoruSelectGroup,
   ZoruSelectValue,

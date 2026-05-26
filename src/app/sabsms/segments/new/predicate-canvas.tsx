@@ -325,6 +325,8 @@ function LeafNode({ node, onChange, onRemove }: LeafNodeProps) {
   );
 }
 
+import { getFieldOptions } from "./actions";
+
 function ValueEditor({
   node,
   onChange,
@@ -332,6 +334,22 @@ function ValueEditor({
   node: SegmentLeaf;
   onChange: (next: SegmentLeaf) => void;
 }) {
+  const [options, setOptions] = React.useState<string[]>([]);
+  const isAutocompleteField = ["tag", "source", "country", "locale"].includes(node.field);
+
+  React.useEffect(() => {
+    if (!isAutocompleteField) return;
+    let active = true;
+    getFieldOptions(node.field as any).then((res) => {
+      if (active && res.ok) setOptions(res.options);
+    });
+    return () => {
+      active = false;
+    };
+  }, [node.field, isAutocompleteField]);
+
+  const listId = React.useId();
+
   if (BOOLEAN_FIELDS.has(node.field)) {
     return (
       <Select
@@ -385,21 +403,41 @@ function ValueEditor({
         ? node.value
         : "";
     return (
-      <Input
-        value={raw}
-        placeholder="comma, separated, values"
-        onChange={(e) => onChange({ ...node, value: e.target.value })}
-        className="flex-1 min-w-[180px]"
-      />
+      <div className="relative flex-1">
+        <Input
+          value={raw}
+          list={isAutocompleteField ? listId : undefined}
+          placeholder="comma, separated, values"
+          onChange={(e) => onChange({ ...node, value: e.target.value })}
+          className="min-w-[180px] w-full"
+        />
+        {isAutocompleteField && options.length > 0 && (
+          <datalist id={listId}>
+            {options.map((opt) => (
+              <option key={opt} value={opt} />
+            ))}
+          </datalist>
+        )}
+      </div>
     );
   }
   return (
-    <Input
-      value={typeof node.value === "string" ? node.value : ""}
-      placeholder={node.field === "e164_prefix" ? "+1" : "value"}
-      onChange={(e) => onChange({ ...node, value: e.target.value })}
-      className="flex-1 min-w-[180px]"
-    />
+    <div className="relative flex-1">
+      <Input
+        value={typeof node.value === "string" ? node.value : ""}
+        list={isAutocompleteField ? listId : undefined}
+        placeholder={node.field === "e164_prefix" ? "+1" : "value"}
+        onChange={(e) => onChange({ ...node, value: e.target.value })}
+        className="min-w-[180px] w-full"
+      />
+      {isAutocompleteField && options.length > 0 && (
+        <datalist id={listId}>
+          {options.map((opt) => (
+            <option key={opt} value={opt} />
+          ))}
+        </datalist>
+      )}
+    </div>
   );
 }
 

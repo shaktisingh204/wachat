@@ -37,25 +37,13 @@ import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit/sabsms-kbd-hint"
 
 import { Badge, Button, Switch, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardFooter } from "@/components/zoruui";
 
-const MOCK_KEYS = [
-  { id: "k1", name: "Prod Integration", keyValue: "sk_live_f892je8932jf8932j89f", scopes: ["send-only"], ipAllowlist: ["192.168.1.1", "10.0.0.5"], lastUsedAt: "2026-05-23T00:10:00Z", lastUsedIp: "192.168.1.1", rateLimit: "100/s", expiryDate: "2027-01-01", status: "active", owner: "alice@example.com", isWebhookOnly: false, idempotencySize: "1.2GB", createdAt: "2025-01-15T12:00:00Z" },
-  { id: "k2", name: "Reporting Read-Only", keyValue: "sk_test_1928jd8219jd129jd821", scopes: ["read-only"], ipAllowlist: ["Any"], lastUsedAt: "2026-05-22T10:00:00Z", lastUsedIp: "203.0.113.4", rateLimit: "10/s", expiryDate: "Never", status: "active", owner: "bob@example.com", isWebhookOnly: false, idempotencySize: "0B", createdAt: "2025-03-20T08:30:00Z" },
-  { id: "k3", name: "Admin Setup", keyValue: "sk_live_admin8932jf8932j89f2", scopes: ["admin"], ipAllowlist: ["10.0.0.0/8"], lastUsedAt: "2026-01-10T00:00:00Z", lastUsedIp: "10.0.0.50", rateLimit: "50/s", expiryDate: "2026-12-31", status: "revoked", owner: "alice@example.com", isWebhookOnly: false, idempotencySize: "5MB", createdAt: "2024-11-05T14:45:00Z" },
-  { id: "k4", name: "Webhook Sub", keyValue: "sk_live_wh1829jd8219jd129jd8", scopes: ["read-only"], ipAllowlist: ["Any"], lastUsedAt: "Never", lastUsedIp: "-", rateLimit: "5/s", expiryDate: "Never", status: "active", owner: "charlie@example.com", isWebhookOnly: true, idempotencySize: "0B", createdAt: "2026-05-01T09:15:00Z" }
-];
-
-const MOCK_EXECUTION_LOGS = [
-  { id: "log1", timestamp: "2026-05-23T01:03:15Z", keyName: "Prod Integration", endpoint: "POST /v1/messages", status: 200, latency: "145ms", ip: "192.168.1.1" },
-  { id: "log2", timestamp: "2026-05-23T01:03:10Z", keyName: "Reporting Read-Only", endpoint: "GET /v1/analytics/delivery", status: 200, latency: "89ms", ip: "203.0.113.4" },
-  { id: "log3", timestamp: "2026-05-23T01:02:45Z", keyName: "Prod Integration", endpoint: "POST /v1/messages", status: 429, latency: "12ms", ip: "192.168.1.1" },
-  { id: "log4", timestamp: "2026-05-23T01:01:20Z", keyName: "Unknown Key", endpoint: "GET /v1/account", status: 401, latency: "5ms", ip: "10.0.0.50" },
-  { id: "log5", timestamp: "2026-05-23T00:59:55Z", keyName: "Prod Integration", endpoint: "POST /v1/messages", status: 200, latency: "130ms", ip: "192.168.1.1" },
-];
+import { getApiKeys, getExecutionLogs, createApiKey, updateApiKey, revokeApiKey, type SabsmsApiKey, type SabsmsExecutionLog } from "./actions";
 
 const SAVED_VIEWS = [
   { id: "v1", name: "Active Keys", filters: { status: ["active"] } },
   { id: "v2", name: "Send-Only", filters: { scopes: ["send-only"] } },
 ];
+
 
 const SORT_OPTIONS: SabsmsSortOption[] = [
   { id: "name_asc", label: "Name (A-Z)", field: "name", direction: "asc" },
@@ -113,8 +101,38 @@ export default function ApiKeysPage() {
 
   const [selectedKeyId, setSelectedKeyId] = React.useState<string | null>(null);
   const [selectedRows, setSelectedRows] = React.useState<Set<string>>(new Set());
+  
+  const [keys, setKeys] = React.useState<SabsmsApiKey[]>([]);
+  const [logs, setLogs] = React.useState<SabsmsExecutionLog[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
-  const columns: SabsmsColumn<typeof MOCK_KEYS[0]>[] = [
+  const fetchData = React.useCallback(async () => {
+    setLoading(true);
+    const [fetchedKeys, fetchedLogs] = await Promise.all([
+      getApiKeys(),
+      getExecutionLogs()
+    ]);
+    setKeys(fetchedKeys);
+    setLogs(fetchedLogs);
+    setLoading(false);
+  }, []);
+
+  React.useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleCreate = async () => {
+    await createApiKey({ name: "New Key" });
+    fetchData();
+    setSelectedKeyId(null);
+  };
+
+  const handleRevoke = async (id: string) => {
+    await revokeApiKey(id);
+    fetchData();
+  };
+
+  const columns: SabsmsColumn<SabsmsApiKey>[] = [
     {
       id: "name",
       header: "Key Name",
@@ -249,13 +267,13 @@ export default function ApiKeysPage() {
             onChange={setVisibleCols}
           />
           <SabsmsExportMenu
-            onExportCsv={() => console.log(rowsToCsv(MOCK_KEYS, columns))}
+            onExportCsv={() => console.log(rowsToCsv(keys, columns))}
             onExportExcel={() => {}}
             onExportJson={() => {}}
           />
           <SabsmsRefreshButton 
-            isRefreshing={false}
-            onRefresh={() => {}}
+            isRefreshing={loading}
+            onRefresh={fetchData}
           />
         </div>
       }
@@ -283,14 +301,14 @@ export default function ApiKeysPage() {
                 { label: "Bulk Rotate", onSelect: () => {} },
                 { label: "Revoke Selected", onSelect: () => {}, destructive: true }
               ]}
-              rows={MOCK_KEYS}
+              rows={keys}
               onRowClick={(row) => setSelectedKeyId(row.id)}
               rowActions={[
                 { label: "Edit Settings", onSelect: (r) => setSelectedKeyId(r.id) },
                 { label: "Rotate Key", onSelect: () => {} },
                 { label: "Generate CLI Snippet", onSelect: () => {} },
                 { label: "View Audit Trail", onSelect: () => {} },
-                { label: "Revoke Key", onSelect: () => {}, destructive: true }
+                { label: "Revoke Key", onSelect: (r) => handleRevoke(r.id), destructive: true }
               ]}
             />
             <div className="p-4 border-t border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -342,7 +360,7 @@ export default function ApiKeysPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {MOCK_EXECUTION_LOGS.map(log => (
+                  {logs.map(log => (
                     <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
                       <td className="px-5 py-3 font-mono text-xs text-slate-500">{new Date(log.timestamp).toLocaleTimeString()}</td>
                       <td className="px-5 py-3 font-mono text-xs text-slate-700 font-medium group-hover:text-indigo-600 transition-colors">{log.endpoint}</td>
@@ -384,7 +402,7 @@ export default function ApiKeysPage() {
         footer={
           <div className="flex gap-2 justify-end w-full border-t border-slate-100 pt-4">
             <Button variant="outline" onClick={() => setSelectedKeyId(null)}>Cancel</Button>
-            <Button onClick={() => setSelectedKeyId(null)} className="shadow-sm">{selectedKeyId === "new" ? "Create Key" : "Save Changes"}</Button>
+            <Button onClick={selectedKeyId === "new" ? handleCreate : () => setSelectedKeyId(null)} className="shadow-sm">{selectedKeyId === "new" ? "Create Key" : "Save Changes"}</Button>
           </div>
         }
       >
@@ -393,13 +411,13 @@ export default function ApiKeysPage() {
             {selectedKeyId !== "new" && (
               <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg flex flex-col gap-2">
                 <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Secret Key</span>
-                <CopyableKeyDisplay keyValue={MOCK_KEYS.find(k => k.id === selectedKeyId)?.keyValue || ""} />
+                <CopyableKeyDisplay keyValue={keys.find(k => k.id === selectedKeyId)?.keyValue || ""} />
                 <p className="text-[10px] text-slate-400 mt-1">This key grants access based on its assigned scopes. Keep it secure.</p>
               </div>
             )}
             <div>
               <label className="text-sm font-medium text-slate-700">Key Name</label>
-              <input type="text" className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent mt-1.5" defaultValue={selectedKeyId !== "new" ? MOCK_KEYS.find(k => k.id === selectedKeyId)?.name : ""} placeholder="e.g. Production Webhook Integration" />
+              <input type="text" className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent mt-1.5" defaultValue={selectedKeyId !== "new" ? keys.find(k => k.id === selectedKeyId)?.name : ""} placeholder="e.g. Production Webhook Integration" />
             </div>
             
             <div className="pt-5 border-t border-slate-100">
@@ -413,7 +431,7 @@ export default function ApiKeysPage() {
                 </select>
 
                 <div className="flex items-center gap-3 mt-4 p-3 border border-slate-100 rounded-md bg-slate-50/50">
-                  <Switch id="webhook-only" checked={selectedKeyId !== "new" ? MOCK_KEYS.find(k => k.id === selectedKeyId)?.isWebhookOnly : false} onCheckedChange={() => {}} />
+                  <Switch id="webhook-only" checked={selectedKeyId !== "new" ? keys.find(k => k.id === selectedKeyId)?.isWebhookOnly : false} onCheckedChange={() => {}} />
                   <div className="flex flex-col">
                     <label htmlFor="webhook-only" className="text-sm font-medium text-slate-700">Restrict to webhooks only</label>
                     <span className="text-xs text-slate-500">Key will only be valid for webhook subscriptions.</span>
@@ -438,18 +456,18 @@ export default function ApiKeysPage() {
               <div className="space-y-4">
                 <div>
                   <label className="text-xs font-medium text-slate-700">IP Allow-list (CIDR notation)</label>
-                  <textarea className="flex min-h-[80px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" defaultValue={selectedKeyId !== "new" ? MOCK_KEYS.find(k => k.id === selectedKeyId)?.ipAllowlist.join("\n") : ""} placeholder="0.0.0.0/0 (Any)" />
+                  <textarea className="flex min-h-[80px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" defaultValue={selectedKeyId !== "new" ? keys.find(k => k.id === selectedKeyId)?.ipAllowlist.join("\n") : ""} placeholder="0.0.0.0/0 (Any)" />
                   <p className="text-[10px] text-slate-400 mt-1">One IP or CIDR per line.</p>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-medium text-slate-700">Rate Limit Override (req/s)</label>
-                    <input type="number" className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Default (100)" defaultValue={selectedKeyId !== "new" ? parseInt(MOCK_KEYS.find(k => k.id === selectedKeyId)?.rateLimit.replace('/s', '') || "100") : ""} />
+                    <input type="number" className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Default (100)" defaultValue={selectedKeyId !== "new" ? parseInt(keys.find(k => k.id === selectedKeyId)?.rateLimit.replace('/s', '') || "100") : ""} />
                   </div>
                   <div>
                     <label className="text-xs font-medium text-slate-700">Expiry Date</label>
-                    <input type="date" className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" defaultValue={selectedKeyId !== "new" && MOCK_KEYS.find(k => k.id === selectedKeyId)?.expiryDate !== "Never" ? MOCK_KEYS.find(k => k.id === selectedKeyId)?.expiryDate : ""} />
+                    <input type="date" className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" defaultValue={selectedKeyId !== "new" && keys.find(k => k.id === selectedKeyId)?.expiryDate !== "Never" ? keys.find(k => k.id === selectedKeyId)?.expiryDate : ""} />
                   </div>
                 </div>
 
@@ -457,7 +475,7 @@ export default function ApiKeysPage() {
                   <div>
                     <label className="text-xs font-medium text-slate-700">Owner Reassignment</label>
                     <div className="flex gap-2 mt-1.5">
-                      <input type="email" className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" defaultValue={MOCK_KEYS.find(k => k.id === selectedKeyId)?.owner} />
+                      <input type="email" className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" defaultValue={keys.find(k => k.id === selectedKeyId)?.owner} />
                       <Button variant="outline" size="sm" className="h-10 px-4">Transfer</Button>
                     </div>
                   </div>
@@ -484,7 +502,7 @@ export default function ApiKeysPage() {
                   </div>
                   <div className="p-3 border border-slate-200 rounded-lg bg-white shadow-sm flex flex-col justify-center">
                     <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-1.5"><Code className="h-3 w-3" /> Idempotency</div>
-                    <div className="text-xl font-bold text-slate-700">{MOCK_KEYS.find(k => k.id === selectedKeyId)?.idempotencySize}</div>
+                    <div className="text-xl font-bold text-slate-700">{keys.find(k => k.id === selectedKeyId)?.idempotencySize}</div>
                     <div className="text-[10px] text-slate-400 mt-1">Store size</div>
                   </div>
                 </div>

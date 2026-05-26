@@ -262,41 +262,66 @@ export async function loadJurisdictionStatus(
 export async function loadCohortRetention(
   workspaceId: string,
 ): Promise<CohortPoint[]> {
-  // Bucket consent events by 30-day cohort and report how many remain
-  // opt-in (i.e. no opt-out after the bucket start).
   const { cols } = await getSabsmsCollections();
-  const buckets = await cols.consentLog
+
+  const phoneStats = await cols.consentLog
     .aggregate<{
       _id: string;
-      totalOptIn: number;
+      firstOptIn: Date | null;
+      latestKind: string;
     }>([
-      { $match: { workspaceId, kind: { $in: ["opt_in_single", "opt_in_double"] } } },
+      { $match: { workspaceId } },
+      { $sort: { createdAt: 1 } },
       {
         $group: {
-          _id: {
-            $dateToString: { format: "%Y-%m", date: "$createdAt" },
+          _id: "$phoneHash",
+          firstOptIn: {
+            $min: {
+              $cond: [
+                {
+                  $in: [
+                    "$kind",
+                    ["opt_in_single", "opt_in_double", "opt_in_restart"],
+                  ],
+                },
+                "$createdAt",
+                null,
+              ],
+            },
           },
-          totalOptIn: { $sum: 1 },
+          latestKind: { $last: "$kind" },
         },
       },
-      { $sort: { _id: 1 } },
-      { $limit: 12 },
-      { $project: { _id: 1, totalOptIn: 1 } },
     ])
     .toArray();
 
-  // For each bucket, count phones that DID NOT have an opt-out before
-  // "now" (cheap approximation — Phase-11 will compute true retention).
-  const retainedByBucket = new Map<string, number>();
-  for (const b of buckets) {
-    retainedByBucket.set(b._id, Math.max(0, Math.round(b.totalOptIn * 0.85)));
+  const bucketsMap = new Map<
+    string,
+    { totalOptIn: number; retained: number }
+  >();
+
+  for (const stat of phoneStats) {
+    if (!stat.firstOptIn) continue;
+    const d = stat.firstOptIn;
+    const month = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(
+      2,
+      "0",
+    )}`;
+
+    if (!bucketsMap.has(month)) {
+      bucketsMap.set(month, { totalOptIn: 0, retained: 0 });
+    }
+    const b = bucketsMap.get(month)!;
+    b.totalOptIn++;
+    if (stat.latestKind && stat.latestKind.startsWith("opt_in")) {
+      b.retained++;
+    }
   }
 
-  return buckets.map((b) => ({
-    bucket: b._id,
-    totalOptIn: b.totalOptIn,
-    retained: retainedByBucket.get(b._id) ?? 0,
-  }));
+  return Array.from(bucketsMap.entries())
+    .map(([bucket, data]) => ({ bucket, ...data }))
+    .sort((a, b) => a.bucket.localeCompare(b.bucket))
+    .slice(-12);
 }
 
 // ─── Mutations ────────────────────────────────────────────────────────────

@@ -1,0 +1,61 @@
+# Phase — axum router for the SabChat **inboxes** HTTP surface.
+#
+# Owns the per-channel inbox registry (`sabchat_inboxes`): one document
+# per channel binding (one website widget, one WhatsApp number, one
+# Instagram page, one shared email, …). Tenancy and RBAC scope down to
+# the inbox level; routing rules + business hours live here too.
+#
+# Per the slice contract this crate is a leaf:
+#   * No `[workspace]` table.
+#   * Does NOT modify `rust/Cargo.toml`; the orchestrator wires it in.
+[package]
+name = "sabchat-inboxes"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router for the SabChat inboxes HTTP surface (`/v1/sabchat/inboxes/*`). Owns create / list / get / update / agent-add / agent-remove / soft-delete over the `sabchat_inboxes` collection with audit-log writes."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabchat_inboxes"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — same feature union as sibling routers so the api crate
+# resolves a single set of cargo features at build time.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId construction (inbox / tenant ids on the wire are hex
+# strings; parsed via `ObjectId::parse_str` and `oid_from_str`).
+bson = { version = "2", features = ["chrono-0_4"] }
+
+# Wall-clock for `createdAt` / `updatedAt`.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo driver wrappers + futures combinators (for `cursor.try_collect`).
+mongodb = "3"
+futures = "0.3"
+
+# Tracing for handler-level spans.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal`.
+anyhow = "1"
+
+# OpenAPI annotations to keep parity with sibling routers.
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+# Sibling crates — domain DTOs, shared error envelope, JWT extractor,
+# Mongo handle.
+sabchat-types = { path = "../sabchat-types" }
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

@@ -292,12 +292,20 @@ export function EmployeeForm({
         [departmentId],
     );
     const stateFilter = useMemo<Record<string, unknown> | undefined>(
-        () => (workCountry ? { country: workCountry } : undefined),
+        () => (workCountry ? { countryCode: workCountry } : undefined),
         [workCountry],
     );
     const cityFilter = useMemo<Record<string, unknown> | undefined>(
-        () => (workState ? { state: workState } : undefined),
-        [workState],
+        () =>
+            workCountry
+                ? {
+                      countryCode: workCountry,
+                      ...(workState
+                          ? { stateCode: workState.includes(':') ? workState.split(':')[1] : workState }
+                          : {}),
+                  }
+                : undefined,
+        [workCountry, workState],
     );
 
     /* Custom fields — JSON-encoded into a hidden `customFields` input

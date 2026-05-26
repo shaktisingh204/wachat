@@ -93,6 +93,8 @@ function qs(params: Record<string, string | number | undefined | null> | SpendQu
 export const wachatAdsAccountsApi = {
     // -------- User-level "my ad accounts" --------------------------------
     getAdAccounts: () => rustFetch<AdAccountsResp>(`${BASE}/`),
+    
+    syncAdAccounts: () => rustFetch<AdAccountsResp>(`${BASE}/sync`, { method: 'POST' }),
 
     getAdAccountDetails: (adAccountId: string) =>
         rustFetch<DataResp>(`${BASE}/${encodeURIComponent(adAccountId)}`),

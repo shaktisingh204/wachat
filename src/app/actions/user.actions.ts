@@ -355,6 +355,78 @@ export async function handleUpdateUserProfile(prevState: { message?: string; err
     }
 }
 
+// Lean server actions for managing the user-level `tags` array directly,
+// so client UI (TagPicker) can create/edit/delete without rebuilding the
+// full profile FormData. Tags live on the user document and are shared
+// across URL Shortener, QR Code Maker, and anywhere else that surfaces a
+// tag picker.
+
+type TagInput = { _id?: string; name: string; color: string };
+
+async function saveUserTags(tags: TagInput[]): Promise<
+    { ok: true; tags: { _id: string; name: string; color: string }[] }
+    | { ok: false; error: string }
+> {
+    const session = await getSession();
+    if (!session?.user) return { ok: false, error: 'Authentication required.' };
+    try {
+        const { db } = await connectToDatabase();
+        const normalized = tags
+            .filter((t) => t.name && t.name.trim())
+            .map((t) => ({
+                _id: t._id && /^[a-f0-9]{24}$/i.test(t._id) ? new ObjectId(t._id) : new ObjectId(),
+                name: t.name.trim().slice(0, 60),
+                color: /^#[0-9a-f]{3,8}$/i.test(t.color) ? t.color : '#CCCCCC',
+            }));
+        const result = await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $set: { tags: normalized } },
+        );
+        if (result.matchedCount === 0) return { ok: false, error: 'User not found.' };
+        revalidatePath('/dashboard/url-shortener');
+        revalidatePath('/dashboard/url-shortener/settings');
+        revalidatePath('/dashboard/qr-code-maker');
+        revalidatePath('/dashboard/qr-code-maker/settings');
+        return {
+            ok: true,
+            tags: normalized.map((t) => ({ _id: t._id.toString(), name: t.name, color: t.color })),
+        };
+    } catch (e: any) {
+        return { ok: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getCurrentUserTags(): Promise<{ _id: string; name: string; color: string }[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const u = await db
+            .collection('users')
+            .findOne({ _id: new ObjectId(session.user._id) }, { projection: { tags: 1 } });
+        const raw = (u?.tags || []) as { _id: any; name: string; color: string }[];
+        return raw.map((t) => ({ _id: t._id?.toString?.() ?? String(t._id), name: t.name, color: t.color }));
+    } catch {
+        return [];
+    }
+}
+
+export async function createUserTag(input: { name: string; color: string }) {
+    const current = await getCurrentUserTags();
+    return saveUserTags([...current, input]);
+}
+
+export async function updateUserTag(id: string, patch: { name?: string; color?: string }) {
+    const current = await getCurrentUserTags();
+    const next = current.map((t) => (t._id === id ? { ...t, ...patch } : t));
+    return saveUserTags(next);
+}
+
+export async function deleteUserTag(id: string) {
+    const current = await getCurrentUserTags();
+    return saveUserTags(current.filter((t) => t._id !== id));
+}
+
 export async function handleChangePassword(prevState: { message?: string; error?: string }, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required.' };

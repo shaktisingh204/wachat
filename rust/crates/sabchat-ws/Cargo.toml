@@ -1,0 +1,56 @@
+# Phase — axum router for the SabChat **websocket fan-out** surface.
+#
+# Single `GET /` endpoint that upgrades to a WebSocket. After upgrade the
+# connection multiplexes per-tenant events fanned out from an in-process
+# `tokio::sync::broadcast::Sender<Event>` ([`WsHub`]). Other crates publish
+# events through the hub; each connected socket filters by `tenant_id` so
+# tenants only ever see their own traffic.
+#
+# Per the slice contract this crate is a leaf:
+#   * No `[workspace]` table.
+#   * Does NOT modify `rust/Cargo.toml`; the orchestrator wires it in.
+[package]
+name = "sabchat-ws"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that owns the SabChat realtime websocket endpoint (`/v1/sabchat/ws`). Exposes a per-process `WsHub` broadcast channel that sibling crates use to push `message.created` / `conversation.updated` / `presence` / `typing` events to all sockets of a tenant."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabchat_ws"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — same feature union as sibling routers, PLUS `ws` so the
+# upgrade extractor + `WebSocket` type are available.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query", "ws"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync"] }
+
+# Stream combinators for splitting the WebSocket into a `SplitSink` /
+# `SplitStream` pair and `next()`-ing the receiver side.
+futures-util = "0.3"
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId for the `tenant_id` carried on every `Event`. Tenant ids
+# arrive at the JWT extractor as hex strings and are parsed once per
+# upgrade, so the in-memory hot path compares `ObjectId == ObjectId`.
+bson = { version = "2", features = ["chrono-0_4"] }
+
+# Tracing for handler-level spans + connection lifecycle logs.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal`.
+anyhow = "1"
+
+# Sibling crates — shared error envelope, JWT extractor, SabChat DTOs.
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabchat-types = { path = "../sabchat-types" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

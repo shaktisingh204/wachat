@@ -22,6 +22,36 @@ pub async fn ensure_indexes(mongo: &MongoHandle) -> Result<()> {
     for spec in all_specs() {
         ensure_for_spec(mongo, spec).await?;
     }
+    ensure_geospatial_indexes(mongo).await?;
+    Ok(())
+}
+
+async fn ensure_geospatial_indexes(mongo: &MongoHandle) -> Result<()> {
+    // Examples of geospatial indexes across the CRM
+    let attendance_coll = mongo.collection::<bson::Document>("crm_attendance");
+    let models = vec![
+        IndexModel::builder()
+            .keys(doc! { "punchIn.location": "2dsphere" })
+            .options(IndexOptions::builder().name("crm_attendance_punchIn_geo".to_string()).build())
+            .build(),
+        IndexModel::builder()
+            .keys(doc! { "punchOut.location": "2dsphere" })
+            .options(IndexOptions::builder().name("crm_attendance_punchOut_geo".to_string()).build())
+            .build(),
+    ];
+    // Ignore error if it fails (e.g. if field exists and is not GeoJSON)
+    let _ = attendance_coll.create_indexes(models).await;
+    
+    // Branches
+    let branches_coll = mongo.collection::<bson::Document>("crm_branches");
+    let branch_models = vec![
+        IndexModel::builder()
+            .keys(doc! { "location": "2dsphere" })
+            .options(IndexOptions::builder().name("crm_branches_location_geo".to_string()).build())
+            .build(),
+    ];
+    let _ = branches_coll.create_indexes(branch_models).await;
+
     Ok(())
 }
 
@@ -93,14 +123,18 @@ async fn ensure_for_spec(mongo: &MongoHandle, spec: &LookupSpec) -> Result<()> {
         );
     }
 
-    // Single-field index per searchable field.
-    for field in spec.searchable_fields {
+    // Text index for all searchable fields.
+    if !spec.searchable_fields.is_empty() {
+        let mut text_keys = doc! {};
+        for field in spec.searchable_fields {
+            text_keys.insert(*field, "text");
+        }
         models.push(
             IndexModel::builder()
-                .keys(doc! { *field: 1 })
+                .keys(text_keys)
                 .options(
                     IndexOptions::builder()
-                        .name(format!("crm_lookup_{}_{}", spec.collection, field))
+                        .name(format!("crm_lookup_{}_text", spec.collection))
                         .build(),
                 )
                 .build(),

@@ -246,8 +246,10 @@ pub mod switch_node;
 pub mod twilio_trigger;
 pub mod twist_trigger;
 pub mod wait;
-pub mod webhook;
 pub mod webhook_trigger;
+pub mod logic;
+pub mod delay;
+pub mod action;
 // ── Phase C.4.9: trigger variants ───────────────────────────────────────────
 pub mod cron_trigger;
 pub mod email_trigger;
@@ -394,6 +396,9 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(twist_trigger::TwistTriggerNode);
     r.register(mattermost_trigger::MattermostTriggerNode);
     r.register(noop_node::NoOpNode);
+    r.register(logic::LogicNode);
+    r.register(delay::DelayNode);
+    r.register(action::ActionNode);
     // Commerce-webhook triggers (Phase C.6.4) — must register before stubs.
     r.register(stripe_trigger::StripeTriggerNode);
     r.register(shopify_trigger::ShopifyTriggerNode);

@@ -118,4 +118,21 @@ where
             "/projects/{project_id}/notifications/recurring/send",
             post(handlers::send_recurring_notification),
         )
+        // ---- WhatsApp Cloud API --------------------------------------------
+        .route(
+            "/projects/{project_id}/whatsapp/messages/text",
+            post(handlers::send_whatsapp_text),
+        )
+        .route(
+            "/projects/{project_id}/whatsapp/messages/template",
+            post(handlers::send_whatsapp_template),
+        )
+        .route(
+            "/projects/{project_id}/whatsapp/messages/media",
+            post(handlers::send_whatsapp_media),
+        )
+        .route(
+            "/projects/{project_id}/whatsapp/messages/interactive",
+            post(handlers::send_whatsapp_interactive),
+        )
 }

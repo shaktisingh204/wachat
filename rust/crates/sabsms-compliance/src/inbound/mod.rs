@@ -5,6 +5,9 @@ use crate::error::Result;
 use crate::models::{MessageContext, OptStatus};
 use crate::store::ComplianceStore;
 
+#[cfg(test)]
+mod tests;
+
 pub struct InboundInterceptor {
     store: Arc<dyn ComplianceStore>,
     stop_pattern: Regex,
@@ -15,8 +18,9 @@ impl InboundInterceptor {
     pub fn new(store: Arc<dyn ComplianceStore>) -> Self {
         Self {
             store,
-            stop_pattern: Regex::new(r"(?i)^\s*(stop|unsubscribe|cancel|quit|end)\s*$").unwrap(),
-            start_pattern: Regex::new(r"(?i)^\s*(start|unstop|yes)\s*$").unwrap(),
+            // Strict TCPA opt-out keyword detection (allow optional punctuation)
+            stop_pattern: Regex::new(r"(?i)^\s*[\p{P}]*(stop|stopall|unsubscribe|cancel|quit|end)[\p{P}]*\s*$").unwrap(),
+            start_pattern: Regex::new(r"(?i)^\s*[\p{P}]*(start|unstop|yes)[\p{P}]*\s*$").unwrap(),
         }
     }
 

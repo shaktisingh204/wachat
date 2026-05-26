@@ -1,594 +1,208 @@
+/**
+ * SabChat embeddable widget v2.
+ *
+ * Returns a self-contained vanilla-JS bundle that talks to the public
+ * widget endpoints owned by the `sabchat-widget` Rust crate:
+ *
+ *   GET  /v1/sabchat/widget/config?inboxId=...
+ *   POST /v1/sabchat/widget/session
+ *   POST /v1/sabchat/widget/messages
+ *   GET  /v1/sabchat/widget/history?visitorToken=...&limit=50
+ *
+ * The route param is named `userId` for backwards-compat with the legacy
+ * embed URL; we accept the inbox id either as `?inboxId=...` (preferred)
+ * or fall back to the path param when no query is provided.
+ */
 import { NextRequest, NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: Promise<{ userId: string }> }
+    { params }: { params: Promise<{ userId: string }> },
 ) {
     const { userId } = await params;
+    const url = new URL(request.url);
+    const inboxId = url.searchParams.get('inboxId') || userId;
 
-    if (!userId) {
-        return new NextResponse('User ID is required', { status: 400 });
+    if (!inboxId) {
+        return new NextResponse('// SabChat widget: missing inboxId', {
+            status: 400,
+            headers: { 'Content-Type': 'application/javascript' },
+        });
     }
 
-    // The definitive fix: Check if the ID is a valid 24-char hex string BEFORE trying to use it.
-    if (!ObjectId.isValid(userId)) {
-        // If the ID format is wrong, the user can never be found.
-        return new NextResponse('User not found', { status: 404 });
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-
-        // Now we can safely create the ObjectId
-        const userObjectId = new ObjectId(userId);
-        const user = await db.collection('users').findOne({ _id: userObjectId });
-
-        if (!user) {
-            return new NextResponse('User not found', { status: 404 });
-        }
-
-        const settings = user.sabChatSettings || {};
-
-        if (settings.enabled === false) {
-            return new NextResponse('// Chat widget is disabled by the administrator.', {
-                headers: { 'Content-Type': 'application/javascript' }
-            });
-        }
-
-        let appUrl = process.env.NEXT_PUBLIC_APP_URL;
-
-        if (!appUrl) {
+    // Resolve the Rust BFF base URL the embed script will talk to. Falls
+    // back to the calling host so a self-hosted SabNode reaches its own
+    // BFF behind the same edge.
+    const apiBase =
+        process.env.NEXT_PUBLIC_RUST_API_URL ||
+        process.env.RUST_API_URL ||
+        (() => {
             const host = request.headers.get('host');
-            const protocol = request.headers.get('x-forwarded-proto') || 'http';
-            appUrl = `${protocol}://${host}`;
+            const proto = request.headers.get('x-forwarded-proto') || 'https';
+            return host ? `${proto}://${host}` : '';
+        })();
+
+    const script = `(function(){
+    var INBOX_ID = ${JSON.stringify(inboxId)};
+    var API = ${JSON.stringify(apiBase)};
+    var TOKEN_KEY = 'sabchatVisitorToken';
+    var POLL_MS = 5000;
+
+    var state = { config: null, visitorToken: null, messages: [], open: false, lastLen: 0, pollTimer: null };
+
+    function api(path, opts){
+        return fetch(API + path, Object.assign({ headers: { 'Content-Type': 'application/json', Accept: 'application/json' } }, opts || {}))
+            .then(function(r){ if(!r.ok) throw new Error('SabChat ' + r.status); return r.json(); });
+    }
+
+    function loadToken(){ try { return localStorage.getItem(TOKEN_KEY); } catch(e) { return null; } }
+    function saveToken(t){ try { localStorage.setItem(TOKEN_KEY, t); } catch(e) {} }
+
+    function injectStyles(color){
+        if (document.getElementById('sabchat-w2-style')) return;
+        var s = document.createElement('style');
+        s.id = 'sabchat-w2-style';
+        s.textContent = [
+            '#sabchat-w2-root{position:fixed;bottom:20px;right:20px;z-index:2147483647;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}',
+            '#sabchat-w2-bubble{width:60px;height:60px;border-radius:30px;background:' + color + ';color:#fff;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;transition:transform .2s;}',
+            '#sabchat-w2-bubble:hover{transform:scale(1.05);}',
+            '#sabchat-w2-bubble svg{width:28px;height:28px;fill:#fff;}',
+            '#sabchat-w2-panel{position:absolute;bottom:80px;right:0;width:360px;height:520px;max-height:80vh;background:#fff;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.18);display:none;flex-direction:column;overflow:hidden;}',
+            '#sabchat-w2-panel.open{display:flex;}',
+            '.sabchat-w2-head{background:' + color + ';color:#fff;padding:16px 20px;font-weight:600;font-size:15px;}',
+            '.sabchat-w2-body{flex:1;overflow-y:auto;padding:16px;background:#f7f8fa;display:flex;flex-direction:column;gap:8px;}',
+            '.sabchat-w2-msg{max-width:80%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.4;word-wrap:break-word;}',
+            '.sabchat-w2-msg.in{background:#fff;color:#111;align-self:flex-start;box-shadow:0 1px 2px rgba(0,0,0,.06);}',
+            '.sabchat-w2-msg.out{background:' + color + ';color:#fff;align-self:flex-end;}',
+            '.sabchat-w2-welcome{font-size:13px;color:#555;text-align:center;padding:8px;}',
+            '.sabchat-w2-foot{padding:10px;border-top:1px solid #eee;display:flex;gap:8px;background:#fff;}',
+            '.sabchat-w2-foot input{flex:1;border:1px solid #e2e4ea;border-radius:20px;padding:10px 14px;font-size:14px;outline:none;}',
+            '.sabchat-w2-foot input:focus{border-color:' + color + ';}',
+            '.sabchat-w2-foot button{background:' + color + ';color:#fff;border:none;border-radius:20px;padding:0 16px;cursor:pointer;font-size:14px;}'
+        ].join('');
+        document.head.appendChild(s);
+    }
+
+    function render(){
+        var root = document.getElementById('sabchat-w2-root');
+        if (!root) return;
+        var color = (state.config && state.config.widgetColor) || '#111827';
+        var welcome = (state.config && state.config.welcomeMessage) || 'Hi! How can we help?';
+        var title = (state.config && (state.config.teamName || state.config.title)) || 'Support';
+
+        injectStyles(color);
+
+        var msgsHtml = '<div class="sabchat-w2-welcome">' + escapeHtml(welcome) + '</div>';
+        for (var i=0;i<state.messages.length;i++){
+            var m = state.messages[i];
+            var side = (m.direction === 'outbound' || m.senderType === 'visitor') ? 'out' : 'in';
+            msgsHtml += '<div class="sabchat-w2-msg ' + side + '">' + escapeHtml(extractText(m)) + '</div>';
         }
 
-        const script = `
-            (function() {
-                const config = ${JSON.stringify(settings)};
-                const userId = "${userId}";
-                let sessionId = localStorage.getItem('sabchat_session_id');
-                let visitorId = localStorage.getItem('sabchat_visitor_id');
-                let chatHistory = [];
-                let isWidgetOpen = false;
-                let heartbeatInterval;
+        root.innerHTML =
+            '<div id="sabchat-w2-panel" class="' + (state.open ? 'open' : '') + '">' +
+                '<div class="sabchat-w2-head">' + escapeHtml(title) + '</div>' +
+                '<div class="sabchat-w2-body" id="sabchat-w2-body">' + msgsHtml + '</div>' +
+                '<form class="sabchat-w2-foot" id="sabchat-w2-form">' +
+                    '<input id="sabchat-w2-input" autocomplete="off" placeholder="Type a message..." />' +
+                    '<button type="submit">Send</button>' +
+                '</form>' +
+            '</div>' +
+            '<button id="sabchat-w2-bubble" aria-label="Open chat">' +
+                '<svg viewBox="0 0 24 24"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>' +
+            '</button>';
 
-                const CONSTANTS = {
-                    HEARTBEAT_INTERVAL: 120000, // 2 minutes
-                    POLL_INTERVAL: 5000, // 5 seconds
-                    API_BASE: "${appUrl}/api/sabchat"
-                };
+        document.getElementById('sabchat-w2-bubble').onclick = toggle;
+        var f = document.getElementById('sabchat-w2-form');
+        if (f) f.onsubmit = onSubmit;
+        var body = document.getElementById('sabchat-w2-body');
+        if (body) body.scrollTop = body.scrollHeight;
+    }
 
-                function createStyles() {
-                    const style = document.createElement('style');
-                    style.innerHTML = \`
-                        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-                        
-                        #sabnode-widget-root {
-                            font-family: 'Inter', sans-serif;
-                            position: fixed;
-                            bottom: 20px;
-                            right: 20px;
-                            z-index: 2147483647; /* Max z-index */
-                            display: flex;
-                            flex-direction: column;
-                            align-items: flex-end;
-                            gap: 16px;
-                            pointer-events: none; /* Let clicks pass through wrapper */
-                        }
+    function escapeHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+    function extractText(m){
+        if (!m) return '';
+        if (typeof m.content === 'string') return m.content;
+        if (m.content && typeof m.content === 'object') {
+            if (m.content.kind === 'text' || m.content.text) return m.content.text || '';
+            if (m.content.kind === 'system') return m.content.text || '';
+        }
+        return m.text || '';
+    }
 
-                        #sabnode-widget-root * {
-                            box-sizing: border-box;
-                            pointer-events: auto; /* Re-enable clicks for children */
-                        }
+    function toggle(){
+        state.open = !state.open;
+        var panel = document.getElementById('sabchat-w2-panel');
+        if (panel) panel.classList.toggle('open', state.open);
+        if (state.open) { ensureSession().then(function(){ poll(true); }); startPolling(); }
+        else { stopPolling(); }
+    }
 
-                        /* --- Launcher Button --- */
-                        #sabnode-launcher {
-                            width: 60px;
-                            height: 60px;
-                            border-radius: 30px;
-                            background-color: \${config.widgetColor || '#000000'};
-                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                            cursor: pointer;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-                            border: none;
-                            outline: none;
-                        }
+    function ensureSession(){
+        if (state.visitorToken) return Promise.resolve();
+        var existing = loadToken();
+        var body = existing ? { inboxId: INBOX_ID, visitorToken: existing } : { inboxId: INBOX_ID };
+        return api('/v1/sabchat/widget/session', { method: 'POST', body: JSON.stringify(body) })
+            .then(function(res){
+                state.visitorToken = res.visitorToken || (res.session && res.session.visitorToken) || existing;
+                if (state.visitorToken) saveToken(state.visitorToken);
+            })
+            .catch(function(){ /* keep ui responsive */ });
+    }
 
-                        #sabnode-launcher:hover {
-                            transform: scale(1.05);
-                            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-                        }
+    function onSubmit(e){
+        e.preventDefault();
+        var input = document.getElementById('sabchat-w2-input');
+        var text = input && input.value ? input.value.trim() : '';
+        if (!text) return;
+        input.value = '';
+        state.messages.push({ direction: 'outbound', senderType: 'visitor', content: { kind: 'text', text: text } });
+        render();
+        ensureSession().then(function(){
+            return api('/v1/sabchat/widget/messages', { method: 'POST', body: JSON.stringify({ visitorToken: state.visitorToken, inboxId: INBOX_ID, content: { kind: 'text', text: text } }) });
+        }).then(function(){ poll(true); }).catch(function(){});
+    }
 
-                        #sabnode-launcher:active {
-                            transform: scale(0.95);
-                        }
-
-                        #sabnode-launcher svg {
-                            width: 32px;
-                            height: 32px;
-                            fill: white;
-                            transition: opacity 0.3s ease, transform 0.3s ease;
-                            position: absolute;
-                        }
-
-                        /* Icon Transitions */
-                        .sabnode-icon-close { opacity: 0; transform: rotate(-90deg); }
-                        .sabnode-open .sabnode-icon-open { opacity: 0; transform: rotate(90deg); }
-                        .sabnode-open .sabnode-icon-close { opacity: 1; transform: rotate(0); }
-
-                        /* --- Chat Window --- */
-                        #sabnode-window {
-                            width: 380px;
-                            height: 600px;
-                            max-height: calc(100vh - 100px);
-                            max-width: calc(100vw - 40px);
-                            background: white;
-                            border-radius: 16px;
-                            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-                            display: flex;
-                            flex-direction: column;
-                            overflow: hidden;
-                            opacity: 0;
-                            transform: translateY(20px) scale(0.95);
-                            transform-origin: bottom right;
-                            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-                            pointer-events: none; /* Hidden state */
-                            visibility: hidden;
-                        }
-
-                        #sabnode-window.sabnode-active {
-                            opacity: 1;
-                            transform: translateY(0) scale(1);
-                            pointer-events: auto;
-                            visibility: visible;
-                        }
-
-                        /* Header */
-                        .sabnode-header {
-                            background: \${config.widgetColor || '#000000'};
-                            padding: 24px 24px 32px; /* Extra bottom padding for overlap */
-                            color: white;
-                            flex-shrink: 0;
-                        }
-
-                        .sabnode-header-content {
-                            display: flex;
-                            align-items: center;
-                            gap: 16px;
-                        }
-
-                        .sabnode-avatar {
-                            width: 48px;
-                            height: 48px;
-                            border-radius: 50%;
-                            background: rgba(255,255,255,0.2);
-                            object-fit: cover;
-                            border: 2px solid rgba(255,255,255,0.3);
-                        }
-
-                        .sabnode-title {
-                            font-size: 18px;
-                            font-weight: 600;
-                            line-height: 1.2;
-                        }
-
-                        .sabnode-subtitle {
-                            font-size: 13px;
-                            opacity: 0.8;
-                            margin-top: 4px;
-                        }
-
-                        /* Chat Body */
-                        .sabnode-body {
-                            flex: 1;
-                            background: #F9FAFB;
-                            padding: 20px;
-                            overflow-y: auto;
-                            display: flex;
-                            flex-direction: column;
-                            gap: 12px;
-                            margin-top: -16px; /* Pull up to overlap header */
-                            border-top-left-radius: 16px;
-                            border-top-right-radius: 16px;
-                        }
-                        
-                        /* Email Form */
-                         .sabnode-email-form {
-                            background: white;
-                            padding: 24px;
-                            border-radius: 12px;
-                            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-                            margin-top: auto;
-                            margin-bottom: auto;
-                        }
-                        
-                        .sabnode-input-group { margin-bottom: 16px; }
-                        
-                        .sabnode-input {
-                            width: 100%;
-                            padding: 12px 16px;
-                            border: 1px solid #E5E7EB;
-                            border-radius: 8px;
-                            font-size: 14px;
-                            font-family: inherit;
-                            transition: border-color 0.2s;
-                            outline: none;
-                        }
-                        
-                        .sabnode-input:focus { border-color: \${config.widgetColor || '#000000'}; }
-
-                        .sabnode-btn {
-                            width: 100%;
-                            padding: 12px;
-                            border: none;
-                            border-radius: 8px;
-                            background: \${config.widgetColor || '#000000'};
-                            color: white;
-                            font-weight: 600;
-                            cursor: pointer;
-                            transition: opacity 0.2s;
-                        }
-                        
-                        .sabnode-btn:hover { opacity: 0.9; }
-
-                        /* Messages */
-                        .sabnode-msg {
-                            max-width: 85%;
-                            padding: 12px 16px;
-                            border-radius: 16px;
-                            font-size: 14px;
-                            line-height: 1.5;
-                            animation: sabnode-fade-in 0.3s ease;
-                        }
-
-                        @keyframes sabnode-fade-in {
-                            from { opacity: 0; transform: translateY(10px); }
-                            to { opacity: 1; transform: translateY(0); }
-                        }
-
-                        .sabnode-msg-agent {
-                            background: white;
-                            color: #1F2937;
-                            border-bottom-left-radius: 4px;
-                            align-self: flex-start;
-                            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-                        }
-
-                        .sabnode-msg-visitor {
-                            background: \${config.widgetColor || '#000000'};
-                            color: white;
-                            border-bottom-right-radius: 4px;
-                            align-self: flex-end;
-                        }
-
-                        .sabnode-welcome {
-                            background: #EEF2FF;
-                            color: #3730A3;
-                            padding: 16px;
-                            border-radius: 12px;
-                            font-size: 14px;
-                            margin-bottom: 24px;
-                        }
-
-                         /* Footer */
-                        .sabnode-footer {
-                            padding: 16px 20px;
-                            background: white;
-                            border-top: 1px solid #F3F4F6;
-                        }
-
-                        .sabnode-footer-form {
-                            display: flex;
-                            gap: 8px;
-                            background: #F9FAFB;
-                            padding: 4px; /* padding around input */
-                            border-radius: 24px;
-                            border: 1px solid #E5E7EB;
-                            align-items: center;
-                        }
-                        
-                        .sabnode-footer-form:focus-within {
-                             border-color: \${config.widgetColor || '#000000'};
-                             background: white;
-                        }
-
-                        .sabnode-chat-input {
-                            flex: 1;
-                            border: none;
-                            background: transparent;
-                            padding: 10px 16px;
-                            outline: none;
-                            font-size: 14px;
-                            font-family: inherit;
-                        }
-                        
-                        .sabnode-send-btn {
-                             background: transparent;
-                             border: none;
-                             cursor: pointer;
-                             padding: 8px;
-                             color: \${config.widgetColor || '#000000'};
-                             display: flex;
-                             align-items: center;
-                             justify-content: center;
-                             transition: transform 0.2s;
-                        }
-                        
-                        .sabnode-send-btn:hover { transform: translateX(2px); }
-                        .sabnode-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-                    \`;
-                    document.head.appendChild(style);
-                }
-
-                function createDOM() {
-                    createStyles();
-
-                    const root = document.createElement('div');
-                    root.id = 'sabnode-widget-root';
-                    
-                    root.innerHTML = \`
-                        <div id="sabnode-window">
-                            <!-- Injected by render() -->
-                        </div>
-                        <button id="sabnode-launcher" aria-label="Open Chat">
-                            <svg class="sabnode-icon-open" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-                            <svg class="sabnode-icon-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                        </button>
-                    \`;
-                    
-                    document.body.appendChild(root);
-
-                    document.getElementById('sabnode-launcher').onclick = toggleWidget;
+    function poll(force){
+        if (!state.visitorToken) return;
+        api('/v1/sabchat/widget/history?visitorToken=' + encodeURIComponent(state.visitorToken) + '&limit=50')
+            .then(function(res){
+                var items = (res && (res.items || res.history)) || [];
+                if (force || items.length !== state.lastLen) {
+                    state.messages = items;
+                    state.lastLen = items.length;
                     render();
                 }
-
-                function toggleWidget() {
-                    isWidgetOpen = !isWidgetOpen;
-                    const win = document.getElementById('sabnode-window');
-                    const btn = document.getElementById('sabnode-launcher');
-                    
-                    if (isWidgetOpen) {
-                        win.classList.add('sabnode-active');
-                        btn.classList.add('sabnode-open');
-                        
-                        // Force a heartbeat when opened to ensure "Online" status immediately
-                        heartbeat(); 
-                    } else {
-                        win.classList.remove('sabnode-active');
-                        btn.classList.remove('sabnode-open');
-                    }
-                }
-
-                // Heartbeat to keep the session alive
-                function startHeartbeat() {
-                    const email = localStorage.getItem('sabchat_email');
-                    const name = localStorage.getItem('sabchat_name');
-                    if (heartbeatInterval) clearInterval(heartbeatInterval);
-                    
-                    if (email) {
-                        // Initial beat
-                        getOrCreateSession(name, email);
-                        // Beat every 2 minutes
-                        heartbeatInterval = setInterval(() => {
-                            getOrCreateSession(name, email);
-                        }, CONSTANTS.HEARTBEAT_INTERVAL);
-                    }
-                }
-                
-                function heartbeat() {
-                     const email = localStorage.getItem('sabchat_email');
-                     const name = localStorage.getItem('sabchat_name');
-                     if(email) getOrCreateSession(name, email);
-                }
-
-                function render() {
-                    const win = document.getElementById('sabnode-window');
-                    const email = localStorage.getItem('sabchat_email');
-
-                    if (sessionId && email) {
-                        // We have an active session
-                        if (!win.querySelector('.sabnode-chat-input')) {
-                            win.innerHTML = getChatTemplate();
-                            setupChatListeners();
-                        }
-                        startHeartbeat(); // Ensure heartbeat is running
-                    } else {
-                        // Show email form
-                        win.innerHTML = getEmailTemplate();
-                        setupEmailListeners();
-                        if (heartbeatInterval) clearInterval(heartbeatInterval);
-                    }
-                }
-
-                function getHeader() {
-                    return \`
-                        <div class="sabnode-header">
-                            <div class="sabnode-header-content">
-                                <img src="\${config.avatarUrl || 'https://ui-avatars.com/api/?name=Support&background=random'}" class="sabnode-avatar" alt="Team">
-                                <div>
-                                    <div class="sabnode-title">\${config.teamName || 'Support Team'}</div>
-                                    <div class="sabnode-subtitle">We typically reply in a few minutes</div>
-                                </div>
-                            </div>
-                        </div>
-                    \`;
-                }
-
-                function getEmailTemplate() {
-                    return \`
-                        \${getHeader()}
-                        <div class="sabnode-body">
-                            <div class="sabnode-welcome">
-                                \${config.welcomeMessage || 'Hello! How can we help you today?'}
-                            </div>
-                            <form id="sabnode-email-form" class="sabnode-email-form">
-                                <div class="sabnode-input-group">
-                                    <label style="display:block; margin-bottom:8px; font-size:14px; font-weight:500;">Your Name</label>
-                                    <input type="text" id="sabnode-name" class="sabnode-input" placeholder="John Doe" required>
-                                </div>
-                                <div class="sabnode-input-group">
-                                    <label style="display:block; margin-bottom:8px; font-size:14px; font-weight:500;">Email Address</label>
-                                    <input type="email" id="sabnode-email" class="sabnode-input" placeholder="name@example.com" required>
-                                </div>
-                                <button type="submit" class="sabnode-btn">Start Chat</button>
-                            </form>
-                        </div>
-                    \`;
-                }
-
-                function getChatTemplate() {
-                    return \`
-                        \${getHeader()}
-                        <div class="sabnode-body" id="sabnode-msgs">
-                             <div class="sabnode-msg sabnode-msg-agent">
-                                \${config.welcomeMessage || 'Hello! How can we help you today?'}
-                            </div>
-                        </div>
-                        <div class="sabnode-footer">
-                            <form id="sabnode-chat-form" class="sabnode-footer-form">
-                                <input id="sabnode-chat-input" class="sabnode-chat-input" placeholder="Type a message..." autocomplete="off">
-                                <button type="submit" class="sabnode-send-btn">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                                </button>
-                            </form>
-                        </div>
-                    \`;
-                }
-
-                function setupEmailListeners() {
-                    const form = document.getElementById('sabnode-email-form');
-                    form.onsubmit = async (e) => {
-                        e.preventDefault();
-                        const name = document.getElementById('sabnode-name').value;
-                        const email = document.getElementById('sabnode-email').value;
-                        if (!email || !name) return;
-                        
-                        const btn = form.querySelector('button');
-                        btn.disabled = true;
-                        btn.textContent = 'Starting...';
-
-                        localStorage.setItem('sabchat_name', name);
-                        localStorage.setItem('sabchat_email', email);
-                        await getOrCreateSession(name, email);
-                        render();
-                    };
-                }
-
-                function setupChatListeners() {
-                    const form = document.getElementById('sabnode-chat-form');
-                    form.onsubmit = (e) => {
-                        e.preventDefault();
-                        sendMessage();
-                    };
-                    
-                    // Poll for history
-                    updateHistory();
-                    setInterval(updateHistory, CONSTANTS.POLL_INTERVAL);
-                }
-
-                async function sendMessage() {
-                    const input = document.getElementById('sabnode-chat-input');
-                    const content = input.value.trim();
-                    if (!content) return;
-
-                    input.value = '';
-                    
-                    // Optimistic update
-                    chatHistory.push({ sender: 'visitor', content, timestamp: new Date().toISOString() });
-                    renderMessages();
-
-                    const currentSessionId = localStorage.getItem('sabchat_session_id');
-                    await fetch(\`\${CONSTANTS.API_BASE}/message\`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ sessionId: currentSessionId, content, sender: 'visitor' })
-                    });
-                }
-                
-                async function updateHistory() {
-                    if (!sessionId) return;
-                    try {
-                        const res = await fetch(\`\${CONSTANTS.API_BASE}/history?sessionId=\${sessionId}\`);
-                        if (res.ok) {
-                            const data = await res.json();
-                            // Simple diff check (length) - could be more robust
-                            if (data.history && data.history.length !== chatHistory.length) {
-                                chatHistory = data.history || [];
-                                renderMessages();
-                            }
-                        }
-                    } catch (e) { console.error('History poll failed', e); }
-                }
-
-                function renderMessages() {
-                    const container = document.getElementById('sabnode-msgs');
-                    if (!container) return;
-                                        
-                    let html = \`
-                        <div class="sabnode-msg sabnode-msg-agent">
-                            \${config.welcomeMessage || 'Hello! How can we help you today?'}
-                        </div>
-                    \`;
-                    
-                    chatHistory.forEach(msg => {
-                        html += \`
-                            <div class="sabnode-msg \${msg.sender === 'visitor' ? 'sabnode-msg-visitor' : 'sabnode-msg-agent'}">
-                                \${msg.content}
-                            </div>
-                        \`;
-                    });
-                    
-                    container.innerHTML = html;
-                    container.scrollTop = container.scrollHeight;
-                }
-
-                async function getOrCreateSession(name, email) {
-                    try {
-                        const res = await fetch(\`\${CONSTANTS.API_BASE}/session\`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ userId, name, email, visitorId })
-                        });
-                        
-                        if (res.ok) {
-                            const data = await res.json();
-                            if (data.sessionId) {
-                                sessionId = data.sessionId;
-                                visitorId = data.session.visitorId;
-                                localStorage.setItem('sabchat_session_id', sessionId);
-                                localStorage.setItem('sabchat_visitor_id', visitorId);
-                                chatHistory = data.session.history || [];
-                            }
-                        }
-                    } catch (e) {
-                         console.error('Session init failed', e);
-                    }
-                }
-
-                if (document.readyState === 'complete') {
-                    createDOM();
-                } else {
-                    window.addEventListener('load', createDOM);
-                }
-            })();
-        `;
-
-        return new NextResponse(script, {
-            headers: {
-                'Content-Type': 'application/javascript',
-                'Cache-Control': 'public, max-age=3600' // Cache for 1 hour
-            }
-        });
-
-    } catch (e) {
-        console.error("Failed to generate sabChat widget script:", e);
-        return new NextResponse('Internal Server Error', { status: 500 });
+            })
+            .catch(function(){});
     }
+
+    function startPolling(){ if (state.pollTimer) return; state.pollTimer = setInterval(function(){ poll(false); }, POLL_MS); }
+    function stopPolling(){ if (state.pollTimer) { clearInterval(state.pollTimer); state.pollTimer = null; } }
+
+    function boot(){
+        var root = document.createElement('div');
+        root.id = 'sabchat-w2-root';
+        document.body.appendChild(root);
+        api('/v1/sabchat/widget/config?inboxId=' + encodeURIComponent(INBOX_ID))
+            .then(function(cfg){ state.config = cfg && cfg.config ? cfg.config : cfg; render(); })
+            .catch(function(){ state.config = {}; render(); });
+        // Restore token + warm history without opening
+        if (loadToken()) { state.visitorToken = loadToken(); poll(false); }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
+    }
+})();
+`;
+
+    return new NextResponse(script, {
+        headers: {
+            'Content-Type': 'application/javascript; charset=utf-8',
+            'Cache-Control': 'public, max-age=300',
+        },
+    });
 }

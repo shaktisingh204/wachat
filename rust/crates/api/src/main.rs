@@ -33,6 +33,55 @@ use wachat_config::WachatConfigState;
 use wachat_features::WachatFeaturesState;
 use wachat_api_keys_admin::WachatApiKeysAdminState;
 use wachat_contacts::WachatContactsState;
+
+use sabchat_audit::SabChatAuditState;
+use sabchat_contacts::SabChatContactsState;
+use sabchat_conversations::SabChatConversationsState;
+use sabchat_inboxes::SabChatInboxesState;
+use sabchat_messages::SabChatMessagesState;
+use sabchat_routing::SabChatRoutingState;
+use sabchat_widget::SabChatWidgetState;
+
+use sabchat_channel_whatsapp::SabChatChannelWhatsappState;
+use sabchat_channel_instagram::SabChatChannelInstagramState;
+use sabchat_channel_facebook::SabChatChannelFacebookState;
+use sabchat_channel_telegram::SabChatChannelTelegramState;
+use sabchat_channel_email::SabChatChannelEmailState;
+use sabchat_channel_sms::SabChatChannelSmsState;
+use sabchat_ai_copilot::SabChatAiCopilotState;
+use sabchat_ai_translate::{SabChatAiTranslateState, make_translator_from_env};
+use sabchat_ai_sentiment::{SabChatAiSentimentState, make_classifier_from_env};
+use sabchat_ai_resolve_bot::{SabChatAiResolveBotState, make_bot_from_env};
+use sabchat_macros::SabChatMacrosState;
+use sabchat_sla::SabChatSlaState;
+use sabchat_business_hours::SabChatBusinessHoursState;
+use sabchat_crm_bridge::SabChatCrmBridgeState;
+use sabchat_knowledge::SabChatKnowledgeState;
+use sabchat_commerce::SabChatCommerceState;
+use sabchat_reports::SabChatReportsState;
+use sabchat_teams::SabChatTeamsState;
+use sabchat_webhooks::SabChatWebhooksState;
+use sabchat_public_api::SabChatPublicApiState;
+use sabchat_events::SabChatEventsState;
+use sabchat_voice::SabChatVoiceState;
+use sabchat_cobrowse::SabChatCobrowseState;
+use sabchat_shifts::SabChatShiftsState;
+use sabchat_csat::SabChatCsatState;
+use sabchat_dispositions::SabChatDispositionsState;
+use sabchat_gamification::SabChatGamificationState;
+use sabchat_compliance::SabChatComplianceState;
+use sabchat_sso::SabChatSsoState;
+use sabchat_ai_qa::{SabChatAiQaState, make_grader_from_env};
+use sabchat_ai_voc::{SabChatAiVocState, make_clusterer_from_env};
+use sabchat_sabflow_nodes::SabChatSabflowNodesState;
+use sabchat_cart_recovery::SabChatCartRecoveryState;
+use sabchat_ad_attribution::SabChatAdAttributionState;
+use sabchat_channel_line::SabChatChannelLineState;
+use sabchat_channel_viber::SabChatChannelViberState;
+use sabchat_channel_apple::SabChatChannelAppleState;
+use sabchat_channel_gbm::SabChatChannelGbmState;
+use sabchat_channel_x::SabChatChannelXState;
+use sabchat_marketplace::SabChatMarketplaceState;
 use wachat_facebook_agents::WachatFacebookAgentsState;
 use wachat_facebook_automation::WachatFacebookAutomationState;
 use wachat_facebook_business::WachatFacebookBusinessState;
@@ -281,6 +330,56 @@ async fn run() -> anyhow::Result<()> {
     // Contact CRUD — replaces the Mongo work in `contact.actions.ts`.
     let contacts = WachatContactsState::new(mongo.clone());
 
+    // SabChat — Pillar 1 + 2. All sub-states share the same Mongo handle.
+    let sabchat_inboxes_state = SabChatInboxesState::new(mongo.clone());
+    let sabchat_contacts_state = SabChatContactsState::new(mongo.clone());
+    let sabchat_conversations_state = SabChatConversationsState::new(mongo.clone());
+    let sabchat_messages_state = SabChatMessagesState::new(mongo.clone());
+    let sabchat_audit_state = SabChatAuditState::new(mongo.clone());
+    let sabchat_routing_state = SabChatRoutingState::new(mongo.clone());
+    let sabchat_widget_state = SabChatWidgetState::new(mongo.clone());
+
+    let sabchat_channel_whatsapp_state = SabChatChannelWhatsappState::new(mongo.clone());
+    let sabchat_channel_instagram_state = SabChatChannelInstagramState::new(mongo.clone());
+    let sabchat_channel_facebook_state = SabChatChannelFacebookState::new(mongo.clone());
+    let sabchat_channel_telegram_state = SabChatChannelTelegramState::new(mongo.clone());
+    let sabchat_channel_email_state = SabChatChannelEmailState::new(mongo.clone());
+    let sabchat_channel_sms_state = SabChatChannelSmsState::new(mongo.clone());
+    let sabchat_ai_copilot_state = SabChatAiCopilotState::new(mongo.clone());
+    let sabchat_ai_translate_state = SabChatAiTranslateState::new(mongo.clone(), make_translator_from_env());
+    let sabchat_ai_sentiment_state = SabChatAiSentimentState::new(mongo.clone(), make_classifier_from_env());
+    let sabchat_ai_resolve_bot_state = SabChatAiResolveBotState::new(mongo.clone(), make_bot_from_env());
+    let sabchat_macros_state = SabChatMacrosState::new(mongo.clone());
+    let sabchat_sla_state = SabChatSlaState::new(mongo.clone());
+    let sabchat_business_hours_state = SabChatBusinessHoursState::new(mongo.clone());
+    let sabchat_crm_bridge_state = SabChatCrmBridgeState::new(mongo.clone());
+    let sabchat_knowledge_state = SabChatKnowledgeState::new(mongo.clone());
+    let sabchat_commerce_state = SabChatCommerceState::new(mongo.clone());
+    let sabchat_reports_state = SabChatReportsState::new(mongo.clone());
+    let sabchat_teams_state = SabChatTeamsState::new(mongo.clone());
+    let sabchat_webhooks_state = SabChatWebhooksState::new(mongo.clone());
+    let sabchat_public_api_state = SabChatPublicApiState::new(mongo.clone());
+    let sabchat_events_state = SabChatEventsState::new(mongo.clone());
+    let sabchat_voice_state = SabChatVoiceState::new(mongo.clone());
+    let sabchat_cobrowse_state = SabChatCobrowseState::new(mongo.clone());
+    let sabchat_shifts_state = SabChatShiftsState::new(mongo.clone());
+    let sabchat_csat_state = SabChatCsatState::new(mongo.clone());
+    let sabchat_dispositions_state = SabChatDispositionsState::new(mongo.clone());
+    let sabchat_gamification_state = SabChatGamificationState::new(mongo.clone());
+    let sabchat_compliance_state = SabChatComplianceState::new(mongo.clone());
+    let sabchat_sso_state = SabChatSsoState::new(mongo.clone());
+    let sabchat_ai_qa_state = SabChatAiQaState::new(mongo.clone(), make_grader_from_env());
+    let sabchat_ai_voc_state = SabChatAiVocState::new(mongo.clone(), make_clusterer_from_env());
+    let sabchat_sabflow_nodes_state = SabChatSabflowNodesState::new(mongo.clone());
+    let sabchat_cart_recovery_state = SabChatCartRecoveryState::new(mongo.clone());
+    let sabchat_ad_attribution_state = SabChatAdAttributionState::new(mongo.clone());
+    let sabchat_channel_line_state = SabChatChannelLineState::new(mongo.clone());
+    let sabchat_channel_viber_state = SabChatChannelViberState::new(mongo.clone());
+    let sabchat_channel_apple_state = SabChatChannelAppleState::new(mongo.clone());
+    let sabchat_channel_gbm_state = SabChatChannelGbmState::new(mongo.clone());
+    let sabchat_channel_x_state = SabChatChannelXState::new(mongo.clone());
+    let sabchat_marketplace_state = SabChatMarketplaceState::new(mongo.clone());
+
     // SabNode wachat-specific flows — replaces `flow.actions.ts`.
     let flows = WachatFlowsState::new(mongo.clone());
 
@@ -500,6 +599,53 @@ async fn run() -> anyhow::Result<()> {
         email_events_state,
         email_reports_state,
         email_journeys_state,
+        sabchat_inboxes_state,
+        sabchat_contacts_state,
+        sabchat_conversations_state,
+        sabchat_messages_state,
+        sabchat_audit_state,
+        sabchat_routing_state,
+        sabchat_widget_state,
+        sabchat_channel_whatsapp_state,
+        sabchat_channel_instagram_state,
+        sabchat_channel_facebook_state,
+        sabchat_channel_telegram_state,
+        sabchat_channel_email_state,
+        sabchat_channel_sms_state,
+        sabchat_ai_copilot_state,
+        sabchat_ai_translate_state,
+        sabchat_ai_sentiment_state,
+        sabchat_ai_resolve_bot_state,
+        sabchat_macros_state,
+        sabchat_sla_state,
+        sabchat_business_hours_state,
+        sabchat_crm_bridge_state,
+        sabchat_knowledge_state,
+        sabchat_commerce_state,
+        sabchat_reports_state,
+        sabchat_teams_state,
+        sabchat_webhooks_state,
+        sabchat_public_api_state,
+        sabchat_events_state,
+        sabchat_voice_state,
+        sabchat_cobrowse_state,
+        sabchat_shifts_state,
+        sabchat_csat_state,
+        sabchat_dispositions_state,
+        sabchat_gamification_state,
+        sabchat_compliance_state,
+        sabchat_sso_state,
+        sabchat_ai_qa_state,
+        sabchat_ai_voc_state,
+        sabchat_sabflow_nodes_state,
+        sabchat_cart_recovery_state,
+        sabchat_ad_attribution_state,
+        sabchat_channel_line_state,
+        sabchat_channel_viber_state,
+        sabchat_channel_apple_state,
+        sabchat_channel_gbm_state,
+        sabchat_channel_x_state,
+        sabchat_marketplace_state,
     );
     let app = router::build(state.clone());
 

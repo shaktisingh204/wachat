@@ -1,0 +1,173 @@
+'use client';
+
+import * as React from 'react';
+
+import {
+  Button,
+  Input,
+  Select,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import type {
+  BugListParams,
+  BugPriority,
+  BugSeverity,
+  BugStatus,
+} from '@/lib/rust-client/bug-tracker-bugs';
+
+import {
+  BUG_PRIORITIES,
+  BUG_SEVERITIES,
+  BUG_STATUSES,
+  type ProjectOption,
+} from './bug-shared';
+
+export interface BugFiltersValue {
+  q?: string;
+  status?: BugStatus | 'all';
+  severity?: BugSeverity;
+  priority?: BugPriority;
+  projectId?: string;
+  mine?: boolean;
+}
+
+export interface BugFiltersProps {
+  value: BugFiltersValue;
+  onChange: (next: BugFiltersValue) => void;
+  projectOptions: ProjectOption[];
+  /** Render a "Save current as…" trigger if provided. */
+  onSaveCurrent?: () => void;
+}
+
+export function BugFilters({
+  value,
+  onChange,
+  projectOptions,
+  onSaveCurrent,
+}: BugFiltersProps) {
+  return (
+    <div className="flex flex-wrap items-end gap-2">
+      <div className="min-w-[200px] flex-1">
+        <Input
+          placeholder="Search bugs…"
+          value={value.q ?? ''}
+          onChange={(e) => onChange({ ...value, q: e.target.value })}
+        />
+      </div>
+
+      <Select
+        value={value.status ?? 'active_visible'}
+        onValueChange={(v) =>
+          onChange({
+            ...value,
+            status: v === 'active_visible' ? undefined : (v as BugStatus | 'all'),
+          })
+        }
+      >
+        <ZoruSelectTrigger className="w-[150px]">
+          <ZoruSelectValue placeholder="Status" />
+        </ZoruSelectTrigger>
+        <ZoruSelectContent>
+          <ZoruSelectItem value="active_visible">Active (default)</ZoruSelectItem>
+          <ZoruSelectItem value="all">All</ZoruSelectItem>
+          {BUG_STATUSES.map((s) => (
+            <ZoruSelectItem key={s} value={s}>
+              {s}
+            </ZoruSelectItem>
+          ))}
+        </ZoruSelectContent>
+      </Select>
+
+      <Select
+        value={value.severity ?? 'any'}
+        onValueChange={(v) =>
+          onChange({
+            ...value,
+            severity: v === 'any' ? undefined : (v as BugSeverity),
+          })
+        }
+      >
+        <ZoruSelectTrigger className="w-[140px]">
+          <ZoruSelectValue placeholder="Severity" />
+        </ZoruSelectTrigger>
+        <ZoruSelectContent>
+          <ZoruSelectItem value="any">Any severity</ZoruSelectItem>
+          {BUG_SEVERITIES.map((s) => (
+            <ZoruSelectItem key={s} value={s}>
+              {s}
+            </ZoruSelectItem>
+          ))}
+        </ZoruSelectContent>
+      </Select>
+
+      <Select
+        value={value.priority ?? 'any'}
+        onValueChange={(v) =>
+          onChange({
+            ...value,
+            priority: v === 'any' ? undefined : (v as BugPriority),
+          })
+        }
+      >
+        <ZoruSelectTrigger className="w-[140px]">
+          <ZoruSelectValue placeholder="Priority" />
+        </ZoruSelectTrigger>
+        <ZoruSelectContent>
+          <ZoruSelectItem value="any">Any priority</ZoruSelectItem>
+          {BUG_PRIORITIES.map((p) => (
+            <ZoruSelectItem key={p} value={p}>
+              {p}
+            </ZoruSelectItem>
+          ))}
+        </ZoruSelectContent>
+      </Select>
+
+      <Select
+        value={value.projectId ?? 'any'}
+        onValueChange={(v) =>
+          onChange({ ...value, projectId: v === 'any' ? undefined : v })
+        }
+      >
+        <ZoruSelectTrigger className="w-[180px]">
+          <ZoruSelectValue placeholder="Project" />
+        </ZoruSelectTrigger>
+        <ZoruSelectContent>
+          <ZoruSelectItem value="any">Any project</ZoruSelectItem>
+          {projectOptions.map((p) => (
+            <ZoruSelectItem key={p.id} value={p.id}>
+              {p.name}
+            </ZoruSelectItem>
+          ))}
+        </ZoruSelectContent>
+      </Select>
+
+      <Button
+        type="button"
+        variant={value.mine ? 'default' : 'outline'}
+        onClick={() => onChange({ ...value, mine: !value.mine })}
+      >
+        My bugs
+      </Button>
+
+      {onSaveCurrent ? (
+        <Button type="button" variant="outline" onClick={onSaveCurrent}>
+          Save filter
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
+export function toListParams(v: BugFiltersValue): BugListParams {
+  return {
+    q: v.q || undefined,
+    status: v.status,
+    severity: v.severity,
+    priority: v.priority,
+    projectId: v.projectId,
+    mine: v.mine || undefined,
+  };
+}

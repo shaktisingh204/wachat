@@ -149,7 +149,7 @@ function BrandSidebar() {
     }, [searchQuery, sortAsc]);
 
     return (
-        <aside className="relative hidden overflow-hidden bg-gradient-to-br from-zoru-primary/90 via-zoru-primary to-zoru-primary/70 text-zoru-on-primary lg:flex lg:flex-col lg:justify-between lg:p-12">
+        <aside className="relative hidden overflow-hidden bg-zoru-ink text-zoru-on-primary lg:flex lg:flex-col lg:justify-between lg:p-12">
             <div
                 aria-hidden
                 className="pointer-events-none absolute inset-0 opacity-20"
@@ -161,9 +161,6 @@ function BrandSidebar() {
             <div className="relative flex items-center gap-3">
                 <Link href="/" className="flex items-center gap-2 transition-transform hover:scale-105">
                     <SabNodeLogo className="h-8 w-auto text-white" />
-                    <span className="text-lg font-semibold tracking-tight">
-                        SabNode
-                    </span>
                 </Link>
             </div>
 
@@ -243,7 +240,6 @@ function LoginMain() {
                 <div className="flex items-center justify-between lg:hidden">
                     <Link href="/" className="flex items-center gap-2">
                         <SabNodeLogo className="h-7 w-auto" />
-                        <span className="font-semibold">SabNode</span>
                     </Link>
                 </div>
 

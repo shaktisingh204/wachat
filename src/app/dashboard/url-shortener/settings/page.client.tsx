@@ -7,18 +7,25 @@ import {
   ZoruCardHeader,
   ZoruCardTitle,
   Separator,
+  Skeleton,
 } from '@/components/zoruui';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { Globe } from 'lucide-react';
 import { getCustomDomains } from '@/app/actions/url-shortener.actions';
-import type { WithId, CustomDomain } from '@/lib/definitions';
+import { getSession } from '@/app/actions/index.ts';
+import type { WithId, CustomDomain, User, Tag } from '@/lib/definitions';
 import { DomainStepper } from './_components/domain-stepper';
 import { DomainList } from './_components/domain-list';
 import { DeveloperOptions } from './_components/developer-options';
+import { TagsSettingsTab } from '@/components/wabasimplify/tags-settings-tab';
+
+type SessionUser = Omit<User, 'password'> & { _id: string; tags?: Tag[] };
 
 export default function UrlShortenerSettingsPage() {
   const [domains, setDomains] = useState<WithId<CustomDomain>[]>([]);
+  const [user, setUser] = useState<SessionUser | null>(null);
   const [isLoading, startLoadingTransition] = useTransition();
+  const [isUserLoading, startUserLoadingTransition] = useTransition();
 
   const fetchData = useCallback(() => {
     startLoadingTransition(async () => {
@@ -27,9 +34,17 @@ export default function UrlShortenerSettingsPage() {
     });
   }, []);
 
+  const fetchUser = useCallback(() => {
+    startUserLoadingTransition(async () => {
+      const session = await getSession();
+      setUser((session?.user as SessionUser | undefined) ?? null);
+    });
+  }, []);
+
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    fetchUser();
+  }, [fetchData, fetchUser]);
 
   const handleDomainAdded = async () => {
     const data = await getCustomDomains();
@@ -40,7 +55,7 @@ export default function UrlShortenerSettingsPage() {
     <div className="flex flex-col gap-8 max-w-5xl">
       <div>
         <h1 className="text-3xl text-zoru-ink">URL Shortener Settings</h1>
-        <p className="text-zoru-ink-muted">Configure custom domains and developer settings for your short links.</p>
+        <p className="text-zoru-ink-muted">Configure custom domains, tags, and developer settings for your short links.</p>
       </div>
 
       <Card>
@@ -66,6 +81,12 @@ export default function UrlShortenerSettingsPage() {
           />
         </ZoruCardContent>
       </Card>
+
+      {isUserLoading ? (
+        <Skeleton className="h-72 w-full" />
+      ) : user ? (
+        <TagsSettingsTab user={user} />
+      ) : null}
 
       <DeveloperOptions />
     </div>

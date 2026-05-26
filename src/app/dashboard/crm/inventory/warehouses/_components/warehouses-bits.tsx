@@ -277,7 +277,7 @@ export function WarehousesFiltersRow({
                     entity="state"
                     name="stateFilter"
                     initialId={filters.state || null}
-                    filter={filters.country ? { country: filters.country } : undefined}
+                    filter={filters.country ? { countryCode: filters.country } : undefined}
                     disabled={!filters.country}
                     placeholder="Any state"
                     onChange={(next) =>
@@ -296,11 +296,14 @@ export function WarehousesFiltersRow({
                         name="cityFilter"
                         initialId={filters.city || null}
                         filter={
-                            filters.state
-                                ? { state: filters.state }
-                                : filters.country
-                                  ? { country: filters.country }
-                                  : undefined
+                            filters.country
+                                ? {
+                                      countryCode: filters.country,
+                                      ...(filters.state
+                                          ? { stateCode: filters.state.includes(':') ? filters.state.split(':')[1] : filters.state }
+                                          : {}),
+                                  }
+                                : undefined
                         }
                         disabled={!filters.country}
                         placeholder="Any city"

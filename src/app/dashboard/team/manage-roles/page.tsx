@@ -62,6 +62,7 @@ import {
     deleteRole,
 } from '@/app/actions/crm-roles.actions';
 import type { WithId, User } from '@/lib/definitions';
+import { moduleCategories } from '@/lib/permission-modules';
 
 const initialState = { message: undefined, error: undefined } as {
     message?: string;
@@ -70,177 +71,20 @@ const initialState = { message: undefined, error: undefined } as {
 
 const actions = ['view', 'create', 'edit', 'delete'] as const;
 
-// Full module list mirrors dashboard-config.ts so each role can be
-// scoped with view/create/edit/delete across every feature area.
-const permissionCategories: Record<string, { label: string; modules: Array<{ id: string; name: string }> }> = {
-    wachat: {
-        label: 'WaChat Core',
-        modules: [
-            { id: 'wachat_overview', name: 'Overview' },
-            { id: 'wachat_chat', name: 'Live Chat' },
-            { id: 'wachat_contacts', name: 'Contacts' },
-            { id: 'wachat_campaigns', name: 'Campaigns' },
-            { id: 'wachat_templates', name: 'Templates' },
-            { id: 'wachat_catalog', name: 'Ecomm + Catalog' },
-            { id: 'wachat_calls', name: 'Calls' },
-            { id: 'wachat_flow_builder', name: 'Flow Builder' },
-            { id: 'wachat_flows', name: 'Meta Flows (Beta)' },
-            { id: 'wachat_integrations', name: 'Integrations' },
-            { id: 'wachat_whatsapp_pay', name: 'WhatsApp Pay' },
-            { id: 'wachat_numbers', name: 'Numbers' },
-            { id: 'wachat_webhooks', name: 'Webhooks' },
-            { id: 'wachat_settings', name: 'Project Settings' },
-        ],
-    },
-    crm: {
-        label: 'CRM Suite',
-        modules: [
-            { id: 'crm_dashboard', name: 'CRM Dashboard' },
-            { id: 'crm_clients', name: 'Sales: Clients & Prospects' },
-            { id: 'crm_quotations', name: 'Sales: Quotations' },
-            { id: 'crm_proforma', name: 'Sales: Proforma Invoices' },
-            { id: 'crm_invoices', name: 'Sales: Invoices' },
-            { id: 'crm_receipts', name: 'Sales: Payment Receipts' },
-            { id: 'crm_orders', name: 'Sales: Sales Orders' },
-            { id: 'crm_delivery', name: 'Sales: Delivery Challans' },
-            { id: 'crm_credit_notes', name: 'Sales: Credit Notes' },
-            { id: 'crm_vendors', name: 'Purchases: Vendors' },
-            { id: 'crm_expenses', name: 'Purchases: Expenses' },
-            { id: 'crm_purchase_orders', name: 'Purchases: Orders' },
-            { id: 'crm_payouts', name: 'Purchases: Payout Receipts' },
-            { id: 'crm_debit_notes', name: 'Purchases: Debit Notes' },
-            { id: 'crm_items', name: 'Inventory: All Items' },
-            { id: 'crm_warehouses', name: 'Inventory: Warehouses' },
-            { id: 'crm_inventory_pnl', name: 'Inventory: Product P&L' },
-            { id: 'crm_stock_value', name: 'Inventory: Stock Value' },
-            { id: 'crm_batch_expiry', name: 'Inventory: Batch Expiry' },
-            { id: 'crm_party_transactions', name: 'Inventory: Party Trans.' },
-            { id: 'crm_all_transactions', name: 'Inventory: All Trans.' },
-            { id: 'crm_account_groups', name: 'Accts: Groups' },
-            { id: 'crm_chart_of_accounts', name: 'Accts: Chart of Accounts' },
-            { id: 'crm_vouchers', name: 'Accts: Vouchers' },
-            { id: 'crm_balance_sheet', name: 'Accts: Balance Sheet' },
-            { id: 'crm_trial_balance', name: 'Accts: Trial Balance' },
-            { id: 'crm_pnl', name: 'Accts: Profit & Loss' },
-            { id: 'crm_income_statement', name: 'Accts: Income Statement' },
-            { id: 'crm_day_book', name: 'Accts: Day Book' },
-            { id: 'crm_cash_flow', name: 'Accts: Cash Flow' },
-            { id: 'crm_leads', name: 'Leads & Contacts' },
-            { id: 'crm_deals', name: 'Deals Pipeline' },
-            { id: 'crm_tasks', name: 'Tasks' },
-            { id: 'crm_automations', name: 'Automations' },
-            { id: 'crm_pipelines', name: 'Manage Pipelines' },
-            { id: 'crm_forms', name: 'Forms' },
-            { id: 'crm_analytics', name: 'CRM Analytics' },
-            { id: 'crm_reports', name: 'Sales Reports' },
-            { id: 'crm_banking_accounts', name: 'Banking: All Accounts' },
-            { id: 'crm_banking_employee', name: 'Banking: Employee Accts' },
-            { id: 'crm_banking_reconciliation', name: 'Banking: Reconciliation' },
-            { id: 'crm_employees', name: 'HR: Employee Directory' },
-            { id: 'crm_attendance', name: 'HR: Attendance' },
-            { id: 'crm_payroll', name: 'HR: Payroll' },
-            { id: 'crm_gstr1', name: 'Reports: GSTR-1' },
-            { id: 'crm_gstr2b', name: 'Reports: GSTR-2B' },
-            { id: 'crm_settings', name: 'CRM Settings' },
-        ],
-    },
-    meta: {
-        label: 'Meta Suite',
-        modules: [
-            { id: 'facebook_dashboard', name: 'FB: Dashboard' },
-            { id: 'facebook_posts', name: 'FB: Posts' },
-            { id: 'facebook_scheduled', name: 'FB: Scheduled' },
-            { id: 'facebook_live', name: 'FB: Live Studio' },
-            { id: 'facebook_randomizer', name: 'FB: Post Randomizer' },
-            { id: 'facebook_messages', name: 'FB: Messages' },
-            { id: 'facebook_kanban', name: 'FB: Kanban' },
-            { id: 'facebook_automation', name: 'FB: Auto-Reply' },
-            { id: 'facebook_shops', name: 'FB: Shops Dashboard' },
-            { id: 'facebook_products', name: 'FB: Products' },
-            { id: 'facebook_shop_setup', name: 'FB: Shop Setup' },
-            { id: 'facebook_orders', name: 'FB: Orders' },
-            { id: 'instagram_dashboard', name: 'IG: Dashboard' },
-            { id: 'instagram_feed', name: 'IG: Feed' },
-            { id: 'instagram_stories', name: 'IG: Stories' },
-            { id: 'instagram_reels', name: 'IG: Reels' },
-            { id: 'instagram_messages', name: 'IG: Messages' },
-            { id: 'instagram_discovery', name: 'IG: Discovery' },
-            { id: 'instagram_hashtags', name: 'IG: Hashtags' },
-            { id: 'ad_manager_accounts', name: 'Ads: Accounts' },
-            { id: 'ad_manager_campaigns', name: 'Ads: Campaigns' },
-            { id: 'ad_manager_audiences', name: 'Ads: Audiences' },
-        ],
-    },
-    telegram: {
-        label: 'Telegram',
-        modules: [
-            { id: 'telegram_dashboard', name: 'Dashboard' },
-            { id: 'telegram_bots', name: 'Bots' },
-            { id: 'telegram_chat', name: 'Live Chat' },
-            { id: 'telegram_contacts', name: 'Contacts' },
-            { id: 'telegram_broadcasts', name: 'Broadcasts' },
-            { id: 'telegram_channels', name: 'Channels' },
-            { id: 'telegram_commands', name: 'Commands' },
-            { id: 'telegram_auto_reply', name: 'Auto Reply' },
-            { id: 'telegram_payments', name: 'Payments' },
-            { id: 'telegram_stickers', name: 'Stickers' },
-            { id: 'telegram_mini_apps', name: 'Mini Apps' },
-            { id: 'telegram_settings', name: 'Settings' },
-        ],
-    },
-    tools: {
-        label: 'App Tools',
-        modules: [
-            { id: 'email_dashboard', name: 'Email: Dashboard' },
-            { id: 'email_inbox', name: 'Email: Inbox' },
-            { id: 'email_campaigns', name: 'Email: Campaigns' },
-            { id: 'email_contacts', name: 'Email: Contacts' },
-            { id: 'email_templates', name: 'Email: Templates' },
-            { id: 'email_analytics', name: 'Email: Analytics' },
-            { id: 'email_verification', name: 'Email: Verification' },
-            { id: 'email_settings', name: 'Email: Settings' },
-            { id: 'sabsms_overview', name: 'SabSMS: Overview' },
-            { id: 'sabsms_inbox', name: 'SabSMS: Inbox' },
-            { id: 'sabsms_campaigns', name: 'SabSMS: Campaigns' },
-            { id: 'sabsms_templates', name: 'SabSMS: Templates' },
-            { id: 'sabsms_drips', name: 'SabSMS: Drip sequences' },
-            { id: 'sabsms_numbers', name: 'SabSMS: Numbers' },
-            { id: 'sabsms_providers', name: 'SabSMS: Providers' },
-            { id: 'sabsms_suppressions', name: 'SabSMS: Suppressions' },
-            { id: 'sabsms_compliance', name: 'SabSMS: Compliance' },
-            { id: 'sabsms_analytics', name: 'SabSMS: Analytics' },
-            { id: 'sabsms_webhooks', name: 'SabSMS: Webhooks' },
-            { id: 'sabsms_api_keys', name: 'SabSMS: API keys' },
-            { id: 'sabsms_settings', name: 'SabSMS: Settings' },
-            { id: 'sabchat_inbox', name: 'SabChat: Inbox' },
-            { id: 'sabchat_visitors', name: 'SabChat: Live Visitors' },
-            { id: 'sabchat_analytics', name: 'SabChat: Analytics' },
-            { id: 'sabchat_widget', name: 'SabChat: Widget Setup' },
-            { id: 'sabchat_auto_reply', name: 'SabChat: Auto Reply' },
-            { id: 'sabchat_quick_replies', name: 'SabChat: Quick Replies' },
-            { id: 'sabchat_ai_replies', name: 'SabChat: AI Replies' },
-            { id: 'sabchat_faq', name: 'SabChat: FAQ' },
-            { id: 'sabchat_settings', name: 'SabChat: Settings' },
-            { id: 'website_builder', name: 'Website Builder' },
-            { id: 'url_shortener', name: 'URL Shortener' },
-            { id: 'qr_code_maker', name: 'QR Code Maker' },
-            { id: 'seo_dashboard', name: 'SEO: Dashboard' },
-            { id: 'seo_brand_radar', name: 'SEO: Brand Radar' },
-            { id: 'seo_site_explorer', name: 'SEO: Site Explorer' },
-        ],
-    },
-    admin: {
-        label: 'Admin',
-        modules: [
-            { id: 'team_users', name: 'Team: Manage Users' },
-            { id: 'team_roles', name: 'Team: Manage Roles' },
-            { id: 'team_tasks', name: 'Team: Tasks' },
-            { id: 'team_chat', name: 'Team: Chat' },
-            { id: 'api_keys', name: 'API Keys' },
-            { id: 'api_docs', name: 'API Docs' },
-        ],
-    },
-};
+const permissionCategories = Object.entries(moduleCategories).reduce((acc, [label, modules]) => {
+    acc[label] = {
+        label,
+        modules: modules.map(m => {
+            const name = m
+                .split(/[_.]/)
+                .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                .join(' ');
+            return { id: m, name };
+        })
+    };
+    return acc;
+}, {} as Record<string, { label: string; modules: Array<{ id: string; name: string }> }>);
+
 
 /* ── Sticky save bar ─────────────────────────────────────────────── */
 
@@ -408,17 +252,16 @@ function RoleCard({
 }) {
     const [open, setOpen] = useState(defaultOpen);
     const [activeCategory, setActiveCategory] = useState<string>(Object.keys(permissionCategories)[0]);
-
-    const permissions = role.permissions || {};
+    const [perms, setPerms] = useState<RolePerms>(role.permissions || {});
 
     const enabledCount = useMemo(() => {
         let n = 0;
-        for (const mod of Object.values(permissions)) {
+        for (const mod of Object.values(perms)) {
             if (!mod) continue;
             for (const a of actions) if (mod[a]) n += 1;
         }
         return n;
-    }, [permissions]);
+    }, [perms]);
 
     return (
         <Card className="overflow-hidden p-0">
@@ -489,11 +332,27 @@ function RoleCard({
                                         <div className="overflow-hidden rounded-xl border border-zoru-line">
                                             <div className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] gap-0 bg-zoru-surface-2/50 px-4 py-2.5 text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                                                 <span>Module</span>
-                                                {actions.map((a) => (
-                                                    <span key={a} className="text-center capitalize">
-                                                        {a}
-                                                    </span>
-                                                ))}
+                                                {actions.map((a) => {
+                                                    const allChecked = cat.modules.every(m => perms[m.id]?.[a]);
+                                                    const someChecked = cat.modules.some(m => perms[m.id]?.[a]);
+                                                    return (
+                                                    <div key={a} className="flex items-center justify-center gap-1">
+                                                        <Checkbox
+                                                            checked={allChecked ? true : someChecked ? 'indeterminate' : false}
+                                                            onCheckedChange={(val) => {
+                                                                const newVal = val === true || val === 'indeterminate';
+                                                                setPerms(prev => {
+                                                                    const next = { ...prev };
+                                                                    cat.modules.forEach(m => {
+                                                                        next[m.id] = { ...(next[m.id] || {}), [a]: newVal };
+                                                                    });
+                                                                    return next;
+                                                                });
+                                                            }}
+                                                        />
+                                                        <span className="text-center capitalize">{a}</span>
+                                                    </div>
+                                                )})}
                                             </div>
                                             <div className="divide-y divide-zoru-line">
                                                 {cat.modules.map((mod) => (
@@ -506,9 +365,16 @@ function RoleCard({
                                                             <div key={action} className="flex justify-center">
                                                                 <Checkbox
                                                                     name={`${role.id}_${mod.id}_${action}`}
-                                                                    defaultChecked={
-                                                                        permissions[mod.id]?.[action] ?? false
-                                                                    }
+                                                                    checked={perms[mod.id]?.[action] ?? false}
+                                                                    onCheckedChange={(val) => {
+                                                                        setPerms(prev => ({
+                                                                            ...prev,
+                                                                            [mod.id]: {
+                                                                                ...(prev[mod.id] || {}),
+                                                                                [action]: val === true
+                                                                            }
+                                                                        }));
+                                                                    }}
                                                                 />
                                                             </div>
                                                         ))}

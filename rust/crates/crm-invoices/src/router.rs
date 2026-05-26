@@ -17,29 +17,13 @@ use axum::{
     Router,
     extract::FromRef,
     routing::get,
+    routing::post,
 };
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
-use crate::handlers;
+use crate::{handlers, stripe};
 
-/// Build the router.
-///
-/// Routes (mounted relative — caller nests under `/v1/crm/invoices`):
-///
-/// ```text
-/// GET    /                  — list_invoices
-/// POST   /                  — create_invoice
-/// GET    /{invoiceId}       — get_invoice
-/// PATCH  /{invoiceId}       — update_invoice
-/// DELETE /{invoiceId}       — delete_invoice
-/// ```
-///
-/// `S` is the caller's outer application state. Handlers need a
-/// [`MongoHandle`] (data access) and `Arc<AuthConfig>` (the JWT
-/// verifier the `AuthUser` extractor reads). Both are pulled via
-/// [`FromRef`] so this crate stays decoupled from the orchestrator's
-/// concrete `AppState`.
 pub fn router<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
@@ -56,5 +40,13 @@ where
             get(handlers::get_invoice)
                 .patch(handlers::update_invoice)
                 .delete(handlers::delete_invoice),
+        )
+        .route(
+            "/public/:hash/stripe-checkout",
+            post(stripe::start_stripe_checkout),
+        )
+        .route(
+            "/stripe-webhook",
+            post(stripe::stripe_webhook),
         )
 }

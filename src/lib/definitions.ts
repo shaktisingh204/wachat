@@ -82,23 +82,53 @@ export type SabChatQuickReply = {
     message: string;
 };
 
+export type SabChatPreChatField = {
+    name: string;
+    type: 'text' | 'email' | 'tel';
+    label: string;
+    required: boolean;
+    enabled: boolean;
+};
+
 export type SabChatSettings = {
     enabled?: boolean;
     widgetColor?: string;
+    widgetPosition?: 'left' | 'right';
+    darkMode?: 'light' | 'dark' | 'auto';
     teamName?: string;
+    welcomeTagline?: string;
+    companyLogo?: string;
     avatarUrl?: string;
+    replyTime?: string;
+    // Pre-chat form
+    preChatFormEnabled?: boolean;
+    preChatFormMessage?: string;
+    preChatFields?: SabChatPreChatField[];
     // Auto-reply
     welcomeEnabled?: boolean;
     welcomeMessage?: string;
     awayMessageEnabled?: boolean;
     awayMessage?: string;
     officeHours?: any;
+    hideOutsideBusinessHours?: boolean;
+    // Advanced / Features
+    csatSurveyEnabled?: boolean;
+    fileAttachmentsEnabled?: boolean;
+    emojiPickerEnabled?: boolean;
+    requireConsent?: boolean;
     // AI
     aiEnabled?: boolean;
     aiContext?: string;
+    aiPersona?: 'professional' | 'friendly' | 'humorous';
+    aiFallbackAction?: 'escalate' | 'handoff_to_human' | 'continue';
+    aiResponseLength?: 'short' | 'medium' | 'detailed';
     faqs?: SabChatFaqItem[];
     // Agent tools
     quickReplies?: SabChatQuickReply[];
+    // Routing & Advanced
+    urlRoutingEnabled?: boolean;
+    widgetSoundAlerts?: boolean;
+    businessHoursTimezone?: string;
 };
 
 export type SabChatMessage = {

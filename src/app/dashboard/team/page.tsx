@@ -17,8 +17,12 @@ import {
 } from '@/components/zoruui';
 import {
   useEffect,
-  useState } from 'react';
+  useState,
+  useRef,
+} from 'react';
 import Link from 'next/link';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import {
     Users,
   ShieldCheck,
@@ -146,8 +150,24 @@ export default function TeamOverviewPage() {
         };
     }, []);
 
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useGSAP(
+        () => {
+            if (loading) return; // Wait for initial loading
+            
+            const tl = gsap.timeline();
+            tl.fromTo(
+                '.gsap-fade-in',
+                { opacity: 0, y: 15 },
+                { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out' },
+            );
+        },
+        { scope: containerRef, dependencies: [loading] }
+    );
+
     return (
-        <div className="flex min-h-full flex-col gap-6">
+        <div ref={containerRef} className="flex min-h-full flex-col gap-6">
             <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
@@ -172,7 +192,7 @@ export default function TeamOverviewPage() {
             </PageHeader>
 
             {/* Stat cards */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="gsap-fade-in grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <StatCard
                     loading={loading}
                     label="Team members"
@@ -196,7 +216,7 @@ export default function TeamOverviewPage() {
             </div>
 
             {/* Module tiles */}
-            <div>
+            <div className="gsap-fade-in">
                 <h2 className="mb-3 text-[14px] text-zoru-ink">Quick actions</h2>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {MODULE_TILES.map((tile) => (
@@ -224,7 +244,7 @@ export default function TeamOverviewPage() {
             </div>
 
             {/* Recent invites */}
-            <Card className="p-6">
+            <Card className="gsap-fade-in p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-[14px] text-zoru-ink">Recent invitations</h2>

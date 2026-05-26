@@ -181,7 +181,7 @@ export function SettingsClient({ config, pipelines, leadStatuses }: Props) {
   const CURRENCIES = ['INR', 'USD', 'EUR', 'GBP', 'AED', 'SGD', 'AUD'];
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 w-full">
       <div>
         <h1 className="text-2xl font-semibold text-zoru-ink">Sales CRM Settings</h1>
         <p className="mt-1 text-sm text-zoru-ink-muted">

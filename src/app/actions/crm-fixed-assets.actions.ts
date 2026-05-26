@@ -223,3 +223,31 @@ export async function saveFixedAsset(
     return { error: 'Failed to save fixed asset. Please try again.' };
   }
 }
+
+/**
+ * Triggers the depreciation calculation for a given asset.
+ */
+export async function depreciateFixedAsset(
+    assetId: string,
+): Promise<{ message?: string; error?: string; asset?: Record<string, unknown> }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
+    if (!assetId) return { error: 'Invalid asset ID.' };
+
+    const guard = await requirePermission('crm_asset', 'update');
+    if (!guard.ok) return { error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmFixedAssetsApi.depreciate(assetId);
+            revalidatePath('/dashboard/crm/fixed-assets');
+            return { message: 'Asset depreciated successfully.', asset: rustDocToLegacy(doc) };
+        } catch (e) {
+            console.error('[depreciateFixedAsset] rust path failed:', e);
+            recordRustFallback({ entity: 'fixed_asset', op: 'depreciate', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+            return { error: 'Failed to depreciate asset.' };
+        }
+    }
+
+    return { error: 'Legacy depreciation path is not supported. Enable Rust CRM.' };
+}

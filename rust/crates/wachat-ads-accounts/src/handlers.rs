@@ -166,6 +166,80 @@ pub async fn get_ad_accounts(
 }
 
 // =========================================================================
+//  syncAdAccounts  (POST /sync)
+// =========================================================================
+
+pub async fn sync_ad_accounts(
+    user: AuthUser,
+    State(s): State<WachatAdsAccountsState>,
+) -> Json<AdAccountsResp> {
+    let u = match load_user_doc(&user, &s.mongo).await {
+        Ok(u) => u,
+        Err(_) => {
+            return Json(AdAccountsResp {
+                accounts: Vec::new(),
+                error: Some("Authentication required.".to_owned()),
+            });
+        }
+    };
+    let token = match require_ad_manager_token(&u) {
+        Ok(t) => t,
+        Err(e) => {
+            return Json(AdAccountsResp {
+                accounts: Vec::new(),
+                error: Some(e.to_owned()),
+            });
+        }
+    };
+
+    let path = "me/adaccounts?fields=id,name,account_id";
+    match graph_get(&s.meta, path, token).await {
+        Ok(v) => {
+            let accounts = pull_data_array(&v);
+            let user_oid = u.id;
+            let coll = s.mongo.collection::<Document>(USERS_COLLECTION);
+            
+            let mut bson_accounts = Vec::new();
+            for acc in &accounts {
+                let id = acc.get("id").and_then(|v| v.as_str());
+                let name = acc.get("name").and_then(|v| v.as_str());
+                let account_id = acc.get("account_id").and_then(|v| v.as_str());
+                if let (Some(id), Some(name), Some(account_id)) = (id, name, account_id) {
+                    bson_accounts.push(bson::Bson::Document(doc! {
+                        "id": id,
+                        "name": name,
+                        "account_id": account_id,
+                    }));
+                }
+            }
+            
+            let res = coll
+                .update_one(
+                    doc! { "_id": user_oid },
+                    doc! { "$set": { "metaAdAccounts": bson::Bson::Array(bson_accounts) } },
+                )
+                .await;
+                
+            if let Err(e) = res {
+                return Json(AdAccountsResp {
+                    accounts,
+                    error: Some(format!("Failed to sync ad accounts: {}", e)),
+                });
+            }
+            
+            Json(AdAccountsResp {
+                accounts,
+                ..Default::default()
+            })
+        }
+        Err(e) => Json(AdAccountsResp {
+            accounts: Vec::new(),
+            error: Some(err_msg(e)),
+        }),
+    }
+}
+
+// =========================================================================
 //  getAdAccountDetails  (GET /:ad_account_id)
 // =========================================================================
 

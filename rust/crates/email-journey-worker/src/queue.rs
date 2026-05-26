@@ -16,7 +16,7 @@ use async_trait::async_trait;
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use email_types::{
-    collections::{JOURNEYS, JOURNEY_RUNS, SUBSCRIBERS},
+    collections::{JOURNEY_RUNS, JOURNEYS, SUBSCRIBERS},
     journey::{EmailJourneyWait, WaitUnit},
     segment::EmailFilterTree,
 };
@@ -42,7 +42,9 @@ const JOB_JOURNEY_STEP: &str = "journey-step";
 
 /// Run the BullMQ consumer to completion.
 pub async fn run_consumer(state: EmailJourneyWorkerState) -> Result<()> {
-    let handler = Arc::new(JourneyHandler { state: state.clone() });
+    let handler = Arc::new(JourneyHandler {
+        state: state.clone(),
+    });
     let worker = Worker::new(
         state.redis.clone(),
         JOURNEY_QUEUE,
@@ -104,11 +106,12 @@ async fn handle_tick(state: &EmailJourneyWorkerState, data: &Value) -> Result<Va
     // Refuse to tick non-active runs — the run may have been cancelled
     // out of band (e.g. subscriber unsubscribed by another action).
     let run_status = run.get_str("status").unwrap_or("");
-    if matches!(
-        run_status,
-        "completed" | "exited" | "errored"
-    ) {
-        info!(run_id, status = run_status, "skipping tick — run terminated");
+    if matches!(run_status, "completed" | "exited" | "errored") {
+        info!(
+            run_id,
+            status = run_status,
+            "skipping tick — run terminated"
+        );
         return Ok(json!({ "kind": "journey-tick", "skipped": run_status }));
     }
 
@@ -155,11 +158,7 @@ async fn handle_tick(state: &EmailJourneyWorkerState, data: &Value) -> Result<Va
             });
             let opts = JobOptions {
                 attempts: 5,
-                job_id: Some(format!(
-                    "journey_step_{}_{}",
-                    run_oid.to_hex(),
-                    node_id
-                )),
+                job_id: Some(format!("journey_step_{}_{}", run_oid.to_hex(), node_id)),
                 ..Default::default()
             };
             state
@@ -205,8 +204,7 @@ async fn handle_tick(state: &EmailJourneyWorkerState, data: &Value) -> Result<Va
         }
         "condition" => {
             // Evaluate filter against the subscriber doc.
-            let decision =
-                eval_condition(state, &node_data, tenant_oid, subscriber_oid).await?;
+            let decision = eval_condition(state, &node_data, tenant_oid, subscriber_oid).await?;
             history_entry.insert("decision", if decision { "true" } else { "false" });
             let handle = if decision { "true" } else { "false" };
             first_outgoing(&journey, node_id, Some(handle))
@@ -345,8 +343,8 @@ async fn handle_enroll_bulk(state: &EmailJourneyWorkerState, data: &Value) -> Re
     let tenant_oid = journey
         .get_object_id("userId")
         .map_err(|_| anyhow!("journey missing userId"))?;
-    let entry_node_id = entry_node_id_of(&journey)
-        .ok_or_else(|| anyhow!("journey has no entry node"))?;
+    let entry_node_id =
+        entry_node_id_of(&journey).ok_or_else(|| anyhow!("journey has no entry node"))?;
 
     let now: bson::DateTime = Utc::now().into();
     let mut runs: Vec<Document> = Vec::with_capacity(subscriber_ids.len());
@@ -406,7 +404,11 @@ async fn handle_enroll_bulk(state: &EmailJourneyWorkerState, data: &Value) -> Re
             job_id: Some(format!("journey_tick_{}", run_oid.to_hex())),
             ..Default::default()
         };
-        if let Err(e) = state.bull.add(JOURNEY_QUEUE, JOB_TICK, &payload, opts).await {
+        if let Err(e) = state
+            .bull
+            .add(JOURNEY_QUEUE, JOB_TICK, &payload, opts)
+            .await
+        {
             warn!(error = ?e, run_id = %run_oid.to_hex(), "failed to enqueue initial tick");
         }
     }
@@ -418,10 +420,7 @@ async fn handle_enroll_bulk(state: &EmailJourneyWorkerState, data: &Value) -> Re
 // Helpers — Mongo loads, node lookup, edge selection
 // ===========================================================================
 
-async fn load_journey(
-    state: &EmailJourneyWorkerState,
-    journey_id: &str,
-) -> Result<Document> {
+async fn load_journey(state: &EmailJourneyWorkerState, journey_id: &str) -> Result<Document> {
     let oid = ObjectId::parse_str(journey_id).map_err(|e| anyhow!("invalid journeyId: {e}"))?;
     state
         .mongo
@@ -518,7 +517,10 @@ fn entry_node_id_of(journey: &Document) -> Option<String> {
 
 fn parse_wait(node_data: &Document) -> Option<EmailJourneyWait> {
     let wf = node_data.get_document("waitFor").ok()?;
-    let value = wf.get_i64("value").or_else(|_| wf.get_i32("value").map(i64::from)).ok()? as u64;
+    let value = wf
+        .get_i64("value")
+        .or_else(|_| wf.get_i32("value").map(i64::from))
+        .ok()? as u64;
     let unit_raw = wf.get_str("unit").ok()?;
     let unit = match unit_raw {
         "minutes" => WaitUnit::Minutes,
@@ -552,8 +554,8 @@ async fn eval_condition(
         // No filter → treat as truthy.
         return Ok(true);
     };
-    let tree: EmailFilterTree = bson::from_bson(cond_bson.clone())
-        .context("condition.decode (EmailFilterTree)")?;
+    let tree: EmailFilterTree =
+        bson::from_bson(cond_bson.clone()).context("condition.decode (EmailFilterTree)")?;
     let mut filter = filter_to_mongo(&tree);
     filter.insert("_id", subscriber_oid);
     filter.insert("userId", tenant_oid);
@@ -582,7 +584,10 @@ async fn execute_action(
         return Ok(());
     };
     let kind = action_doc.get_str("kind").unwrap_or("").to_owned();
-    let config = action_doc.get_document("config").cloned().unwrap_or_default();
+    let config = action_doc
+        .get_document("config")
+        .cloned()
+        .unwrap_or_default();
 
     let subs = state.mongo.collection::<Document>(SUBSCRIBERS);
     let filter = doc! { "_id": subscriber_oid, "userId": tenant_oid };
@@ -758,4 +763,80 @@ pub async fn enqueue_enroll_bulk(
         .await
         .map_err(|e| anyhow!("enqueue enroll-bulk: {e}"))?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use bson::doc;
+
+    #[test]
+    fn test_first_outgoing_fallback() {
+        let journey = doc! {
+            "edges": [
+                { "source": "node1", "target": "node2" },
+                { "source": "node1", "target": "node3", "sourceHandle": "true" }
+            ]
+        };
+        // Matches handle
+        assert_eq!(
+            first_outgoing(&journey, "node1", Some("true")).unwrap(),
+            "node3"
+        );
+        // Fallback to first if handle not found
+        assert_eq!(
+            first_outgoing(&journey, "node1", Some("false")).unwrap(),
+            "node2"
+        );
+        assert_eq!(first_outgoing(&journey, "node1", None).unwrap(), "node2");
+        // No match
+        assert_eq!(first_outgoing(&journey, "nodeX", None), None);
+    }
+
+    #[test]
+    fn test_entry_node_id_of() {
+        let journey = doc! {
+            "nodes": [
+                { "id": "n1", "type": "email" },
+                { "id": "n2", "type": "trigger" }
+            ]
+        };
+        // Should pick trigger
+        assert_eq!(entry_node_id_of(&journey).unwrap(), "n2");
+
+        let journey2 = doc! {
+            "nodes": [
+                { "id": "n3", "type": "email" }
+            ]
+        };
+        // Fallback to first
+        assert_eq!(entry_node_id_of(&journey2).unwrap(), "n3");
+    }
+
+    #[test]
+    fn test_parse_wait_fault_tolerant() {
+        // Missing waitFor
+        assert_eq!(parse_wait(&doc! {}), None);
+        // Valid
+        let d = doc! { "waitFor": { "value": 5, "unit": "days" } };
+        let w = parse_wait(&d).unwrap();
+        assert_eq!(w.value, 5);
+        assert!(matches!(w.unit, WaitUnit::Days));
+        // String value instead of int - should fail gracefully
+        let d2 = doc! { "waitFor": { "value": "5", "unit": "days" } };
+        assert_eq!(parse_wait(&d2), None);
+    }
+
+    #[test]
+    fn test_outgoing_targets() {
+        let journey = doc! {
+            "edges": [
+                { "source": "node1", "target": "node2" },
+                { "source": "node1", "target": "node3" },
+                { "source": "node2", "target": "node4" }
+            ]
+        };
+        let targets = outgoing_targets(&journey, "node1");
+        assert_eq!(targets, vec!["node2".to_string(), "node3".to_string()]);
+    }
 }

@@ -1,0 +1,60 @@
+# Phase — SabChat email channel adapter.
+#
+# Axum router that ingests pre-parsed inbound email events (from the
+# IMAP poller or a Postmark / SendGrid inbound webhook shim) and folds
+# them into the canonical SabChat conversation + message graph.
+#
+# Per the slice contract this crate is a leaf:
+#   * No `[workspace]` table.
+#   * Does NOT modify `rust/Cargo.toml`; the orchestrator wires it in.
+[package]
+name = "sabchat-channel-email"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that ingests inbound email events and threads them into the SabChat conversation + message graph. Server-to-server — no JWT, tenancy resolved via the inbox's configured address."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabchat_channel_email"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — same feature union as sibling routers so the api crate
+# resolves a single set of cargo features at build time.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId construction (ids on the wire are hex strings; we parse
+# via `oid_from_str` from `sabnode-db`).
+bson = { version = "2", features = ["chrono-0_4"] }
+
+# Wall-clock for `createdAt` / `updatedAt`.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo driver wrappers + futures combinators.
+mongodb = "3"
+futures = "0.3"
+
+# Tracing for handler-level spans.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal`.
+anyhow = "1"
+
+# OpenAPI annotations to keep parity with sibling routers.
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+# Sibling crates — shared error envelope, JWT verifier config, Mongo
+# handle, and the SabChat domain DTOs.
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+sabchat-types = { path = "../sabchat-types" }
+
+[lints]
+workspace = true

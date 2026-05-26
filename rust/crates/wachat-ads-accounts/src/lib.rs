@@ -56,7 +56,7 @@ pub mod state;
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::get};
+use axum::{Router, extract::FromRef, routing::{get, post}};
 use sabnode_auth::AuthConfig;
 
 pub use state::WachatAdsAccountsState;
@@ -72,6 +72,7 @@ where
         // creative wizard. Literal `/pages` segments are ordered before
         // the dynamic `/{ad_account_id}` catch-all to keep axum happy.
         .route("/", get(handlers::get_ad_accounts))
+        .route("/sync", post(handlers::sync_ad_accounts))
         .route("/pages", get(handlers::get_facebook_pages_for_ad_creation))
         .route(
             "/pages/{page_id}/instagram-accounts",

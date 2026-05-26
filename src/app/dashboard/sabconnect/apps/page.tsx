@@ -1,0 +1,72 @@
+/**
+ * SabConnect — pinned custom apps grid.
+ */
+
+import {
+    PageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruPageDescription,
+    Card,
+    CardContent,
+    EmptyState,
+} from '@/components/zoruui';
+
+import { getSabConnectCustomApps } from '@/app/actions/sabconnect.actions';
+import { CreateCustomAppDialog } from './_components/create-custom-app-dialog';
+
+export const dynamic = 'force-dynamic';
+
+export default async function SabConnectAppsPage() {
+    const { items } = await getSabConnectCustomApps({ limit: 100 });
+
+    return (
+        <div className="flex w-full flex-col gap-6">
+            <PageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageTitle>Apps</ZoruPageTitle>
+                    <ZoruPageDescription>
+                        Pin internal dashboards, BI links and tools right inside Connect.
+                    </ZoruPageDescription>
+                </ZoruPageHeading>
+                <CreateCustomAppDialog />
+            </PageHeader>
+
+            {items.length === 0 ? (
+                <EmptyState
+                    title="No apps pinned yet"
+                    description="Add the first app to surface it for the team."
+                />
+            ) : (
+                <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                    {items.map((app) => (
+                        <li key={app._id}>
+                            <a
+                                href={app.url}
+                                target={app.openIn === 'iframe' ? '_self' : '_blank'}
+                                rel="noopener noreferrer"
+                                className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-accent"
+                            >
+                                <Card className="h-full transition-shadow hover:shadow-md">
+                                    <CardContent className="flex flex-col items-center gap-2 p-4 text-center">
+                                        <div className="grid size-12 place-items-center rounded-lg bg-zoru-surface-hover text-lg font-semibold text-zoru-text">
+                                            {app.name.charAt(0).toUpperCase()}
+                                        </div>
+                                        <p className="text-sm font-semibold text-zoru-text">
+                                            {app.name}
+                                        </p>
+                                        {app.description ? (
+                                            <p className="line-clamp-2 text-xs text-zoru-muted">
+                                                {app.description}
+                                            </p>
+                                        ) : null}
+                                    </CardContent>
+                                </Card>
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+}

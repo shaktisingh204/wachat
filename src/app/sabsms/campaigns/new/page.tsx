@@ -126,9 +126,23 @@ async function NewCampaignPageContent({ searchParams }: PageProps) {
     contacts = [];
   }
 
-  // Segments — TODO: backed by `crm_segments` once that lands. For
-  // now the stub keeps the picker functional.
-  const segments: SegmentOption[] = [];
+  // Segments — backed by crm_segments.
+  let segments: SegmentOption[] = [];
+  try {
+    const raw = await db
+      .collection("crm_segments")
+      .find({ workspaceId })
+      .project({ _id: 1, name: 1, count: 1 })
+      .limit(200)
+      .toArray();
+    segments = raw.map((c) => ({
+      id: mongoIdString(c._id) ?? "",
+      name: (c as { name?: string }).name ?? "(unnamed)",
+      count: (c as { count?: number }).count,
+    }));
+  } catch {
+    segments = [];
+  }
 
   const templates = templatesDocs.map(templateToOption);
   const numbers = numbersDocs.map(numberToOption);

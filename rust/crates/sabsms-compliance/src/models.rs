@@ -24,4 +24,5 @@ pub struct MessageMetadata {
 pub enum OptStatus {
     OptedIn,
     OptedOut,
+    None, // Explicitly not opted in nor out yet
 }

@@ -111,4 +111,8 @@ where
             "/projects/{project_id}/conversations/{conversation_id}/messages",
             get(handlers::conversation_messages),
         )
+        .route(
+            "/projects/{project_id}/messages",
+            axum::routing::post(handlers::send_message),
+        )
 }

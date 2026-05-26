@@ -75,18 +75,27 @@ pub struct TcpaGdprRule;
 
 impl TcpaGdprRule {
     fn is_quiet_hours(&self, timestamp: DateTime<Utc>, country_code: &str) -> bool {
-        // Simplified quiet hours logic: 9 PM to 8 AM local time (using UTC here for simplicity,
-        // in a real app you'd map the phone number to a timezone).
+        // Strict TCPA quiet hours: Before 8 AM or after 9 PM.
         let hour = timestamp.hour();
         
         if country_code == "US" {
-            // Very simplistic timezone-unaware check for demonstration
-            if hour < 13 || hour >= 24 { // Rough UTC offset
+            // Simplified check based on UTC (assuming EST - 5 hours)
+            // 9 PM EST = 2 AM UTC next day
+            // 8 AM EST = 1 PM UTC
+            // So quiet hours in UTC for EST are 2 AM (02:00) to 1 PM (13:00)
+            if hour >= 2 && hour < 13 {
                 return true;
             }
         }
         
         false
+    }
+    
+    fn is_eu(&self, country_code: &str) -> bool {
+        let eu = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", 
+                  "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", 
+                  "PL", "PT", "RO", "SK", "SI", "ES", "SE", "GB"];
+        eu.contains(&country_code)
     }
 }
 
@@ -97,6 +106,15 @@ impl ComplianceRule for TcpaGdprRule {
         let status = store.check_opt_status(&ctx.to, Some(&ctx.from)).await?;
         if status == OptStatus::OptedOut {
             return Err(ComplianceError::OptedOut);
+        }
+
+        // Strict GDPR: Opt-in required for promotional messages to EU
+        if ctx.metadata.is_promotional && self.is_eu(&ctx.country_code) {
+            if status != OptStatus::OptedIn {
+                return Err(ComplianceError::TcpaGdprViolation(
+                    "Strict GDPR: Explicit opt-in required for promotional messages in EU.".to_string(),
+                ));
+            }
         }
 
         // Time-of-day checks for promotional messages

@@ -29,7 +29,7 @@ interface PageProps {
 
 function ItemFormSkeleton() {
   return (
-    <div className="space-y-6 max-w-2xl animate-pulse">
+    <div className="space-y-6 w-full animate-pulse">
       {/* Basic Details Skeleton */}
       <ZoruCard className="p-6 space-y-4">
         <ZoruSkeleton className="h-6 w-32 rounded bg-zinc-200 dark:bg-zinc-800" />

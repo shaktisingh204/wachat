@@ -166,3 +166,21 @@ pub struct MediaInsightsQuery {
     #[serde(default)]
     pub metrics: Option<String>,
 }
+
+/// Body for sending an Instagram DM
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SendMessageBody {
+    pub recipient_id: String,
+    pub text: String,
+}
+
+/// Response from sending an Instagram DM
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstagramMessageSendResp {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub message_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}

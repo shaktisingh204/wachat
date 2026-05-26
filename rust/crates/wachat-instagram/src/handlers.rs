@@ -192,3 +192,23 @@ pub async fn conversation_messages(
         .await?,
     ))
 }
+
+/// `POST /v1/instagram/projects/:id/messages`
+pub async fn send_message(
+    user: AuthUser,
+    State(s): State<WachatInstagramState>,
+    Path(project_id): Path<String>,
+    Json(body): Json<crate::dto::SendMessageBody>,
+) -> Result<Json<crate::dto::InstagramMessageSendResp>> {
+    Ok(Json(
+        instagram::send_message(
+            &user,
+            &s.mongo,
+            &s.meta,
+            &project_id,
+            &body.recipient_id,
+            &body.text,
+        )
+        .await?,
+    ))
+}

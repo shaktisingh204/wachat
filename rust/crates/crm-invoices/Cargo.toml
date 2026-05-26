@@ -27,6 +27,10 @@ crm-sales-types = { path = "../crm-sales-types" }
 sabnode-auth = { path = "../auth" }
 sabnode-common = { path = "../common" }
 sabnode-db = { path = "../db" }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4.3"
 
 [lints]
 workspace = true

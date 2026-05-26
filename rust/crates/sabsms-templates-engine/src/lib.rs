@@ -1,4 +1,4 @@
-use regex::Regex;
+use handlebars::Handlebars;
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -18,8 +18,10 @@ pub struct SmsInfo {
 
 #[derive(Debug, thiserror::Error)]
 pub enum TemplateError {
-    #[error("Missing variable: {0}")]
-    MissingVariable(String),
+    #[error("Template compilation error: {0}")]
+    CompileError(#[from] handlebars::TemplateError),
+    #[error("Template rendering error: {0}")]
+    RenderError(#[from] handlebars::RenderError),
 }
 
 /// Renders a template with the given variables.
@@ -28,38 +30,9 @@ pub fn render_template(
     template: &str,
     variables: &HashMap<String, Value>,
 ) -> Result<SmsInfo, TemplateError> {
-    let re = Regex::new(r"\{\{\s*([\w.]+)\s*\}\}").unwrap();
-    let mut missing = None;
-
-    let rendered = re
-        .replace_all(template, |caps: &regex::Captures| {
-            let var_name = &caps[1];
-            if let Some(val) = variables.get(var_name) {
-                match val {
-                    Value::String(s) => s.clone(),
-                    Value::Null => "".to_string(),
-                    v => {
-                        // For numbers, booleans, arrays, objects
-                        if v.is_number() || v.is_boolean() {
-                            v.to_string()
-                        } else {
-                            // Convert back to JSON string for objects/arrays? Or just empty?
-                            // Usually string representation of JSON is fine.
-                            v.to_string()
-                        }
-                    }
-                }
-            } else {
-                missing = Some(var_name.to_string());
-                caps[0].to_string()
-            }
-        })
-        .to_string();
-
-    if let Some(m) = missing {
-        return Err(TemplateError::MissingVariable(m));
-    }
-
+    let mut reg = Handlebars::new();
+    reg.set_strict_mode(true);
+    let rendered = reg.render_template(template, variables)?;
     Ok(analyze_sms(&rendered))
 }
 
@@ -166,7 +139,7 @@ mod tests {
     fn test_render_missing_variable() {
         let vars = HashMap::new();
         let result = render_template("Hello {{name}}", &vars);
-        assert!(matches!(result, Err(TemplateError::MissingVariable(_))));
+        assert!(matches!(result, Err(TemplateError::RenderError(_))));
     }
 
     #[test]

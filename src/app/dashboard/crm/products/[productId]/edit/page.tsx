@@ -24,7 +24,7 @@ interface PageProps {
 
 function ProductEditSkeleton() {
   return (
-    <div className="space-y-6 max-w-2xl animate-pulse">
+    <div className="space-y-6 w-full animate-pulse">
       {/* Basic Details Skeleton */}
       <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">
         <div className="h-6 w-32 bg-zinc-200 dark:bg-zinc-800 rounded" />

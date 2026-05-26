@@ -106,12 +106,6 @@ const STEPS: StepItem[] = [
   { n: '4', title: "You're live", sub: 'Return here — your project appears instantly.' },
 ];
 
-const MOCK_ACCOUNTS: WabaAccount[] = [
-  { id: '1', name: 'Main Support', phoneNumber: '+1234567890', status: 'active', lastSynced: new Date(Date.now() - 1000 * 60 * 5).toISOString() },
-  { id: '2', name: 'Sales US', phoneNumber: '+1987654321', status: 'pending', lastSynced: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString() },
-  { id: '3', name: 'Marketing Alerts', phoneNumber: '+1122334455', status: 'disconnected', lastSynced: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() },
-];
-
 /* ------------------------------------------------------------------ */
 /* Components                                                         */
 /* ------------------------------------------------------------------ */
@@ -385,9 +379,8 @@ function ConnectedAccounts() {
       setIsLoading(true);
       setError(null);
       try {
-        await new Promise((resolve) => setTimeout(resolve, 800)); // Fake delay
         const response: ApiResponse<WabaAccount[]> = {
-          data: MOCK_ACCOUNTS,
+          data: [],
           error: null,
           status: 200,
         };
@@ -421,7 +414,7 @@ function ConnectedAccounts() {
   const refreshData = () => {
     setIsLoading(true);
     setTimeout(() => {
-      setAccounts([...MOCK_ACCOUNTS]);
+      setAccounts([]);
       setIsLoading(false);
     }, 500);
   };

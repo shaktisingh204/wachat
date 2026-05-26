@@ -130,7 +130,7 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                         <EntityFormField
                                             entity="state"
                                             name="state"
-                                            filter={countryId ? { countryId } : undefined}
+                                            filter={countryId ? { countryCode: countryId } : undefined}
                                             onChange={(next) => setStateId(next)}
                                         />
                                     </div>
@@ -139,7 +139,16 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                         <EntityFormField
                                             entity="city"
                                             name="city"
-                                            filter={stateId ? { stateId } : countryId ? { countryId } : undefined}
+                                            filter={
+                                                countryId
+                                                    ? {
+                                                          countryCode: countryId,
+                                                          ...(stateId
+                                                              ? { stateCode: stateId.includes(':') ? stateId.split(':')[1] : stateId }
+                                                              : {}),
+                                                      }
+                                                    : undefined
+                                            }
                                         />
                                     </div>
                                 </div>

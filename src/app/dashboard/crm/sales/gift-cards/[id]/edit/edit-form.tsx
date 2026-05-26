@@ -72,7 +72,7 @@ export function EditGiftCardForm({
     }, [state, router, toast, giftCardId]);
 
     return (
-        <form action={formAction} className="max-w-2xl">
+        <form action={formAction} className="w-full">
             <Card className="space-y-6 p-6">
                 <input type="hidden" name="giftCardId" value={giftCardId} />
 

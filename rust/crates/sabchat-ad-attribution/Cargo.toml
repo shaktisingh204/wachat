@@ -1,0 +1,67 @@
+# Phase — axum router for the SabChat **ad attribution** HTTP surface.
+#
+# Closes the ad → chat → revenue loop:
+#   * Visitor lands from a Meta / Google / organic / direct ad surface
+#     and the widget (or webhook) records a "touch" row tagged with
+#     UTM / `ctwa_clid` / `gclid` / `fbclid`.
+#   * Conversation starts — the touch is bound to it.
+#   * Payment lands — revenue is attributed back to the most recent
+#     touch and rolled up by source / campaign / ad in `/report`.
+#
+# Per the slice contract this crate is a leaf:
+#   * No `[workspace]` table.
+#   * Does NOT modify `rust/Cargo.toml`; the orchestrator wires it in.
+[package]
+name = "sabchat-ad-attribution"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabChat ad-attribution HTTP surface (`/v1/sabchat/ad-attribution/*`). Owns visitor touch capture, conversation-bound revenue attribution, and per-source/campaign/ad reporting."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabchat_ad_attribution"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — same feature union as sibling routers so the api crate
+# resolves a single set of cargo features at build time.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId construction (touch / inbox / conversation ids on the
+# wire are hex strings; we parse via `oid_from_str` from `sabnode-db`).
+bson = { version = "2", features = ["chrono-0_4"] }
+
+# Wall-clock for `capturedAt` / `at` + RFC3339 window parsing on
+# `/report`.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo driver wrappers + futures combinators (for `cursor.try_collect`).
+mongodb = "3"
+futures = "0.3"
+
+# Tracing for handler-level spans.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal`.
+anyhow = "1"
+
+# OpenAPI annotations to keep parity with sibling routers.
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+# Sibling crates — shared error envelope, JWT extractor, Mongo handle.
+# `sabchat-types` is intentionally NOT a dep: the inbox / conversation
+# rows are touched via untyped `Document` reads on a small handful of
+# fields (`tenantId`, `contactId`), so dragging in the full DTO tree
+# would be net-negative for compile times.
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

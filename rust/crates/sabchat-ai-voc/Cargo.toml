@@ -1,0 +1,71 @@
+# Phase — axum router for the SabChat **AI voice-of-customer** HTTP surface.
+#
+# Periodic clustering of recent visitor messages into topics so the inbox
+# can surface trending complaints + feature requests. Maintains two Mongo
+# collections per tenant:
+#
+#   * `sabchat_voc_topics` — current top topics (replaced each run).
+#   * `sabchat_voc_runs`   — append-only history of clustering runs.
+#
+# Per the slice contract this crate is a leaf:
+#   * No `[workspace]` table.
+#   * Does NOT modify `rust/Cargo.toml`; the orchestrator wires it in.
+[package]
+name = "sabchat-ai-voc"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabChat AI voice-of-customer HTTP surface (`/v1/sabchat/ai/voc/*`). Periodic clustering of recent visitor messages into trending topics + complaints + feature requests."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabchat_ai_voc"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — same feature union as sibling routers so the api crate
+# resolves a single set of cargo features at build time.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId construction (run / topic ids on the wire are hex
+# strings; we parse via `oid_from_str` from `sabnode-db`).
+bson = { version = "2", features = ["chrono-0_4"] }
+
+# Wall-clock for `startedAt` / `completedAt` / `computedAt` stamps.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo driver wrappers + futures combinators (for `cursor.try_collect`).
+mongodb = "3"
+futures = "0.3"
+
+# Tracing for handler-level spans.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal`.
+anyhow = "1"
+
+# OpenAPI annotations to keep parity with sibling routers.
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+# Async trait for the `Clusterer` abstraction so future embedding-backed
+# implementations can drop in without touching handlers.
+async-trait = "0.1"
+
+# Regex used by the topic→message sampling endpoint to find recent
+# messages whose preview text matches a topic keyword.
+regex = "1"
+
+# Sibling crates — shared error envelope, JWT extractor, Mongo handle,
+# and the shared SabChat domain DTOs.
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+sabchat-types = { path = "../sabchat-types" }
+
+[lints]
+workspace = true

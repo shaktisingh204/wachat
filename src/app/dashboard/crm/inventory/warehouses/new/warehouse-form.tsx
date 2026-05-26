@@ -168,7 +168,7 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                                     entity="state"
                                     name="statePicker"
                                     initialId={stateVal || null}
-                                    filter={country ? { country } : undefined}
+                                    filter={country ? { countryCode: country } : undefined}
                                     disabled={!country}
                                     onChange={(next) => {
                                         setStateVal(next ?? '');
@@ -183,11 +183,14 @@ export function WarehouseForm({ initialData }: WarehouseFormProps) {
                                     name="cityPicker"
                                     initialId={city || null}
                                     filter={
-                                        stateVal
-                                            ? { state: stateVal }
-                                            : country
-                                              ? { country }
-                                              : undefined
+                                        country
+                                            ? {
+                                                  countryCode: country,
+                                                  ...(stateVal
+                                                      ? { stateCode: stateVal.includes(':') ? stateVal.split(':')[1] : stateVal }
+                                                      : {}),
+                                              }
+                                            : undefined
                                     }
                                     disabled={!country}
                                     onChange={(next) => setCity(next ?? '')}

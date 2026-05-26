@@ -20,7 +20,7 @@ export default async function NewLeadPage() {
     const customFields = (await getCustomFieldsFor('lead')) as WsCustomField[];
 
     return (
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+        <div className="flex w-full flex-col gap-6">
             <PageHeader
                 title="New lead"
                 subtitle="Create a new prospective customer"

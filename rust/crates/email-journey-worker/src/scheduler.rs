@@ -65,13 +65,7 @@ async fn sweep_once(state: &EmailJourneyWorkerState) -> Result<()> {
         let Ok(journey_oid) = d.get_object_id("journeyId") else {
             continue;
         };
-        let pending_node = d
-            .get_str("pendingNodeId")
-            .ok()
-            .map(str::to_owned)
-            .unwrap_or_else(|| {
-                d.get_str("currentNodeId").unwrap_or("").to_owned()
-            });
+        let pending_node = parse_pending_node(&d);
         if pending_node.is_empty() {
             warn!(
                 run_id = %run_oid.to_hex(),
@@ -108,4 +102,41 @@ async fn sweep_once(state: &EmailJourneyWorkerState) -> Result<()> {
         }
     }
     Ok(())
+}
+
+fn parse_pending_node(d: &Document) -> String {
+    d.get_str("pendingNodeId")
+        .ok()
+        .map(str::to_owned)
+        .unwrap_or_else(|| d.get_str("currentNodeId").unwrap_or("").to_owned())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use bson::doc;
+
+    #[test]
+    fn test_parse_pending_node_with_pending() {
+        let d = doc! { "pendingNodeId": "node_123" };
+        assert_eq!(parse_pending_node(&d), "node_123");
+    }
+
+    #[test]
+    fn test_parse_pending_node_fallback_to_current() {
+        let d = doc! { "currentNodeId": "node_456" };
+        assert_eq!(parse_pending_node(&d), "node_456");
+    }
+
+    #[test]
+    fn test_parse_pending_node_prefers_pending() {
+        let d = doc! { "pendingNodeId": "node_123", "currentNodeId": "node_456" };
+        assert_eq!(parse_pending_node(&d), "node_123");
+    }
+
+    #[test]
+    fn test_parse_pending_node_empty_if_missing() {
+        let d = doc! { "someOtherField": "foo" };
+        assert_eq!(parse_pending_node(&d), "");
+    }
 }

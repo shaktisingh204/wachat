@@ -964,3 +964,64 @@ mod tests {
         assert!(need_token(&p).is_err());
     }
 }
+
+/// `sendInstagramMessage(projectId, recipientId, text)`
+/// Uses `/{page_id}/messages` to send an Instagram DM, which requires the
+/// recipient ID (IGSID) and message payload.
+pub async fn send_message(
+    user: &AuthUser,
+    mongo: &MongoHandle,
+    meta: &MetaClient,
+    project_id: &str,
+    recipient_id: &str,
+    text: &str,
+) -> Result<crate::dto::InstagramMessageSendResp> {
+    let project = match load_project_for(user, mongo, project_id).await {
+        Ok(p) => p,
+        Err(_) => {
+            return Ok(crate::dto::InstagramMessageSendResp {
+                message_id: None,
+                error: Some("Project access denied or misconfigured.".to_owned()),
+            });
+        }
+    };
+    let Some(page_id) = project.facebook_page_id.as_deref().filter(|s| !s.is_empty()) else {
+        return Ok(crate::dto::InstagramMessageSendResp {
+            message_id: None,
+            error: Some("Project is not connected to a Facebook Page.".to_owned()),
+        });
+    };
+    let token = match need_token(&project) {
+        Ok(t) => t,
+        Err(e) => {
+            return Ok(crate::dto::InstagramMessageSendResp {
+                message_id: None,
+                error: Some(e),
+            });
+        }
+    };
+
+    let path = format!("{page_id}/messages");
+    let payload = json!({
+        "recipient": { "id": recipient_id },
+        "message": { "text": text },
+        "messaging_type": "RESPONSE"
+    });
+
+    match meta.post_json::<_, Value>(&path, token, &payload).await {
+        Ok(resp) => {
+            let message_id = resp
+                .get("message_id")
+                .and_then(|v| v.as_str())
+                .map(str::to_owned);
+            Ok(crate::dto::InstagramMessageSendResp {
+                message_id,
+                error: None,
+            })
+        }
+        Err(e) => Ok(crate::dto::InstagramMessageSendResp {
+            message_id: None,
+            error: Some(e.to_string()),
+        }),
+    }
+}

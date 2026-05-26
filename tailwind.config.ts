@@ -112,6 +112,18 @@ export default {
             active: 'hsl(var(--zoru-primary-active))',
             foreground: 'hsl(var(--zoru-on-primary))',
           },
+          // `brand` is an alias for `primary` — many call sites use
+          // `bg-zoru-brand`, `text-zoru-brand`, `from-zoru-brand`, etc.
+          // Without these tokens Tailwind drops the classes and gradient
+          // buttons render as transparent + text-white = invisible.
+          brand: {
+            DEFAULT: 'hsl(var(--zoru-primary))',
+            hover: 'hsl(var(--zoru-primary-hover))',
+            active: 'hsl(var(--zoru-primary-active))',
+            foreground: 'hsl(var(--zoru-on-primary))',
+            ink: 'hsl(var(--zoru-ink))',
+            line: 'hsl(var(--zoru-line))',
+          },
           danger: {
             DEFAULT: 'hsl(var(--zoru-danger))',
             foreground: 'hsl(var(--zoru-on-danger))',

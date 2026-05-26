@@ -34,7 +34,7 @@ export default async function BookingPortalPage({
   };
 
   return (
-    <div className="mx-auto max-w-2xl p-6">
+    <div className="w-full p-6">
       <div className="mb-8 text-center">
         <h1 className="text-2xl font-semibold text-zoru-ink">Manage Your Booking</h1>
         <p className="text-zoru-ink-muted">Reference: {String(booking._id).slice(-8)}</p>

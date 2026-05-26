@@ -1,0 +1,1359 @@
+    Checking tokio v1.52.3
+   Compiling futures-macro v0.3.32
+    Checking toml_edit v0.22.27
+    Checking tungstenite v0.29.0
+    Checking pear v0.2.9
+   Compiling ring v0.17.14
+    Checking tracing-subscriber v0.3.23
+   Compiling utoipa-gen v5.4.0
+    Checking bson v2.15.0
+    Checking futures-util v0.3.32
+    Checking toml v0.8.23
+    Checking figment v0.10.19
+    Checking hyper v1.9.0
+    Checking hyper-util v0.1.20
+    Checking utoipa v5.4.0
+    Checking tower v0.5.3
+    Checking tokio-tungstenite v0.29.0
+    Checking axum v0.8.9
+    Checking jsonwebtoken v9.3.1
+    Checking sabnode-common v0.1.0 (/Users/harshkhandelwal/Downloads/sabnode/rust/crates/common)
+    Checking sabchat-types v0.1.0 (/Users/harshkhandelwal/Downloads/sabnode/rust/crates/sabchat-types)
+    Checking sabnode-auth v0.1.0 (/Users/harshkhandelwal/Downloads/sabnode/rust/crates/auth)
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/assignment.rs:15:13
+   |
+15 |     pub id: ObjectId,
+   |             ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/assignment.rs:15:13
+    |
+ 15 |     pub id: ObjectId,
+    |             ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/assignment.rs:17:20
+   |
+17 |     pub tenant_id: ObjectId,
+   |                    ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/assignment.rs:17:20
+    |
+ 17 |     pub tenant_id: ObjectId,
+    |                    ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/assignment.rs:18:26
+   |
+18 |     pub conversation_id: ObjectId,
+   |                          ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/assignment.rs:18:26
+    |
+ 18 |     pub conversation_id: ObjectId,
+    |                          ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/assignment.rs:22:34
+   |
+22 |     pub prev_assignee_id: Option<ObjectId>,
+   |                                  ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/assignment.rs:22:34
+    |
+ 22 |     pub prev_assignee_id: Option<ObjectId>,
+    |                                  ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/assignment.rs:26:33
+   |
+26 |     pub new_assignee_id: Option<ObjectId>,
+   |                                 ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/assignment.rs:26:33
+    |
+ 26 |     pub new_assignee_id: Option<ObjectId>,
+    |                                 ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/assignment.rs:36:26
+   |
+36 |     pub actor_id: Option<ObjectId>,
+   |                          ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/assignment.rs:36:26
+    |
+ 36 |     pub actor_id: Option<ObjectId>,
+    |                          ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/audit.rs:38:13
+   |
+38 |     pub id: ObjectId,
+   |             ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/audit.rs:38:13
+    |
+ 38 |     pub id: ObjectId,
+    |             ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/audit.rs:40:20
+   |
+40 |     pub tenant_id: ObjectId,
+   |                    ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/audit.rs:40:20
+    |
+ 40 |     pub tenant_id: ObjectId,
+    |                    ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/audit.rs:44:33
+   |
+44 |     pub conversation_id: Option<ObjectId>,
+   |                                 ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/audit.rs:44:33
+    |
+ 44 |     pub conversation_id: Option<ObjectId>,
+    |                                 ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/audit.rs:48:28
+   |
+48 |     pub contact_id: Option<ObjectId>,
+   |                            ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/audit.rs:48:28
+    |
+ 48 |     pub contact_id: Option<ObjectId>,
+    |                            ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/audit.rs:52:26
+   |
+52 |     pub inbox_id: Option<ObjectId>,
+   |                          ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/audit.rs:52:26
+    |
+ 52 |     pub inbox_id: Option<ObjectId>,
+    |                          ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/audit.rs:61:26
+   |
+61 |     pub actor_id: Option<ObjectId>,
+   |                          ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/audit.rs:61:26
+    |
+ 61 |     pub actor_id: Option<ObjectId>,
+    |                          ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/contact.rs:30:13
+   |
+30 |     pub id: ObjectId,
+   |             ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/contact.rs:30:13
+    |
+ 30 |     pub id: ObjectId,
+    |             ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/contact.rs:32:20
+   |
+32 |     pub tenant_id: ObjectId,
+   |                    ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/contact.rs:32:20
+    |
+ 32 |     pub tenant_id: ObjectId,
+    |                    ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/contact.rs:68:32
+   |
+68 |     pub crm_contact_id: Option<ObjectId>,
+   |                                ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/contact.rs:68:32
+    |
+ 68 |     pub crm_contact_id: Option<ObjectId>,
+    |                                ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/conversation.rs:50:13
+   |
+50 |     pub id: ObjectId,
+   |             ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/conversation.rs:50:13
+    |
+ 50 |     pub id: ObjectId,
+    |             ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/conversation.rs:52:20
+   |
+52 |     pub tenant_id: ObjectId,
+   |                    ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/conversation.rs:52:20
+    |
+ 52 |     pub tenant_id: ObjectId,
+    |                    ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/conversation.rs:53:19
+   |
+53 |     pub inbox_id: ObjectId,
+   |                   ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/conversation.rs:53:19
+    |
+ 53 |     pub inbox_id: ObjectId,
+    |                   ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/conversation.rs:54:21
+   |
+54 |     pub contact_id: ObjectId,
+   |                     ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/conversation.rs:54:21
+    |
+ 54 |     pub contact_id: ObjectId,
+    |                     ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/conversation.rs:63:29
+   |
+63 |     pub assignee_id: Option<ObjectId>,
+   |                             ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/conversation.rs:63:29
+    |
+ 63 |     pub assignee_id: Option<ObjectId>,
+    |                             ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/conversation.rs:67:25
+   |
+67 |     pub team_id: Option<ObjectId>,
+   |                         ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/conversation.rs:67:25
+    |
+ 67 |     pub team_id: Option<ObjectId>,
+    |                         ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/inbox.rs:79:13
+   |
+79 |     pub id: ObjectId,
+   |             ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/inbox.rs:79:13
+    |
+ 79 |     pub id: ObjectId,
+    |             ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/inbox.rs:83:20
+   |
+83 |     pub tenant_id: ObjectId,
+   |                    ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/inbox.rs:83:20
+    |
+ 83 |     pub tenant_id: ObjectId,
+    |                    ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/inbox.rs:94:24
+   |
+94 |     pub agent_ids: Vec<ObjectId>,
+   |                        ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/inbox.rs:94:24
+    |
+ 94 |     pub agent_ids: Vec<ObjectId>,
+    |                        ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/inbox.rs:98:25
+   |
+98 |     pub team_id: Option<ObjectId>,
+   |                         ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/inbox.rs:98:25
+    |
+ 98 |     pub team_id: Option<ObjectId>,
+    |                         ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/message.rs:37:13
+   |
+37 |     pub id: ObjectId,
+   |             ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/message.rs:37:13
+    |
+ 37 |     pub id: ObjectId,
+    |             ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/message.rs:39:20
+   |
+39 |     pub tenant_id: ObjectId,
+   |                    ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/message.rs:39:20
+    |
+ 39 |     pub tenant_id: ObjectId,
+    |                    ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/message.rs:40:26
+   |
+40 |     pub conversation_id: ObjectId,
+   |                          ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/message.rs:40:26
+    |
+ 40 |     pub conversation_id: ObjectId,
+    |                          ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/message.rs:41:19
+   |
+41 |     pub inbox_id: ObjectId,
+   |                   ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/message.rs:41:19
+    |
+ 41 |     pub inbox_id: ObjectId,
+    |                   ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/message.rs:42:21
+   |
+42 |     pub contact_id: ObjectId,
+   |                     ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/message.rs:42:21
+    |
+ 42 |     pub contact_id: ObjectId,
+    |                     ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error[E0277]: the trait bound `bson::oid::ObjectId: ToSchema` is not satisfied
+  --> crates/sabchat-types/src/message.rs:48:27
+   |
+48 |     pub sender_id: Option<ObjectId>,
+   |                           ^^^^^^^^ the trait `ToSchema` is not implemented for `bson::oid::ObjectId`
+   |
+   = help: the following other types implement trait `ToSchema`:
+             &'t [T]
+             &'t mut [T]
+             &str
+             ()
+             Attachment
+             AuditAction
+             BTreeMap<K, T>
+             BTreeSet<K>
+           and 47 others
+
+error[E0277]: the trait bound `bson::oid::ObjectId: PartialSchema` is not satisfied
+   --> crates/sabchat-types/src/message.rs:48:27
+    |
+ 48 |     pub sender_id: Option<ObjectId>,
+    |                           ^^^^^^^^ the trait `utoipa::__dev::ComposeSchema` is not implemented for `bson::oid::ObjectId`
+    |
+    = help: the following other types implement trait `utoipa::__dev::ComposeSchema`:
+              &[T]
+              &mut [T]
+              &str
+              Attachment
+              AuditAction
+              BTreeMap<K, T>
+              BTreeSet<K>
+              Box<T>
+            and 46 others
+    = note: required for `bson::oid::ObjectId` to implement `PartialSchema`
+note: required by a bound in `name`
+   --> /Users/harshkhandelwal/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/utoipa-5.4.0/src/lib.rs:374:21
+    |
+374 | pub trait ToSchema: PartialSchema {
+    |                     ^^^^^^^^^^^^^ required by this bound in `ToSchema::name`
+...
+405 |     fn name() -> Cow<'static, str> {
+    |        ---- required by a bound in this associated function
+
+error: could not compile `sabchat-types` (lib) due to 124 previous errors
+
+Caused by:
+  process didn't exit successfully: `/Users/harshkhandelwal/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rustc --crate-name sabchat_types --edition=2024 crates/sabchat-types/src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type lib --emit=dep-info,metadata -C embed-bitcode=no -C debuginfo=2 -C split-debuginfo=unpacked '--allow=clippy::useless_conversion' '--allow=clippy::unnecessary_lazy_evaluations' '--allow=clippy::type_complexity' '--allow=clippy::single_match' '--allow=clippy::result_large_err' '--allow=clippy::redundant_closure' '--allow=clippy::needless_return' '--allow=clippy::needless_question_mark' '--allow=clippy::needless_lifetimes' '--allow=clippy::needless_borrows_for_generic_args' '--allow=clippy::needless_borrow' '--allow=clippy::manual_div_ceil' '--allow=clippy::doc_overindented_list_items' '--allow=clippy::collapsible_match' '--allow=clippy::collapsible_if' '--allow=clippy::bool_assert_comparison' --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=2f3a2ba501e7c417 -C extra-filename=-80276c64b26edead --out-dir /Users/harshkhandelwal/Downloads/sabnode/rust/target/debug/deps -C incremental=/Users/harshkhandelwal/Downloads/sabnode/rust/target/debug/incremental -L dependency=/Users/harshkhandelwal/Downloads/sabnode/rust/target/debug/deps --extern bson=/Users/harshkhandelwal/Downloads/sabnode/rust/target/debug/deps/libbson-c27d5a2bbeb4e940.rmeta --extern chrono=/Users/harshkhandelwal/Downloads/sabnode/rust/target/debug/deps/libchrono-24b630073d7a42de.rmeta --extern sabnode_common=/Users/harshkhandelwal/Downloads/sabnode/rust/target/debug/deps/libsabnode_common-40686e995ba70987.rmeta --extern serde=/Users/harshkhandelwal/Downloads/sabnode/rust/target/debug/deps/libserde-3cb582464429a648.rmeta --extern serde_json=/Users/harshkhandelwal/Downloads/sabnode/rust/target/debug/deps/libserde_json-6ffeb2287ae2aa23.rmeta --extern thiserror=/Users/harshkhandelwal/Downloads/sabnode/rust/target/debug/deps/libthiserror-77a753abdeaca5f6.rmeta --extern utoipa=/Users/harshkhandelwal/Downloads/sabnode/rust/target/debug/deps/libutoipa-71e342ed21d4e4bc.rmeta` (signal: 15, SIGTERM: termination signal)

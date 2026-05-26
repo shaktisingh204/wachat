@@ -18,6 +18,7 @@ pub struct SabsmsMessage {
     pub from: String,
     pub body: String,
     pub status: SabsmsMessageStatus,
+    pub provider: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

@@ -17,3 +17,6 @@ tracing = "0.1"
 
 sabsms-types = { path = "../sabsms-types" }
 sabsms-providers = { path = "../sabsms-providers" }
+
+[dev-dependencies]
+async-trait = "0.1"

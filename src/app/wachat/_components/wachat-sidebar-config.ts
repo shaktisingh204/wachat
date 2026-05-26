@@ -326,8 +326,8 @@ export function buildWachatSidebarGroups(
           id: "interactive",
           label: "Interactive Messages",
           icon: React.createElement(Sparkles),
-          href: "/wachat/interactive-messages",
-          active: isActive("/wachat/interactive-messages"),
+          href: "/wachat/templates/interactive-message-builder",
+          active: isActive("/wachat/templates/interactive-message-builder"),
         },
         {
           id: "tags",

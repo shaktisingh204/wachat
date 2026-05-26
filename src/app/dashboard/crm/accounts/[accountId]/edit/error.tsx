@@ -22,7 +22,7 @@ export default function AccountEditError({
     const accountId = params?.accountId as string | undefined;
 
     return (
-        <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-center py-20 px-6">
+        <div className="flex w-full flex-col items-center justify-center py-20 px-6">
             <EmptyState
                 icon={<AlertTriangle />}
                 title="Failed to Load Account for Editing"

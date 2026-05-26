@@ -1,0 +1,67 @@
+# Phase — axum router for the SabChat **AI copilot** HTTP surface.
+#
+# Agent-side AI assistant: drafts replies, summarises threads, suggests next
+# actions, and writes wrap-up notes. The LLM client is pluggable behind a
+# trait (`llm::LlmClient`); the binary today ships with a deterministic
+# `StubClient` so the rest of the stack can wire up before we have an
+# upstream provider configured.
+#
+# Per the slice contract this crate is a leaf:
+#   * No `[workspace]` table.
+#   * Does NOT modify `rust/Cargo.toml`; the orchestrator wires it in.
+[package]
+name = "sabchat-ai-copilot"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabChat AI copilot HTTP surface (`/v1/sabchat/ai/copilot/*`). Drafts replies, summarises threads, suggests actions, and writes wrap-up notes. LLM client is pluggable behind a trait; ships with a deterministic stub."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabchat_ai_copilot"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — same feature union as sibling routers so the api crate
+# resolves a single set of cargo features at build time.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId construction (ids on the wire are hex strings; we parse
+# via `oid_from_str` from `sabnode-db`).
+bson = { version = "2", features = ["chrono-0_4"] }
+
+# Wall-clock for any timestamping we may emit on returned shapes.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo driver wrappers + futures combinators (for `cursor.try_collect`).
+mongodb = "3"
+futures = "0.3"
+
+# Tracing for handler-level spans.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal`.
+anyhow = "1"
+
+# `async fn` in traits — the `LlmClient` trait is async; `async_trait`
+# keeps the object-safe `dyn LlmClient` story straightforward without
+# leaning on the still-fresh native dyn-async support.
+async-trait = "0.1"
+
+# OpenAPI annotations to keep parity with sibling routers.
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+# Sibling crates — shared error envelope, JWT extractor, Mongo handle,
+# and the SabChat domain DTOs.
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+sabchat-types = { path = "../sabchat-types" }
+
+[lints]
+workspace = true

@@ -51,7 +51,7 @@ export function ItemForm({ initial }: { initial?: any }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+    <form onSubmit={handleSubmit} className="space-y-6 w-full">
       {lockingError && (
         <ZoruAlert variant="destructive">
           <AlertCircle className="h-4 w-4" />

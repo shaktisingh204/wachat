@@ -236,6 +236,57 @@ email-campaigns = { path = "../email-campaigns" }
 email-events = { path = "../email-events" }
 email-reports = { path = "../email-reports" }
 email-journeys = { path = "../email-journeys" }
+
+# SabChat — omnichannel live-chat module (Pillar 1 + 2 foundation).
+sabchat-types = { path = "../sabchat-types" }
+sabchat-contacts = { path = "../sabchat-contacts" }
+sabchat-conversations = { path = "../sabchat-conversations" }
+sabchat-messages = { path = "../sabchat-messages" }
+sabchat-inboxes = { path = "../sabchat-inboxes" }
+sabchat-audit = { path = "../sabchat-audit" }
+sabchat-routing = { path = "../sabchat-routing" }
+sabchat-widget = { path = "../sabchat-widget" }
+sabchat-ws = { path = "../sabchat-ws" }
+sabchat-channel-whatsapp = { path = "../sabchat-channel-whatsapp" }
+sabchat-channel-instagram = { path = "../sabchat-channel-instagram" }
+sabchat-channel-facebook = { path = "../sabchat-channel-facebook" }
+sabchat-channel-telegram = { path = "../sabchat-channel-telegram" }
+sabchat-channel-email = { path = "../sabchat-channel-email" }
+sabchat-channel-sms = { path = "../sabchat-channel-sms" }
+sabchat-ai-copilot = { path = "../sabchat-ai-copilot" }
+sabchat-ai-translate = { path = "../sabchat-ai-translate" }
+sabchat-ai-sentiment = { path = "../sabchat-ai-sentiment" }
+sabchat-ai-resolve-bot = { path = "../sabchat-ai-resolve-bot" }
+sabchat-macros = { path = "../sabchat-macros" }
+sabchat-sla = { path = "../sabchat-sla" }
+sabchat-business-hours = { path = "../sabchat-business-hours" }
+sabchat-crm-bridge = { path = "../sabchat-crm-bridge" }
+sabchat-knowledge = { path = "../sabchat-knowledge" }
+sabchat-commerce = { path = "../sabchat-commerce" }
+sabchat-reports = { path = "../sabchat-reports" }
+sabchat-teams = { path = "../sabchat-teams" }
+sabchat-webhooks = { path = "../sabchat-webhooks" }
+sabchat-public-api = { path = "../sabchat-public-api" }
+sabchat-events = { path = "../sabchat-events" }
+sabchat-voice = { path = "../sabchat-voice" }
+sabchat-cobrowse = { path = "../sabchat-cobrowse" }
+sabchat-shifts = { path = "../sabchat-shifts" }
+sabchat-csat = { path = "../sabchat-csat" }
+sabchat-dispositions = { path = "../sabchat-dispositions" }
+sabchat-gamification = { path = "../sabchat-gamification" }
+sabchat-compliance = { path = "../sabchat-compliance" }
+sabchat-sso = { path = "../sabchat-sso" }
+sabchat-ai-qa = { path = "../sabchat-ai-qa" }
+sabchat-ai-voc = { path = "../sabchat-ai-voc" }
+sabchat-sabflow-nodes = { path = "../sabchat-sabflow-nodes" }
+sabchat-cart-recovery = { path = "../sabchat-cart-recovery" }
+sabchat-ad-attribution = { path = "../sabchat-ad-attribution" }
+sabchat-channel-line = { path = "../sabchat-channel-line" }
+sabchat-channel-viber = { path = "../sabchat-channel-viber" }
+sabchat-channel-apple = { path = "../sabchat-channel-apple" }
+sabchat-channel-gbm = { path = "../sabchat-channel-gbm" }
+sabchat-channel-x = { path = "../sabchat-channel-x" }
+sabchat-marketplace = { path = "../sabchat-marketplace" }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
 
 axum = "0.8"
@@ -252,6 +303,74 @@ serde_json = "1.0"
 dotenvy = "0.15"
 chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
 anyhow = "1.0"
+
+sabbi-charts = { path = "../sabbi-charts" }
+sabbi-dataset-joins = { path = "../sabbi-dataset-joins" }
+sabbi-datasets = { path = "../sabbi-datasets" }
+sabbi-embeds = { path = "../sabbi-embeds" }
+sabbi-schedules = { path = "../sabbi-schedules" }
+sabbi-workbooks = { path = "../sabbi-workbooks" }
+sabbigin-config = { path = "../sabbigin-config" }
+sabbugs-bugs = { path = "../sabbugs-bugs" }
+sabbugs-comments = { path = "../sabbugs-comments" }
+sabbugs-history = { path = "../sabbugs-history" }
+sabbugs-saved-filters = { path = "../sabbugs-saved-filters" }
+sabbugs-versions = { path = "../sabbugs-versions" }
+sabconnect-comments = { path = "../sabconnect-comments" }
+sabconnect-custom-apps = { path = "../sabconnect-custom-apps" }
+sabconnect-feed = { path = "../sabconnect-feed" }
+sabconnect-groups = { path = "../sabconnect-groups" }
+sabconnect-manuals = { path = "../sabconnect-manuals" }
+sabconnect-reactions = { path = "../sabconnect-reactions" }
+sabmeet-dialins = { path = "../sabmeet-dialins" }
+sabmeet-participants = { path = "../sabmeet-participants" }
+sabmeet-polls = { path = "../sabmeet-polls" }
+sabmeet-qna = { path = "../sabmeet-qna" }
+sabmeet-recordings = { path = "../sabmeet-recordings" }
+sabmeet-rooms = { path = "../sabmeet-rooms" }
+sabprep-profiles = { path = "../sabprep-profiles" }
+sabprep-recipes = { path = "../sabprep-recipes" }
+sabprep-runs = { path = "../sabprep-runs" }
+sabprep-steps = { path = "../sabprep-steps" }
+sabrequests-blueprints = { path = "../sabrequests-blueprints" }
+sabrequests-instances = { path = "../sabrequests-instances" }
+sabrequests-orgcharts = { path = "../sabrequests-orgcharts" }
+sabrequests-stage-actions = { path = "../sabrequests-stage-actions" }
+sabrewards-catalog = { path = "../sabrewards-catalog" }
+sabrewards-members = { path = "../sabrewards-members" }
+sabrewards-programs = { path = "../sabrewards-programs" }
+sabrewards-redemptions = { path = "../sabrewards-redemptions" }
+sabrewards-referrals = { path = "../sabrewards-referrals" }
+sabsense-form-analytics = { path = "../sabsense-form-analytics" }
+sabsense-funnel-runs = { path = "../sabsense-funnel-runs" }
+sabsense-funnels = { path = "../sabsense-funnels" }
+sabsense-heatmap-events = { path = "../sabsense-heatmap-events" }
+sabsense-heatmaps = { path = "../sabsense-heatmaps" }
+sabsense-recordings = { path = "../sabsense-recordings" }
+sabsense-sites = { path = "../sabsense-sites" }
+sabshop-carts = { path = "../sabshop-carts" }
+sabshop-checkouts = { path = "../sabshop-checkouts" }
+sabshop-collections = { path = "../sabshop-collections" }
+sabshop-orders = { path = "../sabshop-orders" }
+sabshop-shipping-zones = { path = "../sabshop-shipping-zones" }
+sabshop-storefronts = { path = "../sabshop-storefronts" }
+sabshop-tax-rules = { path = "../sabshop-tax-rules" }
+sabshop-themes = { path = "../sabshop-themes" }
+sabsign-audit = { path = "../sabsign-audit" }
+sabsign-envelopes = { path = "../sabsign-envelopes" }
+sabsign-fields = { path = "../sabsign-fields" }
+sabsign-templates = { path = "../sabsign-templates" }
+sabsprints-burndown = { path = "../sabsprints-burndown" }
+sabsprints-epics = { path = "../sabsprints-epics" }
+sabsprints-sprints = { path = "../sabsprints-sprints" }
+sabsprints-stories = { path = "../sabsprints-stories" }
+sabsprints-velocity = { path = "../sabsprints-velocity" }
+sabvoice-agents-presence = { path = "../sabvoice-agents-presence" }
+sabvoice-calls = { path = "../sabvoice-calls" }
+sabvoice-dids = { path = "../sabvoice-dids" }
+sabvoice-ivrs = { path = "../sabvoice-ivrs" }
+sabvoice-queues = { path = "../sabvoice-queues" }
+sabvoice-voicemail = { path = "../sabvoice-voicemail" }
 
 [lints]
 workspace = true

@@ -101,7 +101,7 @@ export function CrmFormDrawer({
 
           {/* Section Input Fields Area */}
           <main className="flex-1 p-6 overflow-y-auto bg-zoru-bg">
-            <div className="max-w-xl mx-auto space-y-6">
+            <div className="w-full space-y-6">
               {activeSection ? (
                 <div key={activeSection.id} className="animate-in fade-in duration-200">
                   <h3 className="text-sm font-semibold text-zoru-ink border-b border-zoru-line pb-2 mb-4 uppercase tracking-wider text-[11.5px] text-zoru-ink-muted">

@@ -63,7 +63,7 @@ export function RoleForm({
 
   return (
     <Card className="p-0">
-      <form action={formAction} className="max-w-xl space-y-4 p-6">
+      <form action={formAction} className="w-full space-y-4 p-6">
         {isEditing ? (
           <input type="hidden" name="_id" value={initialData!._id} />
         ) : null}

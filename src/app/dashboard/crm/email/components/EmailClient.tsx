@@ -272,7 +272,7 @@ export function EmailClient() {
     );
 
     const renderSettings = () => (
-        <div className="p-6 bg-white border border-zoru-border rounded-lg h-full max-w-2xl">
+        <div className="p-6 bg-white border border-zoru-border rounded-lg h-full w-full">
             <div className="mb-6">
                 <h2 className="text-lg font-semibold text-zoru-ink mb-1">IMAP/SMTP Settings</h2>
                 <p className="text-[13px] text-zoru-ink-muted">Configure your email provider to sync inbox and send emails.</p>

@@ -372,10 +372,10 @@ pub async fn update_attendance(
 // DELETE /:attendanceId — delete_attendance (hard)
 // =========================================================================
 
-/// `DELETE /v1/crm/attendance/:attendanceId` — **hard delete**. Per the
-/// CRM ecosystem plan (`docs/ecosystem/CRM_PLAN.md` §10), CRM entities
-/// use hard deletes — the row is removed from the collection. Fails
-/// with 404 if the record doesn't exist OR isn't owned by the caller.
+/// `DELETE /v1/crm/attendance/:attendanceId` — **soft delete**.
+/// Soft deletes the record by setting `archived = true` and stamping
+/// `deletedAt`. Attendance is load-bearing for payroll runs and must
+/// remain auditable. Fails with 404 if the record doesn't exist OR isn't owned by the caller.
 #[instrument(skip_all, fields(user_id = %user.user_id, attendance_id = %attendance_id))]
 pub async fn delete_attendance(
     user: AuthUser,
@@ -386,19 +386,28 @@ pub async fn delete_attendance(
     let att_oid = oid_from_str(&attendance_id)?;
 
     let filter = doc! { "_id": att_oid, "userId": user_id };
+    
+    let update = doc! {
+        "$set": {
+            "archived": true,
+            "deletedAt": bson::DateTime::from_chrono(Utc::now()),
+            "updatedAt": bson::DateTime::from_chrono(Utc::now()),
+            "updatedBy": user_id,
+        }
+    };
 
     let coll = mongo.collection::<Document>(ATTENDANCE_COLL);
     let res = coll
-        .delete_one(filter)
+        .update_one(filter, update)
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_attendance.delete_one"))
         })?;
-    if res.deleted_count == 0 {
+    if res.matched_count == 0 {
         return Err(ApiError::NotFound("attendance".to_owned()));
     }
 
-    Ok(Json(serde_json::json!({ "ok": true, "deleted": true })))
+    Ok(Json(serde_json::json!({ "success": true })))
 }
 
 // =========================================================================
@@ -515,12 +524,41 @@ async fn punch_impl(
     };
     let punch_bson = to_bson_val(key, &punch)?;
     let source_bson = to_bson_val("source", &source)?;
-    let set = doc! {
+    let mut set = doc! {
         key: punch_bson,
         "source": source_bson,
         "updatedAt": bson::DateTime::from_chrono(now),
         "updatedBy": user_id,
     };
+
+    // Calculate totalHours if we have both in and out punches.
+    let pi_time = match kind {
+        PunchKind::In => Some(stamp_at),
+        PunchKind::Out => existing.as_ref().and_then(|a| a.punch_in.as_ref().map(|p| p.at)),
+    };
+    let po_time = match kind {
+        PunchKind::Out => Some(stamp_at),
+        PunchKind::In => existing.as_ref().and_then(|a| a.punch_out.as_ref().map(|p| p.at)),
+    };
+
+    if let (Some(pi), Some(po)) = (pi_time, po_time) {
+        if po > pi {
+            let mut duration = po.signed_duration_since(pi);
+            if let Some(ref att) = existing {
+                for brk in &att.breaks {
+                    if let Some(bout) = brk.out {
+                        if bout > brk.r#in {
+                            duration = duration - bout.signed_duration_since(brk.r#in);
+                        }
+                    }
+                }
+            }
+            let hours = duration.num_minutes() as f64 / 60.0;
+            if hours > 0.0 {
+                set.insert("totalHours", hours);
+            }
+        }
+    }
 
     let docs = mongo.collection::<Document>(ATTENDANCE_COLL);
     docs.update_one(filter.clone(), doc! { "$set": set })

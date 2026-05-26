@@ -52,7 +52,7 @@ export default function NewLoyaltyProgramPage() {
         >
 
             <form action={formAction}>
-                <Card className="p-6 max-w-xl">
+                <Card className="p-6 w-full">
                     <div className="space-y-5">
                         {/* Program Name */}
                         <div className="space-y-1.5">

@@ -23,15 +23,15 @@
 //! ## Refresh
 //!
 //! [`refresh::debug_token`] wraps Meta's `GET /v23.0/debug_token` endpoint —
-//! the same call used by `inspectToken` in `meta-token.actions.ts`. Long-lived
-//! exchange (`fb_exchange_token`) is handled by callers that already have the
-//! short-lived token; this crate intentionally does not own the OAuth flow.
+//! the same call used by `inspectToken` in `meta-token.actions.ts`.
 
 pub mod error;
 pub mod refresh;
+pub mod sdk;
 pub mod store;
 pub mod types;
 
 pub use refresh::{TokenIntrospection, debug_token};
+pub use sdk::MetaAuthSdk;
 pub use store::TokenStore;
 pub use types::{TokenRecord, TokenType};

@@ -19,5 +19,8 @@ chrono = { version = "0.4", features = ["serde"] }
 
 sabsms-types = { path = "../sabsms-types" }
 
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }
+
 [lints]
 workspace = true

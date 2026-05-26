@@ -164,3 +164,44 @@ pub struct RecurringSendBody {
     pub token: String,
     pub message_text: String,
 }
+
+// ---------------------------------------------------------------------------
+// WhatsApp Cloud API
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct SendWhatsappTextBody {
+    pub phone_number_id: String,
+    pub to: String,
+    pub text: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct SendWhatsappTemplateBody {
+    pub phone_number_id: String,
+    pub to: String,
+    pub template_name: String,
+    pub language_code: String,
+    #[serde(default)]
+    pub components: Vec<Value>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct SendWhatsappMediaBody {
+    pub phone_number_id: String,
+    pub to: String,
+    pub media_type: String, // "image", "video", "audio", "document"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub media_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub media_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct SendWhatsappInteractiveBody {
+    pub phone_number_id: String,
+    pub to: String,
+    pub interactive: Value,
+}

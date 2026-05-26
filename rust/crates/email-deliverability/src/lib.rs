@@ -84,4 +84,6 @@ where
         .route("/placement", get(handlers::get_placement))
         .route("/placement/run", post(handlers::run_placement))
         .route("/score", get(handlers::get_score))
+        .route("/webhooks/ses/{token}", post(handlers::ses_webhook))
+        .route("/webhooks/sendgrid/{token}", post(handlers::sendgrid_webhook))
 }

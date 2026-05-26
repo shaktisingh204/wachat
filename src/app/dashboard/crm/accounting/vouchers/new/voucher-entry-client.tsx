@@ -304,7 +304,7 @@ export function NewVoucherEntryClient({ presetBookId, initialUser, initialVouche
             <input type="hidden" name="recurringFrequency" value={recurringFrequency} />
             <input type="hidden" name="recurringEndDate" value={recurringEndDate?.toISOString() || ""} />
 
-            <div className="max-w-6xl mx-auto flex flex-col gap-6">
+            <div className="w-full flex flex-col gap-6">
                 <header className="flex justify-between items-center">
                     <Button variant="ghost" asChild className="-ml-4 text-muted-foreground hover:text-foreground">
                         <Link href="/dashboard/crm/accounting/vouchers">
@@ -315,7 +315,7 @@ export function NewVoucherEntryClient({ presetBookId, initialUser, initialVouche
                         <SaveButton disabled={difference !== 0} />
                     </div>
                 </header>
-                <Card className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
+                <Card className="w-full p-4 sm:p-8 md:p-12">
                     <header className="text-center mb-8">
                         <h1 className="text-[26px] font-semibold text-accent-foreground">New Voucher Entry</h1>
                         <p className="mt-1 text-[13px] text-muted-foreground">Record a new journal entry.</p>

@@ -167,7 +167,7 @@ export function AppModulesGrid({ data, derived }: { data: any, derived: any }) {
       name: "E-commerce",
       primary: compact(stats.totalEcommOrders),
       secondary: `${compact(stats.totalEcommProducts)} products`,
-      href: "/dashboard/shop",
+      href: "/dashboard/sabshop",
       status: stats.totalEcommOrders > 0 ? ("ok" as const) : stats.totalEcommProducts > 0 ? ("warn" as const) : ("off" as const)
     },
     {

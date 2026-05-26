@@ -33,7 +33,7 @@ export default async function NewCrmFormPage() {
 
     if (total >= formLimit) {
         return (
-            <div className="max-w-3xl mx-auto p-12 text-center mt-20">
+            <div className="w-full p-12 text-center mt-20">
                 <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-6" />
                 <h1 className="text-3xl font-bold text-foreground mb-4">Quota Exceeded</h1>
                 <p className="text-lg text-muted-foreground mb-8">

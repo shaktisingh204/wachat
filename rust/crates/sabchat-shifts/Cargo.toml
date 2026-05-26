@@ -1,0 +1,63 @@
+# Phase — axum router for the SabChat **HRM-aware shift presence** HTTP surface.
+#
+# Owns the shift-rule CRUD plus the cron-callable `/sync` and read-only
+# `/preview` endpoints that bridge `crm_attendance` ⇄ `sabchat_agent_presence`
+# so an agent's live-chat availability follows their HRM check-in state.
+#
+# Per the slice contract this crate is a leaf:
+#   * No `[workspace]` table.
+#   * Does NOT modify `rust/Cargo.toml`; the orchestrator wires it in.
+[package]
+name = "sabchat-shifts"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabChat HRM-aware shift presence HTTP surface (`/v1/sabchat/shifts/*`). Walks `crm_attendance` rows, maps employees to agents via `crm_employees`, applies tenant `sabchat_shift_rules`, and writes `sabchat_agent_presence` with `setBy = \"hrm\"`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabchat_shifts"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — same feature union as sibling routers so the api crate
+# resolves a single set of cargo features at build time.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId construction (rule / agent / employee ids on the wire are
+# hex strings; we parse via `oid_from_str` from `sabnode-db`).
+bson = { version = "2", features = ["chrono-0_4"] }
+
+# Wall-clock for `createdAt` / `updatedAt` / `setAt` and the today-window
+# the `/sync` endpoint scans.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo driver wrappers + futures combinators (for `cursor.try_collect`).
+mongodb = "3"
+futures = "0.3"
+
+# Tracing for handler-level spans.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal`.
+anyhow = "1"
+
+# OpenAPI annotations to keep parity with sibling routers.
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+# Sibling crates — shared error envelope, JWT extractor, Mongo handle,
+# and the shared SabChat DTO surface (kept on the dep graph for parity
+# with the other sabchat-* routers even where this leaf does not name
+# a type directly).
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+sabchat-types = { path = "../sabchat-types" }
+
+[lints]
+workspace = true

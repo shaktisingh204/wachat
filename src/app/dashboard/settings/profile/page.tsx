@@ -38,6 +38,7 @@ import { AtSign,
 
 import { getSession,
   handleUpdateUserProfile } from '@/app/actions/user.actions';
+import { useT } from '@/lib/i18n/client';
 
 const initialState = { message: undefined, error: undefined } as {
   message?: string;

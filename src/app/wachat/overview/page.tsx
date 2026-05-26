@@ -50,11 +50,7 @@ import {
 import dynamic from 'next/dynamic';
 
 import { useProject } from '@/context/project-context';
-import {
-  getDashboardStats,
-  getDashboardChartData,
-} from '@/app/actions/dashboard.actions';
-import { getBroadcasts } from '@/app/actions/broadcast.actions';
+
 
 const OverviewChart = dynamic(() => import('./overview-chart'), {
   ssr: false,
@@ -159,15 +155,18 @@ export default function OverviewPage() {
   const reload = useCallback(() => {
     if (!projectId) return;
     startTransition(() => {
-      Promise.all([
-        getDashboardStats(projectId),
-        getDashboardChartData(projectId),
-        getBroadcasts(projectId, 1, 5),
-      ]).then(([s, c, b]) => {
-        setStats(s as Stats);
-        setChart((c as ChartPoint[]) || []);
-        setBroadcasts(b.broadcasts || []);
-      });
+      fetch(`/api/wachat/dashboard?projectId=${projectId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.error) {
+            setStats(data.stats as Stats);
+            setChart((data.chart as ChartPoint[]) || []);
+            setBroadcasts(data.broadcasts || []);
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to load overview data:', err);
+        });
     });
   }, [projectId]);
 

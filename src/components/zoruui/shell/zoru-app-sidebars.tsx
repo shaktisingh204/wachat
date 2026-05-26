@@ -242,7 +242,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("template-builder", "Template builder", "/wachat/template-builder", WrenchIcon, p),
           leaf("template-analytics", "Template analytics", "/wachat/template-analytics", BarChart3, p),
           leaf("templates-library", "Messages library", "/wachat/message-templates-library", BookOpen, p),
-          leaf("interactive", "Interactive messages", "/wachat/interactive-messages", Sparkles, p),
+          leaf("interactive", "Interactive messages", "/wachat/templates/interactive-message-builder", Sparkles, p),
         ],
       },
       {

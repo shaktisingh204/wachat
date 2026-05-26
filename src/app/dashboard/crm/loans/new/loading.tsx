@@ -17,7 +17,7 @@ export default function Loading() {
       </div>
 
       {/* Content Skeleton */}
-      <div className="flex-1 overflow-auto p-6 max-w-4xl mx-auto w-full">
+      <div className="flex-1 overflow-auto p-6 w-full">
         <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-6 shadow-sm">
           <div className="flex flex-col gap-6">
             {/* Form Fields */}

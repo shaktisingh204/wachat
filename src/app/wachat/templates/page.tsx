@@ -58,6 +58,7 @@ import {
   CircleAlert,
   ChevronDown,
   Filter,
+  Smartphone,
   CircleCheck,
   Clock,
   CircleX,
@@ -379,6 +380,13 @@ export default function TemplatesPage() {
             onClick={() => router.push('/wachat/templates/create')}
           >
             <CirclePlus /> New template
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => router.push('/wachat/templates/interactive-message-builder')}
+          >
+            <Smartphone /> Interactive builder
           </Button>
         </ZoruPageActions>
       </PageHeader>

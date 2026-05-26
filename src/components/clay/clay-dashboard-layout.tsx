@@ -333,8 +333,8 @@ const appsNav: NavEntry[] = [
     key: 'ecommerce',
     label: 'E-commerce',
     icon: <LuShoppingBag className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/shop',
-    matches: ['/dashboard/shop'],
+    href: '/dashboard/sabshop',
+    matches: ['/dashboard/sabshop'],
   },
   {
     key: 'url-shortener',
@@ -444,7 +444,7 @@ const wachatAutomation: NavEntry[] = [
   { key: 'wachat-chatbot', label: 'Chatbot', icon: <LuBrainCircuit className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/chatbot', matches: ['/wachat/chatbot'] },
   { key: 'wachat-automation', label: 'Conversational AI', icon: <LuBot className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/automation', matches: ['/wachat/automation'] },
   { key: 'wachat-scheduled-messages', label: 'Scheduled Messages', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/scheduled-messages', matches: ['/wachat/scheduled-messages'] },
-  { key: 'wachat-interactive', label: 'Interactive Msgs', icon: <LuSmartphone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/interactive-messages', matches: ['/wachat/interactive-messages'] },
+  { key: 'wachat-interactive', label: 'Interactive Msgs', icon: <LuSmartphone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/templates/interactive-message-builder', matches: ['/wachat/templates/interactive-message-builder'] },
 ];
 
 /* ── Broadcasts: campaigns, segments, templates, bulk send ── */

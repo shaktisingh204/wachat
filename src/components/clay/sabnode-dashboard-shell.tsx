@@ -125,7 +125,7 @@ const WACHAT_PREFIXES = [
   '/wachat/conversation-kanban',
   '/wachat/conversation-filters',
   '/wachat/conversation-summary',
-  '/wachat/interactive-messages',
+  '/wachat/templates/interactive-message-builder',
   '/wachat/bulk-messaging',
   '/wachat/response-time-tracker',
   '/wachat/customer-satisfaction',

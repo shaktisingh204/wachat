@@ -17,7 +17,7 @@ export default function LegacyDealEditError({
   }, [error]);
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-6 pt-6 pb-10">
+    <div className="w-full px-6 pt-6 pb-10">
       <EmptyState
         icon={<AlertTriangle className="h-8 w-8 text-red-500" />}
         title="Redirection Failed"

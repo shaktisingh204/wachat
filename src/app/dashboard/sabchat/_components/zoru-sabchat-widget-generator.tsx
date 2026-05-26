@@ -16,6 +16,11 @@ import {
   Switch,
   Textarea,
   useZoruToast,
+  Select,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -27,20 +32,15 @@ import { Code,
   Copy,
   LoaderCircle,
   MessageSquare,
-  Save } from "lucide-react";
+  Save,
+  Palette,
+  Settings2,
+  FileText } from "lucide-react";
 
 import { saveSabChatSettings } from "@/app/actions/sabchat.actions";
 import type { WithId,
   User,
   SabChatSettings } from "@/lib/definitions";
-
-/**
- * ZoruUI rebuild of the SabChat widget generator.
- *
- * Same `saveSabChatSettings` server action wired through `useActionState`.
- * Pure visual swap — local component lives under `_components/` to avoid
- * importing visual primitives from `@/components/wabasimplify`.
- */
 
 import { SabFileUrlInput } from "@/components/sabfiles";
 
@@ -75,18 +75,31 @@ export function ZoruSabChatWidgetGenerator({
   );
   const { toast } = useZoruToast();
   const [showWidget, setShowWidget] = useState(false);
+  const [activeTab, setActiveTab] = useState<'design' | 'pre-chat' | 'advanced'>('design');
 
   const [settings, setSettings] = useState<SabChatSettings>(() => ({
     enabled: user.sabChatSettings?.enabled ?? true,
     widgetColor: user.sabChatSettings?.widgetColor || "#1f2937",
+    widgetPosition: user.sabChatSettings?.widgetPosition || "right",
+    darkMode: user.sabChatSettings?.darkMode || "auto",
     welcomeMessage:
       user.sabChatSettings?.welcomeMessage ||
       "Hello! How can we help you today?",
+    welcomeTagline: user.sabChatSettings?.welcomeTagline || "Typically replies instantly",
     teamName: user.sabChatSettings?.teamName || user.name,
     avatarUrl: user.sabChatSettings?.avatarUrl || "",
+    companyLogo: user.sabChatSettings?.companyLogo || "",
     awayMessage:
       user.sabChatSettings?.awayMessage ||
       "We are currently away. Please leave a message!",
+    replyTime: user.sabChatSettings?.replyTime || "Typically replies in a few minutes",
+    preChatFormEnabled: user.sabChatSettings?.preChatFormEnabled ?? false,
+    preChatFormMessage: user.sabChatSettings?.preChatFormMessage || "Please provide your details before we start.",
+    csatSurveyEnabled: user.sabChatSettings?.csatSurveyEnabled ?? false,
+    fileAttachmentsEnabled: user.sabChatSettings?.fileAttachmentsEnabled ?? true,
+    emojiPickerEnabled: user.sabChatSettings?.emojiPickerEnabled ?? true,
+    requireConsent: user.sabChatSettings?.requireConsent ?? false,
+    hideOutsideBusinessHours: user.sabChatSettings?.hideOutsideBusinessHours ?? false,
   }));
 
   useEffect(() => {
@@ -104,7 +117,7 @@ export function ZoruSabChatWidgetGenerator({
 
   const handleSettingChange = (
     field: keyof SabChatSettings,
-    value: string | boolean,
+    value: any,
   ) => {
     setSettings((prev) => ({ ...prev, [field]: value }));
   };
@@ -154,119 +167,361 @@ export function ZoruSabChatWidgetGenerator({
           </div>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <div className="grid items-start gap-8 lg:grid-cols-2">
-            {/* Customisation panel */}
-            <div className="space-y-4">
-              <div className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
-                <Switch
-                  id="widget-enabled"
-                  checked={settings.enabled}
-                  onCheckedChange={(checked) =>
-                    handleSettingChange("enabled", checked)
-                  }
-                />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="widget-enabled">
-                    Enable chat widget
-                  </Label>
-                  <p className="text-sm text-zoru-ink-muted">
-                    {settings.enabled
-                      ? "Widget is active and visible on your site."
-                      : "Widget is disabled and hidden from your site."}
-                  </p>
-                </div>
-                {/* Action expects 'enabled' to be 'on' if checked. */}
-                {settings.enabled && (
-                  <input type="hidden" name="enabled" value="on" />
-                )}
-              </div>
+          <div className="flex flex-col gap-8 lg:flex-row">
+            {/* Sidebar Navigation */}
+            <div className="flex flex-row lg:flex-col gap-2 w-full lg:w-48 shrink-0 border-b lg:border-b-0 lg:border-r border-zoru-line pb-4 lg:pb-0 lg:pr-4 overflow-x-auto">
+              <button
+                type="button"
+                onClick={() => setActiveTab('design')}
+                className={`flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-2 text-sm transition-colors ${activeTab === 'design' ? 'bg-zoru-surface-2 text-zoru-ink font-medium' : 'text-zoru-ink-muted hover:bg-zoru-surface hover:text-zoru-ink'}`}
+              >
+                <Palette className="h-4 w-4 shrink-0" />
+                Design
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('pre-chat')}
+                className={`flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-2 text-sm transition-colors ${activeTab === 'pre-chat' ? 'bg-zoru-surface-2 text-zoru-ink font-medium' : 'text-zoru-ink-muted hover:bg-zoru-surface hover:text-zoru-ink'}`}
+              >
+                <FileText className="h-4 w-4 shrink-0" />
+                Pre-chat form
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('advanced')}
+                className={`flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-2 text-sm transition-colors ${activeTab === 'advanced' ? 'bg-zoru-surface-2 text-zoru-ink font-medium' : 'text-zoru-ink-muted hover:bg-zoru-surface hover:text-zoru-ink'}`}
+              >
+                <Settings2 className="h-4 w-4 shrink-0" />
+                Advanced
+              </button>
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="widget-color">Widget colour</Label>
-                <Input
-                  id="widget-color"
-                  type="color"
-                  value={settings.widgetColor}
-                  onChange={(e) =>
-                    handleSettingChange("widgetColor", e.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="widget-team-name">Team name</Label>
-                <Input
-                  id="widget-team-name"
-                  value={settings.teamName}
-                  onChange={(e) =>
-                    handleSettingChange("teamName", e.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="widget-welcome">Welcome message</Label>
-                <Textarea
-                  id="widget-welcome"
-                  value={settings.welcomeMessage}
-                  onChange={(e) =>
-                    handleSettingChange("welcomeMessage", e.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="widget-avatar">Avatar URL</Label>
-                <SabFileUrlInput
-                  id="widget-avatar"
-                  accept="image"
-                  value={settings.avatarUrl ?? ""}
-                  onChange={(v) =>
-                    handleSettingChange("avatarUrl", v)
-                  }
-                />
-              </div>
+            {/* Customisation panel */}
+            <div className="flex-1 space-y-6">
+              
+              {activeTab === 'design' && (
+                <div className="space-y-5 animate-in fade-in slide-in-from-left-2">
+                  <div className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
+                    <Switch
+                      id="widget-enabled"
+                      checked={settings.enabled}
+                      onCheckedChange={(checked) =>
+                        handleSettingChange("enabled", checked)
+                      }
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                      <Label htmlFor="widget-enabled">
+                        Enable chat widget
+                      </Label>
+                      <p className="text-sm text-zoru-ink-muted">
+                        {settings.enabled
+                          ? "Widget is active and visible on your site."
+                          : "Widget is disabled and hidden from your site."}
+                      </p>
+                    </div>
+                    {settings.enabled && (
+                      <input type="hidden" name="enabled" value="on" />
+                    )}
+                  </div>
+
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="widget-color">Widget colour</Label>
+                      <Input
+                        id="widget-color"
+                        type="color"
+                        value={settings.widgetColor}
+                        onChange={(e) =>
+                          handleSettingChange("widgetColor", e.target.value)
+                        }
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Widget position</Label>
+                      <Select
+                        value={settings.widgetPosition}
+                        onValueChange={(v) => handleSettingChange("widgetPosition", v)}
+                      >
+                        <ZoruSelectTrigger>
+                          <ZoruSelectValue placeholder="Position" />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                          <ZoruSelectItem value="left">Left</ZoruSelectItem>
+                          <ZoruSelectItem value="right">Right</ZoruSelectItem>
+                        </ZoruSelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Dark mode</Label>
+                      <Select
+                        value={settings.darkMode}
+                        onValueChange={(v) => handleSettingChange("darkMode", v)}
+                      >
+                        <ZoruSelectTrigger>
+                          <ZoruSelectValue placeholder="Theme" />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                          <ZoruSelectItem value="light">Light</ZoruSelectItem>
+                          <ZoruSelectItem value="dark">Dark</ZoruSelectItem>
+                          <ZoruSelectItem value="auto">Auto (System)</ZoruSelectItem>
+                        </ZoruSelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="widget-team-name">Channel name</Label>
+                      <Input
+                        id="widget-team-name"
+                        value={settings.teamName}
+                        onChange={(e) =>
+                          handleSettingChange("teamName", e.target.value)
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-2 sm:col-span-2">
+                      <Label htmlFor="widget-welcome">Welcome message</Label>
+                      <Textarea
+                        id="widget-welcome"
+                        value={settings.welcomeMessage}
+                        onChange={(e) =>
+                          handleSettingChange("welcomeMessage", e.target.value)
+                        }
+                        rows={2}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2 sm:col-span-2">
+                      <Label htmlFor="widget-tagline">Welcome tagline</Label>
+                      <Input
+                        id="widget-tagline"
+                        value={settings.welcomeTagline}
+                        onChange={(e) =>
+                          handleSettingChange("welcomeTagline", e.target.value)
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="widget-avatar">Agent Avatar</Label>
+                      <SabFileUrlInput
+                        id="widget-avatar"
+                        accept="image"
+                        value={settings.avatarUrl ?? ""}
+                        onChange={(v) =>
+                          handleSettingChange("avatarUrl", v)
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="widget-logo">Company Logo</Label>
+                      <SabFileUrlInput
+                        id="widget-logo"
+                        accept="image"
+                        value={settings.companyLogo ?? ""}
+                        onChange={(v) =>
+                          handleSettingChange("companyLogo", v)
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'pre-chat' && (
+                <div className="space-y-5 animate-in fade-in slide-in-from-left-2">
+                  <div className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
+                    <Switch
+                      id="prechat-enabled"
+                      checked={settings.preChatFormEnabled}
+                      onCheckedChange={(checked) =>
+                        handleSettingChange("preChatFormEnabled", checked)
+                      }
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                      <Label htmlFor="prechat-enabled">
+                        Enable Pre-chat Form
+                      </Label>
+                      <p className="text-sm text-zoru-ink-muted">
+                        Collect visitor information before starting a conversation.
+                      </p>
+                    </div>
+                  </div>
+
+                  {settings.preChatFormEnabled && (
+                    <div className="space-y-4 rounded-[var(--zoru-radius)] border border-zoru-line p-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="prechat-message">Pre-chat Message</Label>
+                        <Textarea
+                          id="prechat-message"
+                          value={settings.preChatFormMessage}
+                          onChange={(e) =>
+                            handleSettingChange("preChatFormMessage", e.target.value)
+                          }
+                          placeholder="Please provide your details before we start."
+                          rows={2}
+                        />
+                      </div>
+                      <p className="text-sm text-zoru-ink-muted">
+                        (Additional custom fields management can be configured in your channel settings)
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'advanced' && (
+                <div className="space-y-5 animate-in fade-in slide-in-from-left-2">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line p-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="adv-csat">Customer Satisfaction (CSAT)</Label>
+                        <p className="text-xs text-zoru-ink-muted">Send a survey after conversation resolves.</p>
+                      </div>
+                      <Switch
+                        id="adv-csat"
+                        checked={settings.csatSurveyEnabled}
+                        onCheckedChange={(c) => handleSettingChange("csatSurveyEnabled", c)}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line p-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="adv-attachments">File Attachments</Label>
+                        <p className="text-xs text-zoru-ink-muted">Allow visitors to send files.</p>
+                      </div>
+                      <Switch
+                        id="adv-attachments"
+                        checked={settings.fileAttachmentsEnabled}
+                        onCheckedChange={(c) => handleSettingChange("fileAttachmentsEnabled", c)}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line p-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="adv-emoji">Emoji Picker</Label>
+                        <p className="text-xs text-zoru-ink-muted">Show emoji picker in widget input.</p>
+                      </div>
+                      <Switch
+                        id="adv-emoji"
+                        checked={settings.emojiPickerEnabled}
+                        onCheckedChange={(c) => handleSettingChange("emojiPickerEnabled", c)}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line p-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="adv-consent">Require Consent</Label>
+                        <p className="text-xs text-zoru-ink-muted">Show a consent disclaimer.</p>
+                      </div>
+                      <Switch
+                        id="adv-consent"
+                        checked={settings.requireConsent}
+                        onCheckedChange={(c) => handleSettingChange("requireConsent", c)}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line p-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="adv-hours">Hide outside business hours</Label>
+                        <p className="text-xs text-zoru-ink-muted">Widget will be invisible when offline.</p>
+                      </div>
+                      <Switch
+                        id="adv-hours"
+                        checked={settings.hideOutsideBusinessHours}
+                        onCheckedChange={(c) => handleSettingChange("hideOutsideBusinessHours", c)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Preview + code */}
-            <div className="space-y-4">
+            <div className="w-full lg:w-[350px] shrink-0 space-y-4">
               <Label>Live preview</Label>
-              <div className="relative flex h-[400px] items-end justify-end overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
-                <div className="static">
-                  <button
-                    type="button"
-                    style={{ backgroundColor: settings.widgetColor }}
-                    onClick={() => setShowWidget(!showWidget)}
-                    className="relative flex h-16 w-16 items-center justify-center rounded-full text-zoru-on-primary shadow-[var(--zoru-shadow-md)]"
-                    aria-label="Toggle widget preview"
-                  >
-                    <MessageSquare className="h-8 w-8" />
-                  </button>
+              <div className="relative flex h-[500px] w-full items-end justify-end overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-[radial-gradient(#374151_1px,transparent_1px)]">
+                <div className={`static w-full h-full flex flex-col ${settings.widgetPosition === 'left' ? 'items-start' : 'items-end'} justify-end`}>
+                  
                   {showWidget && (
-                    <div className="absolute bottom-[96px] right-[16px] flex h-[300px] w-[350px] flex-col overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg shadow-[var(--zoru-shadow-lg)]">
+                    <div className={`mb-4 flex h-[400px] w-[320px] flex-col overflow-hidden rounded-xl border border-zoru-line ${settings.darkMode === 'dark' ? 'bg-zinc-950 text-white' : 'bg-white text-zinc-900'} shadow-[0_8px_30px_rgb(0,0,0,0.12)]`}>
                       <div
                         style={{ backgroundColor: settings.widgetColor }}
-                        className="flex items-center gap-3 p-4 text-zoru-on-primary"
+                        className="flex flex-col gap-3 p-5 text-white"
                       >
-                        <Avatar>
-                          {settings.avatarUrl && (
-                            <ZoruAvatarImage src={settings.avatarUrl} />
-                          )}
-                          <ZoruAvatarFallback>
-                            {settings.teamName?.charAt(0) || "S"}
-                          </ZoruAvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h4>{settings.teamName}</h4>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-10 w-10 border-2 border-white/20">
+                              {settings.avatarUrl && (
+                                <ZoruAvatarImage src={settings.avatarUrl} />
+                              )}
+                              <ZoruAvatarFallback className="bg-white/10 text-white">
+                                {settings.teamName?.charAt(0) || "S"}
+                              </ZoruAvatarFallback>
+                            </Avatar>
+                            <div>
+                              <h4 className="font-semibold leading-tight">{settings.teamName}</h4>
+                              {settings.welcomeTagline && (
+                                <p className="text-xs opacity-90">{settings.welcomeTagline}</p>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex-1 bg-zoru-surface p-4">
-                        <div className="rounded-[var(--zoru-radius-sm)] bg-zoru-bg p-3 text-sm text-zoru-ink shadow-[var(--zoru-shadow-sm)]">
-                          {settings.welcomeMessage}
+                      <div className={`flex-1 overflow-y-auto p-4 ${settings.darkMode === 'dark' ? 'bg-zinc-950' : 'bg-zinc-50'}`}>
+                        <div className="flex gap-2">
+                          <Avatar className="h-6 w-6 mt-1">
+                            {settings.avatarUrl && (
+                              <ZoruAvatarImage src={settings.avatarUrl} />
+                            )}
+                            <ZoruAvatarFallback className="text-[10px]">
+                              {settings.teamName?.charAt(0) || "S"}
+                            </ZoruAvatarFallback>
+                          </Avatar>
+                          <div className={`rounded-2xl rounded-tl-sm px-4 py-2 text-sm ${settings.darkMode === 'dark' ? 'bg-zinc-900 text-zinc-200' : 'bg-white text-zinc-700'} shadow-sm`}>
+                            {settings.welcomeMessage}
+                          </div>
+                        </div>
+
+                        {settings.preChatFormEnabled && (
+                          <div className={`mt-4 rounded-xl border p-4 ${settings.darkMode === 'dark' ? 'border-zinc-800 bg-zinc-950' : 'border-zinc-200 bg-white'}`}>
+                            <p className="mb-3 text-sm font-medium">{settings.preChatFormMessage}</p>
+                            <div className="space-y-3">
+                              <Input className={settings.darkMode === 'dark' ? 'bg-zinc-900 border-zinc-800' : ''} placeholder="Your name" />
+                              <Input className={settings.darkMode === 'dark' ? 'bg-zinc-900 border-zinc-800' : ''} placeholder="Your email" />
+                              <Button className="w-full text-white" style={{ backgroundColor: settings.widgetColor }}>Start Conversation</Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className={`border-t p-3 ${settings.darkMode === 'dark' ? 'border-zinc-800 bg-zinc-950' : 'border-zinc-100 bg-white'}`}>
+                        <div className={`flex items-center gap-2 rounded-full border px-3 py-2 ${settings.darkMode === 'dark' ? 'border-zinc-800 bg-zinc-900' : 'border-zinc-200 bg-zinc-50'}`}>
+                          <input 
+                            placeholder="Type a message..." 
+                            className="flex-1 bg-transparent text-sm outline-none" 
+                            disabled={settings.preChatFormEnabled} 
+                          />
                         </div>
                       </div>
                     </div>
                   )}
+
+                  <button
+                    type="button"
+                    style={{ backgroundColor: settings.widgetColor }}
+                    onClick={() => setShowWidget(!showWidget)}
+                    className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white shadow-lg transition-transform hover:scale-105"
+                    aria-label="Toggle widget preview"
+                  >
+                    <MessageSquare className="h-6 w-6" />
+                  </button>
                 </div>
               </div>
-              <div className="space-y-2">
+              
+              <div className="space-y-2 pt-4">
                 <Label htmlFor="widget-embed">Embed code</Label>
                 <p className="text-xs text-zoru-ink-muted">
                   Copy and paste this code before the closing &lt;/body&gt; tag
@@ -275,7 +530,7 @@ export function ZoruSabChatWidgetGenerator({
                 <div className="flex items-start gap-2">
                   <pre
                     id="widget-embed"
-                    className="flex-1 overflow-x-auto rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3 font-mono text-xs text-zoru-ink"
+                    className="flex-1 overflow-x-auto rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3 font-mono text-[10px] text-zoru-ink"
                   >
                     {embedCode}
                   </pre>
@@ -293,7 +548,7 @@ export function ZoruSabChatWidgetGenerator({
             </div>
           </div>
         </ZoruCardContent>
-        <ZoruCardFooter>
+        <ZoruCardFooter className="border-t border-zoru-line pt-6">
           <SubmitButton />
         </ZoruCardFooter>
       </form>

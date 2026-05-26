@@ -357,7 +357,7 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                                 name="state"
                                 initialId={stateVal || null}
                                 initialLabel={stateVal}
-                                filter={country ? { country } : undefined}
+                                filter={country ? { countryCode: country } : undefined}
                                 onChange={(id) => {
                                     setStateVal(id ?? '');
                                     setCity('');
@@ -375,8 +375,13 @@ export function AccountForm({ mode, initial, prefill }: AccountFormProps) {
                                 initialId={city || null}
                                 initialLabel={city}
                                 filter={
-                                    country && stateVal
-                                        ? { country, state: stateVal }
+                                    country
+                                        ? {
+                                              countryCode: country,
+                                              ...(stateVal
+                                                  ? { stateCode: stateVal.includes(':') ? stateVal.split(':')[1] : stateVal }
+                                                  : {}),
+                                          }
                                         : undefined
                                 }
                                 onChange={(id) => {

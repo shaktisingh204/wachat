@@ -1,0 +1,44 @@
+# Phase 7 — Transactional template HTTP surface for the SabNode email suite.
+#
+# Distinct from `email-templates` (which owns the marketing-side
+# builder/MJML library). This crate owns reusable, key-addressable
+# transactional templates — things like "order confirmation", "password
+# reset", "OTP" — that are rendered server-side and dispatched through
+# the `email-sender` worker on demand (no campaign envelope).
+#
+# Mounted under `/v1/email/templates/transactional` by the orchestrating
+# `api` crate.
+#
+# Note: this crate is intentionally NOT added to `rust/Cargo.toml`'s
+# `members` array here — the orchestrating agent wires that up.
+[package]
+name = "email-templates-transactional"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router + Mongo CRUD for SabNode email transactional templates (`/v1/email/templates/transactional/*`). Key-addressable templates with declared variable schemas, rendered on-demand."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "email_templates_transactional"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bson = { version = "2.13", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+mongodb = "3.2"
+futures = "0.3"
+tracing = "0.1"
+anyhow = "1"
+regex = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

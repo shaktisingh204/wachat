@@ -39,7 +39,75 @@ pub fn build(state: AppState) -> Router {
     // so it merges at the root too.
     let wachat_webhook_cron = wachat_webhook_dlq::cron_router::<AppState>();
     let wachat_webhook_admin: Router<AppState> =
-        Router::new().nest("/admin", wachat_webhook_config::router::<AppState>());
+        let sabbi_charts_r = sabbi_charts::router::<AppState>();
+    let sabbi_dataset_joins_r = sabbi_dataset_joins::router::<AppState>();
+    let sabbi_datasets_r = sabbi_datasets::router::<AppState>();
+    let sabbi_schedules_r = sabbi_schedules::router::<AppState>();
+    let sabbi_workbooks_r = sabbi_workbooks::router::<AppState>();
+    let sabbigin_config_r = sabbigin_config::router::<AppState>();
+    let sabbugs_bugs_r = sabbugs_bugs::router::<AppState>();
+    let sabbugs_comments_r = sabbugs_comments::router::<AppState>();
+    let sabbugs_history_r = sabbugs_history::router::<AppState>();
+    let sabbugs_saved_filters_r = sabbugs_saved_filters::router::<AppState>();
+    let sabbugs_versions_r = sabbugs_versions::router::<AppState>();
+    let sabconnect_comments_r = sabconnect_comments::router::<AppState>();
+    let sabconnect_custom_apps_r = sabconnect_custom_apps::router::<AppState>();
+    let sabconnect_feed_r = sabconnect_feed::router::<AppState>();
+    let sabconnect_groups_r = sabconnect_groups::router::<AppState>();
+    let sabconnect_manuals_r = sabconnect_manuals::router::<AppState>();
+    let sabconnect_reactions_r = sabconnect_reactions::router::<AppState>();
+    let sabmeet_dialins_r = sabmeet_dialins::router::<AppState>();
+    let sabmeet_participants_r = sabmeet_participants::router::<AppState>();
+    let sabmeet_polls_r = sabmeet_polls::router::<AppState>();
+    let sabmeet_qna_r = sabmeet_qna::router::<AppState>();
+    let sabmeet_recordings_r = sabmeet_recordings::router::<AppState>();
+    let sabmeet_rooms_r = sabmeet_rooms::router::<AppState>();
+    let sabprep_recipes_r = sabprep_recipes::router::<AppState>();
+    let sabrequests_blueprints_r = sabrequests_blueprints::router::<AppState>();
+    let sabrequests_instances_r = sabrequests_instances::router::<AppState>();
+    let sabrewards_catalog_r = sabrewards_catalog::router::<AppState>();
+    let sabrewards_members_r = sabrewards_members::router::<AppState>();
+    let sabrewards_programs_r = sabrewards_programs::router::<AppState>();
+    let sabrewards_redemptions_r = sabrewards_redemptions::router::<AppState>();
+    let sabrewards_referrals_r = sabrewards_referrals::router::<AppState>();
+    let sabsense_form_analytics_r = sabsense_form_analytics::router::<AppState>();
+    let sabsense_funnel_runs_r = sabsense_funnel_runs::router::<AppState>();
+    let sabsense_funnels_r = sabsense_funnels::router::<AppState>();
+    let sabsense_heatmap_events_r = sabsense_heatmap_events::router::<AppState>();
+    let sabsense_heatmaps_r = sabsense_heatmaps::router::<AppState>();
+    let sabsense_recordings_r = sabsense_recordings::router::<AppState>();
+    let sabsense_sites_r = sabsense_sites::router::<AppState>();
+    let sabshop_carts_r = sabshop_carts::router::<AppState>();
+    let sabshop_checkouts_r = sabshop_checkouts::router::<AppState>();
+    let sabshop_collections_r = sabshop_collections::router::<AppState>();
+    let sabshop_orders_r = sabshop_orders::router::<AppState>();
+    let sabshop_shipping_zones_r = sabshop_shipping_zones::router::<AppState>();
+    let sabshop_storefronts_r = sabshop_storefronts::router::<AppState>();
+    let sabshop_tax_rules_r = sabshop_tax_rules::router::<AppState>();
+    let sabshop_themes_r = sabshop_themes::router::<AppState>();
+    let sabsign_audit_r = sabsign_audit::router::<AppState>();
+    let sabsign_envelopes_r = sabsign_envelopes::router::<AppState>();
+    let sabsign_fields_r = sabsign_fields::router::<AppState>();
+    let sabsign_templates_r = sabsign_templates::router::<AppState>();
+    let sabsprints_burndown_r = sabsprints_burndown::router::<AppState>();
+    let sabsprints_epics_r = sabsprints_epics::router::<AppState>();
+    let sabsprints_sprints_r = sabsprints_sprints::router::<AppState>();
+    let sabsprints_stories_r = sabsprints_stories::router::<AppState>();
+    let sabsprints_velocity_r = sabsprints_velocity::router::<AppState>();
+    let sabvoice_agents_presence_r = sabvoice_agents_presence::router::<AppState>();
+    let sabvoice_calls_r = sabvoice_calls::router::<AppState>();
+    let sabvoice_dids_r = sabvoice_dids::router::<AppState>();
+    let sabvoice_ivrs_r = sabvoice_ivrs::router::<AppState>();
+    let sabvoice_queues_r = sabvoice_queues::router::<AppState>();
+    let sabvoice_voicemail_r = sabvoice_voicemail::router::<AppState>();
+
+    let sabbi_embeds_r = sabbi_embeds::router::<AppState>();
+    let sabprep_profiles_r = sabprep_profiles::router::<AppState>();
+    let sabprep_runs_r = sabprep_runs::router::<AppState>();
+    let sabrequests_orgcharts_r = sabrequests_orgcharts::router::<AppState>();
+    let sabrequests_stage_actions_r = sabrequests_stage_actions::router::<AppState>();
+
+    Router::new().nest("/admin", wachat_webhook_config::router::<AppState>());
     let wachat_templates = wachat_templates_router::router::<AppState>();
     let wachat_templates_actions = wachat_templates_actions::router::<AppState>();
     let wachat_send = wachat_send_router::router::<AppState>();
@@ -228,6 +296,65 @@ pub fn build(state: AppState) -> Router {
     let email_events = email_events::router::<AppState>();
     let email_reports = email_reports::router::<AppState>();
     let email_journeys = email_journeys::router::<AppState>();
+
+    // SabChat — Pillar 1 + 2 foundation.
+    let sabchat_inboxes = sabchat_inboxes::router::<AppState>();
+    let sabchat_contacts_r = sabchat_contacts::router::<AppState>();
+    let sabchat_conversations_r = sabchat_conversations::router::<AppState>();
+    let sabchat_messages_r = sabchat_messages::router::<AppState>();
+    let sabchat_audit_r = sabchat_audit::router::<AppState>();
+    let sabchat_routing_r = sabchat_routing::router::<AppState>();
+    let sabchat_widget_r = sabchat_widget::router::<AppState>();
+    let sabchat_ws_r = sabchat_ws::router::<AppState>();
+
+    let sabchat_channel_whatsapp_r = sabchat_channel_whatsapp::router::<AppState>();
+    let sabchat_channel_instagram_r = sabchat_channel_instagram::router::<AppState>();
+    let sabchat_channel_facebook_r = sabchat_channel_facebook::router::<AppState>();
+    let sabchat_channel_telegram_r = sabchat_channel_telegram::router::<AppState>();
+    let sabchat_channel_email_r = sabchat_channel_email::router::<AppState>();
+    let sabchat_channel_sms_r = sabchat_channel_sms::router::<AppState>();
+    let sabchat_ai_copilot_r = sabchat_ai_copilot::router::<AppState>();
+    let sabchat_ai_translate_r = sabchat_ai_translate::router::<AppState>();
+    let sabchat_ai_sentiment_r = sabchat_ai_sentiment::router::<AppState>();
+    let sabchat_ai_resolve_bot_r = sabchat_ai_resolve_bot::router::<AppState>();
+    let sabchat_macros_r = sabchat_macros::router::<AppState>();
+    let sabchat_sla_r = sabchat_sla::router::<AppState>();
+    let sabchat_business_hours_r = sabchat_business_hours::router::<AppState>();
+    let sabchat_crm_bridge_r = sabchat_crm_bridge::router::<AppState>();
+    let sabchat_knowledge_r = sabchat_knowledge::router::<AppState>();
+    let sabchat_knowledge_public_r = sabchat_knowledge::public_router::<AppState>();
+    let sabchat_commerce_r = sabchat_commerce::router::<AppState>();
+    let sabchat_commerce_webhook_r = sabchat_commerce::webhook_router::<AppState>();
+    let sabchat_reports_r = sabchat_reports::router::<AppState>();
+    let sabchat_teams_r = sabchat_teams::router::<AppState>();
+    
+    let sabchat_webhooks_r = sabchat_webhooks::router::<AppState>();
+    let sabchat_public_api_r = sabchat_public_api::router::<AppState>();
+    let sabchat_events_r = sabchat_events::router::<AppState>();
+    let sabchat_voice_r = sabchat_voice::router::<AppState>();
+    let sabchat_cobrowse_r = sabchat_cobrowse::router::<AppState>();
+    let sabchat_cobrowse_public_r = sabchat_cobrowse::public_router::<AppState>();
+    let sabchat_shifts_r = sabchat_shifts::router::<AppState>();
+    let sabchat_csat_r = sabchat_csat::router::<AppState>();
+    let sabchat_csat_public_r = sabchat_csat::public_router::<AppState>();
+    let sabchat_dispositions_r = sabchat_dispositions::router::<AppState>();
+    let sabchat_gamification_r = sabchat_gamification::router::<AppState>();
+    let sabchat_compliance_r = sabchat_compliance::router::<AppState>();
+    let sabchat_sso_r = sabchat_sso::router::<AppState>();
+    let sabchat_sso_scim_r = sabchat_sso::scim_router::<AppState>();
+    let sabchat_ai_qa_r = sabchat_ai_qa::router::<AppState>();
+    let sabchat_ai_voc_r = sabchat_ai_voc::router::<AppState>();
+    let sabchat_sabflow_nodes_r = sabchat_sabflow_nodes::router::<AppState>();
+    let sabchat_cart_recovery_r = sabchat_cart_recovery::router::<AppState>();
+    let sabchat_cart_recovery_public_r = sabchat_cart_recovery::public_router::<AppState>();
+    let sabchat_ad_attribution_r = sabchat_ad_attribution::router::<AppState>();
+    let sabchat_ad_attribution_public_r = sabchat_ad_attribution::public_router::<AppState>();
+    let sabchat_channel_line_r = sabchat_channel_line::router::<AppState>();
+    let sabchat_channel_viber_r = sabchat_channel_viber::router::<AppState>();
+    let sabchat_channel_apple_r = sabchat_channel_apple::router::<AppState>();
+    let sabchat_channel_gbm_r = sabchat_channel_gbm::router::<AppState>();
+    let sabchat_channel_x_r = sabchat_channel_x::router::<AppState>();
+    let sabchat_marketplace_r = sabchat_marketplace::router::<AppState>();
 
     Router::new()
         .merge(routes::health::router())
@@ -428,9 +555,130 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/email/events", email_events)
         .nest("/v1/email/reports", email_reports)
         .nest("/v1/email/journeys", email_journeys)
+        .nest("/v1/sabchat/inboxes", sabchat_inboxes)
+        .nest("/v1/sabchat/contacts", sabchat_contacts_r)
+        .nest("/v1/sabchat/conversations", sabchat_conversations_r)
+        .nest("/v1/sabchat/messages", sabchat_messages_r)
+        .nest("/v1/sabchat/audit", sabchat_audit_r)
+        .nest("/v1/sabchat/routing", sabchat_routing_r)
+        .nest("/v1/sabchat/widget", sabchat_widget_r)
+        .nest("/v1/sabchat/ws", sabchat_ws_r)
+        .nest("/v1/sabchat/channels/whatsapp", sabchat_channel_whatsapp_r)
+        .nest("/v1/sabchat/channels/instagram", sabchat_channel_instagram_r)
+        .nest("/v1/sabchat/channels/facebook", sabchat_channel_facebook_r)
+        .nest("/v1/sabchat/channels/telegram", sabchat_channel_telegram_r)
+        .nest("/v1/sabchat/channels/email", sabchat_channel_email_r)
+        .nest("/v1/sabchat/channels/sms", sabchat_channel_sms_r)
+        .nest("/v1/sabchat/ai/copilot", sabchat_ai_copilot_r)
+        .nest("/v1/sabchat/ai/translate", sabchat_ai_translate_r)
+        .nest("/v1/sabchat/ai/sentiment", sabchat_ai_sentiment_r)
+        .nest("/v1/sabchat/ai/resolve-bot", sabchat_ai_resolve_bot_r)
+        .nest("/v1/sabchat/macros", sabchat_macros_r)
+        .nest("/v1/sabchat/sla", sabchat_sla_r)
+        .nest("/v1/sabchat/business-hours", sabchat_business_hours_r)
+        .nest("/v1/sabchat/crm-bridge", sabchat_crm_bridge_r)
+        .nest("/v1/sabchat/kb", sabchat_knowledge_r)
+        .nest("/v1/sabchat/kb-public", sabchat_knowledge_public_r)
+        .nest("/v1/sabchat/commerce", sabchat_commerce_r)
+        .nest("/v1/sabchat/commerce-webhook", sabchat_commerce_webhook_r)
+        .nest("/v1/sabchat/reports", sabchat_reports_r)
+        .nest("/v1/sabchat/teams", sabchat_teams_r)
+        .nest("/v1/sabchat/webhooks", sabchat_webhooks_r)
+        .nest("/v1/sabchat/public-api", sabchat_public_api_r)
+        .nest("/v1/sabchat/events", sabchat_events_r)
+        .nest("/v1/sabchat/voice", sabchat_voice_r)
+        .nest("/v1/sabchat/cobrowse", sabchat_cobrowse_r)
+        .nest("/v1/sabchat/cobrowse-public", sabchat_cobrowse_public_r)
+        .nest("/v1/sabchat/shifts", sabchat_shifts_r)
+        .nest("/v1/sabchat/csat", sabchat_csat_r)
+        .nest("/v1/sabchat/csat-public", sabchat_csat_public_r)
+        .nest("/v1/sabchat/dispositions", sabchat_dispositions_r)
+        .nest("/v1/sabchat/gamification", sabchat_gamification_r)
+        .nest("/v1/sabchat/compliance", sabchat_compliance_r)
+        .nest("/v1/sabchat/sso", sabchat_sso_r)
+        .nest("/v1/sabchat/scim/v2", sabchat_sso_scim_r)
+        .nest("/v1/sabchat/ai-qa", sabchat_ai_qa_r)
+        .nest("/v1/sabchat/ai-voc", sabchat_ai_voc_r)
+        .nest("/v1/sabchat/sabflow-nodes", sabchat_sabflow_nodes_r)
+        .nest("/v1/sabchat/cart-recovery", sabchat_cart_recovery_r)
+        .nest("/v1/sabchat/cart-recovery-public", sabchat_cart_recovery_public_r)
+        .nest("/v1/sabchat/ad-attribution", sabchat_ad_attribution_r)
+        .nest("/v1/sabchat/ad-attribution-public", sabchat_ad_attribution_public_r)
+        .nest("/v1/sabchat/channels/line", sabchat_channel_line_r)
+        .nest("/v1/sabchat/channels/viber", sabchat_channel_viber_r)
+        .nest("/v1/sabchat/channels/apple", sabchat_channel_apple_r)
+        .nest("/v1/sabchat/channels/gbm", sabchat_channel_gbm_r)
+        .nest("/v1/sabchat/channels/x", sabchat_channel_x_r)
+        .nest("/v1/sabchat/marketplace", sabchat_marketplace_r)
         // sabflow_webhooks::router mounts at /v1/sabflow/webhook but its state
         // (SabflowWebhooksState) is not yet wired into AppState — public
         // webhook URL is served by Next.js at /api/sabflow/webhook/[webhookId].
+                .nest("/v1/sabbi/charts", sabbi_charts_r)
+        .nest("/v1/sabbi/dataset-joins", sabbi_dataset_joins_r)
+        .nest("/v1/sabbi/datasets", sabbi_datasets_r)
+        .nest("/v1/sabbi/schedules", sabbi_schedules_r)
+        .nest("/v1/sabbi/workbooks", sabbi_workbooks_r)
+        .nest("/v1/sabbigin/config", sabbigin_config_r)
+        .nest("/v1/sabbugs/bugs", sabbugs_bugs_r)
+        .nest("/v1/sabbugs/comments", sabbugs_comments_r)
+        .nest("/v1/sabbugs/history", sabbugs_history_r)
+        .nest("/v1/sabbugs/saved-filters", sabbugs_saved_filters_r)
+        .nest("/v1/sabbugs/versions", sabbugs_versions_r)
+        .nest("/v1/sabconnect/comments", sabconnect_comments_r)
+        .nest("/v1/sabconnect/custom-apps", sabconnect_custom_apps_r)
+        .nest("/v1/sabconnect/feed", sabconnect_feed_r)
+        .nest("/v1/sabconnect/groups", sabconnect_groups_r)
+        .nest("/v1/sabconnect/manuals", sabconnect_manuals_r)
+        .nest("/v1/sabconnect/reactions", sabconnect_reactions_r)
+        .nest("/v1/sabmeet/dialins", sabmeet_dialins_r)
+        .nest("/v1/sabmeet/participants", sabmeet_participants_r)
+        .nest("/v1/sabmeet/polls", sabmeet_polls_r)
+        .nest("/v1/sabmeet/qna", sabmeet_qna_r)
+        .nest("/v1/sabmeet/recordings", sabmeet_recordings_r)
+        .nest("/v1/sabmeet/rooms", sabmeet_rooms_r)
+        .nest("/v1/sabprep/recipes", sabprep_recipes_r)
+        .nest("/v1/sabrequests/blueprints", sabrequests_blueprints_r)
+        .nest("/v1/sabrequests/instances", sabrequests_instances_r)
+        .nest("/v1/sabrewards/catalog", sabrewards_catalog_r)
+        .nest("/v1/sabrewards/members", sabrewards_members_r)
+        .nest("/v1/sabrewards/programs", sabrewards_programs_r)
+        .nest("/v1/sabrewards/redemptions", sabrewards_redemptions_r)
+        .nest("/v1/sabrewards/referrals", sabrewards_referrals_r)
+        .nest("/v1/pagesense/form-analytics", sabsense_form_analytics_r)
+        .nest("/v1/pagesense/funnel-runs", sabsense_funnel_runs_r)
+        .nest("/v1/pagesense/funnels", sabsense_funnels_r)
+        .nest("/v1/pagesense/heatmap-events", sabsense_heatmap_events_r)
+        .nest("/v1/pagesense/heatmaps", sabsense_heatmaps_r)
+        .nest("/v1/pagesense/recordings", sabsense_recordings_r)
+        .nest("/v1/pagesense/sites", sabsense_sites_r)
+        .nest("/v1/sabshop/carts", sabshop_carts_r)
+        .nest("/v1/sabshop/checkouts", sabshop_checkouts_r)
+        .nest("/v1/sabshop/collections", sabshop_collections_r)
+        .nest("/v1/sabshop/orders", sabshop_orders_r)
+        .nest("/v1/sabshop/shipping-zones", sabshop_shipping_zones_r)
+        .nest("/v1/sabshop/storefronts", sabshop_storefronts_r)
+        .nest("/v1/sabshop/tax-rules", sabshop_tax_rules_r)
+        .nest("/v1/sabshop/themes", sabshop_themes_r)
+        .nest("/v1/sabsign/audit", sabsign_audit_r)
+        .nest("/v1/sabsign/envelopes", sabsign_envelopes_r)
+        .nest("/v1/sabsign/fields", sabsign_fields_r)
+        .nest("/v1/sabsign/templates", sabsign_templates_r)
+        .nest("/v1/agile/burndown", sabsprints_burndown_r)
+        .nest("/v1/sabsprints/epics", sabsprints_epics_r)
+        .nest("/v1/sabsprints/sprints", sabsprints_sprints_r)
+        .nest("/v1/sabsprints/stories", sabsprints_stories_r)
+        .nest("/v1/agile/velocity", sabsprints_velocity_r)
+        .nest("/v1/sabvoice/agents-presence", sabvoice_agents_presence_r)
+        .nest("/v1/sabvoice/calls", sabvoice_calls_r)
+        .nest("/v1/sabvoice/dids", sabvoice_dids_r)
+        .nest("/v1/sabvoice/ivrs", sabvoice_ivrs_r)
+        .nest("/v1/sabvoice/queues", sabvoice_queues_r)
+        .nest("/v1/sabvoice/voicemail", sabvoice_voicemail_r)
+                .nest("/v1/sabbi/embeds", sabbi_embeds_r)
+        .nest("/v1/sabprep/profiles", sabprep_profiles_r)
+        .nest("/v1/sabprep/runs", sabprep_runs_r)
+        .nest("/v1/sabrequests/orgcharts", sabrequests_orgcharts_r)
+        .nest("/v1/sabrequests/stage-actions", sabrequests_stage_actions_r)
         .nest("/v1/admin", admin_router)
         .nest("/v1", v1)
         .with_state(state)

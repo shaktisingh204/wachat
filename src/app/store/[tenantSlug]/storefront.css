@@ -1,0 +1,127 @@
+/* Minimal stylesheet for the public Commerce storefront. */
+/* Theme tokens come from the per-storefront CSS variables set by */
+/* `src/app/store/[tenantSlug]/layout.tsx`. */
+
+.storefront {
+    color: var(--store-fg, #0f172a);
+    background: var(--store-bg, #ffffff);
+    font-family: var(--store-font, system-ui, sans-serif);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.storefront-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.storefront-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.storefront-footer {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    margin-top: auto;
+}
+
+.storefront-hero {
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    color: white;
+    background: linear-gradient(135deg, var(--store-primary, #5b21b6), color-mix(in oklab, var(--store-primary, #5b21b6) 70%, black));
+    margin-bottom: 2rem;
+}
+
+.storefront-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.storefront-card {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    background: white;
+    overflow: hidden;
+    transition: box-shadow 0.15s ease;
+}
+
+.storefront-card:hover {
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.storefront-card img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    background: #f1f5f9;
+}
+
+.storefront-card .body {
+    padding: 0.75rem 1rem 1rem;
+}
+
+.storefront-card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+}
+
+.storefront-card .price {
+    font-weight: 600;
+}
+
+.storefront-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background: var(--store-primary, #5b21b6);
+    color: white;
+    text-decoration: none;
+    border: 0;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.storefront-button.secondary {
+    background: transparent;
+    color: var(--store-primary, #5b21b6);
+    border: 1px solid var(--store-primary, #5b21b6);
+}
+
+.storefront-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.storefront-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    background: white;
+    font: inherit;
+}
+
+.storefront-steps {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.85rem;
+}
+
+.storefront-steps .step {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.storefront-steps .step.active {
+    background: var(--store-primary, #5b21b6);
+    color: white;
+}

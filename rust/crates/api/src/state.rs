@@ -87,6 +87,56 @@ use wachat_webhook_actions::WachatWebhookActionsState;
 use wachat_webhook_status::WachatWebhookStatusState;
 use wachat_webhook_verify::WebhookVerifier;
 
+use sabchat_audit::SabChatAuditState;
+use sabchat_contacts::SabChatContactsState;
+use sabchat_conversations::SabChatConversationsState;
+use sabchat_inboxes::SabChatInboxesState;
+use sabchat_messages::SabChatMessagesState;
+use sabchat_routing::SabChatRoutingState;
+use sabchat_widget::SabChatWidgetState;
+use sabchat_ws::{SabChatWsState, WsHub};
+
+use sabchat_channel_whatsapp::SabChatChannelWhatsappState;
+use sabchat_channel_instagram::SabChatChannelInstagramState;
+use sabchat_channel_facebook::SabChatChannelFacebookState;
+use sabchat_channel_telegram::SabChatChannelTelegramState;
+use sabchat_channel_email::SabChatChannelEmailState;
+use sabchat_channel_sms::SabChatChannelSmsState;
+use sabchat_ai_copilot::SabChatAiCopilotState;
+use sabchat_ai_translate::SabChatAiTranslateState;
+use sabchat_ai_sentiment::SabChatAiSentimentState;
+use sabchat_ai_resolve_bot::SabChatAiResolveBotState;
+use sabchat_macros::SabChatMacrosState;
+use sabchat_sla::SabChatSlaState;
+use sabchat_business_hours::SabChatBusinessHoursState;
+use sabchat_crm_bridge::SabChatCrmBridgeState;
+use sabchat_knowledge::SabChatKnowledgeState;
+use sabchat_commerce::SabChatCommerceState;
+use sabchat_reports::SabChatReportsState;
+use sabchat_teams::SabChatTeamsState;
+use sabchat_webhooks::SabChatWebhooksState;
+use sabchat_public_api::SabChatPublicApiState;
+use sabchat_events::SabChatEventsState;
+use sabchat_voice::SabChatVoiceState;
+use sabchat_cobrowse::SabChatCobrowseState;
+use sabchat_shifts::SabChatShiftsState;
+use sabchat_csat::SabChatCsatState;
+use sabchat_dispositions::SabChatDispositionsState;
+use sabchat_gamification::SabChatGamificationState;
+use sabchat_compliance::SabChatComplianceState;
+use sabchat_sso::SabChatSsoState;
+use sabchat_ai_qa::SabChatAiQaState;
+use sabchat_ai_voc::SabChatAiVocState;
+use sabchat_sabflow_nodes::SabChatSabflowNodesState;
+use sabchat_cart_recovery::SabChatCartRecoveryState;
+use sabchat_ad_attribution::SabChatAdAttributionState;
+use sabchat_channel_line::SabChatChannelLineState;
+use sabchat_channel_viber::SabChatChannelViberState;
+use sabchat_channel_apple::SabChatChannelAppleState;
+use sabchat_channel_gbm::SabChatChannelGbmState;
+use sabchat_channel_x::SabChatChannelXState;
+use sabchat_marketplace::SabChatMarketplaceState;
+
 #[derive(Clone)]
 pub struct AppState {
     pub started_at: DateTime<Utc>,
@@ -165,6 +215,59 @@ pub struct AppState {
     pub email_events: EmailEventsState,
     pub email_reports: EmailReportsState,
     pub email_journeys: EmailJourneysState,
+
+    // SabChat — Pillar 1 + 2 foundation.
+    pub sabchat_inboxes: SabChatInboxesState,
+    pub sabchat_contacts: SabChatContactsState,
+    pub sabchat_conversations: SabChatConversationsState,
+    pub sabchat_messages: SabChatMessagesState,
+    pub sabchat_audit: SabChatAuditState,
+    pub sabchat_routing: SabChatRoutingState,
+    pub sabchat_widget: SabChatWidgetState,
+    pub sabchat_ws: SabChatWsState,
+    pub sabchat_ws_hub: WsHub,
+
+    pub sabchat_channel_whatsapp: SabChatChannelWhatsappState,
+    pub sabchat_channel_instagram: SabChatChannelInstagramState,
+    pub sabchat_channel_facebook: SabChatChannelFacebookState,
+    pub sabchat_channel_telegram: SabChatChannelTelegramState,
+    pub sabchat_channel_email: SabChatChannelEmailState,
+    pub sabchat_channel_sms: SabChatChannelSmsState,
+    pub sabchat_ai_copilot: SabChatAiCopilotState,
+    pub sabchat_ai_translate: SabChatAiTranslateState,
+    pub sabchat_ai_sentiment: SabChatAiSentimentState,
+    pub sabchat_ai_resolve_bot: SabChatAiResolveBotState,
+    pub sabchat_macros: SabChatMacrosState,
+    pub sabchat_sla: SabChatSlaState,
+    pub sabchat_business_hours: SabChatBusinessHoursState,
+    pub sabchat_crm_bridge: SabChatCrmBridgeState,
+    pub sabchat_knowledge: SabChatKnowledgeState,
+    pub sabchat_commerce: SabChatCommerceState,
+    pub sabchat_reports: SabChatReportsState,
+    pub sabchat_teams: SabChatTeamsState,
+    pub sabchat_webhooks: SabChatWebhooksState,
+    pub sabchat_public_api: SabChatPublicApiState,
+    pub sabchat_events: SabChatEventsState,
+    pub sabchat_voice: SabChatVoiceState,
+    pub sabchat_cobrowse: SabChatCobrowseState,
+    pub sabchat_shifts: SabChatShiftsState,
+    pub sabchat_csat: SabChatCsatState,
+    pub sabchat_dispositions: SabChatDispositionsState,
+    pub sabchat_gamification: SabChatGamificationState,
+    pub sabchat_compliance: SabChatComplianceState,
+    pub sabchat_sso: SabChatSsoState,
+    pub sabchat_ai_qa: SabChatAiQaState,
+    pub sabchat_ai_voc: SabChatAiVocState,
+    pub sabchat_sabflow_nodes: SabChatSabflowNodesState,
+    pub sabchat_cart_recovery: SabChatCartRecoveryState,
+    pub sabchat_ad_attribution: SabChatAdAttributionState,
+    pub sabchat_channel_line: SabChatChannelLineState,
+    pub sabchat_channel_viber: SabChatChannelViberState,
+    pub sabchat_channel_apple: SabChatChannelAppleState,
+    pub sabchat_channel_gbm: SabChatChannelGbmState,
+    pub sabchat_channel_x: SabChatChannelXState,
+    pub sabchat_marketplace: SabChatMarketplaceState,
+
     pub ready: Arc<AtomicBool>,
 }
 
@@ -245,7 +348,56 @@ impl AppState {
         email_events: EmailEventsState,
         email_reports: EmailReportsState,
         email_journeys: EmailJourneysState,
+        sabchat_inboxes: SabChatInboxesState,
+        sabchat_contacts: SabChatContactsState,
+        sabchat_conversations: SabChatConversationsState,
+        sabchat_messages: SabChatMessagesState,
+        sabchat_audit: SabChatAuditState,
+        sabchat_routing: SabChatRoutingState,
+        sabchat_widget: SabChatWidgetState,
+        sabchat_channel_whatsapp: SabChatChannelWhatsappState,
+        sabchat_channel_instagram: SabChatChannelInstagramState,
+        sabchat_channel_facebook: SabChatChannelFacebookState,
+        sabchat_channel_telegram: SabChatChannelTelegramState,
+        sabchat_channel_email: SabChatChannelEmailState,
+        sabchat_channel_sms: SabChatChannelSmsState,
+        sabchat_ai_copilot: SabChatAiCopilotState,
+        sabchat_ai_translate: SabChatAiTranslateState,
+        sabchat_ai_sentiment: SabChatAiSentimentState,
+        sabchat_ai_resolve_bot: SabChatAiResolveBotState,
+        sabchat_macros: SabChatMacrosState,
+        sabchat_sla: SabChatSlaState,
+        sabchat_business_hours: SabChatBusinessHoursState,
+        sabchat_crm_bridge: SabChatCrmBridgeState,
+        sabchat_knowledge: SabChatKnowledgeState,
+        sabchat_commerce: SabChatCommerceState,
+        sabchat_reports: SabChatReportsState,
+        sabchat_teams: SabChatTeamsState,
+        sabchat_webhooks: SabChatWebhooksState,
+        sabchat_public_api: SabChatPublicApiState,
+        sabchat_events: SabChatEventsState,
+        sabchat_voice: SabChatVoiceState,
+        sabchat_cobrowse: SabChatCobrowseState,
+        sabchat_shifts: SabChatShiftsState,
+        sabchat_csat: SabChatCsatState,
+        sabchat_dispositions: SabChatDispositionsState,
+        sabchat_gamification: SabChatGamificationState,
+        sabchat_compliance: SabChatComplianceState,
+        sabchat_sso: SabChatSsoState,
+        sabchat_ai_qa: SabChatAiQaState,
+        sabchat_ai_voc: SabChatAiVocState,
+        sabchat_sabflow_nodes: SabChatSabflowNodesState,
+        sabchat_cart_recovery: SabChatCartRecoveryState,
+        sabchat_ad_attribution: SabChatAdAttributionState,
+        sabchat_channel_line: SabChatChannelLineState,
+        sabchat_channel_viber: SabChatChannelViberState,
+        sabchat_channel_apple: SabChatChannelAppleState,
+        sabchat_channel_gbm: SabChatChannelGbmState,
+        sabchat_channel_x: SabChatChannelXState,
+        sabchat_marketplace: SabChatMarketplaceState,
     ) -> Self {
+        let sabchat_ws_hub = WsHub::new();
+        let sabchat_ws = SabChatWsState { hub: sabchat_ws_hub.clone() };
         Self {
             started_at: Utc::now(),
             mongo,
@@ -323,6 +475,55 @@ impl AppState {
             email_events,
             email_reports,
             email_journeys,
+            sabchat_inboxes,
+            sabchat_contacts,
+            sabchat_conversations,
+            sabchat_messages,
+            sabchat_audit,
+            sabchat_routing,
+            sabchat_widget,
+            sabchat_ws,
+            sabchat_ws_hub,
+            sabchat_channel_whatsapp,
+            sabchat_channel_instagram,
+            sabchat_channel_facebook,
+            sabchat_channel_telegram,
+            sabchat_channel_email,
+            sabchat_channel_sms,
+            sabchat_ai_copilot,
+            sabchat_ai_translate,
+            sabchat_ai_sentiment,
+            sabchat_ai_resolve_bot,
+            sabchat_macros,
+            sabchat_sla,
+            sabchat_business_hours,
+            sabchat_crm_bridge,
+            sabchat_knowledge,
+            sabchat_commerce,
+            sabchat_reports,
+            sabchat_teams,
+            sabchat_webhooks,
+            sabchat_public_api,
+            sabchat_events,
+            sabchat_voice,
+            sabchat_cobrowse,
+            sabchat_shifts,
+            sabchat_csat,
+            sabchat_dispositions,
+            sabchat_gamification,
+            sabchat_compliance,
+            sabchat_sso,
+            sabchat_ai_qa,
+            sabchat_ai_voc,
+            sabchat_sabflow_nodes,
+            sabchat_cart_recovery,
+            sabchat_ad_attribution,
+            sabchat_channel_line,
+            sabchat_channel_viber,
+            sabchat_channel_apple,
+            sabchat_channel_gbm,
+            sabchat_channel_x,
+            sabchat_marketplace,
             ready: Arc::new(AtomicBool::new(false)),
         }
     }
@@ -588,6 +789,35 @@ impl FromRef<AppState> for WachatInstagramState {
     }
 }
 
+impl FromRef<AppState> for SabChatTeamsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_teams.clone()
+    }
+}
+
+impl FromRef<AppState> for SabChatWebhooksState { fn from_ref(s: &AppState) -> Self { s.sabchat_webhooks.clone() } }
+impl FromRef<AppState> for SabChatPublicApiState { fn from_ref(s: &AppState) -> Self { s.sabchat_public_api.clone() } }
+impl FromRef<AppState> for SabChatEventsState { fn from_ref(s: &AppState) -> Self { s.sabchat_events.clone() } }
+impl FromRef<AppState> for SabChatVoiceState { fn from_ref(s: &AppState) -> Self { s.sabchat_voice.clone() } }
+impl FromRef<AppState> for SabChatCobrowseState { fn from_ref(s: &AppState) -> Self { s.sabchat_cobrowse.clone() } }
+impl FromRef<AppState> for SabChatShiftsState { fn from_ref(s: &AppState) -> Self { s.sabchat_shifts.clone() } }
+impl FromRef<AppState> for SabChatCsatState { fn from_ref(s: &AppState) -> Self { s.sabchat_csat.clone() } }
+impl FromRef<AppState> for SabChatDispositionsState { fn from_ref(s: &AppState) -> Self { s.sabchat_dispositions.clone() } }
+impl FromRef<AppState> for SabChatGamificationState { fn from_ref(s: &AppState) -> Self { s.sabchat_gamification.clone() } }
+impl FromRef<AppState> for SabChatComplianceState { fn from_ref(s: &AppState) -> Self { s.sabchat_compliance.clone() } }
+impl FromRef<AppState> for SabChatSsoState { fn from_ref(s: &AppState) -> Self { s.sabchat_sso.clone() } }
+impl FromRef<AppState> for SabChatAiQaState { fn from_ref(s: &AppState) -> Self { s.sabchat_ai_qa.clone() } }
+impl FromRef<AppState> for SabChatAiVocState { fn from_ref(s: &AppState) -> Self { s.sabchat_ai_voc.clone() } }
+impl FromRef<AppState> for SabChatSabflowNodesState { fn from_ref(s: &AppState) -> Self { s.sabchat_sabflow_nodes.clone() } }
+impl FromRef<AppState> for SabChatCartRecoveryState { fn from_ref(s: &AppState) -> Self { s.sabchat_cart_recovery.clone() } }
+impl FromRef<AppState> for SabChatAdAttributionState { fn from_ref(s: &AppState) -> Self { s.sabchat_ad_attribution.clone() } }
+impl FromRef<AppState> for SabChatChannelLineState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_line.clone() } }
+impl FromRef<AppState> for SabChatChannelViberState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_viber.clone() } }
+impl FromRef<AppState> for SabChatChannelAppleState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_apple.clone() } }
+impl FromRef<AppState> for SabChatChannelGbmState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_gbm.clone() } }
+impl FromRef<AppState> for SabChatChannelXState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_x.clone() } }
+impl FromRef<AppState> for SabChatMarketplaceState { fn from_ref(s: &AppState) -> Self { s.sabchat_marketplace.clone() } }
+
 impl FromRef<AppState> for SabfilesState {
     fn from_ref(s: &AppState) -> Self {
         s.sabfiles.clone()
@@ -785,3 +1015,58 @@ impl FromRef<AppState> for EmailJourneysState {
         s.email_journeys.clone()
     }
 }
+
+impl FromRef<AppState> for SabChatInboxesState {
+    fn from_ref(s: &AppState) -> Self { s.sabchat_inboxes.clone() }
+}
+
+impl FromRef<AppState> for SabChatContactsState {
+    fn from_ref(s: &AppState) -> Self { s.sabchat_contacts.clone() }
+}
+
+impl FromRef<AppState> for SabChatConversationsState {
+    fn from_ref(s: &AppState) -> Self { s.sabchat_conversations.clone() }
+}
+
+impl FromRef<AppState> for SabChatMessagesState {
+    fn from_ref(s: &AppState) -> Self { s.sabchat_messages.clone() }
+}
+
+impl FromRef<AppState> for SabChatAuditState {
+    fn from_ref(s: &AppState) -> Self { s.sabchat_audit.clone() }
+}
+
+impl FromRef<AppState> for SabChatRoutingState {
+    fn from_ref(s: &AppState) -> Self { s.sabchat_routing.clone() }
+}
+
+impl FromRef<AppState> for SabChatWidgetState {
+    fn from_ref(s: &AppState) -> Self { s.sabchat_widget.clone() }
+}
+
+impl FromRef<AppState> for SabChatWsState {
+    fn from_ref(s: &AppState) -> Self { s.sabchat_ws.clone() }
+}
+
+impl FromRef<AppState> for WsHub {
+    fn from_ref(s: &AppState) -> Self { s.sabchat_ws_hub.clone() }
+}
+
+impl FromRef<AppState> for SabChatChannelWhatsappState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_whatsapp.clone() } }
+impl FromRef<AppState> for SabChatChannelInstagramState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_instagram.clone() } }
+impl FromRef<AppState> for SabChatChannelFacebookState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_facebook.clone() } }
+impl FromRef<AppState> for SabChatChannelTelegramState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_telegram.clone() } }
+impl FromRef<AppState> for SabChatChannelEmailState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_email.clone() } }
+impl FromRef<AppState> for SabChatChannelSmsState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_sms.clone() } }
+impl FromRef<AppState> for SabChatAiCopilotState { fn from_ref(s: &AppState) -> Self { s.sabchat_ai_copilot.clone() } }
+impl FromRef<AppState> for SabChatAiTranslateState { fn from_ref(s: &AppState) -> Self { s.sabchat_ai_translate.clone() } }
+impl FromRef<AppState> for SabChatAiSentimentState { fn from_ref(s: &AppState) -> Self { s.sabchat_ai_sentiment.clone() } }
+impl FromRef<AppState> for SabChatAiResolveBotState { fn from_ref(s: &AppState) -> Self { s.sabchat_ai_resolve_bot.clone() } }
+impl FromRef<AppState> for SabChatMacrosState { fn from_ref(s: &AppState) -> Self { s.sabchat_macros.clone() } }
+impl FromRef<AppState> for SabChatSlaState { fn from_ref(s: &AppState) -> Self { s.sabchat_sla.clone() } }
+impl FromRef<AppState> for SabChatBusinessHoursState { fn from_ref(s: &AppState) -> Self { s.sabchat_business_hours.clone() } }
+impl FromRef<AppState> for SabChatCrmBridgeState { fn from_ref(s: &AppState) -> Self { s.sabchat_crm_bridge.clone() } }
+impl FromRef<AppState> for SabChatKnowledgeState { fn from_ref(s: &AppState) -> Self { s.sabchat_knowledge.clone() } }
+impl FromRef<AppState> for SabChatCommerceState { fn from_ref(s: &AppState) -> Self { s.sabchat_commerce.clone() } }
+impl FromRef<AppState> for SabChatReportsState { fn from_ref(s: &AppState) -> Self { s.sabchat_reports.clone() } }
+impl FromRef<AppState> for SabChatTeamsState { fn from_ref(s: &AppState) -> Self { s.sabchat_teams.clone() } }

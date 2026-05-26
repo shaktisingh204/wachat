@@ -237,7 +237,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       <EntityFormField
                         entity="state"
                         name="state"
-                        filter={countryId ? { countryId } : undefined}
+                        filter={countryId ? { countryCode: countryId } : undefined}
                         onChange={(next) => setStateId(next)}
                       />
                     </div>
@@ -246,7 +246,16 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       <EntityFormField
                         entity="city"
                         name="city"
-                        filter={stateId ? { stateId } : countryId ? { countryId } : undefined}
+                        filter={
+                          countryId
+                            ? {
+                                countryCode: countryId,
+                                ...(stateId
+                                  ? { stateCode: stateId.includes(':') ? stateId.split(':')[1] : stateId }
+                                  : {}),
+                              }
+                            : undefined
+                        }
                       />
                     </div>
                   </div>
@@ -274,7 +283,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       <EntityFormField
                         entity="state"
                         name="addressState"
-                        filter={addressCountryId ? { countryId: addressCountryId } : undefined}
+                        filter={addressCountryId ? { countryCode: addressCountryId } : undefined}
                         onChange={(next) => setAddressStateId(next)}
                       />
                     </div>
@@ -283,7 +292,16 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       <EntityFormField
                         entity="city"
                         name="addressCity"
-                        filter={addressStateId ? { stateId: addressStateId } : addressCountryId ? { countryId: addressCountryId } : undefined}
+                        filter={
+                          addressCountryId
+                            ? {
+                                countryCode: addressCountryId,
+                                ...(addressStateId
+                                  ? { stateCode: addressStateId.includes(':') ? addressStateId.split(':')[1] : addressStateId }
+                                  : {}),
+                              }
+                            : undefined
+                        }
                       />
                     </div>
                     <div className="space-y-2"><Label htmlFor="addressZip">ZIP Code</Label><Input id="addressZip" name="addressZip" maxLength={20} /></div>

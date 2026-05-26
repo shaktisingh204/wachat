@@ -26,7 +26,7 @@ use crate::dto::{
     OneTimeNotifRequestBody, OneTimeNotifSendBody, PassThreadBody, QuickReplyItem,
     RecurringOptInBody, RecurringSendBody, SearchQuery, SecondaryReceiversResp,
     SendButtonTemplateBody, SendGenericTemplateBody, SendMediaBody, SendQuickRepliesBody,
-    SendTextBody, ThreadControlBody,
+    SendTextBody, ThreadControlBody, SendWhatsappTextBody, SendWhatsappTemplateBody, SendWhatsappMediaBody, SendWhatsappInteractiveBody
 };
 use crate::state::WachatFacebookMessagingState;
 use crate::store::{FacebookProject, load_project_for};
@@ -613,4 +613,120 @@ async fn list_conversations(
     );
     let resp: Value = state.meta.get_json(&path, token).await?;
     Ok(extract_data_array(resp))
+}
+
+// ---------------------------------------------------------------------------
+// WhatsApp Cloud API
+// ---------------------------------------------------------------------------
+
+/// `POST /projects/{project_id}/whatsapp/messages/text`
+pub async fn send_whatsapp_text(
+    user: AuthUser,
+    Path(project_id): Path<String>,
+    State(state): State<WachatFacebookMessagingState>,
+    Json(body): Json<SendWhatsappTextBody>,
+) -> Result<Json<AckResp>> {
+    let project = load_project_for(&user, &state.mongo, &project_id).await?;
+    let token = require_token(&project)?;
+
+    let payload = json!({
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": body.to,
+        "type": "text",
+        "text": {
+            "body": body.text
+        }
+    });
+
+    let path = format!("{}/messages", urlencode(&body.phone_number_id));
+    state.meta.post_json::<_, Value>(&path, token, &payload).await?;
+    Ok(Json(AckResp { success: true }))
+}
+
+/// `POST /projects/{project_id}/whatsapp/messages/template`
+pub async fn send_whatsapp_template(
+    user: AuthUser,
+    Path(project_id): Path<String>,
+    State(state): State<WachatFacebookMessagingState>,
+    Json(body): Json<SendWhatsappTemplateBody>,
+) -> Result<Json<AckResp>> {
+    let project = load_project_for(&user, &state.mongo, &project_id).await?;
+    let token = require_token(&project)?;
+
+    let payload = json!({
+        "messaging_product": "whatsapp",
+        "to": body.to,
+        "type": "template",
+        "template": {
+            "name": body.template_name,
+            "language": {
+                "code": body.language_code
+            },
+            "components": body.components
+        }
+    });
+
+    let path = format!("{}/messages", urlencode(&body.phone_number_id));
+    state.meta.post_json::<_, Value>(&path, token, &payload).await?;
+    Ok(Json(AckResp { success: true }))
+}
+
+/// `POST /projects/{project_id}/whatsapp/messages/media`
+pub async fn send_whatsapp_media(
+    user: AuthUser,
+    Path(project_id): Path<String>,
+    State(state): State<WachatFacebookMessagingState>,
+    Json(body): Json<SendWhatsappMediaBody>,
+) -> Result<Json<AckResp>> {
+    let project = load_project_for(&user, &state.mongo, &project_id).await?;
+    let token = require_token(&project)?;
+
+    let mut media_obj = serde_json::Map::new();
+    if let Some(link) = body.media_url {
+        media_obj.insert("link".to_string(), Value::String(link));
+    } else if let Some(id) = body.media_id {
+        media_obj.insert("id".to_string(), Value::String(id));
+    } else {
+        return Err(ApiError::BadRequest("Must provide media_url or media_id".to_owned()));
+    }
+    
+    if let Some(caption) = body.caption {
+        media_obj.insert("caption".to_string(), Value::String(caption));
+    }
+
+    let payload = json!({
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": body.to,
+        "type": body.media_type,
+        body.media_type: media_obj
+    });
+
+    let path = format!("{}/messages", urlencode(&body.phone_number_id));
+    state.meta.post_json::<_, Value>(&path, token, &payload).await?;
+    Ok(Json(AckResp { success: true }))
+}
+
+/// `POST /projects/{project_id}/whatsapp/messages/interactive`
+pub async fn send_whatsapp_interactive(
+    user: AuthUser,
+    Path(project_id): Path<String>,
+    State(state): State<WachatFacebookMessagingState>,
+    Json(body): Json<SendWhatsappInteractiveBody>,
+) -> Result<Json<AckResp>> {
+    let project = load_project_for(&user, &state.mongo, &project_id).await?;
+    let token = require_token(&project)?;
+
+    let payload = json!({
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": body.to,
+        "type": "interactive",
+        "interactive": body.interactive
+    });
+
+    let path = format!("{}/messages", urlencode(&body.phone_number_id));
+    state.meta.post_json::<_, Value>(&path, token, &payload).await?;
+    Ok(Json(AckResp { success: true }))
 }

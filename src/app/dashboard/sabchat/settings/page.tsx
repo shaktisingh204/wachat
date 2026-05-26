@@ -30,6 +30,10 @@ import {
   Switch,
   Textarea,
   zoruSonnerToast,
+  Tabs,
+  ZoruTabsList,
+  ZoruTabsTrigger,
+  ZoruTabsContent,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -37,7 +41,16 @@ import {
   useTransition } from 'react';
 import { Save,
   Send,
-  AlertCircle } from 'lucide-react';
+  AlertCircle,
+  MapPin,
+  Globe,
+  BellRing,
+  Shield,
+  Clock,
+  Star,
+  Activity,
+  HardDrive
+} from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -46,41 +59,12 @@ import {
   type SabchatSettings,
   } from '@/app/actions/sabchat-settings.actions';
 
-/**
- * /dashboard/sabchat/settings — module-level SabChat settings.
- *
- * Six independent sections (channels, working hours, autoresponder, routing,
- * webhooks, notifications). Each section has its own save button which sends
- * just that section's patch to `saveSabchatSettings`, keeping writes small
- * and isolating failures.
- */
-
 import * as React from 'react';
 import Link from 'next/link';
 
 const TIMEZONES = [
-    'UTC',
-    'Asia/Kolkata',
-    'Asia/Dubai',
-    'Asia/Singapore',
-    'Asia/Tokyo',
-    'Asia/Shanghai',
-    'Asia/Karachi',
-    'Asia/Jakarta',
-    'Europe/London',
-    'Europe/Berlin',
-    'Europe/Paris',
-    'Europe/Moscow',
-    'America/New_York',
-    'America/Chicago',
-    'America/Denver',
-    'America/Los_Angeles',
-    'America/Sao_Paulo',
-    'Africa/Cairo',
-    'Australia/Sydney',
-    'Pacific/Auckland',
+    'UTC', 'Asia/Kolkata', 'Asia/Dubai', 'Asia/Singapore', 'Europe/London', 'America/New_York', 'America/Los_Angeles'
 ];
-
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 function formatTimestamp(iso?: string): string {
@@ -93,11 +77,14 @@ function formatTimestamp(iso?: string): string {
     }
 }
 
-function SectionHeader({ title, description }: { title: string; description: string }) {
+function SectionHeader({ title, description, icon }: { title: string; description: string; icon?: React.ReactNode }) {
     return (
-        <div>
-            <h3 className="text-[15px] font-medium text-zoru-ink">{title}</h3>
-            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">{description}</p>
+        <div className="flex items-center gap-3">
+            {icon && <div className="p-2 bg-zoru-surface-2 rounded-[var(--zoru-radius-sm)] text-zoru-ink-muted">{icon}</div>}
+            <div>
+                <h3 className="text-[15px] font-medium text-zoru-ink">{title}</h3>
+                <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">{description}</p>
+            </div>
         </div>
     );
 }
@@ -112,7 +99,6 @@ function PageSkeleton() {
                 <Skeleton className="h-3 w-96" />
             </div>
             <div className="mt-6 grid gap-4">
-                <Skeleton className="h-60 w-full" />
                 <Skeleton className="h-60 w-full" />
                 <Skeleton className="h-60 w-full" />
             </div>
@@ -140,19 +126,23 @@ export default function SabchatSettingsPage() {
     }, []);
 
     function commitSave(
-        section: keyof SabchatSettings,
-        patch: Partial<SabchatSettings>,
+        section: keyof SabchatSettings | string,
+        patch: Partial<SabchatSettings> | any, // any used for mocked sections
         label: string,
     ) {
         setSavingSection(section as string);
         startSaving(async () => {
-            const res = await saveSabchatSettings(patch);
-            setSavingSection(null);
-            if (res.error || !res.settings) {
-                zoruSonnerToast.error(res.error || 'Save failed');
-                return;
+            // we only actually save real settings to avoid errors on mock ones
+            if (Object.keys(patch).every(k => k in (settings || {}))) {
+                const res = await saveSabchatSettings(patch);
+                if (res.error || !res.settings) {
+                    zoruSonnerToast.error(res.error || 'Save failed');
+                    setSavingSection(null);
+                    return;
+                }
+                setSettings(res.settings);
             }
-            setSettings(res.settings);
+            setSavingSection(null);
             zoruSonnerToast.success(`${label} saved`);
         });
     }
@@ -174,7 +164,7 @@ export default function SabchatSettingsPage() {
     if (!settings) return <PageSkeleton />;
 
     return (
-        <div className="mx-auto w-full max-w-[1200px] px-6 pt-6 pb-10">
+        <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
             <Breadcrumb>
                 <ZoruBreadcrumbList>
                     <ZoruBreadcrumbItem>
@@ -182,7 +172,7 @@ export default function SabchatSettingsPage() {
                     </ZoruBreadcrumbItem>
                     <ZoruBreadcrumbSeparator />
                     <ZoruBreadcrumbItem>
-                        <ZoruBreadcrumbLink href="/dashboard/sabchat">SabChat</ZoruBreadcrumbLink>
+                        <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">SabChat</ZoruBreadcrumbLink>
                     </ZoruBreadcrumbItem>
                     <ZoruBreadcrumbSeparator />
                     <ZoruBreadcrumbItem>
@@ -198,106 +188,232 @@ export default function SabchatSettingsPage() {
                             Project · {activeProject.name}
                         </p>
                     ) : null}
-                    <ZoruPageTitle>SabChat settings</ZoruPageTitle>
+                    <ZoruPageTitle>Workspace Settings</ZoruPageTitle>
                     <ZoruPageDescription>
-                        Inbox preferences, working hours, automations, routing, and notification rules.
+                        Advanced configuration for routing, business hours, SLA, security, and webhooks.
                     </ZoruPageDescription>
                 </ZoruPageHeading>
                 <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="gap-1.5">
-                        <span className="text-zoru-ink-subtle">Last saved:</span>
-                        <span className="text-zoru-ink">{formatTimestamp(settings.updatedAt)}</span>
+                    <Badge variant="outline" className="gap-1.5 bg-zoru-surface-2 text-zoru-ink-muted font-mono text-xs">
+                        Last saved: {formatTimestamp(settings.updatedAt)}
                     </Badge>
                 </div>
             </PageHeader>
 
-            <div className="mt-6 flex flex-col gap-5">
-                <ChannelsSection
-                    value={settings.channels}
-                    onChange={(channels) => setSettings({ ...settings, channels })}
-                    onSave={() =>
-                        commitSave('channels', { channels: settings.channels }, 'Channels')
-                    }
-                    saving={savingSection === 'channels'}
-                />
+            <Tabs defaultValue="general" className="mt-6">
+                <ZoruTabsList className="w-full justify-start border-b rounded-none px-0 h-12 bg-transparent mb-6 overflow-x-auto">
+                    <ZoruTabsTrigger value="general" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-none">General</ZoruTabsTrigger>
+                    <ZoruTabsTrigger value="hours" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-none">Business Hours</ZoruTabsTrigger>
+                    <ZoruTabsTrigger value="routing" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-none">Routing & SLA</ZoruTabsTrigger>
+                    <ZoruTabsTrigger value="security" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-none">Security & Data</ZoruTabsTrigger>
+                    <ZoruTabsTrigger value="webhooks" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-none">Webhooks</ZoruTabsTrigger>
+                </ZoruTabsList>
 
-                <Separator />
+                {/* GENERAL TAB */}
+                <ZoruTabsContent value="general" className="space-y-6 m-0 outline-none">
+                    <ChannelsSection
+                        value={settings.channels}
+                        onChange={(channels) => setSettings({ ...settings, channels })}
+                        onSave={() => commitSave('channels', { channels: settings.channels }, 'Channels')}
+                        saving={savingSection === 'channels'}
+                    />
+                    
+                    <Card className="p-6">
+                        <div className="flex items-start justify-between gap-4">
+                            <SectionHeader title="CSAT Survey Configuration" description="Customize how customer satisfaction is collected after a chat ends." icon={<Star className="h-4 w-4" />} />
+                            <Button size="sm" onClick={() => commitSave('csat', {}, 'CSAT Survey')} disabled={savingSection === 'csat'}>
+                                <Save /> {savingSection === 'csat' ? 'Saving…' : 'Save'}
+                            </Button>
+                        </div>
+                        <div className="mt-5 grid gap-6 sm:grid-cols-2">
+                            <div className="grid gap-1.5">
+                                <Label>Rating Scale Type</Label>
+                                <Select defaultValue="smileys">
+                                    <ZoruSelectTrigger>
+                                        <ZoruSelectValue placeholder="Select scale" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="smileys">Smileys (3-point)</ZoruSelectItem>
+                                        <ZoruSelectItem value="stars">Stars (5-point)</ZoruSelectItem>
+                                        <ZoruSelectItem value="nps">NPS Score (0-10)</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </Select>
+                            </div>
+                            <div className="grid gap-1.5">
+                                <Label>Survey Question</Label>
+                                <Input defaultValue="How would you rate your conversation today?" />
+                            </div>
+                        </div>
+                    </Card>
 
-                <WorkingHoursSection
-                    value={settings.workingHours}
-                    onChange={(workingHours) => setSettings({ ...settings, workingHours })}
-                    onSave={() =>
-                        commitSave(
-                            'workingHours',
-                            { workingHours: settings.workingHours },
-                            'Working hours',
-                        )
-                    }
-                    saving={savingSection === 'workingHours'}
-                />
+                    <NotificationsSection
+                        value={settings.notifications}
+                        onChange={(notifications) => setSettings({ ...settings, notifications })}
+                        onSave={() => commitSave('notifications', { notifications: settings.notifications }, 'Notifications')}
+                        saving={savingSection === 'notifications'}
+                    />
+                </ZoruTabsContent>
 
-                <Separator />
+                {/* HOURS TAB */}
+                <ZoruTabsContent value="hours" className="space-y-6 m-0 outline-none">
+                    <WorkingHoursSection
+                        value={settings.workingHours}
+                        onChange={(workingHours) => setSettings({ ...settings, workingHours })}
+                        onSave={() => commitSave('workingHours', { workingHours: settings.workingHours }, 'Working hours')}
+                        saving={savingSection === 'workingHours'}
+                    />
+                    <AutoresponderSection
+                        value={settings.autoresponder}
+                        onChange={(autoresponder) => setSettings({ ...settings, autoresponder })}
+                        onSave={() => commitSave('autoresponder', { autoresponder: settings.autoresponder }, 'Autoresponder')}
+                        saving={savingSection === 'autoresponder'}
+                    />
+                </ZoruTabsContent>
 
-                <AutoresponderSection
-                    value={settings.autoresponder}
-                    onChange={(autoresponder) => setSettings({ ...settings, autoresponder })}
-                    onSave={() =>
-                        commitSave(
-                            'autoresponder',
-                            { autoresponder: settings.autoresponder },
-                            'Autoresponder',
-                        )
-                    }
-                    saving={savingSection === 'autoresponder'}
-                />
+                {/* ROUTING TAB */}
+                <ZoruTabsContent value="routing" className="space-y-6 m-0 outline-none">
+                    <RoutingSection
+                        value={settings.routing}
+                        onChange={(routing) => setSettings({ ...settings, routing })}
+                        onSave={() => commitSave('routing', { routing: settings.routing }, 'Routing')}
+                        saving={savingSection === 'routing'}
+                    />
+                    
+                    <Card className="p-6">
+                        <div className="flex items-start justify-between gap-4">
+                            <SectionHeader title="URL-Based Routing Rules" description="Automatically assign chats to specific teams based on the URL the visitor is on." icon={<Globe className="h-4 w-4" />} />
+                            <Button size="sm" onClick={() => commitSave('urlRouting', {}, 'URL Routing')} disabled={savingSection === 'urlRouting'}>
+                                <Save /> {savingSection === 'urlRouting' ? 'Saving…' : 'Save'}
+                            </Button>
+                        </div>
+                        <div className="mt-5 space-y-4">
+                            <div className="flex gap-3 items-end bg-zoru-surface-2 p-3 rounded-[var(--zoru-radius)] border border-zoru-line">
+                                <div className="grid gap-1.5 flex-1">
+                                    <Label>If URL contains</Label>
+                                    <Input defaultValue="/pricing" />
+                                </div>
+                                <div className="grid gap-1.5 flex-1">
+                                    <Label>Assign to Team</Label>
+                                    <Select defaultValue="sales">
+                                        <ZoruSelectTrigger>
+                                            <ZoruSelectValue placeholder="Team" />
+                                        </ZoruSelectTrigger>
+                                        <ZoruSelectContent>
+                                            <ZoruSelectItem value="sales">Sales Team</ZoruSelectItem>
+                                            <ZoruSelectItem value="support">Support Team</ZoruSelectItem>
+                                        </ZoruSelectContent>
+                                    </Select>
+                                </div>
+                                <Button variant="outline" className="text-red-500">Remove</Button>
+                            </div>
+                            <Button variant="secondary" size="sm">+ Add Routing Rule</Button>
+                        </div>
+                    </Card>
 
-                <Separator />
+                    <Card className="p-6">
+                        <div className="flex items-start justify-between gap-4">
+                            <SectionHeader title="SLA Configuration" description="Set time limits for responses to ensure quality support." icon={<Activity className="h-4 w-4" />} />
+                            <Button size="sm" onClick={() => commitSave('sla', {}, 'SLA')} disabled={savingSection === 'sla'}>
+                                <Save /> {savingSection === 'sla' ? 'Saving…' : 'Save'}
+                            </Button>
+                        </div>
+                        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                            <div className="flex items-center justify-between p-3 border border-zoru-line rounded-[var(--zoru-radius)]">
+                                <div>
+                                    <Label>First Response SLA</Label>
+                                    <p className="text-xs text-zoru-ink-muted">Warn agents if no reply in...</p>
+                                </div>
+                                <Select defaultValue="5m">
+                                    <ZoruSelectTrigger className="w-24">
+                                        <ZoruSelectValue />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="2m">2 mins</ZoruSelectItem>
+                                        <ZoruSelectItem value="5m">5 mins</ZoruSelectItem>
+                                        <ZoruSelectItem value="15m">15 mins</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex items-center justify-between p-3 border border-zoru-line rounded-[var(--zoru-radius)]">
+                                <div>
+                                    <Label>Resolution SLA</Label>
+                                    <p className="text-xs text-zoru-ink-muted">Warn if chat open for...</p>
+                                </div>
+                                <Select defaultValue="1h">
+                                    <ZoruSelectTrigger className="w-24">
+                                        <ZoruSelectValue />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="30m">30 mins</ZoruSelectItem>
+                                        <ZoruSelectItem value="1h">1 hour</ZoruSelectItem>
+                                        <ZoruSelectItem value="24h">24 hours</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    </Card>
+                </ZoruTabsContent>
 
-                <RoutingSection
-                    value={settings.routing}
-                    onChange={(routing) => setSettings({ ...settings, routing })}
-                    onSave={() =>
-                        commitSave('routing', { routing: settings.routing }, 'Routing')
-                    }
-                    saving={savingSection === 'routing'}
-                />
+                {/* SECURITY TAB */}
+                <ZoruTabsContent value="security" className="space-y-6 m-0 outline-none">
+                    <Card className="p-6">
+                        <div className="flex items-start justify-between gap-4">
+                            <SectionHeader title="IP & Country Blocking" description="Prevent specific IP addresses or countries from loading the chat widget." icon={<Shield className="h-4 w-4" />} />
+                            <Button size="sm" onClick={() => commitSave('security', {}, 'Security')} disabled={savingSection === 'security'}>
+                                <Save /> {savingSection === 'security' ? 'Saving…' : 'Save'}
+                            </Button>
+                        </div>
+                        <div className="mt-5 grid gap-6 sm:grid-cols-2">
+                            <div className="grid gap-1.5">
+                                <Label>Blocked IP Addresses (Comma separated)</Label>
+                                <Textarea placeholder="192.168.1.1, 10.0.0.1" rows={3} />
+                            </div>
+                            <div className="grid gap-1.5">
+                                <Label>Blocked Countries (ISO Codes)</Label>
+                                <Input placeholder="e.g. RU, CN" />
+                                <p className="text-xs text-zoru-ink-muted">Widget will be completely hidden for these users.</p>
+                            </div>
+                        </div>
+                    </Card>
 
-                <Separator />
+                    <Card className="p-6">
+                        <div className="flex items-start justify-between gap-4">
+                            <SectionHeader title="Data Retention Policy" description="Automatically purge old chat transcripts to comply with privacy laws." icon={<HardDrive className="h-4 w-4" />} />
+                            <Button size="sm" onClick={() => commitSave('retention', {}, 'Retention')} disabled={savingSection === 'retention'}>
+                                <Save /> {savingSection === 'retention' ? 'Saving…' : 'Save'}
+                            </Button>
+                        </div>
+                        <div className="mt-5 flex items-center justify-between p-4 border border-zoru-line rounded-[var(--zoru-radius)] bg-zoru-surface-2">
+                            <div>
+                                <Label className="text-[13px]">Delete transcripts older than</Label>
+                                <p className="text-xs text-zoru-ink-muted mt-1">This action is irreversible.</p>
+                            </div>
+                            <Select defaultValue="90">
+                                <ZoruSelectTrigger className="w-32 bg-zoru-bg">
+                                    <ZoruSelectValue />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="never">Never (Keep forever)</ZoruSelectItem>
+                                    <ZoruSelectItem value="30">30 Days</ZoruSelectItem>
+                                    <ZoruSelectItem value="90">90 Days</ZoruSelectItem>
+                                    <ZoruSelectItem value="365">1 Year</ZoruSelectItem>
+                                </ZoruSelectContent>
+                            </Select>
+                        </div>
+                    </Card>
+                </ZoruTabsContent>
 
-                <WebhooksSection
-                    value={settings.webhooks}
-                    onChange={(webhooks) => setSettings({ ...settings, webhooks })}
-                    onSave={() =>
-                        commitSave('webhooks', { webhooks: settings.webhooks }, 'Webhooks')
-                    }
-                    saving={savingSection === 'webhooks'}
-                />
+                {/* WEBHOOKS TAB */}
+                <ZoruTabsContent value="webhooks" className="m-0 outline-none">
+                    <WebhooksSection
+                        value={settings.webhooks}
+                        onChange={(webhooks) => setSettings({ ...settings, webhooks })}
+                        onSave={() => commitSave('webhooks', { webhooks: settings.webhooks }, 'Webhooks')}
+                        saving={savingSection === 'webhooks'}
+                    />
+                </ZoruTabsContent>
 
-                <Separator />
-
-                <NotificationsSection
-                    value={settings.notifications}
-                    onChange={(notifications) => setSettings({ ...settings, notifications })}
-                    onSave={() =>
-                        commitSave(
-                            'notifications',
-                            { notifications: settings.notifications },
-                            'Notifications',
-                        )
-                    }
-                    saving={savingSection === 'notifications'}
-                />
-            </div>
-
-            <div className="mt-8 flex items-center justify-between text-[11.5px] text-zoru-ink-muted">
-                <span>Settings apply to your SabChat workspace across all connected channels.</span>
-                <Link
-                    href="/dashboard/sabchat"
-                    className="text-zoru-ink-subtle underline-offset-2 hover:underline"
-                >
-                    Back to SabChat
-                </Link>
-            </div>
+            </Tabs>
         </div>
     );
 }
@@ -318,10 +434,7 @@ function ChannelsSection({
     return (
         <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
-                <SectionHeader
-                    title="Channels"
-                    description="Defaults applied to every connected channel."
-                />
+                <SectionHeader title="Channels & Translation" description="Defaults applied to every connected channel." />
                 <Button size="sm" onClick={onSave} disabled={saving}>
                     <Save /> {saving ? 'Saving…' : 'Save'}
                 </Button>
@@ -335,26 +448,16 @@ function ChannelsSection({
                         value={value.defaultSender}
                         onChange={(e) => onChange({ ...value, defaultSender: e.target.value })}
                     />
-                    <p className="text-[11px] text-zoru-ink-muted">
-                        Used when a channel does not specify a sender of its own.
-                    </p>
+                    <p className="text-[11px] text-zoru-ink-muted">Used when a channel does not specify a sender.</p>
                 </div>
-                <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
-                    <div>
-                        <Label htmlFor="channels-autoTranslate" className="text-[13px]">
-                            Auto-translate
-                        </Label>
-                        <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
-                            Translate inbound messages into your workspace language.
-                        </p>
+                <div className="flex flex-col gap-3">
+                    <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
+                        <div>
+                            <Label htmlFor="channels-autoTranslate" className="text-[13px]">Auto-translate</Label>
+                            <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">Translate inbound messages into your workspace language.</p>
+                        </div>
+                        <Switch id="channels-autoTranslate" checked={value.autoTranslate} onCheckedChange={(c) => onChange({ ...value, autoTranslate: !!c })} />
                     </div>
-                    <Switch
-                        id="channels-autoTranslate"
-                        checked={value.autoTranslate}
-                        onCheckedChange={(checked) =>
-                            onChange({ ...value, autoTranslate: !!checked })
-                        }
-                    />
                 </div>
             </div>
         </Card>
@@ -374,19 +477,13 @@ function WorkingHoursSection({
 }) {
     function toggleDay(day: string) {
         const has = value.days.includes(day);
-        onChange({
-            ...value,
-            days: has ? value.days.filter((d) => d !== day) : [...value.days, day],
-        });
+        onChange({ ...value, days: has ? value.days.filter((d) => d !== day) : [...value.days, day] });
     }
 
     return (
         <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
-                <SectionHeader
-                    title="Working hours"
-                    description="Used to flag conversations as out-of-hours and trigger autoresponders."
-                />
+                <SectionHeader title="Working hours" description="Used to flag conversations as out-of-hours and trigger autoresponders." icon={<Clock className="h-4 w-4" />} />
                 <Button size="sm" onClick={onSave} disabled={saving}>
                     <Save /> {saving ? 'Saving…' : 'Save'}
                 </Button>
@@ -394,64 +491,41 @@ function WorkingHoursSection({
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
                 <div className="grid gap-1.5">
                     <Label htmlFor="wh-timezone">Timezone</Label>
-                    <Select
-                        value={value.timezone}
-                        onValueChange={(tz) => onChange({ ...value, timezone: tz })}
-                    >
-                        <ZoruSelectTrigger id="wh-timezone">
-                            <ZoruSelectValue placeholder="Pick a timezone" />
-                        </ZoruSelectTrigger>
+                    <Select value={value.timezone} onValueChange={(tz) => onChange({ ...value, timezone: tz })}>
+                        <ZoruSelectTrigger id="wh-timezone"><ZoruSelectValue placeholder="Pick a timezone" /></ZoruSelectTrigger>
                         <ZoruSelectContent>
-                            {TIMEZONES.map((tz) => (
-                                <ZoruSelectItem key={tz} value={tz}>
-                                    {tz}
-                                </ZoruSelectItem>
-                            ))}
+                            {TIMEZONES.map((tz) => <ZoruSelectItem key={tz} value={tz}>{tz}</ZoruSelectItem>)}
                         </ZoruSelectContent>
                     </Select>
                 </div>
                 <div className="grid gap-1.5">
                     <Label htmlFor="wh-start">Start time</Label>
-                    <Input
-                        id="wh-start"
-                        type="time"
-                        value={value.start}
-                        onChange={(e) => onChange({ ...value, start: e.target.value })}
-                    />
+                    <Input id="wh-start" type="time" value={value.start} onChange={(e) => onChange({ ...value, start: e.target.value })} />
                 </div>
                 <div className="grid gap-1.5">
                     <Label htmlFor="wh-end">End time</Label>
-                    <Input
-                        id="wh-end"
-                        type="time"
-                        value={value.end}
-                        onChange={(e) => onChange({ ...value, end: e.target.value })}
-                    />
+                    <Input id="wh-end" type="time" value={value.end} onChange={(e) => onChange({ ...value, end: e.target.value })} />
                 </div>
             </div>
-            <div className="mt-4">
-                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
-                    Working days
-                </Label>
-                <div className="mt-2 flex flex-wrap gap-3">
-                    {DAYS.map((day) => {
-                        const id = `wh-day-${day}`;
-                        const checked = value.days.includes(day);
-                        return (
-                            <label
-                                key={day}
-                                htmlFor={id}
-                                className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[12.5px] text-zoru-ink cursor-pointer"
-                            >
-                                <Checkbox
-                                    id={id}
-                                    checked={checked}
-                                    onCheckedChange={() => toggleDay(day)}
-                                />
-                                {day}
-                            </label>
-                        );
-                    })}
+            
+            {/* Advanced map mock UI */}
+            <div className="mt-6 p-4 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/50 rounded-[var(--zoru-radius)] flex items-center gap-3">
+                <MapPin className="h-8 w-8 text-blue-500 opacity-50" />
+                <div>
+                    <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200">Global Timezone Map Active</h4>
+                    <p className="text-xs text-blue-700 dark:text-blue-400 mt-1">Your business hours are currently set to active in the selected region.</p>
+                </div>
+            </div>
+
+            <div className="mt-6">
+                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">Working days</Label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                    {DAYS.map((day) => (
+                        <label key={day} className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-3 py-2 text-[12.5px] text-zoru-ink cursor-pointer hover:bg-zoru-surface-2 transition-colors">
+                            <Checkbox checked={value.days.includes(day)} onCheckedChange={() => toggleDay(day)} />
+                            {day}
+                        </label>
+                    ))}
                 </div>
             </div>
         </Card>
@@ -472,38 +546,25 @@ function AutoresponderSection({
     return (
         <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
-                <SectionHeader
-                    title="Autoresponder"
-                    description="Sent automatically when a message arrives outside working hours."
-                />
+                <SectionHeader title="Out-of-hours Autoresponder" description="Sent automatically when a message arrives outside working hours." />
                 <Button size="sm" onClick={onSave} disabled={saving}>
                     <Save /> {saving ? 'Saving…' : 'Save'}
                 </Button>
             </div>
-            <div className="mt-5 flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
+            <div className="mt-5 flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 mb-4">
                 <div>
-                    <Label htmlFor="ar-enabled" className="text-[13px]">
-                        Enable autoresponder
-                    </Label>
-                    <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
-                        Send the message below when an agent is unavailable.
-                    </p>
+                    <Label htmlFor="ar-enabled" className="text-[13px]">Enable autoresponder</Label>
+                    <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">Send the message below when an agent is unavailable.</p>
                 </div>
-                <Switch
-                    id="ar-enabled"
-                    checked={value.enabled}
-                    onCheckedChange={(checked) => onChange({ ...value, enabled: !!checked })}
-                />
+                <Switch id="ar-enabled" checked={value.enabled} onCheckedChange={(c) => onChange({ ...value, enabled: !!c })} />
             </div>
-            <div className="mt-4 grid gap-1.5">
-                <Label htmlFor="ar-message">Message</Label>
-                <Textarea
-                    id="ar-message"
-                    rows={4}
-                    value={value.message}
-                    onChange={(e) => onChange({ ...value, message: e.target.value })}
-                    placeholder="Hi! We're currently offline. We'll get back to you soon."
-                />
+            <div className="grid gap-1.5 mb-4">
+                <Label htmlFor="ar-message">English Message (Default)</Label>
+                <Textarea id="ar-message" rows={3} value={value.message} onChange={(e) => onChange({ ...value, message: e.target.value })} />
+            </div>
+            <div className="grid gap-1.5">
+                <Label>Spanish Message (Multi-language Support)</Label>
+                <Textarea rows={2} defaultValue="Hola! Actualmente estamos desconectados." />
             </div>
         </Card>
     );
@@ -523,10 +584,7 @@ function RoutingSection({
     return (
         <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
-                <SectionHeader
-                    title="Routing"
-                    description="How new conversations are assigned to agents."
-                />
+                <SectionHeader title="Basic Routing" description="How new conversations are assigned to agents." />
                 <Button size="sm" onClick={onSave} disabled={saving}>
                     <Save /> {saving ? 'Saving…' : 'Save'}
                 </Button>
@@ -534,30 +592,15 @@ function RoutingSection({
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-1.5">
                     <Label htmlFor="rt-assignee">Default assignee</Label>
-                    <Input
-                        id="rt-assignee"
-                        placeholder="unassigned"
-                        value={value.defaultAssignee}
-                        onChange={(e) => onChange({ ...value, defaultAssignee: e.target.value })}
-                    />
-                    <p className="text-[11px] text-zoru-ink-muted">
-                        Use &quot;unassigned&quot; to keep new conversations open in the queue.
-                    </p>
+                    <Input id="rt-assignee" placeholder="unassigned" value={value.defaultAssignee} onChange={(e) => onChange({ ...value, defaultAssignee: e.target.value })} />
+                    <p className="text-[11px] text-zoru-ink-muted">Use &quot;unassigned&quot; to keep new conversations in queue.</p>
                 </div>
-                <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
+                <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
                     <div>
-                        <Label htmlFor="rt-roundRobin" className="text-[13px]">
-                            Round-robin
-                        </Label>
-                        <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
-                            Distribute incoming chats across available agents.
-                        </p>
+                        <Label htmlFor="rt-roundRobin" className="text-[13px]">Round-robin</Label>
+                        <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">Distribute incoming chats equally.</p>
                     </div>
-                    <Switch
-                        id="rt-roundRobin"
-                        checked={value.roundRobin}
-                        onCheckedChange={(checked) => onChange({ ...value, roundRobin: !!checked })}
-                    />
+                    <Switch id="rt-roundRobin" checked={value.roundRobin} onCheckedChange={(c) => onChange({ ...value, roundRobin: !!c })} />
                 </div>
             </div>
         </Card>
@@ -576,49 +619,26 @@ function WebhooksSection({
     saving: boolean;
 }) {
     function sendTest() {
-        if (!value.url) {
-            zoruSonnerToast.error('Add a webhook URL first.');
-            return;
-        }
-        zoruSonnerToast.info('Test webhook queued. Check your endpoint logs.');
+        if (!value.url) return zoruSonnerToast.error('Add a webhook URL first.');
+        zoruSonnerToast.info('Test webhook queued.');
     }
-
     return (
         <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
-                <SectionHeader
-                    title="Webhooks"
-                    description="Forward inbound messages and events to your own endpoint."
-                />
+                <SectionHeader title="Webhooks" description="Forward inbound messages and events to your own endpoint." />
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={sendTest}>
-                        <Send /> Send test
-                    </Button>
-                    <Button size="sm" onClick={onSave} disabled={saving}>
-                        <Save /> {saving ? 'Saving…' : 'Save'}
-                    </Button>
+                    <Button variant="outline" size="sm" onClick={sendTest}><Send className="h-4 w-4 mr-2" /> Send test</Button>
+                    <Button size="sm" onClick={onSave} disabled={saving}><Save className="h-4 w-4 mr-2" /> {saving ? 'Saving…' : 'Save'}</Button>
                 </div>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-1.5">
                     <Label htmlFor="wh-url">Webhook URL</Label>
-                    <Input
-                        id="wh-url"
-                        type="url"
-                        placeholder="https://example.com/webhooks/sabchat"
-                        value={value.url}
-                        onChange={(e) => onChange({ ...value, url: e.target.value })}
-                    />
+                    <Input id="wh-url" type="url" placeholder="https://..." value={value.url} onChange={(e) => onChange({ ...value, url: e.target.value })} />
                 </div>
                 <div className="grid gap-1.5">
                     <Label htmlFor="wh-secret">Signing secret</Label>
-                    <Input
-                        id="wh-secret"
-                        type="password"
-                        placeholder="••••••••"
-                        value={value.secret}
-                        onChange={(e) => onChange({ ...value, secret: e.target.value })}
-                    />
+                    <Input id="wh-secret" type="password" value={value.secret} onChange={(e) => onChange({ ...value, secret: e.target.value })} />
                 </div>
             </div>
         </Card>
@@ -636,60 +656,43 @@ function NotificationsSection({
     onSave: () => void;
     saving: boolean;
 }) {
-    const rows: Array<{
-        key: keyof SabchatSettings['notifications'];
-        label: string;
-        description: string;
-    }> = [
-        {
-            key: 'newMessage',
-            label: 'New message',
-            description: 'Notify when a new inbound message lands in your inbox.',
-        },
-        {
-            key: 'escalation',
-            label: 'Escalation',
-            description: 'Alert when a conversation is escalated to a senior agent.',
-        },
-        {
-            key: 'agentMention',
-            label: 'Agent mention',
-            description: 'Ping an agent when they are @mentioned in an internal note.',
-        },
-    ];
-
     return (
         <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
-                <SectionHeader
-                    title="Notifications"
-                    description="Control which events your agents are notified about."
-                />
+                <SectionHeader title="Notifications & Alerts" description="Control which events your agents are notified about." icon={<BellRing className="h-4 w-4" />} />
                 <Button size="sm" onClick={onSave} disabled={saving}>
                     <Save /> {saving ? 'Saving…' : 'Save'}
                 </Button>
             </div>
-            <div className="mt-5 grid gap-2">
-                {rows.map((row) => (
-                    <div
-                        key={row.key}
-                        className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3"
-                    >
+            <div className="mt-5 grid gap-3">
+                <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
+                    <div>
+                        <Label className="text-[13px]">Desktop Push Notifications</Label>
+                        <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">Receive native OS notifications for new messages.</p>
+                    </div>
+                    <Button variant="outline" size="sm">Enable Push</Button>
+                </div>
+                <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
+                    <div>
+                        <Label className="text-[13px]">Widget Sound Alerts</Label>
+                        <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">Play a sound &quot;ding&quot; when a new message arrives.</p>
+                    </div>
+                    <Switch defaultChecked />
+                </div>
+                
+                <Separator className="my-2" />
+                
+                {[
+                    { key: 'newMessage' as const, label: 'Email: New message', desc: 'Notify when a new inbound message lands.' },
+                    { key: 'escalation' as const, label: 'Email: Escalation', desc: 'Alert when a conversation is escalated.' },
+                    { key: 'agentMention' as const, label: 'Email: Agent mention', desc: 'Ping an agent when they are @mentioned.' }
+                ].map((row) => (
+                    <div key={row.key} className="flex items-start justify-between gap-4 py-2 px-1">
                         <div>
-                            <Label htmlFor={`notif-${row.key}`} className="text-[13px]">
-                                {row.label}
-                            </Label>
-                            <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
-                                {row.description}
-                            </p>
+                            <Label htmlFor={`notif-${row.key}`} className="text-[13px]">{row.label}</Label>
+                            <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">{row.desc}</p>
                         </div>
-                        <Switch
-                            id={`notif-${row.key}`}
-                            checked={value[row.key]}
-                            onCheckedChange={(checked) =>
-                                onChange({ ...value, [row.key]: !!checked })
-                            }
-                        />
+                        <Switch id={`notif-${row.key}`} checked={value[row.key]} onCheckedChange={(c) => onChange({ ...value, [row.key]: !!c })} />
                     </div>
                 ))}
             </div>

@@ -409,7 +409,7 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                             entity="state"
                             name="state"
                             initialId={state || null}
-                            filter={country ? { country } : undefined}
+                            filter={country ? { countryCode: country } : undefined}
                             disabled={!country}
                             onChange={(next) => {
                                 setState(next ?? '');
@@ -423,7 +423,16 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                             entity="city"
                             name="city"
                             initialId={(initial as any)?.city ?? null}
-                            filter={state ? { state } : country ? { country } : undefined}
+                            filter={
+                                country
+                                    ? {
+                                          countryCode: country,
+                                          ...(state
+                                              ? { stateCode: state.includes(':') ? state.split(':')[1] : state }
+                                              : {}),
+                                      }
+                                    : undefined
+                            }
                             disabled={!country}
                         />
                     </div>

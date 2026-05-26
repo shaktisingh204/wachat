@@ -25,6 +25,25 @@ import { sessionApi } from './session';
 import { templatesApi } from './templates';
 import { usersApi } from './users';
 import { wachatContactsApi } from './wachat-contacts';
+import { sabchatApi } from './sabchat';
+import { sabchatKbApi } from './sabchat-knowledge';
+import { sabchatReportsApi } from './sabchat-reports';
+import { sabchatWebhooksApi } from './sabchat-webhooks';
+import { sabchatPublicApi } from './sabchat-public-api';
+import { sabchatEventsApi } from './sabchat-events';
+import { sabchatVoiceApi } from './sabchat-voice';
+import { sabchatCobrowseApi } from './sabchat-cobrowse';
+import { sabchatShiftsApi } from './sabchat-shifts';
+import { sabchatCsatApi } from './sabchat-csat';
+import { sabchatDispositionsApi } from './sabchat-dispositions';
+import { sabchatGamificationApi } from './sabchat-gamification';
+import { sabchatComplianceApi } from './sabchat-compliance';
+import { sabchatSsoApi } from './sabchat-sso';
+import { sabchatAiQaApi } from './sabchat-ai-qa';
+import { sabchatAiVocApi } from './sabchat-ai-voc';
+import { sabchatSabflowNodesApi } from './sabchat-sabflow-nodes';
+import { sabchatCartRecoveryApi } from './sabchat-cart-recovery';
+import { sabchatAdAttributionApi } from './sabchat-ad-attribution';
 import { wachatFlowsApi } from './wachat-flows';
 import { wachatApiKeysAdminApi } from './wachat-api-keys-admin';
 import { wachatFacebookPagesApi } from './wachat-facebook-pages';
@@ -69,6 +88,11 @@ import { telegramBusinessInboxApi } from './telegram-business-inbox';
 import { telegramContactsApi } from './telegram-contacts';
 import { telegramSettingsApi } from './telegram-settings';
 import { telegramWebhooksApi } from './telegram-webhooks';
+import { sabchatTeamsApi } from './sabchat-teams';
+import { sabchatMacrosApi } from './sabchat-macros';
+import { sabchatSlaApi } from './sabchat-sla';
+import { sabchatBusinessHoursApi } from './sabchat-business-hours';
+import { sabchatMarketplaceApi } from './sabchat-marketplace';
 
 export const rustClient = {
     admin: adminApi,
@@ -76,6 +100,30 @@ export const rustClient = {
     session: sessionApi,
     projects: projectsApi,
     wachatContacts: wachatContactsApi,
+    sabchat: sabchatApi,
+    sabchatKb: sabchatKbApi,
+    sabchatReports: sabchatReportsApi,
+    sabchatWebhooks: sabchatWebhooksApi,
+    sabchatPublic: sabchatPublicApi,
+    sabchatEvents: sabchatEventsApi,
+    sabchatVoice: sabchatVoiceApi,
+    sabchatCobrowse: sabchatCobrowseApi,
+    sabchatShifts: sabchatShiftsApi,
+    sabchatCsat: sabchatCsatApi,
+    sabchatDispositions: sabchatDispositionsApi,
+    sabchatGamification: sabchatGamificationApi,
+    sabchatCompliance: sabchatComplianceApi,
+    sabchatTeams: sabchatTeamsApi,
+    sabchatMacros: sabchatMacrosApi,
+    sabchatSla: sabchatSlaApi,
+    sabchatBusinessHours: sabchatBusinessHoursApi,
+    sabchatMarketplace: sabchatMarketplaceApi,
+    sabchatSso: sabchatSsoApi,
+    sabchatAiQa: sabchatAiQaApi,
+    sabchatAiVoc: sabchatAiVocApi,
+    sabchatSabflowNodes: sabchatSabflowNodesApi,
+    sabchatCartRecovery: sabchatCartRecoveryApi,
+    sabchatAdAttribution: sabchatAdAttributionApi,
     wachatFlows: wachatFlowsApi,
     wachatApiKeysAdmin: wachatApiKeysAdminApi,
     wachatFacebookPages: wachatFacebookPagesApi,

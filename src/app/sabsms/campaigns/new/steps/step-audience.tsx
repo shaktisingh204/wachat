@@ -91,7 +91,7 @@ export function StepAudience({
           <Label>Segment</Label>
           {segments.length === 0 ? (
             <p className="rounded border border-slate-200 bg-slate-50 p-3 text-sm text-slate-500">
-              No segments yet. Create one in the CRM. {"// TODO: wire segments collection once shipped"}
+              No segments yet. Create one in the CRM.
             </p>
           ) : (
             <Select

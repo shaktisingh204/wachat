@@ -141,8 +141,21 @@ pub struct CreateFixedAssetInput {
 /// which fields are set.
 ///
 /// **Server-managed fields are NOT mutable here:**
-/// `accumulatedDepreciation`, `netBookValue`, `retireOrSell`. Use the
+/// `accumulatedDepreciation`, `netBookValue`. Use the
 /// dedicated `/depreciate` endpoint for the running totals.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RetireSellEntryInput {
+    pub at: chrono::DateTime<chrono::Utc>,
+    pub mode: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sale_amount: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub buyer: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub note: Option<String>,
+}
+
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateFixedAssetInput {
@@ -182,6 +195,8 @@ pub struct UpdateFixedAssetInput {
     pub insurance_until: Option<chrono::DateTime<chrono::Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub amc_contract_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub retire_or_sell: Option<RetireSellEntryInput>,
 }
 
 impl UpdateFixedAssetInput {
@@ -204,6 +219,7 @@ impl UpdateFixedAssetInput {
             && self.warranty_until.is_none()
             && self.insurance_until.is_none()
             && self.amc_contract_id.is_none()
+            && self.retire_or_sell.is_none()
     }
 }
 

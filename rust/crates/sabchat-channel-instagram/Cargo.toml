@@ -1,0 +1,58 @@
+# Phase — axum router for the SabChat **Instagram DM** channel adapter.
+#
+# Translates Instagram DM + comment webhook events (already normalised by
+# the Next.js webhook shim) into SabChat conversations + messages. This
+# crate is the bridge between Meta's Instagram Graph webhook payloads and
+# the unified SabChat conversation graph.
+#
+# Per the slice contract this crate is a leaf:
+#   * No `[workspace]` table.
+#   * Does NOT modify `rust/Cargo.toml`; the orchestrator wires it in.
+[package]
+name = "sabchat-channel-instagram"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router for the SabChat Instagram DM channel adapter (`/v1/sabchat/channels/instagram/*`). Owns the server-to-server `ingest` and `comment` webhook ingress that resolves an inbox + contact + conversation and appends one inbound message."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabchat_channel_instagram"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — same feature union as sibling routers so the api crate
+# resolves a single set of cargo features at build time.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId construction (ids on the wire are hex strings; parsed
+# via `ObjectId::parse_str` and `oid_from_str`).
+bson = { version = "2", features = ["chrono-0_4"] }
+
+# Wall-clock for `createdAt` / `updatedAt` and webhook timestamp parsing.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo driver wrappers.
+mongodb = "3"
+
+# Tracing for handler-level spans.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal`.
+anyhow = "1"
+
+# OpenAPI annotations to keep parity with sibling routers.
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+# Sibling crates — domain DTOs, shared error envelope, Mongo handle.
+sabchat-types = { path = "../sabchat-types" }
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

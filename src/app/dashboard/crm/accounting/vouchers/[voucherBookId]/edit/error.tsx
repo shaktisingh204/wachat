@@ -21,7 +21,7 @@ export default function EditVoucherBookError({
   const voucherBookId = params?.voucherBookId as string;
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+    <div className="w-full px-6 pt-6 pb-10">
       <EmptyState
         icon={<AlertTriangle className="h-6 w-6 text-destructive" />}
         title="Something went wrong"

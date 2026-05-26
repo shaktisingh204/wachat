@@ -159,7 +159,7 @@ export default function CrmSetupPage(): React.JSX.Element {
   }, [router, state.industry, toast]);
 
   return (
-    <div className="flex w-full max-w-5xl flex-col gap-6">
+    <div className="flex w-full flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col items-center gap-3 text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent">

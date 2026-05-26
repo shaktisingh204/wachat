@@ -422,7 +422,7 @@ export function AddressSection({
                         entity="state"
                         name="state"
                         initialId={stateVal || null}
-                        filter={country ? { country } : undefined}
+                        filter={country ? { countryCode: country } : undefined}
                         disabled={!country}
                         onChange={(next) => {
                             setStateVal(next ?? '');
@@ -438,11 +438,14 @@ export function AddressSection({
                         name="city"
                         initialId={city || null}
                         filter={
-                            stateVal
-                                ? { state: stateVal }
-                                : country
-                                  ? { country }
-                                  : undefined
+                            country
+                                ? {
+                                      countryCode: country,
+                                      ...(stateVal
+                                          ? { stateCode: stateVal.includes(':') ? stateVal.split(':')[1] : stateVal }
+                                          : {}),
+                                  }
+                                : undefined
                         }
                         disabled={!country}
                         onChange={(next) => {

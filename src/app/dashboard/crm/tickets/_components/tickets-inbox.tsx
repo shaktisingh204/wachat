@@ -96,7 +96,7 @@ export function TicketsInbox({ tickets }: TicketsInboxProps) {
             {/* Main pane - Ticket detail */}
             <div className="flex-1 overflow-y-auto bg-zoru-surface p-6">
                 {selectedTicket ? (
-                    <div className="mx-auto max-w-3xl space-y-6">
+                    <div className="w-full space-y-6">
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl font-semibold text-zoru-ink">{selectedTicket.subject}</h2>
                             {selectedTicket.priority && (

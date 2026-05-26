@@ -1,3 +1,5 @@
+'use client';
+
 import { useRef, useEffect, useState, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
@@ -11,21 +13,12 @@ import {
   ZoruSelectValue,
   Switch,
   Button,
-  cn,
   useZoruToast,
-  Popover,
-  ZoruPopoverTrigger,
-  ZoruPopoverContent,
-  ZoruCommand,
-  ZoruCommandInput,
-  ZoruCommandList,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandItem,
 } from '@/components/zoruui';
 import { DatePicker } from '@/components/ui/date-picker';
 import { BulkImportDialog } from '@/components/wabasimplify/bulk-url-import-dialog';
-import { Link as LinkIcon, LoaderCircle, ChevronDown, ChevronRight, X, Plus, ChevronsUpDown, Check } from 'lucide-react';
+import { TagPicker, type TagPickerTag } from '@/components/wabasimplify/tag-picker';
+import { Link as LinkIcon, LoaderCircle, ChevronDown, ChevronRight, X, Plus } from 'lucide-react';
 import { createShortUrl } from '@/app/actions/url-shortener.actions';
 import type { Tag } from '@/lib/definitions';
 
@@ -84,7 +77,17 @@ function TagsSelector({
         <ZoruCommand>
           <ZoruCommandInput placeholder="Search tags..." />
           <ZoruCommandList>
-            <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
+            <ZoruCommandEmpty>
+              <div className="flex flex-col items-center gap-2 py-2 text-center">
+                <p className="text-[13px] text-zoru-ink-muted">No tags found.</p>
+                <NextLink
+                  href="/dashboard/url-shortener/settings"
+                  className="inline-flex items-center gap-1 text-[12px] font-medium text-zoru-ink hover:underline"
+                >
+                  <Settings className="h-3 w-3" /> Create & manage tags
+                </NextLink>
+              </div>
+            </ZoruCommandEmpty>
             <ZoruCommandGroup>
               {userTags.map((tag) => (
                 <ZoruCommandItem key={tag._id} value={tag.name} onSelect={() => handleSelect(tag._id)}>
@@ -95,6 +98,12 @@ function TagsSelector({
                   <span>{tag.name}</span>
                 </ZoruCommandItem>
               ))}
+              <NextLink
+                href="/dashboard/url-shortener/settings"
+                className="flex items-center gap-2 border-t border-zoru-line px-2 py-2 text-[12px] font-medium text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+              >
+                <Settings className="h-3.5 w-3.5" /> Manage tags
+              </NextLink>
             </ZoruCommandGroup>
           </ZoruCommandList>
         </ZoruCommand>

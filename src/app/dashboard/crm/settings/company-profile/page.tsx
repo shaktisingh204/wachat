@@ -302,7 +302,7 @@ export default function CompanyProfilePage() {
                                     initialId={profile?.state ?? null}
                                     filter={
                                         profile?.country_id
-                                            ? { country: profile.country_id }
+                                            ? { countryCode: profile.country_id }
                                             : undefined
                                     }
                                     placeholder="Select state"
@@ -313,11 +313,14 @@ export default function CompanyProfilePage() {
                                     entity="city"
                                     initialId={profile?.city ?? null}
                                     filter={
-                                        profile?.state
-                                            ? { state: profile.state }
-                                            : profile?.country_id
-                                              ? { country: profile.country_id }
-                                              : undefined
+                                        profile?.country_id
+                                            ? {
+                                                  countryCode: profile.country_id,
+                                                  ...(profile?.state
+                                                      ? { stateCode: String(profile.state).includes(':') ? String(profile.state).split(':')[1] : profile.state }
+                                                      : {}),
+                                              }
+                                            : undefined
                                     }
                                     placeholder="Select city"
                                 />

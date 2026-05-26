@@ -89,6 +89,44 @@ pub struct KbArticle {
     pub owner_id: Option<ObjectId>,
 }
 
+/* =============================================================== */
+/* KbCategory — tree node for the help-center taxonomy             */
+/* =============================================================== */
+
+/// One node in the KB category tree. Categories nest via `parent_id`
+/// (Mongo adjacency list). `order` controls sibling sort. `slug` is
+/// unique within `(projectId, parentId)` so URLs stay stable when the
+/// tree is reshuffled. Mongo collection: `crm_kb_categories`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct KbCategory {
+    /* ----- crm-core fragments (flattened) ------------------------ */
+    #[serde(flatten)]
+    pub identity: Identity,
+    #[serde(flatten)]
+    pub audit: Audit,
+
+    /* ----- routing ----------------------------------------------- */
+    pub name: String,
+    pub slug: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub icon: Option<String>,
+
+    /* ----- tree shape -------------------------------------------- */
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub parent_id: Option<ObjectId>,
+    #[serde(default)]
+    pub order: i32,
+
+    /* ----- audience + workflow ----------------------------------- */
+    #[serde(default)]
+    pub visibility: KbVisibility,
+    #[serde(default)]
+    pub article_count: u32,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -151,5 +189,36 @@ mod tests {
         assert!(matches!(back.status, KbStatus::Published));
         assert!(matches!(back.visibility, KbVisibility::Portal));
         assert_eq!(back.view_count, 4321);
+    }
+
+    #[test]
+    fn kb_category_round_trips_with_flattened_fragments() {
+        let c = KbCategory {
+            identity: ident(),
+            audit: CoreAudit::new(None),
+            name: "Billing".to_string(),
+            slug: "billing".to_string(),
+            description: Some("Invoices, refunds, and pricing.".to_string()),
+            icon: Some("CreditCard".to_string()),
+            parent_id: None,
+            order: 0,
+            visibility: KbVisibility::Portal,
+            article_count: 7,
+        };
+
+        let json = serde_json::to_value(&c).unwrap();
+        assert!(json.get("_id").is_some());
+        assert!(json.get("projectId").is_some());
+        assert!(json.get("userId").is_some());
+        assert!(json.get("identity").is_none());
+        assert!(json.get("audit").is_none());
+
+        assert_eq!(json.get("slug").and_then(|v| v.as_str()), Some("billing"));
+        assert_eq!(json.get("visibility").and_then(|v| v.as_str()), Some("portal"));
+        assert_eq!(json.get("articleCount").and_then(|v| v.as_u64()), Some(7));
+
+        let back: KbCategory = serde_json::from_value(json).unwrap();
+        assert_eq!(back.name, "Billing");
+        assert!(matches!(back.visibility, KbVisibility::Portal));
     }
 }

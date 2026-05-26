@@ -1,0 +1,446 @@
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import {
+  ArrowLeft,
+  Search,
+  Zap,
+  Clock,
+  Globe,
+  MessageSquare,
+  Mail,
+  Smartphone,
+  GitBranch,
+  SplitSquareHorizontal,
+  Play,
+  Rocket,
+  MoreVertical,
+  MousePointer2,
+  ZoomIn,
+  ZoomOut,
+  Maximize,
+  ChevronDown,
+  Activity,
+  AlertCircle,
+  Database,
+  Inbox,
+  ShieldCheck,
+  Brain,
+  Loader2
+} from 'lucide-react';
+import type { SabflowBlock } from '@/app/sabsms/sabflow-blocks/mock-data';
+
+const IconMap: Record<string, React.FC<any>> = {
+  MessageSquare,
+  Inbox,
+  ShieldCheck,
+  Clock,
+  Brain,
+  Mail,
+  Zap,
+  Globe,
+  Smartphone,
+  Database,
+  GitBranch,
+  SplitSquareHorizontal
+};
+
+
+export default function DripsBuilderShell() {
+  const [activeTab, setActiveTab] = useState('build');
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>('blk_send_sms');
+  const [blocks, setBlocks] = useState<SabflowBlock[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/sabsms/blocks')
+      .then(r => r.json())
+      .then(d => {
+        setBlocks(d.blocks);
+        setIsLoading(false);
+      })
+      .catch(console.error);
+  }, []);
+
+  const activeBlock = blocks.find(b => b.id === selectedNodeId);
+  const activeIcon = activeBlock?.icon ? IconMap[activeBlock.icon] || MessageSquare : MessageSquare;
+
+
+  return (
+    <div className="flex h-screen w-full flex-col bg-[#09090b] text-slate-300 font-sans overflow-hidden">
+      {/* Header */}
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/10 bg-[#09090b] px-4 shadow-sm z-20">
+        <div className="flex items-center gap-4">
+          <button className="rounded-md p-1.5 hover:bg-white/10 transition-colors">
+            <ArrowLeft className="h-4 w-4 text-slate-400" />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/20 text-blue-400">
+              <Zap className="h-4 w-4" />
+            </div>
+            <h1 className="text-sm font-medium text-slate-200">Onboarding Welcome Series</h1>
+            <span className="ml-2 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400 border border-emerald-500/20">
+              Live
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center rounded-lg bg-[#18181b] p-1 border border-white/5">
+          <button
+            onClick={() => setActiveTab('build')}
+            className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+              activeTab === 'build' ? 'bg-[#27272a] text-white shadow' : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Build
+          </button>
+          <button
+            onClick={() => setActiveTab('test')}
+            className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+              activeTab === 'test' ? 'bg-[#27272a] text-white shadow' : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Test
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+              activeTab === 'analytics' ? 'bg-[#27272a] text-white shadow' : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Analytics
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 px-3 border-r border-white/10 mr-1">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className="text-xs text-slate-400">Saved just now</span>
+          </div>
+          <button className="flex items-center gap-2 rounded-md bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-white/10 transition-colors border border-white/5">
+            <Play className="h-3.5 w-3.5" />
+            Test Flow
+          </button>
+          <button className="flex items-center gap-2 rounded-md bg-gradient-to-b from-blue-500 to-blue-600 px-4 py-1.5 text-xs font-medium text-white hover:from-blue-400 hover:to-blue-500 transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)] border border-blue-400/30">
+            <Rocket className="h-3.5 w-3.5" />
+            Deploy
+          </button>
+        </div>
+      </header>
+
+      {/* Main Workspace */}
+      <div className="flex flex-1 overflow-hidden">
+        
+        {/* Left Sidebar - Node Palette */}
+        <aside className="w-72 shrink-0 flex flex-col border-r border-white/10 bg-[#0c0c0e] z-10">
+          <div className="p-4 border-b border-white/10">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500" />
+              <input
+                type="text"
+                placeholder="Search nodes..."
+                className="w-full rounded-md bg-[#18181b] border border-white/5 py-2 pl-9 pr-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-3 space-y-6 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-track]:bg-transparent">
+            {/* Category: Triggers */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Triggers</h3>
+                <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-slate-400">3</span>
+              </div>
+              <div className="space-y-1.5">
+                <DraggableNode icon={<Globe />} title="Webhook Received" desc="Trigger on external event" color="purple" />
+                <DraggableNode icon={<Clock />} title="Scheduled Time" desc="Run at specific intervals" color="purple" />
+                <DraggableNode icon={<Zap />} title="App Event" desc="When a user performs action" color="purple" />
+              </div>
+            </div>
+
+            {/* Category: Actions */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Actions</h3>
+                <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-slate-400">4</span>
+              </div>
+              <div className="space-y-1.5">
+                <DraggableNode icon={<MessageSquare />} title="Send SMS" desc="Dispatch text message" color="blue" />
+                <DraggableNode icon={<Mail />} title="Send Email" desc="Send via external provider" color="blue" />
+                <DraggableNode icon={<Smartphone />} title="Push Notification" desc="Send to mobile app" color="blue" />
+                <DraggableNode icon={<Database />} title="Update Record" desc="Modify user attributes" color="blue" />
+              </div>
+            </div>
+
+            {/* Category: Logic */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between px-1">
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Logic</h3>
+                <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-slate-400">3</span>
+              </div>
+              <div className="space-y-1.5">
+                <DraggableNode icon={<GitBranch />} title="If / Else" desc="Branch based on conditions" color="orange" />
+                <DraggableNode icon={<SplitSquareHorizontal />} title="A/B Split" desc="Test multiple paths" color="orange" />
+                <DraggableNode icon={<Clock />} title="Delay" desc="Wait before next step" color="orange" />
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* Center Canvas */}
+        <main className="flex-1 relative bg-[#09090b] overflow-hidden">
+          {/* Grid Background */}
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-20" 
+               style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}>
+          </div>
+
+          {/* Floating Controls */}
+          <div className="absolute bottom-6 left-6 z-10 flex flex-col gap-2">
+            <div className="flex flex-col items-center rounded-lg bg-[#18181b] border border-white/10 p-1 shadow-xl">
+              <button className="p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-md transition-colors"><ZoomIn className="h-4 w-4" /></button>
+              <button className="p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-md transition-colors"><ZoomOut className="h-4 w-4" /></button>
+              <button className="p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-md transition-colors"><Maximize className="h-4 w-4" /></button>
+            </div>
+          </div>
+
+          {/* Mock Canvas Content */}
+          <div className="absolute inset-0 overflow-auto z-0 flex items-center justify-center p-20 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-track]:bg-transparent">
+             <div className="relative w-full max-w-2xl h-[600px] flex flex-col items-center">
+                
+                {/* Node 1 */}
+                <CanvasNode 
+                  icon={<Zap className="h-5 w-5 text-purple-400" />}
+                  title="App Event"
+                  subtitle="User Signed Up"
+                  colorClass="bg-purple-500/10 border-purple-500/30"
+                  isActive={false}
+                />
+
+                {/* SVG Line */}
+                <svg className="w-10 h-16 my-2 text-slate-700" viewBox="0 0 40 64" fill="none" preserveAspectRatio="none">
+                  <path d="M20 0 L20 64" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" />
+                  <circle cx="20" cy="32" r="4" fill="#1e293b" stroke="currentColor" strokeWidth="2" />
+                </svg>
+
+                {/* Node 2 */}
+                <CanvasNode 
+                  icon={<Clock className="h-5 w-5 text-orange-400" />}
+                  title="Delay"
+                  subtitle="Wait 2 hours"
+                  colorClass="bg-orange-500/10 border-orange-500/30"
+                  isActive={false}
+                />
+
+                {/* SVG Path Fork */}
+                <svg className="w-[320px] h-20 my-2 text-slate-700" viewBox="0 0 320 80" fill="none" preserveAspectRatio="none">
+                  <path d="M160 0 L160 20 C160 30 150 40 140 40 L40 40 C30 40 20 50 20 60 L20 80" stroke="currentColor" strokeWidth="2" />
+                  <path d="M160 0 L160 20 C160 30 170 40 180 40 L280 40 C290 40 300 50 300 60 L300 80" stroke="currentColor" strokeWidth="2" />
+                  <rect x="140" y="30" width="40" height="20" rx="10" fill="#1e293b" stroke="currentColor" strokeWidth="2" />
+                  <text x="160" y="44" fill="#94a3b8" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Split</text>
+                </svg>
+
+                <div className="flex w-[400px] justify-between">
+                  {/* Left Fork Node */}
+                  <div className="flex flex-col items-center cursor-pointer" onClick={() => setSelectedNodeId('blk_send_sms')}>
+                    <CanvasNode 
+                      icon={<MessageSquare className="h-5 w-5 text-blue-400" />}
+                      title="Send SMS"
+                      subtitle="Welcome Offer"
+                      colorClass={`bg-blue-500/10 border-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.15)] ring-1 ring-blue-500 ${selectedNodeId === 'blk_send_sms' ? 'ring-2' : ''}`}
+                      isActive={true}
+                    />
+                    <div className="mt-4 px-3 py-1 bg-slate-800/50 rounded-full border border-white/5 text-xs text-slate-400 flex items-center gap-2">
+                      <Activity className="h-3 w-3 text-emerald-400" />
+                      45% conversion
+                    </div>
+                  </div>
+
+                  {/* Right Fork Node */}
+                  <div className="flex flex-col items-center cursor-pointer" onClick={() => setSelectedNodeId('blk_inbound_sms')}>
+                    <CanvasNode 
+                      icon={<Mail className="h-5 w-5 text-blue-400" />}
+                      title="Send Email"
+                      subtitle="Newsletter #1"
+                      colorClass={`bg-blue-500/10 border-blue-500/30 hover:border-blue-500/50 ${selectedNodeId === 'blk_inbound_sms' ? 'ring-1 ring-blue-500/50' : ''}`}
+                      isActive={false}
+                    />
+                  </div>
+                </div>
+
+             </div>
+          </div>
+        </main>
+
+        {/* Right Sidebar - Properties Panel */}
+        <aside className="w-80 shrink-0 flex flex-col border-l border-white/10 bg-[#0c0c0e] z-10 shadow-2xl relative">
+          {isLoading ? (
+            <div className="flex h-full items-center justify-center">
+              <Loader2 className="h-6 w-6 animate-spin text-slate-500" />
+            </div>
+          ) : activeBlock ? (
+            <>
+              <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#131316]">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400">
+                    {React.createElement(activeIcon, { className: "h-4 w-4" })}
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-semibold text-slate-200">
+                      {activeBlock.name}
+                    </h2>
+                    <p className="text-xs text-slate-500 capitalize">{activeBlock.type} Node</p>
+                  </div>
+                </div>
+                <button className="text-slate-400 hover:text-white"><MoreVertical className="h-4 w-4" /></button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-track]:bg-transparent">
+                {/* Analytics Mini-widget */}
+                <div className="p-4 border-b border-white/5 bg-[#0e0e11]">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-lg bg-[#18181b] p-3 border border-white/5">
+                      <div className="text-[10px] text-slate-500 uppercase font-medium mb-1">Cost</div>
+                      <div className="text-lg font-semibold text-slate-200">
+                        {activeBlock.creditCost} credits
+                      </div>
+                    </div>
+                    <div className="rounded-lg bg-[#18181b] p-3 border border-white/5">
+                      <div className="text-[10px] text-slate-500 uppercase font-medium mb-1">
+                        Usage
+                      </div>
+                      <div className="text-lg font-semibold text-slate-200">
+                        {(activeBlock.usageCount / 1000).toFixed(1)}k
+                      </div>
+                      <div className="text-xs text-blue-400 mt-1 flex items-center gap-1"><Activity className="h-3 w-3"/> Global</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-5 space-y-6">
+                  {/* General Settings */}
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Configuration</h3>
+                    
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-slate-300">Node Name</label>
+                      <input 
+                        type="text" 
+                        defaultValue={activeBlock.name}
+                        key={activeBlock.id}
+                        className="w-full rounded-md bg-[#18181b] border border-white/10 px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500/50" 
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-slate-300">Description</label>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        {activeBlock.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <hr className="border-white/5" />
+
+                  {/* Dynamic Schema Fields */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Properties</h3>
+                      <button className="text-xs text-blue-400 hover:text-blue-300">Insert Variable</button>
+                    </div>
+                    
+                    {(() => {
+                      let parsedSchema: Record<string, string> = {};
+                      try {
+                        parsedSchema = JSON.parse(activeBlock.schema);
+                      } catch (e) {
+                        // ignore
+                      }
+                      
+                      return Object.entries(parsedSchema).map(([key, typeStr]) => {
+                        const isRequired = !typeStr.endsWith('?');
+                        return (
+                          <div key={key} className="space-y-1.5">
+                            <label className="text-xs font-medium text-slate-300 capitalize">
+                              {key} {isRequired ? <span className="text-red-400">*</span> : null}
+                            </label>
+                            {key === 'body' || key === 'text' ? (
+                              <textarea 
+                                rows={4} 
+                                className="w-full rounded-md bg-[#18181b] border border-white/10 p-3 text-sm text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500/50 resize-none"
+                                placeholder={`Enter ${key}...`}
+                              />
+                            ) : (
+                              <input 
+                                type="text" 
+                                className="w-full rounded-md bg-[#18181b] border border-white/10 px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+                                placeholder={`Enter ${key}...`}
+                              />
+                            )}
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Footer Save */}
+              <div className="p-4 border-t border-white/10 bg-[#131316]">
+                <button className="w-full rounded-md bg-white text-black hover:bg-slate-200 transition-colors py-2 text-sm font-semibold shadow-lg">
+                  Save Changes
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="flex h-full items-center justify-center p-6 text-center">
+              <p className="text-sm text-slate-500">Select a node to view its properties.</p>
+            </div>
+          )}
+        </aside>
+
+      </div>
+    </div>
+  );
+}
+
+// Subcomponents
+function DraggableNode({ icon, title, desc, color }: { icon: React.ReactNode, title: string, desc: string, color: 'blue' | 'purple' | 'orange' }) {
+  const colorMap = {
+    blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20 group-hover:border-blue-500/40',
+    purple: 'bg-purple-500/10 text-purple-400 border-purple-500/20 group-hover:border-purple-500/40',
+    orange: 'bg-orange-500/10 text-orange-400 border-orange-500/20 group-hover:border-orange-500/40',
+  };
+
+  return (
+    <div className="group flex cursor-grab items-start gap-3 rounded-xl border border-white/5 bg-[#18181b] p-3 hover:bg-[#202024] hover:shadow-lg transition-all active:cursor-grabbing">
+      <div className={`mt-0.5 flex shrink-0 h-8 w-8 items-center justify-center rounded-lg border ${colorMap[color]} transition-colors`}>
+        {React.cloneElement(icon as React.ReactElement<{ className?: string }>, { className: 'h-4 w-4' })}
+      </div>
+      <div>
+        <h4 className="text-sm font-medium text-slate-200 group-hover:text-white transition-colors">{title}</h4>
+        <p className="mt-0.5 text-[11px] text-slate-500 line-clamp-1">{desc}</p>
+      </div>
+    </div>
+  );
+}
+
+function CanvasNode({ icon, title, subtitle, colorClass, isActive }: { icon: React.ReactNode, title: string, subtitle: string, colorClass: string, isActive: boolean }) {
+  return (
+    <div className={`w-64 rounded-xl border bg-[#131316] p-4 shadow-xl backdrop-blur-sm transition-all hover:border-white/20 ${isActive ? colorClass : 'border-white/10'}`}>
+      <div className="flex items-center gap-3">
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${colorClass}`}>
+          {icon}
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <h4 className="truncate text-sm font-semibold text-slate-200">{title}</h4>
+          <p className="truncate text-xs text-slate-400">{subtitle}</p>
+        </div>
+        <button className="text-slate-500 hover:text-slate-300 transition-colors">
+          <MoreVertical className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+}

@@ -132,8 +132,7 @@ async fn sweep_once(
             count = sub_ids.len(),
             "list_join trigger matched — bulk enrolling"
         );
-        if let Err(e) = enqueue_enroll_bulk(&state.bull, &journey_oid.to_hex(), &sub_ids).await
-        {
+        if let Err(e) = enqueue_enroll_bulk(&state.bull, &journey_oid.to_hex(), &sub_ids).await {
             warn!(error = ?e, "failed to enqueue enroll-bulk");
         }
     }

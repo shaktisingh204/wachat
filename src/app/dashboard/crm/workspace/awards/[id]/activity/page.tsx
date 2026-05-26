@@ -97,7 +97,7 @@ export default async function AwardActivityPage({
 }) {
     const { id } = await params;
     return (
-        <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-6">
+        <div className="p-4 md:p-6 w-full space-y-6">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight text-zoru-ink">Award Overview & Activity</h1>

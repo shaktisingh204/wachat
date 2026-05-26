@@ -46,10 +46,11 @@ export interface CrmFixedAssetDoc {
   insuranceUntil?: string;
   amcContractId?: string;
   retireOrSell?: {
-    kind?: string;
-    date?: string;
-    amount?: number;
-    counterparty?: string;
+    at: string;
+    mode: string;
+    saleAmount?: number;
+    buyer?: string;
+    note?: string;
   } | null;
   accumulatedDepreciation?: number;
   netBookValue?: number;
@@ -87,9 +88,19 @@ export interface CrmFixedAssetCreateInput {
   amcContractId?: string;
 }
 
+export interface RetireSellEntryInput {
+  at: string;
+  mode: string;
+  saleAmount?: number;
+  buyer?: string;
+  note?: string;
+}
+
 export type CrmFixedAssetUpdateInput = Partial<
   Omit<CrmFixedAssetCreateInput, 'projectId'>
->;
+> & {
+  retireOrSell?: RetireSellEntryInput;
+};
 
 /* ─── Client ──────────────────────────────────────────────────── */
 
@@ -126,4 +137,8 @@ export const crmFixedAssetsApi = {
       `/v1/crm/fixed-assets/${encodeURIComponent(id)}`,
       { method: 'DELETE' },
     ),
+  depreciate: (id: string) =>
+    rustFetch<CrmFixedAssetDoc>(`/v1/crm/fixed-assets/${encodeURIComponent(id)}/depreciate`, {
+      method: 'POST',
+    }),
 };

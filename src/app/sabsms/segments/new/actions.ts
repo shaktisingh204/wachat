@@ -156,6 +156,42 @@ export async function previewSample(
   }
 }
 
+// ─── Field Autocomplete (feature X) ───────────────────────────────────────
+
+export async function getFieldOptions(
+  field: "tag" | "source" | "country" | "locale",
+): Promise<ActionResult<{ options: string[] }>> {
+  const ws = await resolveWorkspace();
+  if (!ws.ok) return ws;
+  try {
+    const { db } = await connectToDatabase();
+    let options: unknown[];
+    if (field === "tag") {
+      // Tags might be stored in a `tags` array field on the contact.
+      const rawTags = await db
+        .collection<SegmentContact>("sabsms_contacts")
+        .distinct("tags", { workspaceId: ws.workspaceId });
+      options = rawTags;
+    } else {
+      options = await db
+        .collection<SegmentContact>("sabsms_contacts")
+        .distinct(field, { workspaceId: ws.workspaceId });
+    }
+    const clean = Array.from(new Set(
+      options
+        .map((x) => typeof x === "string" ? x.trim() : "")
+        .filter(Boolean)
+    )).sort();
+    
+    return { ok: true, options: clean };
+  } catch (e) {
+    return {
+      ok: false,
+      error: (e as Error)?.message ?? "getFieldOptions failed",
+    };
+  }
+}
+
 // ─── Save (features 5, 6, 7, 13, 20) ──────────────────────────────────────
 
 export async function saveSegment(

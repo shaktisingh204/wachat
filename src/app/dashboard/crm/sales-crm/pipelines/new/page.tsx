@@ -44,7 +44,7 @@ export default function NewPipelinePage() {
   };
 
   return (
-    <div className="max-w-4xl flex w-full flex-col gap-6">
+    <div className="flex w-full flex-col gap-6">
       <div>
         <Link href="/dashboard/crm/sales-crm/pipelines" className="inline-flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to Pipelines

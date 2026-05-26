@@ -1,5 +1,5 @@
-//! sabflow-executor-core — scaffold; implementation lands in Track B Phase 1.
+pub mod dag;
+pub mod ir;
 
-pub fn placeholder() -> &'static str {
-    "sabflow-executor-core: scaffold"
-}
+pub use dag::{DagEngine, DagError};
+pub use ir::{IREdge, IRNode, IRTrigger, WorkflowGraph};

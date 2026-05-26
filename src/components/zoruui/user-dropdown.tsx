@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   ChevronDown,
   CreditCard,
@@ -47,14 +48,80 @@ export interface ZoruUserDropdownProps {
 }
 
 const DEFAULT_ITEMS: ZoruUserDropdownItem[] = [
-  { id: "profile", label: "Profile", icon: <UserIcon /> },
-  { id: "settings", label: "Settings", icon: <Settings /> },
-  { id: "billing", label: "Billing", icon: <CreditCard /> },
+  {
+    id: "profile",
+    label: "Profile",
+    icon: <UserIcon />,
+    href: "/dashboard/settings/profile",
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    icon: <Settings />,
+    href: "/dashboard/settings",
+  },
+  {
+    id: "billing",
+    label: "Billing",
+    icon: <CreditCard />,
+    href: "/dashboard/settings/billing",
+  },
 ];
 
 const DEFAULT_FOOTER: ZoruUserDropdownItem[] = [
-  { id: "sign-out", label: "Sign out", icon: <LogOut />, destructive: true },
+  {
+    id: "sign-out",
+    label: "Sign out",
+    icon: <LogOut />,
+    href: "/api/auth/logout",
+    destructive: true,
+  },
 ];
+
+function isExternalHref(href: string): boolean {
+  // /api/* logouts should hit the server route via a hard nav so the cookie
+  // clears + the server can redirect; treat them as "external" for this menu.
+  return (
+    /^https?:\/\//.test(href) ||
+    href.startsWith("//") ||
+    href.startsWith("mailto:") ||
+    href.startsWith("tel:") ||
+    href.startsWith("/api/")
+  );
+}
+
+function DropdownItem({ item }: { item: ZoruUserDropdownItem }) {
+  const handleSelect = (e: Event) => {
+    item.onSelect?.();
+    if (item.href && isExternalHref(item.href)) {
+      e.preventDefault();
+      window.location.href = item.href;
+    }
+    // For internal hrefs the wrapping <Link> handles navigation natively,
+    // so we let Radix close the menu and the click bubble.
+  };
+
+  if (item.href && !isExternalHref(item.href)) {
+    return (
+      <ZoruDropdownMenuItem asChild destructive={item.destructive}>
+        <Link href={item.href} onSelect={handleSelect as never}>
+          {item.icon}
+          <span>{item.label}</span>
+        </Link>
+      </ZoruDropdownMenuItem>
+    );
+  }
+
+  return (
+    <ZoruDropdownMenuItem
+      destructive={item.destructive}
+      onSelect={handleSelect}
+    >
+      {item.icon}
+      <span>{item.label}</span>
+    </ZoruDropdownMenuItem>
+  );
+}
 
 export function ZoruUserDropdown({
   name,
@@ -112,39 +179,13 @@ export function ZoruUserDropdown({
         </ZoruDropdownMenuLabel>
         <ZoruDropdownMenuSeparator />
         {items.map((item) => (
-          <ZoruDropdownMenuItem
-            key={item.id}
-            destructive={item.destructive}
-            onSelect={(e) => {
-              if (item.href) {
-                e.preventDefault();
-                window.location.href = item.href;
-              }
-              item.onSelect?.();
-            }}
-          >
-            {item.icon}
-            <span>{item.label}</span>
-          </ZoruDropdownMenuItem>
+          <DropdownItem key={item.id} item={item} />
         ))}
         {footerItems.length > 0 && (
           <>
             <ZoruDropdownMenuSeparator />
             {footerItems.map((item) => (
-              <ZoruDropdownMenuItem
-                key={item.id}
-                destructive={item.destructive}
-                onSelect={(e) => {
-                  if (item.href) {
-                    e.preventDefault();
-                    window.location.href = item.href;
-                  }
-                  item.onSelect?.();
-                }}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </ZoruDropdownMenuItem>
+              <DropdownItem key={item.id} item={item} />
             ))}
           </>
         )}

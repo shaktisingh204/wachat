@@ -54,6 +54,7 @@ import { getContactsPageData, deleteContact } from '@/app/actions/contact.action
 import type { Contact, Tag } from '@/lib/definitions';
 import { AddContactDialog } from '@/app/wachat/_components/add-contact-dialog';
 import { ImportContactsDialog } from '@/app/wachat/_components/import-contacts-dialog';
+import { SyncContactsDialog } from '@/app/wachat/_components/sync-contacts-dialog';
 import { useProject } from '@/context/project-context';
 
 import { FeatureShell } from '@/components/dashboard/feature-shell';
@@ -379,6 +380,7 @@ export default function ContactsPage() {
       ]}
       actions={
         <div className="flex items-center gap-2">
+          {activeProject && <SyncContactsDialog project={activeProject} onSynced={fetchData} />}
           {activeProject && <ImportContactsDialog project={activeProject} onImported={fetchData} />}
           {activeProject && <AddContactDialog key={refreshKey} project={activeProject} onAdded={handleContactAdded} />}
         </div>

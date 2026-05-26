@@ -44,7 +44,7 @@ export default function NewRolePage() {
       back={{ href: '/dashboard/crm/settings/roles', label: 'Roles' }}
     >
       <Card className="p-0">
-        <form action={formAction} className="max-w-xl space-y-4 p-6">
+        <form action={formAction} className="w-full space-y-4 p-6">
           <div>
             <Label htmlFor="display_name">
               Display name <span className="text-zoru-danger-ink">*</span>

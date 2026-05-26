@@ -1,0 +1,69 @@
+# Phase — axum router for the SabChat **knowledge base** HTTP surface.
+#
+# SabKnow — Help Center / Knowledge Base CRUD. Owns three collections:
+#   * `sabchat_kb_portals`     — per-tenant help-center portals (one row
+#                                per branded help center; slug-addressed).
+#   * `sabchat_kb_categories`  — hierarchical category tree under a
+#                                portal (optional `parent_id` for nesting).
+#   * `sabchat_kb_articles`    — markdown articles with draft / published
+#                                / archived lifecycle plus `$text` search.
+#
+# Exposes **two** routers:
+#   * agent-side at `/v1/sabchat/kb`        (requires `AuthUser`).
+#   * public read at `/v1/sabchat/kb-public` (no auth — surfaces
+#                                             published articles only).
+#
+# Per the slice contract this crate is a leaf:
+#   * No `[workspace]` table.
+#   * Does NOT modify `rust/Cargo.toml`; the orchestrator wires it in.
+[package]
+name = "sabchat-knowledge"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router for the SabChat knowledge-base HTTP surface (`/v1/sabchat/kb/*` agent-side + `/v1/sabchat/kb-public/*` public read). Owns CRUD over `sabchat_kb_portals`, `sabchat_kb_categories`, `sabchat_kb_articles` with publish/archive lifecycle and helpful counters."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabchat_knowledge"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — same feature union as sibling routers so the api crate
+# resolves a single set of cargo features at build time.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId construction (portal / category / article ids on the
+# wire are hex strings; parsed via `oid_from_str`).
+bson = { version = "2", features = ["chrono-0_4"] }
+
+# Wall-clock for `createdAt` / `updatedAt` / `publishedAt`.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo driver wrappers + futures combinators (for `cursor.try_collect`).
+mongodb = "3"
+futures = "0.3"
+
+# Tracing for handler-level spans.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal`.
+anyhow = "1"
+
+# OpenAPI annotations to keep parity with sibling routers.
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+# Sibling crates — domain DTOs, shared error envelope, JWT extractor,
+# Mongo handle.
+sabchat-types = { path = "../sabchat-types" }
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true
