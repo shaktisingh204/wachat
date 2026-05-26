@@ -15,7 +15,7 @@ import * as React from 'react';
 import {
   SettingsDeepPage,
   type SettingsColumn,
-} from '../../_components/settings-deep-page';
+} from '../../crm/_components/settings-deep-page';
 import {
   bulkDeleteTicketAgentGroups,
   deleteTicketAgentGroup,

@@ -23,7 +23,7 @@ import type { WithId } from 'mongodb';
 import Link from 'next/link';
 import { fmtINR } from '@/lib/utils';
 import { ItemDetailTabs } from './item-detail-tabs';
-import { TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';

@@ -23,7 +23,7 @@ import {
   Play,
   Pause,
 } from 'lucide-react';
-import { listVoiceCallCdrs } from '@/app/actions/voice.actions';
+import { listVoiceCallCdrs } from '@/app/actions/sabvoice.actions';
 
 type CallRow = {
   _id: string;

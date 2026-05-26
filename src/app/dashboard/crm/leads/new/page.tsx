@@ -9,9 +9,9 @@ import * as React from 'react';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import { LeadForm } from '../_components/lead-form';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/zoruui';
 import { UserPlus } from 'lucide-react';
-import { SabnodeWaterLoader } from '@/components/ui/sabnode-water-loader';
+import { SabnodeWaterLoader } from '@/components/zoruui';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';

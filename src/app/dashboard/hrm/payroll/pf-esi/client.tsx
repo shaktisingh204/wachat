@@ -11,7 +11,7 @@ import { startOfMonth } from 'date-fns';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getPayslips } from '@/app/actions/crm-payroll.actions';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/zoruui';
 import { Download } from 'lucide-react';
 import { getComplianceData } from './actions';
 import { fmtINR } from '@/lib/utils';

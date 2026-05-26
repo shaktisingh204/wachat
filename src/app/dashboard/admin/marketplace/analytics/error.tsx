@@ -1,5 +1,5 @@
 'use client';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/zoruui';
 import { AlertCircle } from 'lucide-react';
 import { useEffect } from 'react';
 

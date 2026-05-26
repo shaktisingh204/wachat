@@ -257,11 +257,4 @@ export async function resolveEmbedAction(token: string): Promise<BiEmbedResolved
   return resolveBiEmbedByToken(token);
 }
 
-export type {
-  BiDatasetDoc,
-  BiDatasetJoinDoc,
-  BiWorkbookDoc,
-  BiChartDoc,
-  BiScheduleDoc,
-  BiEmbedDoc,
-};
+

@@ -7,7 +7,7 @@ import { Button, Card, Input, Label, Dialog, ZoruDialogContent, ZoruDialogHeader
 import { createRedactionPolicy, deleteRedactionPolicy, updateRedactionPolicy } from '@/app/actions/platform/data-redaction.actions';
 import type { RedactionPolicy } from '@/types/platform';
 import { LoaderCircle, Plus, Trash2, Filter, ChevronLeft, ChevronRight, X, Pencil } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/zoruui';
 
 interface DataRedactionClientProps {
   initialData: RedactionPolicy[];

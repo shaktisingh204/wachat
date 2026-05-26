@@ -45,7 +45,7 @@ import {
 
 import * as React from 'react';
 
-import { Calendar } from '@/components/ui/calendar';
+import { Calendar } from '@/components/zoruui';
 import { DATE_PRESETS } from '@/components/wabasimplify/ad-manager/constants';
 
 /* ── Feature lock overlay ──────────────────────────────────────── */

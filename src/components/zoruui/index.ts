@@ -528,3 +528,107 @@ export {
   SelectSeparator,
 } from "./select";
 
+
+// Backward compatibility aliases for migrating from @/components/ui
+export { 
+    ZoruCardHeader as CardHeader, 
+    ZoruCardFooter as CardFooter, 
+    ZoruCardTitle as CardTitle, 
+    ZoruCardDescription as CardDescription, 
+    ZoruCardContent as CardContent 
+} from "./card";
+
+export { 
+    ZoruSelectGroup as SelectGroup, 
+    ZoruSelectValue as SelectValue, 
+    ZoruSelectTrigger as SelectTrigger, 
+    ZoruSelectContent as SelectContent, 
+    ZoruSelectLabel as SelectLabel, 
+    ZoruSelectItem as SelectItem, 
+    ZoruSelectSeparator as SelectSeparator, 
+    ZoruSelectScrollUpButton as SelectScrollUpButton, 
+    ZoruSelectScrollDownButton as SelectScrollDownButton 
+} from "./select";
+
+export { 
+    ZoruTableHeader as TableHeader, 
+    ZoruTableBody as TableBody, 
+    ZoruTableFooter as TableFooter, 
+    ZoruTableHead as TableHead, 
+    ZoruTableRow as TableRow, 
+    ZoruTableCell as TableCell, 
+    ZoruTableCaption as TableCaption 
+} from "./table";
+
+export { 
+    ZoruDialogTrigger as DialogTrigger, 
+    ZoruDialogContent as DialogContent, 
+    ZoruDialogHeader as DialogHeader, 
+    ZoruDialogFooter as DialogFooter, 
+    ZoruDialogTitle as DialogTitle, 
+    ZoruDialogDescription as DialogDescription 
+} from "./dialog";
+
+export { 
+    ZoruSheetTrigger as SheetTrigger, 
+    ZoruSheetClose as SheetClose, 
+    ZoruSheetContent as SheetContent, 
+    ZoruSheetHeader as SheetHeader, 
+    ZoruSheetFooter as SheetFooter, 
+    ZoruSheetTitle as SheetTitle, 
+    ZoruSheetDescription as SheetDescription 
+} from "./sheet";
+
+export { 
+    ZoruDropdownMenuTrigger as DropdownMenuTrigger, 
+    ZoruDropdownMenuContent as DropdownMenuContent, 
+    ZoruDropdownMenuItem as DropdownMenuItem, 
+    ZoruDropdownMenuCheckboxItem as DropdownMenuCheckboxItem, 
+    ZoruDropdownMenuRadioItem as DropdownMenuRadioItem, 
+    ZoruDropdownMenuLabel as DropdownMenuLabel, 
+    ZoruDropdownMenuSeparator as DropdownMenuSeparator, 
+    ZoruDropdownMenuShortcut as DropdownMenuShortcut, 
+    ZoruDropdownMenuGroup as DropdownMenuGroup, 
+    ZoruDropdownMenuPortal as DropdownMenuPortal, 
+    ZoruDropdownMenuSub as DropdownMenuSub, 
+    ZoruDropdownMenuSubContent as DropdownMenuSubContent, 
+    ZoruDropdownMenuSubTrigger as DropdownMenuSubTrigger, 
+    ZoruDropdownMenuRadioGroup as DropdownMenuRadioGroup 
+} from "./dropdown-menu";
+
+export { 
+    ZoruPopoverTrigger as PopoverTrigger, 
+    ZoruPopoverContent as PopoverContent 
+} from "./popover";
+
+export { 
+    ZoruAlertTitle as AlertTitle, 
+    ZoruAlertDescription as AlertDescription 
+} from "./alert";
+
+export { 
+    ZoruAccordionItem as AccordionItem, 
+    ZoruAccordionTrigger as AccordionTrigger, 
+    ZoruAccordionContent as AccordionContent 
+} from "./accordion";
+
+export { ZoruDatePicker as DatePicker } from "./date-picker";
+
+
+export { 
+    ZoruCommand as Command, 
+    ZoruCommandDialog as CommandDialog, 
+    ZoruCommandInput as CommandInput, 
+    ZoruCommandList as CommandList, 
+    ZoruCommandEmpty as CommandEmpty, 
+    ZoruCommandGroup as CommandGroup, 
+    ZoruCommandSeparator as CommandSeparator, 
+    ZoruCommandItem as CommandItem, 
+    ZoruCommandShortcut as CommandShortcut
+} from "./command";
+
+export { 
+    ZoruCarousel as Carousel, 
+    ZoruCarouselItem as CarouselItem
+} from "./carousel";
+

@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 import { CheckCircle2, AlertTriangle } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { fmtMoney } from '../../reports/_components/report-toolbar';
+import { fmtMoney } from '../../accounting/_components/report-toolbar';
 import {
     getTds194qStatus,
     getTds194qVendorTracker,

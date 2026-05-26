@@ -1,0 +1,9 @@
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+▲ Next.js 16.2.6 (Turbopack)
+- Environments: .env
+- Experiments (use with caution):
+  · cpus: 28
+  · serverActions
+
+  Creating an optimized production build ...
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]

@@ -1,4 +1,4 @@
-import { SabnodeWaterLoader } from '@/components/ui/sabnode-water-loader';
+import { SabnodeWaterLoader } from '@/components/zoruui';
 
 export default function Loading() {
     return (

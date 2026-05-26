@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useTransition } from 'react';
 import { TrainingCourse, TrainingCourseSchema } from '@/lib/hrm-advanced-types';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/zoruui';
+import { Input } from '@/components/zoruui';
+import { Label } from '@/components/zoruui';
+import { Textarea } from '@/components/zoruui';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui';
 import { saveTrainingCourse } from '@/app/actions/hrm-advanced/lms-training';
 import { toast } from 'sonner';
 

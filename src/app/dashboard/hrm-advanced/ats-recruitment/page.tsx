@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { getATSApplications } from '@/app/actions/hrm-advanced/ats-recruitment';
 import ClientPage from './_components/ClientPage';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 

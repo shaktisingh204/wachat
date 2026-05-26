@@ -37,7 +37,7 @@ import {
   deleteVoiceIvr,
   type VoiceIvrNode,
   type VoiceIvrNodeType,
-} from '@/app/actions/voice.actions';
+} from '@/app/actions/sabvoice.actions';
 
 type IvrRow = {
   _id: string;

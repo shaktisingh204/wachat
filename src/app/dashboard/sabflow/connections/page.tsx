@@ -21,13 +21,13 @@ import {
   Key
 } from "lucide-react"
 
-import { PageHeader } from "@/components/ui/page-header"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Progress } from "@/components/ui/progress"
+import { PageHeader } from '@/components/zoruui'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/zoruui'
+import { Badge } from '@/components/zoruui'
+import { Button } from '@/components/zoruui'
+import { Input } from '@/components/zoruui'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/zoruui'
+import { Progress } from '@/components/zoruui'
 import { fadeInUp, staggerContainer } from "@/lib/motion"
 
 type ConnectionStatus = "Connected" | "Expired" | "Error"

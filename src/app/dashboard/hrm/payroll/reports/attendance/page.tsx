@@ -31,7 +31,7 @@ import { generateAttendanceReportData,
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
-import { DatePicker } from '@/components/ui/date-picker';
+import { ZoruDatePicker as DatePicker } from '@/components/zoruui';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 

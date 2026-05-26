@@ -6,7 +6,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { Button, Card, Badge } from '@/components/zoruui';
-import { listBlueprints } from '@/app/actions/requests.actions';
+import { listBlueprints } from '@/app/actions/sabrequests.actions';
 
 export const dynamic = 'force-dynamic';
 

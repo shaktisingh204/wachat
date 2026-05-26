@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { DatePicker } from '@/components/zoruui';
+import { ZoruDatePicker as DatePicker } from '@/components/zoruui';
 
 export function KpiDateFilter() {
     const router = useRouter();

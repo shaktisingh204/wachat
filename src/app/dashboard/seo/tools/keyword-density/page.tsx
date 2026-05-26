@@ -2,9 +2,9 @@
 
 import { Card, ZoruCardContent, Textarea } from '@/components/zoruui';
 import { useMemo, useState } from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/zoruui';
+import { Label } from '@/components/zoruui';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { countWords, ngramDensity } from '@/lib/seo-tools/text-utils';

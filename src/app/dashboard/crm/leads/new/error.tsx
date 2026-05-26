@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { EmptyState } from '@/components/ui/empty-state';
-import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import { AlertCircle } from 'lucide-react';
 
 export default function ErrorPage({

@@ -11,7 +11,7 @@ import { Suspense } from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getShifts } from '@/app/actions/crm-shifts.actions';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/zoruui';
 
 import { RotationForm } from '../_components/rotation-form';
 

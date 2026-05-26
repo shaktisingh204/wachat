@@ -1,11 +1,11 @@
 import React, { useState, useMemo, useTransition, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/zoruui';
+import { Input } from '@/components/zoruui';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/zoruui';
+import { Alert, AlertDescription, AlertTitle } from '@/components/zoruui';
 import { toast } from '@/hooks/use-toast';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/zoruui';
 import { Download, Upload, FileSpreadsheet, Loader2, Search } from 'lucide-react';
 
 interface CsvRow {

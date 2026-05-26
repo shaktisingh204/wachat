@@ -12,7 +12,7 @@ import {
     getRequestById,
     listStageActions,
     getBlueprintById,
-} from '@/app/actions/requests.actions';
+} from '@/app/actions/sabrequests.actions';
 import { RequestDetail } from './_components/request-detail';
 
 export const dynamic = 'force-dynamic';

@@ -17,16 +17,16 @@ import {
   TerminalSquare,
 } from "lucide-react";
 
-import { PageHeader } from "@/components/ui/page-header";
-import { Badge } from "@/components/ui/badge";
+import { PageHeader } from '@/components/zoruui';
+import { Badge } from '@/components/zoruui';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from '@/components/zoruui';
+import { ScrollArea } from '@/components/zoruui';
 import { cn } from "@/lib/utils";
 
 type NodeStatus = "success" | "running" | "error" | "pending";

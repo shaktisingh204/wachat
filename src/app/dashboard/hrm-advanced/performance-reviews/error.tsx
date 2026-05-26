@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/zoruui';
 
 export default function ErrorBoundary({ error, reset }: { error: Error & { digest?: string }, reset: () => void }) {
   useEffect(() => {

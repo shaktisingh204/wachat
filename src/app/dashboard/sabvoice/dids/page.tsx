@@ -33,7 +33,7 @@ import {
   searchAvailableDids,
   purchaseVoiceDid,
   releaseVoiceDid,
-} from '@/app/actions/voice.actions';
+} from '@/app/actions/sabvoice.actions';
 
 type DidRow = {
   _id: string;

@@ -18,7 +18,7 @@ import {
   listVoicemails,
   markVoicemailListened,
   deleteVoicemail,
-} from '@/app/actions/voice.actions';
+} from '@/app/actions/sabvoice.actions';
 
 type VmRow = {
   _id: string;

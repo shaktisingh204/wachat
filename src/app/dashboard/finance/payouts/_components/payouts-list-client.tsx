@@ -23,7 +23,7 @@ import {
   DropdownMenuTrigger,
   Badge,
 } from '@/components/zoruui';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/zoruui';
 import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createPayout, updatePayout, deletePayout, Payout } from '@/app/actions/finance/payouts.actions';

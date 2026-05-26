@@ -15,7 +15,7 @@ import {
   Button,
   useZoruToast,
 } from '@/components/zoruui';
-import { DatePicker } from '@/components/ui/date-picker';
+import { ZoruDatePicker as DatePicker } from '@/components/zoruui';
 import { BulkImportDialog } from '@/components/wabasimplify/bulk-url-import-dialog';
 import { TagPicker, type TagPickerTag } from '@/components/wabasimplify/tag-picker';
 import { Link as LinkIcon, LoaderCircle, ChevronDown, ChevronRight, X, Plus } from 'lucide-react';

@@ -8,7 +8,7 @@ import {
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 
-import { DatePicker } from '@/components/ui/date-picker';
+import { ZoruDatePicker as DatePicker } from '@/components/zoruui';
 import { LoaderCircle, Save } from 'lucide-react';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import { updatePaymentReceipt } from '@/app/actions/crm-payment-receipts.actions';

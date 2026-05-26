@@ -8,11 +8,11 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+} from '@/components/zoruui';
+import { Badge } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
+import { Input } from '@/components/zoruui';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/zoruui';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -20,8 +20,8 @@ import {
   DropdownMenuLabel, 
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+} from '@/components/zoruui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
 import { 
   MoreHorizontal, 
   Search, 

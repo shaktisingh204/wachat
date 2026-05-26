@@ -3,12 +3,12 @@
 import { useMemo, useState } from 'react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Card, CardContent } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent } from '@/components/zoruui';
+import { Label } from '@/components/zoruui';
+import { Input } from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
+import { Textarea } from '@/components/zoruui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
 
 const INIT_SNIPPETS = {
   basic: `<script>

@@ -18,7 +18,7 @@ import {
   listRewardsPrograms,
 } from '@/app/actions/rewards.actions';
 import { getLoyaltyProgramById } from '@/app/actions/crm-loyalty.actions';
-import { TierLogicVisualizer } from '../../crm/sales/loyalty/[id]/tier-logic-visualizer';
+import { TierLogicVisualizer } from '../../sabthrive/loyalty/[id]/tier-logic-visualizer';
 
 export const dynamic = 'force-dynamic';
 

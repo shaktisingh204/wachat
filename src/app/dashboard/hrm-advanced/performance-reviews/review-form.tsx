@@ -4,7 +4,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PerformanceReview, PerformanceReviewSchema } from '@/lib/hrm-advanced-types';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/zoruui';
 
 interface ReviewFormProps {
   initialData?: Partial<PerformanceReview>;

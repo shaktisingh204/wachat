@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Button, useZoruToast, Input, Label } from '@/components/zoruui';
 import { Mail, PlusCircle, MinusCircle, Printer, Loader2 } from 'lucide-react';
 import { addGiftCardFunds, redeemGiftCard, emailGiftCard } from '@/app/actions/crm-gift-cards.actions';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/zoruui';
 
 export function GiftCardActions({
     id,

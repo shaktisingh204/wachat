@@ -4,9 +4,9 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { OnboardingTask, OnboardingTaskSchema } from '@/lib/hrm-advanced-types';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/zoruui';
+import { Input } from '@/components/zoruui';
+import { Checkbox } from '@/components/zoruui';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 interface OnboardingFormProps {

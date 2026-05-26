@@ -28,7 +28,7 @@ import {
   createVoiceQueue,
   updateVoiceQueue,
   deleteVoiceQueue,
-} from '@/app/actions/voice.actions';
+} from '@/app/actions/sabvoice.actions';
 
 type QueueRow = {
   _id: string;

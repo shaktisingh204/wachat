@@ -1,6 +1,6 @@
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/zoruui';
+import { Skeleton } from '@/components/zoruui';
 
 export default function LoadingActivity() {
     return (

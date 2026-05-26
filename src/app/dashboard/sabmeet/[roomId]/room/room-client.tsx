@@ -41,7 +41,7 @@ import {
   type MeetChatMessage,
   type MeetLocalTrackState,
   type MeetRemoteParticipant,
-} from '@/app/dashboard/meetings/_lib/meet-transport';
+} from '@/app/dashboard/sabmeet/_lib/sabmeet-transport';
 
 type SidePanel = 'participants' | 'chat' | 'polls' | 'qna' | null;
 

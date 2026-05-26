@@ -3,9 +3,9 @@
 import React, { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { ATSApplication } from '@/lib/hrm-advanced-types';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/zoruui';
+import { Checkbox } from '@/components/zoruui';
+import { Badge } from '@/components/zoruui';
 import { Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 

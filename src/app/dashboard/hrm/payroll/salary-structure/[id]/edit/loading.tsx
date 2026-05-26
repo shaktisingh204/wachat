@@ -1,5 +1,5 @@
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/zoruui';
 
 export default function LoadingEditSalaryStructure() {
     return (

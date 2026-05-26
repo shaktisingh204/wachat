@@ -27,7 +27,7 @@ import {
 } from '@/app/actions/crm-reports.actions';
 import { getOverdueTasksDeep } from '@/app/actions/worksuite/reports.actions';
 import { OverdueTasksClient } from '../overdue-tasks/_components/overdue-tasks-client';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface PageProps {
   searchParams: Promise<{

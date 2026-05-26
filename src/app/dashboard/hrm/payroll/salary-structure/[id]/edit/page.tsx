@@ -4,7 +4,7 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getSalaryStructureDoc } from '@/app/actions/crm-salary-structures.actions';
 import { SalaryStructureForm } from '../../_components/salary-structure-form';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/zoruui';
 import { EditHeaderActions } from './edit-actions';
 
 export const dynamic = 'force-dynamic';

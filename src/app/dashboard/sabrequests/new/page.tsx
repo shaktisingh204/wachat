@@ -7,7 +7,7 @@
  */
 import * as React from 'react';
 
-import { listBlueprints } from '@/app/actions/requests.actions';
+import { listBlueprints } from '@/app/actions/sabrequests.actions';
 import { NewRequestClient } from './new-request-client';
 
 export const dynamic = 'force-dynamic';

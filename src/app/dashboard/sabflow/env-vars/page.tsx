@@ -10,9 +10,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+} from '@/components/zoruui'
+import { Button } from '@/components/zoruui'
+import { Badge } from '@/components/zoruui'
 import {
   Dialog,
   DialogContent,
@@ -21,16 +21,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from '@/components/zoruui'
+import { Input } from '@/components/zoruui'
+import { Label } from '@/components/zoruui'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/zoruui'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,8 +38,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+} from '@/components/zoruui'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/zoruui'
 
 type EnvVar = {
   id: string

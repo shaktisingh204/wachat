@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { notFound } from 'next/navigation';
 
-import { getBlueprintById } from '@/app/actions/requests.actions';
+import { getBlueprintById } from '@/app/actions/sabrequests.actions';
 import { BlueprintEditor } from '../_components/blueprint-editor';
 
 export const dynamic = 'force-dynamic';

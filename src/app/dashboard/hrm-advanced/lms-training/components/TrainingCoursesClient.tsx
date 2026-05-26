@@ -2,9 +2,9 @@
 
 import React, { useState, useTransition, useMemo, useEffect } from 'react';
 import { TrainingCourse } from '@/lib/hrm-advanced-types';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/zoruui';
+import { Input } from '@/components/zoruui';
+import { Checkbox } from '@/components/zoruui';
 import { toast } from 'sonner';
 import { getTrainingCourses, deleteTrainingCourse } from '@/app/actions/hrm-advanced/lms-training';
 import { Plus, Trash2, Download, FileText, Search, Edit2 } from 'lucide-react';

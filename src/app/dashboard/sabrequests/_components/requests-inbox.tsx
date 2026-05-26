@@ -25,7 +25,7 @@ import {
 import type {
     RequestBlueprintDoc,
     RequestInstanceDoc,
-} from '@/app/actions/requests.actions';
+} from '@/app/actions/sabrequests.actions';
 
 interface Props {
     mine: RequestInstanceDoc[];

@@ -20,7 +20,7 @@ import {
 import {
   listAgentPresence,
   getVoiceLiveKpis,
-} from '@/app/actions/voice.actions';
+} from '@/app/actions/sabvoice.actions';
 
 type Agent = {
   _id?: string;

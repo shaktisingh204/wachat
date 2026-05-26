@@ -1,7 +1,7 @@
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { Button, Card, Table, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 import { Plus } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/zoruui';
 
 export default function GrnLoading() {
     return (

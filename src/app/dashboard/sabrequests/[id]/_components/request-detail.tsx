@@ -25,7 +25,7 @@ import {
     type RequestInstanceDoc,
     type StageActionDoc,
     type StageActionKind,
-} from '@/app/actions/requests.actions';
+} from '@/app/actions/sabrequests.actions';
 
 interface Props {
     request: RequestInstanceDoc;

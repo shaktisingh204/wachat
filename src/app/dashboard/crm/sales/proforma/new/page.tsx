@@ -8,7 +8,7 @@ import {
   useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 
-import { DatePicker } from '@/components/ui/date-picker';
+import { ZoruDatePicker as DatePicker } from '@/components/zoruui';
 import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
 import type { WithId, CrmAccount, InvoiceLineItem } from '@/lib/definitions';

@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export default function EditShiftRotationLoading() {
