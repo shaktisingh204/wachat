@@ -36,22 +36,24 @@ fi
 USE_CORES=$CORES
 if [ "$USE_CORES" -lt 1 ]; then USE_CORES=1; fi
 
-# Cap the Next.js build worker pool. Turbopack spawns one worker per
-# NEXT_CPU_COUNT and each worker's V8 heap can grow to several GB, so
-# on a 32-core box "all cores" produces ~30 workers and saturates RAM
-# (every observed OOM kill on this server traced back to that).
-# 8 is a comfortable upper bound — slower than 32 workers but reliable.
-BUILD_CORES=$USE_CORES
-if [ "$BUILD_CORES" -gt 8 ]; then BUILD_CORES=8; fi
+# Strictly cap the Next.js build worker pool. Turbopack spawns one
+# worker per NEXT_CPU_COUNT and each worker's V8 heap can grow to
+# several GB. Empirically even BUILD_CORES=8 × 4 GiB heap saturated a
+# 125 GiB box on this repo, so default to 2 workers × 2 GiB = ~4 GiB
+# total. Override with BUILD_CORES=<n> in the environment if you have
+# a known-safe larger number to use.
+BUILD_CORES="${BUILD_CORES:-2}"
+if [ "$BUILD_CORES" -gt "$USE_CORES" ]; then BUILD_CORES=$USE_CORES; fi
+if [ "$BUILD_CORES" -lt 1 ]; then BUILD_CORES=1; fi
+BUILD_HEAP_MB="${BUILD_HEAP_MB:-2048}"
 
 export NEXT_TELEMETRY_DISABLED=1
 export NEXT_CPU_COUNT=$BUILD_CORES
 export UV_THREADPOOL_SIZE=$USE_CORES
-# Per-worker V8 heap ceiling. 4 GiB × BUILD_CORES workers keeps total
-# build memory bounded (≤32 GiB at BUILD_CORES=8). Setting it absurdly
-# high (e.g. 240 GiB) does NOT speed builds and removes the natural
-# back-pressure that prevents the OOM killer from firing.
-export NODE_OPTIONS="--max-old-space-size=4096"
+# Per-worker V8 heap ceiling. Anything absurdly high (e.g. 240 GiB)
+# disables the natural back-pressure that keeps the build from eating
+# all of RAM — exactly what was OOM-killing this server.
+export NODE_OPTIONS="--max-old-space-size=${BUILD_HEAP_MB}"
 export GENERATE_SOURCEMAP=false
 # NOTE: do NOT export NODE_ENV=production at the top of the script.
 # npm@8+ skips devDependencies whenever NODE_ENV=production, which strips
@@ -76,7 +78,32 @@ require_bin() {
   fi
 }
 
-# ── 0) Sync source ------------------------------------------------------
+# ── 0a) Pre-flight: kill any stuck next builders from previous runs ----
+# A failed/killed `next build` can leave dozens of orphan node workers
+# holding gigabytes of RAM, which then OOM-kills the next attempt. Reap
+# them before doing anything else.
+step "Pre-flight: reaping stuck next-build workers"
+$SUDO pkill -9 -f "node_modules/.bin/next build" 2>/dev/null || true
+$SUDO pkill -9 -f "next/dist/build/index" 2>/dev/null || true
+sleep 1
+
+# ── 0b) Pre-flight: ensure swap exists ---------------------------------
+# Even with bounded heaps, Turbopack's working set occasionally spikes.
+# A small swapfile turns a hard OOM kill into a slow page-in. Skipped
+# if /swapfile already exists or any swap is active.
+step "Pre-flight: ensure swap is available"
+if [ "$(free -m | awk '/^Swap:/ {print $2}')" -lt 1024 ] && [ ! -f /swapfile ]; then
+  echo "  No swap detected — provisioning /swapfile (4 GiB)…"
+  $SUDO fallocate -l 4G /swapfile
+  $SUDO chmod 600 /swapfile
+  $SUDO mkswap /swapfile
+  $SUDO swapon /swapfile
+  grep -q '^/swapfile' /etc/fstab || \
+    echo '/swapfile none swap sw 0 0' | $SUDO tee -a /etc/fstab >/dev/null
+fi
+free -h | head -3
+
+# ── 0c) Sync source ----------------------------------------------------
 step "Pulling latest from main"
 $SUDO git pull origin main
 
@@ -152,8 +179,29 @@ PY
 # ── 1c) Build the Next.js app ------------------------------------------
 # Set NODE_ENV only for the build itself so Next produces a prod bundle,
 # but devDependencies stay on disk for any post-build scripts.
-step "Building Next.js app (sabnode-web)"
-$SUDO env NODE_ENV=production npx next build
+step "Building Next.js app (sabnode-web) — workers=${BUILD_CORES}, heap=${BUILD_HEAP_MB}MiB"
+set +e
+$SUDO env \
+  NODE_ENV=production \
+  NEXT_TELEMETRY_DISABLED=1 \
+  NEXT_CPU_COUNT="$BUILD_CORES" \
+  NODE_OPTIONS="--max-old-space-size=${BUILD_HEAP_MB}" \
+  GENERATE_SOURCEMAP=false \
+  npx next build
+build_rc=$?
+set -e
+if [ "$build_rc" -ne 0 ]; then
+  echo ""
+  echo "✖ next build failed (exit $build_rc)."
+  if dmesg 2>/dev/null | tail -50 | grep -qi 'killed process.*node\|Out of memory.*node'; then
+    echo "  Kernel OOM-killed a build worker. Either:"
+    echo "    BUILD_CORES=1 BUILD_HEAP_MB=1536 ./deploy.sh   # smaller workers"
+    echo "    sudo fallocate -l 8G /swapfile2 && sudo mkswap /swapfile2 && sudo swapon /swapfile2"
+  else
+    echo "  Not an OOM kill — see logs above for the real error."
+  fi
+  exit "$build_rc"
+fi
 
 # ── 2) Rust workspace --------------------------------------------------
 step "Building Rust workspace (sabnode-api + sabnode-broadcast-worker)"
