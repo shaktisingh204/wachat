@@ -31,7 +31,7 @@ export async function getPublicProjectById(projectId: string): Promise<WithId<Pr
 }
 
 // Internal helper function to avoid formData issues
-async function _createProjectFromWaba(data: {
+export async function _createProjectFromWaba(data: {
     wabaId: string;
     appId: string;
     accessToken: string;
@@ -165,7 +165,7 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
     }
 }
 
-export { _createProjectFromWaba };
+// _createProjectFromWaba is exported directly via its declaration below (line 34)
 
 export async function handleSyncPhoneNumbers(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
     try {

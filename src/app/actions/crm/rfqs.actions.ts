@@ -455,7 +455,7 @@ export async function awardRfqAction(
   }
 }
 
-interface BulkResult {
+export interface BulkResult {
   success: boolean;
   processed: number;
   error?: string;

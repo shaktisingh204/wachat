@@ -22,7 +22,8 @@ import {
   Badge,
   zoruToast,
 } from '@/components/zoruui';
-import { actionGetEmailFieldSchema, type CustomFieldDef } from '@/app/actions/email/audience.actions';
+import { actionGetEmailFieldSchema, } from '@/app/actions/email/audience.actions';
+import type { CustomFieldDef } from '@/lib/rust-client/email-audience';
 
 export function FieldsClient() {
   const [fields, setFields] = useState<CustomFieldDef[]>([]);

@@ -1947,7 +1947,7 @@ export async function exportTelegramBotsCsvAction(projectId: string): Promise<st
  * `lib/rust-client/telegram-commands.ts` row types.
  */
 
-type CommandsRowShape = {
+export type CommandsRowShape = {
   _id: string;
   projectId: string;
   botId?: string | null;

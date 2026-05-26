@@ -152,7 +152,7 @@ export async function searchEverything(
  *  reindexAll — wipe + rebuild from core collections
  * ─────────────────────────────────────────────────────────────── */
 
-interface SourceSpec {
+export interface SourceSpec {
   type: WsSearchableType;
   collection: string;
   titleFields: string[];

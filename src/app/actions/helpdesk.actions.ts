@@ -27,7 +27,7 @@ import { getSession } from '@/app/actions/user.actions';
 
 const TICKETS_COLL = 'crm_tickets';
 
-type ActionResult = { success: boolean; error?: string };
+export type ActionResult = { success: boolean; error?: string };
 
 function makeNote(body: string, authorId: string, isInternal: boolean): {
   _id: ObjectId;

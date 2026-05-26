@@ -570,7 +570,7 @@ export async function archiveQuotationAction(
   }
 }
 
-interface BulkResult {
+export interface BulkResult {
   success: boolean;
   processed: number;
   error?: string;

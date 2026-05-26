@@ -32,19 +32,6 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { mutate, type HrActionResult } from '@/lib/hr-status';
 
-export type { HrActionResult } from '@/lib/hr-status';
-
-/* ─── Exits ─────────────────────────────────────────────────────────── */
-
-export async function confirmExitKt(id: string): Promise<HrActionResult> {
-  return mutate({
-    pillar: 'exit',
-    id,
-    patch: { knowledgeTransfer: 'complete', knowledgeTransferStatus: 'complete' },
-    action: 'status_change',
-    reason: 'KT confirmed',
-  });
-}
 
 export async function markExitNoc(
   id: string,

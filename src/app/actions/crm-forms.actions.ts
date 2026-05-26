@@ -17,12 +17,12 @@ import {
 } from '@/lib/rust-client/crm-form-submissions';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 
-type AutoCreateMapping = Partial<Record<
+export type AutoCreateMapping = Partial<Record<
     'name' | 'email' | 'phone' | 'dealName' | 'description' | 'leadSource',
     string
 >>;
 
-interface PostSubmitSettings {
+export interface PostSubmitSettings {
     successMessage?: string;
     redirectUrl?: string;
     emailNotifications?: {

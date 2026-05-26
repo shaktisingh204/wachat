@@ -114,7 +114,7 @@ async function resolveResourceTenant(
  * TOKEN LIFECYCLE
  * ════════════════════════════════════════════════════════════ */
 
-interface GeneratePublicTokenOptions {
+export interface GeneratePublicTokenOptions {
   /** ISO date string or null for never expires. */
   expiresAt?: string | null;
   /** Optional max # of resolves. */
@@ -471,7 +471,7 @@ export async function submitPublicTicket(
  * PUBLIC SIGNING / ACCEPTING / PAYING
  * ════════════════════════════════════════════════════════════ */
 
-interface PublicSignPayload {
+export interface PublicSignPayload {
   name: string;
   email: string;
   signatureDataUrl: string;
@@ -572,7 +572,7 @@ export async function acceptEstimatePublic(
   return { success: true };
 }
 
-interface PublicPaymentPayload {
+export interface PublicPaymentPayload {
   amount: number;
   gateway: string;
   transactionId: string;

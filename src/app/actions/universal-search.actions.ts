@@ -42,7 +42,7 @@ const EMPTY_RESULT: UniversalSearchResult = {
   tickets: [],
 };
 
-type Doc = Record<string, unknown>;
+export type Doc = Record<string, unknown>;
 
 function s(v: unknown): string {
   return typeof v === 'string' ? v : v == null ? '' : String(v);

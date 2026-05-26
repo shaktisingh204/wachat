@@ -385,7 +385,6 @@ export async function setTelegramBotCommands(
 // pass-throughs that translate the Rust envelope into the
 // `ActionResult` / row shape callers already expect.
 
-export type { ChatRow as TelegramChatListRow, MessageRow as TelegramMessageRow }
     from '@/lib/rust-client/telegram-chats';
 
 import type {
@@ -597,7 +596,6 @@ export async function sendTelegramBroadcastNow(
     }
 }
 
-export type { BroadcastRow as TelegramBroadcastRow }
     from '@/lib/rust-client/telegram-broadcasts';
 import type { BroadcastRow as TelegramBroadcastRowType }
     from '@/lib/rust-client/telegram-broadcasts';
@@ -989,7 +987,6 @@ export async function sendTelegramTypingAction(input: {
 
 /* ── auto-reply rules ──────────────────────────────────────────── */
 
-export type { RuleRow as TelegramAutoReplyRuleRow }
     from '@/lib/rust-client/telegram-auto-reply';
 import type { RuleRow as TelegramAutoReplyRuleRowType }
     from '@/lib/rust-client/telegram-auto-reply';
@@ -1269,7 +1266,6 @@ export async function toggleTelegramAutoReplyRule(input: {
 
 /* ── channels ──────────────────────────────────────────────────── */
 
-export type { ChannelRow as TelegramChannelRow }
     from '@/lib/rust-client/telegram-channels';
 import type { ChannelRow as TelegramChannelRowType }
     from '@/lib/rust-client/telegram-channels';

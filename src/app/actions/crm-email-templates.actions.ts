@@ -217,7 +217,7 @@ export async function deleteEmailTemplate(
 
 /* ─── Bulk actions ────────────────────────────────────────────────────── */
 
-type BulkResult = { ok: true; count: number } | { ok: false; error: string };
+export type BulkResult = { ok: true; count: number } | { ok: false; error: string };
 
 async function setEmailTemplatesStatus(
     ids: string[],

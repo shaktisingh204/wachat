@@ -66,10 +66,3 @@ export async function actionGetRevenueReport(): Promise<ActionResult<EmailRevenu
   }
 }
 
-export type {
-  EmailCampaignReport,
-  EmailJourneyReport,
-  EmailAccountReport,
-  EmailCompareRow,
-  EmailRevenueReport,
-};

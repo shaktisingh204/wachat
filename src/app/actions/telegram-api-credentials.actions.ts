@@ -699,21 +699,4 @@ export async function listTelegramApiCredentialAuditAction(
     }
 }
 
-export type {
-    AckResult,
-    AuditListResp,
-    AuditRow,
-    AuditQuery,
-    CreateBody,
-    CredentialRow,
-    DetailResp,
-    ListResp,
-    ListSessionsResp,
-    LoginCodeBody,
-    LoginPasswordBody,
-    LoginSessionRow,
-    LoginStartBody,
-    LogoutBody,
-    UpdateBody,
-    VerifyBody,
-} from '@/lib/rust-client/telegram-api-credentials';
+/* Types are available from '@/lib/rust-client/telegram-api-credentials' directly. */

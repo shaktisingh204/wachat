@@ -44,7 +44,7 @@ function rustErr(e: unknown): string {
     return 'An unexpected error occurred.';
 }
 
-type GraphOpts = {
+export type GraphOpts = {
     method?: 'GET' | 'POST' | 'DELETE';
     params?: Record<string, unknown>;
     body?: Record<string, unknown>;

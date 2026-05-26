@@ -35,8 +35,8 @@ import {
   actionListEmailSegments,
   actionPreviewEmailSegment,
   actionRecountEmailSegment,
-  type EmailSegmentDoc,
 } from '@/app/actions/email/audience.actions';
+import type { EmailSegmentDoc } from '@/lib/rust-client/email-audience';
 import type { EmailFilterTree } from '@/lib/email/types';
 import { EmailSegmentBuilder, emptyFilterTree } from './segment-builder';
 

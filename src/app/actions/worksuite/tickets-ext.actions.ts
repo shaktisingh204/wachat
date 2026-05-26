@@ -25,7 +25,7 @@ import type {
   WsTicketActivity,
 } from '@/lib/worksuite/tickets-ext-types';
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 const ROUTE_BASE = '/dashboard/sabdesk';
 

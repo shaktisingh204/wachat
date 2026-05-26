@@ -18,7 +18,7 @@ import { getErrorMessage } from '@/lib/utils';
 import { getPaymentGateway } from '@/lib/sabshop/payment-gateway';
 
 type ActionOk<T> = { ok: true } & T;
-type ActionErr = { ok: false; error: string };
+export type ActionErr = { ok: false; error: string };
 export type StorefrontResult<T = Record<string, unknown>> = ActionOk<T> | ActionErr;
 
 const COLL = {
@@ -42,7 +42,7 @@ function oidOrNull(id: string | undefined | null): ObjectId | null {
     return new ObjectId(id);
 }
 
-interface StorefrontShape {
+export interface StorefrontShape {
     _id: ObjectId;
     userId: ObjectId;
     slug: string;

@@ -29,7 +29,7 @@ export interface LibraryFile {
   createdAt: string;
 }
 
-interface FileDoc {
+export interface FileDoc {
   _id?: ObjectId;
   userId: string;
   name: string;

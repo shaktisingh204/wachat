@@ -59,7 +59,7 @@ export interface AssignmentResult {
 
 /* ─── Entity → collection / field map ────────────────────────────────────── */
 
-interface EntityConfig {
+export interface EntityConfig {
   collection: string;
   field: string;
 }
@@ -80,7 +80,7 @@ const ENTITY_MAP: Record<AssignableEntity, EntityConfig> = {
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
 
-interface SessionUser {
+export interface SessionUser {
   _id: string;
   email?: string | null;
 }

@@ -10,19 +10,19 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { pagesenseSitesApi, type CreateSiteInput, type UpdateSiteInput } from '@/lib/rust-client/pagesense-sites';
-import { pagesenseHeatmapsApi } from '@/lib/rust-client/pagesense-heatmaps';
-import { pagesenseHeatmapEventsApi } from '@/lib/rust-client/pagesense-heatmap-events';
+import { pagesenseSitesApi, type CreateSiteInput, type UpdateSiteInput } from '@/lib/rust-client/sabsense-sites';
+import { pagesenseHeatmapsApi } from '@/lib/rust-client/sabsense-heatmaps';
+import { pagesenseHeatmapEventsApi } from '@/lib/rust-client/sabsense-heatmap-events';
 import {
     pagesenseFunnelsApi,
     type FunnelStep,
-} from '@/lib/rust-client/pagesense-funnels';
-import { pagesenseFunnelRunsApi } from '@/lib/rust-client/pagesense-funnel-runs';
-import { pagesenseRecordingsApi } from '@/lib/rust-client/pagesense-recordings';
+} from '@/lib/rust-client/sabsense-funnels';
+import { pagesenseFunnelRunsApi } from '@/lib/rust-client/sabsense-funnel-runs';
+import { pagesenseRecordingsApi } from '@/lib/rust-client/sabsense-recordings';
 import {
     pagesenseFormAnalyticsApi,
     type FieldDropoff,
-} from '@/lib/rust-client/pagesense-form-analytics';
+} from '@/lib/rust-client/sabsense-form-analytics';
 
 type ActionResult<T = void> = { success: true; data?: T } | { success: false; error: string };
 

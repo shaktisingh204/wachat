@@ -84,4 +84,3 @@ export async function actionGetEmailCampaignReport(id: string) {
   try { return { ok: true as const, data: await getEmailCampaignReport(id) }; } catch (e) { return failure(e); }
 }
 
-export type { EmailCampaignDoc, EmailCampaignStatus, EmailCampaignType };

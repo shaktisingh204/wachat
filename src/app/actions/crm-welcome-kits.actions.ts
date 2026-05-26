@@ -164,7 +164,7 @@ export async function getWelcomeKitById(id: string): Promise<CrmWelcomeKitDoc | 
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-interface WelcomeKitPayload {
+export interface WelcomeKitPayload {
     employee_id: string;
     employee_name?: string;
     items: CrmWelcomeKitItem[];

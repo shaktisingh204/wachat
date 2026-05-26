@@ -151,11 +151,3 @@ export async function actionGetDeliverabilityScore(): Promise<ActionResult<Deliv
   }
 }
 
-export type {
-  EmailDomainDoc,
-  DkimGenerateResult,
-  WarmupRunDoc,
-  WarmupDayPlan,
-  PlacementTestDoc,
-  DeliverabilityScore,
-};

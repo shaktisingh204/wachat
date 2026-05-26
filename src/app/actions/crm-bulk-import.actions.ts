@@ -58,7 +58,7 @@ function pickKey(
 
 /* ─── Lead adapter ─────────────────────────────────────────────── */
 
-interface LeadDraft {
+export interface LeadDraft {
   name: string;
   company?: string;
   email?: string;
@@ -127,7 +127,7 @@ const LEAD_ADAPTER: BulkImportAdapter<LeadDraft> = {
 
 /* ─── Contact adapter ──────────────────────────────────────────── */
 
-interface ContactDraft {
+export interface ContactDraft {
   firstName: string;
   lastName?: string;
   email?: string;
@@ -202,7 +202,7 @@ const CONTACT_ADAPTER: BulkImportAdapter<ContactDraft> = {
 
 /* ─── Account adapter ──────────────────────────────────────────── */
 
-interface AccountDraft {
+export interface AccountDraft {
   name: string;
   industry?: string;
   website?: string;
@@ -291,7 +291,7 @@ const ACCOUNT_ADAPTER: BulkImportAdapter<AccountDraft> = {
 
 /* ─── Item (product) adapter ───────────────────────────────────── */
 
-interface ItemDraft {
+export interface ItemDraft {
   name: string;
   sku?: string;
   description?: string;
@@ -396,7 +396,7 @@ const ITEM_ADAPTER: BulkImportAdapter<ItemDraft> = {
 
 /* ─── Vendor adapter ───────────────────────────────────────────── */
 
-interface VendorDraft {
+export interface VendorDraft {
   name: string;
   contactName?: string;
   email?: string;
@@ -492,7 +492,7 @@ const VENDOR_ADAPTER: BulkImportAdapter<VendorDraft> = {
 
 /* ─── Deal adapter ─────────────────────────────────────────────── */
 
-interface DealDraft {
+export interface DealDraft {
   name: string;
   accountName?: string;
   contactEmail?: string;
@@ -577,7 +577,7 @@ const DEAL_ADAPTER: BulkImportAdapter<DealDraft> = {
 
 /* ─── Task adapter ─────────────────────────────────────────────── */
 
-interface TaskDraft {
+export interface TaskDraft {
   title: string;
   description?: string;
   dueDate?: Date;
@@ -680,7 +680,7 @@ const TASK_ADAPTER: BulkImportAdapter<TaskDraft> = {
 
 /* ─── Ticket adapter ───────────────────────────────────────────── */
 
-interface TicketDraft {
+export interface TicketDraft {
   subject: string;
   description?: string;
   status?: string;

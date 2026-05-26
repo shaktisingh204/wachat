@@ -20,7 +20,7 @@ import type {
   WsFacebookAdsSetting,
 } from '@/lib/worksuite/integrations-types';
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 const BASE_ROUTE = '/dashboard/crm/settings/integrations';
 
@@ -465,7 +465,7 @@ export interface IntegrationEvent {
   createdAt: string;
 }
 
-interface IntegrationEventInput {
+export interface IntegrationEventInput {
   provider: IntegrationProvider;
   kind: string;
   status: 'success' | 'failure' | 'pending';

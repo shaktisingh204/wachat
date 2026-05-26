@@ -304,7 +304,7 @@ export async function getSurveyById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-interface SavePayload {
+export interface SavePayload {
     title?: string;
     description?: string;
     type?: CrmSurveyType;

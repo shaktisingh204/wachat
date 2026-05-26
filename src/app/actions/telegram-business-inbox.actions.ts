@@ -910,4 +910,3 @@ export async function upsertThreadFromMessageAction(
 }
 
 // Re-export common types for the page.
-export type { InboxMessage, InboxNote };

@@ -32,18 +32,18 @@ import type {
 
 const SETTINGS_PATH = '/dashboard/crm/settings/integrations/quickbooks';
 
-interface SaveResult {
+export interface SaveResult {
   ok: boolean;
   error?: string;
 }
 
-interface SyncActionResult {
+export interface SyncActionResult {
   ok: boolean;
   result: SyncResult;
   error?: string;
 }
 
-interface SyncLogEntry {
+export interface SyncLogEntry {
   timestamp: string;
   action: string;
   entity: string;
@@ -108,7 +108,7 @@ export async function getQuickBooksStatus(): Promise<QuickBooksStatus> {
   }
 }
 
-interface SaveCredentialsInput {
+export interface SaveCredentialsInput {
   client_id: string;
   client_secret: string;
   environment: QuickBooksEnvironment;

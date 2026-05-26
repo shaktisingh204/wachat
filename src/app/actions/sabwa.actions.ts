@@ -59,7 +59,7 @@ const NOT_IMPLEMENTED = 'This feature is not available yet.';
 
 // IdLike — server actions are called from client code where ObjectId is a
 // string, but internally we treat both interchangeably.
-type IdLike = string | ObjectId;
+export type IdLike = string | ObjectId;
 
 // ─── Internal helpers ───────────────────────────────────────────────────────
 

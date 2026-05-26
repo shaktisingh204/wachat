@@ -185,7 +185,7 @@ export async function generateApiToken(
 
 /* ── Bulk actions ───────────────────────────────────────────────────────── */
 
-type BulkResult = { ok: true; count: number } | { ok: false; error: string };
+export type BulkResult = { ok: true; count: number } | { ok: false; error: string };
 
 /** Bulk revoke (soft-delete) multiple tokens by id. */
 export async function bulkRevokeApiTokens(ids: string[]): Promise<BulkResult> {

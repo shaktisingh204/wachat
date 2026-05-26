@@ -37,7 +37,7 @@ import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
  *   crm_promotions.
  */
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 const OK_ORDER = '/dashboard/crm/sales/orders';
 const OK_REC_INV = '/dashboard/crm/sales/recurring-invoices';

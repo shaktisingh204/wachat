@@ -246,14 +246,5 @@ export async function actionPutEmailFieldSchema(
   }
 }
 
-// Re-export types for client components.
-export type {
-  EmailListDoc,
-  EmailSubscriberDoc,
-  EmailSegmentDoc,
-  SegmentPreview,
-  TagWithCount,
-  CustomFieldDef,
-  ImportSummary,
-  PageResponse,
-};
+/* Types are available from '@/lib/rust-client/email-audience' directly.
+ * 'use server' files only allow async function exports. */

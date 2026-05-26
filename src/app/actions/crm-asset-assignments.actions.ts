@@ -209,7 +209,7 @@ export async function getAssetAssignmentById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-interface AssignmentPayload {
+export interface AssignmentPayload {
     asset_id: string;
     asset_name?: string;
     employee_id: string;

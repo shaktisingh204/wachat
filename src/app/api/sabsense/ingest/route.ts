@@ -28,7 +28,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 import { issueRustJwt } from '@/lib/jwt-for-rust';
-import { pagesenseSitesApi } from '@/lib/rust-client/pagesense-sites';
+import { pagesenseSitesApi } from '@/lib/rust-client/sabsense-sites';
 
 export const runtime = 'nodejs';
 

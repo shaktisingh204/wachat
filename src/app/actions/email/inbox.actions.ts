@@ -150,15 +150,3 @@ export async function actionListEmailInboxAssignments(
 }
 
 // Re-export for client components.
-export type {
-  EmailInboxThreadDoc,
-  EmailInboxMessageDoc,
-  EmailInboxAssignmentDoc,
-  ListThreadsOpts,
-  SendReplyBody,
-  UpdateThreadBody,
-  BulkThreadAction,
-  ThreadListResponse,
-  ThreadDetailResponse,
-  MessageListResponse,
-};

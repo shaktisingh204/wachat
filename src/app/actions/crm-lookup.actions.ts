@@ -43,7 +43,7 @@ import { CITIES } from '@/data/reference/cities';
 import { LANGUAGES, SALUTATIONS, LEAD_SOURCES, JOB_TITLES } from '@/data/reference/misc';
 import { resolveCrmEnum } from '@/data/reference/crm-enums';
 
-interface LookupContext {
+export interface LookupContext {
   userId: ObjectId;
   scope: 'project' | 'tenant' | 'global';
 }
@@ -190,7 +190,7 @@ function projectItem(doc: any, toChip: (d: any) => LookupChip, rawFields?: strin
  * collection just to power a picker. If/when a tenant-scoped currency
  * table lands, swap this entry for a `makeMongoLookup` call.
  */
-interface StaticCurrency { code: string; symbol: string; name: string }
+export interface StaticCurrency { code: string; symbol: string; name: string }
 const STATIC_CURRENCIES: StaticCurrency[] = [
   { code: 'INR', symbol: '₹',   name: 'Indian Rupee' },
   { code: 'USD', symbol: '$',   name: 'US Dollar' },

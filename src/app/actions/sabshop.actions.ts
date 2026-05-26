@@ -32,7 +32,7 @@ import { getSession } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
 
 type ActionOk<T> = { ok: true } & T;
-type ActionErr = { ok: false; error: string };
+export type ActionErr = { ok: false; error: string };
 export type SabshopActionResult<T = Record<string, unknown>> = ActionOk<T> | ActionErr;
 
 const COLL = {

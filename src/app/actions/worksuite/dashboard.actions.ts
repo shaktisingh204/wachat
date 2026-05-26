@@ -35,7 +35,7 @@ import type {
  * viewer-scoped `user_id` is kept on every record for per-user state.
  */
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 const COLS = {
   widgets: 'crm_dashboard_widgets',
@@ -507,8 +507,10 @@ export async function unpinByResource(
   return { success: true };
 }
 
-/* Re-exports so pages can import List-shaped helpers directly. */
-export { hrList as _hrListPassthrough };
+/* Async wrapper so pages can import List-shaped helpers directly. */
+export async function _hrListPassthrough(...args: Parameters<typeof hrList>) {
+  return hrList(...args);
+}
 
 /* Used by the main CRM dashboard for the "Pinned" quick card. */
 export async function getPinnedQuickList(

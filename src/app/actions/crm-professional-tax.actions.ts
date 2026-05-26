@@ -584,7 +584,7 @@ export interface BulkImportActionInput {
     maxRows?: number;
 }
 
-interface PTRecordDraft {
+export interface PTRecordDraft {
     employeeName: string;
     employeeId?: string;
     state: string;

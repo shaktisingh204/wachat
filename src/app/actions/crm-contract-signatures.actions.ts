@@ -121,7 +121,7 @@ export interface RequestResult {
 // Helpers
 // ──────────────────────────────────────────────────────────────────
 
-interface SignerDoc {
+export interface SignerDoc {
     name?: string;
     email?: string;
     role?: string;
@@ -137,7 +137,7 @@ interface SignerDoc {
     signedFromGeo?: { country?: string; city?: string };
 }
 
-interface ContractDoc {
+export interface ContractDoc {
     _id: ObjectId;
     userId?: ObjectId;
     title?: string;

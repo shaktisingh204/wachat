@@ -15,7 +15,17 @@ import {
     listLeadGenForms,
 } from '@/app/actions/ad-manager.actions';
 
-export { getLeadGenConfig, getLeadGenConfigForms, getLeadGenActivity };
+/* Turbopack needs direct async-function exports in 'use server' files,
+   so we wrap the rust-client calls. */
+export async function getLeadGenConfigAction() {
+    return getLeadGenConfig();
+}
+export async function getLeadGenConfigFormsAction() {
+    return getLeadGenConfigForms();
+}
+export async function getLeadGenActivityAction() {
+    return getLeadGenActivity();
+}
 
 export async function saveLeadGenConfigAction(config: Partial<LeadGenConfig>) {
     return saveLeadGenConfig(config);

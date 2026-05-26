@@ -59,7 +59,7 @@ import type { WithId } from 'mongodb';
  *   (prevState, formData) => Promise<{ message?, error? }>.
  */
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 async function genericSave(
   collection: string,

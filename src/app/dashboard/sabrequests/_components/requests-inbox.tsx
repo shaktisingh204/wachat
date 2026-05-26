@@ -24,8 +24,10 @@ import {
 } from '@/components/zoruui';
 import type {
     RequestBlueprintDoc,
+} from '@/lib/rust-client/sabrequests-blueprints';
+import type {
     RequestInstanceDoc,
-} from '@/app/actions/sabrequests.actions';
+} from '@/lib/rust-client/sabrequests-instances';
 
 interface Props {
     mine: RequestInstanceDoc[];

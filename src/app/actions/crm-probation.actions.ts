@@ -252,7 +252,7 @@ export async function getCrmProbationById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-interface PayloadResult {
+export interface PayloadResult {
     payload: Partial<CrmProbationDoc>;
     error?: string;
 }

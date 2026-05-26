@@ -15,8 +15,8 @@ import {
 import {
   actionArchiveEmailList,
   actionListEmailLists,
-  type EmailListDoc,
 } from '@/app/actions/email/audience.actions';
+import type { EmailListDoc } from '@/lib/rust-client/email-audience';
 import { EmailListTable } from './list-table';
 import { EmailListFormDrawer } from './list-form-drawer';
 

@@ -68,7 +68,7 @@ function useRust(): boolean {
     return process.env.USE_RUST_SABREQUESTS === 'true';
 }
 
-type RustOp = 'list' | 'get' | 'create' | 'update' | 'delete' | 'other';
+export type RustOp = 'list' | 'get' | 'create' | 'update' | 'delete' | 'other';
 
 function reportRustFallback(entity: string, op: RustOp, e: unknown): void {
     console.error(`[sabrequests:${entity}.${op}] rust path failed; falling back:`, e);
@@ -88,28 +88,10 @@ const ORGCHARTS_COLL = 'requests_orgcharts';
 const LIST_PATH = '/dashboard/sabrequests';
 const BLUEPRINTS_PATH = '/dashboard/sabrequests/blueprints';
 
-/* ─── shared types re-exported for the UI ────────────────────────────── */
-
-export type {
-    BlueprintStage,
-    BlueprintRoutingRule,
-    RequestBlueprintDoc,
-    RequestBlueprintCreateInput,
-    RequestBlueprintUpdateInput,
-    RequestBlueprintListParams,
-    RequestInstanceDoc,
-    RequestInstanceCreateInput,
-    RequestInstanceUpdateInput,
-    RequestInstanceListParams,
-    RequestStatus,
-    StageActionKind,
-    StageDecisionInput,
-    CurrentStageView,
-    StageActionDoc,
-    OrgChartDoc,
-    OrgChartUpsertInput,
-    OrgChartUpdateInput,
-};
+/* Types are re-exported from the rust-client modules directly.
+ * Consumers should import types from '@/lib/rust-client/sabrequests-*'
+ * instead of this file, because 'use server' files only allow
+ * async function exports. */
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
 

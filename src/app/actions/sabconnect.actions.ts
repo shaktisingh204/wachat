@@ -67,7 +67,7 @@ import {
 
 const BASE = '/dashboard/sabconnect';
 
-type ErrorResult = { error: string };
+export type ErrorResult = { error: string };
 
 async function requireSessionUser() {
     const session = await getSession();

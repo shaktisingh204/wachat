@@ -55,7 +55,7 @@ const VALID_STATUSES: ReadonlySet<DebitNoteStatus> = new Set<DebitNoteStatus>([
     'draft', 'issued', 'refunded', 'cancelled',
 ]);
 
-interface DebitNoteListResponse {
+export interface DebitNoteListResponse {
     items: CrmDebitNoteDoc[];
     hasMore: boolean;
 }

@@ -632,9 +632,3 @@ export async function listProjectBotsForContactsAction(
 }
 
 // Re-export row types so client components don't need a separate import.
-export type {
-    AnalyticsResp,
-    ContactRow,
-    ListResp,
-    SegmentRow,
-};

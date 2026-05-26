@@ -28,18 +28,18 @@ import {
     type DataprepRecipeRunInput,
     type DataprepRecipeRunResult,
     type DataprepRecipeUpdateInput,
-} from '@/lib/rust-client/dataprep-recipes';
+} from '@/lib/rust-client/sabprep-recipes';
 import {
     dataprepProfileApi,
     type ColumnProfile,
     type DataprepProfileDoc,
-} from '@/lib/rust-client/dataprep-profiles';
+} from '@/lib/rust-client/sabprep-profiles';
 import {
     dataprepRunApi,
     type DataprepRunDoc,
     type DataprepRunListResult,
-} from '@/lib/rust-client/dataprep-runs';
-import type { Row, Step } from '@/lib/rust-client/dataprep-steps';
+} from '@/lib/rust-client/sabprep-runs';
+import type { Row, Step } from '@/lib/rust-client/sabprep-steps';
 
 /* ─── helpers ───────────────────────────────────────────────────────── */
 

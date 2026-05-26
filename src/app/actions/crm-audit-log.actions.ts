@@ -96,7 +96,7 @@ async function hasTextIndex(
     }
 }
 
-interface RawAuditDoc {
+export interface RawAuditDoc {
     _id?: { toString(): string } | string;
     createdAt?: string | Date;
     actorId?: { toString(): string } | string;

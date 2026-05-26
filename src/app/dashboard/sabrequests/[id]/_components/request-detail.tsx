@@ -21,11 +21,10 @@ import {
 import {
     decideRequest,
     updateRequest,
-    type RequestBlueprintDoc,
-    type RequestInstanceDoc,
-    type StageActionDoc,
-    type StageActionKind,
 } from '@/app/actions/sabrequests.actions';
+import type { RequestBlueprintDoc } from '@/lib/rust-client/sabrequests-blueprints';
+import type { RequestInstanceDoc, StageActionKind } from '@/lib/rust-client/sabrequests-instances';
+import type { StageActionDoc } from '@/lib/rust-client/sabrequests-stage-actions';
 
 interface Props {
     request: RequestInstanceDoc;

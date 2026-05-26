@@ -91,13 +91,6 @@ function toScheduledRow(doc: Record<string, unknown>) {
     };
 }
 
-export type { ChannelRow, PostBody, PromoteBody } from '@/lib/rust-client/telegram-channels';
-
-function fromError(err: unknown): string {
-    if (err instanceof RustApiError) return err.message;
-    if (err instanceof Error) return err.message;
-    return 'Unknown error.';
-}
 
 function revalidate(channelId?: string) {
     revalidatePath('/dashboard/telegram/channels');

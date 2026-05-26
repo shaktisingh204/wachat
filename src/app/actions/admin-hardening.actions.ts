@@ -18,7 +18,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getAdminSession } from '@/lib/admin-session';
 import { getErrorMessage } from '@/lib/utils';
 
-type Result = { success: boolean; error?: string };
+export type Result = { success: boolean; error?: string };
 
 async function requireAdmin(): Promise<Result | null> {
     const s = await getAdminSession();

@@ -26,8 +26,8 @@ import {
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
     createRequest,
-    type RequestBlueprintDoc,
 } from '@/app/actions/sabrequests.actions';
+import type { RequestBlueprintDoc } from '@/lib/rust-client/sabrequests-blueprints';
 
 interface FormField {
     key: string;

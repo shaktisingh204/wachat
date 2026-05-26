@@ -236,7 +236,7 @@ export async function getExpenseClaimById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-interface ClaimPayload {
+export interface ClaimPayload {
     employee_id: string;
     employee_name?: string;
     category_id?: string;

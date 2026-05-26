@@ -361,7 +361,7 @@ export async function handleUpdateUserProfile(prevState: { message?: string; err
 // across URL Shortener, QR Code Maker, and anywhere else that surfaces a
 // tag picker.
 
-type TagInput = { _id?: string; name: string; color: string };
+export type TagInput = { _id?: string; name: string; color: string };
 
 async function saveUserTags(tags: TagInput[]): Promise<
     { ok: true; tags: { _id: string; name: string; color: string }[] }

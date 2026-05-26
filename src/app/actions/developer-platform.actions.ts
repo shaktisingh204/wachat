@@ -17,7 +17,7 @@ import { rustClient, RustApiError } from '@/lib/rust-client';
 import { rustFetch } from '@/lib/rust-client/fetcher';
 
 type Ok<T> = { success: true } & T;
-type Err = { success: false; error: string };
+export type Err = { success: false; error: string };
 
 function failed(error: unknown, fallback: string): Err {
   if (error instanceof RustApiError) {

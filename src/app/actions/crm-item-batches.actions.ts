@@ -165,7 +165,7 @@ export async function getCrmItemBatchById(
 
 /* ─── Writes ───────────────────────────────────────────────────────── */
 
-interface SaveState {
+export interface SaveState {
     message?: string;
     error?: string;
     id?: string;

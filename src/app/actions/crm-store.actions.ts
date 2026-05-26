@@ -51,7 +51,7 @@ type ActionResult<T = void> =
     | ({ ok: true } & T)
     | { ok: false; error: string };
 
-type FormStateResult = { message?: string; error?: string; id?: string };
+export type FormStateResult = { message?: string; error?: string; id?: string };
 
 const COLL = {
     storefronts: 'crm_storefronts',

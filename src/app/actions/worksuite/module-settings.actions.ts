@@ -37,7 +37,7 @@ import type {
  * plug straight into `HrEntityPage`.
  */
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 const COLS = {
   invoice: 'crm_invoice_settings',

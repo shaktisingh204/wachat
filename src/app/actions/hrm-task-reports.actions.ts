@@ -43,7 +43,7 @@ export interface HrmTaskReport {
 }
 
 // Shape stored in Mongo (uses ObjectId for userId/workerId/assignerId).
-interface HrmTaskReportDoc {
+export interface HrmTaskReportDoc {
   _id: ObjectId;
   userId: ObjectId;
   roadmapId: string;

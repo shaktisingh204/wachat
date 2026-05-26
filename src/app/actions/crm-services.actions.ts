@@ -35,7 +35,7 @@ function useRustCrm(): boolean {
   return process.env.USE_RUST_CRM === 'true';
 }
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 async function save(
   collection: string,

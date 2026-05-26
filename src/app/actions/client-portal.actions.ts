@@ -54,30 +54,6 @@ import type {
     ClientTicketReply,
 } from '@/lib/client-portal/types';
 
-export type {
-    ClientActivityItem,
-    ClientContract,
-    ClientEstimate,
-    ClientInvoice,
-    ClientKbArticle,
-    ClientPortalBrand,
-    ClientPortalKpis,
-    ClientProfile,
-    ClientProject,
-    ClientProjectTask,
-    ClientTicket,
-    ClientTicketReply,
-} from '@/lib/client-portal/types';
-
-/* ─── Dashboard ─────────────────────────────────────────────── */
-
-export async function getClientPortalKpis(): Promise<ClientPortalKpis> {
-    const empty: ClientPortalKpis = {
-        openTickets: 0,
-        unpaidInvoices: 0,
-        activeProjects: 0,
-        pendingEstimates: 0,
-    };
     const ctx = await requireClient();
     if (!ctx) return empty;
     try {

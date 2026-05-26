@@ -42,7 +42,7 @@ import type {
  * into `useActionState` and the existing `HrEntityPage` abstraction.
  */
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 const COLS = {
   kb: 'crm_knowledge_bases',

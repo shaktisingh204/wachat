@@ -19,7 +19,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
-import type { EmailListDoc } from '@/app/actions/email/audience.actions';
+import type { EmailListDoc } from '@/lib/rust-client/email-audience';
 
 interface EmailListTableProps {
   lists: EmailListDoc[];

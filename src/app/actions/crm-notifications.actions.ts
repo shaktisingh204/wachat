@@ -100,7 +100,7 @@ function entityHrefFor(kind: string, id: string): string | null {
 
 const DUE_RISK_KINDS = new Set(['task', 'ticket', 'deal', 'invoice']);
 
-interface RawAuditDoc {
+export interface RawAuditDoc {
     _id: ObjectId;
     userId: ObjectId;
     actorId?: ObjectId | null;

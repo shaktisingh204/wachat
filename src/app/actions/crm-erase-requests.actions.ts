@@ -136,7 +136,7 @@ const COLLECTION = 'crm_erase_requests';
  * The shape is intentionally small + explicit so a reviewer can audit
  * exactly what an erase request reaches.
  */
-interface CascadeRef {
+export interface CascadeRef {
     collection: string;
     field: string;
     /** If true, the entire row is owned by the subject — eligible for hard_delete. */

@@ -19,7 +19,7 @@ import {
   Checkbox,
 } from '@/components/zoruui';
 import { actionCreateEmailCampaign } from '@/app/actions/email/campaigns.actions';
-import type { EmailListDoc, EmailSegmentDoc } from '@/app/actions/email/audience.actions';
+import type { EmailListDoc, EmailSegmentDoc } from '@/lib/rust-client/email-audience';
 
 interface SetupWizardClientProps {
   initialLists: EmailListDoc[];

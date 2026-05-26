@@ -39,7 +39,7 @@ import type {
  *   crm_custom_module_permissions, crm_menu.
  */
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 const COLS = {
   role: 'crm_roles',

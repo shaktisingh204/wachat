@@ -41,7 +41,7 @@ import type {
  * pattern.
  */
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 async function genericSave(
   collection: string,
@@ -1123,7 +1123,7 @@ export async function getSalesCrmConfig(): Promise<SalesCrmConfig> {
   return out;
 }
 
-type ConfigState = { message?: string; error?: string };
+export type ConfigState = { message?: string; error?: string };
 
 export async function saveSalesCrmPipelineConfig(
   _prev: ConfigState,

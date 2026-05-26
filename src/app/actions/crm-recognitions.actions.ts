@@ -242,7 +242,7 @@ export async function getRecognitionById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-interface SavePayload {
+export interface SavePayload {
     fromEmployeeId?: string;
     fromEmployeeName?: string;
     toEmployeeId?: string;

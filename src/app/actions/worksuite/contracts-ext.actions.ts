@@ -21,7 +21,7 @@ import type {
   WsContractType,
 } from '@/lib/worksuite/contracts-ext-types';
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 const ROUTE_BASE = '/dashboard/crm/contracts';
 

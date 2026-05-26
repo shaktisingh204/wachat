@@ -38,9 +38,8 @@ import {
   actionCreateEmailSubscriber,
   actionListEmailLists,
   actionListEmailSubscribers,
-  type EmailListDoc,
-  type EmailSubscriberDoc,
 } from '@/app/actions/email/audience.actions';
+import type { EmailListDoc, EmailSubscriberDoc } from '@/lib/rust-client/email-audience';
 
 export function EmailSubscribersClient() {
   const [lists, setLists] = useState<EmailListDoc[]>([]);

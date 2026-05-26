@@ -39,7 +39,7 @@ import { sendSlackNotification } from '@/lib/integrations/slack';
  * patches the extra worksuite fields onto that same record.
  */
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 const OK_PAYMENTS = '/dashboard/crm/sales/payments';
 const OK_GATEWAYS = '/dashboard/crm/settings/payment-gateways';
@@ -274,7 +274,7 @@ export async function deletePayment(id: string) {
   return r;
 }
 
-interface RecordPaymentInput {
+export interface RecordPaymentInput {
   invoiceId: string;
   amount: number;
   gateway: WsPaymentGateway;

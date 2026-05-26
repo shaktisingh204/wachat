@@ -27,9 +27,8 @@ import {
     createBlueprint,
     deleteBlueprint,
     updateBlueprint,
-    type BlueprintStage,
-    type RequestBlueprintDoc,
 } from '@/app/actions/sabrequests.actions';
+import type { BlueprintStage, RequestBlueprintDoc } from '@/lib/rust-client/sabrequests-blueprints';
 
 interface Props {
     mode: 'create' | 'edit';

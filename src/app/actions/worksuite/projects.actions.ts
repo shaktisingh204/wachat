@@ -57,7 +57,7 @@ import type {
  * Collections are prefixed `crm_*` (matching existing SabNode CRM data).
  */
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 async function genericSave(
   collection: string,

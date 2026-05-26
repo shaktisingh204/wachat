@@ -255,10 +255,3 @@ export async function listProjectBotsForPaymentsAction(
 }
 
 // Re-export row types so client components don't need a separate import.
-export type {
-    AnalyticsResp,
-    InvoiceRow,
-    PaymentRow,
-    ProviderRow,
-    TemplateRow,
-};

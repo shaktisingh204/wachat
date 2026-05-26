@@ -89,7 +89,7 @@ async function getBaseUrl(): Promise<string> {
   return 'http://localhost:3000';
 }
 
-type GatewayCred = {
+export type GatewayCred = {
   _id: ObjectId;
   userId: ObjectId;
   gateway: string;

@@ -28,23 +28,6 @@ import type {
     WebhookAckResult,
 } from '@/lib/rust-client/telegram-webhooks';
 
-export type {
-    AnalyticsQuery,
-    AnalyticsResp,
-    DeleteDeliveriesResp,
-    DeleteSubscriptionBody,
-    GetDeliveryResp,
-    GetSubscriptionResp,
-    ListDeliveriesQuery,
-    ListDeliveriesResp,
-    ListDlqQuery,
-    ListDlqResp,
-    ListSubscriptionsResp,
-    LogDeliveryBody,
-    PutSubscriptionBody,
-    TestSubscriptionResp,
-    WebhookAckResult,
-};
 
 // ---------------------------------------------------------------------------
 //  Subscriptions

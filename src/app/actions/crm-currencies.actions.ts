@@ -243,7 +243,7 @@ export async function saveCurrency(
 
 /* ─── Bulk actions ────────────────────────────────────────────────────── */
 
-type BulkResult = { ok: true; count: number } | { ok: false; error: string };
+export type BulkResult = { ok: true; count: number } | { ok: false; error: string };
 
 /**
  * Bulk delete currencies. Only non-base currencies should be passed — the

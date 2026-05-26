@@ -233,7 +233,7 @@ export async function getTravelRequestById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-interface TravelPayload {
+export interface TravelPayload {
     employee_id: string;
     employee_name?: string;
     purpose?: string;

@@ -395,7 +395,7 @@ export async function getCrmBankTransactionById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-interface RawTransactionInput {
+export interface RawTransactionInput {
     accountId: string;
     transactionDate: string | Date;
     amount: number | string;

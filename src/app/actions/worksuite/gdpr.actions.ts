@@ -25,7 +25,7 @@ import type {
   WsRemovalRequestType,
 } from '@/lib/worksuite/gdpr-types';
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 const ROUTE_BASE = '/dashboard/crm/settings/gdpr';
 
@@ -273,7 +273,7 @@ export async function getRemovalRequestLeads() {
   return hrList<WsRemovalRequestLead>(COL_REMOVAL_LEADS);
 }
 
-interface SubmitRemovalRequestInput {
+export interface SubmitRemovalRequestInput {
   requestType: WsRemovalRequestType;
   userId?: string;
   leadId?: string;

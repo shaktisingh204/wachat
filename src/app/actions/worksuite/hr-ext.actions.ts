@@ -14,7 +14,7 @@ import type {
   WsEmployeeLeaveQuotaHistory,
 } from '@/lib/worksuite/hr-ext-types';
 
-type FormState = { message?: string; error?: string; id?: string };
+export type FormState = { message?: string; error?: string; id?: string };
 
 const ROUTE_BASE = '/dashboard/hrm/payroll/employees';
 

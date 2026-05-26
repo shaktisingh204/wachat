@@ -146,7 +146,7 @@ export async function deleteFile(id: string) {
  *  is performed here; the caller is expected to supply `url`.
  * ─────────────────────────────────────────────────────────────── */
 
-interface WsUploadFileInput {
+export interface WsUploadFileInput {
   filename: string;
   display_name?: string;
   url: string;

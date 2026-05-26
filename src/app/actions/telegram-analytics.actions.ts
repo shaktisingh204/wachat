@@ -22,16 +22,6 @@ import type {
     TelegramAnalyticsCsvSection,
 } from '@/lib/rust-client/telegram-analytics';
 
-export type {
-    OverviewResp,
-    MessagesTimeseriesResp,
-    BroadcastsTimeseriesResp,
-    TopContactsResp,
-    TopCommandsResp,
-    FunnelResp,
-    TelegramAnalyticsGranularity,
-    TelegramAnalyticsCsvSection,
-};
 
 export interface AnalyticsRangeInput {
     projectId: string;

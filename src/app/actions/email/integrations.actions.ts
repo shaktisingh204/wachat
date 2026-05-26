@@ -143,11 +143,3 @@ export async function actionTestEmailWebhook(id: string): Promise<ActionResult<E
   }
 }
 
-export type {
-  EmailApiKeyDoc,
-  EmailApiKeyScope,
-  EmailApiKeyCreateResult,
-  EmailWebhookDoc,
-  EmailWebhookEvent,
-  EmailWebhookTestResult,
-};
