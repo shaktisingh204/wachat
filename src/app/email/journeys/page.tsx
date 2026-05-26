@@ -214,7 +214,7 @@ const initialEdges: Edge[] = [
 ];
 
 let id = 0;
-const getId = () => \`dndnode_\${id++}\`;
+const getId = () => `dndnode_${id++}`;
 
 function JourneyCanvasContent() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);

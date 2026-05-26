@@ -120,7 +120,7 @@ function deriveLink(entityType: MentionEntityType, entityId: string): string {
     case 'project_note':
       return `/dashboard/crm/projects/${entityId}`;
     case 'ticket_reply':
-      return `/dashboard/crm/tickets/${entityId}`;
+      return `/dashboard/sabdesk/${entityId}`;
     case 'lead_note':
       return `/dashboard/crm/sales-crm/all-leads/${entityId}`;
     case 'deal_note':

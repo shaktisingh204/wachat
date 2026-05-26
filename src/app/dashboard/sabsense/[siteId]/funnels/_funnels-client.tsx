@@ -37,7 +37,7 @@ import {
     createFunnel,
     deleteFunnel,
     runFunnel,
-} from '@/app/actions/pagesense.actions';
+} from '@/app/actions/sabsense.actions';
 import type { Funnel, FunnelStep, StepMatchType } from '@/lib/rust-client/pagesense-funnels';
 import type { FunnelRun } from '@/lib/rust-client/pagesense-funnel-runs';
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';

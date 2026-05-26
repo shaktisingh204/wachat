@@ -29,7 +29,7 @@ import {
   type CrmReplyTemplateUpdateInput,
 } from '@/lib/rust-client/crm-reply-templates';
 
-const LIST_PATH = '/dashboard/crm/tickets/reply-templates';
+const LIST_PATH = '/dashboard/sabdesk/reply-templates';
 
 /* ─── Helpers ────────────────────────────────────────────────────── */
 

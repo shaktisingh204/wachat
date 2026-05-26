@@ -13,7 +13,7 @@ import {
     ZoruPageDescription,
 } from '@/components/zoruui';
 
-import { getPagesenseSite, getRecording } from '@/app/actions/pagesense.actions';
+import { getPagesenseSite, getRecording } from '@/app/actions/sabsense.actions';
 
 import { PagesenseSiteNav } from '../../_site-nav';
 

@@ -216,7 +216,7 @@ export default async function ServiceContractDetailPage({ params }: PageProps) {
             <ZoruCardContent>
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <Link
-                  href={`/dashboard/crm/tickets?contractId=${id}`}
+                  href={`/dashboard/sabdesk?contractId=${id}`}
                   className="text-zoru-primary hover:underline"
                 >
                   Tickets under this contract →

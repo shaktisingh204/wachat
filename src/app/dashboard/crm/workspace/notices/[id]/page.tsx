@@ -352,7 +352,7 @@ export default async function NoticeDetailPage({
                                 All notices →
                             </Link>
                             <Link
-                                href="/dashboard/crm/workspace/announcements"
+                                href="/dashboard/sabconnect/announcements"
                                 className="text-zoru-primary hover:underline"
                             >
                                 Announcements →

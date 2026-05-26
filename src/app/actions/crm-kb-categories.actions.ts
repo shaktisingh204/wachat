@@ -24,7 +24,7 @@ import {
 } from '@/lib/rust-client/crm-kb-categories';
 
 const COLL = 'crm_kb_categories';
-const LIST_PATH = '/dashboard/crm/tickets/kb';
+const LIST_PATH = '/dashboard/sabdesk/kb';
 
 function useRustCrm(): boolean {
   return process.env.USE_RUST_CRM === 'true';

@@ -9,7 +9,7 @@
  *
  * RBAC module: `crm_ticket_group`.
  *
- * The settings-style list page (`/dashboard/crm/tickets/groups`) uses
+ * The settings-style list page (`/dashboard/sabdesk/groups`) uses
  * `getTicketGroups` to populate both the table and the parent-group
  * selector in the inline-create dialog. `saveTicketGroup` is wired as a
  * `useActionState` reducer — pass `null` as the previous state on the
@@ -31,7 +31,7 @@ import {
   type CrmTicketGroupUpdateInput,
 } from '@/lib/rust-client/crm-ticket-groups';
 
-const LIST_PATH = '/dashboard/crm/tickets/groups';
+const LIST_PATH = '/dashboard/sabdesk/groups';
 
 function rustErr(e: unknown): string {
   if (e instanceof RustApiError) return e.message;

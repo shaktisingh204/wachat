@@ -8,7 +8,7 @@
 import * as React from 'react';
 import { useParams } from 'next/navigation';
 import { Badge, Card } from '@/components/zoruui';
-import { getEnvelopeAudit } from '@/app/actions/esign.actions';
+import { getEnvelopeAudit } from '@/app/actions/sabsign.actions';
 import type { EsignAuditEvent } from '@/lib/rust-client/esign-audit';
 
 export default function EnvelopeAuditPage() {

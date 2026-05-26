@@ -83,7 +83,7 @@ function linkedHref(kind: TaskLinkedKind | undefined, id: string | undefined): s
         case 'contact':
             return `/dashboard/crm/sales-crm/contacts/${id}`;
         case 'ticket':
-            return `/dashboard/crm/tickets/${id}`;
+            return `/dashboard/sabdesk/${id}`;
         case 'invoice':
             return `/dashboard/crm/sales/invoices/${id}`;
         default:

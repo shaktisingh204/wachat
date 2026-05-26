@@ -203,7 +203,7 @@ export function UniversalInboxClient({
                     <Mail className="h-5 w-5 text-zoru-ink-muted" />
                     Drip Campaigns
                   </h3>
-                  <Link href="/dashboard/marketing/drip-campaigns">
+                  <Link href="/dashboard/sabcampaigns">
                     <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">View All</Button>
                   </Link>
                 </div>
@@ -245,7 +245,7 @@ export function UniversalInboxClient({
                     <LinkIcon className="h-5 w-5 text-zoru-ink-muted" />
                     Top Performing Links
                   </h3>
-                  <Link href="/dashboard/marketing/utm-tracking">
+                  <Link href="/dashboard/sabsense/utm-tracking">
                     <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">View All</Button>
                   </Link>
                 </div>

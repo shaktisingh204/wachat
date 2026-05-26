@@ -746,7 +746,7 @@ export async function saveTicket(_prev: any, formData: FormData) {
         }
       }
 
-      revalidatePath('/dashboard/crm/tickets');
+      revalidatePath('/dashboard/sabdesk');
       return { message: 'Saved successfully.', id };
     } catch (e) {
       console.error('[saveTicket] rust path failed; falling back:', e);
@@ -755,7 +755,7 @@ export async function saveTicket(_prev: any, formData: FormData) {
     }
   }
 
-  const result = await save('crm_tickets', '/dashboard/crm/tickets', formData, {
+  const result = await save('crm_tickets', '/dashboard/sabdesk', formData, {
     idFields: ['clientId', 'assigneeId', 'categoryId'],
     dateFields: ['firstResponseAt', 'resolvedAt'],
   });
@@ -816,7 +816,7 @@ export async function updateTicketStatus(
       } catch {
         /* non-fatal */
       }
-      revalidatePath('/dashboard/crm/tickets');
+      revalidatePath('/dashboard/sabdesk');
       return { success: true };
     } catch (e) {
       console.error('[updateTicketStatus] rust path failed; falling back:', e);
@@ -846,7 +846,7 @@ export async function updateTicketStatus(
     /* non-fatal */
   }
 
-  revalidatePath('/dashboard/crm/tickets');
+  revalidatePath('/dashboard/sabdesk');
   return { success: true };
 }
 export async function deleteTicket(id: string) {
@@ -870,7 +870,7 @@ export async function deleteTicket(id: string) {
       } catch {
         /* non-fatal */
       }
-      revalidatePath('/dashboard/crm/tickets');
+      revalidatePath('/dashboard/sabdesk');
       return { success: true };
     } catch (e) {
       console.error('[deleteTicket] rust path failed; falling back:', e);
@@ -893,7 +893,7 @@ export async function deleteTicket(id: string) {
       /* non-fatal */
     }
   }
-  revalidatePath('/dashboard/crm/tickets');
+  revalidatePath('/dashboard/sabdesk');
   return r;
 }
 

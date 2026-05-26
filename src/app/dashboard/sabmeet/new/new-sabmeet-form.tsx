@@ -20,7 +20,7 @@ import {
   ZoruPageActions,
 } from '@/components/zoruui';
 import { ArrowLeft } from 'lucide-react';
-import { createMeetRoom } from '@/app/actions/meet.actions';
+import { createMeetRoom } from '@/app/actions/sabmeet.actions';
 
 export function NewMeetingForm() {
   const router = useRouter();

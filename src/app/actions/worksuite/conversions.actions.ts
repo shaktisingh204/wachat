@@ -306,6 +306,6 @@ export async function convertTicketToTask(
 
   const res = await db.collection('crm_tasks').insertOne(taskDoc);
   revalidatePath('/dashboard/crm/tasks');
-  revalidatePath('/dashboard/crm/tickets');
+  revalidatePath('/dashboard/sabdesk');
   return { success: true, taskId: res.insertedId.toString() };
 }

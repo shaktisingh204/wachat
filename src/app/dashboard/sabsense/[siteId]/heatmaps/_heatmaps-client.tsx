@@ -20,7 +20,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 
-import { regenerateHeatmapSnapshot } from '@/app/actions/pagesense.actions';
+import { regenerateHeatmapSnapshot } from '@/app/actions/sabsense.actions';
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 import type { HeatmapEventDoc } from '@/lib/rust-client/pagesense-heatmap-events';
 import type { HeatmapSnapshot } from '@/lib/rust-client/pagesense-heatmaps';

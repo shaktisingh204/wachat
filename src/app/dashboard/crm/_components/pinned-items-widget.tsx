@@ -42,7 +42,7 @@ function hrefFor(item: PinnedItem): string {
     case 'deal':
       return `/dashboard/crm/deals/${item.entityId}`;
     case 'ticket':
-      return `/dashboard/crm/tickets/${item.entityId}`;
+      return `/dashboard/sabdesk/${item.entityId}`;
     case 'invoice':
       return `/dashboard/crm/accounting/invoices/${item.entityId}`;
     case 'contact':

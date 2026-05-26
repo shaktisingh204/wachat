@@ -633,7 +633,7 @@ function PipelinesGrid(props: PipelinesGridProps): React.JSX.Element {
                                     />
                                     <div className="min-w-0 flex-1">
                                         <EntityRowLink
-                                            href={`/dashboard/crm/sales-crm/pipelines/${id}`}
+                                            href={`/dashboard/sabbigin/pipelines/${id}`}
                                             label={p.name || 'Untitled pipeline'}
                                             subtitle={`${getStageCount(p)} stage${getStageCount(p) === 1 ? '' : 's'}`}
                                         />

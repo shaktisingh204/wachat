@@ -72,7 +72,7 @@ export async function actionUpdateEmailInboxThread(
 ): Promise<ActionResult<{ ok: boolean }>> {
   try {
     const data = await updateEmailInboxThread(id, patch);
-    revalidatePath('/dashboard/email/inbox');
+    revalidatePath('/dashboard/sabmail/inbox');
     return { ok: true, data };
   } catch (e) {
     return failure(e);
@@ -85,7 +85,7 @@ export async function actionBulkUpdateEmailInboxThreads(input: {
 }): Promise<ActionResult<{ updated: number }>> {
   try {
     const data = await bulkUpdateEmailInboxThreads(input);
-    revalidatePath('/dashboard/email/inbox');
+    revalidatePath('/dashboard/sabmail/inbox');
     return { ok: true, data };
   } catch (e) {
     return failure(e);
@@ -102,7 +102,7 @@ export async function actionSendEmailInboxReply(
 ): Promise<ActionResult<{ messageId: string }>> {
   try {
     const data = await sendEmailInboxReply(threadId, body);
-    revalidatePath('/dashboard/email/inbox');
+    revalidatePath('/dashboard/sabmail/inbox');
     return { ok: true, data };
   } catch (e) {
     return failure(e);
@@ -119,7 +119,7 @@ export async function actionAssignEmailInboxThread(
 ): Promise<ActionResult<{ assignmentId: string }>> {
   try {
     const data = await assignEmailInboxThread(threadId, { assignedTo });
-    revalidatePath('/dashboard/email/inbox');
+    revalidatePath('/dashboard/sabmail/inbox');
     return { ok: true, data };
   } catch (e) {
     return failure(e);
@@ -132,7 +132,7 @@ export async function actionReleaseEmailInboxAssignment(
 ): Promise<ActionResult<{ ok: boolean }>> {
   try {
     const data = await releaseEmailInboxAssignment(threadId, assignmentId);
-    revalidatePath('/dashboard/email/inbox');
+    revalidatePath('/dashboard/sabmail/inbox');
     return { ok: true, data };
   } catch (e) {
     return failure(e);

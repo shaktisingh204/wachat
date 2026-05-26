@@ -18,8 +18,8 @@ import {
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { ArrowLeft, Video as VideoIcon, FileText } from 'lucide-react';
-import type { MeetRoom, MeetRecording } from '@/app/actions/meet.actions';
-import { completeMeetRecording, startMeetRecording } from '@/app/actions/meet.actions';
+import type { MeetRoom, MeetRecording } from '@/app/actions/sabmeet.actions';
+import { completeMeetRecording, startMeetRecording } from '@/app/actions/sabmeet.actions';
 
 interface RecordingsClientProps {
   room: MeetRoom;

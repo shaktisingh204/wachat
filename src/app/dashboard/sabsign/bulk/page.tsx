@@ -23,7 +23,7 @@ import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   bulkSendFromTemplate,
   listTemplates,
-} from '@/app/actions/esign.actions';
+} from '@/app/actions/sabsign.actions';
 import type { EsignTemplateDoc } from '@/lib/rust-client/esign-templates';
 
 interface ParsedRow {

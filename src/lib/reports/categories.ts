@@ -29,37 +29,37 @@ import {
 
 const finance = [
     {
-        href: '/dashboard/crm/reports/income',
+        href: '/dashboard/sabbi/reports/income',
         label: 'Income',
         description: 'Revenue by period from paid invoices.',
         icon: Wallet,
     },
     {
-        href: '/dashboard/crm/reports/expense',
+        href: '/dashboard/sabbi/reports/expense',
         label: 'Expense',
         description: 'Expenses by period and category.',
         icon: Receipt,
     },
     {
-        href: '/dashboard/crm/reports/profit-loss',
+        href: '/dashboard/sabbi/reports/profit-loss',
         label: 'Profit & Loss',
         description: 'Income minus expenses grouped by month.',
         icon: TrendingUp,
     },
     {
-        href: '/dashboard/crm/reports/tax',
+        href: '/dashboard/sabbi/reports/tax',
         label: 'Tax',
         description: 'Tax collected on invoices and paid on expenses.',
         icon: Calculator,
     },
     {
-        href: '/dashboard/crm/reports/invoice-aging',
+        href: '/dashboard/sabbi/reports/invoice-aging',
         label: 'Invoice Aging',
         description: 'Outstanding invoices by age buckets.',
         icon: Clock4,
     },
     {
-        href: '/dashboard/crm/reports/payment-report',
+        href: '/dashboard/sabbi/reports/payment-report',
         label: 'Payments',
         description: 'Payments by gateway/method.',
         icon: CreditCard,
@@ -68,25 +68,25 @@ const finance = [
 
 const sales = [
     {
-        href: '/dashboard/crm/reports/sales-deals',
+        href: '/dashboard/sabbi/reports/sales-deals',
         label: 'Sales Deals',
         description: 'Deal conversion funnel by stage.',
         icon: Target,
     },
     {
-        href: '/dashboard/crm/reports/leads-conversion',
+        href: '/dashboard/sabbi/reports/leads-conversion',
         label: 'Leads Conversion',
         description: 'Conversion rate and average cycle time.',
         icon: ArrowRightLeft,
     },
     {
-        href: '/dashboard/crm/reports/top-clients',
+        href: '/dashboard/sabbi/reports/top-clients',
         label: 'Top Clients',
         description: 'Clients ranked by revenue.',
         icon: Crown,
     },
     {
-        href: '/dashboard/crm/reports/top-products',
+        href: '/dashboard/sabbi/reports/top-products',
         label: 'Top Products',
         description: 'Products ranked by units & revenue.',
         icon: Package,
@@ -95,19 +95,19 @@ const sales = [
 
 const tasks = [
     {
-        href: '/dashboard/crm/reports/project-status-report',
+        href: '/dashboard/sabbi/reports/project-status-report',
         label: 'Project Status',
         description: 'Projects grouped by status with completion %.',
         icon: FolderKanban,
     },
     {
-        href: '/dashboard/crm/reports/task-report',
+        href: '/dashboard/sabbi/reports/task-report',
         label: 'Task Report',
         description: 'Tasks by assignee, status and priority.',
         icon: ListChecks,
     },
     {
-        href: '/dashboard/crm/reports/overdue-tasks',
+        href: '/dashboard/sabbi/reports/overdue-tasks',
         label: 'Overdue Tasks',
         description: 'Tasks past their due date.',
         icon: AlertTriangle,
@@ -116,31 +116,31 @@ const tasks = [
 
 const people = [
     {
-        href: '/dashboard/crm/reports/attendance-report',
+        href: '/dashboard/sabbi/reports/attendance-report',
         label: 'Attendance',
         description: 'Employee attendance matrix by month.',
         icon: CalendarDays,
     },
     {
-        href: '/dashboard/crm/reports/leave-report',
+        href: '/dashboard/sabbi/reports/leave-report',
         label: 'Leaves',
         description: 'Leaves taken by employee and type.',
         icon: PlaneTakeoff,
     },
     {
-        href: '/dashboard/crm/reports/late-report',
+        href: '/dashboard/sabbi/reports/late-report',
         label: 'Late Arrivals',
         description: 'Late arrivals by employee.',
         icon: Timer,
     },
     {
-        href: '/dashboard/crm/reports/leave-balance-report',
+        href: '/dashboard/sabbi/reports/leave-balance-report',
         label: 'Leave Balance',
         description: 'Remaining balance per employee and type.',
         icon: Scale,
     },
     {
-        href: '/dashboard/crm/reports/birthday-anniversary',
+        href: '/dashboard/sabbi/reports/birthday-anniversary',
         label: 'Birthdays & Anniversaries',
         description: 'Upcoming birthdays and work anniversaries.',
         icon: Cake,
@@ -149,13 +149,13 @@ const people = [
 
 const support = [
     {
-        href: '/dashboard/crm/reports/ticket-report',
+        href: '/dashboard/sabbi/reports/ticket-report',
         label: 'Tickets',
         description: 'Tickets by status, channel, agent with SLA metrics.',
         icon: Ticket,
     },
     {
-        href: '/dashboard/crm/reports/agent-performance',
+        href: '/dashboard/sabbi/reports/agent-performance',
         label: 'Agent Performance',
         description: 'Per-agent tickets closed and average resolution.',
         icon: UserCog,
@@ -164,13 +164,13 @@ const support = [
 
 const gst = [
     {
-        href: '/dashboard/crm/reports/gstr-1',
+        href: '/dashboard/sabbi/reports/gstr-1',
         label: 'GSTR-1',
         description: 'Outward supplies return — sales for the period.',
         icon: FileBarChart,
     },
     {
-        href: '/dashboard/crm/reports/gstr-2b',
+        href: '/dashboard/sabbi/reports/gstr-2b',
         label: 'GSTR-2B',
         description: 'Auto-drafted inward supplies return from vendors.',
         icon: FileBarChart,

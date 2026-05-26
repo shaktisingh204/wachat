@@ -65,7 +65,7 @@ const HREFS: Partial<Record<WsPinnedResourceType, (id: string) => string>> = {
   task: (id) => `/dashboard/crm/tasks?id=${id}`,
   lead: (id) => `/dashboard/crm/sales-crm/leads/${id}`,
   deal: (id) => `/dashboard/crm/deals/${id}`,
-  ticket: (id) => `/dashboard/crm/tickets/${id}`,
+  ticket: (id) => `/dashboard/sabdesk/${id}`,
   kb: (id) => `/dashboard/crm/workspace/knowledge-base/${id}`,
   note: (id) => `/dashboard/crm/workspace/sticky-notes?id=${id}`,
 };

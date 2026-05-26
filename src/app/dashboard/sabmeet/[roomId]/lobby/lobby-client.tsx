@@ -13,8 +13,8 @@ import {
   Label,
 } from '@/components/zoruui';
 import { Mic, MicOff, Video, VideoOff, Loader2 } from 'lucide-react';
-import type { MeetRoom } from '@/app/actions/meet.actions';
-import { joinMeetRoom } from '@/app/actions/meet.actions';
+import type { MeetRoom } from '@/app/actions/sabmeet.actions';
+import { joinMeetRoom } from '@/app/actions/sabmeet.actions';
 
 interface LobbyClientProps {
   room: MeetRoom;

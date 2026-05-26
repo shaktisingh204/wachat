@@ -4,7 +4,7 @@ import {
     getPagesenseSite,
     listFunnels,
     listFunnelRuns,
-} from '@/app/actions/pagesense.actions';
+} from '@/app/actions/sabsense.actions';
 
 import { FunnelsClient } from './_funnels-client';
 

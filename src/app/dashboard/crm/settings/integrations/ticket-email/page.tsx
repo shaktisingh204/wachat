@@ -203,7 +203,7 @@ export default function TicketEmailPage() {
               </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" asChild>
-                  <Link href="/dashboard/email/inbox">
+                  <Link href="/dashboard/sabmail/inbox">
                     Open Email inbox
                     <ArrowUpRight className="h-4 w-4" />
                   </Link>

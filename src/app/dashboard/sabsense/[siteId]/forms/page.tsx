@@ -3,7 +3,7 @@ import React, { Suspense } from 'react';
 import {
     getPagesenseSite,
     listFormAnalytics,
-} from '@/app/actions/pagesense.actions';
+} from '@/app/actions/sabsense.actions';
 
 import { FormsClient } from './_forms-client';
 

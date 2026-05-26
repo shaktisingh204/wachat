@@ -58,7 +58,7 @@ function toFeedRows(props: Props): FeedRow[] {
             body: a.body,
             authorName: a.authorName,
             createdAt: a.createdAt ?? new Date(0).toISOString(),
-            href: `/dashboard/crm/workspace/announcements/${a._id}`,
+            href: `/dashboard/sabconnect/announcements/${a._id}`,
         });
     }
     for (const r of props.initialRecognitions) {

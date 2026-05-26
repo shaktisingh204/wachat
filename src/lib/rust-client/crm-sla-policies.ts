@@ -6,7 +6,7 @@ import 'server-only';
  * The Rust crate, the BFF route, and the on-disk Mongo collection are all
  * named `crm-slas` / `crm_slas`. This module re-exports the same client
  * under the helpdesk-facing "policies" name so call sites in the
- * `/dashboard/crm/tickets/settings/sla-policies` surface can read clean.
+ * `/dashboard/sabdesk/settings/sla-policies` surface can read clean.
  */
 export {
   crmSlasApi as crmSlaPoliciesApi,

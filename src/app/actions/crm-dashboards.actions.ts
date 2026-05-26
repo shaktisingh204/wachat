@@ -149,7 +149,7 @@ export async function saveDashboard(
             updatedAt: now,
         });
 
-        revalidatePath('/dashboard/crm/dashboards');
+        revalidatePath('/dashboard/sabbi/dashboards');
         return {
             message: 'Dashboard created. Add widgets to customize your view.',
             id: insertResult.insertedId.toString(),
@@ -212,8 +212,8 @@ export async function updateDashboard(
             return { error: 'Dashboard not found or permission denied.' };
         }
 
-        revalidatePath('/dashboard/crm/dashboards');
-        revalidatePath(`/dashboard/crm/dashboards/${id}`);
+        revalidatePath('/dashboard/sabbi/dashboards');
+        revalidatePath(`/dashboard/sabbi/dashboards/${id}`);
         return { message: 'Dashboard updated.', id };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -311,9 +311,9 @@ export async function saveDashboardLayout(
             /* non-fatal */
         }
 
-        revalidatePath('/dashboard/crm/dashboards');
-        revalidatePath(`/dashboard/crm/dashboards/${dashboardId}`);
-        revalidatePath(`/dashboard/crm/dashboards/${dashboardId}/edit`);
+        revalidatePath('/dashboard/sabbi/dashboards');
+        revalidatePath(`/dashboard/sabbi/dashboards/${dashboardId}`);
+        revalidatePath(`/dashboard/sabbi/dashboards/${dashboardId}/edit`);
         return { message: `Saved ${clean.length} widget(s).` };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -348,7 +348,7 @@ export async function deleteDashboard(
         } catch {
             /* non-fatal */
         }
-        revalidatePath('/dashboard/crm/dashboards');
+        revalidatePath('/dashboard/sabbi/dashboards');
         return { message: 'Dashboard deleted.' };
     } catch (e) {
         return { error: getErrorMessage(e) };

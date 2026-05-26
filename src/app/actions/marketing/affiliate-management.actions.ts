@@ -41,7 +41,7 @@ export async function createAffiliate(data: any) {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    revalidatePath('/dashboard/marketing/affiliate-management');
+    revalidatePath('/dashboard/sabthrive/affiliate-management');
     return { success: true };
   } catch (error) {
     console.error('Error creating Affiliate:', error);
@@ -57,7 +57,7 @@ export async function updateAffiliate(id: string, data: any) {
       { _id: new ObjectId(id) },
       { $set: { ...parsed, updatedAt: new Date() } }
     );
-    revalidatePath('/dashboard/marketing/affiliate-management');
+    revalidatePath('/dashboard/sabthrive/affiliate-management');
     return { success: true };
   } catch (error) {
     console.error('Error updating Affiliate:', error);
@@ -69,7 +69,7 @@ export async function deleteAffiliate(id: string) {
   try {
     const { db } = await connectToDatabase();
     await db.collection('affiliates').deleteOne({ _id: new ObjectId(id) });
-    revalidatePath('/dashboard/marketing/affiliate-management');
+    revalidatePath('/dashboard/sabthrive/affiliate-management');
     return { success: true };
   } catch (error) {
     console.error('Error deleting Affiliate:', error);

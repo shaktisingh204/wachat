@@ -45,7 +45,7 @@ export function DealRelatedRail({ dealId, accountId, initial }: DealRelatedRailP
       key: 'tickets',
       label: 'Tickets',
       icon: <Ticket className="h-3.5 w-3.5" />,
-      href: `/dashboard/crm/tickets?dealId=${dealId}`,
+      href: `/dashboard/sabdesk?dealId=${dealId}`,
     },
   ];
   if (accountId) {

@@ -352,7 +352,7 @@ export default function ContactDetailPage() {
                                 />
                                 <RelatedLink
                                     label="Tickets"
-                                    href={`/dashboard/crm/tickets?contactId=${contactId}`}
+                                    href={`/dashboard/sabdesk?contactId=${contactId}`}
                                 />
                                 <RelatedLink
                                     label="Tasks"

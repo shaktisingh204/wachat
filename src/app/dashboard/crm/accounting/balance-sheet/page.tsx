@@ -29,7 +29,7 @@ import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/cr
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { generateBalanceSheetData } from '@/app/actions/crm-accounting.actions';
 import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
-import { fmtMoney } from '@/app/dashboard/crm/reports/_components/report-toolbar';
+import { fmtMoney } from '@/app/dashboard/sabbi/reports/_components/report-toolbar';
 
 type Summary = {
     totalAssets: number;

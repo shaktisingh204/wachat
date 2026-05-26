@@ -702,7 +702,7 @@ export default function Gstr3bPage() {
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
                                                     <EntityRowLink
-                                                        href={`/dashboard/crm/reports/runs/${r.runId}`}
+                                                        href={`/dashboard/sabbi/reports/runs/${r.runId}`}
                                                         label={`${monthLabel(r.month)} ${r.year}`}
                                                         subtitle={r.period}
                                                     />

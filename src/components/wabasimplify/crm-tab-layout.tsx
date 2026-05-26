@@ -145,7 +145,7 @@ const wachatMenuItems = [
 
 const crmMenuItems = [
     { href: "/dashboard/crm", label: "Dashboard", icon: BarChart, exact: true },
-    { href: "/dashboard/crm/dashboards", label: "Custom Dashboards", icon: LayoutGrid },
+    { href: "/dashboard/sabbi/dashboards", label: "Custom Dashboards", icon: LayoutGrid },
     {
         href: "/dashboard/crm/sales",
         label: "Sales",
@@ -164,7 +164,7 @@ const crmMenuItems = [
             { href: "/dashboard/crm/sales/pipelines", label: "Sales Pipelines" },
             { href: "/dashboard/crm/sales/forms", label: "Sales Forms" },
             { href: "/dashboard/crm/sales/coupons", label: "Coupons & Promotions" },
-            { href: "/dashboard/crm/sales/loyalty", label: "Loyalty Program" },
+            { href: "/dashboard/sabthrive/loyalty", label: "Loyalty Program" },
             { href: "/dashboard/crm/sales/gift-cards", label: "Gift Cards" },
         ]
     },
@@ -244,7 +244,7 @@ const crmMenuItems = [
                     { href: "/dashboard/crm/sales-crm/leads", label: "Leads" },
                 ],
             },
-            { href: "/dashboard/crm/sales-crm/pipelines", label: "Pipelines" },
+            { href: "/dashboard/sabbigin/pipelines", label: "Pipelines" },
             { href: "/dashboard/crm/sales-crm/all-pipelines", label: "All Pipelines" },
             { href: "/dashboard/crm/sales-crm/pipeline-stages", label: "Pipeline Stages" },
             { href: "/dashboard/crm/sales-crm/statuses", label: "Statuses" },
@@ -257,7 +257,7 @@ const crmMenuItems = [
             { href: "/dashboard/crm/sales-crm/notes", label: "Notes" },
             { href: "/dashboard/crm/sales-crm/consent", label: "Consent" },
             { href: "/dashboard/crm/sales-crm/settings", label: "Settings" },
-            { href: "/dashboard/crm/analytics", label: "Analytics" },
+            { href: "/dashboard/sabbi/analytics", label: "Analytics" },
             {
                 label: 'Reports',
                 subSubItems: [
@@ -270,13 +270,13 @@ const crmMenuItems = [
         ]
     },
     {
-        href: "/dashboard/crm/tickets",
+        href: "/dashboard/sabdesk",
         label: "Support",
         icon: LifeBuoy,
         subItems: [
-            { href: "/dashboard/crm/tickets", label: "Tickets" },
-            { href: "/dashboard/crm/tickets/sla", label: "SLA Policies" },
-            { href: "/dashboard/crm/tickets/knowledge-base", label: "Knowledge Base" },
+            { href: "/dashboard/sabdesk", label: "Tickets" },
+            { href: "/dashboard/sabdesk/sla", label: "SLA Policies" },
+            { href: "/dashboard/sabdesk/knowledge-base", label: "Knowledge Base" },
             { href: "/dashboard/crm/service-contracts", label: "Service Contracts" },
         ],
     },
@@ -440,55 +440,55 @@ const crmMenuItems = [
         ],
     },
     {
-        href: "/dashboard/crm/reports",
+        href: "/dashboard/sabbi/reports",
         label: "Reports",
         icon: FileText,
         subItems: [
             {
                 label: 'GST',
                 subSubItems: [
-                    { href: "/dashboard/crm/reports/gstr-1", label: "GSTR-1 Sales Report" },
-                    { href: "/dashboard/crm/reports/gstr-2b", label: "GSTR-2B Purchase Report" },
+                    { href: "/dashboard/sabbi/reports/gstr-1", label: "GSTR-1 Sales Report" },
+                    { href: "/dashboard/sabbi/reports/gstr-2b", label: "GSTR-2B Purchase Report" },
                 ],
             },
             {
                 label: 'Sales',
                 subSubItems: [
-                    { href: "/dashboard/crm/reports/top-clients", label: "Top Clients" },
-                    { href: "/dashboard/crm/reports/top-products", label: "Top Products" },
-                    { href: "/dashboard/crm/reports/sales-deals", label: "Sales Deals" },
-                    { href: "/dashboard/crm/reports/invoice-aging", label: "Invoice Aging" },
-                    { href: "/dashboard/crm/reports/payment-report", label: "Payment Report" },
+                    { href: "/dashboard/sabbi/reports/top-clients", label: "Top Clients" },
+                    { href: "/dashboard/sabbi/reports/top-products", label: "Top Products" },
+                    { href: "/dashboard/sabbi/reports/sales-deals", label: "Sales Deals" },
+                    { href: "/dashboard/sabbi/reports/invoice-aging", label: "Invoice Aging" },
+                    { href: "/dashboard/sabbi/reports/payment-report", label: "Payment Report" },
                 ],
             },
             {
                 label: 'Operations',
                 subSubItems: [
-                    { href: "/dashboard/crm/reports/late-report", label: "Late Report" },
-                    { href: "/dashboard/crm/reports/overdue-tasks", label: "Overdue Tasks" },
-                    { href: "/dashboard/crm/reports/task-report", label: "Task Report" },
-                    { href: "/dashboard/crm/reports/ticket-report", label: "Ticket Report" },
-                    { href: "/dashboard/crm/reports/project-status-report", label: "Project Status" },
-                    { href: "/dashboard/crm/reports/agent-performance", label: "Agent Performance" },
+                    { href: "/dashboard/sabbi/reports/late-report", label: "Late Report" },
+                    { href: "/dashboard/sabbi/reports/overdue-tasks", label: "Overdue Tasks" },
+                    { href: "/dashboard/sabbi/reports/task-report", label: "Task Report" },
+                    { href: "/dashboard/sabbi/reports/ticket-report", label: "Ticket Report" },
+                    { href: "/dashboard/sabbi/reports/project-status-report", label: "Project Status" },
+                    { href: "/dashboard/sabbi/reports/agent-performance", label: "Agent Performance" },
                 ],
             },
             {
                 label: 'HR',
                 subSubItems: [
-                    { href: "/dashboard/crm/reports/attendance-report", label: "Attendance" },
-                    { href: "/dashboard/crm/reports/leave-report", label: "Leave" },
-                    { href: "/dashboard/crm/reports/leave-balance-report", label: "Leave Balance" },
-                    { href: "/dashboard/crm/reports/birthday-anniversary", label: "Birthday & Anniversary" },
+                    { href: "/dashboard/sabbi/reports/attendance-report", label: "Attendance" },
+                    { href: "/dashboard/sabbi/reports/leave-report", label: "Leave" },
+                    { href: "/dashboard/sabbi/reports/leave-balance-report", label: "Leave Balance" },
+                    { href: "/dashboard/sabbi/reports/birthday-anniversary", label: "Birthday & Anniversary" },
                 ],
             },
             {
                 label: 'Finance',
                 subSubItems: [
-                    { href: "/dashboard/crm/reports/income", label: "Income" },
-                    { href: "/dashboard/crm/reports/expense", label: "Expense" },
-                    { href: "/dashboard/crm/reports/profit-loss", label: "Profit & Loss" },
-                    { href: "/dashboard/crm/reports/tax", label: "Tax" },
-                    { href: "/dashboard/crm/reports/leads-conversion", label: "Leads Conversion" },
+                    { href: "/dashboard/sabbi/reports/income", label: "Income" },
+                    { href: "/dashboard/sabbi/reports/expense", label: "Expense" },
+                    { href: "/dashboard/sabbi/reports/profit-loss", label: "Profit & Loss" },
+                    { href: "/dashboard/sabbi/reports/tax", label: "Tax" },
+                    { href: "/dashboard/sabbi/reports/leads-conversion", label: "Leads Conversion" },
                 ],
             },
         ]
@@ -607,7 +607,7 @@ const instagramMenuGroups = [
 
 const emailMenuItems = [
     { href: '/dashboard/email', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/dashboard/email/inbox', label: 'Inbox', icon: Inbox },
+    { href: '/dashboard/sabmail/inbox', label: 'Inbox', icon: Inbox },
     { href: '/dashboard/email/campaigns', label: 'Campaigns', icon: Send },
     { href: '/dashboard/email/contacts', label: 'Contacts', icon: Users },
     { href: '/dashboard/email/templates', label: 'Templates', icon: FileText },

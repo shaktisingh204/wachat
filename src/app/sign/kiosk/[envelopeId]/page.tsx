@@ -17,7 +17,7 @@
 import * as React from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { Button, Card, Input, Label } from '@/components/zoruui';
-import { submitSignature } from '@/app/actions/esign.actions';
+import { submitSignature } from '@/app/actions/sabsign.actions';
 
 interface KioskPayload {
   _id: string;

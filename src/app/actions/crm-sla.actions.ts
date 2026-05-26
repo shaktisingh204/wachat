@@ -117,7 +117,7 @@ export async function saveSla(
 
     const { insertedId } = await db.collection('crm_slas').insertOne(doc);
 
-    revalidatePath('/dashboard/crm/tickets/sla');
+    revalidatePath('/dashboard/sabdesk/sla');
     return { message: 'SLA policy created.', id: insertedId.toString() };
   } catch (e: any) {
     console.error('saveSla error:', e);
@@ -311,7 +311,7 @@ export async function deleteSlaPolicy(
       entityKind: 'sla',
       entityId: id,
     });
-    revalidatePath('/dashboard/crm/tickets/sla');
+    revalidatePath('/dashboard/sabdesk/sla');
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e?.message || 'Delete failed.' };
@@ -349,7 +349,7 @@ export async function bulkUpdateSlas(
       });
       count = r.modifiedCount ?? 0;
     }
-    revalidatePath('/dashboard/crm/tickets/sla');
+    revalidatePath('/dashboard/sabdesk/sla');
     return { updated: count, failed: Math.max(0, ids.length - count) };
   } catch (e: any) {
     return { updated: 0, failed: ids.length, error: e?.message || 'Bulk op failed.' };
@@ -397,7 +397,7 @@ export async function acknowledgeSlaBreach(
       reason: note?.trim() || 'SLA breach acknowledged by operator',
     });
 
-    revalidatePath(`/dashboard/crm/tickets/${ticketId}`);
+    revalidatePath(`/dashboard/sabdesk/${ticketId}`);
     return { ok: true };
   } catch (e: any) {
     console.error('[acknowledgeSlaBreach]', e);

@@ -42,7 +42,7 @@ export async function createUtmLink(data: any) {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    revalidatePath('/dashboard/marketing/utm-tracking');
+    revalidatePath('/dashboard/sabsense/utm-tracking');
     return { success: true };
   } catch (error) {
     console.error('Error creating UtmLink:', error);
@@ -58,7 +58,7 @@ export async function updateUtmLink(id: string, data: any) {
       { _id: new ObjectId(id) },
       { $set: { ...parsed, updatedAt: new Date() } }
     );
-    revalidatePath('/dashboard/marketing/utm-tracking');
+    revalidatePath('/dashboard/sabsense/utm-tracking');
     return { success: true };
   } catch (error) {
     console.error('Error updating UtmLink:', error);
@@ -70,7 +70,7 @@ export async function deleteUtmLink(id: string) {
   try {
     const { db } = await connectToDatabase();
     await db.collection('utm_links').deleteOne({ _id: new ObjectId(id) });
-    revalidatePath('/dashboard/marketing/utm-tracking');
+    revalidatePath('/dashboard/sabsense/utm-tracking');
     return { success: true };
   } catch (error) {
     console.error('Error deleting UtmLink:', error);

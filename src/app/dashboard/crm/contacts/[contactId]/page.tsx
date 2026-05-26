@@ -459,7 +459,7 @@ export default function CrmContactDetailPage() {
                   label: 'Tickets',
                   count: relatedCounts.tickets,
                   icon: <LifeBuoy className="h-3.5 w-3.5" />,
-                  href: `/dashboard/crm/tickets?contactId=${contactId}`,
+                  href: `/dashboard/sabdesk?contactId=${contactId}`,
                 },
                 {
                   label: 'Invoices',

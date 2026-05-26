@@ -83,7 +83,7 @@ export async function deleteKbArticle(
       userId: new ObjectId(session.user._id),
     } as any);
     if (res.deletedCount === 0) return { success: false, error: 'Not found.' };
-    revalidatePath('/dashboard/crm/tickets/knowledge-base');
+    revalidatePath('/dashboard/sabdesk/knowledge-base');
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e?.message ?? 'Failed to delete.' };
@@ -108,8 +108,8 @@ export async function setKbArticleStatus(
       { $set: { status, updatedAt: new Date() } },
     );
     if (res.matchedCount === 0) return { success: false, error: 'Not found.' };
-    revalidatePath('/dashboard/crm/tickets/knowledge-base');
-    revalidatePath(`/dashboard/crm/tickets/knowledge-base/${articleId}`);
+    revalidatePath('/dashboard/sabdesk/knowledge-base');
+    revalidatePath(`/dashboard/sabdesk/knowledge-base/${articleId}`);
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e?.message ?? 'Failed to update.' };
@@ -135,7 +135,7 @@ export async function recordKbHelpfulVote(
       { $inc: inc as any, $set: { updatedAt: new Date() } },
     );
     if (res.matchedCount === 0) return { success: false, error: 'Not found.' };
-    revalidatePath(`/dashboard/crm/tickets/knowledge-base/${articleId}`);
+    revalidatePath(`/dashboard/sabdesk/knowledge-base/${articleId}`);
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e?.message ?? 'Failed to record vote.' };
@@ -186,14 +186,14 @@ export async function bulkKbAction(
     } as any;
     if (op === 'delete') {
       const res = await db.collection('crm_kb_articles').deleteMany(filter);
-      revalidatePath('/dashboard/crm/tickets/knowledge-base');
+      revalidatePath('/dashboard/sabdesk/knowledge-base');
       return { success: true, processed: res.deletedCount ?? 0 };
     }
     const nextStatus = op === 'publish' ? 'published' : 'draft';
     const res = await db.collection('crm_kb_articles').updateMany(filter, {
       $set: { status: nextStatus, updatedAt: new Date() },
     });
-    revalidatePath('/dashboard/crm/tickets/knowledge-base');
+    revalidatePath('/dashboard/sabdesk/knowledge-base');
     return { success: true, processed: res.modifiedCount ?? 0 };
   } catch (e: any) {
     return { success: false, processed: 0, error: e?.message ?? 'Bulk failed.' };
@@ -258,7 +258,7 @@ export async function saveKbArticle(
     const { db } = await connectToDatabase();
     const result = await db.collection('crm_kb_articles').insertOne(doc as any);
 
-    revalidatePath('/dashboard/crm/tickets/knowledge-base');
+    revalidatePath('/dashboard/sabdesk/knowledge-base');
 
     return {
       message: 'Article saved successfully.',
@@ -347,8 +347,8 @@ export async function updateKbArticle(
       },
     );
     if (result.matchedCount === 0) return { error: 'Article not found.' };
-    revalidatePath(`/dashboard/crm/tickets/knowledge-base/${articleId}`);
-    revalidatePath('/dashboard/crm/tickets/knowledge-base');
+    revalidatePath(`/dashboard/sabdesk/knowledge-base/${articleId}`);
+    revalidatePath('/dashboard/sabdesk/knowledge-base');
     return { message: 'Article updated successfully.' };
   } catch (e: any) {
     return { error: e?.message ?? 'Failed to update article.' };

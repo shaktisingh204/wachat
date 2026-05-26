@@ -41,7 +41,7 @@ export async function createAbTest(data: any) {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    revalidatePath('/dashboard/marketing/ab-testing');
+    revalidatePath('/dashboard/sabsense/ab-testing');
     return { success: true };
   } catch (error) {
     console.error('Error creating AbTest:', error);
@@ -57,7 +57,7 @@ export async function updateAbTest(id: string, data: any) {
       { _id: new ObjectId(id) },
       { $set: { ...parsed, updatedAt: new Date() } }
     );
-    revalidatePath('/dashboard/marketing/ab-testing');
+    revalidatePath('/dashboard/sabsense/ab-testing');
     return { success: true };
   } catch (error) {
     console.error('Error updating AbTest:', error);
@@ -69,7 +69,7 @@ export async function deleteAbTest(id: string) {
   try {
     const { db } = await connectToDatabase();
     await db.collection('ab_tests').deleteOne({ _id: new ObjectId(id) });
-    revalidatePath('/dashboard/marketing/ab-testing');
+    revalidatePath('/dashboard/sabsense/ab-testing');
     return { success: true };
   } catch (error) {
     console.error('Error deleting AbTest:', error);

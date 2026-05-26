@@ -55,7 +55,7 @@ const NAV_ITEMS: EmailSidebarItem[] = [
   { href: '/dashboard/email/journeys',        label: 'Journeys',       icon: Workflow },
   { href: '/dashboard/email/templates',       label: 'Templates',      icon: SquarePen },
   { href: '/dashboard/email/forms',           label: 'Forms',          icon: ClipboardList },
-  { href: '/dashboard/email/inbox',           label: 'Inbox',          icon: Inbox },
+  { href: '/dashboard/sabmail/inbox',           label: 'Inbox',          icon: Inbox },
   { href: '/dashboard/email/reports',         label: 'Reports',        icon: BarChart3 },
   { href: '/dashboard/email/deliverability',  label: 'Deliverability', icon: ShieldCheck },
   { href: '/dashboard/email/integrations',    label: 'Integrations',   icon: Network },

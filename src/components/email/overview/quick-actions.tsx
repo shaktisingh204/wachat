@@ -21,7 +21,7 @@ export function EmailQuickActions({ accountId }: EmailQuickActionsProps) {
     { href: `/dashboard/email/campaigns${qs}`,  label: 'New campaign',     icon: PlusCircle },
     { href: `/dashboard/email/audience${qs}`,   label: 'Import contacts',  icon: Users },
     { href: `/dashboard/email/journeys${qs}`,   label: 'Create journey',   icon: Workflow },
-    { href: `/dashboard/email/inbox${qs}`,      label: 'Open inbox',       icon: Mail },
+    { href: `/dashboard/sabmail/inbox${qs}`,      label: 'Open inbox',       icon: Mail },
     { href: `/dashboard/email/deliverability${qs}`, label: 'Check deliverability', icon: ShieldCheck },
   ];
 

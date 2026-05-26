@@ -6,7 +6,7 @@ import {
     getRecipe,
     listDatasets,
     getDatasetPreview,
-} from '@/app/actions/dataprep.actions';
+} from '@/app/actions/sabprep.actions';
 import { RecipeCanvasClient } from '../../_components/recipe-canvas-client';
 import type { Row } from '@/lib/rust-client/dataprep-steps';
 

@@ -22,7 +22,7 @@ import {
   Input,
   Label,
 } from '@/components/zoruui';
-import { issueSignerOtp, submitSignature } from '@/app/actions/esign.actions';
+import { issueSignerOtp, submitSignature } from '@/app/actions/sabsign.actions';
 
 interface SignPagePayload {
   _id: string;

@@ -39,7 +39,7 @@ interface WorkspaceItemDoc {
 }
 
 const QUICK_LINKS: HubQuickLink[] = [
-    { href: '/dashboard/crm/workspace/announcements', title: 'Announcements', description: 'Company-wide announcements pinned to the workspace.', icon: Megaphone },
+    { href: '/dashboard/sabconnect/announcements', title: 'Announcements', description: 'Company-wide announcements pinned to the workspace.', icon: Megaphone },
     { href: '/dashboard/crm/workspace/notices', title: 'Notices', description: 'Time-sensitive notices and reminders.', icon: Bell },
     { href: '/dashboard/crm/workspace/awards', title: 'Awards', description: 'Recognise teammates with badges and awards.', icon: Award },
     { href: '/dashboard/crm/workspace/events', title: 'Events', description: 'Upcoming workspace events and meetings.', icon: CalendarDays },

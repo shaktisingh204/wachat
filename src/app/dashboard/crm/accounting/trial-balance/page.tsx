@@ -54,7 +54,7 @@ import { PaginationBar } from '@/components/crm/pagination-bar';
 import { generateTrialBalanceData, getVoucherEntriesForAccount } from '@/app/actions/crm-accounting.actions';
 import { getSession } from '@/app/actions';
 import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
-import { fmtMoney, fmtNumber } from '@/app/dashboard/crm/reports/_components/report-toolbar';
+import { fmtMoney, fmtNumber } from '@/app/dashboard/sabbi/reports/_components/report-toolbar';
 
 type TrialBalanceEntry = {
     accountId: string;

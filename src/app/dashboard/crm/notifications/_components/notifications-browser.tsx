@@ -61,7 +61,7 @@ function entityHref(kind?: string, id?: string): string | null {
     account: `/dashboard/crm/accounts/${id}`,
     invoice: `/dashboard/crm/sales/invoices/${id}`,
     task: `/dashboard/crm/tasks/${id}`,
-    ticket: `/dashboard/crm/tickets/${id}`,
+    ticket: `/dashboard/sabdesk/${id}`,
   };
   return map[kind] ?? null;
 }

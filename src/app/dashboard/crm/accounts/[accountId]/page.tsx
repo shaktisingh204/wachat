@@ -132,7 +132,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
             label: 'Tickets',
             count: counts.tickets,
             icon: <LifeBuoy className="h-4 w-4" />,
-            href: `/dashboard/crm/tickets?accountId=${accountId}`,
+            href: `/dashboard/sabdesk?accountId=${accountId}`,
         },
         {
             label: 'Tasks',

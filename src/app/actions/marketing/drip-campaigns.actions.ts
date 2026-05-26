@@ -41,7 +41,7 @@ export async function createDripCampaign(data: any) {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    revalidatePath('/dashboard/marketing/drip-campaigns');
+    revalidatePath('/dashboard/sabcampaigns');
     return { success: true };
   } catch (error) {
     console.error('Error creating DripCampaign:', error);
@@ -57,7 +57,7 @@ export async function updateDripCampaign(id: string, data: any) {
       { _id: new ObjectId(id) },
       { $set: { ...parsed, updatedAt: new Date() } }
     );
-    revalidatePath('/dashboard/marketing/drip-campaigns');
+    revalidatePath('/dashboard/sabcampaigns');
     return { success: true };
   } catch (error) {
     console.error('Error updating DripCampaign:', error);
@@ -69,7 +69,7 @@ export async function deleteDripCampaign(id: string) {
   try {
     const { db } = await connectToDatabase();
     await db.collection('drip_campaigns').deleteOne({ _id: new ObjectId(id) });
-    revalidatePath('/dashboard/marketing/drip-campaigns');
+    revalidatePath('/dashboard/sabcampaigns');
     return { success: true };
   } catch (error) {
     console.error('Error deleting DripCampaign:', error);

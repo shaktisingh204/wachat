@@ -81,7 +81,7 @@ const QUICK_LINKS: HubQuickLink[] = [
     { href: '/dashboard/crm/sales/coupons', title: 'Coupons', description: 'Discount codes available to customers.', icon: Ticket },
     { href: '/dashboard/crm/sales/promotions', title: 'Promotions', description: 'Active marketing promotions and offers.', icon: Megaphone },
     { href: '/dashboard/crm/sales/gift-cards', title: 'Gift Cards', description: 'Stored-value gift cards.', icon: Gift },
-    { href: '/dashboard/crm/sales/loyalty', title: 'Loyalty', description: 'Loyalty program members and points.', icon: Heart },
+    { href: '/dashboard/sabthrive/loyalty', title: 'Loyalty', description: 'Loyalty program members and points.', icon: Heart },
 ];
 
 export default async function CrmSalesHubPage() {

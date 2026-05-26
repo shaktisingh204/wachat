@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
-import { listMeetRooms } from '@/app/actions/meet.actions';
-import { MeetingsListClient } from './_components/meetings-list-client';
+import { listMeetRooms } from '@/app/actions/sabmeet.actions';
+import { MeetingsListClient } from './_components/sabmeet-list-client';
 
 export const dynamic = 'force-dynamic';
 

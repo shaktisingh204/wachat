@@ -157,7 +157,7 @@ function RelatedCardsContent({
             <RelatedLink
                 label="Tickets"
                 count={counts.tickets}
-                href={`/dashboard/crm/tickets?leadId=${leadId}`}
+                href={`/dashboard/sabdesk?leadId=${leadId}`}
             />
             <RelatedLink
                 label="Quotations"

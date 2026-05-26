@@ -51,7 +51,7 @@ export default async function SabConnectFeedPage() {
                 </ZoruPageHeading>
                 <div className="flex gap-2">
                     <Button asChild variant="outline">
-                        <Link href="/dashboard/crm/workspace/announcements/new">
+                        <Link href="/dashboard/sabconnect/announcements/new">
                             New announcement
                         </Link>
                     </Button>

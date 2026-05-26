@@ -29,7 +29,7 @@ import {
   type CrmAgentGroupUpdateInput,
 } from '@/lib/rust-client/crm-agent-groups';
 
-const LIST_PATH = '/dashboard/crm/tickets/agent-groups';
+const LIST_PATH = '/dashboard/sabdesk/agent-groups';
 
 const VALID_STRATEGIES: ReadonlySet<CrmAgentGroupAssignmentStrategy> = new Set([
   'round_robin',

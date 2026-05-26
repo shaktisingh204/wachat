@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 
-import { getPagesenseSite, listRecordings } from '@/app/actions/pagesense.actions';
+import { getPagesenseSite, listRecordings } from '@/app/actions/sabsense.actions';
 
 import { RecordingsClient } from './_recordings-client';
 

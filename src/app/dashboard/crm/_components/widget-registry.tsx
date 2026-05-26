@@ -130,7 +130,7 @@ function OpenTicketsWidget() {
     <WidgetShell
       title="Open tickets"
       icon={MessageSquare}
-      href="/dashboard/crm/tickets"
+      href="/dashboard/sabdesk"
     />
   );
 }

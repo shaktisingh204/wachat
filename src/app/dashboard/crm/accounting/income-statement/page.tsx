@@ -42,7 +42,7 @@ import {
 } from '@/app/actions/crm-accounting-reports.actions';
 import { getSession } from '@/app/actions';
 import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
-import { fmtMoney } from '@/app/dashboard/crm/reports/_components/report-toolbar';
+import { fmtMoney } from '@/app/dashboard/sabbi/reports/_components/report-toolbar';
 
 type AccountData = { accountName: string; balance: number };
 type GroupData = {

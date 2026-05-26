@@ -4,7 +4,7 @@ import {
     getPagesenseSite,
     listHeatmapEvents,
     listHeatmapSnapshots,
-} from '@/app/actions/pagesense.actions';
+} from '@/app/actions/sabsense.actions';
 
 import { HeatmapsClient } from './_heatmaps-client';
 

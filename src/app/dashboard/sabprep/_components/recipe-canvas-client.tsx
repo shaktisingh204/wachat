@@ -20,7 +20,7 @@ import {
     stepFromSuggestion,
     persistDataset,
     getDatasetPreview,
-} from '@/app/actions/dataprep.actions';
+} from '@/app/actions/sabprep.actions';
 import type { DataprepRecipeDoc } from '@/lib/rust-client/dataprep-recipes';
 import type {
     Row,

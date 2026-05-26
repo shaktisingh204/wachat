@@ -29,7 +29,7 @@ import {
   deleteTemplate,
   instantiateTemplate,
   listTemplates,
-} from '@/app/actions/esign.actions';
+} from '@/app/actions/sabsign.actions';
 import type { EsignTemplateDoc } from '@/lib/rust-client/esign-templates';
 
 export default function TemplatesPage() {

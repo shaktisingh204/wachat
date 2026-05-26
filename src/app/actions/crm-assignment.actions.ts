@@ -236,9 +236,9 @@ export async function getMyEmployeeId(): Promise<string | null> {
 const REVALIDATE_PATHS: Record<AssignableEntity, string[]> = {
   task: ['/dashboard/crm/tasks'],
   lead: ['/dashboard/crm/sales-crm/all-leads', '/dashboard/crm/sales-crm/leads'],
-  deal: ['/dashboard/crm/sales-crm/pipelines', '/dashboard/crm/deals'],
+  deal: ['/dashboard/sabbigin/pipelines', '/dashboard/crm/deals'],
   project: ['/dashboard/crm/projects'],
-  ticket: ['/dashboard/crm/tickets'],
+  ticket: ['/dashboard/sabdesk'],
   invoice: ['/dashboard/crm/sales/invoices'],
   contract: ['/dashboard/crm/contracts'],
   estimate: ['/dashboard/crm/sales/estimates'],

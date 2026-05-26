@@ -18,7 +18,7 @@ import {
   listRewardsPrograms,
 } from '@/app/actions/rewards.actions';
 import { getLoyaltyProgramById } from '@/app/actions/crm-loyalty.actions';
-import { TierLogicVisualizer } from '../../loyalty/[id]/tier-logic-visualizer';
+import { TierLogicVisualizer } from '../../crm/sales/loyalty/[id]/tier-logic-visualizer';
 
 export const dynamic = 'force-dynamic';
 
@@ -134,7 +134,7 @@ export default async function RewardsDashboardPage(): Promise<React.JSX.Element>
                 description="Launch your first program to start tracking points and tiers."
                 action={
                   <Button asChild>
-                    <Link href="/dashboard/crm/sales/loyalty/new">Create program</Link>
+                    <Link href="/dashboard/sabthrive/loyalty/new">Create program</Link>
                   </Button>
                 }
               />

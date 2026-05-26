@@ -29,7 +29,7 @@ import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions'
 import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 import { sendSlackNotification } from '@/lib/integrations/slack';
 
-const LIST_PATH = '/dashboard/crm/tickets';
+const LIST_PATH = '/dashboard/sabdesk';
 
 function rustErr(e: unknown): string {
   if (e instanceof RustApiError) return e.message;

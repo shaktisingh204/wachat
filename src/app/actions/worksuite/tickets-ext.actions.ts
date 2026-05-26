@@ -27,7 +27,7 @@ import type {
 
 type FormState = { message?: string; error?: string; id?: string };
 
-const ROUTE_BASE = '/dashboard/crm/tickets';
+const ROUTE_BASE = '/dashboard/sabdesk';
 
 async function genericSave(
   collection: string,

@@ -21,53 +21,7 @@ import { revalidatePath } from 'next/cache';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 
-// Re-export the canonical per-entity actions so callers can do a single
-// `import { ... } from '@/app/actions/helpdesk.actions'`.
-export {
-  listTickets,
-  getTicket,
-  createTicket,
-  updateTicket,
-  deleteTicket,
-  saveTicketAction,
-  deleteTicketAction,
-} from '@/app/actions/crm/tickets.actions';
 
-export {
-  getSlaPolicies,
-  getSlaById,
-  saveSla,
-  deleteSlaPolicy,
-  bulkUpdateSlas,
-  acknowledgeSlaBreach,
-  getApplicableSlaRule,
-} from '@/app/actions/crm-sla.actions';
-
-export {
-  listKbArticles,
-  getKbArticleById,
-  saveKbArticle,
-  updateKbArticle,
-  deleteKbArticle,
-  setKbArticleStatus,
-  recordKbHelpfulVote,
-  recordKbView,
-  bulkKbAction,
-} from '@/app/actions/crm-knowledge-base.actions';
-
-export {
-  getReplyTemplates,
-  getReplyTemplateById,
-  saveReplyTemplate,
-  deleteReplyTemplate,
-  bulkUpdateReplyTemplates,
-} from '@/app/actions/crm-reply-templates.actions';
-
-export {
-  listKbCategories,
-  saveKbCategory,
-  deleteKbCategory,
-} from '@/app/actions/crm-kb-categories.actions';
 
 /* ─── Workspace composer ──────────────────────────────────────── */
 
@@ -123,8 +77,8 @@ export async function addTicketReply(
     if (res.matchedCount === 0) {
       return { success: false, error: 'Ticket not found.' };
     }
-    revalidatePath(`/dashboard/crm/tickets/${ticketId}`);
-    revalidatePath('/dashboard/crm/tickets/workspace');
+    revalidatePath(`/dashboard/sabdesk/${ticketId}`);
+    revalidatePath('/dashboard/sabdesk/workspace');
     return { success: true };
   } catch (e) {
     console.error('[addTicketReply] failed:', e);
@@ -160,8 +114,8 @@ export async function addTicketInternalNote(
     if (res.matchedCount === 0) {
       return { success: false, error: 'Ticket not found.' };
     }
-    revalidatePath(`/dashboard/crm/tickets/${ticketId}`);
-    revalidatePath('/dashboard/crm/tickets/workspace');
+    revalidatePath(`/dashboard/sabdesk/${ticketId}`);
+    revalidatePath('/dashboard/sabdesk/workspace');
     return { success: true };
   } catch (e) {
     console.error('[addTicketInternalNote] failed:', e);
@@ -196,8 +150,8 @@ export async function setTicketStatus(
       { $set: { status, updatedAt: new Date() } },
     );
     if (res.matchedCount === 0) return { success: false, error: 'Ticket not found.' };
-    revalidatePath(`/dashboard/crm/tickets/${ticketId}`);
-    revalidatePath('/dashboard/crm/tickets/workspace');
+    revalidatePath(`/dashboard/sabdesk/${ticketId}`);
+    revalidatePath('/dashboard/sabdesk/workspace');
     return { success: true };
   } catch (e) {
     console.error('[setTicketStatus] failed:', e);
@@ -227,8 +181,8 @@ export async function setTicketPriority(
       { $set: { priority, updatedAt: new Date() } },
     );
     if (res.matchedCount === 0) return { success: false, error: 'Ticket not found.' };
-    revalidatePath(`/dashboard/crm/tickets/${ticketId}`);
-    revalidatePath('/dashboard/crm/tickets/workspace');
+    revalidatePath(`/dashboard/sabdesk/${ticketId}`);
+    revalidatePath('/dashboard/sabdesk/workspace');
     return { success: true };
   } catch (e) {
     console.error('[setTicketPriority] failed:', e);
@@ -263,8 +217,8 @@ export async function setTicketAssignee(
       update,
     );
     if (res.matchedCount === 0) return { success: false, error: 'Ticket not found.' };
-    revalidatePath(`/dashboard/crm/tickets/${ticketId}`);
-    revalidatePath('/dashboard/crm/tickets/workspace');
+    revalidatePath(`/dashboard/sabdesk/${ticketId}`);
+    revalidatePath('/dashboard/sabdesk/workspace');
     return { success: true };
   } catch (e) {
     console.error('[setTicketAssignee] failed:', e);
@@ -387,8 +341,8 @@ export async function createSupportTicket(input: {
     });
 
     revalidatePath('/portal/support');
-    revalidatePath('/dashboard/crm/tickets');
-    revalidatePath('/dashboard/crm/tickets/workspace');
+    revalidatePath('/dashboard/sabdesk');
+    revalidatePath('/dashboard/sabdesk/workspace');
 
     return { success: true, id: String(insert.insertedId) };
   } catch (e) {

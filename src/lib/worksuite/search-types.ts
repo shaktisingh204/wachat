@@ -106,7 +106,7 @@ export function defaultSearchUrl(type: WsSearchableType, id: string): string {
     case 'invoice':
       return `/dashboard/crm/sales/invoices`;
     case 'ticket':
-      return `/dashboard/crm/tickets`;
+      return `/dashboard/sabdesk`;
     case 'contract':
       return `/dashboard/crm/contracts/${id}`;
     case 'kb':

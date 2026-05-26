@@ -33,7 +33,7 @@ import {
 import {
   listEnvelopes,
   voidEnvelope,
-} from '@/app/actions/esign.actions';
+} from '@/app/actions/sabsign.actions';
 import type {
   EnvelopeStatus,
   EsignEnvelopeDoc,

@@ -344,7 +344,7 @@ export default function LeadDetailPage() {
                   label: 'Tickets',
                   count: relatedCounts.tickets,
                   icon: <LifeBuoy className="h-3.5 w-3.5" />,
-                  href: `/dashboard/crm/tickets?leadId=${id}`,
+                  href: `/dashboard/sabdesk?leadId=${id}`,
                 },
                 {
                   label: 'Quotations',

@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getMeetRoom, listMeetRecordings } from '@/app/actions/meet.actions';
+import { getMeetRoom, listMeetRecordings } from '@/app/actions/sabmeet.actions';
 import { RecordingsClient } from './recordings-client';
 
 interface PageProps {

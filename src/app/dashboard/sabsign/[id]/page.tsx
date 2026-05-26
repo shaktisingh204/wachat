@@ -38,7 +38,7 @@ import {
   sendEnvelope,
   voidEnvelope,
   createTemplateFromEnvelope,
-} from '@/app/actions/esign.actions';
+} from '@/app/actions/sabsign.actions';
 import type { EsignEnvelopeDoc } from '@/lib/rust-client/esign-envelopes';
 
 const STATUS_BADGE: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {

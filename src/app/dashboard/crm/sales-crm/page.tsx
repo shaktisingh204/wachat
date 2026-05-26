@@ -73,7 +73,7 @@ const QUICK_LINKS: HubQuickLink[] = [
     { href: '/dashboard/crm/sales-crm/clients', title: 'Clients', description: 'Converted lead → client accounts.', icon: Building2 },
     { href: '/dashboard/crm/sales-crm/contacts', title: 'Contacts', description: 'People associated with leads and clients.', icon: Contact },
     { href: '/dashboard/crm/sales-crm/deals', title: 'Deals', description: 'Open opportunities being worked.', icon: Handshake },
-    { href: '/dashboard/crm/sales-crm/pipelines', title: 'Pipelines', description: 'Stage-based pipelines and their funnels.', icon: GitBranch },
+    { href: '/dashboard/sabbigin/pipelines', title: 'Pipelines', description: 'Stage-based pipelines and their funnels.', icon: GitBranch },
     { href: '/dashboard/crm/sales-crm/pipeline-stages', title: 'Pipeline Stages', description: 'Configure stages across pipelines.', icon: ListTree },
     { href: '/dashboard/crm/sales-crm/all-pipelines', title: 'All Pipelines', description: 'Flat list of every pipeline.', icon: LayoutList },
     { href: '/dashboard/crm/sales-crm/agents', title: 'Lead Agents', description: 'Employees assigned to specific leads.', icon: UserCog },

@@ -1,8 +1,8 @@
 import React, { Suspense } from 'react';
 
-import { listPagesenseSites } from '@/app/actions/pagesense.actions';
+import { listPagesenseSites } from '@/app/actions/sabsense.actions';
 
-import { PagesenseSitesClient } from './_components/pagesense-sites-client';
+import { PagesenseSitesClient } from './_components/sabsense-sites-client';
 
 export const dynamic = 'force-dynamic';
 

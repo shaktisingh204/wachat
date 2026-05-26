@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getMeetRoom } from '@/app/actions/meet.actions';
+import { getMeetRoom } from '@/app/actions/sabmeet.actions';
 import { LobbyClient } from './lobby-client';
 
 interface PageProps {

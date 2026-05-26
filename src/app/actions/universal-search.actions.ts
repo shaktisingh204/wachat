@@ -166,7 +166,7 @@ export async function searchAll(
       q,
       limit,
       { titleField: 'subject', subtitleField: 'status', fallbackRegexFields: ['subject', 'description'] },
-      (id) => `/dashboard/crm/tickets/${id}`,
+      (id) => `/dashboard/sabdesk/${id}`,
     ),
   ]);
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Suspense } from 'react';
-import { listRecipes } from '@/app/actions/dataprep.actions';
+import { listRecipes } from '@/app/actions/sabprep.actions';
 import { RecipeListClient } from './_components/recipe-list-client';
 
 export const metadata = {

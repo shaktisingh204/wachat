@@ -9,7 +9,7 @@
  *  - Otherwise (default), the legacy direct-Mongo path runs.
  *
  * Export shapes are identical across both paths so the existing pages at
- * `/dashboard/crm/sales-crm/pipelines/**`, the contacts page, and the
+ * `/dashboard/sabbigin/pipelines/**`, the contacts page, and the
  * `edit-pipelines-dialog` / `crm-add-pipeline-dialog` components keep
  * working without changes.
  *
@@ -216,7 +216,7 @@ export async function saveCrmPipelines(
                 }
             }
 
-            revalidatePath('/dashboard/crm/sales-crm/pipelines');
+            revalidatePath('/dashboard/sabbigin/pipelines');
             return { success: true };
         } catch (e) {
             console.error('[saveCrmPipelines] rust path failed; falling back:', e);
@@ -234,7 +234,7 @@ export async function saveCrmPipelines(
                 { $set: { crmPipelines: pipelinesWithIds } },
             );
 
-        revalidatePath('/dashboard/crm/sales-crm/pipelines');
+        revalidatePath('/dashboard/sabbigin/pipelines');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
@@ -264,7 +264,7 @@ export async function createCrmPipeline(
                 name,
                 stages: DEFAULT_NEW_STAGES,
             });
-            revalidatePath('/dashboard/crm/sales-crm/pipelines');
+            revalidatePath('/dashboard/sabbigin/pipelines');
             return {
                 success: true,
                 pipeline: rustDocToLegacy(entity),
@@ -295,7 +295,7 @@ export async function createCrmPipeline(
                 { $push: { crmPipelines: newPipeline } as any },
             );
 
-        revalidatePath('/dashboard/crm/sales-crm/pipelines');
+        revalidatePath('/dashboard/sabbigin/pipelines');
         return { success: true, pipeline: newPipeline };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
@@ -506,8 +506,8 @@ export async function savePipeline(
             .collection('users')
             .updateOne(userFilter, { $set: { crmPipelines: list } });
 
-        revalidatePath('/dashboard/crm/sales-crm/pipelines');
-        revalidatePath(`/dashboard/crm/sales-crm/pipelines/${id}`);
+        revalidatePath('/dashboard/sabbigin/pipelines');
+        revalidatePath(`/dashboard/sabbigin/pipelines/${id}`);
         return { message: 'Pipeline saved.', id };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -664,7 +664,7 @@ export async function bulkDeleteCrmPipelines(
             .updateOne(userFilter, { $set: { crmPipelines: next } });
 
         revalidatePath('/dashboard/crm/sales-crm/all-pipelines');
-        revalidatePath('/dashboard/crm/sales-crm/pipelines');
+        revalidatePath('/dashboard/sabbigin/pipelines');
         return { success: true, processed };
     } catch (e) {
         return { success: false, processed: 0, error: getErrorMessage(e) };

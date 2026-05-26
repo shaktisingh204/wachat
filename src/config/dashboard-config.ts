@@ -205,9 +205,9 @@ export const crmMenuGroups: MenuGroup[] = [
             { href: "/dashboard/crm/sales-crm/all-leads", label: "Leads & Contacts", icon: BarChart2, permissionKey: 'crm_leads' },
             { href: "/dashboard/crm/deals", label: "Deals Pipeline", icon: BarChart2, permissionKey: 'crm_deals' },
             { href: "/dashboard/crm/automations", label: "Automations", icon: BarChart2, permissionKey: 'crm_automations' },
-            { href: "/dashboard/crm/sales-crm/pipelines", label: "Manage Pipelines", icon: BarChart2, permissionKey: 'crm_pipelines' },
+            { href: "/dashboard/sabbigin/pipelines", label: "Manage Pipelines", icon: BarChart2, permissionKey: 'crm_pipelines' },
             { href: "/dashboard/crm/sales-crm/forms", label: "Forms", icon: BarChart2, permissionKey: 'crm_forms' },
-            { href: "/dashboard/crm/analytics", label: "Analytics", icon: BarChart2, permissionKey: 'crm_analytics' },
+            { href: "/dashboard/sabbi/analytics", label: "Analytics", icon: BarChart2, permissionKey: 'crm_analytics' },
             { href: "/dashboard/crm/sales-crm/leads-summary", label: "Leads Summary", icon: BarChart2, permissionKey: 'crm_reports' },
             { href: "/dashboard/crm/sales-crm/team-sales-report", label: "Team Sales Report", icon: BarChart2, permissionKey: 'crm_reports' },
             { href: "/dashboard/crm/sales-crm/client-performance-report", label: "Client Performance Report", icon: BarChart2, permissionKey: 'crm_reports' },
@@ -226,8 +226,8 @@ export const crmMenuGroups: MenuGroup[] = [
     {
         title: "Reports",
         items: [
-            { href: "/dashboard/crm/reports/gstr-1", label: "GSTR-1 Sales Report", icon: BookCopy, permissionKey: 'crm_gstr1' },
-            { href: "/dashboard/crm/reports/gstr-2b", label: "GSTR-2B Purchase Report", icon: BookCopy, permissionKey: 'crm_gstr2b' },
+            { href: "/dashboard/sabbi/reports/gstr-1", label: "GSTR-1 Sales Report", icon: BookCopy, permissionKey: 'crm_gstr1' },
+            { href: "/dashboard/sabbi/reports/gstr-2b", label: "GSTR-2B Purchase Report", icon: BookCopy, permissionKey: 'crm_gstr2b' },
         ]
     },
     {
@@ -460,7 +460,7 @@ export const adManagerMenuItems: MenuItem[] = [
 
 export const emailMenuItems: MenuItem[] = [
     { href: '/dashboard/email', label: 'Dashboard', icon: LayoutDashboard, permissionKey: 'email_dashboard' },
-    { href: '/dashboard/email/inbox', label: 'Inbox', icon: Inbox, permissionKey: 'email_inbox' },
+    { href: '/dashboard/sabmail/inbox', label: 'Inbox', icon: Inbox, permissionKey: 'email_inbox' },
     { href: '/dashboard/email/campaigns', label: 'Campaigns', icon: Send, permissionKey: 'email_campaigns' },
     { href: '/dashboard/email/contacts', label: 'Contacts', icon: Users, permissionKey: 'email_contacts' },
     { href: '/dashboard/email/templates', label: 'Templates', icon: BookCopy, permissionKey: 'email_templates' },

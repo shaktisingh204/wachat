@@ -105,7 +105,7 @@ const ENTITY_HREF: Record<string, (id: string) => string> = {
     proposal: (id) => `/dashboard/crm/sales/proposals/${id}`,
     project: (id) => `/dashboard/crm/projects/${id}`,
     task: () => `/dashboard/crm/sales-crm/tasks`,
-    ticket: (id) => `/dashboard/crm/tickets/${id}`,
+    ticket: (id) => `/dashboard/sabdesk/${id}`,
     item: (id) => `/dashboard/crm/inventory/items/${id}`,
     warehouse: (id) => `/dashboard/crm/inventory/warehouses/${id}`,
     bankAccount: (id) => `/dashboard/crm/banking/bank-accounts/${id}`,

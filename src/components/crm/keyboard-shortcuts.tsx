@@ -66,7 +66,7 @@ const CHORD_ROUTE_MAP: Record<string, string> = {
   gv: '/dashboard/crm/purchases/vendors',
   gp: '/dashboard/crm/purchases/orders',
   ge: '/dashboard/hrm/payroll/employees',
-  gt: '/dashboard/crm/tickets',
+  gt: '/dashboard/sabdesk',
   // Create new…
   ci: '/dashboard/crm/sales/invoices/new',
   cq: '/dashboard/crm/sales/quotations/new',

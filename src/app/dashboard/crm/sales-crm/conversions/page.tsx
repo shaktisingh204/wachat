@@ -248,7 +248,7 @@ export default async function ConversionsFunnelPage() {
                     Conversion rates use tenant-scoped totals across all time. For
                     pipeline-specific funnels see the{' '}
                     <Link
-                        href="/dashboard/crm/reports"
+                        href="/dashboard/sabbi/reports"
                         className="text-zoru-ink underline-offset-2 hover:underline"
                     >
                         reports

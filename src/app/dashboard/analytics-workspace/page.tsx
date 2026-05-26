@@ -2,8 +2,8 @@
  * Analytics Workspace — root page.
  *
  * Lists workbooks. "New workbook" creates an empty workbook and routes
- * the user into the editor. Distinct from `/dashboard/crm/dashboards`
- * (module-scoped) and `/dashboard/crm/analytics` (CRM analytics).
+ * the user into the editor. Distinct from `/dashboard/sabbi/dashboards`
+ * (module-scoped) and `/dashboard/sabbi/analytics` (CRM analytics).
  */
 import Link from 'next/link';
 

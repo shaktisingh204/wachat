@@ -24,8 +24,8 @@ import {
     getSabConnectManuals,
 } from '@/app/actions/sabconnect.actions';
 import { GroupMembershipButton } from '../_components/group-membership-button';
-import { SabConnectComposer } from '../../feed/_components/intranet-composer';
-import { SabConnectFeedList } from '../../feed/_components/intranet-feed-list';
+import { SabConnectComposer } from '../../feed/_components/sabconnect-composer';
+import { SabConnectFeedList } from '../../feed/_components/sabconnect-feed-list';
 
 export const dynamic = 'force-dynamic';
 

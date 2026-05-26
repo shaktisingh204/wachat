@@ -824,7 +824,7 @@ export function EntityPicker({
                   subtask: '/dashboard/crm/projects/subtasks',
                   task: '/dashboard/crm/sales-crm/tasks',
                   asset: '/dashboard/hrm/hr/assets',
-                  ticket: '/dashboard/crm/tickets',
+                  ticket: '/dashboard/sabdesk',
                   user: '/dashboard/team/manage-users',
                 };
 

@@ -36,7 +36,7 @@ import {
 import {
     deleteFormAnalytics,
     upsertFormAnalytics,
-} from '@/app/actions/pagesense.actions';
+} from '@/app/actions/sabsense.actions';
 import type { FormAnalytics } from '@/lib/rust-client/pagesense-form-analytics';
 import type { PagesenseSite } from '@/lib/rust-client/pagesense-sites';
 

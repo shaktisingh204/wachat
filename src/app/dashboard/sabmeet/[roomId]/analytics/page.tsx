@@ -12,7 +12,7 @@ import {
   ZoruPageActions,
 } from '@/components/zoruui';
 import { ArrowLeft } from 'lucide-react';
-import { getMeetRoom, getMeetRoomAnalytics } from '@/app/actions/meet.actions';
+import { getMeetRoom, getMeetRoomAnalytics } from '@/app/actions/sabmeet.actions';
 
 interface PageProps {
   params: Promise<{ roomId: string }>;

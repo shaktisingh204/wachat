@@ -195,14 +195,14 @@ export async function getLeadPipelineById(id: string) {
 export async function saveLeadPipeline(_prev: unknown, formData: FormData) {
   return genericSave(
     COL_PIPELINES,
-    '/dashboard/crm/sales-crm/pipelines',
+    '/dashboard/sabbigin/pipelines',
     formData,
     { booleanKeys: ['default'] },
   );
 }
 export async function deleteLeadPipeline(id: string) {
   const r = await hrDelete(COL_PIPELINES, id);
-  revalidatePath('/dashboard/crm/sales-crm/pipelines');
+  revalidatePath('/dashboard/sabbigin/pipelines');
   return r;
 }
 
