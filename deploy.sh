@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# ─────────────────────────────────────────────────────────────────────
+# SabNode production deploy with HARD CPU/RAM limits
+# ─────────────────────────────────────────────────────────────────────
+
 set -euo pipefail
 
 REPO_DIR="/var/www/sabnode"
@@ -6,7 +10,10 @@ cd "$REPO_DIR"
 
 SUDO="sudo -E"
 
-# Detect total CPU cores
+# ─────────────────────────────────────────────
+# DETECT CPU CORES
+# ─────────────────────────────────────────────
+
 if command -v nproc >/dev/null 2>&1; then
   CORES=$(nproc)
 elif command -v sysctl >/dev/null 2>&1; then
@@ -16,56 +23,41 @@ else
 fi
 
 # ─────────────────────────────────────────────
-# LIMIT SERVER USAGE TO 80%
+# HARD RESOURCE LIMITS
 # ─────────────────────────────────────────────
 
-# CPU limit
-USE_CORES=$(( CORES * 80 / 100 ))
+# Use only 80% CPU
+CPU_LIMIT=$(( CORES * 80 / 100 ))
 
-# Minimum 1 core
-if [ "$USE_CORES" -lt 1 ]; then
-  USE_CORES=1
+if [ "$CPU_LIMIT" -lt 1 ]; then
+  CPU_LIMIT=1
 fi
 
-# Build workers
-BUILD_CORES="${BUILD_CORES:-$USE_CORES}"
-
-# Never exceed allowed cores
-if [ "$BUILD_CORES" -gt "$USE_CORES" ]; then
-  BUILD_CORES=$USE_CORES
-fi
-
-# Minimum 1 worker
-if [ "$BUILD_CORES" -lt 1 ]; then
-  BUILD_CORES=1
-fi
-
-# Detect total RAM in MB
+# Total RAM
 TOTAL_RAM_MB=$(free -m | awk '/^Mem:/ {print $2}')
 
-# Allow only 80% RAM for Node heap
-BUILD_HEAP_MB="${BUILD_HEAP_MB:-$(( TOTAL_RAM_MB * 80 / 100 ))}"
+# Use only 80% RAM
+RAM_LIMIT_MB=$(( TOTAL_RAM_MB * 80 / 100 ))
 
-# Safety minimum
-if [ "$BUILD_HEAP_MB" -lt 1024 ]; then
-  BUILD_HEAP_MB=1024
-fi
+# Hard node heap
+NODE_HEAP_MB=4096
 
 echo "────────────────────────────────────"
 echo "Total CPU Cores : $CORES"
-echo "Using CPU Cores : $USE_CORES"
+echo "CPU Limit       : $CPU_LIMIT"
 echo "Total RAM (MB)  : $TOTAL_RAM_MB"
-echo "Heap Limit (MB) : $BUILD_HEAP_MB"
+echo "RAM Limit (MB)  : $RAM_LIMIT_MB"
+echo "Node Heap (MB)  : $NODE_HEAP_MB"
 echo "────────────────────────────────────"
 
 # ─────────────────────────────────────────────
-# NODE + NEXT SETTINGS
+# NODE SETTINGS
 # ─────────────────────────────────────────────
 
 export NEXT_TELEMETRY_DISABLED=1
-export NEXT_CPU_COUNT=$BUILD_CORES
-export UV_THREADPOOL_SIZE=$USE_CORES
-export NODE_OPTIONS="--max-old-space-size=${BUILD_HEAP_MB}"
+export NEXT_DISABLE_ESLINT=1
+export CI=1
+export NODE_OPTIONS="--max-old-space-size=${NODE_HEAP_MB}"
 export GENERATE_SOURCEMAP=false
 
 unset NODE_ENV
@@ -89,10 +81,10 @@ require_bin() {
 
 step "Cleaning old next build workers"
 
-$SUDO pkill -9 -f "node_modules/.bin/next build" 2>/dev/null || true
-$SUDO pkill -9 -f "next/dist/build/index" 2>/dev/null || true
+$SUDO pkill -9 -f "next build" 2>/dev/null || true
+$SUDO pkill -9 -f "next/dist/build" 2>/dev/null || true
 
-sleep 1
+sleep 2
 
 # ─────────────────────────────────────────────
 # ENSURE SWAP EXISTS
@@ -100,10 +92,10 @@ sleep 1
 
 step "Checking swap"
 
-if [ "$(free -m | awk '/^Swap:/ {print $2}')" -lt 1024 ] && [ ! -f /swapfile ]; then
-  echo "Creating 4GB swap..."
+if [ "$(free -m | awk '/^Swap:/ {print $2}')" -lt 4096 ] && [ ! -f /swapfile ]; then
+  echo "Creating 8GB swap..."
 
-  $SUDO fallocate -l 4G /swapfile
+  $SUDO fallocate -l 8G /swapfile
   $SUDO chmod 600 /swapfile
   $SUDO mkswap /swapfile
   $SUDO swapon /swapfile
@@ -123,10 +115,10 @@ step "Pulling latest code"
 $SUDO git pull origin main
 
 # ─────────────────────────────────────────────
-# INSTALL DEPENDENCIES
+# INSTALL ROOT DEPENDENCIES
 # ─────────────────────────────────────────────
 
-step "Installing dependencies"
+step "Installing root dependencies"
 
 if [ -f package-lock.json ]; then
   $SUDO npm ci --no-audit --no-fund --include=dev
@@ -150,22 +142,58 @@ step "Running API tests"
 $SUDO npm run api:test
 
 # ─────────────────────────────────────────────
-# NEXT BUILD
+# NEXT BUILD WITH HARD LIMITS
 # ─────────────────────────────────────────────
 
-step "Building Next.js"
+step "Building Next.js with HARD resource limits"
 
 set +e
 
 $SUDO env \
   NODE_ENV=production \
   NEXT_TELEMETRY_DISABLED=1 \
-  NEXT_CPU_COUNT="$BUILD_CORES" \
-  NODE_OPTIONS="--max-old-space-size=${BUILD_HEAP_MB}" \
-  GENERATE_SOURCEMAP=false \
-  npx next build
+  NEXT_DISABLE_ESLINT=1 \
+  CI=1 \
+  NODE_OPTIONS="--max-old-space-size=${NODE_HEAP_MB}" \
+  npx next build &
 
+BUILD_PID=$!
+
+echo "Build PID: $BUILD_PID"
+
+# CPU HARD LIMIT
+$SUDO cpulimit -p $BUILD_PID -l 80 >/dev/null 2>&1 &
+
+# MEMORY WATCHER
+(
+  while kill -0 $BUILD_PID 2>/dev/null; do
+
+    USED_MB=$(ps -o rss= -p $BUILD_PID | awk '{print int($1/1024)}')
+
+    if [ -z "$USED_MB" ]; then
+      USED_MB=0
+    fi
+
+    echo "Current RAM Usage: ${USED_MB}MB"
+
+    if [ "$USED_MB" -gt "$RAM_LIMIT_MB" ]; then
+      echo "✖ Memory limit exceeded (${RAM_LIMIT_MB}MB)"
+
+      kill -9 $BUILD_PID 2>/dev/null || true
+
+      exit 1
+    fi
+
+    sleep 2
+  done
+) &
+
+WATCHER_PID=$!
+
+wait $BUILD_PID
 build_rc=$?
+
+kill -9 $WATCHER_PID 2>/dev/null || true
 
 set -e
 
@@ -173,27 +201,60 @@ if [ "$build_rc" -ne 0 ]; then
   echo ""
   echo "✖ next build failed"
 
-  if dmesg 2>/dev/null | tail -50 | grep -qi 'killed process.*node\|Out of memory.*node'; then
-    echo "OOM detected"
-  fi
+  dmesg 2>/dev/null | tail -50 || true
 
   exit "$build_rc"
 fi
 
 # ─────────────────────────────────────────────
-# RUST BUILD
+# BUILD RUST
 # ─────────────────────────────────────────────
 
-step "Building Rust"
+step "Building Rust workspace"
+
+ROOT_HOME=$($SUDO sh -c 'echo "$HOME"')
+
+CARGO_BIN=""
+
+for candidate in \
+  "$ROOT_HOME/.cargo/bin/cargo" \
+  "$HOME/.cargo/bin/cargo" \
+  "/usr/local/cargo/bin/cargo" \
+  "/usr/local/bin/cargo" \
+  "/usr/bin/cargo"; do
+
+  if $SUDO test -x "$candidate"; then
+    CARGO_BIN="$candidate"
+    break
+  fi
+done
+
+if [ -z "$CARGO_BIN" ]; then
+  echo "✖ cargo not found"
+  exit 1
+fi
+
+echo "Using cargo: $CARGO_BIN"
 
 (
   cd "$REPO_DIR/rust"
 
-  cargo build --release --jobs "$USE_CORES"
+  $SUDO "$CARGO_BIN" build --release --jobs "$CPU_LIMIT"
 )
 
 # ─────────────────────────────────────────────
-# SABWA NODE BUILD
+# VERIFY RUST BINARIES
+# ─────────────────────────────────────────────
+
+for bin in sabnode-api broadcast-worker; do
+  if ! $SUDO test -x "$REPO_DIR/rust/target/release/$bin"; then
+    echo "✖ Missing Rust binary: $bin"
+    exit 1
+  fi
+done
+
+# ─────────────────────────────────────────────
+# BUILD SABWA NODE
 # ─────────────────────────────────────────────
 
 step "Building SabWa Node"
@@ -208,18 +269,46 @@ step "Building SabWa Node"
   fi
 
   $SUDO env NODE_ENV=production npm run build
+
+  if ! $SUDO test -f dist/index.js; then
+    echo "✖ dist/index.js missing"
+    exit 1
+  fi
 )
 
 # ─────────────────────────────────────────────
 # PM2 RELOAD
 # ─────────────────────────────────────────────
 
+step "Stopping old processes"
+
+$SUDO pm2 delete sabwa-engine >/dev/null 2>&1 || true
+$SUDO pm2 delete webhook-worker >/dev/null 2>&1 || true
+
 step "Reloading PM2"
 
 $SUDO pm2 startOrReload ecosystem.config.js --update-env
 
+step "Saving PM2"
+
 $SUDO pm2 save
+
+# ─────────────────────────────────────────────
+# DONE
+# ─────────────────────────────────────────────
 
 printf "\n\033[1;32m✅ Deploy complete.\033[0m\n"
 
 $SUDO pm2 status
+
+cat <<EOF
+
+Health checks:
+
+curl -fsS http://127.0.0.1:3002 >/dev/null && echo "sabnode-web ✓"
+
+curl -fsS http://127.0.0.1:8080/health >/dev/null && echo "sabnode-api ✓"
+
+curl -fsS http://127.0.0.1:4001/health >/dev/null && echo "sabwa-node ✓"
+
+EOF
