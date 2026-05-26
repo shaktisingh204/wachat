@@ -98,15 +98,39 @@ $SUDO pkill -9 -f "@ibm/telemetry-js" 2>/dev/null || true
 sleep 2
 
 # ─────────────────────────────────────────────
-# ENSURE SWAP EXISTS
+# ENSURE SWAP IS LARGE ENOUGH
 # ─────────────────────────────────────────────
+#
+# `next build` on this app peaks at ~122 GB anon-RSS (Turbopack's
+# Rust-side module graph + source maps — V8 heap caps don't constrain
+# it). On a 125 GB host with <10 GB swap, the kernel OOM-killer fires
+# before paging can save the build. Keep at least 32 GB of swap so the
+# kernel can page out cold heap and let the build complete.
 
 step "Checking swap"
 
-if [ "$(free -m | awk '/^Swap:/ {print $2}')" -lt 4096 ] && [ ! -f /swapfile ]; then
-  echo "Creating 8GB swap..."
+SWAP_TARGET_GB=32
+CURRENT_SWAP_MB=$(free -m | awk '/^Swap:/ {print $2}')
+TARGET_SWAP_MB=$(( SWAP_TARGET_GB * 1024 ))
 
-  $SUDO fallocate -l 8G /swapfile
+if [ "$CURRENT_SWAP_MB" -lt "$TARGET_SWAP_MB" ]; then
+  AVAIL_GB=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
+  NEEDED_GB=$(( SWAP_TARGET_GB + 5 ))
+
+  if [ "$AVAIL_GB" -lt "$NEEDED_GB" ]; then
+    echo "✖ Need at least ${NEEDED_GB}GB free on / for a ${SWAP_TARGET_GB}GB swapfile; only ${AVAIL_GB}GB available."
+    echo "  Free disk space or reduce SWAP_TARGET_GB at the top of this section."
+    exit 1
+  fi
+
+  echo "Resizing swap: have ${CURRENT_SWAP_MB}MB, target ${TARGET_SWAP_MB}MB"
+
+  if [ -f /swapfile ]; then
+    $SUDO swapoff /swapfile 2>/dev/null || true
+    $SUDO rm -f /swapfile
+  fi
+
+  $SUDO fallocate -l "${SWAP_TARGET_GB}G" /swapfile
   $SUDO chmod 600 /swapfile
   $SUDO mkswap /swapfile
   $SUDO swapon /swapfile
@@ -204,44 +228,36 @@ echo "Build PID: $BUILD_PID"
 CPU_LIMIT_PCT=$(( CORES * 80 ))
 $SUDO cpulimit -p $BUILD_PID -l "$CPU_LIMIT_PCT" >/dev/null 2>&1 &
 
-# MEMORY WATCHER
-(
-  while kill -0 $BUILD_PID 2>/dev/null; do
-
-    USED_MB=$(ps -o rss= -p $BUILD_PID | awk '{print int($1/1024)}')
-
-    if [ -z "$USED_MB" ]; then
-      USED_MB=0
-    fi
-
-    echo "Current RAM Usage: ${USED_MB}MB"
-
-    if [ "$USED_MB" -gt "$RAM_LIMIT_MB" ]; then
-      echo "✖ Memory limit exceeded (${RAM_LIMIT_MB}MB)"
-
-      kill -9 $BUILD_PID 2>/dev/null || true
-
-      exit 1
-    fi
-
-    sleep 2
-  done
-) &
-
-WATCHER_PID=$!
+# NOTE: We used to spawn a "memory watcher" here that polled
+# `ps -o rss= -p $BUILD_PID` every 2s and killed the build over a
+# threshold. It was broken: $BUILD_PID points at the npm/sudo wrapper
+# (a few hundred KB RSS), not the heavy node child that actually grows
+# to ~120GB. The watcher always printed "Current RAM Usage: 6MB" and
+# never fired, while the kernel OOM-killer reaped the real process.
+# Rely on the OOM-killer + a properly-sized swapfile (see swap section
+# above) instead.
 
 wait $BUILD_PID
 build_rc=$?
-
-kill -9 $WATCHER_PID 2>/dev/null || true
 
 set -e
 
 if [ "$build_rc" -ne 0 ]; then
   echo ""
-  echo "✖ next build failed"
+  echo "✖ next build failed (exit $build_rc)"
 
-  dmesg 2>/dev/null | tail -50 || true
+  # Pull the most recent OOM-killer lines, if any — these are the
+  # signature of a memory-killed build and the most useful clue.
+  if dmesg 2>/dev/null | tail -200 | grep -E -i "out of memory|oom-kill|killed process" >/dev/null; then
+    echo ""
+    echo "─── kernel OOM activity (most recent) ───"
+    dmesg 2>/dev/null | grep -E -i "out of memory|oom-kill|killed process" | tail -10
+    echo "────────────────────────────────────────"
+    echo "The build was OOM-killed. Either bump SWAP_TARGET_GB in this"
+    echo "script (currently ${SWAP_TARGET_GB}GB) or move to a larger box."
+  else
+    dmesg 2>/dev/null | tail -30 || true
+  fi
 
   exit "$build_rc"
 fi
