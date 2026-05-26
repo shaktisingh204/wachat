@@ -162,7 +162,13 @@ BUILD_PID=$!
 echo "Build PID: $BUILD_PID"
 
 # CPU HARD LIMIT
-$SUDO cpulimit -p $BUILD_PID -l 80 >/dev/null 2>&1 &
+#
+# `cpulimit -l` is expressed as "percent of ONE core" (100 = 1 core fully
+# loaded). On a multi-core box `-l 80` would cap the entire build to 80%
+# of a single core. Scale by core count so we actually use 80% of total
+# CPU.
+CPU_LIMIT_PCT=$(( CORES * 80 ))
+$SUDO cpulimit -p $BUILD_PID -l "$CPU_LIMIT_PCT" >/dev/null 2>&1 &
 
 # MEMORY WATCHER
 (

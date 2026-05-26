@@ -10,7 +10,10 @@ const withBundleAnalyzer =
 
 const nextConfig = {
 
-  output: 'standalone',
+  // `output: 'standalone'` was removed — PM2 (ecosystem.config.js)
+  // runs `next start`, not the standalone server. With 9k+ API routes
+  // the standalone NFT-trace ran `check-page` × 10,800 every build,
+  // emitting GBs of `.nft.json` artifacts that were never read.
   experimental: {
     serverActions: {
       bodySizeLimit: '50mb',
@@ -49,6 +52,47 @@ const nextConfig = {
     'fetch-blob',
     // nodemailer transport (used by email-service) requires Node TLS.
     'nodemailer',
+    // Headless browser — native bindings, must never be bundled.
+    'puppeteer',
+    // IMAP / mail parsing
+    'imapflow',
+    'mailparser',
+    // Queues / brokers / messaging
+    'kafkajs',
+    'amqplib',
+    'rhea',
+    'bullmq',
+    // Redis clients
+    'ioredis',
+    'redis',
+    // SQL drivers
+    'pg',
+    'mysql2',
+    // Directory / file transfer
+    'ldapjs',
+    'ssh2-sftp-client',
+    'basic-ftp',
+    // PDF / Excel server-side codecs
+    'pdf-parse',
+    'exceljs',
+    'jspdf',
+    'jspdf-autotable',
+    // Image native bindings
+    'sharp',
+    // Firebase admin (Node-only)
+    'firebase-admin',
+    // Payment / telephony SDKs
+    'twilio',
+    'stripe',
+    'razorpay',
+    // AWS SDK v3 chain used by sabfiles / R2
+    '@aws-sdk/client-s3',
+    '@aws-sdk/client-lambda',
+    '@aws-sdk/s3-request-presigner',
+    // Azure auth
+    '@azure/msal-node',
+    // GitHub REST SDK
+    '@octokit/rest',
   ],
   // n8n workflow packages publish raw TS via the `import` export
   // condition (`./src/index.ts`) with a compiled `dist/index.js` only on
