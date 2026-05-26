@@ -60,6 +60,12 @@ export CI=1
 export NODE_OPTIONS="--max-old-space-size=${NODE_HEAP_MB}"
 export GENERATE_SOURCEMAP=false
 
+# @carbon/icons-react (and other IBM packages) ship a postinstall
+# telemetry collector that spawns long-lived background-process.js
+# workers — those have been observed holding 19GB+ RSS and ~70% CPU
+# each, *after* install completes. Disable globally.
+export IBM_TELEMETRY_DISABLED=true
+
 unset NODE_ENV
 
 step() {
@@ -83,6 +89,11 @@ step "Cleaning old next build workers"
 
 $SUDO pkill -9 -f "next build" 2>/dev/null || true
 $SUDO pkill -9 -f "next/dist/build" 2>/dev/null || true
+
+# IBM telemetry postinstall ghosts (from @carbon/icons-react etc.) —
+# leak across deploys, each holding ~19GB RSS / ~70% CPU. Kill them
+# before the build claims the box's RAM.
+$SUDO pkill -9 -f "@ibm/telemetry-js" 2>/dev/null || true
 
 sleep 2
 
@@ -153,6 +164,7 @@ $SUDO env \
   NODE_ENV=production \
   NEXT_TELEMETRY_DISABLED=1 \
   NEXT_DISABLE_ESLINT=1 \
+  IBM_TELEMETRY_DISABLED=true \
   CI=1 \
   NODE_OPTIONS="--max-old-space-size=${NODE_HEAP_MB}" \
   npx next build &
