@@ -11,12 +11,19 @@ import { cookies } from 'next/headers';
 //   FIREBASE_SERVICE_ACCOUNT       — inline JSON blob
 //   FIREBASE_ADMIN_SDK_CONFIG      — inline JSON blob OR absolute path to a JSON file
 // File path is detected by a leading "/" — the JSON itself always starts with "{".
+//
+// The `readFileSync(raw, ...)` below uses a runtime-resolved path. Without
+// the turbopackIgnore comment, Turbopack's NFT tracer treats `raw` as a
+// dynamic pattern and conservatively traces ~26k project files as runtime
+// dependencies of every route that imports this module (auth.ts is imported
+// by basically every API route / page), which exploded the build's
+// page-data-collection phase past available RAM.
 function loadFirebaseServiceAccount(): Record<string, any> {
     const raw = process.env.FIREBASE_SERVICE_ACCOUNT || process.env.FIREBASE_ADMIN_SDK_CONFIG || '';
     if (!raw) return {};
     if (raw.startsWith('/')) {
         try {
-            return JSON.parse(readFileSync(raw, 'utf8'));
+            return JSON.parse(readFileSync(/*turbopackIgnore: true*/ raw, 'utf8'));
         } catch (e) {
             console.error(`[AUTH_LIB] Failed to read Firebase service account file at ${raw}:`, e);
             return {};
@@ -29,7 +36,16 @@ function loadFirebaseServiceAccount(): Record<string, any> {
         return {};
     }
 }
-const serviceAccount = loadFirebaseServiceAccount();
+
+// Lazy-load: previously this ran at module init, so every route's worker
+// process paid the file-read cost during build's page-data-collection.
+let _serviceAccount: Record<string, any> | undefined;
+function getServiceAccount(): Record<string, any> {
+    if (_serviceAccount === undefined) {
+        _serviceAccount = loadFirebaseServiceAccount();
+    }
+    return _serviceAccount;
+}
 
 const SALT_ROUNDS = 10;
 const FIREBASE_APP_NAME = 'sabnode-admin-app'; // Named app
@@ -48,6 +64,7 @@ function initializeFirebaseAdmin() {
     } catch (err) {
         console.log(`[AUTH_LIB] Initializing Firebase Admin SDK with name: ${FIREBASE_APP_NAME}`);
 
+        const serviceAccount = getServiceAccount();
         let parsedServiceAccount;
         try {
             if (typeof serviceAccount === 'string') {
