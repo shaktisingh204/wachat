@@ -131,10 +131,32 @@ $SUDO git pull origin main
 
 step "Installing root dependencies"
 
-if [ -f package-lock.json ]; then
-  $SUDO npm ci --no-audit --no-fund --include=dev
-else
-  $SUDO npm install --no-audit --no-fund --include=dev
+# `npm ci` tries to delete the existing node_modules before installing.
+# If a previous deploy was killed mid-install (OOM, manual cancel, …),
+# the tree is half-extracted and rmdir fails with ENOTEMPTY on stray
+# dirs like lodash-es, leaving an unusable node_modules. Retry once
+# after a hard wipe so deploys are self-healing.
+install_deps() {
+  if [ -f package-lock.json ]; then
+    $SUDO npm ci --no-audit --no-fund --include=dev
+  else
+    $SUDO npm install --no-audit --no-fund --include=dev
+  fi
+}
+
+if ! install_deps; then
+  echo "npm install failed — wiping node_modules and retrying once"
+  $SUDO rm -rf node_modules
+  install_deps
+fi
+
+# Defensive check — if a critical bin is missing even after `npm ci`
+# returned 0 (which has happened when tar entries failed silently),
+# wipe and reinstall.
+if [ ! -x "node_modules/.bin/tsx" ] || [ ! -x "node_modules/.bin/next" ]; then
+  echo "Critical bin missing after install — wiping node_modules and reinstalling"
+  $SUDO rm -rf node_modules
+  install_deps
 fi
 
 require_bin tsx
