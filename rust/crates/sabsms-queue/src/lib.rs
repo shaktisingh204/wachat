@@ -95,7 +95,10 @@ impl QueueClient {
     pub async fn enqueue_job(&self, job: &SendJob) -> Result<()> {
         let mut con = self.redis_client.get_multiplexed_async_connection().await?;
         let payload = serde_json::to_string(job)?;
-        con.rpush(&self.queue_name, payload).await?;
+        // Bind the result to `()` so rustc doesn't fall back to `!` for the
+        // generic return type of `AsyncCommands::rpush` (rust-lang/rust#148922
+        // regression — `!` lost its `FromRedisValue` impl).
+        let _: () = con.rpush(&self.queue_name, payload).await?;
         Ok(())
     }
 }
