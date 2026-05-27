@@ -187,7 +187,7 @@ export function MetricTile({ label, value, delta, icon: Icon, href, delay = 0 }:
                 {Icon && (
                     <span
                         className="grid h-7 w-7 place-items-center rounded-lg text-white"
-                        style={{ backgroundImage: 'linear-gradient(135deg, var(--mt-accent), color-mix(in oklch, var(--mt-accent) 60%, white))' }}
+                        style={{ backgroundImage: 'linear-gradient(135deg, #34d399, #14b8a6)' }}
                     >
                         <Icon className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
                     </span>
@@ -364,13 +364,13 @@ export function ProjectTile({
             <span
                 aria-hidden
                 className="pointer-events-none absolute inset-x-0 top-0 h-[2px] opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-                style={{ backgroundImage: 'linear-gradient(90deg, var(--mt-accent), color-mix(in oklch, var(--mt-accent) 55%, white))' }}
+                style={{ backgroundImage: 'linear-gradient(90deg, #34d399, #14b8a6)' }}
             />
 
             <div className="flex items-start justify-between gap-3">
                 <span
                     className="grid h-11 w-11 place-items-center rounded-xl text-[13px] font-bold text-white shadow-[0_10px_22px_-10px_var(--mt-accent-glow)]"
-                    style={{ backgroundImage: 'linear-gradient(135deg, var(--mt-accent), color-mix(in oklch, var(--mt-accent) 55%, white))' }}
+                    style={{ backgroundImage: 'linear-gradient(135deg, #34d399, #14b8a6)' }}
                 >
                     {initials}
                 </span>
@@ -502,7 +502,7 @@ export function WaButton({
     };
     if (variant === 'solid') {
         style.color = '#ffffff';
-        style.backgroundImage = 'linear-gradient(135deg, var(--mt-accent), color-mix(in oklch, var(--mt-accent) 55%, white))';
+        style.backgroundImage = 'linear-gradient(135deg, #34d399, #14b8a6)';
         style.boxShadow = '0 12px 28px -12px var(--mt-accent-glow)';
     } else if (variant === 'outline') {
         style.backgroundColor = '#ffffff';
