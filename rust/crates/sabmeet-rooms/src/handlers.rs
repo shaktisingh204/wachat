@@ -45,7 +45,7 @@ fn oid_vec(input: Option<&Vec<String>>) -> Option<Vec<ObjectId>> {
 fn gen_join_code() -> String {
     // 3-4-3 alphanumeric, e.g. `kf8-pq2zm-9wv`.
     let mut rng = thread_rng();
-    let part = |n: usize| -> String {
+    let mut part = |n: usize| -> String {
         (0..n)
             .map(|_| rng.sample(Alphanumeric) as char)
             .map(|c| c.to_ascii_lowercase())

@@ -7,7 +7,7 @@ use serde_json::Value;
 /// Trigger envelope. `kind` is one of `form_submit | record_change | cron |
 /// button_click` and `config` is a free-form blob whose shape depends on
 /// `kind` (e.g. cron expression, form id, record-change filters).
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct WorkflowTrigger {
     pub kind: String,

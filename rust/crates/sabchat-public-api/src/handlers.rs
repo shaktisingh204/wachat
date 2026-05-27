@@ -85,7 +85,7 @@ pub async fn list_contacts(
 
     let coll = state.mongo.collection::<SabChatContact>(CONTACTS_COLL);
     let items: Vec<SabChatContact> = coll
-        .find(filter, opts)
+        .find(filter).with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .try_collect()
@@ -213,7 +213,7 @@ pub async fn list_conversations(
 
     let coll = state.mongo.collection::<Document>(CONVERSATIONS_COLL);
     let items: Vec<Document> = coll
-        .find(filter, opts)
+        .find(filter).with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .try_collect()
@@ -298,7 +298,7 @@ pub async fn list_messages(
 
     let coll = state.mongo.collection::<Document>(MESSAGES_COLL);
     let mut items: Vec<Document> = coll
-        .find(filter, opts)
+        .find(filter).with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .try_collect()

@@ -75,9 +75,9 @@ fn profile_column(name: &str, rows: &[Row]) -> ColumnProfile {
                 if s.trim() != s {
                     has_leading_or_trailing_ws = true;
                 }
-                if !s.is_empty() && s == s.to_lowercase() {
+                if !s.is_empty() && s.as_str() == s.to_lowercase() {
                     has_lowercase = true;
-                } else if !s.is_empty() && s == s.to_uppercase() {
+                } else if !s.is_empty() && s.as_str() == s.to_uppercase() {
                     has_uppercase = true;
                 } else {
                     has_mixed_case = true;

@@ -27,16 +27,16 @@ pub async fn list_sso_configs(
     auth: AuthUser,
 ) -> Result<Json<Vec<Value>>> {
     let tenant_id = ObjectId::parse_str(&auth.tenant_id)
-        .map_err(|_| ApiError::Internal("invalid tenant oid".into()))?;
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
 
-    let coll = state.mongo.db.collection::<Document>("sabchat_sso_configs");
+    let coll = state.mongo.collection::<Document>("sabchat_sso_configs");
     let mut cursor = coll.find(doc! { "tenantId": tenant_id }).await
-        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     let mut out = vec![];
     while let Some(res) = cursor.next().await {
-        let doc = res.map_err(|e| ApiError::Internal(e.to_string()))?;
-        out.push(document_to_clean_json(&doc));
+        let doc = res.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+        out.push(document_to_clean_json(doc.clone()));
     }
 
     Ok(Json(out))
@@ -48,9 +48,9 @@ pub async fn create_sso_config(
     Json(body): Json<CreateSsoConfigBody>,
 ) -> Result<Json<Value>> {
     let tenant_id = ObjectId::parse_str(&auth.tenant_id)
-        .map_err(|_| ApiError::Internal("invalid tenant oid".into()))?;
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
 
-    let coll = state.mongo.db.collection::<Document>("sabchat_sso_configs");
+    let coll = state.mongo.collection::<Document>("sabchat_sso_configs");
     let active = body.active.unwrap_or(true);
     let now = Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
 
@@ -71,9 +71,9 @@ pub async fn create_sso_config(
     if let Some(val) = body.domain { doc.insert("domain", val); }
 
     coll.insert_one(&doc).await
-        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
-    Ok(Json(document_to_clean_json(&doc)))
+    Ok(Json(document_to_clean_json(doc.clone())))
 }
 
 pub async fn get_sso_config(
@@ -82,16 +82,16 @@ pub async fn get_sso_config(
     Path(id): Path<String>,
 ) -> Result<Json<Value>> {
     let tenant_id = ObjectId::parse_str(&auth.tenant_id)
-        .map_err(|_| ApiError::Internal("invalid tenant oid".into()))?;
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
     let oid = ObjectId::parse_str(&id)
         .map_err(|_| ApiError::NotFound("config not found".into()))?;
 
-    let coll = state.mongo.db.collection::<Document>("sabchat_sso_configs");
+    let coll = state.mongo.collection::<Document>("sabchat_sso_configs");
     let doc = coll.find_one(doc! { "_id": oid, "tenantId": tenant_id }).await
-        .map_err(|e| ApiError::Internal(e.to_string()))?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("config not found".into()))?;
 
-    Ok(Json(document_to_clean_json(&doc)))
+    Ok(Json(document_to_clean_json(doc.clone())))
 }
 
 pub async fn update_sso_config(
@@ -101,7 +101,7 @@ pub async fn update_sso_config(
     Json(body): Json<UpdateSsoConfigBody>,
 ) -> Result<Json<Value>> {
     let tenant_id = ObjectId::parse_str(&auth.tenant_id)
-        .map_err(|_| ApiError::Internal("invalid tenant oid".into()))?;
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
     let oid = ObjectId::parse_str(&id)
         .map_err(|_| ApiError::NotFound("config not found".into()))?;
 
@@ -117,15 +117,15 @@ pub async fn update_sso_config(
     if let Some(v) = body.domain { set_doc.insert("domain", v); }
     if let Some(v) = body.active { set_doc.insert("active", v); }
 
-    let coll = state.mongo.db.collection::<Document>("sabchat_sso_configs");
+    let coll = state.mongo.collection::<Document>("sabchat_sso_configs");
     let res = coll.find_one_and_update(
         doc! { "_id": oid, "tenantId": tenant_id },
         doc! { "$set": set_doc }
     ).return_document(mongodb::options::ReturnDocument::After).await
-        .map_err(|e| ApiError::Internal(e.to_string()))?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("config not found".into()))?;
 
-    Ok(Json(document_to_clean_json(&res)))
+    Ok(Json(document_to_clean_json(res)))
 }
 
 pub async fn delete_sso_config(
@@ -134,13 +134,13 @@ pub async fn delete_sso_config(
     Path(id): Path<String>,
 ) -> Result<Json<serde_json::Value>> {
     let tenant_id = ObjectId::parse_str(&auth.tenant_id)
-        .map_err(|_| ApiError::Internal("invalid tenant oid".into()))?;
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
     let oid = ObjectId::parse_str(&id)
         .map_err(|_| ApiError::NotFound("config not found".into()))?;
 
-    let coll = state.mongo.db.collection::<Document>("sabchat_sso_configs");
+    let coll = state.mongo.collection::<Document>("sabchat_sso_configs");
     let res = coll.delete_one(doc! { "_id": oid, "tenantId": tenant_id }).await
-        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("config not found".into()));
@@ -173,19 +173,19 @@ pub async fn list_scim_tokens(
     auth: AuthUser,
 ) -> Result<Json<Vec<Value>>> {
     let tenant_id = ObjectId::parse_str(&auth.tenant_id)
-        .map_err(|_| ApiError::Internal("invalid tenant oid".into()))?;
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
 
-    let coll = state.mongo.db.collection::<Document>("sabchat_scim_tokens");
+    let coll = state.mongo.collection::<Document>("sabchat_scim_tokens");
     let mut cursor = coll.find(doc! { "tenantId": tenant_id }).await
-        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     let mut out = vec![];
     while let Some(res) = cursor.next().await {
-        let mut doc = res.map_err(|e| ApiError::Internal(e.to_string()))?;
+        let mut doc = res.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
         if let Ok(token) = doc.get_str("token") {
             doc.insert("token", redact_token(token));
         }
-        out.push(document_to_clean_json(&doc));
+        out.push(document_to_clean_json(doc.clone()));
     }
 
     Ok(Json(out))
@@ -197,9 +197,9 @@ pub async fn create_scim_token(
     Json(body): Json<CreateScimTokenBody>,
 ) -> Result<Json<CreateScimTokenResponse>> {
     let tenant_id = ObjectId::parse_str(&auth.tenant_id)
-        .map_err(|_| ApiError::Internal("invalid tenant oid".into()))?;
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
 
-    let coll = state.mongo.db.collection::<Document>("sabchat_scim_tokens");
+    let coll = state.mongo.collection::<Document>("sabchat_scim_tokens");
     let token = generate_scim_token();
     let now = Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
     let oid = ObjectId::new();
@@ -214,7 +214,7 @@ pub async fn create_scim_token(
     };
 
     coll.insert_one(&doc).await
-        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     Ok(Json(CreateScimTokenResponse {
         id: oid.to_hex(),
@@ -230,13 +230,13 @@ pub async fn delete_scim_token(
     Path(id): Path<String>,
 ) -> Result<Json<serde_json::Value>> {
     let tenant_id = ObjectId::parse_str(&auth.tenant_id)
-        .map_err(|_| ApiError::Internal("invalid tenant oid".into()))?;
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
     let oid = ObjectId::parse_str(&id)
         .map_err(|_| ApiError::NotFound("token not found".into()))?;
 
-    let coll = state.mongo.db.collection::<Document>("sabchat_scim_tokens");
+    let coll = state.mongo.collection::<Document>("sabchat_scim_tokens");
     let res = coll.delete_one(doc! { "_id": oid, "tenantId": tenant_id }).await
-        .map_err(|e| ApiError::Internal(e.to_string()))?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("token not found".into()));
@@ -255,7 +255,7 @@ pub async fn test_saml_response(
     Json(_body): Json<TestSamlResponseBody>,
 ) -> Result<Json<TestSamlResponseResult>> {
     let _tenant_id = ObjectId::parse_str(&auth.tenant_id)
-        .map_err(|_| ApiError::Internal("invalid tenant oid".into()))?;
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
 
     // Stub response for the happy path.
     Ok(Json(TestSamlResponseResult {

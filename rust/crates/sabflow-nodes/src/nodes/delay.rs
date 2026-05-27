@@ -1,35 +1,45 @@
-use serde_json::{json, Value};
-use sabflow_nodes::{
-    node, ExecutionContext, NodeInput, NodeOutput, NodeProperty, NodePropertyType, NodeResult,
-};
+//! Delay node — pause flow execution for a configured duration.
+//!
+//! Reads the `durationMs` parameter and sleeps that long before passing
+//! items through unchanged. The previous version used a non-existent
+//! `#[node(...)]` macro; rewritten to match the canonical `impl Node`
+//! shape used by every other node in this crate.
+
 use std::time::Duration;
+
+use async_trait::async_trait;
+use serde_json::Value;
+
+use crate::{
+    NodeInput, NodeOutput, NodeResult,
+    context::ExecutionContext,
+    descriptor::{NodeCategory, NodeDescriptor},
+    node::Node,
+};
 
 pub struct DelayNode;
 
-#[node(
-    name = "delay",
-    display = "Delay",
-    description = "Delay block to pause execution",
-    category = "logic",
-    icon = "clock",
-    color = "#3b82f6"
-)]
-impl DelayNode {
-    fn properties() -> Vec<NodeProperty> {
-        vec![
-            NodeProperty::new("durationMs", "Duration (ms)", NodePropertyType::Number)
-                .default(json!(1000))
-                .description("Amount of time to delay in milliseconds"),
-        ]
+#[async_trait]
+impl Node for DelayNode {
+    fn descriptor(&self) -> NodeDescriptor {
+        NodeDescriptor::new(
+            "delay",
+            "Delay",
+            "Pause execution for a configured number of milliseconds",
+            NodeCategory::Logic,
+        )
     }
 
     async fn execute(
         &self,
-        ctx: &mut ExecutionContext,
+        _ctx: &mut ExecutionContext,
         input: NodeInput,
         params: &Value,
     ) -> NodeResult<NodeOutput> {
-        let duration_ms = ctx.param_f64(params, "durationMs").unwrap_or(1000.0);
+        let duration_ms = params
+            .get("durationMs")
+            .and_then(|v| v.as_f64())
+            .unwrap_or(1000.0);
         if duration_ms > 0.0 {
             tokio::time::sleep(Duration::from_millis(duration_ms as u64)).await;
         }

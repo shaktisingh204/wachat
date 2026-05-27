@@ -70,8 +70,8 @@ pub async fn create_disposition(
         "updatedAt": now,
     };
 
-    let coll = state.mongo.db().collection::<Document>("sabchat_dispositions");
-    coll.insert_one(doc).await.map_err(ApiError::Mongo)?;
+    let coll = state.mongo.collection::<Document>("sabchat_dispositions");
+    coll.insert_one(doc).await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     Ok(Json(CreateDispositionResponse {
         disposition_id: new_oid.to_hex(),
@@ -104,7 +104,7 @@ pub async fn list_dispositions(
         }
     }
 
-    let coll = state.mongo.db().collection::<Document>("sabchat_dispositions");
+    let coll = state.mongo.collection::<Document>("sabchat_dispositions");
     let mut cursor = coll
         .find(filter)
         .with_options(
@@ -113,10 +113,10 @@ pub async fn list_dispositions(
                 .build()
         )
         .await
-        .map_err(ApiError::Mongo)?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     let mut dispositions = Vec::new();
-    while let Some(doc) = cursor.try_next().await.map_err(ApiError::Mongo)? {
+    while let Some(doc) = cursor.try_next().await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))? {
         dispositions.push(document_to_clean_json(doc));
     }
 
@@ -135,11 +135,11 @@ pub async fn get_disposition(
     let tenant_id = tenant_oid(&user)?;
     let oid = oid_from_str(&id)?;
 
-    let coll = state.mongo.db().collection::<Document>("sabchat_dispositions");
+    let coll = state.mongo.collection::<Document>("sabchat_dispositions");
     let doc = coll
         .find_one(doc! { "_id": oid, "tenantId": tenant_id })
         .await
-        .map_err(ApiError::Mongo)?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("Disposition not found".to_owned()))?;
 
     Ok(Json(GetDispositionResponse {
@@ -194,11 +194,11 @@ pub async fn update_disposition(
         set_doc.insert("sortOrder", sort_order);
     }
 
-    let coll = state.mongo.db().collection::<Document>("sabchat_dispositions");
+    let coll = state.mongo.collection::<Document>("sabchat_dispositions");
     let res = coll
         .update_one(doc! { "_id": oid, "tenantId": tenant_id }, doc! { "$set": set_doc })
         .await
-        .map_err(ApiError::Mongo)?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("Disposition not found".to_owned()));
@@ -219,7 +219,7 @@ pub async fn delete_disposition(
     let tenant_id = tenant_oid(&user)?;
     let oid = oid_from_str(&id)?;
 
-    let coll = state.mongo.db().collection::<Document>("sabchat_dispositions");
+    let coll = state.mongo.collection::<Document>("sabchat_dispositions");
     let res = coll
         .update_one(
             doc! { "_id": oid, "tenantId": tenant_id },
@@ -231,7 +231,7 @@ pub async fn delete_disposition(
             },
         )
         .await
-        .map_err(ApiError::Mongo)?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("Disposition not found".to_owned()));
@@ -254,13 +254,13 @@ pub async fn apply_disposition(
     let actor_id = actor_oid(&user)?;
     let conv_oid = oid_from_str(&conversation_id)?;
 
-    let db = state.mongo.db();
+    let db = &state.mongo;
     
     let disp_coll = db.collection::<Document>("sabchat_dispositions");
     let disposition = disp_coll
         .find_one(doc! { "code": &body.code, "tenantId": tenant_id, "active": true })
         .await
-        .map_err(ApiError::Mongo)?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("Disposition code not found or inactive".to_owned()))?;
     
     let req_note = disposition.get_bool("requiredNote").unwrap_or(false);
@@ -305,7 +305,7 @@ pub async fn apply_disposition(
             doc! { "$set": set_doc }
         )
         .await
-        .map_err(ApiError::Mongo)?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
         
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("Conversation not found".to_owned()));
@@ -344,7 +344,7 @@ pub async fn disposition_stats(
     Query(query): Query<DispositionStatsQuery>,
 ) -> Result<Json<DispositionStatsResponse>> {
     let tenant_id = tenant_oid(&user)?;
-    let db = state.mongo.db();
+    let db = &state.mongo;
 
     let mut match_stage = doc! {
         "tenantId": tenant_id,
@@ -405,10 +405,10 @@ pub async fn disposition_stats(
     ];
 
     let conv_coll = db.collection::<Document>("sabchat_conversations");
-    let mut cursor = conv_coll.aggregate(pipeline).await.map_err(ApiError::Mongo)?;
+    let mut cursor = conv_coll.aggregate(pipeline).await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
     
     let mut stats = Vec::new();
-    while let Some(doc) = cursor.try_next().await.map_err(ApiError::Mongo)? {
+    while let Some(doc) = cursor.try_next().await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))? {
         let code = doc.get_str("code").unwrap_or("").to_owned();
         let label = doc.get_str("label").unwrap_or(&code).to_owned();
         let count = match doc.get("count") {

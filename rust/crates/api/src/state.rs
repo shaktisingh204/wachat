@@ -396,7 +396,7 @@ impl AppState {
         sabchat_channel_x: SabChatChannelXState,
         sabchat_marketplace: SabChatMarketplaceState,
     ) -> Self {
-        let sabchat_ws_hub = WsHub::new();
+        let sabchat_ws_hub = WsHub::new(redis.clone());
         let sabchat_ws = SabChatWsState { hub: sabchat_ws_hub.clone() };
         Self {
             started_at: Utc::now(),
@@ -1069,4 +1069,5 @@ impl FromRef<AppState> for SabChatCrmBridgeState { fn from_ref(s: &AppState) -> 
 impl FromRef<AppState> for SabChatKnowledgeState { fn from_ref(s: &AppState) -> Self { s.sabchat_knowledge.clone() } }
 impl FromRef<AppState> for SabChatCommerceState { fn from_ref(s: &AppState) -> Self { s.sabchat_commerce.clone() } }
 impl FromRef<AppState> for SabChatReportsState { fn from_ref(s: &AppState) -> Self { s.sabchat_reports.clone() } }
-impl FromRef<AppState> for SabChatTeamsState { fn from_ref(s: &AppState) -> Self { s.sabchat_teams.clone() } }
+// (SabChatTeamsState FromRef impl already defined at line ~792 — second
+// declaration removed to avoid E0119 conflicting-impl.)

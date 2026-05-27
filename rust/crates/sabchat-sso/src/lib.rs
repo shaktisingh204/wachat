@@ -3,8 +3,12 @@ pub mod handlers;
 pub mod scim;
 pub mod state;
 
-use axum::routing::{get, post, patch, delete};
+use std::sync::Arc;
+
+use axum::extract::FromRef;
+use axum::routing::{delete, get, patch, post};
 use axum::Router;
+use sabnode_auth::AuthConfig;
 
 pub use state::SabChatSsoState;
 
@@ -13,13 +17,14 @@ pub use state::SabChatSsoState;
 pub fn router<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
-    SabChatSsoState: axum::extract::FromRef<S>,
+    SabChatSsoState: FromRef<S>,
+    Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
         // SSO config CRUD
         .route("/configs", get(handlers::list_sso_configs).post(handlers::create_sso_config))
         .route(
-            "/configs/:id",
+            "/configs/{id}",
             get(handlers::get_sso_config)
                 .patch(handlers::update_sso_config)
                 .delete(handlers::delete_sso_config),
@@ -30,7 +35,7 @@ where
             get(handlers::list_scim_tokens).post(handlers::create_scim_token),
         )
         .route(
-            "/scim-tokens/:id",
+            "/scim-tokens/{id}",
             delete(handlers::delete_scim_token),
         )
         // Stub for testing SAML
@@ -42,12 +47,12 @@ where
 pub fn scim_router<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,
-    SabChatSsoState: axum::extract::FromRef<S>,
+    SabChatSsoState: FromRef<S>,
 {
     Router::new()
         .route("/Users", get(scim::list_users).post(scim::create_user))
         .route(
-            "/Users/:id",
+            "/Users/{id}",
             get(scim::get_user)
                 .put(scim::replace_user)
                 .patch(scim::patch_user)
@@ -55,7 +60,7 @@ where
         )
         .route("/Groups", get(scim::list_groups).post(scim::create_group))
         .route(
-            "/Groups/:id",
+            "/Groups/{id}",
             get(scim::get_group)
                 .put(scim::replace_group)
                 .patch(scim::patch_group)

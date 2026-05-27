@@ -1,25 +1,30 @@
-use serde_json::{json, Value};
-use sabflow_nodes::{
-    node, ExecutionContext, NodeInput, NodeOutput, NodeProperty, NodePropertyType, NodeResult,
+//! Action node — generic "execute custom action" placeholder.
+//!
+//! Pass-through for items; intended as a stand-in for user-defined
+//! action blocks during flow design. Actual side-effects are implemented
+//! by concrete integration nodes.
+
+use async_trait::async_trait;
+use serde_json::Value;
+
+use crate::{
+    NodeInput, NodeOutput, NodeResult,
+    context::ExecutionContext,
+    descriptor::{NodeCategory, NodeDescriptor},
+    node::Node,
 };
 
 pub struct ActionNode;
 
-#[node(
-    name = "action",
-    display = "Action",
-    description = "Action block to execute custom operations",
-    category = "action",
-    icon = "play",
-    color = "#ef4444"
-)]
-impl ActionNode {
-    fn properties() -> Vec<NodeProperty> {
-        vec![
-            NodeProperty::new("actionType", "Action Type", NodePropertyType::String)
-                .default(json!("default"))
-                .description("Type of action to execute"),
-        ]
+#[async_trait]
+impl Node for ActionNode {
+    fn descriptor(&self) -> NodeDescriptor {
+        NodeDescriptor::new(
+            "action",
+            "Action",
+            "Action block to execute custom operations",
+            NodeCategory::Action,
+        )
     }
 
     async fn execute(

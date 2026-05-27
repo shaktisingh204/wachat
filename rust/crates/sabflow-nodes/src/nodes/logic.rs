@@ -1,34 +1,39 @@
-use serde_json::{json, Value};
-use sabflow_nodes::{
-    node, ExecutionContext, NodeInput, NodeOutput, NodeProperty, NodePropertyType, NodeResult,
+//! Logic node — generic conditional placeholder.
+//!
+//! Currently a pass-through. Concrete branching is handled by the
+//! standard If / Switch / Merge nodes; this node exists as a UI palette
+//! entry under "logic" for users to drop in before wiring up real
+//! conditions.
+
+use async_trait::async_trait;
+use serde_json::Value;
+
+use crate::{
+    NodeInput, NodeOutput, NodeResult,
+    context::ExecutionContext,
+    descriptor::{NodeCategory, NodeDescriptor},
+    node::Node,
 };
 
 pub struct LogicNode;
 
-#[node(
-    name = "logic",
-    display = "Logic",
-    description = "Logic block for workflow execution",
-    category = "logic",
-    icon = "git-branch",
-    color = "#8b5cf6"
-)]
-impl LogicNode {
-    fn properties() -> Vec<NodeProperty> {
-        vec![
-            NodeProperty::new("condition", "Condition", NodePropertyType::String)
-                .default(json!(""))
-                .description("Condition to evaluate"),
-        ]
+#[async_trait]
+impl Node for LogicNode {
+    fn descriptor(&self) -> NodeDescriptor {
+        NodeDescriptor::new(
+            "logic",
+            "Logic",
+            "Logic block for workflow execution",
+            NodeCategory::Logic,
+        )
     }
 
     async fn execute(
         &self,
-        ctx: &mut ExecutionContext,
+        _ctx: &mut ExecutionContext,
         input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        // Just pass through for now
         Ok(NodeOutput::single(input.items))
     }
 }

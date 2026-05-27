@@ -246,6 +246,7 @@ pub mod switch_node;
 pub mod twilio_trigger;
 pub mod twist_trigger;
 pub mod wait;
+pub mod webhook;
 pub mod webhook_trigger;
 pub mod logic;
 pub mod delay;

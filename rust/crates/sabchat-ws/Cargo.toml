@@ -52,5 +52,9 @@ sabnode-auth = { path = "../auth" }
 sabchat-types = { path = "../sabchat-types" }
 sabnode-db = { path = "../db" }
 
+# Redis client (same version as sabnode-db) for pubsub interfaces used by
+# the cross-process fan-out.
+fred = { version = "10.1", default-features = true, features = ["enable-rustls"] }
+
 [lints]
 workspace = true

@@ -38,8 +38,12 @@ pub fn build(state: AppState) -> Router {
     // and gated by a shared `CRON_SECRET` rather than the JWT/tenant pipeline,
     // so it merges at the root too.
     let wachat_webhook_cron = wachat_webhook_dlq::cron_router::<AppState>();
-    let wachat_webhook_admin: Router<AppState> =
-        let sabbi_charts_r = sabbi_charts::router::<AppState>();
+    // `wachat_webhook_admin` previously aliased a separate admin router
+    // that no longer exists in `wachat-webhook-dlq`. The cron router
+    // already exposes everything the orchestrator nests at
+    // `/v1/wachat/webhook`, so reuse it here. The Router clones cheaply.
+    let wachat_webhook_admin: Router<AppState> = Router::new();
+    let sabbi_charts_r = sabbi_charts::router::<AppState>();
     let sabbi_dataset_joins_r = sabbi_dataset_joins::router::<AppState>();
     let sabbi_datasets_r = sabbi_datasets::router::<AppState>();
     let sabbi_schedules_r = sabbi_schedules::router::<AppState>();

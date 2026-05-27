@@ -50,7 +50,7 @@ pub mod message;
 pub use assignment::SabChatAssignment;
 pub use audit::{AuditAction, SabChatAuditEvent};
 pub use contact::{SabChatContact, SocialIdentity};
-pub use content::{Attachment, ContentBlock};
+pub use content::{Attachment, CardButton, CarouselCard, ContentBlock};
 pub use conversation::{
     ConversationPriority, ConversationStatus, SabChatConversation, SlaPolicy,
 };

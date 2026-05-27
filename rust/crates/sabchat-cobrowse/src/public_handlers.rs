@@ -20,13 +20,12 @@ pub async fn grant_consent(
 ) -> Result<Json<PublicCobrowseStatus>> {
     let sessions_coll = state
         .mongo
-        .db
         .collection::<Document>("sabchat_cobrowse_sessions");
 
     let session = sessions_coll
         .find_one(doc! { "visitorToken": &visitor_token })
         .await
-        .map_err(ApiError::Internal)?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("Session not found".into()))?;
 
     let current_status = session.get_str("status").unwrap_or("pending");
@@ -57,7 +56,7 @@ pub async fn grant_consent(
             doc! { "$set": update_doc },
         )
         .await
-        .map_err(ApiError::Internal)?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("Session not found".into()))?;
 
     // Return the state post-update
@@ -75,13 +74,12 @@ pub async fn session_status(
 ) -> Result<Json<PublicCobrowseStatus>> {
     let sessions_coll = state
         .mongo
-        .db
         .collection::<Document>("sabchat_cobrowse_sessions");
 
     let session = sessions_coll
         .find_one(doc! { "visitorToken": &visitor_token })
         .await
-        .map_err(ApiError::Internal)?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("Session not found".into()))?;
 
     let status = session.get_str("status").unwrap_or("pending").to_string();

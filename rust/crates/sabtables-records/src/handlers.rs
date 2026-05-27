@@ -246,7 +246,7 @@ pub async fn delete_record(
 
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn evaluate_formula(
-    _user: AuthUser,
+    user: AuthUser,
     Json(input): Json<EvaluateFormulaInput>,
 ) -> Result<Json<EvaluateFormulaResponse>> {
     let mut fields: HashMap<String, Value> = HashMap::new();

@@ -11,22 +11,22 @@
 #[allow(unused_imports)]
 use sabchat_types::ConversationStatus as _;
 
-//!
-//! Lives in its own module so the rule set is reviewed in one place and
-//! the tiny inline unit tests below can pin the contract without
-//! touching Mongo.
-//!
-//! ## Formula
-//!
-//! Per resolved conversation:
-//!
-//! - `+10` per resolved conversation
-//! - `+5`  if the conversation's CSAT score is exactly `5/5`
-//! - `+3`  if the CSAT score is exactly `4/5`
-//! - `-5`  if the conversation breached its SLA
-//!
-//! Lower CSAT scores (1–3) do not add or subtract points — they only
-//! affect the CSAT average surfaced separately on the leaderboard.
+//
+// Lives in its own module so the rule set is reviewed in one place and
+// the tiny inline unit tests below can pin the contract without
+// touching Mongo.
+//
+// ## Formula
+//
+// Per resolved conversation:
+//
+// - `+10` per resolved conversation
+// - `+5`  if the conversation's CSAT score is exactly `5/5`
+// - `+3`  if the CSAT score is exactly `4/5`
+// - `-5`  if the conversation breached its SLA
+//
+// Lower CSAT scores (1–3) do not add or subtract points — they only
+// affect the CSAT average surfaced separately on the leaderboard.
 
 /// Snapshot of the per-conversation signals that drive the point
 /// formula. Built by the [`crate::handlers::recompute`] aggregator from

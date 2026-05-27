@@ -46,7 +46,7 @@ pub enum SabtablesFieldType {
 /// A single field-definition embedded inside a Table document. Options
 /// vary by `field_type` and are kept as free-form BSON so we don't have
 /// to model 25 typed payload shapes here.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct SabtablesField {
     /// Stable id used by Records / Views to reference this column.

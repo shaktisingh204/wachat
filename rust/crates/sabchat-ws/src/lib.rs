@@ -116,25 +116,19 @@ impl WsHub {
     /// background task to listen to the Redis pubsub channel. Call
     /// once at process startup and stash the result in the orchestrator
     /// state — every other crate clones from there.
-    pub async fn new(redis: RedisHandle) -> Self {
+    pub fn new(redis: RedisHandle) -> Self {
         let (tx, _rx) = tokio::sync::broadcast::channel(HUB_CAPACITY);
-        
-        let tx_clone = tx.clone();
-        let mut subscriber = redis.client.clone();
-        let mut message_stream = subscriber.on_message();
-        
-        // Spawn the Redis subscriber task
-        tokio::spawn(async move {
-            let _ = subscriber.subscribe("sabchat:ws").await;
-            
-            while let Ok(msg) = message_stream.recv().await {
-                if let Some(payload) = msg.value.as_string() {
-                    if let Ok(ev) = serde_json::from_str::<Event>(&payload) {
-                        let _ = tx_clone.send(ev);
-                    }
-                }
-            }
-        });
+
+        // TODO(sabchat-ws): cross-process pubsub fan-out via Redis.
+        //
+        // The previous implementation called `client.on_message()` +
+        // `client.subscribe()` to relay Redis pubsub messages into the
+        // local `broadcast` channel, but fred 10 changed the receiver
+        // shape and the calls no longer compile. In-process broadcast
+        // still works fine (single-instance deploys), so we ship that
+        // and leave the cross-process bridge as a follow-up. When this
+        // lands, subscribe to `sabchat:ws`, decode each payload to
+        // `Event`, and `tx.send(ev)`.
 
         Self { tx, redis }
     }
@@ -145,9 +139,11 @@ impl WsHub {
     /// Per-socket filtering by `tenant_id` happens on the receive side
     /// inside [`handlers::ws_upgrade`].
     pub async fn publish(&self, ev: Event) {
-        if let Ok(payload) = serde_json::to_string(&ev) {
-            let _ = self.redis.client.publish::<(), _, _>("sabchat:ws", payload).await;
-        }
+        // In-process fan-out only until the cross-process Redis bridge is
+        // wired back up (see TODO in `WsHub::new`). `redis` is held on the
+        // struct so the API stays stable for callers; once the bridge is
+        // back, route the event through `redis.client.publish(...)` here.
+        let _ = self.tx.send(ev);
     }
 
     /// Internal helper used by the upgrade handler to subscribe a new
