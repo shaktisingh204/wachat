@@ -1,24 +1,20 @@
 export const dynamic = 'force-dynamic';
 
-import { ZoruHomeShell } from '@/components/zoruui';
-import {
-  redirect } from "next/navigation";
+import { DashboardShell } from '@/components/dashboard-ui/shell';
+import { redirect } from "next/navigation";
 
-import { getCachedSession,
-  getCachedProjects } from "@/lib/server-cache";
+import { getCachedSession, getCachedProjects } from "@/lib/server-cache";
 import { RBACGuard } from "@/components/zoruui-domain/rbac-guard";
 
 /**
- * /dashboard layout — the SabNode account dashboard, on ZoruUI.
+ * /dashboard layout — SabNode account dashboard on the new dashboard-ui
+ * system (landing-aligned light theme, per-module accent identity, no
+ * ZoruUI chrome).
  *
  * Server Component: checks session, redirects unauthenticated users,
- * then wraps children in `ZoruHomeShell` (zoruui sidebar + header +
- * bottom-anchored dock). The vertical app rail and the URL-synced
- * multi-tab strip are both intentionally absent.
- *
- * Sibling modules under /dashboard/{module}/ that ship their own
- * layout.tsx (sabflow, crm, seo, hrm, ad-manager, email, sms, …)
- * override this shell on their own subtrees.
+ * then wraps children in `DashboardShell` (new app rail + module
+ * sidebar + topbar). Sibling modules under /dashboard/{module}/ that
+ * ship their own layout.tsx override this shell on their own subtrees.
  */
 
 import "@/styles/zoruui.css";
@@ -81,7 +77,7 @@ export default async function DashboardLayout({
     <RBACGuard>
       <LocaleProvider initialLocale={locale}>
         <ProjectProvider initialProjects={projects} user={user}>
-          <ZoruHomeShell
+          <DashboardShell
             user={{
               name: user?.name,
               email: user?.email,
@@ -94,7 +90,7 @@ export default async function DashboardLayout({
             }}
           >
             {children}
-          </ZoruHomeShell>
+          </DashboardShell>
         </ProjectProvider>
       </LocaleProvider>
     </RBACGuard>
