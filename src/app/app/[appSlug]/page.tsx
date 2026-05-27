@@ -51,7 +51,7 @@ export default async function SabcreatorRuntimePage({
   ]);
 
   return (
-    <div className="zoruui min-h-screen bg-background">
+    <div className="zoruui min-h-screen bg-zoru-surface">
       <div className="px-6 py-8 space-y-6 max-w-5xl mx-auto">
         <PageHeader>
           <div>

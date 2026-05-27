@@ -10,11 +10,11 @@
 import type { ReactNode } from "react";
 
 export interface TabHue {
-  /** Tailwind gradient (e.g. "from-rose-500 to-pink-500"). */
+  /** Tailwind gradient (e.g. "from-zoru-ink to-zoru-ink"). */
   gradient: string;
-  /** Soft tinted bg (e.g. "bg-rose-50"). */
+  /** Soft tinted bg (e.g. "bg-zoru-surface-2"). */
   soft: string;
-  /** Strong text colour (e.g. "text-rose-700"). */
+  /** Strong text colour (e.g. "text-zoru-ink"). */
   ink: string;
   /** Ring colour for focus / active outline. */
   ring: string;

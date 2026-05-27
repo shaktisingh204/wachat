@@ -7,7 +7,7 @@ export default function NewShiftRotationLoading() {
             title="New Shift Rotation"
             subtitle="Build a repeating shift pattern for an employee, department or team."
         >
-            <div className="space-y-4 rounded-xl border bg-card p-6">
+            <div className="space-y-4 rounded-xl border bg-zoru-surface p-6">
                 <Skeleton className="h-8 w-1/3" />
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />

@@ -139,12 +139,12 @@ export function NewShiftChangeRequestForm({
           onChange={(e) => setNewReason(e.target.value)}
           rows={3}
           placeholder="Explain the reason for the shift change…"
-          className="w-full resize-none rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink placeholder:text-zoru-ink-muted focus:outline-none focus:ring-1 focus:ring-ring"
+          className="w-full resize-none rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink placeholder:text-zoru-ink-muted focus:outline-none focus:ring-1 focus:ring-zoru-line"
         />
       </div>
 
       {formError ? (
-        <div className="rounded-lg border border-rose-50 bg-rose-50/50 px-3 py-2 text-[13px] text-zoru-danger-ink">
+        <div className="rounded-lg border border-zoru-line bg-zoru-surface-2/50 px-3 py-2 text-[13px] text-zoru-danger-ink">
           {formError}
         </div>
       ) : null}

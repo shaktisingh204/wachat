@@ -260,14 +260,14 @@ export default function TelegramFlowsPage() {
           label="Error rate"
           value={`${kpis.errorRate}%`}
           invertDelta
-          icon={<AlertCircle className="h-4 w-4 text-destructive" />}
+          icon={<AlertCircle className="h-4 w-4 text-zoru-ink" />}
         />
       </div>
 
       {/* Filter bar */}
       <Card className="flex flex-col gap-3 p-4 md:flex-row md:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
           <Input
             placeholder="Search flows by name…"
             value={search}
@@ -294,7 +294,7 @@ export default function TelegramFlowsPage() {
       {/* Table */}
       <Card className="overflow-hidden">
         {isLoading ? (
-          <div className="flex items-center justify-center p-10 text-sm text-muted-foreground">
+          <div className="flex items-center justify-center p-10 text-sm text-zoru-ink-muted">
             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Loading flows…
           </div>
         ) : flows.length === 0 ? (
@@ -334,7 +334,7 @@ export default function TelegramFlowsPage() {
                       {f.name || 'Untitled flow'}
                     </button>
                     {f.description ? (
-                      <div className="text-xs text-muted-foreground">{f.description}</div>
+                      <div className="text-xs text-zoru-ink-muted">{f.description}</div>
                     ) : null}
                   </ZoruTableCell>
                   <ZoruTableCell>
@@ -343,7 +343,7 @@ export default function TelegramFlowsPage() {
                   <ZoruTableCell>
                     v{f.version}
                     {f.latestPublishedVersion > 0 ? (
-                      <span className="ml-1 text-xs text-muted-foreground">
+                      <span className="ml-1 text-xs text-zoru-ink-muted">
                         (pub v{f.latestPublishedVersion})
                       </span>
                     ) : null}
@@ -351,7 +351,7 @@ export default function TelegramFlowsPage() {
                   <ZoruTableCell className="text-sm">{describeTrigger(f.trigger)}</ZoruTableCell>
                   <ZoruTableCell className="text-right tabular-nums">{f.runCount}</ZoruTableCell>
                   <ZoruTableCell className="text-right tabular-nums">{f.errorCount}</ZoruTableCell>
-                  <ZoruTableCell className="text-sm text-muted-foreground">
+                  <ZoruTableCell className="text-sm text-zoru-ink-muted">
                     {relativeTime(f.lastRunAt)}
                   </ZoruTableCell>
                   <ZoruTableCell>
@@ -417,7 +417,7 @@ export default function TelegramFlowsPage() {
                         )}
                         <ZoruDropdownMenuSeparator />
                         <ZoruDropdownMenuItem
-                          className="text-destructive focus:text-destructive"
+                          className="text-zoru-ink focus:text-zoru-ink"
                           onClick={() => setConfirmDeleteId(f._id)}
                         >
                           <Trash2 className="mr-2 h-4 w-4" /> Delete

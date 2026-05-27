@@ -17,15 +17,15 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] p-6 bg-card rounded-lg border border-destructive/20 space-y-4">
-      <div className="p-3 bg-destructive/10 rounded-full">
-        <AlertTriangle className="w-8 h-8 text-destructive" />
+    <div className="flex flex-col items-center justify-center min-h-[400px] p-6 bg-zoru-surface rounded-lg border border-destructive/20 space-y-4">
+      <div className="p-3 bg-zoru-ink/10 rounded-full">
+        <AlertTriangle className="w-8 h-8 text-zoru-ink" />
       </div>
       <h2 className="text-xl font-semibold text-center">Something went wrong!</h2>
-      <p className="text-muted-foreground text-center max-w-md">
+      <p className="text-zoru-ink-muted text-center max-w-md">
         Failed to load the employee onboarding tasks. This could be due to a network issue or missing permissions.
       </p>
-      <p className="text-sm text-muted-foreground/80 font-mono bg-muted p-2 rounded">
+      <p className="text-sm text-zoru-ink-muted/80 font-mono bg-zoru-surface-2 p-2 rounded">
         {error.message || 'Unknown error occurred'}
       </p>
       <Button onClick={reset} variant="default">

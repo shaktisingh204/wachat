@@ -75,27 +75,27 @@ export function ReportHeader({
   }, [setRange]);
 
   return (
-    <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-card px-3 py-2">
+    <div className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2">
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
           From
         </span>
         <input
           type="date"
           value={from}
           onChange={(e) => setRange(e.target.value, to)}
-          className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+          className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
           To
         </span>
         <input
           type="date"
           value={to}
           onChange={(e) => setRange(from, e.target.value)}
-          className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+          className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
         />
       </label>
       <Button variant="outline" size="sm" onClick={onFy} disabled={isPending}>

@@ -54,11 +54,11 @@ export function FacebookCallbackClient({ code, error, stateFromUrl }: { code?: s
   }, [code, error, stateFromUrl, router, toast]);
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-muted">
+    <div className="flex h-screen w-screen items-center justify-center bg-zoru-surface-2">
       <Card className="max-w-sm text-center">
         <ZoruCardHeader>
           <div className="flex justify-center mb-4">
-            <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
+            <LoaderCircle className="h-10 w-10 animate-spin text-zoru-ink" />
           </div>
           <ZoruCardTitle>Finalizing connection, please wait...</ZoruCardTitle>
           <ZoruCardDescription>

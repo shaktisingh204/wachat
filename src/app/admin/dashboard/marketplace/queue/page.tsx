@@ -141,7 +141,7 @@ export default async function MarketplaceQueuePage({ searchParams }: PageProps) 
       {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-amber-600 mb-1">
+          <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-zoru-ink mb-1">
             <ShieldCheck className="h-3.5 w-3.5" />
             Admin · SabFlow Marketplace
           </div>
@@ -169,7 +169,7 @@ export default async function MarketplaceQueuePage({ searchParams }: PageProps) 
               className={[
                 'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
                 isActive
-                  ? 'border-amber-500 text-amber-700'
+                  ? 'border-zoru-line text-zoru-ink'
                   : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line',
               ].join(' ')}
             >
@@ -181,7 +181,7 @@ export default async function MarketplaceQueuePage({ searchParams }: PageProps) 
 
       {/* Content */}
       {loadError ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-xl border border-zoru-line bg-zoru-surface-2 p-4 text-sm text-zoru-ink">
           {loadError}
         </div>
       ) : (

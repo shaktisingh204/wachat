@@ -41,7 +41,7 @@ function splitStatement(
 
 function FormSkeleton() {
     return (
-        <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6 space-y-6">
+        <div className="rounded-xl border bg-zoru-surface text-zoru-ink shadow-sm p-6 space-y-6">
             <div className="grid gap-4 sm:grid-cols-3">
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />

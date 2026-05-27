@@ -340,7 +340,7 @@ export function AutomationForm({ initialData }: AutomationFormProps) {
 
                 <div className="space-y-2">
                     <Label>Visual Automation Builder</Label>
-                    <p className="text-xs text-gray-500 mb-2">Drag and drop nodes. If an execution fails, the node will turn red and display the error message.</p>
+                    <p className="text-xs text-zoru-ink mb-2">Drag and drop nodes. If an execution fails, the node will turn red and display the error message.</p>
                     <AutomationFlowEditor
                          nodes={annotatedNodes}
                          edges={rfEdges}

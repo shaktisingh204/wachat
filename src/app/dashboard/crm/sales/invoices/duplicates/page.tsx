@@ -227,18 +227,18 @@ function MergeClusterCard({
                                                 let label = null;
                                                 
                                                 if (isMissingInSurvivor) {
-                                                    itemBg = 'bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-300 border border-red-200/50 dark:border-red-900/50';
-                                                    label = <span className="text-[9px] font-semibold uppercase tracking-wider bg-red-100 dark:bg-red-900/60 px-1 py-0.5 rounded text-red-800 dark:text-red-200">Not in survivor</span>;
+                                                    itemBg = 'bg-zoru-surface-2 dark:bg-zoru-ink/20 text-zoru-ink dark:text-zoru-ink-muted border border-zoru-line/50 dark:border-zoru-line/50';
+                                                    label = <span className="text-[9px] font-semibold uppercase tracking-wider bg-zoru-surface-2 dark:bg-zoru-ink/60 px-1 py-0.5 rounded text-zoru-ink dark:text-white">Not in survivor</span>;
                                                 } else if (hasQtyDiff || hasRateDiff) {
-                                                    itemBg = 'bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-900/50';
+                                                    itemBg = 'bg-zoru-surface-2 dark:bg-zoru-ink/20 text-zoru-ink dark:text-zoru-ink-muted border border-zoru-line/50 dark:border-zoru-line/50';
                                                     label = (
-                                                        <span className="text-[9px] font-semibold uppercase tracking-wider bg-amber-100 dark:bg-amber-900/60 px-1 py-0.5 rounded text-amber-800 dark:text-amber-200">
+                                                        <span className="text-[9px] font-semibold uppercase tracking-wider bg-zoru-surface-2 dark:bg-zoru-ink/60 px-1 py-0.5 rounded text-zoru-ink dark:text-white">
                                                             {hasQtyDiff && hasRateDiff ? 'Qty & Rate Mismatch' : hasQtyDiff ? 'Qty Mismatch' : 'Rate Mismatch'}
                                                         </span>
                                                     );
                                                 } else if (!isSurvivor) {
-                                                    itemBg = 'bg-emerald-50 dark:bg-emerald-950/10 text-emerald-700 dark:text-emerald-300 border border-emerald-200/30 dark:border-emerald-900/20';
-                                                    label = <span className="text-[9px] font-semibold uppercase tracking-wider bg-emerald-100/60 dark:bg-emerald-900/40 px-1 py-0.5 rounded text-emerald-800 dark:text-emerald-200">Identical</span>;
+                                                    itemBg = 'bg-zoru-surface-2 dark:bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted border border-zoru-line/30 dark:border-zoru-line/20';
+                                                    label = <span className="text-[9px] font-semibold uppercase tracking-wider bg-zoru-surface-2/60 dark:bg-zoru-ink/40 px-1 py-0.5 rounded text-zoru-ink dark:text-white">Identical</span>;
                                                 }
 
                                                 return (
@@ -252,7 +252,7 @@ function MergeClusterCard({
                                                             {label}
                                                         </div>
                                                         {survivorMatch && (hasQtyDiff || hasRateDiff) && (
-                                                            <div className="mt-1.5 pt-1.5 border-t border-dashed border-amber-300/40 dark:border-amber-700/40 text-[10px] flex flex-col gap-0.5">
+                                                            <div className="mt-1.5 pt-1.5 border-t border-dashed border-zoru-line/40 dark:border-zoru-line/40 text-[10px] flex flex-col gap-0.5">
                                                                 <span className="font-medium">Survivor values:</span>
                                                                 <span className="opacity-75">Qty: {survivorMatch.quantity} × {fmtINR(survivorMatch.rate, m.currency ?? 'INR')} ({fmtINR(survivorMatch.rate * survivorMatch.quantity, m.currency ?? 'INR')} total)</span>
                                                             </div>
@@ -370,7 +370,7 @@ export default function InvoiceDuplicatesPage(): React.JSX.Element {
             {loaded && groups.length === 0 ? (
                 <Card className="mt-4 p-6">
                     <div className="flex flex-col items-center gap-3 text-center">
-                        <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+                        <CheckCircle2 className="h-8 w-8 text-zoru-ink" />
                         <h3 className="text-base font-medium text-zoru-ink">No duplicate clusters</h3>
                         <p className="max-w-sm text-[13px] text-zoru-ink-muted">
                             Invoices are matched when they share a customer and either have the

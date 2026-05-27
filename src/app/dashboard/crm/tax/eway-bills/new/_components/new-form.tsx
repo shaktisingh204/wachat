@@ -66,7 +66,7 @@ export function NewEWayBillForm() {
                     {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                     Generate
                 </Button>
-                {error ? <p className="text-[12px] text-red-600">{error}</p> : null}
+                {error ? <p className="text-[12px] text-zoru-ink">{error}</p> : null}
             </div>
         </form>
     );

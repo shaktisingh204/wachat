@@ -75,11 +75,11 @@ function KpiTile({
     return (
         <Card>
             <div className="flex items-center justify-between">
-                <p className="text-[12.5px] font-medium text-muted-foreground">{label}</p>
-                <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+                <p className="text-[12.5px] font-medium text-zoru-ink-muted">{label}</p>
+                <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
             </div>
-            <p className="mt-2 truncate text-[22px] font-semibold text-foreground">{value}</p>
-            {sub ? <p className="mt-0.5 truncate text-[11.5px] text-muted-foreground">{sub}</p> : null}
+            <p className="mt-2 truncate text-[22px] font-semibold text-zoru-ink">{value}</p>
+            {sub ? <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">{sub}</p> : null}
         </Card>
     );
 }
@@ -190,13 +190,13 @@ export default function StockValueDeepClient({
             </div>
 
             <Card className="mt-4">
-                <h2 className="text-[16px] font-semibold text-foreground">Value by warehouse</h2>
-                <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+                <h2 className="text-[16px] font-semibold text-zoru-ink">Value by warehouse</h2>
+                <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
                     Where your inventory dollars are sitting.
                 </p>
                 <div className="mt-4 h-[280px] w-full">
                     {kpis.byWarehouse.length === 0 ? (
-                        <div className="flex h-full items-center justify-center text-[12.5px] text-muted-foreground">
+                        <div className="flex h-full items-center justify-center text-[12.5px] text-zoru-ink-muted">
                             <Box className="mr-2 h-4 w-4" />
                             No warehouse stock recorded yet.
                         </div>
@@ -231,16 +231,16 @@ export default function StockValueDeepClient({
             </Card>
 
             <Card className="mt-4">
-                <h2 className="text-[16px] font-semibold text-foreground">Valuation details</h2>
-                <div className="mt-4 overflow-x-auto rounded-lg border border-border">
+                <h2 className="text-[16px] font-semibold text-zoru-ink">Valuation details</h2>
+                <div className="mt-4 overflow-x-auto rounded-lg border border-zoru-line">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">Product</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Warehouse</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Stock</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Unit cost</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Stock value</ZoruTableHead>
+                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                <ZoruTableHead className="text-zoru-ink-muted">Product</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Warehouse</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-zoru-ink-muted">Stock</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-zoru-ink-muted">Unit cost</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-zoru-ink-muted">Stock value</ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
@@ -248,33 +248,33 @@ export default function StockValueDeepClient({
                                 reportData.map((item) => (
                                     <ZoruTableRow
                                         key={`${item.productId}-${item.warehouseId ?? 'default'}`}
-                                        className="border-border"
+                                        className="border-zoru-line"
                                     >
                                         <ZoruTableCell>
-                                            <p className="font-medium text-foreground">{item.productName}</p>
-                                            <p className="font-mono text-[11.5px] text-muted-foreground">
+                                            <p className="font-medium text-zoru-ink">{item.productName}</p>
+                                            <p className="font-mono text-[11.5px] text-zoru-ink-muted">
                                                 {item.sku || 'N/A'}
                                             </p>
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">
+                                        <ZoruTableCell className="text-zoru-ink">
                                             {item.warehouseName}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-medium text-foreground">
+                                        <ZoruTableCell className="text-right font-medium text-zoru-ink">
                                             {item.stock}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-foreground">
+                                        <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                             {fmtINR(item.unitCost)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-semibold text-foreground">
+                                        <ZoruTableCell className="text-right font-semibold text-zoru-ink">
                                             {fmtINR(item.stockValue)}
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))
                             ) : (
-                                <ZoruTableRow className="border-border">
+                                <ZoruTableRow className="border-zoru-line">
                                     <ZoruTableCell
                                         colSpan={5}
-                                        className="h-64 text-center text-muted-foreground"
+                                        className="h-64 text-center text-zoru-ink-muted"
                                     >
                                         No stock data found for any products.
                                     </ZoruTableCell>
@@ -283,7 +283,7 @@ export default function StockValueDeepClient({
                         </ZoruTableBody>
                     </Table>
                 </div>
-                <p className="mt-4 text-[11.5px] text-muted-foreground">
+                <p className="mt-4 text-[11.5px] text-zoru-ink-muted">
                     Valuation uses each product&rsquo;s buying price (cost). If the cost is unset, the selling price is used as a fallback.
                 </p>
             </Card>

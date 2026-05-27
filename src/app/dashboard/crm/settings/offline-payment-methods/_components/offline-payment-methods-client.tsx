@@ -380,12 +380,12 @@ export function OfflinePaymentMethodsClient(): React.JSX.Element {
                         <ZoruTableCell>
                           <Checkbox checked={selected.has(row._id)} onCheckedChange={() => toggleOne(row._id)} aria-label={`Select ${row.name}`} />
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-foreground">
+                        <ZoruTableCell className="font-medium text-zoru-ink">
                           <RowDrawer label={row.name} title={`Payment Method · ${row.name}`} description="Method details. Use Edit to modify.">
                             <div className="space-y-3 text-sm">
-                              <div><div className="text-xs text-muted-foreground">Name</div><div>{row.name}</div></div>
-                              <div><div className="text-xs text-muted-foreground">Description</div><div>{row.description || '—'}</div></div>
-                              <div><div className="text-xs text-muted-foreground">Status</div><Badge variant={row.is_active ? 'success' : 'ghost'}>{row.is_active ? 'Enabled' : 'Disabled'}</Badge></div>
+                              <div><div className="text-xs text-zoru-ink-muted">Name</div><div>{row.name}</div></div>
+                              <div><div className="text-xs text-zoru-ink-muted">Description</div><div>{row.description || '—'}</div></div>
+                              <div><div className="text-xs text-zoru-ink-muted">Status</div><Badge variant={row.is_active ? 'success' : 'ghost'}>{row.is_active ? 'Enabled' : 'Disabled'}</Badge></div>
                             </div>
                           </RowDrawer>
                         </ZoruTableCell>

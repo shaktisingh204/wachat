@@ -488,7 +488,7 @@ export function DealListClient({
           >
             Edit Drawer
           </Button>
-          <Link href={`/dashboard/crm/sales-crm/deals/${row._id}`} className="text-[11px] text-primary hover:underline font-medium">
+          <Link href={`/dashboard/crm/sales-crm/deals/${row._id}`} className="text-[11px] text-zoru-ink hover:underline font-medium">
             360° View
           </Link>
         </div>
@@ -589,7 +589,7 @@ export function DealListClient({
           <div className="space-y-1.5">
             <Label>Priority</Label>
             <select
-              className="flex h-9 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="flex h-9 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-line"
               value={formPriority}
               onChange={(e) => setFormPriority(e.target.value)}
             >
@@ -832,7 +832,7 @@ export function DealListClient({
       />
 
       {error ? (
-        <div className="rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-700 dark:text-amber-400">
+        <div className="rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
           {error}
         </div>
       ) : null}

@@ -49,7 +49,6 @@
 use axum::{Json, extract::State};
 use bson::{Bson, Document, doc, oid::ObjectId, to_bson};
 use chrono::{DateTime, Utc};
-use futures::TryStreamExt;
 use mongodb::options::FindOneOptions;
 use sabchat_types::{
     Attachment, ContentBlock, MessageDirection, SabChatAuditEvent, SabChatContact,

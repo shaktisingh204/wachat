@@ -112,7 +112,7 @@ function UploadDock({
                                     </button>
                                 </div>
                                 {t.status === 'error' ? (
-                                    <span className="text-[11px] text-red-500">{t.error}</span>
+                                    <span className="text-[11px] text-zoru-ink">{t.error}</span>
                                 ) : (
                                     <Progress value={t.progress} className="h-1" />
                                 )}

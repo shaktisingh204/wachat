@@ -22,7 +22,7 @@ export function IfEditor({ component, updateField }: IfEditorProps) {
                     placeholder="${form.animal} == 'cat'"
                     className="font-mono text-xs"
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-zoru-ink-muted">
                     A boolean expression. Use variables like <code>{`${'${form.some_value}'}`}</code>. Supported operators: ==, !=, &&, ||, !, &lt;, &gt;, &lt;=, &gt;=.
                 </p>
             </div>

@@ -1,24 +1,30 @@
+import { notFound, redirect } from 'next/navigation';
+import { getSession } from '@/app/actions/user.actions';
+import { loadLiveDocument, saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
+
 export const dynamic = 'force-dynamic';
-import { notFound } from 'next/navigation';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { getExitById } from '@/app/actions/crm-exits.actions';
-import { ExitForm } from '../../new/exit-form';
+const BASE = '/dashboard/hrm/hr/exits';
 
-interface PageProps {
+export default async function EditExitPage({
+    params,
+}: {
     params: Promise<{ id: string }>;
-}
-
-export default async function ExitEditPage({ params }: PageProps) {
+}) {
     const { id } = await params;
-    const exit = await getExitById(id);
-    if (!exit) notFound();
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
+    const doc = await loadLiveDocument('exit_letter', id);
+    if (!doc) notFound();
 
     return (
-        <EntityListShell
-            title="Edit exit"
-        >
-            <ExitForm exit={{ ...(exit as any), _id: String((exit as any)._id ?? id) }} />
-        </EntityListShell>
+        <LiveDocumentEditor
+            documentType="exit_letter"
+            initialData={doc as Record<string, unknown>}
+            saveAction={saveLiveDocument}
+            backHref={BASE}
+        />
     );
 }

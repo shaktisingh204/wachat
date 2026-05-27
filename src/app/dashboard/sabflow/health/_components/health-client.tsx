@@ -63,25 +63,25 @@ type CardStatus = 'ok' | 'degraded' | 'down';
 const OVERALL_PILL: Record<HealthOverall, { label: string; cls: string; dot: string }> = {
   green:  {
     label: 'All systems operational',
-    cls:   'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/40 dark:text-green-300 dark:border-green-900',
-    dot:   'bg-green-500',
+    cls:   'bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/40 dark:text-zoru-ink-muted dark:border-zoru-line',
+    dot:   'bg-zoru-ink',
   },
   yellow: {
     label: 'Degraded — optional services unavailable',
-    cls:   'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900',
-    dot:   'bg-amber-500',
+    cls:   'bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/40 dark:text-zoru-ink-muted dark:border-zoru-line',
+    dot:   'bg-zoru-ink',
   },
   red: {
     label: 'Outage — critical dependency unreachable',
-    cls:   'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900',
-    dot:   'bg-red-500',
+    cls:   'bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/40 dark:text-zoru-ink-muted dark:border-zoru-line',
+    dot:   'bg-zoru-ink',
   },
 };
 
 const STATUS_STYLES: Record<CardStatus, string> = {
-  ok:       'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-300',
-  degraded: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
-  down:     'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300',
+  ok:       'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted',
+  degraded: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted',
+  down:     'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted',
 };
 
 const STATUS_ICON: Record<CardStatus, typeof LuCircleCheck> = {
@@ -204,7 +204,7 @@ export function HealthClient() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
           <LuActivity className="h-4 w-4" strokeWidth={2} />
         </div>
         <div className="flex flex-col leading-tight min-w-0">
@@ -242,7 +242,7 @@ export function HealthClient() {
             <span className="text-[12px]">Running health checks…</span>
           </div>
         ) : error && !data ? (
-          <div className="m-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[12px] text-red-700">
+          <div className="m-6 flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3 text-[12px] text-zoru-ink">
             <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -317,7 +317,7 @@ export function HealthClient() {
 
                     {c.error && (
                       <p
-                        className="rounded-md bg-red-50 px-2 py-1.5 text-[11px] text-red-700 break-words dark:bg-red-950/40 dark:text-red-300"
+                        className="rounded-md bg-zoru-surface-2 px-2 py-1.5 text-[11px] text-zoru-ink break-words dark:bg-zoru-ink/40 dark:text-zoru-ink-muted"
                         title={c.error}
                       >
                         {c.error}
@@ -330,7 +330,7 @@ export function HealthClient() {
 
             {/* Non-blocking re-fetch error */}
             {error && (
-              <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11.5px] text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
+              <div className="flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] text-zoru-ink dark:border-zoru-line dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
                 <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                 <span>Last refresh failed: {error}</span>
               </div>

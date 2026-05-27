@@ -43,13 +43,13 @@ export default function PasswordForm({ shortCode }: PasswordFormProps) {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4">
-            <div className="bg-card text-card-foreground border rounded-2xl p-8 max-w-md w-full shadow-sm flex flex-col items-center text-center space-y-6">
-                <div className="bg-primary/10 p-4 rounded-full">
-                    <Lock className="w-8 h-8 text-primary" />
+            <div className="bg-zoru-surface text-zoru-ink border rounded-2xl p-8 max-w-md w-full shadow-sm flex flex-col items-center text-center space-y-6">
+                <div className="bg-zoru-ink/10 p-4 rounded-full">
+                    <Lock className="w-8 h-8 text-zoru-ink" />
                 </div>
                 <div>
                     <h1 className="text-2xl font-bold mb-2">Password Protected</h1>
-                    <p className="text-muted-foreground">
+                    <p className="text-zoru-ink-muted">
                         This link is protected. Please enter the password to continue.
                     </p>
                 </div>
@@ -66,7 +66,7 @@ export default function PasswordForm({ shortCode }: PasswordFormProps) {
                     />
                     
                     {error && (
-                        <p className="text-sm text-red-500 font-medium">{error}</p>
+                        <p className="text-sm text-zoru-ink font-medium">{error}</p>
                     )}
 
                     <Button type="submit" className="w-full" disabled={loading}>

@@ -442,7 +442,7 @@ export default function HolidaysPage(): React.JSX.Element {
                 variant="outline"
                 onClick={() => setDeletePending(true)}
               >
-                <Trash2 className="h-3.5 w-3.5 text-rose-500" /> {t('hrm.payroll.holidays.bulk.delete')}
+                <Trash2 className="h-3.5 w-3.5 text-zoru-ink" /> {t('hrm.payroll.holidays.bulk.delete')}
               </Button>
               <Button size="sm" variant="outline" onClick={exportCsv}>
                 {t('hrm.payroll.holidays.bulk.export')}

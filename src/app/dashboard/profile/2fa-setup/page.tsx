@@ -73,9 +73,9 @@ export default function TwoFactorSetupPage() {
         <ZoruCardContent className="flex items-start justify-between gap-4 p-4">
           <div className="flex items-start gap-3">
             {isEnabled ? (
-              <ShieldCheck className="mt-0.5 h-5 w-5 text-emerald-600" />
+              <ShieldCheck className="mt-0.5 h-5 w-5 text-zoru-ink" />
             ) : (
-              <ShieldOff className="mt-0.5 h-5 w-5 text-amber-600" />
+              <ShieldOff className="mt-0.5 h-5 w-5 text-zoru-ink" />
             )}
             <div>
               <p className="text-sm font-medium">
@@ -228,7 +228,7 @@ function EmailPanel({
         </p>
 
         {isMine ? (
-          <div className="flex items-center justify-between rounded-md border border-emerald-200 bg-emerald-50/50 p-3">
+          <div className="flex items-center justify-between rounded-md border border-zoru-line bg-zoru-surface-2/50 p-3">
             <p className="text-sm">Email 2FA is currently active.</p>
             <Button variant="outline" onClick={onDisable} disabled={pending}>
               {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
@@ -265,8 +265,8 @@ function EmailPanel({
           </>
         )}
 
-        {msg ? <p className="text-xs text-emerald-700">{msg}</p> : null}
-        {err ? <p className="text-xs text-red-600">{err}</p> : null}
+        {msg ? <p className="text-xs text-zoru-ink">{msg}</p> : null}
+        {err ? <p className="text-xs text-zoru-ink">{err}</p> : null}
       </ZoruCardContent>
     </Card>
   );
@@ -325,7 +325,7 @@ function TotpPanel({
         </p>
 
         {isMine ? (
-          <p className="rounded-md border border-emerald-200 bg-emerald-50/50 p-3 text-sm">
+          <p className="rounded-md border border-zoru-line bg-zoru-surface-2/50 p-3 text-sm">
             Authenticator 2FA is currently active. Use the disable button at the top
             to remove it (requires password).
           </p>
@@ -392,8 +392,8 @@ function TotpPanel({
           </div>
         )}
 
-        {msg ? <p className="text-xs text-emerald-700">{msg}</p> : null}
-        {err ? <p className="text-xs text-red-600">{err}</p> : null}
+        {msg ? <p className="text-xs text-zoru-ink">{msg}</p> : null}
+        {err ? <p className="text-xs text-zoru-ink">{err}</p> : null}
       </ZoruCardContent>
     </Card>
   );
@@ -439,7 +439,7 @@ function BackupCodesPanel({ status }: { status: TwoFactorStatus | null }) {
             ))}
           </div>
         ) : null}
-        {err ? <p className="text-xs text-red-600">{err}</p> : null}
+        {err ? <p className="text-xs text-zoru-ink">{err}</p> : null}
       </ZoruCardContent>
     </Card>
   );
@@ -488,7 +488,7 @@ function DisableButton({ onDone }: { onDone: () => void }) {
       <Button variant="ghost" onClick={() => { setOpen(false); setErr(null); }}>
         Cancel
       </Button>
-      {err ? <span className="text-xs text-red-600">{err}</span> : null}
+      {err ? <span className="text-xs text-zoru-ink">{err}</span> : null}
     </div>
   );
 }

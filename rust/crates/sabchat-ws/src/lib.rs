@@ -81,7 +81,6 @@ use serde::Serialize;
 
 pub use state::SabChatWsState;
 
-use fred::interfaces::{ClientLike, PubsubInterface};
 use sabnode_db::RedisHandle;
 use serde::Deserialize;
 
@@ -108,6 +107,7 @@ const HUB_CAPACITY: usize = 1024;
 #[derive(Clone)]
 pub struct WsHub {
     tx: tokio::sync::broadcast::Sender<Event>,
+    #[allow(dead_code)]
     redis: RedisHandle,
 }
 
@@ -138,7 +138,7 @@ impl WsHub {
     ///
     /// Per-socket filtering by `tenant_id` happens on the receive side
     /// inside [`handlers::ws_upgrade`].
-    pub async fn publish(&self, ev: Event) {
+    pub fn publish(&self, ev: Event) {
         // In-process fan-out only until the cross-process Redis bridge is
         // wired back up (see TODO in `WsHub::new`). `redis` is held on the
         // struct so the API stays stable for callers; once the bridge is

@@ -86,7 +86,7 @@ export function EventSourceEndpoint({ eventId, isHidden, className }: Props) {
         <div
           className={cn(
             'h-[13px] w-[13px] rounded-full border-[3.5px] shadow-sm transition-colors',
-            isPreviewing ? 'border-[#f76808]' : 'border-[#f7a868]',
+            isPreviewing ? 'border-zoru-line' : 'border-zoru-line',
           )}
         />
       </div>

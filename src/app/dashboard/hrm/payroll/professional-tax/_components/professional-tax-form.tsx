@@ -151,7 +151,7 @@ const formRef = useRef<HTMLFormElement>(null);
             <form action={formAction} ref={formRef} onChange={() => setDirty(true)} className="flex flex-col gap-6">
                 
                 {draftAvailable && !draftDismissed ? (
-                    <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-900 dark:text-amber-300">
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
                         <span>You have an unsaved draft from a previous session.</span>
                         <div className="flex items-center gap-2">
                             <Button size="sm" variant="outline" type="button" onClick={restoreDraft}>

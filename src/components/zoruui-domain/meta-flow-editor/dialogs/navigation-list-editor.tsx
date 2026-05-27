@@ -60,15 +60,15 @@ export function NavigationListEditor({ component, updateField }: NavigationListE
                 </div>
                 <ScrollArea className="max-h-[40vh] space-y-3 pr-4">
                     {listItems.map((item: any, index: number) => (
-                        <div key={item.id || index} className="p-4 border rounded-lg space-y-3 bg-muted/50 mb-3 relative">
-                             <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemoveItem(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                        <div key={item.id || index} className="p-4 border rounded-lg space-y-3 bg-zoru-surface-2/50 mb-3 relative">
+                             <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemoveItem(index)}><Trash2 className="h-4 w-4 text-zoru-ink"/></Button>
                             
                             <h4 className="font-medium">Item {index + 1}</h4>
                              <div className="space-y-2">
                                 <Label htmlFor={`item-id-${index}`}>ID</Label>
                                 <Input id={`item-id-${index}`} value={item.id} onChange={(e) => handleItemChange(index, 'id', e.target.value)} required />
                             </div>
-                            <div className="p-3 border rounded-md bg-background">
+                            <div className="p-3 border rounded-md bg-zoru-surface">
                                 <h5 className="text-sm font-semibold mb-2">Main Content</h5>
                                 <div className="space-y-2">
                                     <Input placeholder="Title" value={item['main-content']?.title || ''} onChange={e => handleItemChange(index, 'main-content.title', e.target.value)} />
@@ -76,14 +76,14 @@ export function NavigationListEditor({ component, updateField }: NavigationListE
                                     <Input placeholder="Metadata" value={item['main-content']?.metadata || ''} onChange={e => handleItemChange(index, 'main-content.metadata', e.target.value)} />
                                 </div>
                             </div>
-                             <div className="p-3 border rounded-md bg-background">
+                             <div className="p-3 border rounded-md bg-zoru-surface">
                                 <h5 className="text-sm font-semibold mb-2">Start Content (Optional)</h5>
                                 <div className="space-y-2">
                                     <Input placeholder="Image (Base64)" value={item.start?.image || ''} onChange={e => handleItemChange(index, 'start.image', e.target.value)} />
                                     <Input placeholder="Alt Text" value={item.start?.['alt-text'] || ''} onChange={e => handleItemChange(index, 'start.alt-text', e.target.value)} />
                                 </div>
                             </div>
-                            <div className="p-3 border rounded-md bg-background">
+                            <div className="p-3 border rounded-md bg-zoru-surface">
                                 <h5 className="text-sm font-semibold mb-2">End Content (Optional)</h5>
                                 <div className="space-y-2">
                                     <Input placeholder="Title" value={item.end?.title || ''} onChange={e => handleItemChange(index, 'end.title', e.target.value)} />

@@ -66,7 +66,7 @@ export function BrandsView() {
           value="95 / 100"
           delta={5}
           period="Excellent standing based on recent vetting"
-          className="bg-gradient-to-br from-zoru-bg to-green-50/30 dark:to-green-900/10 border-green-200/50"
+          className="bg-gradient-to-br from-zoru-bg to-zoru-surface-2/30 dark:to-zoru-ink/10 border-zoru-line/50"
         />
         <ZoruStatCard
           label="Registered Brands"
@@ -226,12 +226,12 @@ export function BrandsView() {
               <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-zoru-ink-muted">EIN Verification</span>
-                  <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Verified</Badge>
+                  <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">Verified</Badge>
                 </div>
                 <Separator />
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-zoru-ink-muted">Address Matching</span>
-                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Pending</Badge>
+                  <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">Pending</Badge>
                 </div>
                 <Separator />
                 <div className="flex items-center justify-between text-sm">
@@ -240,7 +240,7 @@ export function BrandsView() {
                 </div>
               </div>
               <Button variant="outline" className="w-full mt-4">
-                <Zap className="mr-2 h-4 w-4 text-amber-500" /> Apply for Enhanced Vetting
+                <Zap className="mr-2 h-4 w-4 text-zoru-ink" /> Apply for Enhanced Vetting
               </Button>
             </ZoruCardContent>
           </Card>
@@ -282,7 +282,7 @@ export function BrandsView() {
               { id: "campaign", header: "Assigned Campaign", render: (r) => <span className="font-medium whitespace-nowrap">{r.campaign}</span> },
               { id: "throughput", header: "Throughput (TPM)", render: (r) => <span className="whitespace-nowrap">{r.throughput}</span> },
               { id: "status", header: "Status", render: (r) => (
-                <Badge variant="secondary" className={r.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 whitespace-nowrap' : 'whitespace-nowrap'}>
+                <Badge variant="secondary" className={r.status === 'Active' ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted whitespace-nowrap' : 'whitespace-nowrap'}>
                   {r.status}
                 </Badge>
               )},

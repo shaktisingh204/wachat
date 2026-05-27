@@ -76,7 +76,7 @@ function useDeliverabilityScore(body: string, category: SabsmsMessageCategory, e
     const warnings: { type: "info" | "warning" | "danger", text: string }[] = [];
 
     if (!body) {
-      return { score: 0, grade: "Empty", color: "bg-slate-200", warnings: [] };
+      return { score: 0, grade: "Empty", color: "bg-zoru-surface-2", warnings: [] };
     }
 
     if (encoding === "UCS-2") {
@@ -120,16 +120,16 @@ function useDeliverabilityScore(body: string, category: SabsmsMessageCategory, e
     score = Math.max(0, Math.min(100, score));
 
     let grade = "Excellent";
-    let color = "bg-green-500";
+    let color = "bg-zoru-ink";
     if (score < 50) {
       grade = "Poor";
-      color = "bg-rose-500";
+      color = "bg-zoru-ink";
     } else if (score < 80) {
       grade = "Fair";
-      color = "bg-amber-500";
+      color = "bg-zoru-ink";
     } else if (score < 95) {
       grade = "Good";
-      color = "bg-blue-500";
+      color = "bg-zoru-ink";
     }
 
     return { score, grade, color, warnings };
@@ -142,22 +142,22 @@ function SmsPreview({ body }: { body: string }) {
   const hasUnicode = !isGsm(body);
 
   return (
-    <div className="flex flex-col rounded-3xl border-[6px] border-slate-900 bg-slate-50 shadow-xl overflow-hidden max-w-[280px] mx-auto w-full aspect-[9/19]">
-      <div className="bg-slate-900 px-4 pt-4 pb-2 relative">
+    <div className="flex flex-col rounded-3xl border-[6px] border-zoru-line bg-zoru-surface-2 shadow-xl overflow-hidden max-w-[280px] mx-auto w-full aspect-[9/19]">
+      <div className="bg-zoru-ink px-4 pt-4 pb-2 relative">
         <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-4 bg-black rounded-b-xl z-10"></div>
         <div className="text-center text-xs font-medium text-white/90 mt-2">Live Preview</div>
       </div>
-      <div className="flex-1 p-3 flex flex-col justify-end bg-slate-50 gap-2 overflow-y-auto">
+      <div className="flex-1 p-3 flex flex-col justify-end bg-zoru-surface-2 gap-2 overflow-y-auto">
         <div className="flex flex-col gap-1 items-end w-full">
           {body ? (
-            <div className="relative rounded-2xl rounded-tr-sm bg-blue-500 px-3 py-2 text-[13px] leading-relaxed text-white shadow-sm max-w-[85%] break-words whitespace-pre-wrap">
+            <div className="relative rounded-2xl rounded-tr-sm bg-zoru-ink px-3 py-2 text-[13px] leading-relaxed text-white shadow-sm max-w-[85%] break-words whitespace-pre-wrap">
               {chars.map((char, i) => {
                 const isNonGsm = char !== '\n' && char !== '\r' && !GSM_REGEX_CHAR.test(char);
                 return (
                   <span
                     key={i}
                     title={isNonGsm ? "Unicode character forcing UCS-2 encoding" : undefined}
-                    className={isNonGsm ? "bg-amber-300 text-slate-900 font-semibold px-[1px] rounded-[2px]" : ""}
+                    className={isNonGsm ? "bg-zoru-surface-2 text-zoru-ink font-semibold px-[1px] rounded-[2px]" : ""}
                   >
                     {char}
                   </span>
@@ -165,14 +165,14 @@ function SmsPreview({ body }: { body: string }) {
               })}
             </div>
           ) : (
-            <div className="relative rounded-2xl rounded-tr-sm bg-slate-200 px-3 py-2 text-[13px] leading-relaxed text-slate-400 max-w-[85%]">
+            <div className="relative rounded-2xl rounded-tr-sm bg-zoru-surface-2 px-3 py-2 text-[13px] leading-relaxed text-zoru-ink-muted max-w-[85%]">
               Type a message...
             </div>
           )}
           {body && (
-            <div className="text-[10px] text-slate-400 mr-1 flex gap-2">
+            <div className="text-[10px] text-zoru-ink-muted mr-1 flex gap-2">
               <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-              {hasUnicode && <span className="text-amber-500 font-medium">UCS-2</span>}
+              {hasUnicode && <span className="text-zoru-ink font-medium">UCS-2</span>}
             </div>
           )}
         </div>
@@ -255,7 +255,7 @@ export function SabsmsSendComposer() {
                 onChange={(e) => setTo(e.target.value)}
                 autoComplete="tel"
               />
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-zoru-ink">
                 Engine normalises to E.164 before send.
               </p>
             </div>
@@ -274,7 +274,7 @@ export function SabsmsSendComposer() {
                     <ZoruSelectItem key={c.value} value={c.value}>
                       <span className="flex flex-col">
                         <span>{c.label}</span>
-                        <span className="text-[11px] text-slate-500">{c.hint}</span>
+                        <span className="text-[11px] text-zoru-ink">{c.hint}</span>
                       </span>
                     </ZoruSelectItem>
                   ))}
@@ -292,15 +292,15 @@ export function SabsmsSendComposer() {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="Type your message…"
-              className={isOverLimit ? "border-rose-500 focus-visible:ring-rose-500" : ""}
+              className={isOverLimit ? "border-zoru-line focus-visible:ring-zoru-line" : ""}
             />
             <div className="flex flex-wrap items-center justify-between text-xs">
-              <div className="flex flex-wrap items-center gap-3 text-slate-600">
-                <span className={isOverLimit ? "font-semibold text-rose-600" : ""}>
+              <div className="flex flex-wrap items-center gap-3 text-zoru-ink">
+                <span className={isOverLimit ? "font-semibold text-zoru-ink" : ""}>
                   {body.length} / {MAX_CHARS} chars
                 </span>
                 <span>·</span>
-                <span className={seg.encoding === "UCS-2" ? "font-medium text-amber-600" : ""}>
+                <span className={seg.encoding === "UCS-2" ? "font-medium text-zoru-ink" : ""}>
                   {seg.encoding}
                 </span>
                 <span>·</span>
@@ -308,12 +308,12 @@ export function SabsmsSendComposer() {
                   {seg.segments} segment{seg.segments === 1 ? "" : "s"}
                 </span>
               </div>
-              <span className="text-slate-400">
+              <span className="text-zoru-ink-muted">
                 (GSM-7 splits at 160/153, UCS-2 at 70/67)
               </span>
             </div>
             {isOverLimit && (
-              <p className="text-xs font-medium text-rose-600 mt-1">
+              <p className="text-xs font-medium text-zoru-ink mt-1">
                 Message exceeds the {MAX_CHARS} character limit.
               </p>
             )}
@@ -329,24 +329,24 @@ export function SabsmsSendComposer() {
               <Badge variant={statusVariant(status)}>{status}</Badge>
             )}
             {messageId && (
-              <code className="rounded bg-slate-100 px-2 py-1 text-xs">
+              <code className="rounded bg-zoru-surface-2 px-2 py-1 text-xs">
                 {messageId}
               </code>
             )}
           </div>
 
           {error && (
-            <p className="rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+            <p className="rounded border border-zoru-line bg-zoru-surface-2 p-3 text-sm text-zoru-ink">
               {error}
             </p>
           )}
 
           {message && (
-            <div className="rounded border border-slate-200 bg-slate-50 p-3">
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <div className="rounded border border-zoru-line bg-zoru-surface-2 p-3">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-zoru-ink">
                 Message doc
               </div>
-              <pre className="overflow-x-auto text-[11px] leading-relaxed text-slate-700">
+              <pre className="overflow-x-auto text-[11px] leading-relaxed text-zoru-ink">
                 {JSON.stringify(message, null, 2)}
               </pre>
             </div>
@@ -355,17 +355,17 @@ export function SabsmsSendComposer() {
       </div>
 
       <div className="lg:col-span-5 space-y-6">
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-zoru-line bg-white p-5 shadow-sm">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-800">Deliverability Score</h3>
+            <h3 className="text-sm font-semibold text-zoru-ink">Deliverability Score</h3>
             <Badge variant={deliverability.score >= 80 ? "default" : deliverability.score >= 50 ? "secondary" : "destructive"}>
               {deliverability.grade}
             </Badge>
           </div>
           
           <div className="mb-4 flex items-end gap-2">
-            <span className="text-4xl font-bold tracking-tight text-slate-900">{deliverability.score}</span>
-            <span className="mb-1 text-sm font-medium text-slate-500">/ 100</span>
+            <span className="text-4xl font-bold tracking-tight text-zoru-ink">{deliverability.score}</span>
+            <span className="mb-1 text-sm font-medium text-zoru-ink">/ 100</span>
           </div>
           
           <Progress 
@@ -378,22 +378,22 @@ export function SabsmsSendComposer() {
             <div className="space-y-3 mt-5">
               {deliverability.warnings.map((w, i) => (
                 <div key={i} className="flex gap-2.5 text-xs">
-                  {w.type === "danger" && <AlertTriangle className="h-4 w-4 text-rose-500 shrink-0" />}
-                  {w.type === "warning" && <AlertCircle className="h-4 w-4 text-amber-500 shrink-0" />}
-                  {w.type === "info" && <Info className="h-4 w-4 text-blue-500 shrink-0" />}
-                  <span className="text-slate-600 leading-snug">{w.text}</span>
+                  {w.type === "danger" && <AlertTriangle className="h-4 w-4 text-zoru-ink shrink-0" />}
+                  {w.type === "warning" && <AlertCircle className="h-4 w-4 text-zoru-ink shrink-0" />}
+                  {w.type === "info" && <Info className="h-4 w-4 text-zoru-ink shrink-0" />}
+                  <span className="text-zoru-ink leading-snug">{w.text}</span>
                 </div>
               ))}
             </div>
           )}
           {deliverability.warnings.length === 0 && body.length > 0 && (
-            <div className="flex gap-2.5 text-xs text-emerald-700 bg-emerald-50 p-3 rounded-lg mt-4 border border-emerald-100">
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+            <div className="flex gap-2.5 text-xs text-zoru-ink bg-zoru-surface-2 p-3 rounded-lg mt-4 border border-zoru-line">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-zoru-ink" />
               <span className="font-medium">Message looks optimal for delivery.</span>
             </div>
           )}
           {body.length === 0 && (
-            <p className="text-xs text-slate-500 mt-4 text-center">
+            <p className="text-xs text-zoru-ink mt-4 text-center">
               Type a message to see its deliverability score.
             </p>
           )}

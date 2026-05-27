@@ -235,8 +235,8 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
         header: "Test",
         render: (r) => (
           <div className="flex flex-col">
-            <span className="font-medium text-slate-800">{r.name}</span>
-            <span className="text-xs text-slate-500">
+            <span className="font-medium text-zoru-ink">{r.name}</span>
+            <span className="text-xs text-zoru-ink">
               {KIND_LABELS[r.kind]} · {METRIC_LABELS[r.metric]}
             </span>
           </div>
@@ -286,7 +286,7 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
         render: (r) => {
           const sig = computeRowSignificance(r);
           if (!sig)
-            return <span className="text-xs text-slate-400">—</span>;
+            return <span className="text-xs text-zoru-ink-muted">—</span>;
           return (
             <div className="flex items-center gap-2">
               <Badge
@@ -295,7 +295,7 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
                 p = {fmtP(sig.result.pValue)}
               </Badge>
               {sig.result.significant && (
-                <Sigma className="h-3.5 w-3.5 text-emerald-600" aria-label="significant" />
+                <Sigma className="h-3.5 w-3.5 text-zoru-ink" aria-label="significant" />
               )}
             </div>
           );
@@ -307,9 +307,9 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
         render: (r) => {
           const sig = computeRowSignificance(r);
           if (!sig)
-            return <span className="text-xs text-slate-400">—</span>;
+            return <span className="text-xs text-zoru-ink-muted">—</span>;
           return (
-            <span className="font-mono text-xs tabular-nums text-slate-700">
+            <span className="font-mono text-xs tabular-nums text-zoru-ink">
               [{fmtPct(sig.result.ciLow)}, {fmtPct(sig.result.ciHigh)}]
             </span>
           );
@@ -326,7 +326,7 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
           return (
             <div className="flex w-32 flex-col gap-1">
               <Progress value={pct} className="h-1.5" />
-              <span className="text-[11px] text-slate-500 tabular-nums">
+              <span className="text-[11px] text-zoru-ink tabular-nums">
                 {total.toLocaleString()} / {r.minSample.toLocaleString()}
               </span>
             </div>
@@ -338,10 +338,10 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
         header: "Winner",
         render: (r) => {
           if (!r.winnerVariantId)
-            return <span className="text-xs text-slate-400">—</span>;
+            return <span className="text-xs text-zoru-ink-muted">—</span>;
           const w = r.variants.find((v) => v.id === r.winnerVariantId);
           return (
-            <span className="flex items-center gap-1.5 text-xs text-amber-700">
+            <span className="flex items-center gap-1.5 text-xs text-zoru-ink">
               <Crown className="h-3.5 w-3.5" />
               {w?.label ?? r.winnerVariantId}
             </span>
@@ -452,7 +452,7 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
           stays interactive without a router round-trip. The toolkit
           version sits inside `SabsmsFilterBar` and writes the URL; this
           pair re-renders the visible rows. */}
-      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-zoru-ink">
         <span>Quick:</span>
         {(["running", "completed", "archived"] as const).map((s) => (
           <button
@@ -466,8 +466,8 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
             className={
               "rounded-full border px-2 py-0.5 " +
               (statusFilter.includes(s)
-                ? "border-slate-800 bg-slate-800 text-white"
-                : "border-slate-200")
+                ? "border-zoru-line bg-zoru-ink text-white"
+                : "border-zoru-line")
             }
           >
             {STATUS_LABELS[s]}
@@ -485,22 +485,22 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
             className={
               "rounded-full border px-2 py-0.5 " +
               (kindFilter.includes(k)
-                ? "border-slate-800 bg-slate-800 text-white"
-                : "border-slate-200")
+                ? "border-zoru-line bg-zoru-ink text-white"
+                : "border-zoru-line")
             }
           >
             {KIND_LABELS[k]}
           </button>
         ))}
         {refreshTick > 0 && (
-          <span className="text-[11px] text-slate-400">
+          <span className="text-[11px] text-zoru-ink-muted">
             (refresh #{refreshTick})
           </span>
         )}
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+        <div className="flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm text-zoru-ink">
           <AlertCircle className="h-4 w-4" /> {error}
         </div>
       )}
@@ -628,7 +628,7 @@ function AbTestDetailDrawer({
     >
       <div className="flex flex-col gap-6">
         {/* Tabs (Zoru lacks a tabs primitive in this build — use buttons.) */}
-        <div className="flex gap-2 border-b border-slate-200 pb-1 text-sm">
+        <div className="flex gap-2 border-b border-zoru-line pb-1 text-sm">
           {(["summary", "segments", "audit"] as const).map((t) => (
             <button
               key={t}
@@ -637,8 +637,8 @@ function AbTestDetailDrawer({
               className={
                 "rounded-md px-3 py-1.5 " +
                 (tab === t
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-600 hover:bg-slate-100")
+                  ? "bg-zoru-ink text-white"
+                  : "text-zoru-ink hover:bg-zoru-surface-2")
               }
             >
               {t === "summary"
@@ -708,7 +708,7 @@ function AbTestDetailDrawer({
                           <ZoruTableCell>
                             <div className="flex items-center gap-1.5">
                               {isWinner && (
-                                <Crown className="h-3.5 w-3.5 text-amber-500" />
+                                <Crown className="h-3.5 w-3.5 text-zoru-ink" />
                               )}
                               {v.label}
                             </div>
@@ -851,10 +851,10 @@ function AbTestDetailDrawer({
                 </ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="flex items-center justify-between gap-2 rounded-md border border-slate-200 px-3 py-2">
+                <div className="flex items-center justify-between gap-2 rounded-md border border-zoru-line px-3 py-2">
                   <div className="flex flex-col">
                     <Label>Auto-promote winner</Label>
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-zoru-ink">
                       Promote when p&lt;0.05 + min-sample reached.
                     </span>
                   </div>
@@ -907,10 +907,10 @@ function AbTestDetailDrawer({
                   </Select>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 rounded-md border border-slate-200 px-3 py-2">
+                <div className="flex items-center justify-between gap-2 rounded-md border border-zoru-line px-3 py-2">
                   <div className="flex flex-col">
                     <Label>Bayesian stats</Label>
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-zoru-ink">
                       Off = frequentist χ² (default). On = beta-binomial
                       posterior; faster decisions, smoother peeks.
                     </span>
@@ -955,7 +955,7 @@ function AbTestDetailDrawer({
                     <ZoruTableRow>
                       <ZoruTableCell
                         colSpan={5}
-                        className="px-6 py-6 text-center text-sm text-slate-500"
+                        className="px-6 py-6 text-center text-sm text-zoru-ink"
                       >
                         Need at least one non-control variant to compute
                         lift.
@@ -975,9 +975,9 @@ function AbTestDetailDrawer({
                           className={
                             "text-right tabular-nums " +
                             (s.lift > 0
-                              ? "text-emerald-600"
+                              ? "text-zoru-ink"
                               : s.lift < 0
-                                ? "text-rose-600"
+                                ? "text-zoru-ink"
                                 : "")
                           }
                         >
@@ -1009,13 +1009,13 @@ function AbTestDetailDrawer({
             </ZoruCardHeader>
             <ZoruCardContent>
               {audit === null ? (
-                <div className="flex items-center gap-2 text-sm text-slate-500">
+                <div className="flex items-center gap-2 text-sm text-zoru-ink">
                   <ScrollText className="h-4 w-4" /> Loading…
                 </div>
               ) : audit.length === 0 ? (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-zoru-ink">
                   No audit entries yet.{" "}
-                  <span className="text-slate-400">
+                  <span className="text-zoru-ink-muted">
                     Writes to <code>sabsms_ab_audit</code> are best-effort and
                     fall back to <code>console.warn</code>.
                   </span>
@@ -1024,14 +1024,14 @@ function AbTestDetailDrawer({
                 <ul className="space-y-2 text-sm">
                   {audit.map((a) => (
                     <li key={a.id} className="flex items-start gap-2">
-                      <span className="font-mono text-[11px] text-slate-400">
+                      <span className="font-mono text-[11px] text-zoru-ink-muted">
                         {a.at.slice(0, 19).replace("T", " ")}
                       </span>
-                      <span className="font-medium text-slate-700">
+                      <span className="font-medium text-zoru-ink">
                         {a.action}
                       </span>
                       {a.meta && (
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-zoru-ink">
                           {JSON.stringify(a.meta)}
                         </span>
                       )}

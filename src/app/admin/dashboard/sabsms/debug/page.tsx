@@ -56,7 +56,7 @@ export default async function SabsmsAdminDebugPage() {
         </ZoruCardHeader>
         <ZoruCardContent>
           {!engineHealthy && (
-            <div className="mb-4 rounded border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+            <div className="mb-4 rounded border border-zoru-line bg-zoru-surface-2 p-4 text-sm text-zoru-ink">
               <strong className="font-semibold">Engine Unavailable: </strong>
               {engineError || 'The SabSMS engine is currently down or disabled.'}
             </div>

@@ -65,7 +65,7 @@ export default function StorefrontSettingsPage(): React.JSX.Element {
     }, [load]);
 
     if (loading) return <div className="zoruui p-6 text-zoru-ink-muted">Loading…</div>;
-    if (!sf) return <div className="zoruui p-6 text-red-500">Storefront not found.</div>;
+    if (!sf) return <div className="zoruui p-6 text-zoru-ink">Storefront not found.</div>;
 
     async function onSave() {
         if (!sf) return;

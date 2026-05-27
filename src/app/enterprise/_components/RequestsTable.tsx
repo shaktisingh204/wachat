@@ -50,7 +50,7 @@ export function RequestsTable({ requests, isLoading }: { requests: InquiryRecord
           placeholder="Filter by organization or email..." 
           value={filter}
           onChange={e => setFilter(e.target.value)}
-          className="bg-zinc-900 border-white/20 text-white placeholder:text-white/30 rounded-none max-w-sm h-9 text-xs"
+          className="bg-zoru-ink border-white/20 text-white placeholder:text-white/30 rounded-none max-w-sm h-9 text-xs"
         />
       </div>
 
@@ -99,10 +99,10 @@ export function RequestsTable({ requests, isLoading }: { requests: InquiryRecord
                   <td className="p-3 text-white/70">{req.volume}</td>
                   <td className="p-3">
                     <span className={`px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-bold ${
-                      req.status === 'approved' ? 'bg-green-500/20 text-green-400' :
-                      req.status === 'rejected' ? 'bg-red-500/20 text-red-400' :
-                      req.status === 'error' ? 'bg-red-500/20 text-red-400' :
-                      'bg-yellow-500/20 text-yellow-400'
+                      req.status === 'approved' ? 'bg-zoru-ink/20 text-zoru-ink-muted' :
+                      req.status === 'rejected' ? 'bg-zoru-ink/20 text-zoru-ink-muted' :
+                      req.status === 'error' ? 'bg-zoru-ink/20 text-zoru-ink-muted' :
+                      'bg-zoru-ink/20 text-zoru-ink-muted'
                     }`}>
                       {req.status}
                     </span>

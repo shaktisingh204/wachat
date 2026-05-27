@@ -35,9 +35,9 @@ export function VariableTag({ variable, onClick, active, className }: Props) {
         'font-mono text-[11px] font-medium leading-none',
         'border select-none',
         active
-          ? 'border-[#f76808]/60 bg-[#f76808]/10 text-[#f76808]'
-          : 'border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-950/50 dark:text-violet-300',
-        onClick && 'cursor-pointer transition-colors hover:border-[#f76808]/60 hover:bg-[#f76808]/10 hover:text-[#f76808]',
+          ? 'border-zoru-line/60 bg-zoru-ink/10 text-zoru-ink'
+          : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink dark:border-zoru-line dark:bg-zoru-ink/50 dark:text-zoru-ink-muted',
+        onClick && 'cursor-pointer transition-colors hover:border-zoru-line/60 hover:bg-zoru-ink/10 hover:text-zoru-ink',
         className,
       )}
     >

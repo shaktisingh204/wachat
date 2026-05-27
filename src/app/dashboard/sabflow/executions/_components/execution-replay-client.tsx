@@ -40,12 +40,12 @@ import type {
 } from '@/lib/sabflow/types';
 
 const STATUS_ICON: Record<string, { icon: typeof LuCircleCheck; color: string }> = {
-  success:   { icon: LuCircleCheck,   color: 'text-green-500' },
-  error:     { icon: LuCircleX,       color: 'text-red-500' },
-  running:   { icon: LuLoader,        color: 'text-blue-500 animate-spin' },
-  waiting:   { icon: LuClock,         color: 'text-amber-500' },
-  skipped:   { icon: LuCircleAlert,   color: 'text-zinc-400' },
-  cancelled: { icon: LuCircleAlert,   color: 'text-zinc-400' },
+  success:   { icon: LuCircleCheck,   color: 'text-zoru-ink' },
+  error:     { icon: LuCircleX,       color: 'text-zoru-ink' },
+  running:   { icon: LuLoader,        color: 'text-zoru-ink animate-spin' },
+  waiting:   { icon: LuClock,         color: 'text-zoru-ink' },
+  skipped:   { icon: LuCircleAlert,   color: 'text-zoru-ink-muted' },
+  cancelled: { icon: LuCircleAlert,   color: 'text-zoru-ink-muted' },
 };
 
 type ApiResponse = {
@@ -261,7 +261,7 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
   }
   if (error || !data) {
     return (
-      <div className="m-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[12px] text-red-700">
+      <div className="m-6 flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3 text-[12px] text-zoru-ink">
         <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
         <span>{error ?? 'Execution not found'}</span>
       </div>
@@ -307,7 +307,7 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
       </div>
 
       {execution.error && (
-        <div className="mx-6 my-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-[12px] text-red-700">
+        <div className="mx-6 my-3 flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-2.5 text-[12px] text-zoru-ink">
           <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold">Execution failed</p>
@@ -342,7 +342,7 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
                   className={cn(
                     'flex w-full items-center gap-2.5 px-4 py-2 text-left transition-colors',
                     selected
-                      ? 'bg-[#f76808]/10'
+                      ? 'bg-zoru-ink/10'
                       : 'hover:bg-[var(--gray-2)]',
                   )}
                 >
@@ -352,7 +352,7 @@ export function ExecutionReplayClient({ executionId }: { executionId: string }) 
                       className={cn(
                         'truncate text-[12px] font-medium',
                         selected
-                          ? 'text-[#f76808]'
+                          ? 'text-zoru-ink'
                           : 'text-[var(--gray-12)]',
                       )}
                     >
@@ -453,7 +453,7 @@ function TimelineScrubber({
           className={cn(
             'flex h-7 w-7 items-center justify-center rounded-md',
             playing
-              ? 'bg-[#f76808] text-white hover:bg-[#e25c00]'
+              ? 'bg-zoru-ink text-white hover:bg-zoru-ink'
               : 'bg-[var(--gray-3)] text-[var(--gray-12)] hover:bg-[var(--gray-4)]',
           )}
         >
@@ -479,12 +479,12 @@ function TimelineScrubber({
             const status = STATUS_ICON[node.status] ?? STATUS_ICON.skipped;
             const colour =
               node.status === 'success'
-                ? 'bg-emerald-500'
+                ? 'bg-zoru-ink'
                 : node.status === 'error'
-                ? 'bg-red-500'
+                ? 'bg-zoru-ink'
                 : node.status === 'waiting'
-                ? 'bg-amber-500'
-                : 'bg-zinc-400';
+                ? 'bg-zoru-ink'
+                : 'bg-zoru-surface-2';
             const widthPct =
               ((Math.max(1, node.durationMs ?? 1) / total) * 100).toFixed(2);
             const selected = idx === selectedIdx;
@@ -498,7 +498,7 @@ function TimelineScrubber({
                 className={cn(
                   'h-full transition-opacity',
                   colour,
-                  selected ? 'opacity-100 ring-2 ring-[#f76808] ring-inset' : 'opacity-60 hover:opacity-100',
+                  selected ? 'opacity-100 ring-2 ring-zoru-line ring-inset' : 'opacity-60 hover:opacity-100',
                 )}
                 aria-label={`Step ${idx + 1}: ${node.blockType}`}
               >
@@ -562,7 +562,7 @@ function NodeDetail({
             'ml-auto inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11.5px] font-medium transition-colors',
             rerunning
               ? 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] cursor-wait'
-              : 'border-[#f76808]/40 bg-[#f76808]/10 text-[#f76808] hover:bg-[#f76808]/20',
+              : 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink hover:bg-zoru-ink/20',
           )}
         >
           {rerunning ? (
@@ -575,7 +575,7 @@ function NodeDetail({
       </div>
 
       {rerunError && (
-        <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[11.5px] text-red-700">
+        <div className="flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[11.5px] text-zoru-ink">
           <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
           <span>{rerunError}</span>
         </div>
@@ -605,7 +605,7 @@ function NodeDetail({
 
       {/* Error banner */}
       {node.error && (
-        <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">
+        <div className="flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[12px] text-zoru-ink">
           <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 mt-0.5" />
           <span>{node.error}</span>
         </div>
@@ -650,7 +650,7 @@ function JsonBlock({ value }: { value: unknown }) {
     text = String(value);
   }
   return (
-    <pre className="overflow-x-auto rounded-lg border border-[var(--gray-5)] bg-[#0d0d0d] px-3 py-2 font-mono text-[11.5px] leading-snug text-green-400">
+    <pre className="overflow-x-auto rounded-lg border border-[var(--gray-5)] bg-zoru-ink px-3 py-2 font-mono text-[11.5px] leading-snug text-zoru-ink-muted">
       {text}
     </pre>
   );
@@ -659,12 +659,12 @@ function JsonBlock({ value }: { value: unknown }) {
 function StatusPill({ status }: { status: string }) {
   const tone =
     status === 'success'
-      ? 'bg-green-50 text-green-700'
+      ? 'bg-zoru-surface-2 text-zoru-ink'
       : status === 'error'
-      ? 'bg-red-50 text-red-700'
+      ? 'bg-zoru-surface-2 text-zoru-ink'
       : status === 'running'
-      ? 'bg-blue-50 text-blue-700'
-      : 'bg-zinc-100 text-zinc-700';
+      ? 'bg-zoru-surface-2 text-zoru-ink'
+      : 'bg-zoru-surface-2 text-zoru-ink';
   return (
     <span
       className={cn(

@@ -93,7 +93,7 @@ export default function AdPreviewsPage() {
                     {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-64" />)}
                 </div>
             ) : filtered.length === 0 ? (
-                <Card><ZoruCardContent className="p-8 text-center text-muted-foreground">No ads found.</ZoruCardContent></Card>
+                <Card><ZoruCardContent className="p-8 text-center text-zoru-ink-muted">No ads found.</ZoruCardContent></Card>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filtered.map((ad) => {
@@ -103,7 +103,7 @@ export default function AdPreviewsPage() {
                                 {img ? (
                                     <Dialog>
                                         <ZoruDialogTrigger asChild>
-                                            <div className="h-40 bg-muted overflow-hidden cursor-pointer hover:opacity-90 transition-opacity">
+                                            <div className="h-40 bg-zoru-surface-2 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity">
                                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img src={img} alt={ad.name} className="w-full h-full object-cover" />
                                             </div>
@@ -113,7 +113,7 @@ export default function AdPreviewsPage() {
                                         </ZoruDialogContent>
                                     </Dialog>
                                 ) : (
-                                    <div className="h-40 bg-muted flex items-center justify-center text-muted-foreground">
+                                    <div className="h-40 bg-zoru-surface-2 flex items-center justify-center text-zoru-ink-muted">
                                         <ImageIcon className="h-10 w-10" />
                                     </div>
                                 )}
@@ -128,13 +128,13 @@ export default function AdPreviewsPage() {
                                 <ZoruCardContent className="space-y-1 text-sm">
                                     {ad.creative?.title && <p className="font-medium">{ad.creative.title}</p>}
                                     {ad.creative?.body && (
-                                        <p className="text-muted-foreground text-xs line-clamp-3">{ad.creative.body}</p>
+                                        <p className="text-zoru-ink-muted text-xs line-clamp-3">{ad.creative.body}</p>
                                     )}
                                     <a
                                         href={`https://www.facebook.com/ads/manager/creation/edit/?act=${activeAccount.account_id}&selected_adset_id=&selected_campaign_id=&selected_ad_id=${ad.id}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline mt-2"
+                                        className="inline-flex items-center gap-1 text-xs text-zoru-ink hover:underline mt-2"
                                     >
                                         View on Facebook <ExternalLink className="h-3 w-3" />
                                     </a>

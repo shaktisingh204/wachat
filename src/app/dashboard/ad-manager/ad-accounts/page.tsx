@@ -77,20 +77,20 @@ export interface AdAccount {
 function PageSkeleton() {
   return (
     <>
-      <div className="h-4 w-48 animate-pulse rounded-full bg-muted" />
+      <div className="h-4 w-48 animate-pulse rounded-full bg-zoru-surface-2" />
       <div className="mt-5">
-        <div className="h-7 w-40 animate-pulse rounded bg-muted" />
-        <div className="mt-2 h-4 w-72 animate-pulse rounded bg-muted" />
+        <div className="h-7 w-40 animate-pulse rounded bg-zoru-surface-2" />
+        <div className="mt-2 h-4 w-72 animate-pulse rounded bg-zoru-surface-2" />
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
           <Card key={i} className="!p-0">
             <div className="p-5">
-              <div className="h-5 w-36 animate-pulse rounded bg-muted" />
-              <div className="mt-2 h-3.5 w-28 animate-pulse rounded bg-muted" />
+              <div className="h-5 w-36 animate-pulse rounded bg-zoru-surface-2" />
+              <div className="mt-2 h-3.5 w-28 animate-pulse rounded bg-zoru-surface-2" />
             </div>
-            <div className="border-t border-border px-5 py-3">
-              <div className="h-8 w-24 animate-pulse rounded-full bg-muted" />
+            <div className="border-t border-zoru-line px-5 py-3">
+              <div className="h-8 w-24 animate-pulse rounded-full bg-zoru-surface-2" />
             </div>
           </Card>
         ))}
@@ -124,7 +124,7 @@ function DisconnectDialog({
         <Button
           variant="ghost"
           size="icon"
-          className="text-muted-foreground hover:text-destructive"
+          className="text-zoru-ink-muted hover:text-zoru-ink"
           aria-label={`Disconnect ${account.name}`}
         >
           <Trash2 className="h-3.5 w-3.5" />
@@ -132,18 +132,18 @@ function DisconnectDialog({
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-[420px]">
         <ZoruDialogHeader>
-          <ZoruDialogTitle className="text-[16px] font-semibold text-foreground">
+          <ZoruDialogTitle className="text-[16px] font-semibold text-zoru-ink">
             Disconnect ad account?
           </ZoruDialogTitle>
-          <ZoruDialogDescription className="text-[13px] text-muted-foreground">
+          <ZoruDialogDescription className="text-[13px] text-zoru-ink-muted">
             Are you sure you want to disconnect{' '}
-            <strong className="text-foreground">{account.name}</strong>? This
+            <strong className="text-zoru-ink">{account.name}</strong>? This
             will remove it from your dashboard but will not affect the account
             on Facebook.
           </ZoruDialogDescription>
         </ZoruDialogHeader>
 
-        <div className="flex items-center gap-3 rounded-xl bg-rose-50/40 p-3.5 text-[12px] text-destructive">
+        <div className="flex items-center gap-3 rounded-xl bg-zoru-surface-2/40 p-3.5 text-[12px] text-zoru-ink">
           <TriangleAlert className="h-4 w-4 shrink-0" />
           <span>
             You will need to re-connect via Facebook to access this account
@@ -195,8 +195,8 @@ function AccountCard({
       className={cn(
         'group cursor-pointer p-0 transition-all duration-200',
         isActive
-          ? 'border-indigo-500 ring-2 ring-indigo-500/15'
-          : 'hover:border-border hover:shadow-md',
+          ? 'border-zoru-line ring-2 ring-zoru-line/15'
+          : 'hover:border-zoru-line hover:shadow-md',
       )}
       onClick={onSelect}
     >
@@ -205,7 +205,7 @@ function AccountCard({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h3 className="truncate text-[14px] font-semibold text-foreground">
+              <h3 className="truncate text-[14px] font-semibold text-zoru-ink">
                 {account.name}
               </h3>
               {isActive && (
@@ -214,7 +214,7 @@ function AccountCard({
                 </Badge>
               )}
             </div>
-            <p className="mt-1.5 font-mono text-[11px] text-muted-foreground tracking-wide">
+            <p className="mt-1.5 font-mono text-[11px] text-zoru-ink-muted tracking-wide">
               {account.account_id}
             </p>
           </div>
@@ -223,7 +223,7 @@ function AccountCard({
           <span
             className={cn(
               'mt-1 h-2.5 w-2.5 shrink-0 rounded-full',
-              isActive ? 'bg-emerald-500' : 'bg-muted-foreground/30',
+              isActive ? 'bg-zoru-ink' : 'bg-zoru-surface-2-foreground/30',
             )}
           />
         </div>
@@ -244,19 +244,19 @@ function AccountCard({
         </div>
         {/* Last used timestamp */}
         {account.last_used_time && (
-          <p className="mt-2 text-[10px] text-muted-foreground">
+          <p className="mt-2 text-[10px] text-zoru-ink-muted">
             Last used: {new Date(account.last_used_time).toLocaleString()}
           </p>
         )}
         {!account.last_used_time && account.created_time && (
-          <p className="mt-2 text-[10px] text-muted-foreground">
+          <p className="mt-2 text-[10px] text-zoru-ink-muted">
             Created: {new Date(account.created_time).toLocaleString()}
           </p>
         )}
       </div>
 
       {/* Card footer */}
-      <div className="flex items-center justify-between border-t border-border px-5 py-3">
+      <div className="flex items-center justify-between border-t border-zoru-line px-5 py-3">
         <Button
           variant={isActive ? 'default' : 'outline'}
           size="sm"
@@ -279,7 +279,7 @@ function AccountCard({
             <Button
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-foreground"
+              className="text-zoru-ink-muted hover:text-zoru-ink"
               aria-label="View on Facebook"
             >
               <ExternalLink className="h-3.5 w-3.5" />
@@ -299,16 +299,16 @@ function AccountCard({
 function EmptyState() {
   return (
     <Card
-      className="flex flex-col items-center justify-center gap-5 border-2 border-dashed border-border py-16 text-center"
+      className="flex flex-col items-center justify-center gap-5 border-2 border-dashed border-zoru-line py-16 text-center"
     >
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50">
-        <Megaphone className="h-7 w-7 text-indigo-600" strokeWidth={1.75} />
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-zoru-surface-2">
+        <Megaphone className="h-7 w-7 text-zoru-ink" strokeWidth={1.75} />
       </div>
       <div>
-        <h3 className="text-[16px] font-semibold text-foreground">
+        <h3 className="text-[16px] font-semibold text-zoru-ink">
           No ad accounts connected
         </h3>
-        <p className="mt-1.5 max-w-md text-[13px] text-muted-foreground leading-relaxed">
+        <p className="mt-1.5 max-w-md text-[13px] text-zoru-ink-muted leading-relaxed">
           Connect your Facebook Ad Account to start creating and managing
           campaigns directly from SabNode.
         </p>
@@ -329,14 +329,14 @@ function InfoCard() {
   return (
     <Card className="!p-4">
       <div className="flex items-start gap-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50">
-          <Info className="h-4 w-4 text-indigo-600" />
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
+          <Info className="h-4 w-4 text-zoru-ink" />
         </div>
         <div>
-          <p className="text-[13px] font-semibold text-foreground">
+          <p className="text-[13px] font-semibold text-zoru-ink">
             How to connect accounts
           </p>
-          <p className="mt-1 text-[12px] text-muted-foreground leading-relaxed">
+          <p className="mt-1 text-[12px] text-zoru-ink-muted leading-relaxed">
             When you click "Connect ad account", you will be redirected to
             Facebook to authorize SabNode. Make sure you have admin access to the
             ad accounts you want to connect. You can manage permissions anytime
@@ -345,7 +345,7 @@ function InfoCard() {
               href="https://business.facebook.com/settings/ad-accounts"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-indigo-600 hover:underline"
+              className="font-medium text-zoru-ink hover:underline"
             >
               Meta Business Settings
             </a>

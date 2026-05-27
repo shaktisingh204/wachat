@@ -152,7 +152,7 @@ export default function NewWebhookPage() {
                     </ZoruAlertDescription>
                 </Alert>
                 <Card className="p-4">
-                    <div className="font-mono text-sm break-all rounded-md bg-muted p-3">
+                    <div className="font-mono text-sm break-all rounded-md bg-zoru-surface-2 p-3">
                         {secret}
                     </div>
                     <div className="mt-3 flex gap-2">
@@ -234,7 +234,7 @@ export default function NewWebhookPage() {
                 <Card className="p-4">
                     <div className="mb-3 flex items-center justify-between">
                         <Label>Events</Label>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-zoru-ink-muted">
                             {selected.size} selected
                         </span>
                     </div>

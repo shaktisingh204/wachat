@@ -68,7 +68,7 @@ export function DeleteProjectButton({ projectId, projectName }: DeleteProjectBut
     <ZoruAlertDialog open={open} onOpenChange={setOpen}>
       <ZoruAlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
         <Button variant="ghost" size="icon" className="h-7 w-7">
-          <Trash2 className="h-4 w-4 text-destructive" />
+          <Trash2 className="h-4 w-4 text-zoru-ink" />
         </Button>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>

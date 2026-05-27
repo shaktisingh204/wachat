@@ -162,7 +162,7 @@ export function EmailCampaignsClient() {
                             <FileText className="h-4 w-4" /> Open
                           </Link>
                         </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem onSelect={() => handleDelete(c)} className="text-destructive">
+                        <ZoruDropdownMenuItem onSelect={() => handleDelete(c)} className="text-zoru-ink">
                           <Trash2 className="h-4 w-4" /> Delete
                         </ZoruDropdownMenuItem>
                       </ZoruDropdownMenuContent>

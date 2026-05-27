@@ -84,7 +84,7 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
                                                 placeholder="e.g. Asia/Kolkata"
                                                 defaultValue={project.timezone || ''}
                                             />
-                                            <p className="text-xs text-muted-foreground">The default timezone for reports and scheduling.</p>
+                                            <p className="text-xs text-zoru-ink-muted">The default timezone for reports and scheduling.</p>
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="defaultLanguage">Default Language</Label>
@@ -95,7 +95,7 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
                                                 placeholder="e.g. en"
                                                 defaultValue={project.defaultLanguage || ''}
                                             />
-                                            <p className="text-xs text-muted-foreground">The default language code for auto-replies.</p>
+                                            <p className="text-xs text-zoru-ink-muted">The default language code for auto-replies.</p>
                                         </div>
                                     </div>
                                     <div className="space-y-2">
@@ -107,7 +107,7 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
                                             defaultValue={project.messagesPerSecond || 80}
                                             required
                                         />
-                                        <p className="text-xs text-muted-foreground">The maximum number of messages your broadcast campaign will attempt to send per second.</p>
+                                        <p className="text-xs text-zoru-ink-muted">The maximum number of messages your broadcast campaign will attempt to send per second.</p>
                                     </div>
                                 </div>
                             </ZoruAccordionContent>
@@ -147,7 +147,7 @@ export function ProjectSettingsForm({ project }: ProjectSettingsFormProps) {
                                                     className="w-12 h-10 p-1"
                                                     defaultValue={project.widgetSettings?.buttonColor || '#25D366'}
                                                 />
-                                                <span className="text-sm text-muted-foreground">Hex color code</span>
+                                                <span className="text-sm text-zoru-ink-muted">Hex color code</span>
                                             </div>
                                         </div>
                                         <div className="space-y-2">

@@ -189,7 +189,7 @@ export function DealDetailClient({
             {/* High-density Deal Overview card */}
             <Card className="p-6 border border-zoru-line bg-zoru-surface">
               <h2 className="text-[14px] font-semibold uppercase tracking-wider text-zoru-ink-muted mb-4 flex items-center gap-2">
-                <Layers className="h-4 w-4 text-primary" /> Deal Details &amp; Assignments
+                <Layers className="h-4 w-4 text-zoru-ink" /> Deal Details &amp; Assignments
               </h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <DetailField label="Deal Owner">
@@ -199,7 +199,7 @@ export function DealDetailClient({
                   </span>
                 </DetailField>
                 <DetailField label="Target Pipeline">
-                  <span className="font-semibold text-primary">{deal.pipelineId || '—'}</span>
+                  <span className="font-semibold text-zoru-ink">{deal.pipelineId || '—'}</span>
                 </DetailField>
                 <DetailField label="Client Label">
                   <span className="font-semibold text-zoru-ink">{deal.clientLabel || '—'}</span>
@@ -291,19 +291,19 @@ export function DealDetailClient({
                       key={s}
                       className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-[12.5px] transition-colors ${
                         isCurrent
-                          ? 'bg-primary/10 border border-primary/20 font-semibold text-primary shadow-sm'
+                          ? 'bg-zoru-ink/10 border border-primary/20 font-semibold text-zoru-ink shadow-sm'
                           : 'text-zoru-ink-muted hover:bg-zoru-surface-2/20'
                       }`}
                     >
                       <span
                         className={`inline-block h-2 w-2 rounded-full ${
-                          isCurrent ? 'bg-primary animate-pulse' : 'bg-zoru-line'
+                          isCurrent ? 'bg-zoru-ink animate-pulse' : 'bg-zoru-line'
                         }`}
                         aria-hidden
                       />
                       {s}
                       {isCurrent ? (
-                        <span className="ml-auto text-[10px] tracking-wider uppercase font-bold text-primary">
+                        <span className="ml-auto text-[10px] tracking-wider uppercase font-bold text-zoru-ink">
                           current
                         </span>
                       ) : null}
@@ -403,7 +403,7 @@ function Stat({ label, value, icon }: { label: string; value: React.ReactNode; i
         <dt className="text-[10.5px] font-bold uppercase tracking-wider text-zoru-ink-subtle">{label}</dt>
         <dd className="font-mono font-bold text-[15px] tabular-nums text-zoru-ink">{value}</dd>
       </div>
-      {icon && <span className="text-primary opacity-80 mt-0.5">{icon}</span>}
+      {icon && <span className="text-zoru-ink opacity-80 mt-0.5">{icon}</span>}
     </div>
   );
 }

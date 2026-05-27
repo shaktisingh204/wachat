@@ -46,7 +46,7 @@ export default async function StockAdjustmentActivityPage({ params, searchParams
       }}
     >
       <div className="mb-4 flex items-center justify-end">
-        <Suspense fallback={<div className="h-9 w-[260px] animate-pulse rounded-md bg-zinc-100 dark:bg-zinc-800" />}>
+        <Suspense fallback={<div className="h-9 w-[260px] animate-pulse rounded-md bg-zoru-surface-2 dark:bg-zoru-ink" />}>
           <ActivityFilter />
         </Suspense>
       </div>

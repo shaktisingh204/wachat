@@ -163,7 +163,7 @@ export function LeaveForm({ initial, leaveTypes, isLocked, leaveBalances }: Leav
       ) : null}
 
       {warning && (
-        <div className="rounded-md border border-amber-500/50 bg-amber-500/10 p-4 text-sm font-medium text-amber-700">
+        <div className="rounded-md border border-zoru-line/50 bg-zoru-ink/10 p-4 text-sm font-medium text-zoru-ink">
           {warning}
         </div>
       )}

@@ -108,7 +108,7 @@ export function RoutingRulesEditor({
           <Button
             size="sm"
             variant="ghost"
-            className="self-end text-red-500"
+            className="self-end text-zoru-ink"
             onClick={() => remove(i)}
           >
             <Trash2 className="h-4 w-4" />

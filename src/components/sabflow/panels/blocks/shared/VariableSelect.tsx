@@ -63,7 +63,7 @@ function InlineCreate({ onConfirm, onCancel }: InlineCreateProps) {
   };
 
   return (
-    <div className="mt-1.5 flex items-center gap-1.5 rounded-lg border border-[#f76808]/40 bg-[#f76808]/5 px-2.5 py-1.5">
+    <div className="mt-1.5 flex items-center gap-1.5 rounded-lg border border-zoru-line/40 bg-zoru-ink/5 px-2.5 py-1.5">
       <input
         ref={inputRef}
         id={inputId}
@@ -79,7 +79,7 @@ function InlineCreate({ onConfirm, onCancel }: InlineCreateProps) {
         className={cn(
           'flex-1 min-w-0 rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)]',
           'px-2 py-1 text-[11.5px] font-mono text-[var(--gray-12)]',
-          'outline-none focus:border-[#f76808] transition-colors',
+          'outline-none focus:border-zoru-line transition-colors',
         )}
       />
       <button
@@ -90,7 +90,7 @@ function InlineCreate({ onConfirm, onCancel }: InlineCreateProps) {
         className={cn(
           'flex h-5 w-5 shrink-0 items-center justify-center rounded transition-colors',
           name.trim()
-            ? 'bg-[#f76808] text-white hover:bg-[#e25c00]'
+            ? 'bg-zoru-ink text-white hover:bg-zoru-ink'
             : 'bg-[var(--gray-4)] text-[var(--gray-7)] cursor-not-allowed',
         )}
       >
@@ -174,7 +174,7 @@ export function VariableSelect({
           className={cn(
             'flex w-full items-center gap-1.5 rounded-lg border border-dashed border-[var(--gray-6)]',
             'px-2.5 py-1 text-[11.5px] text-[var(--gray-9)]',
-            'hover:border-[#f76808]/40 hover:bg-[#f76808]/5 hover:text-[#f76808]',
+            'hover:border-zoru-line/40 hover:bg-zoru-ink/5 hover:text-zoru-ink',
             'transition-colors',
           )}
         >

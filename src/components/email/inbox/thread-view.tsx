@@ -134,7 +134,7 @@ export function ThreadView({
             onClick={onToggleStar}
           >
             {thread.starred ? (
-              <Star className="fill-amber-400 text-amber-500" />
+              <Star className="fill-zoru-ink-muted text-zoru-ink" />
             ) : (
               <StarOff />
             )}

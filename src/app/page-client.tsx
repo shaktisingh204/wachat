@@ -314,26 +314,26 @@ function Hero({ session, loading }: { session: any; loading: boolean }) {
             </span>
             <span className="inline-flex items-center gap-1.5">
               <GoogleGlyph className="h-[15px] w-[15px]" />
-              <span className="font-semibold text-[#121126] tabular-nums">4.8</span>
-              <span className="text-[#7878A1]">Google</span>
+              <span className="font-semibold text-zoru-ink tabular-nums">4.8</span>
+              <span className="text-zoru-ink">Google</span>
             </span>
             <span className="h-4 w-px bg-black/10" />
             <span className="inline-flex items-center gap-1.5">
-              <Star className="h-[15px] w-[15px] fill-[#00B67A] text-[#00B67A]" strokeWidth={0} />
-              <span className="font-semibold text-[#121126] tabular-nums">4.9</span>
-              <span className="text-[#7878A1]">Trustpilot</span>
+              <Star className="h-[15px] w-[15px] fill-zoru-ink text-zoru-ink" strokeWidth={0} />
+              <span className="font-semibold text-zoru-ink tabular-nums">4.9</span>
+              <span className="text-zoru-ink">Trustpilot</span>
             </span>
           </div>
 
           {/* headline */}
-          <h1 className="sn-reveal mt-7 max-w-5xl font-display text-[#121126] leading-[0.92] text-[13vw] sm:text-[9vw] md:text-[82px] lg:text-[102px]" style={{ animationDelay: '120ms' }}>
+          <h1 className="sn-reveal mt-7 max-w-5xl font-display text-zoru-ink leading-[0.92] text-[13vw] sm:text-[9vw] md:text-[82px] lg:text-[102px]" style={{ animationDelay: '120ms' }}>
             The command center for
             <br />
             customer{' '}<span className="font-display-italic sn-gradient-text">operations.</span>
           </h1>
 
           {/* subtext */}
-          <p className="sn-reveal mt-6 max-w-2xl text-[16px] leading-relaxed text-[#4A4A6B] md:text-[18px]" style={{ animationDelay: '260ms' }}>
+          <p className="sn-reveal mt-6 max-w-2xl text-[16px] leading-relaxed text-zoru-ink md:text-[18px]" style={{ animationDelay: '260ms' }}>
             Unify WhatsApp, web chat, AI agents, CRM, broadcasts, workflows,
             and analytics in one workspace built for teams that actually ship.
           </p>
@@ -352,7 +352,7 @@ function Hero({ session, loading }: { session: any; loading: boolean }) {
             )}
             <Link
               href="#products"
-              className="inline-flex h-12 items-center gap-2 rounded-full px-6 text-[14px] font-semibold text-[#121126] bg-white border sn-hair hover:bg-black/[0.03] transition"
+              className="inline-flex h-12 items-center gap-2 rounded-full px-6 text-[14px] font-semibold text-zoru-ink bg-white border sn-hair hover:bg-black/[0.03] transition"
             >
               Explore products
               <ArrowUpRight className="h-4 w-4" />
@@ -377,14 +377,14 @@ function Hero({ session, loading }: { session: any; loading: boolean }) {
 
           {/* trusted by + logos */}
           <div className="sn-reveal mt-12 w-full md:mt-16" style={{ animationDelay: '640ms' }}>
-            <p className="text-[11.5px] text-center text-[#7878A1] tracking-wide">
+            <p className="text-[11.5px] text-center text-zoru-ink tracking-wide">
               Trusted by teams replacing disconnected support, CRM, and automation tools
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-x-9 gap-y-4 opacity-80">
               {['Google', 'airbnb', 'coinbase', 'Notion', 'Gumroad', 'PayPal', 'upwork', 'shopify', 'stripe', 'ZOOM'].map((n) => (
                 <span
                   key={n}
-                  className="font-display text-[18px] md:text-[20px] tracking-[-0.04em] text-[#121126]/60 hover:text-[#121126] transition"
+                  className="font-display text-[18px] md:text-[20px] tracking-[-0.04em] text-zoru-ink/60 hover:text-zoru-ink transition"
                 >
                   {n}
                 </span>
@@ -410,14 +410,14 @@ function HeroProofGrid() {
         return (
           <div key={item.label} className="sn-card-soft rounded-2xl px-4 py-3 text-left">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#EEF2FF] text-[#4F46E5]">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-zoru-surface text-zoru-ink">
                 <Icon className="h-4 w-4" />
               </span>
               <div>
-                <div className="font-display text-[24px] leading-none text-[#121126] tabular-nums">
+                <div className="font-display text-[24px] leading-none text-zoru-ink tabular-nums">
                   {item.value}
                 </div>
-                <div className="mt-1 text-[11px] uppercase tracking-[0.13em] text-[#7878A1]">
+                <div className="mt-1 text-[11px] uppercase tracking-[0.13em] text-zoru-ink">
                   {item.label}
                 </div>
               </div>
@@ -561,18 +561,18 @@ function ActivityCardStack() {
         <div className="relative h-9 w-9 flex-shrink-0">
           <div className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white" style={{ background: 'linear-gradient(135deg,#4F46E5,#8B5CF6)' }}>WC</div>
           <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-white flex items-center justify-center">
-            <BadgeCheck className="h-3 w-3 text-[#4F46E5]" />
+            <BadgeCheck className="h-3 w-3 text-zoru-ink" />
           </span>
         </div>
         <div className="flex-1 min-w-0 text-left">
-          <div className="text-[13px] text-[#121126] truncate">
+          <div className="text-[13px] text-zoru-ink truncate">
             <span className="font-semibold">Wei Chen</span>{' '}
-            <span className="text-[#4A4A6B]">joined to</span>{' '}
+            <span className="text-zoru-ink">joined to</span>{' '}
             <span className="font-semibold">Final Presentation</span>
           </div>
-          <div className="text-[11px] text-[#7878A1] mt-0.5 flex items-center gap-1.5">
+          <div className="text-[11px] text-zoru-ink mt-0.5 flex items-center gap-1.5">
             <span>8 min ago</span>
-            <span className="text-[#7878A1]/50">·</span>
+            <span className="text-zoru-ink/50">·</span>
             <span>SabNode CRM</span>
           </div>
         </div>
@@ -584,22 +584,22 @@ function ActivityCardStack() {
       }}>
         <div className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg,#10B981,#059669)' }}>MJ</div>
         <div className="flex-1 min-w-0 text-left">
-          <div className="text-[13px] text-[#121126] truncate font-semibold">Matthew Johnson</div>
-          <div className="text-[11px] text-[#7878A1] mt-0.5">Content Writer · @sabnode</div>
+          <div className="text-[13px] text-zoru-ink truncate font-semibold">Matthew Johnson</div>
+          <div className="text-[11px] text-zoru-ink mt-0.5">Content Writer · @sabnode</div>
         </div>
-        <MoreHorizontal className="h-4 w-4 text-[#7878A1]" />
+        <MoreHorizontal className="h-4 w-4 text-zoru-ink" />
       </div>
 
       {/* row 3 — offset left */}
       <div className="relative z-10 -mt-2 mr-10 sn-card-soft rounded-2xl px-3.5 py-3 flex items-center gap-3" style={{
         boxShadow: '0 14px 30px -16px rgba(17,17,38,0.12)',
       }}>
-        <div className="h-9 w-9 rounded-full flex items-center justify-center bg-[#EA4335]/10 flex-shrink-0">
+        <div className="h-9 w-9 rounded-full flex items-center justify-center bg-zoru-ink/10 flex-shrink-0">
           <GmailGlyph className="h-4 w-4" />
         </div>
         <div className="flex-1 min-w-0 text-left">
-          <div className="text-[13px] text-[#121126] truncate font-semibold">Terry Lipshutz</div>
-          <div className="text-[11px] text-[#7878A1] mt-0.5 truncate">Approved the design of the iOS app...</div>
+          <div className="text-[13px] text-zoru-ink truncate font-semibold">Terry Lipshutz</div>
+          <div className="text-[11px] text-zoru-ink mt-0.5 truncate">Approved the design of the iOS app...</div>
         </div>
       </div>
     </div>
@@ -791,21 +791,21 @@ function TrustStrip() {
     <section className="relative py-10 md:py-14">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-center gap-3 mb-7">
-          <span className="h-px w-10 bg-[#121126]/15" />
-          <p className="text-[11px] uppercase tracking-[0.22em] text-[#7878A1] font-semibold">
+          <span className="h-px w-10 bg-zoru-ink/15" />
+          <p className="text-[11px] uppercase tracking-[0.22em] text-zoru-ink font-semibold">
             Shipping on SabNode this quarter
           </p>
-          <span className="h-px w-10 bg-[#121126]/15" />
+          <span className="h-px w-10 bg-zoru-ink/15" />
         </div>
       </div>
       <div className="relative overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-10 w-32 bg-gradient-to-r from-[#F7F8FC] via-[#F7F8FC]/80 to-transparent" />
-        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-10 w-32 bg-gradient-to-l from-[#F7F8FC] via-[#F7F8FC]/80 to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-10 w-32 bg-gradient-to-r from-zoru-surface via-zoru-surface/80 to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-10 w-32 bg-gradient-to-l from-zoru-surface via-zoru-surface/80 to-transparent" />
         <div className="sn-marquee flex items-center gap-16 whitespace-nowrap w-max">
           {[...TRUSTED, ...TRUSTED].map((t, i) => (
             <span key={`${t}-${i}`} className="inline-flex items-center gap-16">
-              <span className="font-display text-2xl md:text-3xl tracking-[-0.04em] text-[#121126]/70">{t}</span>
-              <span className="h-1 w-1 rounded-full bg-[#4F46E5]/60" />
+              <span className="font-display text-2xl md:text-3xl tracking-[-0.04em] text-zoru-ink/70">{t}</span>
+              <span className="h-1 w-1 rounded-full bg-zoru-ink/60" />
             </span>
           ))}
         </div>
@@ -831,12 +831,12 @@ function CapabilitiesSection() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-12">
           <div className="max-w-xl">
             <Eyebrow label="What it does" />
-            <h2 className="mt-4 font-display text-[40px] md:text-[64px] leading-[0.98] text-[#121126]">
+            <h2 className="mt-4 font-display text-[40px] md:text-[64px] leading-[0.98] text-zoru-ink">
               A connected stack,{' '}
               <span className="font-display-italic sn-gradient-text">out of the box.</span>
             </h2>
           </div>
-          <p className="md:max-w-sm text-[15px] text-[#4A4A6B] leading-relaxed">
+          <p className="md:max-w-sm text-[15px] text-zoru-ink leading-relaxed">
             No more gluing eight SaaS subscriptions together. One identity, one
             schema, one workflow language across every module.
           </p>
@@ -856,13 +856,13 @@ function CapabilitiesSection() {
                 }}>
                   <Icon className="h-5 w-5" strokeWidth={2.2} />
                 </div>
-                <h3 className="relative mt-6 font-display text-[24px] md:text-[26px] leading-[1.1] text-[#121126]">{b.title}</h3>
-                <p className="relative mt-3 text-[14px] text-[#4A4A6B] leading-relaxed max-w-xs">{b.body}</p>
+                <h3 className="relative mt-6 font-display text-[24px] md:text-[26px] leading-[1.1] text-zoru-ink">{b.title}</h3>
+                <p className="relative mt-3 text-[14px] text-zoru-ink leading-relaxed max-w-xs">{b.body}</p>
                 <div className="relative mt-6 flex items-center justify-between">
-                  <Link href="#products" className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[#121126] group/a">
+                  <Link href="#products" className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-zoru-ink group/a">
                     Explore <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/a:translate-x-0.5 group-hover/a:-translate-y-0.5" />
                   </Link>
-                  <span className="text-[10px] font-mono tabular-nums text-[#7878A1]">0{i + 1} / 03</span>
+                  <span className="text-[10px] font-mono tabular-nums text-zoru-ink">0{i + 1} / 03</span>
                 </div>
               </article>
             );
@@ -884,11 +884,11 @@ function ProductsShowcase() {
       <div className="container mx-auto px-6">
         <div className="mx-auto mb-10 max-w-3xl text-center md:mb-12">
           <Eyebrow label="Products" align="center" />
-          <h2 className="mt-4 font-display text-[40px] md:text-[72px] leading-[0.98] text-[#121126]">
+          <h2 className="mt-4 font-display text-[40px] md:text-[72px] leading-[0.98] text-zoru-ink">
             One workspace for the whole{' '}
             <span className="font-display-italic sn-gradient-text">customer loop.</span>
           </h2>
-          <p className="mt-5 text-[15px] md:text-[17px] text-[#4A4A6B] max-w-xl mx-auto">
+          <p className="mt-5 text-[15px] md:text-[17px] text-zoru-ink max-w-xl mx-auto">
             Start with chat, then connect flows, CRM, AI, campaigns, and
             analytics without asking your team to jump between tabs.
           </p>
@@ -966,14 +966,14 @@ function ProductCommandStrip() {
             href="#products"
             className="group flex items-center gap-3 rounded-[24px] bg-white/70 px-4 py-3 text-left transition hover:bg-white hover:shadow-[0_18px_40px_-24px_rgba(79,70,229,0.32)]"
           >
-            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#EEF2FF] text-[#4F46E5]">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-zoru-surface text-zoru-ink">
               <Icon className="h-4 w-4" />
             </span>
             <span className="min-w-0">
-              <span className="block text-[13px] font-bold text-[#121126]">{item.title}</span>
-              <span className="block truncate text-[11px] text-[#7878A1]">{item.meta}</span>
+              <span className="block text-[13px] font-bold text-zoru-ink">{item.title}</span>
+              <span className="block truncate text-[11px] text-zoru-ink">{item.meta}</span>
             </span>
-            <span className="ml-auto hidden text-[10px] font-mono text-[#7878A1] lg:inline">
+            <span className="ml-auto hidden text-[10px] font-mono text-zoru-ink lg:inline">
               0{index + 1}
             </span>
           </a>
@@ -991,18 +991,18 @@ function ProductRow({ index, tag, tagColor, kicker, title, body, bullets, mock, 
     <article className={`sn-product-card grid items-center gap-8 rounded-[34px] p-4 md:grid-cols-12 md:gap-12 md:p-7 ${reverse ? 'md:[&>*:first-child]:order-2' : ''}`}>
       <div className="md:col-span-5">
         <div className="flex items-center gap-3 mb-5">
-          <span className="font-mono text-[10.5px] tabular-nums text-[#7878A1]">{index}</span>
-          <span className="h-px flex-1 max-w-12 bg-[#121126]/15" />
+          <span className="font-mono text-[10.5px] tabular-nums text-zoru-ink">{index}</span>
+          <span className="h-px flex-1 max-w-12 bg-zoru-ink/15" />
           <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-white shadow-[0_10px_24px_-12px_rgba(17,17,38,0.5)]" style={{ background: tagColor }}>
             {tag}
           </span>
         </div>
-        <div className="text-[12px] uppercase tracking-[0.18em] font-semibold text-[#7878A1] mb-3">{kicker}</div>
-        <h3 className="font-display text-[32px] md:text-[46px] leading-[1.02] text-[#121126]">{title}</h3>
-        <p className="mt-5 text-[15px] text-[#4A4A6B] leading-relaxed max-w-md">{body}</p>
+        <div className="text-[12px] uppercase tracking-[0.18em] font-semibold text-zoru-ink mb-3">{kicker}</div>
+        <h3 className="font-display text-[32px] md:text-[46px] leading-[1.02] text-zoru-ink">{title}</h3>
+        <p className="mt-5 text-[15px] text-zoru-ink leading-relaxed max-w-md">{body}</p>
         <ul className="mt-6 space-y-2.5">
           {bullets.map(b => (
-            <li key={b} className="flex items-start gap-2.5 text-[13.5px] text-[#121126]/85">
+            <li key={b} className="flex items-start gap-2.5 text-[13.5px] text-zoru-ink/85">
               <span className="mt-0.5 h-4 w-4 rounded-full flex-shrink-0 flex items-center justify-center text-white" style={{ background: tagColor }}>
                 <Check className="h-3 w-3" strokeWidth={3} />
               </span>
@@ -1014,7 +1014,7 @@ function ProductRow({ index, tag, tagColor, kicker, title, body, bullets, mock, 
           <Link href="/signup" className="sn-btn-primary inline-flex h-10 items-center gap-1.5 rounded-full px-5 text-[13px] font-semibold">
             Try it <ArrowRight className="h-3.5 w-3.5" />
           </Link>
-          <Link href="/contact" className="inline-flex h-10 items-center gap-1.5 px-3 text-[13px] font-medium text-[#4A4A6B] hover:text-[#121126]">
+          <Link href="/contact" className="inline-flex h-10 items-center gap-1.5 px-3 text-[13px] font-medium text-zoru-ink hover:text-zoru-ink">
             Book a walkthrough <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -1044,8 +1044,8 @@ function WachatMock() {
           <div className="flex items-center gap-2 px-3.5 py-3 border-b border-black/10" style={{ background: '#F0F2F5' }}>
             <div className="h-8 w-8 rounded-full" style={{ background: 'linear-gradient(135deg,#25D366,#128C7E)' }} />
             <div className="ml-auto flex items-center gap-1">
-              <span className="h-7 w-7 inline-flex items-center justify-center rounded-full text-[#54656F]"><MessageCircle className="h-3.5 w-3.5" /></span>
-              <span className="h-7 w-7 inline-flex items-center justify-center rounded-full text-[#54656F]"><MoreHorizontal className="h-3.5 w-3.5" /></span>
+              <span className="h-7 w-7 inline-flex items-center justify-center rounded-full text-zoru-ink"><MessageCircle className="h-3.5 w-3.5" /></span>
+              <span className="h-7 w-7 inline-flex items-center justify-center rounded-full text-zoru-ink"><MoreHorizontal className="h-3.5 w-3.5" /></span>
             </div>
           </div>
           <div className="px-3 py-2 border-b border-black/5">
@@ -1055,7 +1055,7 @@ function WachatMock() {
           </div>
           <div className="flex gap-1 px-2 py-2 overflow-x-auto text-[10px] font-semibold">
             {['All', 'Unread', 'Groups'].map((t, i) => (
-              <button key={t} className={`flex-shrink-0 px-2.5 py-1 rounded-full ${i === 1 ? 'text-white' : 'text-[#54656F]'}`} style={i === 1 ? { background: '#008069' } : { background: '#F0F2F5' }}>
+              <button key={t} className={`flex-shrink-0 px-2.5 py-1 rounded-full ${i === 1 ? 'text-white' : 'text-zoru-ink'}`} style={i === 1 ? { background: '#008069' } : { background: '#F0F2F5' }}>
                 {t}
               </button>
             ))}
@@ -1068,18 +1068,18 @@ function WachatMock() {
               { n: 'Lee Park', m: 'Need help with flows', t: 'Yest', a: 'linear-gradient(135deg,#10B981,#059669)' },
               { n: 'Nikhil R.', m: 'Can we push demo?', t: 'Yest', a: 'linear-gradient(135deg,#F59E0B,#EAB308)' },
             ].map(r => (
-              <li key={r.n} className={`flex items-center gap-3 px-3 py-2.5 ${r.active ? 'bg-[#F0F2F5]' : ''}`}>
+              <li key={r.n} className={`flex items-center gap-3 px-3 py-2.5 ${r.active ? 'bg-zoru-surface' : ''}`}>
                 <div className="h-10 w-10 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0" style={{ background: r.a }}>
                   {r.n.split(' ').map(s => s[0]).join('')}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline justify-between">
-                    <div className="text-[12.5px] font-semibold text-[#111B21] truncate">{r.n}</div>
-                    <div className="text-[9.5px] text-[#667781] font-mono tabular-nums">{r.t}</div>
+                    <div className="text-[12.5px] font-semibold text-zoru-ink truncate">{r.n}</div>
+                    <div className="text-[9.5px] text-zoru-ink font-mono tabular-nums">{r.t}</div>
                   </div>
                   <div className="flex items-center justify-between mt-0.5">
-                    <div className="text-[11.5px] text-[#667781] truncate">{r.m}</div>
-                    {r.u && <span className="ml-2 flex-shrink-0 h-4 min-w-4 inline-flex items-center justify-center rounded-full bg-[#25D366] text-white text-[9.5px] font-bold px-1">{r.u}</span>}
+                    <div className="text-[11.5px] text-zoru-ink truncate">{r.m}</div>
+                    {r.u && <span className="ml-2 flex-shrink-0 h-4 min-w-4 inline-flex items-center justify-center rounded-full bg-zoru-ink text-white text-[9.5px] font-bold px-1">{r.u}</span>}
                   </div>
                 </div>
               </li>
@@ -1095,18 +1095,18 @@ function WachatMock() {
           <header className="flex items-center gap-3 px-4 py-2.5 border-b border-black/10" style={{ background: '#F0F2F5' }}>
             <div className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white" style={{ background: 'linear-gradient(135deg,#4F46E5,#8B5CF6)' }}>PS</div>
             <div className="flex-1 min-w-0">
-              <div className="text-[13px] font-semibold text-[#111B21]">Priya Shah</div>
-              <div className="text-[10.5px] text-[#008069] font-medium flex items-center gap-1">
+              <div className="text-[13px] font-semibold text-zoru-ink">Priya Shah</div>
+              <div className="text-[10.5px] text-zoru-ink font-medium flex items-center gap-1">
                 typing
                 <span className="flex gap-0.5">
-                  <span className="h-1 w-1 rounded-full bg-[#008069] sn-float" />
-                  <span className="h-1 w-1 rounded-full bg-[#008069] sn-float" style={{ animationDelay: '0.15s' }} />
-                  <span className="h-1 w-1 rounded-full bg-[#008069] sn-float" style={{ animationDelay: '0.3s' }} />
+                  <span className="h-1 w-1 rounded-full bg-zoru-ink sn-float" />
+                  <span className="h-1 w-1 rounded-full bg-zoru-ink sn-float" style={{ animationDelay: '0.15s' }} />
+                  <span className="h-1 w-1 rounded-full bg-zoru-ink sn-float" style={{ animationDelay: '0.3s' }} />
                 </span>
               </div>
             </div>
-            <Search className="h-3.5 w-3.5 text-[#54656F]" />
-            <MoreHorizontal className="h-4 w-4 text-[#54656F]" />
+            <Search className="h-3.5 w-3.5 text-zoru-ink" />
+            <MoreHorizontal className="h-4 w-4 text-zoru-ink" />
           </header>
 
           <div className="flex-1 px-4 py-3 space-y-1.5 overflow-hidden">
@@ -1125,8 +1125,8 @@ function WachatMock() {
                   <div key={p.n} className="flex items-center gap-2 rounded p-1.5" style={{ background: '#F0F2F5' }}>
                     <div className="h-8 w-8 rounded flex-shrink-0" style={{ background: p.c }} />
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-[#111B21] text-[10.5px]">{p.n}</div>
-                      <div className="text-[9.5px] text-[#667781]">{p.p}</div>
+                      <div className="font-semibold text-zoru-ink text-[10.5px]">{p.n}</div>
+                      <div className="text-[9.5px] text-zoru-ink">{p.p}</div>
                     </div>
                   </div>
                 ))}
@@ -1148,10 +1148,10 @@ function WachatMock() {
           </div>
 
           <div className="flex items-center gap-2 px-3 py-2 border-t border-black/10" style={{ background: '#F0F2F5' }}>
-            <Smile className="h-4 w-4 text-[#54656F]" />
-            <Paperclip className="h-4 w-4 text-[#54656F]" />
+            <Smile className="h-4 w-4 text-zoru-ink" />
+            <Paperclip className="h-4 w-4 text-zoru-ink" />
             <div className="flex-1 h-9 rounded-lg bg-white flex items-center px-3 text-[11.5px]" style={{ color: '#54656F' }}>Type a message</div>
-            <Mic className="h-5 w-5 text-[#54656F]" />
+            <Mic className="h-5 w-5 text-zoru-ink" />
           </div>
         </section>
       </div>
@@ -1163,7 +1163,7 @@ function WaBubble({ side, children, ai, withTemplate }: { side: 'in' | 'out'; ch
   const isIn = side === 'in';
   return (
     <div className={`flex ${isIn ? 'justify-start' : 'justify-end'}`}>
-      <div className={`relative max-w-[70%] px-2.5 py-1.5 text-[11px] text-[#111B21] shadow-[0_1px_1px_rgba(0,0,0,0.08)] ${isIn ? 'rounded-lg rounded-tl-none' : 'rounded-lg rounded-tr-none'} ${ai ? 'border border-[#4F46E5]/25' : ''}`} style={{ background: isIn ? '#fff' : '#DCF8C6' }}>
+      <div className={`relative max-w-[70%] px-2.5 py-1.5 text-[11px] text-zoru-ink shadow-[0_1px_1px_rgba(0,0,0,0.08)] ${isIn ? 'rounded-lg rounded-tl-none' : 'rounded-lg rounded-tr-none'} ${ai ? 'border border-zoru-line/25' : ''}`} style={{ background: isIn ? '#fff' : '#DCF8C6' }}>
         {children}
         <span aria-hidden className="absolute top-0 w-2.5 h-2.5" style={{
           background: isIn ? '#fff' : '#DCF8C6',
@@ -1202,11 +1202,11 @@ function FlowBuilderMock() {
         <div className="col-span-12 md:col-span-9 relative overflow-hidden" style={{ background: '#F8F7F2' }}>
           {/* top bar */}
           <div className="flex items-center gap-2 px-4 py-2.5 border-b sn-hair bg-white/60 backdrop-blur-sm">
-            <Link href="#" className="text-[11px] text-[#7878A1] hover:text-[#121126] inline-flex items-center gap-1">
+            <Link href="#" className="text-[11px] text-zoru-ink hover:text-zoru-ink inline-flex items-center gap-1">
               <ChevronRight className="h-3 w-3 rotate-180" /> Back
             </Link>
             <div className="h-4 w-px bg-black/10 mx-1" />
-            <div className="text-[12.5px] font-semibold text-[#121126]">Post-purchase journey</div>
+            <div className="text-[12.5px] font-semibold text-zoru-ink">Post-purchase journey</div>
             <span className="sn-tag sn-tag-live" style={{ padding: '2px 8px' }}>
               <span className="dot" /> active
             </span>
@@ -1229,9 +1229,9 @@ function FlowBuilderMock() {
             </button>
             {/* zoom */}
             <div className="absolute bottom-4 right-4 sn-card rounded-md px-1 py-1 flex items-center gap-0.5">
-              <button className="h-6 w-6 text-[#7878A1] hover:bg-black/5 rounded"><Minus className="h-3 w-3 mx-auto" /></button>
-              <span className="text-[10px] font-mono text-[#7878A1] px-1">80%</span>
-              <button className="h-6 w-6 text-[#7878A1] hover:bg-black/5 rounded"><Plus className="h-3 w-3 mx-auto" /></button>
+              <button className="h-6 w-6 text-zoru-ink hover:bg-black/5 rounded"><Minus className="h-3 w-3 mx-auto" /></button>
+              <span className="text-[10px] font-mono text-zoru-ink px-1">80%</span>
+              <button className="h-6 w-6 text-zoru-ink hover:bg-black/5 rounded"><Plus className="h-3 w-3 mx-auto" /></button>
             </div>
           </div>
         </div>
@@ -1239,34 +1239,34 @@ function FlowBuilderMock() {
         {/* properties panel */}
         <aside className="col-span-12 md:col-span-3 border-l sn-hair p-4 bg-white">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-[10.5px] uppercase tracking-[0.16em] font-bold text-[#7878A1]">Properties</div>
-            <button className="text-[#7878A1] hover:text-red-600">
+            <div className="text-[10.5px] uppercase tracking-[0.16em] font-bold text-zoru-ink">Properties</div>
+            <button className="text-zoru-ink hover:text-zoru-ink">
               <Trash2 className="h-3 w-3" />
             </button>
           </div>
 
-          <div className="rounded-xl sn-card p-3 bg-[#EEF2FF] border-[#4F46E5]/15">
+          <div className="rounded-xl sn-card p-3 bg-zoru-surface border-zoru-line/15">
             <div className="flex items-center gap-2">
               <span className="h-7 w-7 rounded-lg flex items-center justify-center text-white" style={{ background: '#25D366' }}>
                 <MessageSquare className="h-3.5 w-3.5" />
               </span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12px] font-semibold text-[#121126] truncate">WhatsApp · thank-you</div>
-                <div className="text-[9.5px] text-[#7878A1] font-mono">node_04 · send</div>
+                <div className="text-[12px] font-semibold text-zoru-ink truncate">WhatsApp · thank-you</div>
+                <div className="text-[9.5px] text-zoru-ink font-mono">node_04 · send</div>
               </div>
             </div>
           </div>
 
           <div className="mt-3 space-y-3">
             <div>
-              <label className="text-[10px] uppercase tracking-widest text-[#7878A1] font-bold">Template</label>
+              <label className="text-[10px] uppercase tracking-widest text-zoru-ink font-bold">Template</label>
               <div className="mt-1 flex items-center gap-2 rounded-lg border sn-hair px-2.5 py-1.5 text-[11.5px]">
-                <span className="font-mono text-[#121126]">order_confirm_v3</span>
-                <ChevronsUpDown className="h-3 w-3 ml-auto text-[#7878A1]" />
+                <span className="font-mono text-zoru-ink">order_confirm_v3</span>
+                <ChevronsUpDown className="h-3 w-3 ml-auto text-zoru-ink" />
               </div>
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-widest text-[#7878A1] font-bold">Variables</label>
+              <label className="text-[10px] uppercase tracking-widest text-zoru-ink font-bold">Variables</label>
               <div className="mt-1 space-y-1">
                 {[
                   { k: '{{name}}', v: 'contact.first_name' },
@@ -1274,30 +1274,30 @@ function FlowBuilderMock() {
                   { k: '{{eta}}', v: 'shopify.eta_date' },
                 ].map(v => (
                   <div key={v.k} className="flex items-center justify-between rounded border sn-hair px-2 py-1 text-[10.5px]">
-                    <span className="font-mono text-[#4F46E5]">{v.k}</span>
-                    <span className="font-mono text-[#4A4A6B] truncate ml-2">{v.v}</span>
+                    <span className="font-mono text-zoru-ink">{v.k}</span>
+                    <span className="font-mono text-zoru-ink truncate ml-2">{v.v}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-widest text-[#7878A1] font-bold">Retry</label>
+              <label className="text-[10px] uppercase tracking-widest text-zoru-ink font-bold">Retry</label>
               <div className="mt-1 flex gap-1.5">
                 {['1×', '3×', '5×'].map((o, i) => (
-                  <button key={o} className={`flex-1 rounded-md py-1 text-[10.5px] font-semibold ${i === 1 ? 'bg-[#121126] text-white' : 'bg-black/[0.04] text-[#4A4A6B]'}`}>{o}</button>
+                  <button key={o} className={`flex-1 rounded-md py-1 text-[10.5px] font-semibold ${i === 1 ? 'bg-zoru-ink text-white' : 'bg-black/[0.04] text-zoru-ink'}`}>{o}</button>
                 ))}
               </div>
             </div>
           </div>
 
           <div className="mt-4 pt-3 border-t sn-hair">
-            <div className="text-[10px] uppercase tracking-widest text-[#7878A1] font-bold mb-1.5">Last 7d · sent</div>
+            <div className="text-[10px] uppercase tracking-widest text-zoru-ink font-bold mb-1.5">Last 7d · sent</div>
             <div className="flex items-end gap-[2px] h-10">
               {[40, 52, 65, 58, 72, 88, 94].map((h, i) => (
                 <div key={i} className="flex-1 rounded-sm" style={{ height: `${h}%`, background: i === 6 ? '#4F46E5' : '#E0E7FF' }} />
               ))}
             </div>
-            <div className="flex justify-between mt-1 text-[9.5px] font-mono text-[#7878A1]">
+            <div className="flex justify-between mt-1 text-[9.5px] font-mono text-zoru-ink">
               {['M','T','W','T','F','S','S'].map((d, i) => <span key={i}>{d}</span>)}
             </div>
           </div>
@@ -1363,7 +1363,7 @@ function FlowCanvas() {
             top: `${(n.y / H) * 100}%`,
             width: `${(n.w / W) * 100}%`,
           }}>
-            <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-[#7878A1]">
+            <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-zoru-ink">
               <span className="h-1 w-1 rounded-full" style={{ background: n.color }} />
               {n.type}
             </div>
@@ -1372,8 +1372,8 @@ function FlowCanvas() {
                 <Icon className="h-3 w-3" strokeWidth={2.4} />
               </span>
               <div className="flex-1 min-w-0">
-                <div className="text-[11px] font-semibold text-[#121126] leading-tight truncate">{n.label}</div>
-                <div className="text-[9.5px] text-[#7878A1] truncate font-mono">{n.sub}</div>
+                <div className="text-[11px] font-semibold text-zoru-ink leading-tight truncate">{n.label}</div>
+                <div className="text-[9.5px] text-zoru-ink truncate font-mono">{n.sub}</div>
               </div>
             </div>
           </div>
@@ -1401,16 +1401,16 @@ function ContactsMock() {
       <WindowChrome title="dashboard / contacts · 3,284 total" />
       <div className="p-4 md:p-5" style={{ background: '#FAF9F4' }}>
         {/* breadcrumb + header */}
-        <div className="flex items-center gap-1.5 text-[11px] text-[#7878A1] mb-3">
+        <div className="flex items-center gap-1.5 text-[11px] text-zoru-ink mb-3">
           <span>Dashboard</span>
           <ChevronRight className="h-3 w-3" />
-          <span className="text-[#121126] font-medium">Contacts</span>
+          <span className="text-zoru-ink font-medium">Contacts</span>
         </div>
 
         <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
           <div>
-            <h3 className="font-display text-[22px] text-[#121126] leading-none">All contacts</h3>
-            <p className="text-[12px] text-[#4A4A6B] mt-1">Manage, tag, enrich and message every contact across channels.</p>
+            <h3 className="font-display text-[22px] text-zoru-ink leading-none">All contacts</h3>
+            <p className="text-[12px] text-zoru-ink mt-1">Manage, tag, enrich and message every contact across channels.</p>
           </div>
           <div className="flex items-center gap-1.5">
             <button className="sn-btn-ghost inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[11.5px] font-semibold">
@@ -1430,9 +1430,9 @@ function ContactsMock() {
             { k: 'Active · 7d',     v: '1,124', d: '+14% vs last week', c: '#22C55E' },
           ].map(s => (
             <div key={s.k} className="rounded-xl sn-card p-3">
-              <div className="text-[9.5px] uppercase tracking-widest text-[#7878A1] font-bold">{s.k}</div>
+              <div className="text-[9.5px] uppercase tracking-widest text-zoru-ink font-bold">{s.k}</div>
               <div className="mt-1 flex items-baseline gap-2">
-                <div className="font-display text-[24px] text-[#121126] tabular-nums leading-none">{s.v}</div>
+                <div className="font-display text-[24px] text-zoru-ink tabular-nums leading-none">{s.v}</div>
                 <div className="text-[10.5px] font-semibold" style={{ color: s.c }}>{s.d}</div>
               </div>
             </div>
@@ -1442,8 +1442,8 @@ function ContactsMock() {
         {/* filter bar */}
         <div className="rounded-xl sn-card p-2 flex items-center gap-2 mb-4">
           <div className="flex items-center gap-2 rounded-full bg-black/[0.04] px-3 py-1.5 text-[11.5px] flex-1">
-            <Search className="h-3.5 w-3.5 text-[#7878A1]" />
-            <span className="text-[#7878A1]">Name, phone, email…</span>
+            <Search className="h-3.5 w-3.5 text-zoru-ink" />
+            <span className="text-zoru-ink">Name, phone, email…</span>
           </div>
           <button className="sn-btn-ghost inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-[11px] font-semibold">
             <Tag className="h-3 w-3" /> Tag · 3
@@ -1457,10 +1457,10 @@ function ContactsMock() {
         <div className="rounded-xl sn-card overflow-hidden">
           <table className="w-full text-[11.5px]">
             <thead>
-              <tr className="text-[9.5px] uppercase tracking-[0.14em] text-[#7878A1] font-bold bg-[#FAF9F4] border-b sn-hair">
+              <tr className="text-[9.5px] uppercase tracking-[0.14em] text-zoru-ink font-bold bg-zoru-surface border-b sn-hair">
                 <th className="text-left px-3 py-2.5 font-bold">
                   <div className="flex items-center gap-1.5">
-                    <input type="checkbox" className="h-3 w-3 accent-[#4F46E5]" readOnly />
+                    <input type="checkbox" className="h-3 w-3 accent-zoru-ink" readOnly />
                     Name
                   </div>
                 </th>
@@ -1473,20 +1473,20 @@ function ContactsMock() {
             </thead>
             <tbody className="divide-y sn-hair">
               {contacts.map(c => (
-                <tr key={c.e} className="hover:bg-[#FAF9F4]">
+                <tr key={c.e} className="hover:bg-zoru-surface">
                   <td className="px-3 py-2.5">
                     <div className="flex items-center gap-2">
-                      <input type="checkbox" className="h-3 w-3 accent-[#4F46E5]" readOnly />
+                      <input type="checkbox" className="h-3 w-3 accent-zoru-ink" readOnly />
                       <div className="h-7 w-7 rounded-full flex items-center justify-center text-[9.5px] font-bold text-white flex-shrink-0" style={{ background: c.grad }}>
                         {c.n.split(' ').map(s => s[0]).join('')}
                       </div>
                       <div className="min-w-0">
-                        <div className="font-semibold text-[#121126] truncate">{c.n}</div>
-                        <div className="text-[10px] text-[#7878A1] truncate">{c.e}</div>
+                        <div className="font-semibold text-zoru-ink truncate">{c.n}</div>
+                        <div className="text-[10px] text-zoru-ink truncate">{c.e}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 py-2.5 text-[#4A4A6B] font-mono tabular-nums hidden sm:table-cell">{c.ph}</td>
+                  <td className="px-3 py-2.5 text-zoru-ink font-mono tabular-nums hidden sm:table-cell">{c.ph}</td>
                   <td className="px-3 py-2.5">
                     <div className="flex flex-wrap gap-1">
                       {c.tags.map(t => (
@@ -1510,9 +1510,9 @@ function ContactsMock() {
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-2.5 text-right font-mono text-[#7878A1] tabular-nums">{c.last}</td>
+                  <td className="px-3 py-2.5 text-right font-mono text-zoru-ink tabular-nums">{c.last}</td>
                   <td className="px-3 py-2.5 text-right">
-                    <button className="h-7 w-7 inline-flex items-center justify-center rounded-full hover:bg-black/5 text-[#7878A1]">
+                    <button className="h-7 w-7 inline-flex items-center justify-center rounded-full hover:bg-black/5 text-zoru-ink">
                       <MessageSquare className="h-3.5 w-3.5" />
                     </button>
                   </td>
@@ -1520,11 +1520,11 @@ function ContactsMock() {
               ))}
             </tbody>
           </table>
-          <div className="flex items-center justify-between px-4 py-2.5 border-t sn-hair text-[10.5px] text-[#7878A1]">
+          <div className="flex items-center justify-between px-4 py-2.5 border-t sn-hair text-[10.5px] text-zoru-ink">
             <span>1–20 of 3,284</span>
             <div className="flex items-center gap-1">
               {['‹', '1', '2', '3', '…', '164', '›'].map((p, i) => (
-                <button key={i} className={`h-6 min-w-6 px-1.5 rounded font-mono ${p === '1' ? 'bg-[#121126] text-white' : 'hover:bg-black/5'}`}>
+                <button key={i} className={`h-6 min-w-6 px-1.5 rounded font-mono ${p === '1' ? 'bg-zoru-ink text-white' : 'hover:bg-black/5'}`}>
                   {p}
                 </button>
               ))}
@@ -1545,43 +1545,43 @@ function ChatbotMock() {
     <div className="relative sn-window">
       <WindowChrome title="dashboard / chatbot · 42 active rules" />
       <div className="p-4 md:p-5" style={{ background: '#FAF9F4' }}>
-        <div className="flex items-center gap-1.5 text-[11px] text-[#7878A1] mb-3">
+        <div className="flex items-center gap-1.5 text-[11px] text-zoru-ink mb-3">
           <span>Dashboard</span>
           <ChevronRight className="h-3 w-3" />
-          <span className="text-[#121126] font-medium">Chatbot</span>
+          <span className="text-zoru-ink font-medium">Chatbot</span>
         </div>
 
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-display text-[22px] text-[#121126] leading-none">Keyword responses</h3>
-            <p className="text-[12px] text-[#4A4A6B] mt-1">Instant auto-replies. Falls back to AI Studio for anything unmatched.</p>
+            <h3 className="font-display text-[22px] text-zoru-ink leading-none">Keyword responses</h3>
+            <p className="text-[12px] text-zoru-ink mt-1">Instant auto-replies. Falls back to AI Studio for anything unmatched.</p>
           </div>
           <span className="sn-tag sn-tag-live"><span className="dot" /> live</span>
         </div>
 
         {/* create form */}
         <div className="rounded-xl sn-card p-4 mb-4">
-          <div className="text-[10.5px] uppercase tracking-widest text-[#7878A1] font-bold mb-3">New rule</div>
+          <div className="text-[10.5px] uppercase tracking-widest text-zoru-ink font-bold mb-3">New rule</div>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
             <div className="md:col-span-3">
-              <label className="text-[10px] text-[#7878A1] font-semibold">Trigger</label>
-              <div className="mt-1 h-8 rounded-md border sn-hair bg-white px-2.5 flex items-center text-[11.5px] text-[#121126] font-mono">refund</div>
+              <label className="text-[10px] text-zoru-ink font-semibold">Trigger</label>
+              <div className="mt-1 h-8 rounded-md border sn-hair bg-white px-2.5 flex items-center text-[11.5px] text-zoru-ink font-mono">refund</div>
             </div>
             <div className="md:col-span-3">
-              <label className="text-[10px] text-[#7878A1] font-semibold">Match type</label>
-              <div className="mt-1 h-8 rounded-md border sn-hair bg-white px-2.5 flex items-center text-[11.5px] text-[#121126]">
-                Contains <ChevronDown className="h-3 w-3 ml-auto text-[#7878A1]" />
+              <label className="text-[10px] text-zoru-ink font-semibold">Match type</label>
+              <div className="mt-1 h-8 rounded-md border sn-hair bg-white px-2.5 flex items-center text-[11.5px] text-zoru-ink">
+                Contains <ChevronDown className="h-3 w-3 ml-auto text-zoru-ink" />
               </div>
             </div>
             <div className="md:col-span-4">
-              <label className="text-[10px] text-[#7878A1] font-semibold">Response</label>
-              <div className="mt-1 min-h-8 rounded-md border sn-hair bg-white px-2.5 py-1.5 text-[11.5px] text-[#121126] leading-snug">
+              <label className="text-[10px] text-zoru-ink font-semibold">Response</label>
+              <div className="mt-1 min-h-8 rounded-md border sn-hair bg-white px-2.5 py-1.5 text-[11.5px] text-zoru-ink leading-snug">
                 Sorry to hear! Our refund window is 7 days from delivery — tap below to start.
               </div>
             </div>
             <div className="md:col-span-2 flex items-end justify-end gap-1.5">
               <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold">
-                <span className="relative inline-block w-7 h-4 rounded-full bg-[#4F46E5]">
+                <span className="relative inline-block w-7 h-4 rounded-full bg-zoru-ink">
                   <span className="absolute top-0.5 right-0.5 h-3 w-3 rounded-full bg-white" />
                 </span>
                 Active
@@ -1596,12 +1596,12 @@ function ChatbotMock() {
         {/* rules table */}
         <div className="rounded-xl sn-card overflow-hidden">
           <div className="flex items-center justify-between px-4 py-2.5 border-b sn-hair">
-            <div className="text-[12px] font-semibold text-[#121126]">Active rules</div>
-            <span className="text-[10.5px] font-mono text-[#7878A1]">42 rules · 4/5 pages</span>
+            <div className="text-[12px] font-semibold text-zoru-ink">Active rules</div>
+            <span className="text-[10.5px] font-mono text-zoru-ink">42 rules · 4/5 pages</span>
           </div>
           <table className="w-full text-[11.5px]">
             <thead>
-              <tr className="text-[9.5px] uppercase tracking-[0.14em] text-[#7878A1] font-bold bg-[#FAF9F4] border-b sn-hair">
+              <tr className="text-[9.5px] uppercase tracking-[0.14em] text-zoru-ink font-bold bg-zoru-surface border-b sn-hair">
                 <th className="text-left px-3 py-2.5 font-bold">Trigger</th>
                 <th className="text-left px-3 py-2.5 font-bold">Response</th>
                 <th className="text-left px-3 py-2.5 font-bold hidden md:table-cell">Match</th>
@@ -1618,20 +1618,20 @@ function ChatbotMock() {
                 { t: '^track\\s+\\#?\\d+', r: "I'll pull up that order — one sec.", m: 'Regex', active: true, h: 218 },
                 { t: 'human', r: 'Connecting you to a human teammate now…', m: 'Exact', active: false, h: 92 },
               ].map(r => (
-                <tr key={r.t} className="hover:bg-[#FAF9F4]">
+                <tr key={r.t} className="hover:bg-zoru-surface">
                   <td className="px-3 py-2.5">
-                    <span className="inline-flex items-center gap-1 rounded bg-[#EEF2FF] text-[#4F46E5] font-mono px-1.5 py-0.5 text-[10.5px]">
+                    <span className="inline-flex items-center gap-1 rounded bg-zoru-surface text-zoru-ink font-mono px-1.5 py-0.5 text-[10.5px]">
                       <Hash className="h-2.5 w-2.5" /> {r.t}
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 text-[#4A4A6B] truncate max-w-[280px]">{r.r}</td>
+                  <td className="px-3 py-2.5 text-zoru-ink truncate max-w-[280px]">{r.r}</td>
                   <td className="px-3 py-2.5 hidden md:table-cell">
-                    <span className="inline-flex items-center text-[10px] font-semibold uppercase tracking-widest rounded bg-black/[0.04] px-1.5 py-0.5 text-[#4A4A6B]">{r.m}</span>
+                    <span className="inline-flex items-center text-[10px] font-semibold uppercase tracking-widest rounded bg-black/[0.04] px-1.5 py-0.5 text-zoru-ink">{r.m}</span>
                   </td>
                   <td className="px-3 py-2.5 text-center">
                     {r.active ? (
                       <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold rounded-full px-2 py-0.5" style={{ background: '#DCFCE7', color: '#166534' }}>
-                        <span className="h-1 w-1 rounded-full bg-[#22C55E]" /> active
+                        <span className="h-1 w-1 rounded-full bg-zoru-ink" /> active
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold rounded-full px-2 py-0.5" style={{ background: '#F3F4F6', color: '#6B7280' }}>
@@ -1639,9 +1639,9 @@ function ChatbotMock() {
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-2.5 text-right font-mono text-[#4A4A6B] tabular-nums hidden sm:table-cell">{r.h.toLocaleString()}</td>
+                  <td className="px-3 py-2.5 text-right font-mono text-zoru-ink tabular-nums hidden sm:table-cell">{r.h.toLocaleString()}</td>
                   <td className="px-3 py-2.5 text-right">
-                    <button className="h-7 w-7 inline-flex items-center justify-center rounded-full hover:bg-red-50 text-[#7878A1] hover:text-red-600">
+                    <button className="h-7 w-7 inline-flex items-center justify-center rounded-full hover:bg-zoru-surface-2 text-zoru-ink hover:text-zoru-ink">
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </td>
@@ -1667,17 +1667,17 @@ function AnalyticsMock() {
         {/* header */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
-            <div className="flex items-center gap-1.5 text-[11px] text-[#7878A1] mb-1.5">
+            <div className="flex items-center gap-1.5 text-[11px] text-zoru-ink mb-1.5">
               <span>Dashboard</span>
               <ChevronRight className="h-3 w-3" />
-              <span className="text-[#121126] font-medium">Analytics</span>
+              <span className="text-zoru-ink font-medium">Analytics</span>
             </div>
-            <h3 className="font-display text-[22px] text-[#121126] leading-none">Overview</h3>
+            <h3 className="font-display text-[22px] text-zoru-ink leading-none">Overview</h3>
           </div>
           <div className="flex items-center gap-2">
             <div className="inline-flex items-center gap-0.5 rounded-full sn-card p-1 text-[11px]">
               {['7d', '30d', '90d'].map((t, i) => (
-                <button key={t} className={`px-2.5 py-1 rounded-full font-semibold ${i === 1 ? 'bg-[#121126] text-white' : 'text-[#4A4A6B]'}`}>{t}</button>
+                <button key={t} className={`px-2.5 py-1 rounded-full font-semibold ${i === 1 ? 'bg-zoru-ink text-white' : 'text-zoru-ink'}`}>{t}</button>
               ))}
             </div>
             <button className="sn-btn-ghost inline-flex h-8 items-center gap-1 rounded-full px-3 text-[11px] font-semibold">
@@ -1705,8 +1705,8 @@ function AnalyticsMock() {
                   </span>
                   <span className="text-[10.5px] font-bold" style={{ color: s.c }}>{s.d}</span>
                 </div>
-                <div className="mt-2 text-[9.5px] uppercase tracking-widest text-[#7878A1] font-bold">{s.k}</div>
-                <div className="mt-0.5 font-display text-[22px] text-[#121126] tabular-nums leading-none">{s.v}</div>
+                <div className="mt-2 text-[9.5px] uppercase tracking-widest text-zoru-ink font-bold">{s.k}</div>
+                <div className="mt-0.5 font-display text-[22px] text-zoru-ink tabular-nums leading-none">{s.v}</div>
               </div>
             );
           })}
@@ -1717,8 +1717,8 @@ function AnalyticsMock() {
           <div className="col-span-12 md:col-span-8 rounded-xl sn-card p-4">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <div className="text-[12px] font-semibold text-[#121126]">Messages · sent vs delivered vs read</div>
-                <div className="text-[9.5px] font-mono text-[#7878A1]">UTC · stacked</div>
+                <div className="text-[12px] font-semibold text-zoru-ink">Messages · sent vs delivered vs read</div>
+                <div className="text-[9.5px] font-mono text-zoru-ink">UTC · stacked</div>
               </div>
               <div className="flex items-center gap-3 text-[10px]">
                 {[
@@ -1727,7 +1727,7 @@ function AnalyticsMock() {
                   { n: 'Read', c: '#10B981' },
                   { n: 'Failed', c: '#EF4444' },
                 ].map(l => (
-                  <div key={l.n} className="flex items-center gap-1 text-[#4A4A6B]">
+                  <div key={l.n} className="flex items-center gap-1 text-zoru-ink">
                     <span className="h-2 w-2 rounded-full" style={{ background: l.c }} />
                     {l.n}
                   </div>
@@ -1738,8 +1738,8 @@ function AnalyticsMock() {
           </div>
 
           <div className="col-span-12 md:col-span-4 rounded-xl sn-card p-4">
-            <div className="text-[12px] font-semibold text-[#121126] mb-0.5">Delivery performance</div>
-            <div className="text-[9.5px] font-mono text-[#7878A1] mb-3">last 24 hours</div>
+            <div className="text-[12px] font-semibold text-zoru-ink mb-0.5">Delivery performance</div>
+            <div className="text-[9.5px] font-mono text-zoru-ink mb-3">last 24 hours</div>
             <div className="space-y-3">
               {[
                 { k: 'Delivered in <5s', v: '99.2%', c: '#22C55E' },
@@ -1748,8 +1748,8 @@ function AnalyticsMock() {
               ].map(r => (
                 <div key={r.k}>
                   <div className="flex items-center justify-between text-[11.5px] mb-1">
-                    <span className="text-[#4A4A6B]">{r.k}</span>
-                    <span className="font-semibold text-[#121126] tabular-nums font-mono">{r.v}</span>
+                    <span className="text-zoru-ink">{r.k}</span>
+                    <span className="font-semibold text-zoru-ink tabular-nums font-mono">{r.v}</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-black/[0.06] overflow-hidden">
                     <div className="h-full rounded-full" style={{ width: r.v, background: r.c }} />
@@ -1757,21 +1757,21 @@ function AnalyticsMock() {
                 </div>
               ))}
             </div>
-            <div className="mt-4 pt-3 border-t sn-hair text-[11px] text-[#7878A1] flex items-center justify-between">
+            <div className="mt-4 pt-3 border-t sn-hair text-[11px] text-zoru-ink flex items-center justify-between">
               <span>Alerts</span>
-              <span className="font-semibold text-[#22C55E]">all ok</span>
+              <span className="font-semibold text-zoru-ink">all ok</span>
             </div>
           </div>
 
           {/* daily breakdown */}
           <div className="col-span-12 rounded-xl sn-card overflow-hidden">
             <div className="flex items-center justify-between px-4 py-2.5 border-b sn-hair">
-              <div className="text-[12px] font-semibold text-[#121126]">Daily breakdown</div>
-              <button className="text-[10.5px] text-[#4F46E5] hover:text-[#4338CA] font-semibold">View all</button>
+              <div className="text-[12px] font-semibold text-zoru-ink">Daily breakdown</div>
+              <button className="text-[10.5px] text-zoru-ink hover:text-zoru-ink font-semibold">View all</button>
             </div>
             <table className="w-full text-[11.5px]">
               <thead>
-                <tr className="text-[9.5px] uppercase tracking-[0.14em] text-[#7878A1] font-bold bg-[#FAF9F4]">
+                <tr className="text-[9.5px] uppercase tracking-[0.14em] text-zoru-ink font-bold bg-zoru-surface">
                   <th className="text-left px-3 py-2 font-bold">Date</th>
                   <th className="text-right px-3 py-2 font-bold">Sent</th>
                   <th className="text-right px-3 py-2 font-bold" style={{ color: '#22C55E' }}>Delivered</th>
@@ -1788,8 +1788,8 @@ function AnalyticsMock() {
                   { d: 'Apr 20', s: '1.18M', dl: '1.17M', r: '0.98M', f: '0.6%', inc: '240k', spark: [20, 28, 34, 38, 46, 52, 58, 62] },
                   { d: 'Apr 19', s: '1.22M', dl: '1.21M', r: '1.02M', f: '0.5%', inc: '256k', spark: [18, 24, 32, 40, 44, 50, 54, 58] },
                 ].map(r => (
-                  <tr key={r.d} className="text-[#121126]">
-                    <td className="px-3 py-2 font-mono text-[#4A4A6B] tabular-nums">{r.d}</td>
+                  <tr key={r.d} className="text-zoru-ink">
+                    <td className="px-3 py-2 font-mono text-zoru-ink tabular-nums">{r.d}</td>
                     <td className="px-3 py-2 text-right font-semibold tabular-nums font-mono">{r.s}</td>
                     <td className="px-3 py-2 text-right tabular-nums font-mono" style={{ color: '#166534' }}>{r.dl}</td>
                     <td className="px-3 py-2 text-right tabular-nums font-mono" style={{ color: '#047857' }}>{r.r}</td>
@@ -1851,12 +1851,12 @@ function LineChartViz() {
           return <polyline key={si} points={points} fill="none" stroke={s.c} strokeWidth="1.8" vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />;
         })}
       </svg>
-      <div className="absolute inset-x-0 bottom-0 flex justify-between text-[9.5px] font-mono text-[#7878A1] pt-1">
+      <div className="absolute inset-x-0 bottom-0 flex justify-between text-[9.5px] font-mono text-zoru-ink pt-1">
         <span>Mar 24</span>
         <span>Mar 31</span>
         <span>Apr 07</span>
         <span>Apr 14</span>
-        <span className="text-[#121126] font-semibold">Apr 22</span>
+        <span className="text-zoru-ink font-semibold">Apr 22</span>
       </div>
     </div>
   );
@@ -1868,11 +1868,11 @@ function LineChartViz() {
 
 function WindowChrome({ title }: { title: string }) {
   return (
-    <div className="flex items-center gap-2 px-4 py-2.5 border-b sn-hair bg-[#FAF9F4]">
-      <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
-      <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
-      <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
-      <div className="ml-4 text-[10.5px] text-[#7878A1] font-mono tabular-nums truncate">{title}</div>
+    <div className="flex items-center gap-2 px-4 py-2.5 border-b sn-hair bg-zoru-surface">
+      <span className="h-2.5 w-2.5 rounded-full bg-zoru-ink" />
+      <span className="h-2.5 w-2.5 rounded-full bg-zoru-surface-2" />
+      <span className="h-2.5 w-2.5 rounded-full bg-zoru-ink" />
+      <div className="ml-4 text-[10.5px] text-zoru-ink font-mono tabular-nums truncate">{title}</div>
       <div className="ml-auto hidden sm:flex items-center gap-1">
         <span className="h-6 w-20 rounded-md bg-black/[0.04]" />
         <span className="h-6 w-6 rounded-md bg-black/[0.04]" />
@@ -1883,7 +1883,7 @@ function WindowChrome({ title }: { title: string }) {
 
 function IconBtn({ children, sm }: { children: React.ReactNode; sm?: boolean }) {
   return (
-    <button className={`inline-flex items-center justify-center rounded-md text-[#7878A1] hover:bg-black/5 hover:text-[#121126] transition-colors ${sm ? 'h-6 w-6' : 'h-7 w-7'}`}>
+    <button className={`inline-flex items-center justify-center rounded-md text-zoru-ink hover:bg-black/5 hover:text-zoru-ink transition-colors ${sm ? 'h-6 w-6' : 'h-7 w-7'}`}>
       {children}
     </button>
   );
@@ -1902,21 +1902,21 @@ function ChatBubble({ side, children, time, ai }: { side: 'in' | 'out'; children
   return (
     <div className={`flex ${isIn ? 'justify-start' : 'justify-end'}`}>
       <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-[11.5px] leading-snug ${
-        isIn ? 'bg-white border sn-hair text-[#121126] rounded-bl-sm' : 'text-white rounded-br-sm'
-      } ${ai ? 'ring-1 ring-inset ring-[#4F46E5]/25' : ''}`} style={{
+        isIn ? 'bg-white border sn-hair text-zoru-ink rounded-bl-sm' : 'text-white rounded-br-sm'
+      } ${ai ? 'ring-1 ring-inset ring-zoru-line/25' : ''}`} style={{
         background: isIn ? '#fff' : 'linear-gradient(135deg, #4F46E5, #6366F1)',
       }}>
         {ai && (
-          <div className="inline-flex items-center gap-1 text-[8.5px] font-bold uppercase tracking-widest text-[#CFFF5E] mb-0.5">
+          <div className="inline-flex items-center gap-1 text-[8.5px] font-bold uppercase tracking-widest text-zoru-ink-muted mb-0.5">
             <Sparkles className="h-2 w-2" /> AI
           </div>
         )}
         {ai && <br />}
         {children}
-        <div className={`flex items-center gap-1 mt-1 text-[9.5px] ${isIn ? 'text-[#7878A1]' : 'text-white/75'} tabular-nums font-mono`}>
+        <div className={`flex items-center gap-1 mt-1 text-[9.5px] ${isIn ? 'text-zoru-ink' : 'text-white/75'} tabular-nums font-mono`}>
           {time}
           {!isIn && (
-            <svg width="12" height="8" viewBox="0 0 12 8" fill="none" className="text-[#CFFF5E] ml-0.5">
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none" className="text-zoru-ink-muted ml-0.5">
               <path d="M1 4 L3.5 6.5 L7 3" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M4 4 L6.5 6.5 L11 1.5" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -1939,13 +1939,13 @@ function BentoMetrics() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div>
             <Eyebrow label="By the numbers" />
-            <h2 className="mt-4 font-display text-[40px] md:text-[60px] leading-[1] text-[#121126]">
+            <h2 className="mt-4 font-display text-[40px] md:text-[60px] leading-[1] text-zoru-ink">
               Data teams{' '}
               <span className="font-display-italic sn-gradient-text">trust</span>{' '}
               to run on.
             </h2>
           </div>
-          <p className="md:max-w-sm text-[15px] text-[#4A4A6B] leading-relaxed">
+          <p className="md:max-w-sm text-[15px] text-zoru-ink leading-relaxed">
             Aggregated across <b>4,812</b> live workspaces. Refreshed every 60
             seconds — the numbers below are today's.
           </p>
@@ -1976,21 +1976,21 @@ function MessagesChartCard() {
     }}>
       <div className="flex items-start justify-between mb-6 gap-4">
         <div>
-          <div className="text-[11px] uppercase tracking-[0.18em] text-[#7878A1] font-bold">Messages sent · all channels</div>
+          <div className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink font-bold">Messages sent · all channels</div>
           <div className="flex items-baseline gap-3 mt-3 flex-wrap">
-            <div className="font-display text-[56px] md:text-[84px] leading-[0.9] text-[#121126] tabular-nums">14.2M</div>
+            <div className="font-display text-[56px] md:text-[84px] leading-[0.9] text-zoru-ink tabular-nums">14.2M</div>
             <div className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ background: '#DCFCE7', color: '#166534' }}>
               <ArrowUpRight className="h-3 w-3" /> +38% MoM
             </div>
           </div>
-          <div className="text-[13px] text-[#4A4A6B] mt-2 max-w-md">
+          <div className="text-[13px] text-zoru-ink mt-2 max-w-md">
             WhatsApp, web, SMS and email — outbound and inbound combined. Last 30 days.
           </div>
         </div>
         <div className="hidden sm:flex gap-1.5 flex-shrink-0">
-          <button className="h-7 px-3 rounded-full bg-black/[0.04] text-[11px] font-semibold text-[#7878A1]">7d</button>
-          <button className="h-7 px-3 rounded-full bg-[#121126] text-[11px] font-semibold text-white">30d</button>
-          <button className="h-7 px-3 rounded-full bg-black/[0.04] text-[11px] font-semibold text-[#7878A1]">90d</button>
+          <button className="h-7 px-3 rounded-full bg-black/[0.04] text-[11px] font-semibold text-zoru-ink">7d</button>
+          <button className="h-7 px-3 rounded-full bg-zoru-ink text-[11px] font-semibold text-white">30d</button>
+          <button className="h-7 px-3 rounded-full bg-black/[0.04] text-[11px] font-semibold text-zoru-ink">90d</button>
         </div>
       </div>
       <div className="relative h-40 md:h-56">
@@ -2010,7 +2010,7 @@ function MessagesChartCard() {
                   : 'linear-gradient(180deg, rgba(17,17,38,0.18), rgba(17,17,38,0.06))',
               }}>
                 {isPeak && (
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10.5px] font-bold text-white bg-[#4F46E5] px-2 py-0.5 rounded shadow-lg">
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10.5px] font-bold text-white bg-zoru-ink px-2 py-0.5 rounded shadow-lg">
                     1.42M · Tue
                   </div>
                 )}
@@ -2019,10 +2019,10 @@ function MessagesChartCard() {
           })}
         </div>
       </div>
-      <div className="mt-3 flex items-center justify-between text-[10.5px] text-[#7878A1] tabular-nums font-mono">
+      <div className="mt-3 flex items-center justify-between text-[10.5px] text-zoru-ink tabular-nums font-mono">
         <span>Mar 24</span>
         <span>Apr 07</span>
-        <span className="text-[#121126] font-semibold">Apr 22</span>
+        <span className="text-zoru-ink font-semibold">Apr 22</span>
       </div>
       <div className="mt-5 pt-4 border-t sn-hair grid grid-cols-3 gap-3 text-center">
         {[
@@ -2031,8 +2031,8 @@ function MessagesChartCard() {
           { v: '99.4%', k: 'Delivered' },
         ].map((s, i) => (
           <div key={s.k} className={i === 1 ? 'border-x sn-hair' : ''}>
-            <div className="font-display text-[20px] text-[#121126] tabular-nums">{s.v}</div>
-            <div className="text-[10px] uppercase tracking-widest text-[#7878A1]">{s.k}</div>
+            <div className="font-display text-[20px] text-zoru-ink tabular-nums">{s.v}</div>
+            <div className="text-[10px] uppercase tracking-widest text-zoru-ink">{s.k}</div>
           </div>
         ))}
       </div>
@@ -2047,8 +2047,8 @@ function AIResolutionCard() {
     <div className="md:col-span-2 rounded-[24px] p-6 sn-card relative overflow-hidden">
       <div aria-hidden className="absolute -top-16 -right-16 h-40 w-40 rounded-full opacity-60" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.25), transparent 70%)' }} />
       <div className="relative flex items-start justify-between">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-[#8B5CF6] font-bold">AI resolution</div>
-        <span className="inline-flex items-center gap-1 rounded-full bg-[#F3E8FF] px-2 py-0.5 text-[10px] font-bold text-[#7C3AED]">
+        <div className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink font-bold">AI resolution</div>
+        <span className="inline-flex items-center gap-1 rounded-full bg-zoru-surface px-2 py-0.5 text-[10px] font-bold text-zoru-ink">
           <Sparkles className="h-2.5 w-2.5" /> 24h
         </span>
       </div>
@@ -2058,16 +2058,16 @@ function AIResolutionCard() {
             <circle cx="48" cy="48" r="42" fill="none" stroke="rgba(17,17,38,0.08)" strokeWidth="9" />
             <circle cx="48" cy="48" r="42" fill="none" stroke="#8B5CF6" strokeWidth="9" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={circ * (1 - pct / 100)} transform="rotate(-90 48 48)" />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center font-display text-[24px] text-[#121126] tabular-nums">74%</div>
+          <div className="absolute inset-0 flex items-center justify-center font-display text-[24px] text-zoru-ink tabular-nums">74%</div>
         </div>
         <div className="min-w-0">
-          <div className="text-[13px] font-semibold text-[#121126] leading-tight">Resolved without a human</div>
-          <div className="text-[11.5px] text-[#7878A1] mt-1 font-mono tabular-nums">188,412 / 254,690</div>
+          <div className="text-[13px] font-semibold text-zoru-ink leading-tight">Resolved without a human</div>
+          <div className="text-[11.5px] text-zoru-ink mt-1 font-mono tabular-nums">188,412 / 254,690</div>
         </div>
       </div>
       <div className="relative mt-4 pt-3 border-t sn-hair flex items-center justify-between text-[11px]">
-        <span className="text-[#7878A1]">Median confidence</span>
-        <span className="font-semibold text-[#121126] tabular-nums font-mono">0.92</span>
+        <span className="text-zoru-ink">Median confidence</span>
+        <span className="font-semibold text-zoru-ink tabular-nums font-mono">0.92</span>
       </div>
     </div>
   );
@@ -2090,10 +2090,10 @@ function UptimeCard() {
       }} />
       <div className="relative flex items-start justify-between">
         <div className="text-[11px] uppercase tracking-[0.18em] text-white/60 font-bold">Uptime · 90 days</div>
-        <span className="inline-flex items-center gap-1.5 text-[10px] text-[#86EFAC] font-bold uppercase tracking-widest">
+        <span className="inline-flex items-center gap-1.5 text-[10px] text-zoru-ink-muted font-bold uppercase tracking-widest">
           <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inset-0 rounded-full bg-[#86EFAC] opacity-60 animate-ping" />
-            <span className="relative rounded-full h-1.5 w-1.5 bg-[#86EFAC]" />
+            <span className="absolute inset-0 rounded-full bg-zoru-surface-2 opacity-60 animate-ping" />
+            <span className="relative rounded-full h-1.5 w-1.5 bg-zoru-surface-2" />
           </span>
           ok
         </span>
@@ -2145,14 +2145,14 @@ function CountriesCard() {
     <div className="md:col-span-2 rounded-[24px] p-6 sn-card relative overflow-hidden">
       <div aria-hidden className="absolute -top-20 -right-20 h-40 w-40 rounded-full opacity-45" style={{ background: 'radial-gradient(circle, rgba(236,72,153,0.22), transparent 70%)' }} />
       <div className="relative flex items-start justify-between">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-[#EC4899] font-bold">Global reach</div>
-        <span className="inline-flex items-center gap-1 rounded-full bg-[#FCE7F3] px-2 py-0.5 text-[10px] font-bold text-[#9D174D]">
+        <div className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink font-bold">Global reach</div>
+        <span className="inline-flex items-center gap-1 rounded-full bg-zoru-surface px-2 py-0.5 text-[10px] font-bold text-zoru-ink">
           <Globe className="h-2.5 w-2.5" /> live
         </span>
       </div>
       <div className="relative flex items-baseline gap-2 mt-3">
-        <div className="font-display text-[52px] tabular-nums text-[#121126] leading-none">64</div>
-        <div className="text-[13px] text-[#4A4A6B] font-medium">countries live</div>
+        <div className="font-display text-[52px] tabular-nums text-zoru-ink leading-none">64</div>
+        <div className="text-[13px] text-zoru-ink font-medium">countries live</div>
       </div>
       <div className="relative mt-4 h-24">
         <svg viewBox="0 0 100 80" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
@@ -2169,8 +2169,8 @@ function CountriesCard() {
         </svg>
       </div>
       <div className="relative mt-3 pt-3 border-t sn-hair flex items-center justify-between text-[11px] font-mono tabular-nums">
-        <span className="text-[#7878A1]">Top: IN · US · BR</span>
-        <span className="text-[#121126] font-semibold">+11 this Q</span>
+        <span className="text-zoru-ink">Top: IN · US · BR</span>
+        <span className="text-zoru-ink font-semibold">+11 this Q</span>
       </div>
     </div>
   );
@@ -2187,8 +2187,8 @@ function ChannelMixCard() {
   return (
     <div className="md:col-span-2 rounded-[24px] p-6 sn-card">
       <div className="flex items-start justify-between">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-[#7878A1] font-bold">Channel mix · today</div>
-        <span className="text-[10px] text-[#7878A1] font-mono tabular-nums">n = 254k</span>
+        <div className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink font-bold">Channel mix · today</div>
+        <span className="text-[10px] text-zoru-ink font-mono tabular-nums">n = 254k</span>
       </div>
       <div className="mt-4 flex rounded-full h-2.5 overflow-hidden ring-1 ring-black/5">
         {channels.map(c => <div key={c.name} className="h-full" style={{ width: `${c.pct}%`, background: c.color }} />)}
@@ -2198,9 +2198,9 @@ function ChannelMixCard() {
           <li key={c.name} className="flex items-center justify-between text-[12px]">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full" style={{ background: c.color }} />
-              <span className="text-[#121126] font-medium">{c.name}</span>
+              <span className="text-zoru-ink font-medium">{c.name}</span>
             </div>
-            <span className="text-[#7878A1] tabular-nums font-mono text-[11px]">{c.pct}%</span>
+            <span className="text-zoru-ink tabular-nums font-mono text-[11px]">{c.pct}%</span>
           </li>
         ))}
       </ul>
@@ -2219,16 +2219,16 @@ function ReplyTimeCard() {
     <div className="md:col-span-2 rounded-[24px] p-6 sn-card relative overflow-hidden">
       <div aria-hidden className="absolute -top-20 -right-20 h-40 w-40 rounded-full opacity-45" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.25), transparent 70%)' }} />
       <div className="relative flex items-start justify-between">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-[#4F46E5] font-bold">Reply time · median</div>
-        <span className="inline-flex items-center gap-1 rounded-full bg-[#EEF2FF] px-2 py-0.5 text-[10px] font-bold text-[#4F46E5]">
+        <div className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink font-bold">Reply time · median</div>
+        <span className="inline-flex items-center gap-1 rounded-full bg-zoru-surface px-2 py-0.5 text-[10px] font-bold text-zoru-ink">
           <Clock className="h-2.5 w-2.5" /> live
         </span>
       </div>
       <div className="relative flex items-baseline gap-2 mt-3">
-        <div className="font-display text-[52px] tabular-nums text-[#121126] leading-none">
-          52<span className="text-[20px] text-[#7878A1] font-normal">s</span>
+        <div className="font-display text-[52px] tabular-nums text-zoru-ink leading-none">
+          52<span className="text-[20px] text-zoru-ink font-normal">s</span>
         </div>
-        <div className="text-[11px] text-[#22C55E] font-semibold">−38% vs. Q1</div>
+        <div className="text-[11px] text-zoru-ink font-semibold">−38% vs. Q1</div>
       </div>
       <div className="relative mt-3 h-16">
         <svg viewBox="0 0 100 80" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
@@ -2244,8 +2244,8 @@ function ReplyTimeCard() {
           <circle cx="38" cy="14" r="1.6" fill="#121126" />
         </svg>
       </div>
-      <div className="relative flex justify-between text-[9.5px] text-[#7878A1] tabular-nums font-mono mt-1">
-        <span>0s</span><span>30s</span><span className="text-[#121126] font-bold">52s</span><span>2m</span><span>5m+</span>
+      <div className="relative flex justify-between text-[9.5px] text-zoru-ink tabular-nums font-mono mt-1">
+        <span>0s</span><span>30s</span><span className="text-zoru-ink font-bold">52s</span><span>2m</span><span>5m+</span>
       </div>
     </div>
   );
@@ -2267,10 +2267,10 @@ function ActivityTicker() {
       <div aria-hidden className="pointer-events-none absolute inset-y-0 left-[130px] z-10 w-14 bg-gradient-to-r from-white to-transparent" />
       <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-white to-transparent" />
       <div className="flex items-center gap-3 pl-5 pr-6 py-2.5">
-        <span className="flex-shrink-0 inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.18em] text-[#4F46E5]">
+        <span className="flex-shrink-0 inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.18em] text-zoru-ink">
           <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inset-0 rounded-full bg-[#4F46E5] opacity-60 animate-ping" />
-            <span className="relative rounded-full h-1.5 w-1.5 bg-[#4F46E5]" />
+            <span className="absolute inset-0 rounded-full bg-zoru-ink opacity-60 animate-ping" />
+            <span className="relative rounded-full h-1.5 w-1.5 bg-zoru-ink" />
           </span>
           Live events
         </span>
@@ -2280,10 +2280,10 @@ function ActivityTicker() {
             {[...events, ...events].map((e, i) => {
               const Icon = e.icon;
               return (
-                <span key={i} className="inline-flex items-center gap-2 text-[12.5px] text-[#121126]/90">
+                <span key={i} className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink/90">
                   <Icon className="h-3.5 w-3.5 flex-shrink-0" style={{ color: e.color }} strokeWidth={2.2} />
                   <span className="font-medium">{e.text}</span>
-                  <span className="text-[#7878A1] tabular-nums font-mono text-[10.5px]">· {e.t} ago</span>
+                  <span className="text-zoru-ink tabular-nums font-mono text-[10.5px]">· {e.t} ago</span>
                 </span>
               );
             })}
@@ -2310,13 +2310,13 @@ function Testimonials() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div>
             <Eyebrow label="Testimonials" />
-            <h2 className="mt-4 font-display text-[40px] md:text-[60px] leading-[1] text-[#121126]">
+            <h2 className="mt-4 font-display text-[40px] md:text-[60px] leading-[1] text-zoru-ink">
               What teams{' '}
               <span className="font-display-italic sn-gradient-text">quietly</span>{' '}
               ship after the switch.
             </h2>
           </div>
-          <p className="md:max-w-sm text-[15px] text-[#4A4A6B] leading-relaxed">
+          <p className="md:max-w-sm text-[15px] text-zoru-ink leading-relaxed">
             Direct quotes from operators who moved their support, ops and
             marketing onto SabNode.
           </p>
@@ -2328,13 +2328,13 @@ function Testimonials() {
               <div aria-hidden className="absolute -top-16 -right-16 h-40 w-40 rounded-full opacity-80 blur-xl" style={{ background: t.tint }} />
               <div className="relative">
                 <div className="font-display text-6xl leading-none" style={{ color: t.accent, opacity: 0.25 }}>&ldquo;</div>
-                <blockquote className="-mt-3 text-[15px] md:text-[15.5px] text-[#121126]/90 leading-[1.55] font-medium tracking-[-0.003em]">{t.quote}</blockquote>
+                <blockquote className="-mt-3 text-[15px] md:text-[15.5px] text-zoru-ink/90 leading-[1.55] font-medium tracking-[-0.003em]">{t.quote}</blockquote>
                 <figcaption className="mt-6 pt-5 border-t sn-hair flex items-center justify-between">
                   <div>
-                    <div className="text-[13px] font-semibold text-[#121126]">{t.name}</div>
-                    <div className="text-[12px] text-[#7878A1]">{t.role}</div>
+                    <div className="text-[13px] font-semibold text-zoru-ink">{t.name}</div>
+                    <div className="text-[12px] text-zoru-ink">{t.role}</div>
                   </div>
-                  <div className="font-display text-[18px] tracking-[-0.04em] text-[#121126]/70">{t.badge}</div>
+                  <div className="font-display text-[18px] tracking-[-0.04em] text-zoru-ink/70">{t.badge}</div>
                 </figcaption>
                 <div className="mt-4 flex items-center gap-1">
                   {Array.from({ length: 5 }).map((_, i) => (
@@ -2442,15 +2442,15 @@ function PricingSection() {
         <div className="sn-section-shell px-5 py-8 md:px-8 md:py-10">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <Eyebrow label="Pricing" align="center" />
-          <h2 className="mt-4 font-display text-[40px] md:text-[64px] leading-[1] text-[#121126]">
+          <h2 className="mt-4 font-display text-[40px] md:text-[64px] leading-[1] text-zoru-ink">
             Flexible plans for{' '}
             <span className="font-display-italic sn-gradient-text">every team.</span>
           </h2>
-          <p className="mt-5 text-[15px] md:text-[17px] text-[#4A4A6B] max-w-xl mx-auto">
+          <p className="mt-5 text-[15px] md:text-[17px] text-zoru-ink max-w-xl mx-auto">
             Start free. Upgrade only when the automation makes you money. All plans include unlimited seats.
           </p>
           <div className="mt-7 inline-flex items-center gap-1 p-1 rounded-full sn-card text-[12px]">
-            <button className="px-4 py-1.5 rounded-full text-[#7878A1] font-medium">Monthly</button>
+            <button className="px-4 py-1.5 rounded-full text-zoru-ink font-medium">Monthly</button>
             <button className="px-4 py-1.5 rounded-full sn-btn-primary font-semibold flex items-center gap-2">
               Annually <span className="text-white/80 text-[10px] font-bold bg-white/20 rounded px-1.5 py-0.5">−20%</span>
             </button>
@@ -2459,34 +2459,34 @@ function PricingSection() {
 
         <div className="grid md:grid-cols-3 gap-4 md:gap-5">
           {plans.map(p => (
-            <article key={p.name} className={`relative rounded-[24px] p-7 md:p-8 overflow-hidden ${p.dark ? 'text-white' : 'sn-card text-[#121126]'}`} style={p.dark ? {
+            <article key={p.name} className={`relative rounded-[24px] p-7 md:p-8 overflow-hidden ${p.dark ? 'text-white' : 'sn-card text-zoru-ink'}`} style={p.dark ? {
               background: 'linear-gradient(160deg, #4F46E5 0%, #6366F1 50%, #8B5CF6 100%)',
               border: '1px solid rgba(255,255,255,0.15)',
               boxShadow: '0 40px 100px -30px rgba(79,70,229,0.5), 0 0 0 1px rgba(255,255,255,0.1) inset',
             } : { boxShadow: '0 24px 60px -28px rgba(17,17,38,0.18)' }}>
               {p.highlight && (
-                <div className="absolute top-5 right-5 inline-flex items-center gap-1.5 rounded-full bg-white text-[#4F46E5] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest">
+                <div className="absolute top-5 right-5 inline-flex items-center gap-1.5 rounded-full bg-white text-zoru-ink px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest">
                   <Flame className="h-3 w-3" /> Most loved
                 </div>
               )}
-              <div className={`text-[11px] uppercase tracking-[0.2em] font-bold ${p.dark ? 'text-white/80' : 'text-[#7878A1]'}`}>{p.name}</div>
+              <div className={`text-[11px] uppercase tracking-[0.2em] font-bold ${p.dark ? 'text-white/80' : 'text-zoru-ink'}`}>{p.name}</div>
               <div className="mt-4 flex items-baseline gap-1">
-                <span className={`font-display text-[56px] md:text-[72px] leading-none tabular-nums ${p.dark ? 'text-white' : 'text-[#121126]'}`}>{p.price}</span>
-                {p.cadence && <span className={`text-[14px] ${p.dark ? 'text-white/75' : 'text-[#7878A1]'}`}>{p.cadence}</span>}
+                <span className={`font-display text-[56px] md:text-[72px] leading-none tabular-nums ${p.dark ? 'text-white' : 'text-zoru-ink'}`}>{p.price}</span>
+                {p.cadence && <span className={`text-[14px] ${p.dark ? 'text-white/75' : 'text-zoru-ink'}`}>{p.cadence}</span>}
               </div>
-              <p className={`mt-2.5 text-[13.5px] leading-relaxed max-w-xs ${p.dark ? 'text-white/85' : 'text-[#4A4A6B]'}`}>{p.tagline}</p>
+              <p className={`mt-2.5 text-[13.5px] leading-relaxed max-w-xs ${p.dark ? 'text-white/85' : 'text-zoru-ink'}`}>{p.tagline}</p>
 
               <ul className="mt-6 space-y-3">
                 {p.features.map(f => (
-                  <li key={f} className={`flex items-start gap-2.5 text-[13.5px] ${p.dark ? 'text-white/90' : 'text-[#121126]/85'}`}>
-                    <CheckCircle2 className={`mt-0.5 h-4 w-4 flex-shrink-0 ${p.dark ? 'text-white' : 'text-[#4F46E5]'}`} />
+                  <li key={f} className={`flex items-start gap-2.5 text-[13.5px] ${p.dark ? 'text-white/90' : 'text-zoru-ink/85'}`}>
+                    <CheckCircle2 className={`mt-0.5 h-4 w-4 flex-shrink-0 ${p.dark ? 'text-white' : 'text-zoru-ink'}`} />
                     {f}
                   </li>
                 ))}
               </ul>
 
               <Link href={p.name === 'Enterprise' ? '/contact' : '/signup'} className={`mt-8 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full text-[13px] font-semibold transition-transform hover:scale-[1.01] ${
-                p.dark ? 'bg-white text-[#4F46E5] hover:bg-[#F5F3EC]' : 'sn-btn-primary'
+                p.dark ? 'bg-white text-zoru-ink hover:bg-zoru-surface' : 'sn-btn-primary'
               }`}>
                 {p.cta} <ArrowRight className="h-4 w-4" />
               </Link>
@@ -2517,11 +2517,11 @@ function FaqSection() {
         <div className="sn-section-shell grid gap-10 px-5 py-8 md:grid-cols-12 md:px-8 md:py-10">
           <div className="md:col-span-5">
             <Eyebrow label="FAQ" />
-            <h2 className="mt-4 font-display text-[40px] md:text-[60px] leading-[1] text-[#121126]">
+            <h2 className="mt-4 font-display text-[40px] md:text-[60px] leading-[1] text-zoru-ink">
               Questions,<br />
               <span className="font-display-italic sn-gradient-text">answered.</span>
             </h2>
-            <p className="mt-5 text-[15px] text-[#4A4A6B] max-w-sm leading-relaxed">
+            <p className="mt-5 text-[15px] text-zoru-ink max-w-sm leading-relaxed">
               Still unsure? A human replies within a few hours — not a bot pretending to be one.
             </p>
             <Link href="/contact" className="mt-6 sn-btn-ghost inline-flex h-11 items-center gap-2 rounded-full px-5 text-[13px] font-semibold">
@@ -2535,15 +2535,15 @@ function FaqSection() {
                 return (
                   <li key={f.q}>
                     <button onClick={() => setOpen(isOpen ? null : i)} aria-expanded={isOpen} className="w-full flex items-start justify-between gap-6 py-6 text-left group">
-                      <span className="font-display text-[22px] md:text-[26px] leading-[1.2] text-[#121126] group-hover:text-[#4F46E5] transition-colors">{f.q}</span>
+                      <span className="font-display text-[22px] md:text-[26px] leading-[1.2] text-zoru-ink group-hover:text-zoru-ink transition-colors">{f.q}</span>
                       <span className={`mt-1 flex-shrink-0 h-9 w-9 rounded-full inline-flex items-center justify-center transition-all ${
-                        isOpen ? 'bg-[#4F46E5] text-white rotate-180' : 'sn-card text-[#121126]'
+                        isOpen ? 'bg-zoru-ink text-white rotate-180' : 'sn-card text-zoru-ink'
                       }`}>
                         {isOpen ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                       </span>
                     </button>
                     <div className={`grid transition-all duration-300 ease-out ${isOpen ? 'grid-rows-[1fr] opacity-100 pb-6' : 'grid-rows-[0fr] opacity-0'}`}>
-                      <div className="overflow-hidden text-[15px] text-[#4A4A6B] leading-relaxed max-w-2xl">{f.a}</div>
+                      <div className="overflow-hidden text-[15px] text-zoru-ink leading-relaxed max-w-2xl">{f.a}</div>
                     </div>
                   </li>
                 );
@@ -2575,7 +2575,7 @@ function FinalCTA() {
           <div className="relative grid md:grid-cols-12 gap-10 items-end">
             <div className="md:col-span-8">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-white/85 font-semibold">
-                <Sparkles className="h-3 w-3 text-[#A78BFA]" /> Join the SabNode beta
+                <Sparkles className="h-3 w-3 text-zoru-ink" /> Join the SabNode beta
               </div>
               <h2 className="mt-6 font-display text-[44px] md:text-[88px] leading-[0.95] text-white tracking-[-0.03em]">
                 Ready to quietly<br />
@@ -2585,7 +2585,7 @@ function FinalCTA() {
                 Launch your stack in an afternoon. Watch it run. Keep humans on the work that moves the number.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <Link href="/signup" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-[14px] font-semibold text-[#121126] transition-transform hover:scale-[1.02]">
+                <Link href="/signup" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-[14px] font-semibold text-zoru-ink transition-transform hover:scale-[1.02]">
                   Request beta access <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link href="#products" className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 text-[14px] font-semibold text-white hover:bg-white/10 transition-colors">
@@ -2610,7 +2610,7 @@ function FinalCTA() {
                   ))}
                 </div>
                 <div className="mt-5 pt-4 border-t border-white/10 flex items-center gap-2 text-[11px] text-white/70">
-                  <BadgeCheck className="h-3.5 w-3.5 text-[#A78BFA]" />
+                  <BadgeCheck className="h-3.5 w-3.5 text-zoru-ink" />
                   No credit card · cancel anytime
                 </div>
               </div>
@@ -2639,12 +2639,12 @@ function IndigoFooter() {
           <div className="grid grid-cols-12 gap-8">
             <div className="col-span-12 md:col-span-5 space-y-4">
               <SabNodeLogo className="h-8 w-auto" />
-              <p className="text-[14px] text-[#4A4A6B] max-w-sm leading-relaxed">
+              <p className="text-[14px] text-zoru-ink max-w-sm leading-relaxed">
                 A connected platform for WhatsApp, marketing, sales and daily business operations. Built for execution.
               </p>
               <div className="flex items-center gap-2 pt-2">
                 {[Twitter, Linkedin, Instagram, Github].map((I, i) => (
-                  <a key={i} href="#" className="h-9 w-9 rounded-full sn-card inline-flex items-center justify-center text-[#4A4A6B] hover:text-[#121126] hover:border-[#4F46E5]/30 transition-colors">
+                  <a key={i} href="#" className="h-9 w-9 rounded-full sn-card inline-flex items-center justify-center text-zoru-ink hover:text-zoru-ink hover:border-zoru-line/30 transition-colors">
                     <I className="h-4 w-4" />
                   </a>
                 ))}
@@ -2654,11 +2654,11 @@ function IndigoFooter() {
             <div className="col-span-12 md:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-6">
               {cols.map(c => (
                 <div key={c.h}>
-                  <div className="text-[10.5px] uppercase tracking-[0.18em] text-[#7878A1] font-bold mb-3">{c.h}</div>
+                  <div className="text-[10.5px] uppercase tracking-[0.18em] text-zoru-ink font-bold mb-3">{c.h}</div>
                   <ul className="space-y-2">
                     {c.items.map(([t, h]) => (
                       <li key={t}>
-                        <Link href={h} className="text-[13px] text-[#4A4A6B] hover:text-[#121126] transition-colors">{t}</Link>
+                        <Link href={h} className="text-[13px] text-zoru-ink hover:text-zoru-ink transition-colors">{t}</Link>
                       </li>
                     ))}
                   </ul>
@@ -2666,10 +2666,10 @@ function IndigoFooter() {
               ))}
             </div>
           </div>
-          <div className="mt-10 pt-6 border-t sn-hair flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-[12px] text-[#7878A1]">
+          <div className="mt-10 pt-6 border-t sn-hair flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-[12px] text-zoru-ink">
             <div>© {new Date().getFullYear()} SabNode. Built for execution.</div>
             <div className="flex items-center gap-5">
-              <span className="inline-flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-[#4F46E5]" /> SOC 2 · GDPR · DPA</span>
+              <span className="inline-flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-zoru-ink" /> SOC 2 · GDPR · DPA</span>
               <span className="font-mono tabular-nums">v26.04.22</span>
             </div>
           </div>
@@ -2685,8 +2685,8 @@ function IndigoFooter() {
 
 function Eyebrow({ label, align = 'left' }: { label: string; align?: 'left' | 'center' }) {
   return (
-    <div className={`inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.22em] font-bold text-[#4F46E5] ${align === 'center' ? 'justify-center' : ''}`}>
-      <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#4F46E5]" />
+    <div className={`inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.22em] font-bold text-zoru-ink ${align === 'center' ? 'justify-center' : ''}`}>
+      <span className="h-px w-8 bg-gradient-to-r from-transparent to-zoru-ink" />
       {label}
     </div>
   );
@@ -2707,10 +2707,10 @@ function SystemStatusIndicator() {
           setStatusColor('sn-tag sn-tag-live');
         } else if (ind === 'minor' || ind === 'degraded') {
           setStatusText('Degraded performance');
-          setStatusColor('sn-tag text-yellow-600 bg-yellow-50 border-yellow-200');
+          setStatusColor('sn-tag text-zoru-ink bg-zoru-surface-2 border-zoru-line');
         } else if (ind === 'major' || ind === 'critical') {
           setStatusText('System Outage');
-          setStatusColor('sn-tag text-red-600 bg-red-50 border-red-200');
+          setStatusColor('sn-tag text-zoru-ink bg-zoru-surface-2 border-zoru-line');
         } else {
           setStatusText('All systems · 99.99%');
           setStatusColor('sn-tag sn-tag-live');

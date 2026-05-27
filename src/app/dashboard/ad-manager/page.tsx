@@ -59,8 +59,8 @@ function KpiSkeleton() {
       {Array.from({ length: 6 }).map((_, i) => (
         <Card key={i}>
           <ZoruCardContent className="p-4">
-            <div className="h-3 w-16 animate-pulse rounded-full bg-muted" />
-            <div className="mt-3 h-7 w-20 animate-pulse rounded bg-muted" />
+            <div className="h-3 w-16 animate-pulse rounded-full bg-zoru-surface-2" />
+            <div className="mt-3 h-7 w-20 animate-pulse rounded bg-zoru-surface-2" />
           </ZoruCardContent>
         </Card>
       ))}
@@ -73,7 +73,7 @@ function CampaignsSkeleton() {
     <Card>
       <ZoruCardContent className="space-y-3 p-1">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-12 animate-pulse rounded-lg bg-muted" />
+          <div key={i} className="h-12 animate-pulse rounded-lg bg-zoru-surface-2" />
         ))}
       </ZoruCardContent>
     </Card>
@@ -86,11 +86,11 @@ function NoAccountState() {
   const router = useRouter();
   return (
     <div className="flex flex-col items-center justify-center gap-5 py-20 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50">
-        <Megaphone className="h-7 w-7 text-indigo-600" strokeWidth={1.75} />
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-zoru-surface-2">
+        <Megaphone className="h-7 w-7 text-zoru-ink" strokeWidth={1.75} />
       </div>
       <div>
-        <h2 className="text-[20px] font-semibold text-foreground">Welcome to Meta Ads Manager</h2>
+        <h2 className="text-[20px] font-semibold text-zoru-ink">Welcome to Meta Ads Manager</h2>
         <p className="mt-1.5 max-w-md text-[13px] text-zoru-ink-muted leading-relaxed">
           Connect your Meta ad account to start creating, managing, and measuring
           your Facebook & Instagram ad campaigns.
@@ -114,8 +114,8 @@ function StatusDot({ status }: { status: string }) {
     <span
       className={cn(
         'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
-        isActive && 'bg-emerald-50 text-emerald-700',
-        isPaused && 'bg-amber-50 text-amber-700',
+        isActive && 'bg-zoru-surface-2 text-zoru-ink',
+        isPaused && 'bg-zoru-surface-2 text-zoru-ink',
         !isActive && !isPaused && 'bg-zoru-surface-2 text-zoru-ink-muted',
       )}
     >
@@ -166,42 +166,42 @@ export default function AdManagerOverviewPage() {
           label: 'Amount spent',
           value: formatMoney(agg.spend || 0),
           icon: DollarSign,
-          color: 'text-emerald-600',
+          color: 'text-zoru-ink',
         },
         {
           id: 'impressions',
           label: 'Impressions',
           value: formatNumber(agg.impressions || 0),
           icon: Eye,
-          color: 'text-blue-600',
+          color: 'text-zoru-ink',
         },
         {
           id: 'reach',
           label: 'Reach',
           value: formatNumber(agg.reach || 0),
           icon: Users,
-          color: 'text-violet-600',
+          color: 'text-zoru-ink',
         },
         {
           id: 'clicks',
           label: 'Link clicks',
           value: formatNumber(agg.inline_link_clicks || agg.clicks || 0),
           icon: MousePointerClick,
-          color: 'text-indigo-600',
+          color: 'text-zoru-ink',
         },
         {
           id: 'ctr',
           label: 'CTR',
           value: formatPercent(agg.ctr || 0),
           icon: TrendingUp,
-          color: 'text-amber-600',
+          color: 'text-zoru-ink',
         },
         {
           id: 'cpc',
           label: 'CPC',
           value: formatMoney(agg.cpc || 0),
           icon: TrendingDown,
-          color: 'text-rose-600',
+          color: 'text-zoru-ink',
         },
       ]);
 
@@ -260,7 +260,7 @@ export default function AdManagerOverviewPage() {
                       <p className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                         {kpi.label}
                       </p>
-                      <p className="mt-0.5 text-[22px] font-semibold tabular-nums text-foreground leading-tight">
+                      <p className="mt-0.5 text-[22px] font-semibold tabular-nums text-zoru-ink leading-tight">
                         {kpi.value}
                       </p>
                     </div>
@@ -277,7 +277,7 @@ export default function AdManagerOverviewPage() {
         {/* Top campaigns */}
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-[13px] font-semibold text-foreground">Top campaigns</p>
+            <p className="text-[13px] font-semibold text-zoru-ink">Top campaigns</p>
             <Button
               variant="ghost"
               size="sm"
@@ -301,15 +301,15 @@ export default function AdManagerOverviewPage() {
             </Card>
           ) : (
             <Card>
-              <div className="divide-y divide-border">
+              <div className="divide-y divide-zoru-line">
                 {topCampaigns.map((c) => (
                   <Link
                     key={c.id}
                     href={`/dashboard/ad-manager/campaigns/${c.id}`}
-                    className="flex items-center justify-between gap-4 px-5 py-3 transition hover:bg-muted/50"
+                    className="flex items-center justify-between gap-4 px-5 py-3 transition hover:bg-zoru-surface-2/50"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] font-semibold text-foreground">
+                      <p className="truncate text-[13px] font-semibold text-zoru-ink">
                         {c.name}
                       </p>
                       <div className="mt-0.5 flex items-center gap-2 text-[11px] text-zoru-ink-muted">
@@ -319,7 +319,7 @@ export default function AdManagerOverviewPage() {
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-[13px] font-semibold tabular-nums text-foreground">
+                      <p className="text-[13px] font-semibold tabular-nums text-zoru-ink">
                         {formatMoney((c.daily_budget || c.lifetime_budget || 0) / 100)}
                       </p>
                       <p className="text-[10px] text-zoru-ink-muted">
@@ -336,7 +336,7 @@ export default function AdManagerOverviewPage() {
         {/* Quick actions sidebar */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-[13px] font-semibold text-foreground">Quick actions</p>
+            <p className="text-[13px] font-semibold text-zoru-ink">Quick actions</p>
             <div className="flex items-center gap-1.5">
               <Button
                 variant="ghost"
@@ -355,12 +355,12 @@ export default function AdManagerOverviewPage() {
                     ]);
                     const agg = insightsRes.data?.[0] || {};
                     setKpis([
-                      { id: 'spend', label: 'Amount spent', value: formatMoney(agg.spend || 0), icon: DollarSign, color: 'text-emerald-600' },
-                      { id: 'impressions', label: 'Impressions', value: formatNumber(agg.impressions || 0), icon: Eye, color: 'text-blue-600' },
-                      { id: 'reach', label: 'Reach', value: formatNumber(agg.reach || 0), icon: Users, color: 'text-violet-600' },
-                      { id: 'clicks', label: 'Link clicks', value: formatNumber(agg.inline_link_clicks || agg.clicks || 0), icon: MousePointerClick, color: 'text-indigo-600' },
-                      { id: 'ctr', label: 'CTR', value: formatPercent(agg.ctr || 0), icon: TrendingUp, color: 'text-amber-600' },
-                      { id: 'cpc', label: 'CPC', value: formatMoney(agg.cpc || 0), icon: TrendingDown, color: 'text-rose-600' },
+                      { id: 'spend', label: 'Amount spent', value: formatMoney(agg.spend || 0), icon: DollarSign, color: 'text-zoru-ink' },
+                      { id: 'impressions', label: 'Impressions', value: formatNumber(agg.impressions || 0), icon: Eye, color: 'text-zoru-ink' },
+                      { id: 'reach', label: 'Reach', value: formatNumber(agg.reach || 0), icon: Users, color: 'text-zoru-ink' },
+                      { id: 'clicks', label: 'Link clicks', value: formatNumber(agg.inline_link_clicks || agg.clicks || 0), icon: MousePointerClick, color: 'text-zoru-ink' },
+                      { id: 'ctr', label: 'CTR', value: formatPercent(agg.ctr || 0), icon: TrendingUp, color: 'text-zoru-ink' },
+                      { id: 'cpc', label: 'CPC', value: formatMoney(agg.cpc || 0), icon: TrendingDown, color: 'text-zoru-ink' },
                     ]);
                     setTopCampaigns((campaignsRes.data || []).slice(0, 6));
                     setLoading(false);
@@ -425,7 +425,7 @@ export default function AdManagerOverviewPage() {
               <p className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                 Active account
               </p>
-              <p className="mt-1 text-[13px] font-semibold text-foreground truncate">
+              <p className="mt-1 text-[13px] font-semibold text-zoru-ink truncate">
                 {activeAccount.name}
               </p>
               <p className="text-[11px] text-zoru-ink-muted font-mono">
@@ -454,13 +454,13 @@ function QuickAction({
     <button
       type="button"
       onClick={onClick}
-      className="group flex w-full items-center justify-between gap-3 rounded-lg p-2.5 text-left transition hover:bg-muted/60"
+      className="group flex w-full items-center justify-between gap-3 rounded-lg p-2.5 text-left transition hover:bg-zoru-surface-2/60"
     >
       <div className="min-w-0">
-        <p className="text-[12px] font-semibold text-foreground">{label}</p>
+        <p className="text-[12px] font-semibold text-zoru-ink">{label}</p>
         <p className="text-[11px] text-zoru-ink-muted">{description}</p>
       </div>
-      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-zoru-ink-subtle transition group-hover:translate-x-0.5 group-hover:text-foreground" />
+      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-zoru-ink-subtle transition group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
     </button>
   );
 }

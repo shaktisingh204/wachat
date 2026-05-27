@@ -135,18 +135,18 @@ export default function LanguagesPage() {
                         >
                             <div className="space-y-3 text-sm">
                                 <div>
-                                    <div className="text-muted-foreground text-xs">Code</div>
+                                    <div className="text-zoru-ink-muted text-xs">Code</div>
                                     <div className="font-mono">{row.language_code}</div>
                                 </div>
                                 <div>
-                                    <div className="text-muted-foreground text-xs">Enabled</div>
+                                    <div className="text-zoru-ink-muted text-xs">Enabled</div>
                                     <div>{row.is_enabled ? 'Yes' : 'No'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-muted-foreground text-xs">Default</div>
+                                    <div className="text-zoru-ink-muted text-xs">Default</div>
                                     <div>{row.is_default ? 'Yes' : 'No'}</div>
                                 </div>
-                                <p className="text-muted-foreground text-xs">
+                                <p className="text-zoru-ink-muted text-xs">
                                     Edit and delete are available from the row actions.
                                 </p>
                             </div>

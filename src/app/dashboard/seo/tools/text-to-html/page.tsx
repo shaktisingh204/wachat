@@ -73,7 +73,7 @@ export default function TextToHtmlPage() {
       
       <div className="flex flex-col gap-2">
         <div className="text-sm font-semibold">Preview</div>
-        <div className="rounded-md border bg-background overflow-hidden min-h-[300px] flex">
+        <div className="rounded-md border bg-zoru-surface overflow-hidden min-h-[300px] flex">
           <iframe
             srcDoc={srcDoc}
             title="HTML Preview"

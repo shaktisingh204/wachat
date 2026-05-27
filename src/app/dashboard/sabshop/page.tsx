@@ -44,7 +44,7 @@ export default async function SabShopPage(): Promise<React.JSX.Element> {
 
             {!res.ok ? (
                 <Card>
-                    <ZoruCardContent className="p-6 text-sm text-red-500">
+                    <ZoruCardContent className="p-6 text-sm text-zoru-ink">
                         {res.error}
                     </ZoruCardContent>
                 </Card>

@@ -36,8 +36,8 @@ export const SabSwitch = React.forwardRef<
         'peer inline-flex shrink-0 cursor-pointer items-center rounded-full transition-colors',
         'focus-visible:outline-none focus-visible:ring-[3px]',
         'disabled:cursor-not-allowed disabled:opacity-50',
-        'data-[state=checked]:bg-[hsl(var(--sab-primary))]',
-        'data-[state=unchecked]:bg-[hsl(var(--sab-border-strong))]',
+        'data-[state=checked]:bg-zoru-ink',
+        'data-[state=unchecked]:bg-zoru-ink',
         s.root,
         className,
       )}

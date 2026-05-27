@@ -34,25 +34,25 @@ export const ClayInput = React.forwardRef<HTMLInputElement, ClayInputProps>(
     return (
       <div
         className={cn(
-          'flex items-center gap-2 rounded-md border border-input bg-background ring-offset-background transition-all duration-150',
-          'focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
-          'hover:border-[hsl(var(--prism-indigo)/0.4)] focus-within:border-[hsl(var(--prism-indigo)/0.5)]',
+          'flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface ring-offset-zoru-surface transition-all duration-150',
+          'focus-within:outline-none focus-within:ring-2 focus-within:ring-zoru-line focus-within:ring-offset-2',
+          'hover:border-zoru-line focus-within:border-zoru-line',
           sizeVariant === 'sm' ? 'h-8 px-2.5' : 'h-10 px-3',
           className,
         )}
       >
         {leading ? (
-          <span className="flex shrink-0 items-center text-muted-foreground">
+          <span className="flex shrink-0 items-center text-zoru-ink-muted">
             {leading}
           </span>
         ) : null}
         <input
           ref={ref}
-          className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex-1 bg-transparent text-sm text-zoru-ink placeholder:text-zoru-ink-muted focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           {...props}
         />
         {trailing ? (
-          <span className="flex shrink-0 items-center text-muted-foreground">
+          <span className="flex shrink-0 items-center text-zoru-ink-muted">
             {trailing}
           </span>
         ) : null}
@@ -79,7 +79,7 @@ export const ClaySelect = React.forwardRef<HTMLSelectElement, ClaySelectProps>(
     <select
       ref={ref}
       className={cn(
-        'flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all duration-150 placeholder:text-muted-foreground hover:border-[hsl(var(--prism-indigo)/0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:border-[hsl(var(--prism-indigo)/0.5)] disabled:cursor-not-allowed disabled:opacity-50',
+        'flex w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-sm ring-offset-zoru-surface transition-all duration-150 placeholder:text-zoru-ink-muted hover:border-zoru-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2 focus-visible:border-zoru-line disabled:cursor-not-allowed disabled:opacity-50',
         'appearance-none bg-no-repeat pr-8',
         sizeVariant === 'sm' && 'h-8 py-1 text-[12.5px]',
         sizeVariant === 'md' && 'h-10',

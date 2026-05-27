@@ -14,7 +14,7 @@ export default function ErrorBoundary({
         <main className="zoruui flex min-h-screen items-center justify-center bg-zoru-bg p-4 text-center">
             <div className="flex max-w-md flex-col items-center gap-4 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-8 shadow-sm">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zoru-bg">
-                    <AlertCircle className="h-8 w-8 text-rose-500" />
+                    <AlertCircle className="h-8 w-8 text-zoru-ink" />
                 </div>
                 <h1 className="text-xl font-semibold text-zoru-ink">Something went wrong</h1>
                 <p className="text-sm text-zoru-ink-muted">

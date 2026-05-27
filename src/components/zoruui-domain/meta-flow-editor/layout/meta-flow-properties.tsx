@@ -187,7 +187,7 @@ export function MetaFlowProperties({
     };
 
     return (
-        <div className="flex h-full flex-col border-l bg-background">
+        <div className="flex h-full flex-col border-l bg-zoru-surface">
             <div className="border-b p-4">
                 <h3 className="flex items-center gap-2 text-sm font-semibold">
                     <Settings2 className="h-4 w-4" /> Properties
@@ -198,10 +198,10 @@ export function MetaFlowProperties({
                 {selectedComponent ? (
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-medium text-primary">{selectedComponent.type}</h4>
+                            <h4 className="text-sm font-medium text-zoru-ink">{selectedComponent.type}</h4>
                             <Button
                                 variant="ghost" size="icon"
-                                className="h-6 w-6 text-destructive"
+                                className="h-6 w-6 text-zoru-ink"
                                 onClick={() => onDeleteComponent(selectedComponent.name || selectedComponent)}
                             >
                                 <Trash2 className="h-4 w-4" />
@@ -249,8 +249,8 @@ function ScreenSettings({
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h4 className="text-sm font-medium text-primary">Screen settings</h4>
-                <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => onDeleteScreen(selectedScreen.id)}>
+                <h4 className="text-sm font-medium text-zoru-ink">Screen settings</h4>
+                <Button variant="ghost" size="icon" className="h-6 w-6 text-zoru-ink" onClick={() => onDeleteScreen(selectedScreen.id)}>
                     <Trash2 className="h-4 w-4" />
                 </Button>
             </div>
@@ -259,7 +259,7 @@ function ScreenSettings({
             <div className="space-y-4">
                 <div className="space-y-2">
                     <Label>Screen ID</Label>
-                    <Input disabled value={selectedScreen.id} className="bg-muted font-mono text-xs" />
+                    <Input disabled value={selectedScreen.id} className="bg-zoru-surface-2 font-mono text-xs" />
                 </div>
 
                 <div className="space-y-2">
@@ -338,7 +338,7 @@ function ImageCarouselEditor({
                     <select
                         value={component['aspect-ratio'] || '4:3'}
                         onChange={(e) => updateField('aspect-ratio', e.target.value)}
-                        className="h-9 w-full rounded-md border bg-background px-2 text-xs"
+                        className="h-9 w-full rounded-md border bg-zoru-surface px-2 text-xs"
                     >
                         <option value="4:3">4:3</option>
                         <option value="16:9">16:9</option>
@@ -349,7 +349,7 @@ function ImageCarouselEditor({
                     <select
                         value={component['scale-type'] || 'cover'}
                         onChange={(e) => updateField('scale-type', e.target.value)}
-                        className="h-9 w-full rounded-md border bg-background px-2 text-xs"
+                        className="h-9 w-full rounded-md border bg-zoru-surface px-2 text-xs"
                     >
                         <option value="cover">cover</option>
                         <option value="contain">contain</option>
@@ -369,7 +369,7 @@ function ImageCarouselEditor({
                     <div key={idx} className="space-y-2 rounded-md border p-2">
                         <div className="flex items-center justify-between">
                             <span className="text-[11px] font-semibold">Image {idx + 1}</span>
-                            <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => removeImage(idx)}>
+                            <Button size="icon" variant="ghost" className="h-6 w-6 text-zoru-ink" onClick={() => removeImage(idx)}>
                                 <Trash2 className="h-3 w-3" />
                             </Button>
                         </div>

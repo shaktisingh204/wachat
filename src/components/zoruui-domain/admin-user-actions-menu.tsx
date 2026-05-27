@@ -114,32 +114,32 @@ export function AdminUserActionsMenu({ userId, userName, isSuspended }: Props) {
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                        className="h-8 w-8 text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2"
                         aria-label={`Actions for ${userName}`}
                     >
                         <MoreHorizontal className="h-4 w-4" />
                     </Button>
                 </ZoruDropdownMenuTrigger>
                 <ZoruDropdownMenuContent align="end" className="w-52">
-                    <ZoruDropdownMenuLabel className="text-xs text-slate-500">
+                    <ZoruDropdownMenuLabel className="text-xs text-zoru-ink">
                         Account
                     </ZoruDropdownMenuLabel>
                     {isSuspended ? (
                         <ZoruDropdownMenuItem onSelect={() => setPendingAction('activate')}>
-                            <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-600" />
+                            <CheckCircle2 className="mr-2 h-4 w-4 text-zoru-ink" />
                             Re-activate user
                         </ZoruDropdownMenuItem>
                     ) : (
                         <ZoruDropdownMenuItem
                             onSelect={() => setPendingAction('suspend')}
-                            className="text-red-600 focus:text-red-600"
+                            className="text-zoru-ink focus:text-zoru-ink"
                         >
                             <Ban className="mr-2 h-4 w-4" />
                             Suspend user
                         </ZoruDropdownMenuItem>
                     )}
                     <ZoruDropdownMenuSeparator />
-                    <ZoruDropdownMenuLabel className="text-xs text-slate-500">
+                    <ZoruDropdownMenuLabel className="text-xs text-zoru-ink">
                         Security
                     </ZoruDropdownMenuLabel>
                     <ZoruDropdownMenuItem onSelect={() => setPendingAction('logout')}>

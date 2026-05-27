@@ -464,19 +464,19 @@ export default function PermissionTypesPage() {
                           >
                             <div className="space-y-3 text-sm">
                               <div>
-                                <div className="text-muted-foreground text-xs">
+                                <div className="text-zoru-ink-muted text-xs">
                                   Name
                                 </div>
                                 <div className="font-mono">{row.name}</div>
                               </div>
                               <div>
-                                <div className="text-muted-foreground text-xs">
+                                <div className="text-zoru-ink-muted text-xs">
                                   Display name
                                 </div>
                                 <div>{row.display_name || '—'}</div>
                               </div>
                               <div>
-                                <div className="text-muted-foreground text-xs">
+                                <div className="text-zoru-ink-muted text-xs">
                                   Category
                                 </div>
                                 <div>{builtin ? 'Built-in' : 'Custom'}</div>

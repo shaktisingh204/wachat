@@ -186,16 +186,16 @@ export function Gstr1Client({
 
             <Card>
                 <div className="mb-3">
-                    <h2 className="text-[16px] font-semibold text-foreground">
+                    <h2 className="text-[16px] font-semibold text-zoru-ink">
                         Outward supplies by type
                     </h2>
-                    <p className="text-[12.5px] text-muted-foreground">
+                    <p className="text-[12.5px] text-zoru-ink-muted">
                         B2B, B2C-large, B2C summary, and credit/debit notes.
                     </p>
                 </div>
                 <div className="h-[280px] w-full">
                     {chart.length === 0 ? (
-                        <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
+                        <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
                             No outward supplies in this period.
                         </div>
                     ) : (
@@ -228,43 +228,43 @@ export function Gstr1Client({
 
             <Card>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">
+                    <h2 className="text-[16px] font-semibold text-zoru-ink">
                         Sales Invoices
                     </h2>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
                         All recorded sales invoices for GSTR-1 filing.
                     </p>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">
+                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     Date
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     Invoice
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     Customer
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">
+                                <ZoruTableHead className="text-right text-zoru-ink-muted">
                                     Taxable Value
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">
+                                <ZoruTableHead className="text-right text-zoru-ink-muted">
                                     Total
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     Status
                                 </ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {rows.length === 0 ? (
-                                <ZoruTableRow className="border-border">
+                                <ZoruTableRow className="border-zoru-line">
                                     <ZoruTableCell
                                         colSpan={6}
-                                        className="h-24 text-center text-[13px] text-muted-foreground"
+                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
                                     >
                                         No invoices found.
                                     </ZoruTableCell>
@@ -273,27 +273,27 @@ export function Gstr1Client({
                                 rows.map((r) => (
                                     <ZoruTableRow
                                         key={r.id}
-                                        className="border-border"
+                                        className="border-zoru-line"
                                     >
-                                        <ZoruTableCell className="text-[13px] text-foreground">
+                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                                             {format(new Date(r.invoiceDate), 'PP')}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-medium text-foreground">
+                                        <ZoruTableCell className="font-medium text-zoru-ink">
                                             <EntityRowLink
                                                 href={`/dashboard/crm/sales/invoices/${r.id}`}
                                                 label={r.invoiceNumber}
                                             />
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">
+                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                                             {r.clientName}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-foreground">
+                                        <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                                             {r.currency} {r.subtotal.toFixed(2)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-foreground">
+                                        <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                                             {r.currency} {r.total.toFixed(2)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">
+                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                                             {r.status}
                                         </ZoruTableCell>
                                     </ZoruTableRow>

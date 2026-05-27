@@ -288,7 +288,7 @@ export default function TeamPerformancePage() {
                           <span className="inline-flex items-center gap-2">
                             {a.agentName}
                             {i === 0 && (
-                              <Trophy size={14} className="text-yellow-500" />
+                              <Trophy size={14} className="text-zoru-ink" />
                             )}
                           </span>
                           <div className="flex flex-wrap gap-1">
@@ -317,7 +317,7 @@ export default function TeamPerformancePage() {
                             <ZoruTooltipProvider>
                               <Tooltip>
                                 <ZoruTooltipTrigger asChild>
-                                  <AlertTriangle size={14} className="text-yellow-500 cursor-help" />
+                                  <AlertTriangle size={14} className="text-zoru-ink cursor-help" />
                                 </ZoruTooltipTrigger>
                                 <ZoruTooltipContent>
                                   Not statistically significant (n = {a.csatReviews} &lt; 30)
@@ -408,7 +408,7 @@ export default function TeamPerformancePage() {
               </div>
 
               {drillAgent.badges && drillAgent.badges.length > 0 && (
-                <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-4">
+                <div className="rounded-lg border bg-zoru-surface text-zoru-ink shadow-sm p-4">
                   <h3 className="font-medium mb-3">Earned Badges</h3>
                   <div className="flex flex-wrap gap-2">
                     {drillAgent.badges.map((b: any, bi: number) => (

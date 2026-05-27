@@ -22,17 +22,17 @@ export default function RedirectScript({ originalUrl, isIos, isAndroid }: Redire
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-            <Loader2 className="w-12 h-12 text-primary animate-spin mb-6" />
+            <Loader2 className="w-12 h-12 text-zoru-ink animate-spin mb-6" />
             <h1 className="text-2xl font-semibold mb-2">
                 Opening link{dots}
             </h1>
-            <p className="text-muted-foreground max-w-sm">
+            <p className="text-zoru-ink-muted max-w-sm">
                 If you are not redirected automatically within a few seconds, please click the button below.
             </p>
             
             <a 
                 href={originalUrl}
-                className="mt-8 text-primary hover:underline font-medium"
+                className="mt-8 text-zoru-ink hover:underline font-medium"
             >
                 Click here to continue
             </a>

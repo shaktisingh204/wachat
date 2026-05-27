@@ -25,24 +25,24 @@ function getDropOffTone(rate: number): {
 } {
   if (rate >= 0.5) {
     return {
-      bg: 'bg-red-50 dark:bg-red-950/40',
-      text: 'text-red-600 dark:text-red-400',
-      border: 'border-red-300 dark:border-red-800',
+      bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',
+      text: 'text-zoru-ink dark:text-zoru-ink-muted',
+      border: 'border-zoru-line dark:border-zoru-line',
       label: 'High drop-off',
     };
   }
   if (rate >= 0.2) {
     return {
-      bg: 'bg-amber-50 dark:bg-amber-950/40',
-      text: 'text-amber-600 dark:text-amber-400',
-      border: 'border-amber-300 dark:border-amber-800',
+      bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',
+      text: 'text-zoru-ink dark:text-zoru-ink-muted',
+      border: 'border-zoru-line dark:border-zoru-line',
       label: 'Medium drop-off',
     };
   }
   return {
-    bg: 'bg-emerald-50 dark:bg-emerald-950/40',
-    text: 'text-emerald-600 dark:text-emerald-400',
-    border: 'border-emerald-300 dark:border-emerald-800',
+    bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',
+    text: 'text-zoru-ink dark:text-zoru-ink-muted',
+    border: 'border-zoru-line dark:border-zoru-line',
     label: 'Low drop-off',
   };
 }
@@ -157,7 +157,7 @@ export function AnalyticsBadge({ groupId, blockId, className }: Props) {
       return (
         <div
           className={cn(
-            'pointer-events-none flex items-center gap-1 rounded-md border border-red-300 bg-red-50 px-1.5 py-0.5 text-[10px] text-red-600 dark:border-red-800 dark:bg-red-950/40 dark:text-red-400',
+            'pointer-events-none flex items-center gap-1 rounded-md border border-zoru-line bg-zoru-surface-2 px-1.5 py-0.5 text-[10px] text-zoru-ink dark:border-zoru-line dark:bg-zoru-ink/40 dark:text-zoru-ink-muted',
             className,
           )}
           title="Failed to load analytics"

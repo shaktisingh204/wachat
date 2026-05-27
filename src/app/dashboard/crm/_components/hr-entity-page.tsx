@@ -683,9 +683,9 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                                 setEditing(row);
                                 setDialogOpen(true);
                               }}
-                              className="group inline-flex flex-col items-start gap-0.5 rounded-sm text-left outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+                              className="group inline-flex flex-col items-start gap-0.5 rounded-sm text-left outline-none transition-colors hover:text-zoru-ink focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-1"
                             >
-                              <span className="font-medium text-foreground transition-colors group-hover:text-primary group-hover:underline group-focus-visible:underline">
+                              <span className="font-medium text-zoru-ink transition-colors group-hover:text-zoru-ink group-hover:underline group-focus-visible:underline">
                                 {content}
                               </span>
                             </button>

@@ -50,7 +50,7 @@ export function ScriptSettings({ block, onUpdate, variables = [] }: Props) {
             className="flex items-center gap-1 text-[11px] text-[var(--gray-8)] hover:text-[var(--gray-12)] transition-colors"
           >
             {copied ? (
-              <LuCheck className="h-3 w-3 text-green-500" strokeWidth={2} />
+              <LuCheck className="h-3 w-3 text-zoru-ink" strokeWidth={2} />
             ) : (
               <LuCopy className="h-3 w-3" strokeWidth={1.8} />
             )}
@@ -65,9 +65,9 @@ export function ScriptSettings({ block, onUpdate, variables = [] }: Props) {
           placeholder={`// Write your JavaScript here…\n// Use {{variableName}} to access flow variables\n\nreturn "result";`}
           spellCheck={false}
           className={cn(
-            'w-full rounded-lg border border-[var(--gray-5)] bg-[#0d0d0d]',
-            'px-3 py-3 font-mono text-[12px] text-green-400 leading-relaxed',
-            'outline-none focus:border-[#f76808] resize-y min-h-[200px]',
+            'w-full rounded-lg border border-[var(--gray-5)] bg-zoru-ink',
+            'px-3 py-3 font-mono text-[12px] text-zoru-ink-muted leading-relaxed',
+            'outline-none focus:border-zoru-line resize-y min-h-[200px]',
             'placeholder:text-[var(--gray-7)]',
             'transition-colors',
           )}
@@ -108,7 +108,7 @@ export function ScriptSettings({ block, onUpdate, variables = [] }: Props) {
           value={String(options.outputVariable ?? '')}
           onChange={(e) => update({ outputVariable: e.target.value })}
           placeholder="scriptOutput"
-          className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808] transition-colors"
+          className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors"
         />
         <p className="text-[11px] text-[var(--gray-8)] mt-1">
           The value returned by the script is stored in this variable.

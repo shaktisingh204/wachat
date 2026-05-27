@@ -232,7 +232,7 @@ export function BankingListClient(): React.JSX.Element {
             <div className="flex w-full flex-col gap-6">
                 <BankingKpiStrip kpi={kpi} />
 
-                <div className="inline-flex w-full overflow-x-auto rounded-md border border-border">
+                <div className="inline-flex w-full overflow-x-auto rounded-md border border-zoru-line">
                     <TabButton active={tab === 'bank'} onClick={() => setTab('bank')}>
                         Bank Accounts ({rows.filter((r) => r.accountType === 'bank').length})
                     </TabButton>
@@ -434,8 +434,8 @@ function TabButton({ active, onClick, children }: TabButtonProps) {
             onClick={onClick}
             aria-pressed={active}
             className={[
-                'px-3 py-2 text-[12.5px] font-medium first:rounded-l-md last:rounded-r-md border-l border-border first:border-l-0',
-                active ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground',
+                'px-3 py-2 text-[12.5px] font-medium first:rounded-l-md last:rounded-r-md border-l border-zoru-line first:border-l-0',
+                active ? 'bg-zoru-surface-2 text-zoru-ink' : 'text-zoru-ink-muted hover:text-zoru-ink',
             ].join(' ')}
         >
             {children}

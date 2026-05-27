@@ -102,28 +102,28 @@ export default function HtmlToMarkdownPage() {
           <div className="flex items-center justify-between">
             <Label className="text-sm font-medium">Markdown Output</Label>
             <Button variant="outline" size="sm" onClick={copyToClipboard} disabled={!md}>
-              {isCopied ? <Check className="w-4 h-4 mr-2 text-green-500" /> : <Copy className="w-4 h-4 mr-2" />}
+              {isCopied ? <Check className="w-4 h-4 mr-2 text-zoru-ink" /> : <Copy className="w-4 h-4 mr-2" />}
               {isCopied ? 'Copied' : 'Copy'}
             </Button>
           </div>
           <Textarea 
             readOnly 
             value={md} 
-            className="min-h-[400px] font-mono text-sm bg-muted/30 p-4 resize-y shadow-sm" 
+            className="min-h-[400px] font-mono text-sm bg-zoru-surface-2/30 p-4 resize-y shadow-sm" 
             placeholder="# Hello World..." 
           />
         </div>
       </div>
 
-      <Card className="mt-8 p-6 shadow-sm border-border/50 bg-background/50 backdrop-blur-sm">
+      <Card className="mt-8 p-6 shadow-sm border-zoru-line/50 bg-zoru-surface/50 backdrop-blur-sm">
         <div className="flex items-center gap-2 mb-6">
-          <Settings2 className="w-5 h-5 text-primary" />
+          <Settings2 className="w-5 h-5 text-zoru-ink" />
           <h3 className="text-lg font-semibold m-0">Conversion Settings</h3>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-6">
           <div className="flex flex-col gap-2">
-            <Label className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Heading Style</Label>
+            <Label className="text-xs text-zoru-ink-muted font-semibold uppercase tracking-wider">Heading Style</Label>
             <Select value={headingStyle} onValueChange={(v: any) => setHeadingStyle(v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -134,7 +134,7 @@ export default function HtmlToMarkdownPage() {
           </div>
           
           <div className="flex flex-col gap-2">
-            <Label className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Code Block Style</Label>
+            <Label className="text-xs text-zoru-ink-muted font-semibold uppercase tracking-wider">Code Block Style</Label>
             <Select value={codeBlockStyle} onValueChange={(v: any) => setCodeBlockStyle(v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -145,7 +145,7 @@ export default function HtmlToMarkdownPage() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Bullet List Marker</Label>
+            <Label className="text-xs text-zoru-ink-muted font-semibold uppercase tracking-wider">Bullet List Marker</Label>
             <Select value={bulletListMarker} onValueChange={(v: any) => setBulletListMarker(v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -157,7 +157,7 @@ export default function HtmlToMarkdownPage() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Horizontal Rule</Label>
+            <Label className="text-xs text-zoru-ink-muted font-semibold uppercase tracking-wider">Horizontal Rule</Label>
             <Select value={hr} onValueChange={(v: any) => setHr(v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -169,7 +169,7 @@ export default function HtmlToMarkdownPage() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Strong Delimiter</Label>
+            <Label className="text-xs text-zoru-ink-muted font-semibold uppercase tracking-wider">Strong Delimiter</Label>
             <Select value={strongDelimiter} onValueChange={(v: any) => setStrongDelimiter(v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -180,7 +180,7 @@ export default function HtmlToMarkdownPage() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Em Delimiter</Label>
+            <Label className="text-xs text-zoru-ink-muted font-semibold uppercase tracking-wider">Em Delimiter</Label>
             <Select value={emDelimiter} onValueChange={(v: any) => setEmDelimiter(v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -191,7 +191,7 @@ export default function HtmlToMarkdownPage() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Link Style</Label>
+            <Label className="text-xs text-zoru-ink-muted font-semibold uppercase tracking-wider">Link Style</Label>
             <Select value={linkStyle} onValueChange={(v: any) => setLinkStyle(v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>

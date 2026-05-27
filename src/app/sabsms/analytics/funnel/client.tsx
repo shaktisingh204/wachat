@@ -192,24 +192,24 @@ export default function FunnelAnalyticsPage() {
       }
     >
       {/* Premium AI Insights Banner */}
-      <div className="mb-6 overflow-hidden rounded-xl border border-blue-500/30 bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-purple-500/10 p-5 shadow-sm">
+      <div className="mb-6 overflow-hidden rounded-xl border border-zoru-line/30 bg-gradient-to-r from-zoru-ink/10 via-zoru-ink/5 to-zoru-ink/10 p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-start gap-4">
-            <div className="rounded-full bg-blue-500/20 p-2.5">
-              <Sparkles className="size-5 text-blue-600" />
+            <div className="rounded-full bg-zoru-ink/20 p-2.5">
+              <Sparkles className="size-5 text-zoru-ink" />
             </div>
             <div>
-              <h3 className="font-semibold text-blue-900 dark:text-blue-200 flex items-center gap-2">
+              <h3 className="font-semibold text-zoru-ink dark:text-white flex items-center gap-2">
                 Datadog-grade Insight
-                <Badge className="bg-blue-600 hover:bg-blue-700">AI Powered</Badge>
+                <Badge className="bg-zoru-ink hover:bg-zoru-ink">AI Powered</Badge>
               </h3>
-              <p className="mt-1 text-sm text-blue-800/80 dark:text-blue-300/80">
+              <p className="mt-1 text-sm text-zoru-ink/80 dark:text-zoru-ink-muted/80">
                 Drop-off from <strong className="font-medium">Delivered</strong> to <strong className="font-medium">Clicked</strong> is 64%.
                 We detected a 12% lower dropoff on cohorts receiving SMS at 10 AM. Adjusting send times could yield +2.4k conversions.
               </p>
             </div>
           </div>
-          <Button size="sm" className="gap-2 shrink-0 bg-blue-600 hover:bg-blue-700 text-white shadow-md">
+          <Button size="sm" className="gap-2 shrink-0 bg-zoru-ink hover:bg-zoru-ink text-white shadow-md">
             Apply Optimal Timing
           </Button>
         </div>
@@ -224,12 +224,12 @@ export default function FunnelAnalyticsPage() {
                 <p className="text-sm font-medium text-zoru-ink-muted">Overall Conversion</p>
                 <p className="text-3xl font-bold tracking-tight">6.8%</p>
               </div>
-              <div className="p-2 bg-emerald-50 rounded-lg">
-                <TrendingUp className="size-5 text-emerald-600" />
+              <div className="p-2 bg-zoru-surface-2 rounded-lg">
+                <TrendingUp className="size-5 text-zoru-ink" />
               </div>
             </div>
             <div className="mt-4 flex items-center text-sm">
-              <span className="text-emerald-600 font-medium flex items-center gap-1">
+              <span className="text-zoru-ink font-medium flex items-center gap-1">
                 <TrendingUp className="size-3" /> +1.2%
               </span>
               <span className="text-zoru-ink-muted ml-2">vs last 30d</span>
@@ -244,12 +244,12 @@ export default function FunnelAnalyticsPage() {
                 <p className="text-sm font-medium text-zoru-ink-muted">Total Drop-off</p>
                 <p className="text-3xl font-bold tracking-tight">116.5k</p>
               </div>
-              <div className="p-2 bg-red-50 rounded-lg">
-                <TrendingDown className="size-5 text-red-600" />
+              <div className="p-2 bg-zoru-surface-2 rounded-lg">
+                <TrendingDown className="size-5 text-zoru-ink" />
               </div>
             </div>
             <div className="mt-4 flex items-center text-sm">
-              <span className="text-red-600 font-medium flex items-center gap-1">
+              <span className="text-zoru-ink font-medium flex items-center gap-1">
                 <TrendingDown className="size-3" /> -0.4%
               </span>
               <span className="text-zoru-ink-muted ml-2">vs last 30d</span>
@@ -264,8 +264,8 @@ export default function FunnelAnalyticsPage() {
                 <p className="text-sm font-medium text-zoru-ink-muted">Avg Time to Convert</p>
                 <p className="text-3xl font-bold tracking-tight">2h 15m</p>
               </div>
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <Clock className="size-5 text-blue-600" />
+              <div className="p-2 bg-zoru-surface-2 rounded-lg">
+                <Clock className="size-5 text-zoru-ink" />
               </div>
             </div>
             <div className="mt-4 flex items-center text-sm">
@@ -281,12 +281,12 @@ export default function FunnelAnalyticsPage() {
                 <p className="text-sm font-medium text-zoru-ink-muted">Attributed Value</p>
                 <p className="text-3xl font-bold tracking-tight">$125k</p>
               </div>
-              <div className="p-2 bg-purple-50 rounded-lg">
-                <Activity className="size-5 text-purple-600" />
+              <div className="p-2 bg-zoru-surface-2 rounded-lg">
+                <Activity className="size-5 text-zoru-ink" />
               </div>
             </div>
             <div className="mt-4 flex items-center text-sm">
-              <span className="text-emerald-600 font-medium flex items-center gap-1">
+              <span className="text-zoru-ink font-medium flex items-center gap-1">
                 <TrendingUp className="size-3" /> +14%
               </span>
               <span className="text-zoru-ink-muted ml-2">vs last 30d</span>
@@ -454,11 +454,11 @@ export default function FunnelAnalyticsPage() {
                             <div className="flex justify-end items-center gap-2">
                               <div className="w-16 h-1.5 bg-zoru-surface-2 rounded-full overflow-hidden">
                                 <div 
-                                  className={`h-full rounded-full ${dropoff > 50 ? 'bg-red-400' : 'bg-emerald-400'}`} 
+                                  className={`h-full rounded-full ${dropoff > 50 ? 'bg-zoru-surface-2' : 'bg-zoru-surface-2'}`} 
                                   style={{ width: `${isVariant ? Math.max(0, dropoff - 2) : dropoff}%` }} 
                                 />
                               </div>
-                              <span className={`text-xs font-medium w-10 text-right ${dropoff > 50 ? 'text-red-600' : 'text-zoru-ink-muted'}`}>
+                              <span className={`text-xs font-medium w-10 text-right ${dropoff > 50 ? 'text-zoru-ink' : 'text-zoru-ink-muted'}`}>
                                 {dropoffDisplay}
                               </span>
                             </div>
@@ -466,7 +466,7 @@ export default function FunnelAnalyticsPage() {
                             <span className="text-zoru-ink-muted">—</span>
                           )}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-sm tabular-nums text-emerald-600 py-3">
+                        <ZoruTableCell className="text-right font-mono text-sm tabular-nums text-zoru-ink py-3">
                           {stepValue > 0 ? `$${stepValue.toLocaleString()}` : "—"}
                         </ZoruTableCell>
                       </ZoruTableRow>
@@ -529,22 +529,22 @@ export default function FunnelAnalyticsPage() {
 
           {/* Test Lift Estimate */}
           {activeVariant === "variant" ? (
-            <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50/50 to-emerald-100/50 shadow-sm relative overflow-hidden">
+            <Card className="border-zoru-line bg-gradient-to-br from-zoru-surface-2/50 to-zoru-surface-2/50 shadow-sm relative overflow-hidden">
               <div className="absolute -right-4 -top-4 opacity-10">
-                <Activity className="size-24 text-emerald-600" />
+                <Activity className="size-24 text-zoru-ink" />
               </div>
               <ZoruCardHeader className="pb-2 relative z-10">
-                <ZoruCardTitle className="text-base flex items-center gap-2 text-emerald-800">
+                <ZoruCardTitle className="text-base flex items-center gap-2 text-zoru-ink">
                   <BarChart className="size-4" /> Experiment Results
                 </ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent className="relative z-10">
-                <div className="text-3xl font-bold text-emerald-700 tracking-tight">+14.5%</div>
-                <p className="text-sm text-emerald-800/80 mt-2 leading-relaxed">
+                <div className="text-3xl font-bold text-zoru-ink tracking-tight">+14.5%</div>
+                <p className="text-sm text-zoru-ink/80 mt-2 leading-relaxed">
                   Variant B is outperforming Control with a <strong>98% statistical significance</strong>.
                   Consider rolling this out to 100% of traffic.
                 </p>
-                <Button size="sm" className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Button size="sm" className="w-full mt-4 bg-zoru-ink hover:bg-zoru-ink text-white">
                   Rollout to 100%
                 </Button>
               </ZoruCardContent>
@@ -558,9 +558,9 @@ export default function FunnelAnalyticsPage() {
               <ZoruCardContent>
                 <div className="space-y-5 mt-2">
                   {[
-                    { name: 'SMS', value: 4.2, color: 'bg-blue-500' },
-                    { name: 'MMS', value: 5.8, color: 'bg-purple-500' },
-                    { name: 'RCS', value: 8.1, color: 'bg-emerald-500' },
+                    { name: 'SMS', value: 4.2, color: 'bg-zoru-ink' },
+                    { name: 'MMS', value: 5.8, color: 'bg-zoru-ink' },
+                    { name: 'RCS', value: 8.1, color: 'bg-zoru-ink' },
                   ].map((channel) => (
                     <div key={channel.name}>
                       <div className="flex items-center justify-between text-sm mb-1.5">
@@ -585,7 +585,7 @@ export default function FunnelAnalyticsPage() {
             <ZoruCardHeader className="pb-3 border-b border-zoru-line/30">
               <ZoruCardTitle className="text-base flex justify-between items-center">
                 <span>Top Cohorts</span>
-                <Link href="#" className="text-xs text-blue-600 hover:underline">View All</Link>
+                <Link href="#" className="text-xs text-zoru-ink hover:underline">View All</Link>
               </ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent className="p-0">
@@ -603,8 +603,8 @@ export default function FunnelAnalyticsPage() {
                       </ZoruTableCell>
                       <ZoruTableCell className="py-3 px-5 text-right">
                         <div className="flex flex-col items-end">
-                          <span className={`font-semibold ${cohort.alert ? 'text-orange-600' : ''}`}>{cohort.rate}</span>
-                          <span className={`text-[10px] flex items-center gap-0.5 ${cohort.trend === 'up' ? 'text-emerald-600' : 'text-red-500'}`}>
+                          <span className={`font-semibold ${cohort.alert ? 'text-zoru-ink' : ''}`}>{cohort.rate}</span>
+                          <span className={`text-[10px] flex items-center gap-0.5 ${cohort.trend === 'up' ? 'text-zoru-ink' : 'text-zoru-ink'}`}>
                             {cohort.trend === 'up' ? <TrendingUp className="size-3" /> : <TrendingDown className="size-3" />}
                             {cohort.val}
                           </span>

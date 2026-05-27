@@ -50,7 +50,7 @@ const DeltaBadge = ({ current, previous, invertColor }: { current: number, previ
     const isGood = invertColor ? !isUp : isUp;
 
     return (
-        <span className={`text-[11px] font-medium ml-2 px-1.5 py-0.5 rounded-full ${isGood ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+        <span className={`text-[11px] font-medium ml-2 px-1.5 py-0.5 rounded-full ${isGood ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>
             {isUp ? '↑' : '↓'} {Math.abs(delta).toFixed(1)}%
         </span>
     );
@@ -331,8 +331,8 @@ export default function PayrollSummaryPage() {
                                 <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">ESI</th>
                                 <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">TDS</th>
                                 <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">Prof. Tax</th>
-                                <th className="px-4 py-3 text-right font-medium text-red-600">Total Deductions</th>
-                                <th className="px-4 py-3 text-right font-medium text-green-600">Net Pay</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">Total Deductions</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">Net Pay</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -358,11 +358,11 @@ export default function PayrollSummaryPage() {
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.esi)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.tds)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.professionalTax)}</td>
-                                            <td className="px-4 py-3 text-right font-mono font-semibold text-red-600">
+                                            <td className="px-4 py-3 text-right font-mono font-semibold text-zoru-ink">
                                                 {fmt(row.totalDeductions)}
                                                 {prevRow && <><br/><DeltaBadge current={row.totalDeductions} previous={prevRow.totalDeductions} invertColor /></>}
                                             </td>
-                                            <td className="px-4 py-3 text-right font-mono font-bold text-green-600">
+                                            <td className="px-4 py-3 text-right font-mono font-bold text-zoru-ink">
                                                 {fmt(row.netPay)}
                                                 {prevRow && <><br/><DeltaBadge current={row.netPay} previous={prevRow.netPay} /></>}
                                             </td>
@@ -377,8 +377,8 @@ export default function PayrollSummaryPage() {
                                         <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.esi)}</td>
                                         <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.tds)}</td>
                                         <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.professionalTax)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-red-600">{fmt(totals.totalDeductions)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-green-600">{fmt(totals.netPay)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.totalDeductions)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.netPay)}</td>
                                     </tr>
                                 </>
                             ) : (

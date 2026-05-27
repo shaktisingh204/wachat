@@ -294,7 +294,7 @@ export function TechnicianConsole({
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard/sablens"
-            className="text-sm text-muted-foreground hover:underline"
+            className="text-sm text-zoru-ink-muted hover:underline"
           >
             ← All sessions
           </Link>
@@ -303,7 +303,7 @@ export function TechnicianConsole({
             <span className="text-sm font-semibold">
               {session.customerName || 'Untitled session'}
             </span>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-zoru-ink-muted">
               {session.customerEmail || '—'}
             </span>
           </div>
@@ -432,8 +432,8 @@ export function TechnicianConsole({
           {/* Customer link */}
           <Card>
             <ZoruCardContent className="flex flex-wrap items-center gap-3 p-3 text-sm">
-              <span className="text-muted-foreground">Customer link:</span>
-              <code className="rounded bg-muted px-2 py-1 text-xs">{customerUrl}</code>
+              <span className="text-zoru-ink-muted">Customer link:</span>
+              <code className="rounded bg-zoru-surface-2 px-2 py-1 text-xs">{customerUrl}</code>
               <Button
                 size="sm"
                 variant="outline"
@@ -469,17 +469,17 @@ export function TechnicianConsole({
             <ZoruCardTitle className="text-sm">Activity</ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent className="flex min-h-0 flex-1 flex-col gap-3 p-3 pt-0">
-            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded border bg-muted/30 p-2">
+            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded border bg-zoru-surface-2/30 p-2">
               {log.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No activity yet.</p>
+                <p className="text-xs text-zoru-ink-muted">No activity yet.</p>
               ) : (
                 log.map((l) => (
                   <div
                     key={l._id}
-                    className="rounded border bg-background px-2 py-1 text-xs"
+                    className="rounded border bg-zoru-surface px-2 py-1 text-xs"
                   >
                     <span className="font-semibold">{l.action}</span>{' '}
-                    <span className="text-muted-foreground">
+                    <span className="text-zoru-ink-muted">
                       {new Date(l.ts).toLocaleTimeString()}
                     </span>
                   </div>
@@ -489,19 +489,19 @@ export function TechnicianConsole({
 
             <Separator />
 
-            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded border bg-muted/30 p-2">
+            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded border bg-zoru-surface-2/30 p-2">
               {chat.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No chat yet.</p>
+                <p className="text-xs text-zoru-ink-muted">No chat yet.</p>
               ) : (
                 chat.map((m) => (
                   <div
                     key={m._id}
-                    className="rounded border bg-background px-2 py-1 text-xs"
+                    className="rounded border bg-zoru-surface px-2 py-1 text-xs"
                   >
                     <span className="font-semibold">
                       {m.senderKind === 'guest' ? 'Customer' : 'You'}
                     </span>
-                    <span className="ml-2 text-muted-foreground">
+                    <span className="ml-2 text-zoru-ink-muted">
                       {new Date(m.ts).toLocaleTimeString()}
                     </span>
                     <p className="mt-1">{m.body}</p>

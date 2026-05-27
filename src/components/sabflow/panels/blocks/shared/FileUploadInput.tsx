@@ -218,7 +218,7 @@ export function FileUploadInput({
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
-              className="flex items-center gap-1.5 rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2.5 py-1 text-[12px] text-[var(--gray-11)] hover:border-[#f76808] hover:text-[#f76808] transition-colors"
+              className="flex items-center gap-1.5 rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2.5 py-1 text-[12px] text-[var(--gray-11)] hover:border-zoru-line hover:text-zoru-ink transition-colors"
             >
               <LuUpload className="h-3 w-3" strokeWidth={2} />
               Replace
@@ -226,7 +226,7 @@ export function FileUploadInput({
             <button
               type="button"
               onClick={handleRemove}
-              className="flex items-center gap-1.5 rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2.5 py-1 text-[12px] text-[var(--gray-11)] hover:border-red-500 hover:text-red-500 transition-colors"
+              className="flex items-center gap-1.5 rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2.5 py-1 text-[12px] text-[var(--gray-11)] hover:border-zoru-line hover:text-zoru-ink transition-colors"
             >
               <LuX className="h-3 w-3" strokeWidth={2} />
               Remove
@@ -254,21 +254,21 @@ export function FileUploadInput({
           className={cn(
             'flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed px-4 py-6 text-center transition-colors',
             isDragging
-              ? 'border-[#f76808] bg-[#f76808]/5'
-              : 'border-[var(--gray-5)] bg-[var(--gray-2)] hover:border-[#f76808]/60',
+              ? 'border-zoru-line bg-zoru-ink/5'
+              : 'border-[var(--gray-5)] bg-[var(--gray-2)] hover:border-zoru-line/60',
             uploading && 'pointer-events-none opacity-80',
           )}
         >
           {uploading ? (
             <>
               <LuLoader
-                className="h-5 w-5 animate-spin text-[#f76808]"
+                className="h-5 w-5 animate-spin text-zoru-ink"
                 strokeWidth={1.8}
               />
               <div className="w-full max-w-[180px]">
                 <div className="h-1 w-full overflow-hidden rounded-full bg-[var(--gray-4)]">
                   <div
-                    className="h-full bg-[#f76808] transition-[width] duration-200"
+                    className="h-full bg-zoru-ink transition-[width] duration-200"
                     style={{ width: `${progress ?? 0}%` }}
                   />
                 </div>
@@ -279,8 +279,8 @@ export function FileUploadInput({
             </>
           ) : (
             <>
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f76808]/10">
-                <LuImage className="h-4 w-4 text-[#f76808]" strokeWidth={1.8} />
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-ink/10">
+                <LuImage className="h-4 w-4 text-zoru-ink" strokeWidth={1.8} />
               </div>
               <p className="text-[12.5px] font-medium text-[var(--gray-11)]">
                 Drop a file or click to browse
@@ -294,7 +294,7 @@ export function FileUploadInput({
       )}
 
       {error && (
-        <div className="flex items-start gap-1.5 rounded-md border border-red-500/30 bg-red-500/5 px-2.5 py-1.5 text-[11.5px] text-red-400">
+        <div className="flex items-start gap-1.5 rounded-md border border-zoru-line/30 bg-zoru-ink/5 px-2.5 py-1.5 text-[11.5px] text-zoru-ink-muted">
           <LuTriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
           <span>{error}</span>
         </div>

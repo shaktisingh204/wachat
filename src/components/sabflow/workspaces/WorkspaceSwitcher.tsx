@@ -199,9 +199,9 @@ export function WorkspaceSwitcher({
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-[13px] font-medium text-gray-800 hover:bg-gray-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+        className="inline-flex items-center gap-2 rounded-md border border-zoru-line bg-white px-2.5 py-1.5 text-[13px] font-medium text-zoru-ink hover:bg-zoru-surface-2 dark:border-zoru-line dark:bg-zoru-ink dark:text-white dark:hover:bg-zoru-ink"
       >
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gray-100 text-gray-600 dark:bg-zinc-800 dark:text-zinc-300">
+        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
           {current?.iconUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -222,11 +222,11 @@ export function WorkspaceSwitcher({
       {open && (
         <div
           role="menu"
-          className="absolute left-0 z-50 mt-2 w-72 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+          className="absolute left-0 z-50 mt-2 w-72 overflow-hidden rounded-lg border border-zoru-line bg-white shadow-lg dark:border-zoru-line dark:bg-zoru-ink"
         >
           <div className="max-h-72 overflow-y-auto py-1">
             {workspaces.length === 0 ? (
-              <div className="px-3 py-3 text-[13px] text-gray-500">
+              <div className="px-3 py-3 text-[13px] text-zoru-ink">
                 No workspaces yet.
               </div>
             ) : (
@@ -240,12 +240,12 @@ export function WorkspaceSwitcher({
                     aria-checked={active}
                     onClick={() => handleSwitch(ws)}
                     className={cn(
-                      'flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13px] hover:bg-gray-50 dark:hover:bg-zinc-800',
-                      active && 'bg-gray-50 dark:bg-zinc-800',
+                      'flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13px] hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink',
+                      active && 'bg-zoru-surface-2 dark:bg-zoru-ink',
                     )}
                   >
                     <div className="flex min-w-0 items-center gap-2">
-                      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-600 dark:bg-zinc-800 dark:text-zinc-300">
+                      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
                         {ws.iconUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -261,10 +261,10 @@ export function WorkspaceSwitcher({
                         )}
                       </span>
                       <div className="min-w-0">
-                        <div className="truncate font-medium text-gray-900 dark:text-white">
+                        <div className="truncate font-medium text-zoru-ink dark:text-white">
                           {ws.name}
                         </div>
-                        <div className="truncate text-[11px] text-gray-500">
+                        <div className="truncate text-[11px] text-zoru-ink">
                           {ws.memberCount != null
                             ? `${ws.memberCount} member${ws.memberCount === 1 ? '' : 's'}`
                             : ws.slug}
@@ -283,13 +283,13 @@ export function WorkspaceSwitcher({
             )}
           </div>
 
-          <div className="border-t border-gray-100 py-1 dark:border-zinc-800">
+          <div className="border-t border-zoru-line py-1 dark:border-zoru-line">
             {current && (
               <button
                 type="button"
                 role="menuitem"
                 onClick={goToSettings}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] text-gray-700 hover:bg-gray-50 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] text-zoru-ink hover:bg-zoru-surface-2 dark:text-white dark:hover:bg-zoru-ink"
               >
                 <LuSettings className="h-4 w-4" aria-hidden="true" />
                 Workspace settings
@@ -300,7 +300,7 @@ export function WorkspaceSwitcher({
                 type="button"
                 role="menuitem"
                 onClick={() => setShowCreate(true)}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] text-gray-700 hover:bg-gray-50 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] text-zoru-ink hover:bg-zoru-surface-2 dark:text-white dark:hover:bg-zoru-ink"
               >
                 <LuPlus className="h-4 w-4" aria-hidden="true" />
                 Create new workspace
@@ -316,10 +316,10 @@ export function WorkspaceSwitcher({
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder="Workspace name"
-                  className="rounded-md border border-gray-200 bg-white px-2 py-1.5 text-[13px] focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                  className="rounded-md border border-zoru-line bg-white px-2 py-1.5 text-[13px] focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zoru-line dark:bg-zoru-ink dark:text-white"
                 />
                 {error && (
-                  <div className="text-[11px] text-red-600">{error}</div>
+                  <div className="text-[11px] text-zoru-ink">{error}</div>
                 )}
                 <div className="flex justify-end gap-2">
                   <button
@@ -329,7 +329,7 @@ export function WorkspaceSwitcher({
                       setNewName('');
                       setError(null);
                     }}
-                    className="rounded-md px-2 py-1 text-[12px] text-gray-600 hover:bg-gray-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    className="rounded-md px-2 py-1 text-[12px] text-zoru-ink hover:bg-zoru-surface-2 dark:text-zoru-ink-muted dark:hover:bg-zoru-ink"
                   >
                     Cancel
                   </button>

@@ -96,7 +96,7 @@ export function RequestDetail({ request, blueprint, actions }: Props) {
                             <h1 className="text-xl font-semibold">
                                 {request.title ?? request.blueprintName ?? 'Request'}
                             </h1>
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-xs text-zoru-ink-muted">
                                 {request.blueprintName ?? 'Blueprint'} ·{' '}
                                 {request.priority ?? 'normal'} priority
                             </div>
@@ -108,18 +108,18 @@ export function RequestDetail({ request, blueprint, actions }: Props) {
                 </Card>
 
                 <Card className="p-4">
-                    <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                    <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">
                         Form data
                     </h2>
                     {formEntries.length === 0 ? (
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm text-zoru-ink-muted">
                             (no fields submitted)
                         </div>
                     ) : (
                         <dl className="grid grid-cols-1 gap-2 md:grid-cols-2">
                             {formEntries.map(([k, v]) => (
                                 <div key={k}>
-                                    <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                                    <dt className="text-xs uppercase tracking-wide text-zoru-ink-muted">
                                         {k}
                                     </dt>
                                     <dd className="text-sm">{String(v ?? '—')}</dd>
@@ -130,21 +130,21 @@ export function RequestDetail({ request, blueprint, actions }: Props) {
                 </Card>
 
                 <Card className="p-4">
-                    <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                    <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">
                         Timeline
                     </h2>
                     {actions.length === 0 ? (
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm text-zoru-ink-muted">
                             No actions yet.
                         </div>
                     ) : (
-                        <ol className="flex flex-col gap-3 border-l border-border pl-4">
+                        <ol className="flex flex-col gap-3 border-l border-zoru-line pl-4">
                             {actions.map((a) => (
                                 <li key={a._id} className="relative">
-                                    <span className="absolute -left-[1.4rem] mt-1 h-2 w-2 rounded-full bg-primary" />
+                                    <span className="absolute -left-[1.4rem] mt-1 h-2 w-2 rounded-full bg-zoru-ink" />
                                     <div className="flex items-center gap-2">
                                         <Badge variant="outline">{a.action}</Badge>
-                                        <span className="text-xs text-muted-foreground">
+                                        <span className="text-xs text-zoru-ink-muted">
                                             stage {a.stageIdx + 1} ·{' '}
                                             {a.ts
                                                 ? new Date(a.ts).toLocaleString()
@@ -163,7 +163,7 @@ export function RequestDetail({ request, blueprint, actions }: Props) {
 
             <div className="flex flex-col gap-4">
                 <Card className="p-4">
-                    <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                    <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">
                         Stages
                     </h2>
                     <ol className="flex flex-col gap-2">
@@ -172,15 +172,15 @@ export function RequestDetail({ request, blueprint, actions }: Props) {
                                 key={i}
                                 className={`flex items-center justify-between rounded border p-2 ${
                                     i === request.currentStageIdx
-                                        ? 'border-primary bg-primary/5'
-                                        : 'border-border'
+                                        ? 'border-primary bg-zoru-ink/5'
+                                        : 'border-zoru-line'
                                 }`}
                             >
                                 <div>
                                     <div className="text-sm font-medium">
                                         {i + 1}. {s.name}
                                     </div>
-                                    <div className="text-xs text-muted-foreground">
+                                    <div className="text-xs text-zoru-ink-muted">
                                         {s.approverKind}
                                         {s.slaMins ? ` · ${s.slaMins} min SLA` : ''}
                                     </div>
@@ -197,7 +197,7 @@ export function RequestDetail({ request, blueprint, actions }: Props) {
 
                 {canDecide ? (
                     <Card className="flex flex-col gap-3 p-4">
-                        <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                        <h2 className="text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">
                             Take action
                         </h2>
                         <Textarea
@@ -211,7 +211,7 @@ export function RequestDetail({ request, blueprint, actions }: Props) {
                             onChange={(e) => setReassignTo(e.target.value)}
                         />
                         {err ? (
-                            <div className="text-sm text-destructive">{err}</div>
+                            <div className="text-sm text-zoru-ink">{err}</div>
                         ) : null}
                         <div className="flex flex-wrap gap-2">
                             <Button

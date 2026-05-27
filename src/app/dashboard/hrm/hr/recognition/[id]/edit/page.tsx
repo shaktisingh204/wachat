@@ -43,7 +43,7 @@ export default function EditRecognitionPage() {
   }, [id]);
 
   if (loading) {
-    return <div className="text-[13px] text-muted-foreground">Loading…</div>;
+    return <div className="text-[13px] text-zoru-ink-muted">Loading…</div>;
   }
 
   return (

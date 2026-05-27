@@ -354,7 +354,7 @@ export function EstimateTemplateForm({
                                                 disabled={items.length === 1}
                                                 title="Remove item"
                                             >
-                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                                <Trash2 className="h-4 w-4 text-zoru-ink" />
                                             </Button>
                                         </td>
                                     </tr>
@@ -503,7 +503,7 @@ export function SortableRow({
           disabled={!canRemove}
           title="Remove item"
         >
-          <Trash2 className="h-4 w-4 text-destructive" />
+          <Trash2 className="h-4 w-4 text-zoru-ink" />
         </Button>
       </td>
     </tr>

@@ -486,7 +486,7 @@ export function PaymentBlock({
         <div ref={elementsContainerRef} className="rounded-lg bg-white p-2 dark:bg-white/5" />
 
         {errorMessage && (
-          <p className="text-[11.5px] text-red-500">{errorMessage}</p>
+          <p className="text-[11.5px] text-zoru-ink">{errorMessage}</p>
         )}
 
         <button
@@ -522,7 +522,7 @@ export function PaymentBlock({
     <div className="flex flex-col items-start gap-2 py-1">
       <div
         className="flex items-center gap-2 rounded-xl border px-3 py-2 text-[12.5px]"
-        style={{ borderColor: '#fecaca', backgroundColor: '#fef2f2', color: '#b91c1c' }}
+        style={{ borderColor: 'var(--zoru-line)', backgroundColor: 'var(--zoru-surface-2)', color: 'var(--zoru-ink)' }}
       >
         <span>{errorMessage ?? 'Payment failed. Please try again.'}</span>
       </div>

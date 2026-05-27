@@ -365,7 +365,7 @@ export default function InteractiveMessagesPage() {
                         placeholder="Section title (required)"
                         value={sec.title}
                         onChange={(e) => updateSection(si, e.target.value)}
-                        className={!sec.title.trim() ? "border-red-500" : ""}
+                        className={!sec.title.trim() ? "border-zoru-line" : ""}
                       />
                       <Button
                         variant="ghost"
@@ -381,7 +381,7 @@ export default function InteractiveMessagesPage() {
                         <div key={ri} className="flex flex-col gap-2 rounded border border-zoru-line bg-zoru-surface-2 p-2">
                           <div className="flex items-center gap-2">
                             <Input
-                              className={`flex-1 ${!row.title.trim() ? "border-red-500" : ""}`}
+                              className={`flex-1 ${!row.title.trim() ? "border-zoru-line" : ""}`}
                               placeholder="Row title (required)"
                               value={row.title}
                               onChange={(e) => updateRow(si, ri, { title: e.target.value })}
@@ -417,7 +417,7 @@ export default function InteractiveMessagesPage() {
                     </button>
                   </div>
                 ))}
-                {sections.length === 0 && <p className="text-sm text-red-500">At least one section required.</p>}
+                {sections.length === 0 && <p className="text-sm text-zoru-ink">At least one section required.</p>}
               </div>
             </Card>
           )}
@@ -432,7 +432,7 @@ export default function InteractiveMessagesPage() {
                     value={flowId} 
                     onChange={e => setFlowId(e.target.value)} 
                     placeholder="e.g. 123456789"
-                    className={!flowId.trim() ? "border-red-500" : ""}
+                    className={!flowId.trim() ? "border-zoru-line" : ""}
                   />
                   
                   <Label>Flow CTA Button Text</Label>
@@ -551,7 +551,7 @@ export default function InteractiveMessagesPage() {
                     <div key={i} className="border border-zoru-line rounded p-2 flex flex-col gap-1">
                       <p className="text-[12px] font-medium">{c.title || 'Card Title'}</p>
                       <p className="text-[11px] text-zoru-ink-muted">{c.body || 'Card Body'}</p>
-                      <div className="mt-1 border-t border-zoru-line pt-1 text-center text-[11px] text-blue-500">
+                      <div className="mt-1 border-t border-zoru-line pt-1 text-center text-[11px] text-zoru-ink">
                         {c.buttonLabel || 'Action'}
                       </div>
                     </div>
@@ -642,7 +642,7 @@ export default function InteractiveMessagesPage() {
                       Load
                     </Button>
                     <Button size="icon-sm" variant="ghost" onClick={() => handleDeleteTemplate(i)}>
-                      <Trash2 className="w-4 h-4 text-red-500" />
+                      <Trash2 className="w-4 h-4 text-zoru-ink" />
                     </Button>
                   </div>
                 </div>

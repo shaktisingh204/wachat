@@ -264,7 +264,7 @@ export default function LeaveTypesClient({
                               onClick={() => setTypeToDelete(t._id)}
                               disabled={isDeleting}
                             >
-                              <Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />
+                              <Trash2 className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={1.75} />
                               Delete
                             </Button>
                           </ZoruAlertDialogTrigger>

@@ -14,7 +14,7 @@ export default function Loading() {
         </div>
         
         <Card>
-          <ZoruCardHeader className="border-b border-border py-3 bg-secondary/50">
+          <ZoruCardHeader className="border-b border-zoru-line py-3 bg-zoru-surface-2/50">
             <div className="flex items-center gap-2">
               <Skeleton className="h-4 w-4 rounded-full" />
               <Skeleton className="h-4 w-32 rounded" />
@@ -32,7 +32,7 @@ export default function Loading() {
             <Skeleton className="h-4 w-4 rounded" />
             <Skeleton className="h-4 w-40 rounded" />
           </div>
-          <div className="rounded-xl border border-border bg-secondary/35 p-5">
+          <div className="rounded-xl border border-zoru-line bg-zoru-surface-2/35 p-5">
             <Skeleton className="h-4 w-full mb-2 rounded" />
             <Skeleton className="h-4 w-full mb-2 rounded" />
             <Skeleton className="h-4 w-3/4 rounded" />

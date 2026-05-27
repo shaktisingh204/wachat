@@ -19,7 +19,7 @@ export default function ExpiredError({
     return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-zoru-bg px-4 text-center">
             <Card className="max-w-md w-full p-8 flex flex-col items-center bg-zoru-surface border border-zoru-line shadow-2xl">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-zoru-surface mb-6 shadow-inner text-destructive">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-zoru-surface mb-6 shadow-inner text-zoru-ink">
                     <AlertCircle className="h-8 w-8" />
                 </div>
 

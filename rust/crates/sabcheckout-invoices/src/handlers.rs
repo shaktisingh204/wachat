@@ -4,7 +4,7 @@ use axum::{
     Json,
     extract::{Path, Query, State},
 };
-use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
+use bson::{DateTime as BsonDateTime, Document, doc};
 use chrono::Utc;
 use crm_common::{
     pagination::{clamp_limit, skip_for},

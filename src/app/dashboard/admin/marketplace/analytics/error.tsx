@@ -15,11 +15,11 @@ export default function AnalyticsError({
     }, [error]);
 
     return (
-        <div className="flex min-h-[400px] flex-col items-center justify-center space-y-4 rounded-xl border border-zinc-800 bg-zinc-900 p-8 text-center text-zinc-100">
-            <AlertCircle className="h-10 w-10 text-red-500" />
+        <div className="flex min-h-[400px] flex-col items-center justify-center space-y-4 rounded-xl border border-zoru-line bg-zoru-ink p-8 text-center text-white">
+            <AlertCircle className="h-10 w-10 text-zoru-ink" />
             <div className="space-y-2">
                 <h2 className="text-xl font-semibold">Failed to load marketplace analytics</h2>
-                <p className="text-sm text-zinc-400">
+                <p className="text-sm text-zoru-ink-muted">
                     {error.message || 'An unexpected error occurred while fetching analytics data.'}
                 </p>
             </div>

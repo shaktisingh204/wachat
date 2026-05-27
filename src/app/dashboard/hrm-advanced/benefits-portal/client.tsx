@@ -262,7 +262,7 @@ export default function BenefitsPortalClient({ initialData }: { initialData: Ben
   });
 
   return (
-    <ErrorBoundary fallback={<div className="p-4 text-red-500 rounded-md border border-red-200 bg-red-50">Failed to load Benefits Portal. Please refresh the page.</div>}>
+    <ErrorBoundary fallback={<div className="p-4 text-zoru-ink rounded-md border border-zoru-line bg-zoru-surface-2">Failed to load Benefits Portal. Please refresh the page.</div>}>
       <Card className="p-4 flex flex-col gap-4">
         {/* Toolbar */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -377,7 +377,7 @@ export default function BenefitsPortalClient({ initialData }: { initialData: Ben
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-zoru-ink-subtle hover:text-zoru-ink" onClick={() => { setEditingItem(row); setIsDialogOpen(true); }}>
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950" onClick={() => handleDelete(row._id!)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink" onClick={() => handleDelete(row._id!)}>
                           <Trash className="w-4 h-4" />
                         </Button>
                       </div>

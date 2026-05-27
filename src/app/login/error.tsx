@@ -18,7 +18,7 @@ export default function LoginErrorBoundary({
 
     return (
         <div className="zoruui flex min-h-screen flex-col items-center justify-center p-6 text-center bg-zoru-bg text-zoru-ink">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10 text-destructive mb-6">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-zoru-ink/10 text-zoru-ink mb-6">
                 <AlertTriangle className="h-10 w-10" />
             </div>
             <h2 className="mb-2 text-2xl font-bold tracking-tight">Login Error</h2>

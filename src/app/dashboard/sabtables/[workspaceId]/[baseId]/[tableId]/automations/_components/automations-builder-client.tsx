@@ -124,7 +124,7 @@ export function AutomationsBuilderClient({ tableId, initialAutomations }: Props)
             <Card key={a._id} className="p-4 flex items-center justify-between">
               <div>
                 <div className="font-medium">{a.name}</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-zoru-ink-muted">
                   Trigger: <code>{a.trigger.kind}</code> · {a.actions.length} action(s) ·{' '}
                   {a.isEnabled ? 'enabled' : 'disabled'}
                 </div>

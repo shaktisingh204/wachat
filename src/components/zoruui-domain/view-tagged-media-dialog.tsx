@@ -78,7 +78,7 @@ export function ViewTaggedMediaDialog({ isOpen, onOpenChange, product, projectId
                     ))}
                 </div>
             ) : (
-                <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
+                <div className="text-center py-16 text-zoru-ink-muted border-2 border-dashed rounded-lg">
                     <ImageIcon className="mx-auto h-12 w-12" />
                     <h3 className="mt-4 text-lg font-semibold">No Tagged Media Found</h3>
                     <p className="mt-1 text-sm">This product has not been tagged in any posts yet.</p>

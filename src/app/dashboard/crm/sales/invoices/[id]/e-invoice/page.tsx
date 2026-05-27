@@ -47,7 +47,7 @@ export default async function InvoiceEInvoicePage(props: {
                         <ZoruCardTitle>Not generated</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent className="flex flex-col gap-4">
-                        <p className="text-[13px] text-muted-foreground">
+                        <p className="text-[13px] text-zoru-ink-muted">
                             No IRN has been issued for this invoice yet. Click below
                             to generate one via your configured e-invoice provider.
                         </p>
@@ -101,11 +101,11 @@ export default async function InvoiceEInvoicePage(props: {
                             <ZoruCardTitle>Signed QR</ZoruCardTitle>
                         </ZoruCardHeader>
                         <ZoruCardContent className="flex flex-col gap-3">
-                            <p className="text-[12px] text-muted-foreground">
+                            <p className="text-[12px] text-zoru-ink-muted">
                                 The signed QR payload issued by the IRP.
                             </p>
                             <div className="flex flex-wrap gap-6 items-start">
-                                <div className="bg-white p-4 w-fit rounded-md border border-border shrink-0">
+                                <div className="bg-white p-4 w-fit rounded-md border border-zoru-line shrink-0">
                                     <QRCode value={block.qrCodeData} size={150} />
                                 </div>
                                 {(() => {
@@ -113,13 +113,13 @@ export default async function InvoiceEInvoicePage(props: {
                                     if (!decoded) return null;
                                     return (
                                         <div className="flex-1 min-w-[280px]">
-                                            <h4 className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                                            <h4 className="text-[12px] font-semibold text-zoru-ink-muted uppercase tracking-wider mb-2">
                                                 Decoded QR Details
                                             </h4>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs bg-muted/20 p-3 rounded-lg border border-border">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs bg-zoru-surface-2/20 p-3 rounded-lg border border-zoru-line">
                                                 {Object.entries(decoded).map(([k, v]) => (
                                                     <div key={k} className="flex flex-col gap-0.5">
-                                                        <span className="font-mono text-[10px] text-muted-foreground uppercase">{k}</span>
+                                                        <span className="font-mono text-[10px] text-zoru-ink-muted uppercase">{k}</span>
                                                         <span className="font-medium truncate" title={String(v)}>{String(v)}</span>
                                                     </div>
                                                 ))}
@@ -129,10 +129,10 @@ export default async function InvoiceEInvoicePage(props: {
                                 })()}
                             </div>
                             <details className="mt-2">
-                                <summary className="cursor-pointer text-[12px] text-muted-foreground hover:underline">
+                                <summary className="cursor-pointer text-[12px] text-zoru-ink-muted hover:underline">
                                     Show raw signed payload
                                 </summary>
-                                <pre className="mt-2 break-all rounded-md border border-border bg-muted/30 p-2 text-[10px] whitespace-pre-wrap font-mono text-muted-foreground">
+                                <pre className="mt-2 break-all rounded-md border border-zoru-line bg-zoru-surface-2/30 p-2 text-[10px] whitespace-pre-wrap font-mono text-zoru-ink-muted">
                                     {block.qrCodeData}
                                 </pre>
                             </details>
@@ -160,7 +160,7 @@ export default async function InvoiceEInvoicePage(props: {
 function Field({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
     return (
         <div className="flex flex-col gap-1">
-            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 {label}
             </span>
             <span className={mono ? 'font-mono text-[12px] break-all' : 'text-[13px]'}>

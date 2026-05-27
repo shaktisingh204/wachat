@@ -129,10 +129,10 @@ export function VoucherTable({ floatId, currency, vouchers }: VoucherTableProps)
               </td>
               <td className="py-2 text-right space-x-1">
                 <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => handleStatusChange(v._id!, 'approved')} disabled={isPending || v.status === 'approved'}>
-                  <Check className="h-4 w-4 text-green-600" />
+                  <Check className="h-4 w-4 text-zoru-ink" />
                 </Button>
                 <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => handleStatusChange(v._id!, 'rejected')} disabled={isPending || v.status === 'rejected'}>
-                  <X className="h-4 w-4 text-red-600" />
+                  <X className="h-4 w-4 text-zoru-ink" />
                 </Button>
               </td>
             </tr>

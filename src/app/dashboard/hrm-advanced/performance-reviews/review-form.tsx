@@ -36,7 +36,7 @@ export function ReviewForm({ initialData, onSubmit, onCancel, isSubmitting }: Re
             className="w-full border rounded p-2"
             placeholder="E.g., EMP-001"
           />
-          {errors.employeeId && <p className="text-red-500 text-xs mt-1">{errors.employeeId.message}</p>}
+          {errors.employeeId && <p className="text-zoru-ink text-xs mt-1">{errors.employeeId.message}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Reviewer ID</label>
@@ -45,7 +45,7 @@ export function ReviewForm({ initialData, onSubmit, onCancel, isSubmitting }: Re
             className="w-full border rounded p-2"
             placeholder="E.g., REV-001"
           />
-          {errors.reviewerId && <p className="text-red-500 text-xs mt-1">{errors.reviewerId.message}</p>}
+          {errors.reviewerId && <p className="text-zoru-ink text-xs mt-1">{errors.reviewerId.message}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Score (0-5)</label>
@@ -55,7 +55,7 @@ export function ReviewForm({ initialData, onSubmit, onCancel, isSubmitting }: Re
             className="w-full border rounded p-2"
             min={0} max={5} step={0.1}
           />
-          {errors.score && <p className="text-red-500 text-xs mt-1">{errors.score.message}</p>}
+          {errors.score && <p className="text-zoru-ink text-xs mt-1">{errors.score.message}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Review Date</label>
@@ -64,7 +64,7 @@ export function ReviewForm({ initialData, onSubmit, onCancel, isSubmitting }: Re
             {...register('reviewDate')}
             className="w-full border rounded p-2"
           />
-          {errors.reviewDate && <p className="text-red-500 text-xs mt-1">{errors.reviewDate.message}</p>}
+          {errors.reviewDate && <p className="text-zoru-ink text-xs mt-1">{errors.reviewDate.message}</p>}
         </div>
       </div>
       <div>
@@ -74,7 +74,7 @@ export function ReviewForm({ initialData, onSubmit, onCancel, isSubmitting }: Re
           className="w-full border rounded p-2 min-h-[100px]"
           placeholder="Detailed review comments..."
         />
-        {errors.comments && <p className="text-red-500 text-xs mt-1">{errors.comments.message}</p>}
+        {errors.comments && <p className="text-zoru-ink text-xs mt-1">{errors.comments.message}</p>}
       </div>
       <div className="flex justify-end gap-2 pt-4">
         <Button type="button" variant="outline" onClick={onCancel}>

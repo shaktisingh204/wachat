@@ -292,7 +292,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
 
                 <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
                     <ZoruPopoverAnchor asChild>
-                        <div className="flex-1 bg-secondary/50 focus-within:bg-secondary rounded-2xl transition-colors border border-transparent focus-within:border-primary/20">
+                        <div className="flex-1 bg-zoru-surface-2/50 focus-within:bg-zoru-surface-2 rounded-2xl transition-colors border border-transparent focus-within:border-primary/20">
                             <Input
                                 name="messageText"
                                 placeholder={isUploading ? "Uploading..." : "Type a message"}
@@ -320,18 +320,18 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                                         <button
                                             key={msg._id.toString()}
                                             type="button"
-                                            className="w-full text-left p-2 rounded-sm hover:bg-accent flex flex-col"
+                                            className="w-full text-left p-2 rounded-sm hover:bg-zoru-surface-2 flex flex-col"
                                             onClick={() => handleSelectCanned(msg)}
                                         >
                                             <div className="flex justify-between items-center">
                                                 <p className="font-semibold">{msg.name}</p>
-                                                {msg.isFavourite && <Star className="h-4 w-4 text-amber-400 fill-amber-400" />}
+                                                {msg.isFavourite && <Star className="h-4 w-4 text-zoru-ink-muted fill-zoru-ink-muted" />}
                                             </div>
-                                            <p className="text-muted-foreground truncate text-xs">{msg.content.text}</p>
+                                            <p className="text-zoru-ink-muted truncate text-xs">{msg.content.text}</p>
                                         </button>
                                     ))
                                 ) : (
-                                    <p className="p-4 text-center text-sm text-muted-foreground">
+                                    <p className="p-4 text-center text-sm text-zoru-ink-muted">
                                         {inputValue.length > 1 ? "No matches found." : "Start typing to search..."}
                                     </p>
                                 )}

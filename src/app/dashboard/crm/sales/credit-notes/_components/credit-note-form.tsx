@@ -304,7 +304,7 @@ export function CreditNoteForm({ initial }: CreditNoteFormProps) {
             <Label>
               Linked invoice
               {refundMode === 'credit' ? (
-                <span className="ml-1 text-[10.5px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                <span className="ml-1 text-[10.5px] uppercase tracking-wider text-zoru-ink dark:text-zoru-ink-muted">
                   apply target
                 </span>
               ) : (

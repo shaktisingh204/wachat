@@ -40,7 +40,7 @@ export default async function OrderDetailsPage({ params }: { params: { slug: str
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                              <h3 className="font-semibold">Shipping Address</h3>
-                             <address className="not-italic text-muted-foreground">
+                             <address className="not-italic text-zoru-ink-muted">
                                 {order.customerInfo.name}<br />
                                 {order.shippingAddress.street}<br />
                                 {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}<br />
@@ -49,7 +49,7 @@ export default async function OrderDetailsPage({ params }: { params: { slug: str
                         </div>
                          <div className="space-y-2">
                              <h3 className="font-semibold">Customer Information</h3>
-                             <p className="text-muted-foreground">
+                             <p className="text-zoru-ink-muted">
                                 {order.customerInfo.name}<br/>
                                 {order.customerInfo.email}<br/>
                                 {order.customerInfo.phone}
@@ -70,9 +70,9 @@ export default async function OrderDetailsPage({ params }: { params: { slug: str
                     </div>
                      <Separator />
                      <div className="space-y-2">
-                        <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatPrice(order.subtotal, currency)}</span></div>
-                        <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{formatPrice(order.shipping, currency)}</span></div>
-                        <div className="flex justify-between font-bold text-lg"><span className="text-foreground">Total</span><span>{formatPrice(order.total, currency)}</span></div>
+                        <div className="flex justify-between"><span className="text-zoru-ink-muted">Subtotal</span><span>{formatPrice(order.subtotal, currency)}</span></div>
+                        <div className="flex justify-between"><span className="text-zoru-ink-muted">Shipping</span><span>{formatPrice(order.shipping, currency)}</span></div>
+                        <div className="flex justify-between font-bold text-lg"><span className="text-zoru-ink">Total</span><span>{formatPrice(order.total, currency)}</span></div>
                     </div>
                 </ZoruCardContent>
             </Card>

@@ -198,7 +198,7 @@ function ZoruConversationListPane({
             <span className="text-xs font-medium">{selectedBulk.length} selected</span>
             <div className="flex gap-1">
               <Button variant="outline" size="icon-sm" className="h-6 w-6"><CheckCircle2 className="h-3 w-3" /></Button>
-              <Button variant="outline" size="icon-sm" className="h-6 w-6 text-red-500"><Trash2 className="h-3 w-3" /></Button>
+              <Button variant="outline" size="icon-sm" className="h-6 w-6 text-zoru-ink"><Trash2 className="h-3 w-3" /></Button>
             </div>
           </div>
         )}
@@ -241,7 +241,7 @@ function ZoruConversationListPane({
                     )}
                   >
                     <Avatar className="h-10 w-10 border border-zoru-line bg-zoru-bg">
-                      <ZoruAvatarFallback className={cn("text-sm font-medium", isUnread && !selected ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200" : "")}>
+                      <ZoruAvatarFallback className={cn("text-sm font-medium", isUnread && !selected ? "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-white" : "")}>
                         {initial}
                       </ZoruAvatarFallback>
                     </Avatar>
@@ -259,7 +259,7 @@ function ZoruConversationListPane({
                       </p>
                     </div>
                     {isUnread && !selected && (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-blue-500" />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-zoru-ink" />
                     )}
                   </button>
                 </div>
@@ -317,7 +317,7 @@ function ChatMessageBubble({
           "flex max-w-[70%] flex-col rounded-[var(--zoru-radius)] px-4 py-2.5 text-[13px] shadow-[var(--zoru-shadow-sm)]",
           isAgent
             ? isWhisper 
-              ? "bg-amber-100 dark:bg-amber-900/30 text-amber-900 dark:text-amber-200 rounded-br-none border border-amber-200 dark:border-amber-800" 
+              ? "bg-zoru-surface-2 dark:bg-zoru-ink/30 text-zoru-ink dark:text-white rounded-br-none border border-zoru-line dark:border-zoru-line" 
               : "rounded-br-none bg-zoru-ink text-zoru-on-primary"
             : "rounded-bl-none bg-zoru-surface border border-zoru-line text-zoru-ink",
         )}
@@ -330,7 +330,7 @@ function ChatMessageBubble({
           className={cn(
             "mt-1.5 flex items-center gap-1.5 self-end text-[10px]",
             isAgent 
-              ? isWhisper ? "text-amber-700 dark:text-amber-400" : "text-zoru-on-primary/70" 
+              ? isWhisper ? "text-zoru-ink dark:text-zoru-ink-muted" : "text-zoru-on-primary/70" 
               : "text-zoru-ink-subtle",
           )}
         >
@@ -348,7 +348,7 @@ function SendButton({ isWhisper }: { isWhisper: boolean }) {
       type="submit" 
       size="sm" 
       disabled={pending} 
-      className={cn(isWhisper && "bg-amber-500 hover:bg-amber-600 text-white")}
+      className={cn(isWhisper && "bg-zoru-ink hover:bg-zoru-ink text-white")}
     >
       {pending ? (
         <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -418,8 +418,8 @@ function ZoruSabChatWindow({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-zoru-ink truncate">{visitorEmail}</h3>
-                <Badge variant="outline" className="h-5 text-[10px] px-1.5 gap-1 border-emerald-200 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:border-emerald-800">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Online
+                <Badge variant="outline" className="h-5 text-[10px] px-1.5 gap-1 border-zoru-line bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:border-zoru-line">
+                  <span className="h-1.5 w-1.5 rounded-full bg-zoru-ink"></span> Online
                 </Badge>
               </div>
               <div className="flex items-center gap-2 text-xs text-zoru-ink-muted">
@@ -489,7 +489,7 @@ function ZoruSabChatWindow({
 
         {/* Advanced Composer */}
         <div className="shrink-0 border-t border-zoru-line bg-zoru-bg p-4">
-          <div className={cn("rounded-xl border border-zoru-line bg-zoru-surface overflow-hidden shadow-sm transition-colors focus-within:border-zoru-ink focus-within:ring-1 focus-within:ring-zoru-ink", isWhisper && "bg-amber-50/50 border-amber-200 focus-within:border-amber-400 focus-within:ring-amber-400 dark:bg-amber-950/10 dark:border-amber-900")}>
+          <div className={cn("rounded-xl border border-zoru-line bg-zoru-surface overflow-hidden shadow-sm transition-colors focus-within:border-zoru-ink focus-within:ring-1 focus-within:ring-zoru-ink", isWhisper && "bg-zoru-surface-2/50 border-zoru-line focus-within:border-zoru-line focus-within:ring-zoru-line dark:bg-zoru-ink/10 dark:border-zoru-line")}>
             
             {/* Toolbar */}
             <div className="flex items-center justify-between border-b border-zoru-line/50 px-2 py-1.5 bg-zoru-surface-2/50">
@@ -582,8 +582,8 @@ function ZoruSabChatWindow({
             <div className="space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-zoru-ink-subtle">Tags</h4>
               <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:border-blue-800">Support</Badge>
-                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:border-purple-800">Premium</Badge>
+                <Badge variant="outline" className="bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/30 dark:border-zoru-line">Support</Badge>
+                <Badge variant="outline" className="bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/30 dark:border-zoru-line">Premium</Badge>
                 <Button variant="ghost" size="sm" className="h-6 text-[10px] uppercase font-semibold text-zoru-ink-muted"><Plus className="h-3 w-3 mr-1" /> Add tag</Button>
               </div>
             </div>
@@ -591,10 +591,10 @@ function ZoruSabChatWindow({
             <div className="space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-zoru-ink-subtle">Satisfaction</h4>
               <div className="flex items-center gap-2 p-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface">
-                <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
-                <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
-                <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
-                <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
+                <Star className="h-5 w-5 text-zoru-ink-muted fill-zoru-ink-muted" />
+                <Star className="h-5 w-5 text-zoru-ink-muted fill-zoru-ink-muted" />
+                <Star className="h-5 w-5 text-zoru-ink-muted fill-zoru-ink-muted" />
+                <Star className="h-5 w-5 text-zoru-ink-muted fill-zoru-ink-muted" />
                 <Star className="h-5 w-5 text-zoru-line" />
                 <span className="text-sm font-semibold ml-auto text-zoru-ink">4/5</span>
               </div>

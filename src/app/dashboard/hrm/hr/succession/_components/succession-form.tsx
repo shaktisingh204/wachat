@@ -272,7 +272,7 @@ export function SuccessionForm({ initialData }: SuccessionFormProps) {
                                     disabled={successors.length === 1}
                                     aria-label="Remove successor"
                                 >
-                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                    <Trash2 className="h-4 w-4 text-zoru-ink" />
                                 </Button>
                             </div>
                         ))}

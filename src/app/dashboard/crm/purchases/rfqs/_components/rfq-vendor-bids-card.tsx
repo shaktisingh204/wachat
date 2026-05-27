@@ -49,7 +49,7 @@ export async function RfqVendorBidsCard({ rfqId }: RfqVendorBidsCardProps) {
       </div>
 
       {error ? (
-        <div className="border-b border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-700 dark:text-amber-400">
+        <div className="border-b border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
           {error}
         </div>
       ) : null}
@@ -81,7 +81,7 @@ export async function RfqVendorBidsCard({ rfqId }: RfqVendorBidsCardProps) {
                   <tr
                     key={id}
                     className={`border-t border-zoru-line ${
-                      isAwarded ? 'bg-emerald-500/5' : 'hover:bg-zoru-surface-2/60'
+                      isAwarded ? 'bg-zoru-ink/5' : 'hover:bg-zoru-surface-2/60'
                     }`}
                   >
                     <td className="p-2 align-middle">

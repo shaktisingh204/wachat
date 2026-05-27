@@ -51,10 +51,10 @@ export default function SentenceCounterPage() {
           className={cn(
             'transition-colors duration-200 rounded-[2px]',
             isVeryLong
-              ? 'bg-red-200/60 dark:bg-red-900/40 border-b border-red-300 dark:border-red-800'
+              ? 'bg-zoru-surface-2/60 dark:bg-zoru-ink/40 border-b border-zoru-line dark:border-zoru-line'
               : '',
             isLong
-              ? 'bg-amber-200/60 dark:bg-amber-900/40 border-b border-amber-300 dark:border-amber-800'
+              ? 'bg-zoru-surface-2/60 dark:bg-zoru-ink/40 border-b border-zoru-line dark:border-zoru-line'
               : ''
           )}
           title={
@@ -113,12 +113,12 @@ export default function SentenceCounterPage() {
           <div className="flex items-center gap-2 mb-3">
             <h3 className="text-lg font-semibold text-zoru-ink">Analysis</h3>
             {hasHardToRead ? (
-              <span className="inline-flex items-center text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full font-medium">
+              <span className="inline-flex items-center text-xs bg-zoru-surface-2 text-zoru-ink px-2 py-1 rounded-full font-medium">
                 <AlertCircle className="w-3 h-3 mr-1" />
                 {hardToReadSentences.length} hard to read {hardToReadSentences.length === 1 ? 'sentence' : 'sentences'}
               </span>
             ) : (
-              <span className="inline-flex items-center text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full font-medium">
+              <span className="inline-flex items-center text-xs bg-zoru-surface-2 text-zoru-ink px-2 py-1 rounded-full font-medium">
                 <CheckCircle2 className="w-3 h-3 mr-1" />
                 Easy to read
               </span>
@@ -134,11 +134,11 @@ export default function SentenceCounterPage() {
           {hasHardToRead && (
             <div className="mt-4 flex gap-4 text-xs text-zoru-ink-subtle">
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm bg-amber-200/60 border border-amber-300"></div>
+                <div className="w-3 h-3 rounded-sm bg-zoru-surface-2/60 border border-zoru-line"></div>
                 <span>Hard to read (&gt;20 words)</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm bg-red-200/60 border border-red-300"></div>
+                <div className="w-3 h-3 rounded-sm bg-zoru-surface-2/60 border border-zoru-line"></div>
                 <span>Very hard to read (&gt;25 words)</span>
               </div>
             </div>

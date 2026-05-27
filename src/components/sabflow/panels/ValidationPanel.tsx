@@ -69,16 +69,16 @@ function SeveritySection({
   const Icon = isError ? LuAlertCircle : LuAlertTriangle;
 
   const headerColorCls = isError
-    ? 'text-red-600 dark:text-red-400'
-    : 'text-amber-600 dark:text-amber-400';
+    ? 'text-zoru-ink dark:text-zoru-ink-muted'
+    : 'text-zoru-ink dark:text-zoru-ink-muted';
 
   const iconBgCls = isError
-    ? 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400'
-    : 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400';
+    ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
+    : 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
 
   const rowHoverCls = isError
-    ? 'hover:bg-red-50/60 dark:hover:bg-red-950/20'
-    : 'hover:bg-amber-50/60 dark:hover:bg-amber-950/20';
+    ? 'hover:bg-zoru-surface-2/60 dark:hover:bg-zoru-ink/20'
+    : 'hover:bg-zoru-surface-2/60 dark:hover:bg-zoru-ink/20';
 
   const label = isError ? 'Errors' : 'Warnings';
 
@@ -160,7 +160,7 @@ function SeveritySection({
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center py-14 gap-3 text-center px-4">
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
         <LuCheckCircle className="h-6 w-6" strokeWidth={1.8} />
       </div>
       <div>
@@ -212,17 +212,17 @@ export function ValidationPanel({ flow, onFocusBlock, onResultsChange, onClose }
         {results !== null && (
           <div className="flex items-center gap-1 shrink-0">
             {errorCount > 0 && (
-              <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-[10.5px] font-bold tabular-nums text-red-600 dark:bg-red-950/40 dark:text-red-400">
+              <span className="rounded-full bg-zoru-surface-2 px-1.5 py-0.5 text-[10.5px] font-bold tabular-nums text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
                 {errorCount}
               </span>
             )}
             {warningCount > 0 && (
-              <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10.5px] font-bold tabular-nums text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
+              <span className="rounded-full bg-zoru-surface-2 px-1.5 py-0.5 text-[10.5px] font-bold tabular-nums text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
                 {warningCount}
               </span>
             )}
             {errorCount === 0 && warningCount === 0 && (
-              <span className="rounded-full bg-green-100 px-1.5 py-0.5 text-[10.5px] font-bold text-green-600 dark:bg-green-950/40 dark:text-green-400">
+              <span className="rounded-full bg-zoru-surface-2 px-1.5 py-0.5 text-[10.5px] font-bold text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
                 OK
               </span>
             )}

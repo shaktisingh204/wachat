@@ -41,8 +41,8 @@ export default async function SabsmsImportsPage({
   if (!workspaceId) {
     return (
       <div className="space-y-3 p-6">
-        <h1 className="text-2xl font-semibold text-slate-800">Imports</h1>
-        <p className="text-sm text-slate-600">
+        <h1 className="text-2xl font-semibold text-zoru-ink">Imports</h1>
+        <p className="text-sm text-zoru-ink">
           Sign in to view your SabSMS imports.
         </p>
       </div>

@@ -489,15 +489,15 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
       className="absolute inset-0 flex flex-col overflow-clip bg-[var(--gray-2)]"
     >
       {webhookBanner && webhookBanner.length > 0 && (
-        <div className="relative bg-[#1a1a2e] border-b border-[#8b5cf6]/30 px-4 py-2.5 flex items-start gap-3 text-[12px]">
-          <LuLink className="h-3.5 w-3.5 text-[#8b5cf6] shrink-0 mt-0.5" strokeWidth={1.8} />
+        <div className="relative bg-zoru-ink border-b border-zoru-line/30 px-4 py-2.5 flex items-start gap-3 text-[12px]">
+          <LuLink className="h-3.5 w-3.5 text-zoru-ink shrink-0 mt-0.5" strokeWidth={1.8} />
           <div className="flex-1 space-y-1.5">
             <p className="text-[var(--gray-11)] font-medium">
               Webhook URL{webhookBanner.length > 1 ? 's' : ''} registered
             </p>
             {webhookBanner.map((w) => (
               <div key={w.webhookId ?? w.webhookUrl} className="flex items-center gap-2">
-                <span className="font-mono text-[#a78bfa] break-all">{w.webhookUrl}</span>
+                <span className="font-mono text-zoru-ink break-all">{w.webhookUrl}</span>
                 <button
                   type="button"
                   title="Copy URL"
@@ -544,7 +544,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
           className={cn(
             'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
             activePanel === 'variables'
-              ? 'bg-orange-50 text-[#f76808] dark:bg-orange-950/40'
+              ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
           )}
         >
@@ -559,7 +559,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
           className={cn(
             'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
             activePanel === 'theme'
-              ? 'bg-orange-50 text-[#f76808] dark:bg-orange-950/40 dark:text-orange-400'
+              ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
           )}
         >
@@ -574,7 +574,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
           className={cn(
             'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
             activePanel === 'preview'
-              ? 'bg-green-50 text-green-600 dark:bg-green-950/40 dark:text-green-400'
+              ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
           )}
         >
@@ -604,7 +604,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
           className={cn(
             'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
             activePanel === 'versions'
-              ? 'bg-amber-50 text-amber-500 dark:bg-amber-950/40 dark:text-amber-400'
+              ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
           )}
         >

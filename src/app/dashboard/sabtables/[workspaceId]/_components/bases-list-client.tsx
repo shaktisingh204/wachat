@@ -63,7 +63,7 @@ export function BasesListClient({ workspace, initialItems }: Props) {
     <div className="px-6 py-8 space-y-8">
       <Link
         href="/dashboard/sabtables"
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center text-sm text-zoru-ink-muted hover:text-zoru-ink"
       >
         <ChevronLeft className="w-4 h-4 mr-1" /> All workspaces
       </Link>
@@ -101,14 +101,14 @@ export function BasesListClient({ workspace, initialItems }: Props) {
                 <div className="flex items-start gap-3">
                   <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: b.color || '#0ea5e9', color: '#fff' }}
+                    style={{ backgroundColor: b.color || 'var(--zoru-ink)', color: 'var(--zoru-surface)' }}
                   >
                     <Database className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
                     <div className="font-semibold truncate">{b.name}</div>
                     {b.description ? (
-                      <div className="text-sm text-muted-foreground line-clamp-2">
+                      <div className="text-sm text-zoru-ink-muted line-clamp-2">
                         {b.description}
                       </div>
                     ) : null}

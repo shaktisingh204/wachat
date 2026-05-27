@@ -80,7 +80,7 @@ export function CustomObjectClient({ initialData }: { initialData: CustomObjectD
             </div>
             <div className="mt-6 flex justify-end">
               <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 transition-opacity" disabled={isPending}>
-                <Trash2 className="w-4 h-4 text-red-500" />
+                <Trash2 className="w-4 h-4 text-zoru-ink" />
               </Button>
             </div>
           </Card>

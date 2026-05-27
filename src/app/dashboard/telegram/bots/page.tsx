@@ -146,7 +146,7 @@ function CopyableText({ value }: { value: string }) {
         >
             <span className="truncate">{value}</span>
             {copied ? (
-                <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-500" aria-hidden />
+                <CheckCircle2 className="h-3 w-3 shrink-0 text-zoru-ink" aria-hidden />
             ) : (
                 <Copy className="h-3 w-3 shrink-0" aria-hidden />
             )}

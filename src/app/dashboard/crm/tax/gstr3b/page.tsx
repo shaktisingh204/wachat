@@ -500,16 +500,16 @@ export default function Gstr3bPage() {
                 {kpiStrip}
 
                 <Card>
-                    <h2 className="text-[15px] font-semibold text-foreground">
+                    <h2 className="text-[15px] font-semibold text-zoru-ink">
                         Generate filing
                     </h2>
-                    <p className="mt-1 text-[12.5px] text-muted-foreground">
+                    <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
                         Pick a period — we will materialise the 9-section summary and
                         log it into your filing history.
                     </p>
                     <div className="mt-4 flex flex-wrap items-end gap-3">
                         <div>
-                            <label className="mb-1 block text-[12px] text-muted-foreground">
+                            <label className="mb-1 block text-[12px] text-zoru-ink-muted">
                                 Month
                             </label>
                             <Select
@@ -531,7 +531,7 @@ export default function Gstr3bPage() {
                             </Select>
                         </div>
                         <div>
-                            <label className="mb-1 block text-[12px] text-muted-foreground">
+                            <label className="mb-1 block text-[12px] text-zoru-ink-muted">
                                 Year
                             </label>
                             <Input
@@ -560,7 +560,7 @@ export default function Gstr3bPage() {
 
                 {result?.summary && (
                     <Card>
-                        <h2 className="text-[15px] font-semibold text-foreground">
+                        <h2 className="text-[15px] font-semibold text-zoru-ink">
                             Latest summary — {monthLabel(period.month)} {period.year}
                         </h2>
                         <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -583,17 +583,17 @@ export default function Gstr3bPage() {
 
                 {result && result.rows.length > 0 && (
                     <Card>
-                        <h2 className="text-[15px] font-semibold text-foreground">
+                        <h2 className="text-[15px] font-semibold text-zoru-ink">
                             Sections
                         </h2>
-                        <div className="mt-4 overflow-x-auto rounded-lg border border-border">
+                        <div className="mt-4 overflow-x-auto rounded-lg border border-zoru-line">
                             <Table>
                                 <ZoruTableHeader>
-                                    <ZoruTableRow className="border-border hover:bg-transparent">
+                                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                         {result.columns.map((c) => (
                                             <ZoruTableHead
                                                 key={c}
-                                                className="text-muted-foreground"
+                                                className="text-zoru-ink-muted"
                                             >
                                                 {c.replace(/_/g, ' ')}
                                             </ZoruTableHead>
@@ -602,14 +602,14 @@ export default function Gstr3bPage() {
                                 </ZoruTableHeader>
                                 <ZoruTableBody>
                                     {result.rows.map((row, i) => (
-                                        <ZoruTableRow key={i} className="border-border">
+                                        <ZoruTableRow key={i} className="border-zoru-line">
                                             {row.map((cell, j) => (
                                                 <ZoruTableCell
                                                     key={j}
                                                     className={
                                                         j === 0
-                                                            ? 'text-foreground'
-                                                            : 'text-right font-mono text-foreground'
+                                                            ? 'text-zoru-ink'
+                                                            : 'text-right font-mono text-zoru-ink'
                                                     }
                                                 >
                                                     {j === 0
@@ -629,16 +629,16 @@ export default function Gstr3bPage() {
 
                 <Card className="p-0">
                     <div className="flex items-center justify-between border-b border-zoru-line px-4 py-3">
-                        <h2 className="text-[15px] font-semibold text-foreground">
+                        <h2 className="text-[15px] font-semibold text-zoru-ink">
                             Filing history
                         </h2>
-                        <p className="text-[12px] text-muted-foreground">
+                        <p className="text-[12px] text-zoru-ink-muted">
                             {total} filing{total === 1 ? '' : 's'}
                         </p>
                     </div>
                     {rows.length === 0 ? (
                         <div className="px-4 py-10 text-center">
-                            <p className="text-[13px] text-muted-foreground">
+                            <p className="text-[13px] text-zoru-ink-muted">
                                 {hasActiveFilters
                                     ? 'No filings match the current filters.'
                                     : 'No GSTR-3B filings generated yet. Pick a period above and click Generate.'}
@@ -657,7 +657,7 @@ export default function Gstr3bPage() {
                         <div className="overflow-x-auto">
                             <Table>
                                 <ZoruTableHeader>
-                                    <ZoruTableRow className="border-border hover:bg-transparent">
+                                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                         <ZoruTableHead className="w-10">
                                             <Checkbox
                                                 checked={
@@ -671,19 +671,19 @@ export default function Gstr3bPage() {
                                                 aria-label="Select all on page"
                                             />
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-muted-foreground">
+                                        <ZoruTableHead className="text-zoru-ink-muted">
                                             Period
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-muted-foreground">
+                                        <ZoruTableHead className="text-zoru-ink-muted">
                                             Status
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-muted-foreground">
+                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
                                             Outward Taxable
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-muted-foreground">
+                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
                                             Net Payable
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-muted-foreground">
+                                        <ZoruTableHead className="text-zoru-ink-muted">
                                             Generated
                                         </ZoruTableHead>
                                     </ZoruTableRow>
@@ -692,7 +692,7 @@ export default function Gstr3bPage() {
                                     {rows.map((r) => {
                                         const isSelected = selected.has(r.runId);
                                         return (
-                                            <ZoruTableRow key={r.runId} className="border-border">
+                                            <ZoruTableRow key={r.runId} className="border-zoru-line">
                                                 <ZoruTableCell>
                                                     <Checkbox
                                                         checked={isSelected}
@@ -720,13 +720,13 @@ export default function Gstr3bPage() {
                                                         {r.status}
                                                     </Badge>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-foreground">
+                                                <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                                     {fmtInr(r.outwardTaxable ?? 0)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-foreground">
+                                                <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                                     {fmtInr(r.netPayable ?? 0)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-muted-foreground">
+                                                <ZoruTableCell className="text-zoru-ink-muted">
                                                     {formatDateTime(r.startedAt)}
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
@@ -757,17 +757,17 @@ function KpiCard({
         <Card className="p-4">
             <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                    <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                         {label}
                     </p>
-                    <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
+                    <p className="mt-1 text-2xl font-semibold text-zoru-ink">{value}</p>
                     {hint ? (
-                        <p className="mt-1 truncate text-[12px] text-muted-foreground">
+                        <p className="mt-1 truncate text-[12px] text-zoru-ink-muted">
                             {hint}
                         </p>
                     ) : null}
                 </div>
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-secondary text-foreground">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink">
                     {icon}
                 </div>
             </div>
@@ -777,11 +777,11 @@ function KpiCard({
 
 function StatBox({ label, value }: { label: string; value: string }) {
     return (
-        <div className="rounded-lg border border-border bg-secondary p-4">
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+        <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-4">
+            <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 {label}
             </p>
-            <p className="mt-1 font-mono text-[16px] text-foreground">{value}</p>
+            <p className="mt-1 font-mono text-[16px] text-zoru-ink">{value}</p>
         </div>
     );
 }

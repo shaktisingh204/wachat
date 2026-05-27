@@ -47,10 +47,10 @@ type ExecutionRow = {
 };
 
 const STATUS_STYLES: Record<ExecutionStatus, string> = {
-  running:   'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300',
-  success:   'bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-300',
-  error:     'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300',
-  cancelled: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-900/50 dark:text-zinc-300',
+  running:   'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted',
+  success:   'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted',
+  error:     'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted',
+  cancelled: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted',
 };
 
 const TRIGGER_LABELS: Record<ExecutionTriggerMode, string> = {
@@ -118,7 +118,7 @@ export function ExecutionsListClient() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3 border-b border-[var(--gray-4)] px-4 sm:px-6 py-3 sm:py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 shrink-0">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted shrink-0">
           <LuActivity className="h-4 w-4" strokeWidth={2} />
         </div>
         <div className="flex flex-col leading-tight min-w-0">
@@ -151,7 +151,7 @@ export function ExecutionsListClient() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by flow, session, or id…"
-            className="w-full sm:w-[260px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-1.5 pl-8 pr-2.5 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808]"
+            className="w-full sm:w-[260px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] py-1.5 pl-8 pr-2.5 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line"
           />
         </div>
         <div className="hidden sm:flex items-center gap-1 text-[10.5px] text-[var(--gray-9)] sm:ml-auto">
@@ -185,7 +185,7 @@ export function ExecutionsListClient() {
             <span className="text-[12px]">Loading executions…</span>
           </div>
         ) : error ? (
-          <div className="m-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[12px] text-red-700">
+          <div className="m-6 flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3 text-[12px] text-zoru-ink">
             <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -229,11 +229,11 @@ export function ExecutionsListClient() {
                         <span className="font-medium text-[13px] text-[var(--gray-12)] truncate">
                           {row.flowName ?? '—'}
                         </span>
-                        <LuArrowRight className="h-3 w-3 shrink-0 text-[#f76808]" />
+                        <LuArrowRight className="h-3 w-3 shrink-0 text-zoru-ink" />
                       </div>
                       {row.error && (
                         <p
-                          className="mt-0.5 truncate text-[11px] text-red-600"
+                          className="mt-0.5 truncate text-[11px] text-zoru-ink"
                           title={row.error}
                         >
                           {row.error}
@@ -293,7 +293,7 @@ export function ExecutionsListClient() {
                       </span>
                       {row.error && (
                         <p
-                          className="mt-0.5 truncate text-[11px] text-red-600 max-w-[280px]"
+                          className="mt-0.5 truncate text-[11px] text-zoru-ink max-w-[280px]"
                           title={row.error}
                         >
                           {row.error}
@@ -318,7 +318,7 @@ export function ExecutionsListClient() {
                     <td className="px-3 py-2.5">
                       <Link
                         href={`/dashboard/sabflow/executions/${row._id}`}
-                        className="inline-flex items-center gap-1 text-[11.5px] font-medium text-[#f76808] hover:text-[#e25c00]"
+                        className="inline-flex items-center gap-1 text-[11.5px] font-medium text-zoru-ink hover:text-zoru-ink"
                       >
                         View <LuArrowRight className="h-3 w-3" />
                       </Link>

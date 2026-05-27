@@ -123,7 +123,7 @@ export function BugListClient({
       </Card>
 
       {error ? (
-        <Card className="border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <Card className="border-zoru-line bg-zoru-surface-2 p-4 text-sm text-zoru-ink">
           {error}
         </Card>
       ) : null}
@@ -162,7 +162,7 @@ function SavedFilterChip({
       <button
         type="button"
         aria-label={`Remove saved filter ${filter.name}`}
-        className="text-[var(--zoru-ink-muted)] hover:text-red-500"
+        className="text-[var(--zoru-ink-muted)] hover:text-zoru-ink"
         onClick={onDelete}
       >
         ×

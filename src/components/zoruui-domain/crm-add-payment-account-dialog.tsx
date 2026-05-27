@@ -33,13 +33,13 @@ export function CrmAddPaymentAccountDialog() {
       </ZoruDialogTrigger>
       <ZoruDialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col overflow-hidden p-0">
         <ZoruDialogHeader className="px-6 pt-6 pb-2">
-          <ZoruDialogTitle className="text-foreground">Add New Payment Account</ZoruDialogTitle>
-          <ZoruDialogDescription className="text-muted-foreground">
+          <ZoruDialogTitle className="text-zoru-ink">Add New Payment Account</ZoruDialogTitle>
+          <ZoruDialogDescription className="text-zoru-ink-muted">
             This feature has moved to a dedicated page for a better experience.
           </ZoruDialogDescription>
         </ZoruDialogHeader>
         <div className="flex-1 overflow-y-auto px-6 py-2 text-center">
-          <p className="mb-4 text-muted-foreground">Please use the new page to add payment accounts.</p>
+          <p className="mb-4 text-zoru-ink-muted">Please use the new page to add payment accounts.</p>
           <Button asChild>
             <Link href="/dashboard/crm/banking/all/new">
               Go to Add Account Page

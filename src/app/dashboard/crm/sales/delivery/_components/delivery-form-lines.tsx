@@ -151,8 +151,8 @@ function SerialBatchAllocationDialog({
                 <span
                   className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
                     serialsMatch
-                      ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
-                      : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
+                      ? 'bg-zoru-ink/10 text-zoru-ink border border-zoru-line/20'
+                      : 'bg-zoru-ink/10 text-zoru-ink border border-zoru-line/20'
                   }`}
                 >
                   {serialsMatch ? (
@@ -350,8 +350,8 @@ export function DcLineItemsTable({
                           {hasSerials && (
                             <span className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[11px] font-semibold ${
                               serials.length === row.quantity
-                                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-                                : 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+                                ? 'bg-zoru-ink/10 text-zoru-ink border-zoru-line/20'
+                                : 'bg-zoru-ink/10 text-zoru-ink border-zoru-line/20'
                             }`}>
                               {serials.length} serials
                             </span>

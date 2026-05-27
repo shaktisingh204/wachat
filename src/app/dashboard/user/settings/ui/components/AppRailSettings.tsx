@@ -14,7 +14,7 @@ export function AppRailSettings({ currentPosition = 'left' }: AppRailSettingsPro
     return (
         <div className="space-y-2">
             <Label>App Rail Position</Label>
-            <p className="text-sm text-muted-foreground">Choose where the main application navigation bar appears.</p>
+            <p className="text-sm text-zoru-ink-muted">Choose where the main application navigation bar appears.</p>
             <RadioGroup
                 name="appRailPosition"
                 defaultValue={currentPosition}

@@ -65,10 +65,10 @@ function ListFallback() {
         <div className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="h-24 rounded-lg border border-dashed bg-muted/20 animate-pulse" />
+                    <div key={i} className="h-24 rounded-lg border border-dashed bg-zoru-surface-2/20 animate-pulse" />
                 ))}
             </div>
-            <div className="h-[400px] w-full rounded-lg border border-dashed bg-muted/20 animate-pulse" />
+            <div className="h-[400px] w-full rounded-lg border border-dashed bg-zoru-surface-2/20 animate-pulse" />
         </div>
     );
 }

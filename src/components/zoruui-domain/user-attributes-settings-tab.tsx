@@ -102,10 +102,10 @@ export function UserAttributesSettingsTab({ project }: UserAttributesSettingsTab
                 <ZoruCardContent className="space-y-4">
                     <div className="space-y-4">
                         {attributes.map((attr, index) => (
-                            <div key={attr.id} className="flex flex-col gap-3 p-4 border rounded-md bg-background/50">
+                            <div key={attr.id} className="flex flex-col gap-3 p-4 border rounded-md bg-zoru-surface/50">
                                 <div className="flex flex-col md:flex-row gap-4">
                                   <div className="flex-1 space-y-1">
-                                    <Label className="text-xs text-muted-foreground">Attribute Name</Label>
+                                    <Label className="text-xs text-zoru-ink-muted">Attribute Name</Label>
                                     <Input
                                         value={attr.name}
                                         onChange={(e) => handleAttributeChange(index, 'name', e.target.value)}
@@ -114,10 +114,10 @@ export function UserAttributesSettingsTab({ project }: UserAttributesSettingsTab
                                   </div>
                                   <div className="w-full md:w-1/3 space-y-1">
                                     <div className="flex items-center gap-1">
-                                      <Label className="text-xs text-muted-foreground">Data Type</Label>
+                                      <Label className="text-xs text-zoru-ink-muted">Data Type</Label>
                                       {!attr.isNew && (
                                         <div title="Data types cannot be changed after creation to prevent data corruption. Create a new attribute instead.">
-                                          <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                                          <Info className="h-3 w-3 text-zoru-ink-muted cursor-help" />
                                         </div>
                                       )}
                                     </div>
@@ -140,7 +140,7 @@ export function UserAttributesSettingsTab({ project }: UserAttributesSettingsTab
                                 </div>
                                 <div className="flex items-end gap-4">
                                   <div className="flex-1 space-y-1">
-                                    <Label className="text-xs text-muted-foreground">Webhook Mapping Key (Optional)</Label>
+                                    <Label className="text-xs text-zoru-ink-muted">Webhook Mapping Key (Optional)</Label>
                                     <Input
                                         value={attr.webhookKey || ''}
                                         onChange={(e) => handleAttributeChange(index, 'webhookKey', e.target.value)}
@@ -148,14 +148,14 @@ export function UserAttributesSettingsTab({ project }: UserAttributesSettingsTab
                                     />
                                   </div>
                                   <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveAttribute(index)} className="mb-0.5">
-                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                      <Trash2 className="h-4 w-4 text-zoru-ink" />
                                   </Button>
                                 </div>
                             </div>
                         ))}
                     </div>
                     {attributes.length === 0 && (
-                        <div className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-md">
+                        <div className="text-sm text-zoru-ink-muted text-center py-4 border border-dashed rounded-md">
                             No custom attributes defined yet.
                         </div>
                     )}

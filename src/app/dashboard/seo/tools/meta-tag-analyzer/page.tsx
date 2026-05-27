@@ -80,7 +80,7 @@ export default function MetaTagAnalyzerPage() {
         <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" onKeyDown={(e) => e.key === 'Enter' && run()} />
         <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Analyze'}</Button>
       </div>
-      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
+      {error && <Card className="border-zoru-line"><ZoruCardContent className="p-4 text-zoru-ink text-sm">{error}</ZoruCardContent></Card>}
       
       {parsed && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
@@ -96,7 +96,7 @@ export default function MetaTagAnalyzerPage() {
                         <td className="py-3">
                           <div className="flex flex-col gap-1.5 items-start">
                             {badge && <div>{badge}</div>}
-                            <span className="break-all">{v || <span className="text-muted-foreground">—</span>}</span>
+                            <span className="break-all">{v || <span className="text-zoru-ink-muted">—</span>}</span>
                           </div>
                         </td>
                       </tr>
@@ -113,10 +113,10 @@ export default function MetaTagAnalyzerPage() {
                   
                   {Object.keys(parsed.openGraph).length > 0 && (
                     <div className="mb-6">
-                      <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">Open Graph</div>
+                      <div className="text-xs font-semibold text-zoru-ink-muted mb-2 uppercase tracking-wider">Open Graph</div>
                       {Object.entries(parsed.openGraph).map(([k, v]) => (
                         <div key={k} className="text-xs border-t py-2 break-all">
-                          <span className="font-mono text-muted-foreground mr-2">{k}:</span>
+                          <span className="font-mono text-zoru-ink-muted mr-2">{k}:</span>
                           <span>{v as string}</span>
                         </div>
                       ))}
@@ -125,10 +125,10 @@ export default function MetaTagAnalyzerPage() {
 
                   {Object.keys(parsed.twitter).length > 0 && (
                     <div>
-                      <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">Twitter</div>
+                      <div className="text-xs font-semibold text-zoru-ink-muted mb-2 uppercase tracking-wider">Twitter</div>
                       {Object.entries(parsed.twitter).map(([k, v]) => (
                         <div key={k} className="text-xs border-t py-2 break-all">
-                          <span className="font-mono text-muted-foreground mr-2">{k}:</span>
+                          <span className="font-mono text-zoru-ink-muted mr-2">{k}:</span>
                           <span>{v as string}</span>
                         </div>
                       ))}
@@ -143,20 +143,20 @@ export default function MetaTagAnalyzerPage() {
             <Card>
               <ZoruCardContent className="p-4">
                 <div className="font-semibold text-sm mb-4">Google SERP Preview</div>
-                <div className="p-4 bg-white dark:bg-[#202124] rounded-lg border max-w-2xl shadow-sm">
+                <div className="p-4 bg-white dark:bg-zoru-ink rounded-lg border max-w-2xl shadow-sm">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-xs overflow-hidden border">
+                    <div className="w-7 h-7 rounded-full bg-zoru-surface-2 flex items-center justify-center text-xs overflow-hidden border">
                       <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=64`} alt="favicon" className="w-4 h-4" onError={(e) => e.currentTarget.style.display = 'none'} />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[14px] text-[#202124] dark:text-[#dadce0] truncate leading-tight">{domain}</span>
-                      <span className="text-[12px] text-[#4d5156] dark:text-[#bdc1c6] truncate leading-tight">{url}</span>
+                      <span className="text-[14px] text-zoru-ink dark:text-zoru-ink-muted truncate leading-tight">{domain}</span>
+                      <span className="text-[12px] text-zoru-ink dark:text-zoru-ink-muted truncate leading-tight">{url}</span>
                     </div>
                   </div>
-                  <div className="text-[20px] text-[#1a0dab] dark:text-[#8ab4f8] hover:underline cursor-pointer truncate mb-1" style={{ fontFamily: 'arial, sans-serif' }}>
+                  <div className="text-[20px] text-zoru-ink dark:text-zoru-ink-muted hover:underline cursor-pointer truncate mb-1" style={{ fontFamily: 'arial, sans-serif' }}>
                     {parsed.title || 'No Title'}
                   </div>
-                  <div className="text-[14px] text-[#4d5156] dark:text-[#bdc1c6] line-clamp-2" style={{ fontFamily: 'arial, sans-serif' }}>
+                  <div className="text-[14px] text-zoru-ink dark:text-zoru-ink-muted line-clamp-2" style={{ fontFamily: 'arial, sans-serif' }}>
                     {parsed.metaDescription || 'No description provided.'}
                   </div>
                 </div>
@@ -166,20 +166,20 @@ export default function MetaTagAnalyzerPage() {
             <Card>
               <ZoruCardContent className="p-4">
                 <div className="font-semibold text-sm mb-4">Twitter / X Card Preview</div>
-                <div className="max-w-[500px] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-black font-sans hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer transition-colors">
+                <div className="max-w-[500px] border border-zoru-line dark:border-zoru-line rounded-2xl overflow-hidden bg-white dark:bg-black font-sans hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink cursor-pointer transition-colors">
                   {twImage ? (
-                    <div className="w-full aspect-[1.91/1] bg-slate-100 dark:bg-slate-800 border-b dark:border-slate-800 relative">
+                    <div className="w-full aspect-[1.91/1] bg-zoru-surface-2 dark:bg-zoru-ink border-b dark:border-zoru-line relative">
                       <img src={twImage} alt="Twitter Card Image" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.currentTarget.style.display = 'none'} />
                     </div>
                   ) : (
-                    <div className="w-full aspect-[1.91/1] bg-slate-100 dark:bg-slate-800 border-b dark:border-slate-800 flex items-center justify-center text-slate-400">
+                    <div className="w-full aspect-[1.91/1] bg-zoru-surface-2 dark:bg-zoru-ink border-b dark:border-zoru-line flex items-center justify-center text-zoru-ink-muted">
                       No Image Provided
                     </div>
                   )}
                   <div className="p-3">
-                    <div className="text-[13px] text-[#536471] dark:text-[#71767b] mb-0.5 truncate">{domain}</div>
-                    <div className="text-[15px] font-semibold text-[#0f1419] dark:text-[#e7e9ea] truncate">{twTitle || 'No Title'}</div>
-                    <div className="text-[15px] text-[#536471] dark:text-[#71767b] line-clamp-2 mt-0.5 leading-snug">{twDesc || 'No description provided.'}</div>
+                    <div className="text-[13px] text-zoru-ink dark:text-zoru-ink mb-0.5 truncate">{domain}</div>
+                    <div className="text-[15px] font-semibold text-zoru-ink dark:text-zoru-ink-muted truncate">{twTitle || 'No Title'}</div>
+                    <div className="text-[15px] text-zoru-ink dark:text-zoru-ink line-clamp-2 mt-0.5 leading-snug">{twDesc || 'No description provided.'}</div>
                   </div>
                 </div>
               </ZoruCardContent>
@@ -188,20 +188,20 @@ export default function MetaTagAnalyzerPage() {
             <Card>
               <ZoruCardContent className="p-4">
                 <div className="font-semibold text-sm mb-4">Facebook / LinkedIn Card Preview</div>
-                <div className="max-w-[500px] border bg-[#f0f2f5] dark:bg-[#242526] font-sans hover:opacity-95 cursor-pointer shadow-sm">
+                <div className="max-w-[500px] border bg-zoru-surface dark:bg-zoru-ink font-sans hover:opacity-95 cursor-pointer shadow-sm">
                   {ogImage ? (
-                    <div className="w-full aspect-[1.91/1] bg-slate-200 dark:bg-slate-700 relative">
+                    <div className="w-full aspect-[1.91/1] bg-zoru-surface-2 dark:bg-zoru-ink relative">
                       <img src={ogImage} alt="Open Graph Image" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.currentTarget.style.display = 'none'} />
                     </div>
                   ) : (
-                    <div className="w-full aspect-[1.91/1] bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400">
+                    <div className="w-full aspect-[1.91/1] bg-zoru-surface-2 dark:bg-zoru-ink flex items-center justify-center text-zoru-ink-muted">
                       No Image Provided
                     </div>
                   )}
-                  <div className="p-3 bg-[#f0f2f5] dark:bg-[#242526] border-t dark:border-slate-700">
-                    <div className="text-[12px] uppercase text-[#606770] dark:text-[#b0b3b8] mb-1 truncate tracking-wide">{domain}</div>
-                    <div className="text-[16px] font-semibold text-[#1d2129] dark:text-[#e4e6eb] truncate mb-1 leading-snug">{ogTitle || 'No Title'}</div>
-                    <div className="text-[14px] text-[#606770] dark:text-[#b0b3b8] line-clamp-2 leading-snug">{ogDesc || 'No description provided.'}</div>
+                  <div className="p-3 bg-zoru-surface dark:bg-zoru-ink border-t dark:border-zoru-line">
+                    <div className="text-[12px] uppercase text-zoru-ink dark:text-zoru-ink-muted mb-1 truncate tracking-wide">{domain}</div>
+                    <div className="text-[16px] font-semibold text-zoru-ink dark:text-zoru-ink-muted truncate mb-1 leading-snug">{ogTitle || 'No Title'}</div>
+                    <div className="text-[14px] text-zoru-ink dark:text-zoru-ink-muted line-clamp-2 leading-snug">{ogDesc || 'No description provided.'}</div>
                   </div>
                 </div>
               </ZoruCardContent>

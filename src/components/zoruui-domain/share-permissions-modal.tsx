@@ -144,9 +144,9 @@ export function SharePermissionsModal({ resourceType, resourceId, resourceName }
                                 {shares.map((share) => (
                                     <div
                                         key={share._id}
-                                        className="flex items-center gap-2.5 px-2.5 py-2 rounded-md border border-zoru-border hover:bg-zinc-900 transition-colors"
+                                        className="flex items-center gap-2.5 px-2.5 py-2 rounded-md border border-zoru-border hover:bg-zoru-ink transition-colors"
                                     >
-                                        <div className="h-7 w-7 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                                        <div className="h-7 w-7 rounded-full bg-zoru-ink flex items-center justify-center flex-shrink-0">
                                             <span className="text-[11px] font-medium text-zoru-ink">
                                                 {share.sharedWithEmail[0].toUpperCase()}
                                             </span>

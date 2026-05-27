@@ -173,7 +173,7 @@ export default function AdsRoadmapPage() {
       </PageHeader>
 
       {error && (
-        <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-md bg-zoru-surface-2 p-4 text-sm text-zoru-ink">
           {error}
         </div>
       )}

@@ -260,11 +260,11 @@ export function CsvImportDialog({
                                 {pick ? 'Replace file' : 'Choose from SabFiles'}
                             </SabFilePickerButton>
                             {pick ? (
-                                <span className="max-w-[260px] truncate text-[12.5px] text-muted-foreground">
+                                <span className="max-w-[260px] truncate text-[12.5px] text-zoru-ink-muted">
                                     {pick.name}
                                 </span>
                             ) : (
-                                <span className="text-[12px] text-muted-foreground">
+                                <span className="text-[12px] text-zoru-ink-muted">
                                     No file picked.
                                 </span>
                             )}
@@ -272,17 +272,17 @@ export function CsvImportDialog({
                     </div>
 
                     {isParsing ? (
-                        <div className="flex items-center gap-2 text-[12.5px] text-muted-foreground">
+                        <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
                             <LoaderCircle className="h-4 w-4 animate-spin" /> Parsing CSV…
                         </div>
                     ) : preview.length > 0 ? (
-                        <div className="rounded-lg border border-border bg-secondary/40 p-3">
-                            <p className="mb-2 text-[12.5px] font-medium text-foreground">
+                        <div className="rounded-lg border border-zoru-line bg-zoru-surface-2/40 p-3">
+                            <p className="mb-2 text-[12.5px] font-medium text-zoru-ink">
                                 Preview · {preview.length} rows
                             </p>
                             <div className="max-h-[200px] overflow-y-auto text-[11.5px]">
                                 <table className="w-full font-mono">
-                                    <thead className="text-muted-foreground">
+                                    <thead className="text-zoru-ink-muted">
                                         <tr className="text-left">
                                             <th className="px-2 py-1">Date</th>
                                             <th className="px-2 py-1">Amount</th>
@@ -292,7 +292,7 @@ export function CsvImportDialog({
                                     </thead>
                                     <tbody>
                                         {preview.slice(0, 50).map((p, i) => (
-                                            <tr key={i} className="border-t border-border">
+                                            <tr key={i} className="border-t border-zoru-line">
                                                 <td className="px-2 py-1">{p.transaction_date}</td>
                                                 <td className="px-2 py-1">{p.amount}</td>
                                                 <td className="px-2 py-1">{p.type ?? '—'}</td>
@@ -302,7 +302,7 @@ export function CsvImportDialog({
                                     </tbody>
                                 </table>
                                 {preview.length > 50 ? (
-                                    <p className="mt-2 text-center text-muted-foreground">
+                                    <p className="mt-2 text-center text-zoru-ink-muted">
                                         …and {preview.length - 50} more rows
                                     </p>
                                 ) : null}

@@ -156,7 +156,7 @@ export function NotebookGrid({
             aria-label="Open Quick Notes"
           />
           <CardHeader className="flex flex-row items-center gap-2">
-            <StickyNote className="h-4 w-4 text-amber-500" />
+            <StickyNote className="h-4 w-4 text-zoru-ink" />
             <CardTitle className="line-clamp-1">Quick Notes</CardTitle>
           </CardHeader>
           <CardContent className="min-h-[60px]">

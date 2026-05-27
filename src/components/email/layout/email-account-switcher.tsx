@@ -48,7 +48,7 @@ export function EmailAccountSwitcher({
           </div>
 
           <div className="h-px bg-zoru-line my-1" />
-          <ZoruSelectItem value="connect_new" className="text-primary focus:text-primary font-medium py-3">
+          <ZoruSelectItem value="connect_new" className="text-zoru-ink focus:text-zoru-ink font-medium py-3">
             <div className="flex items-center gap-2 font-semibold">
               <PlusCircle className="h-4 w-4" /> Connect a new account
             </div>

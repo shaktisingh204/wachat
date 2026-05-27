@@ -470,13 +470,13 @@ export default function PurposeConsentsPage() {
                         >
                           <div className="space-y-3 text-sm">
                             <div>
-                              <div className="text-muted-foreground text-xs">
+                              <div className="text-zoru-ink-muted text-xs">
                                 Title
                               </div>
                               <div>{row.title}</div>
                             </div>
                             <div>
-                              <div className="text-muted-foreground text-xs">
+                              <div className="text-zoru-ink-muted text-xs">
                                 Description
                               </div>
                               <div className="whitespace-pre-wrap">
@@ -485,19 +485,19 @@ export default function PurposeConsentsPage() {
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <div className="text-muted-foreground text-xs">
+                                <div className="text-zoru-ink-muted text-xs">
                                   Applies to
                                 </div>
                                 <div>{row.applies_to || 'both'}</div>
                               </div>
                               <div>
-                                <div className="text-muted-foreground text-xs">
+                                <div className="text-zoru-ink-muted text-xs">
                                   Required
                                 </div>
                                 <div>{row.is_required ? 'Yes' : 'No'}</div>
                               </div>
                               <div>
-                                <div className="text-muted-foreground text-xs">
+                                <div className="text-zoru-ink-muted text-xs">
                                   Active
                                 </div>
                                 <div>
@@ -505,7 +505,7 @@ export default function PurposeConsentsPage() {
                                 </div>
                               </div>
                               <div>
-                                <div className="text-muted-foreground text-xs">
+                                <div className="text-zoru-ink-muted text-xs">
                                   Sort order
                                 </div>
                                 <div>{row.sort_order ?? 0}</div>

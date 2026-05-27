@@ -40,11 +40,11 @@ export function BillPrintView({ bill, vendorLabel }: BillPrintViewProps) {
       <header className="mb-8 flex items-start justify-between border-b border-black/30 pb-6">
         <div>
           <h1 className="text-3xl font-semibold">BILL</h1>
-          <p className="mt-1 text-[14px] text-gray-700">
+          <p className="mt-1 text-[14px] text-zoru-ink">
             {bill.billNo || '—'}
           </p>
         </div>
-        <div className="text-right text-[12px] text-gray-700">
+        <div className="text-right text-[12px] text-zoru-ink">
           <p>
             <strong>Bill date:</strong> {fmtDate(bill.billDate)}
           </p>
@@ -61,13 +61,13 @@ export function BillPrintView({ bill, vendorLabel }: BillPrintViewProps) {
 
       <section className="mb-6 grid grid-cols-2 gap-6">
         <div>
-          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-600">
+          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink">
             Vendor
           </h2>
           <p className="text-[14px]">{vendorLabel || bill.vendorId || '—'}</p>
         </div>
         <div>
-          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-600">
+          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink">
             Status
           </h2>
           <p className="text-[14px] capitalize">
@@ -78,7 +78,7 @@ export function BillPrintView({ bill, vendorLabel }: BillPrintViewProps) {
 
       {items.length > 0 ? (
         <table className="mb-6 w-full border border-black/30 text-[12.5px]">
-          <thead className="bg-gray-100">
+          <thead className="bg-zoru-surface-2">
             <tr>
               <th className="border-r border-black/30 p-2 text-left">
                 Description
@@ -111,7 +111,7 @@ export function BillPrintView({ bill, vendorLabel }: BillPrintViewProps) {
 
       {expenseLines.length > 0 ? (
         <table className="mb-6 w-full border border-black/30 text-[12.5px]">
-          <thead className="bg-gray-100">
+          <thead className="bg-zoru-surface-2">
             <tr>
               <th className="border-r border-black/30 p-2 text-left">Account</th>
               <th className="border-r border-black/30 p-2 text-left">
@@ -140,14 +140,14 @@ export function BillPrintView({ bill, vendorLabel }: BillPrintViewProps) {
 
       <section className="ml-auto max-w-xs space-y-1 text-[13px]">
         <div className="flex justify-between">
-          <span className="text-gray-700">Subtotal</span>
+          <span className="text-zoru-ink">Subtotal</span>
           <span className="tabular-nums">
             {fmtMoney(totals.subTotal, currency)}
           </span>
         </div>
         {bill.tdsAmount != null && bill.tdsAmount > 0 ? (
           <div className="flex justify-between">
-            <span className="text-gray-700">
+            <span className="text-zoru-ink">
               TDS{bill.tdsSection ? ` (${bill.tdsSection})` : ''}
             </span>
             <span className="tabular-nums">
@@ -162,13 +162,13 @@ export function BillPrintView({ bill, vendorLabel }: BillPrintViewProps) {
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-700">Paid</span>
+          <span className="text-zoru-ink">Paid</span>
           <span className="tabular-nums">
             {fmtMoney(bill.amountPaid ?? 0, currency)}
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-700">Balance</span>
+          <span className="text-zoru-ink">Balance</span>
           <span className="tabular-nums">
             {fmtMoney(bill.balance ?? totals.total, currency)}
           </span>
@@ -177,7 +177,7 @@ export function BillPrintView({ bill, vendorLabel }: BillPrintViewProps) {
 
       {bill.notes ? (
         <section className="mt-8 border-t border-black/30 pt-4">
-          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-600">
+          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink">
             Notes
           </h2>
           <p className="whitespace-pre-wrap text-[12.5px]">{bill.notes}</p>

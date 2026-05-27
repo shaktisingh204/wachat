@@ -113,7 +113,7 @@ export function SabPageHeader({
                 {c.href && !isLast ? (
                   <Link
                     href={c.href}
-                    className="font-medium transition-colors hover:text-[hsl(var(--sab-fg))]"
+                    className="font-medium transition-colors hover:text-zoru-ink"
                   >
                     {c.label}
                   </Link>

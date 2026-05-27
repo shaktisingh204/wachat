@@ -94,7 +94,7 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
       <div className="flex items-center justify-between">
         <div>
           <Label>Form fields</Label>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-zoru-ink-muted">
             Add, reorder, and remove the inputs that ticket creators will see.
             Order here is the order on the rendered form.
           </p>
@@ -106,7 +106,7 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
       </div>
 
       {rows.length === 0 ? (
-        <div className="rounded-md border border-dashed border-border bg-zoru-surface-2 px-3 py-8 text-center text-[12.5px] text-muted-foreground">
+        <div className="rounded-md border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-8 text-center text-[12.5px] text-zoru-ink-muted">
           No fields yet. Click <strong>Add field</strong> to create the first
           one.
         </div>
@@ -120,7 +120,7 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
             return (
               <div
                 key={row.__key}
-                className="rounded-md border border-border bg-zoru-surface p-4"
+                className="rounded-md border border-zoru-line bg-zoru-surface p-4"
               >
                 <div className="mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
@@ -153,7 +153,7 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                       onClick={() => removeRow(row.__key)}
                       aria-label="Remove field"
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <Trash2 className="h-4 w-4 text-zoru-ink" />
                     </Button>
                   </div>
                 </div>
@@ -183,7 +183,7 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                       className="font-mono"
                     />
                     {isDuplicate ? (
-                      <p className="text-xs text-destructive">This field name is already in use.</p>
+                      <p className="text-xs text-zoru-ink">This field name is already in use.</p>
                     ) : null}
                   </div>
                   <div className="space-y-1.5">
@@ -247,12 +247,12 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                       />
                     </div>
                   ) : null}
-                  <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
+                  <div className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-2 sm:col-span-2">
                     <div className="flex flex-col">
                       <Label htmlFor={`${prefix}-required`}>
                         Required
                       </Label>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-zoru-ink-muted">
                         Must be filled before the form can be submitted.
                       </span>
                     </div>

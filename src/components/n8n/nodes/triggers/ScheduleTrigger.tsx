@@ -81,7 +81,7 @@ export function ScheduleTrigger({ config, onChange, className }: ScheduleTrigger
     <div className={cn('space-y-4', className)}>
       {/* Node header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f59e0b]/10 text-[#f59e0b]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink/10 text-zoru-ink-muted">
           <LuCalendarClock className="h-4 w-4" strokeWidth={2} />
         </div>
         <div>
@@ -163,7 +163,7 @@ export function ScheduleTrigger({ config, onChange, className }: ScheduleTrigger
             <button
               type="button"
               onClick={() => setPresetsOpen((v) => !v)}
-              className="flex items-center gap-1.5 text-[11.5px] font-medium text-[#f76808] hover:text-[#e25c00] transition-colors"
+              className="flex items-center gap-1.5 text-[11.5px] font-medium text-zoru-ink hover:text-zoru-ink transition-colors"
             >
               Quick presets
               <LuChevronDown
@@ -185,7 +185,7 @@ export function ScheduleTrigger({ config, onChange, className }: ScheduleTrigger
                     className={cn(
                       'flex items-center justify-between rounded-md px-3 py-1.5 text-left text-[12px] transition-colors hover:bg-[var(--gray-3)]',
                       config.cronExpression === p.value
-                        ? 'bg-[#f76808]/10 text-[#f76808]'
+                        ? 'bg-zoru-ink/10 text-zoru-ink'
                         : 'text-[var(--gray-11)]',
                     )}
                   >
@@ -218,7 +218,7 @@ export function ScheduleTrigger({ config, onChange, className }: ScheduleTrigger
 
       {/* Current summary */}
       <div className="flex items-center gap-2 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2.5">
-        <LuClock className="h-4 w-4 shrink-0 text-[#f59e0b]" strokeWidth={2} />
+        <LuClock className="h-4 w-4 shrink-0 text-zoru-ink-muted" strokeWidth={2} />
         <p className="text-[12px] text-[var(--gray-11)]">{humanDescription}</p>
       </div>
 
@@ -265,7 +265,7 @@ function OutputSchema({ fields }: { fields: OutputField[] }) {
       <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)]">
         {fields.map((f) => (
           <div key={f.key} className="flex items-center gap-2 px-3 py-1.5">
-            <code className="min-w-[80px] text-[11.5px] font-mono font-medium text-[#f59e0b]">{f.key}</code>
+            <code className="min-w-[80px] text-[11.5px] font-mono font-medium text-zoru-ink-muted">{f.key}</code>
             <span className="rounded bg-[var(--gray-4)] px-1 py-0.5 text-[10px] font-mono text-[var(--gray-9)]">{f.type}</span>
             <span className="flex-1 text-[11px] text-[var(--gray-9)] truncate">{f.description}</span>
           </div>
@@ -276,4 +276,4 @@ function OutputSchema({ fields }: { fields: OutputField[] }) {
 }
 
 const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808] transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';

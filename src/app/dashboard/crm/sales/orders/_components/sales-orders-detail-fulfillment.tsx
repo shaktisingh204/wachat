@@ -38,8 +38,8 @@ function pct(part: number, whole: number): number {
 function ProgressBar({ pct, tone }: { pct: number; tone: 'amber' | 'green' }) {
   const fill =
     tone === 'green'
-      ? 'bg-emerald-500'
-      : 'bg-amber-500';
+      ? 'bg-zoru-ink'
+      : 'bg-zoru-ink';
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-zoru-line">
       <div className={`h-full ${fill}`} style={{ width: `${pct}%` }} />
@@ -121,7 +121,7 @@ export async function SalesOrdersDetailFulfillment({ items, currency }: Props) {
                       </div>
                     ) : null}
                     {isOutOfStock ? (
-                      <div className="mt-1.5 flex items-center text-[11px] text-amber-700 font-medium bg-amber-50 px-1.5 py-0.5 rounded-sm w-fit border border-amber-200">
+                      <div className="mt-1.5 flex items-center text-[11px] text-zoru-ink font-medium bg-zoru-surface-2 px-1.5 py-0.5 rounded-sm w-fit border border-zoru-line">
                         <AlertCircle className="w-3 h-3 mr-1" />
                         Out of stock ({availableStock} available)
                       </div>

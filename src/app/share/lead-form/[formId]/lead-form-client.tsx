@@ -105,7 +105,7 @@ export function LeadFormClient({
 
   if (submitted) {
     return (
-      <div className="rounded-md bg-emerald-50 p-4 text-sm text-emerald-800">
+      <div className="rounded-md bg-zoru-surface-2 p-4 text-sm text-zoru-ink">
         <p className="font-medium">Thank you!</p>
         <p className="mt-1 whitespace-pre-line">{thankYouMessage}</p>
       </div>
@@ -130,7 +130,7 @@ export function LeadFormClient({
       ))}
 
       {consentEnabled ? (
-        <label className="flex items-start gap-2 text-sm text-zinc-700">
+        <label className="flex items-start gap-2 text-sm text-zoru-ink">
           <Checkbox
             checked={Boolean(values.__consent)}
             onCheckedChange={(checked: boolean | 'indeterminate') =>
@@ -163,7 +163,7 @@ function FieldRow({ field, value, onChange }: FieldRowProps) {
   const label = (
     <Label htmlFor={id}>
       {field.label}
-      {field.required ? <span className="ml-1 text-red-500">*</span> : null}
+      {field.required ? <span className="ml-1 text-zoru-ink">*</span> : null}
     </Label>
   );
 
@@ -205,7 +205,7 @@ function FieldRow({ field, value, onChange }: FieldRowProps) {
       );
     case 'checkbox':
       return (
-        <label htmlFor={id} className="flex items-center gap-2 text-sm text-zinc-700">
+        <label htmlFor={id} className="flex items-center gap-2 text-sm text-zoru-ink">
           <Checkbox
             id={id}
             checked={Boolean(value)}
@@ -215,7 +215,7 @@ function FieldRow({ field, value, onChange }: FieldRowProps) {
           />
           <span>
             {field.label}
-            {field.required ? <span className="ml-1 text-red-500">*</span> : null}
+            {field.required ? <span className="ml-1 text-zoru-ink">*</span> : null}
           </span>
         </label>
       );

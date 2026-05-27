@@ -53,83 +53,83 @@ import {
 } from 'lucide-react';
 
 const TriggerNode = ({ data, isConnectable, selected }: any) => (
-  <div className={`rounded-xl border ${selected ? 'border-blue-400 ring-2 ring-blue-500/20' : 'border-blue-500/50'} bg-slate-900 shadow-xl min-w-[250px] transition-all`}>
-    <div className="bg-blue-500/10 p-3 border-b border-white/5 flex items-center gap-3">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400">
+  <div className={`rounded-xl border ${selected ? 'border-zoru-line ring-2 ring-zoru-line/20' : 'border-zoru-line/50'} bg-zoru-ink shadow-xl min-w-[250px] transition-all`}>
+    <div className="bg-zoru-ink/10 p-3 border-b border-white/5 flex items-center gap-3">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink/20 text-zoru-ink-muted">
         <Zap className="h-4 w-4" />
       </div>
       <div>
-        <h3 className="text-sm font-semibold text-slate-200">{data.title}</h3>
-        {data.subtitle && <p className="text-xs text-slate-400">{data.subtitle}</p>}
+        <h3 className="text-sm font-semibold text-white">{data.title}</h3>
+        {data.subtitle && <p className="text-xs text-zoru-ink-muted">{data.subtitle}</p>}
       </div>
     </div>
     {data.description && (
       <div className="p-3">
-        <div className="text-xs text-slate-300">{data.description}</div>
+        <div className="text-xs text-zoru-ink-muted">{data.description}</div>
       </div>
     )}
-    <Handle type="source" position={Position.Bottom} isConnectable={isConnectable} className="!w-3 !h-3 !bg-blue-500 !border-2 !border-slate-900" />
+    <Handle type="source" position={Position.Bottom} isConnectable={isConnectable} className="!w-3 !h-3 !bg-zoru-ink !border-2 !border-zoru-line" />
   </div>
 );
 
 const ActionNode = ({ data, isConnectable, selected }: any) => (
-  <div className={`rounded-xl border ${selected ? 'border-emerald-400 ring-2 ring-emerald-500/20' : 'border-emerald-500/50'} bg-slate-900 shadow-xl min-w-[250px] transition-all`}>
-    <Handle type="target" position={Position.Top} isConnectable={isConnectable} className="!w-3 !h-3 !bg-emerald-500 !border-2 !border-slate-900" />
-    <div className="bg-emerald-500/10 p-3 border-b border-white/5 flex items-center gap-3">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400">
+  <div className={`rounded-xl border ${selected ? 'border-zoru-line ring-2 ring-zoru-line/20' : 'border-zoru-line/50'} bg-zoru-ink shadow-xl min-w-[250px] transition-all`}>
+    <Handle type="target" position={Position.Top} isConnectable={isConnectable} className="!w-3 !h-3 !bg-zoru-ink !border-2 !border-zoru-line" />
+    <div className="bg-zoru-ink/10 p-3 border-b border-white/5 flex items-center gap-3">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink/20 text-zoru-ink-muted">
         {data.icon === 'sms' ? <MessageSquare className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
       </div>
       <div>
-        <h3 className="text-sm font-semibold text-slate-200">{data.title}</h3>
-        {data.subtitle && <p className="text-xs text-slate-400">{data.subtitle}</p>}
+        <h3 className="text-sm font-semibold text-white">{data.title}</h3>
+        {data.subtitle && <p className="text-xs text-zoru-ink-muted">{data.subtitle}</p>}
       </div>
     </div>
     {data.description && (
       <div className="p-3">
-        <div className="text-xs text-slate-300">{data.description}</div>
+        <div className="text-xs text-zoru-ink-muted">{data.description}</div>
       </div>
     )}
-    <Handle type="source" position={Position.Bottom} isConnectable={isConnectable} className="!w-3 !h-3 !bg-emerald-500 !border-2 !border-slate-900" />
+    <Handle type="source" position={Position.Bottom} isConnectable={isConnectable} className="!w-3 !h-3 !bg-zoru-ink !border-2 !border-zoru-line" />
   </div>
 );
 
 const LogicNode = ({ data, isConnectable, selected }: any) => (
-  <div className={`rounded-xl border ${selected ? 'border-purple-400 ring-2 ring-purple-500/20' : 'border-purple-500/50'} bg-slate-900 shadow-xl min-w-[200px] transition-all`}>
-    <Handle type="target" position={Position.Top} isConnectable={isConnectable} className="!w-3 !h-3 !bg-purple-500 !border-2 !border-slate-900" />
-    <div className="bg-purple-500/10 p-3 border-b border-white/5 flex items-center gap-3">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400">
+  <div className={`rounded-xl border ${selected ? 'border-zoru-line ring-2 ring-zoru-line/20' : 'border-zoru-line/50'} bg-zoru-ink shadow-xl min-w-[200px] transition-all`}>
+    <Handle type="target" position={Position.Top} isConnectable={isConnectable} className="!w-3 !h-3 !bg-zoru-ink !border-2 !border-zoru-line" />
+    <div className="bg-zoru-ink/10 p-3 border-b border-white/5 flex items-center gap-3">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink/20 text-zoru-ink-muted">
         <Clock className="h-4 w-4" />
       </div>
       <div>
-        <h3 className="text-sm font-semibold text-slate-200">{data.title}</h3>
-        {data.subtitle && <p className="text-xs text-slate-400">{data.subtitle}</p>}
+        <h3 className="text-sm font-semibold text-white">{data.title}</h3>
+        {data.subtitle && <p className="text-xs text-zoru-ink-muted">{data.subtitle}</p>}
       </div>
     </div>
-    <Handle type="source" position={Position.Bottom} isConnectable={isConnectable} className="!w-3 !h-3 !bg-purple-500 !border-2 !border-slate-900" />
+    <Handle type="source" position={Position.Bottom} isConnectable={isConnectable} className="!w-3 !h-3 !bg-zoru-ink !border-2 !border-zoru-line" />
   </div>
 );
 
 const ConditionNode = ({ data, isConnectable, selected }: any) => (
-  <div className={`rounded-xl border ${selected ? 'border-amber-400 ring-2 ring-amber-500/20' : 'border-amber-500/50'} bg-slate-900 shadow-xl min-w-[200px] transition-all relative mb-6`}>
-    <Handle type="target" position={Position.Top} isConnectable={isConnectable} className="!w-3 !h-3 !bg-amber-500 !border-2 !border-slate-900" />
-    <div className="bg-amber-500/10 p-3 border-b border-white/5 flex items-center gap-3">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400">
+  <div className={`rounded-xl border ${selected ? 'border-zoru-line ring-2 ring-zoru-line/20' : 'border-zoru-line/50'} bg-zoru-ink shadow-xl min-w-[200px] transition-all relative mb-6`}>
+    <Handle type="target" position={Position.Top} isConnectable={isConnectable} className="!w-3 !h-3 !bg-zoru-ink !border-2 !border-zoru-line" />
+    <div className="bg-zoru-ink/10 p-3 border-b border-white/5 flex items-center gap-3">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink/20 text-zoru-ink-muted">
         <GitBranch className="h-4 w-4" />
       </div>
       <div>
-        <h3 className="text-sm font-semibold text-slate-200">{data.title}</h3>
+        <h3 className="text-sm font-semibold text-white">{data.title}</h3>
       </div>
     </div>
     {data.description && (
-      <div className="p-3 text-xs text-slate-300">
+      <div className="p-3 text-xs text-zoru-ink-muted">
         {data.description}
       </div>
     )}
-    <Handle type="source" position={Position.Bottom} id="true" style={{ left: '25%' }} isConnectable={isConnectable} className="!w-3 !h-3 !bg-emerald-500 !border-2 !border-slate-900" />
-    <div className="absolute -bottom-6 left-[25%] -translate-x-1/2 text-[10px] font-medium text-emerald-400 bg-slate-900 px-1.5 py-0.5 rounded border border-emerald-500/30">Yes</div>
+    <Handle type="source" position={Position.Bottom} id="true" style={{ left: '25%' }} isConnectable={isConnectable} className="!w-3 !h-3 !bg-zoru-ink !border-2 !border-zoru-line" />
+    <div className="absolute -bottom-6 left-[25%] -translate-x-1/2 text-[10px] font-medium text-zoru-ink-muted bg-zoru-ink px-1.5 py-0.5 rounded border border-zoru-line/30">Yes</div>
     
-    <Handle type="source" position={Position.Bottom} id="false" style={{ left: '75%' }} isConnectable={isConnectable} className="!w-3 !h-3 !bg-rose-500 !border-2 !border-slate-900" />
-    <div className="absolute -bottom-6 left-[75%] -translate-x-1/2 text-[10px] font-medium text-rose-400 bg-slate-900 px-1.5 py-0.5 rounded border border-rose-500/30">No</div>
+    <Handle type="source" position={Position.Bottom} id="false" style={{ left: '75%' }} isConnectable={isConnectable} className="!w-3 !h-3 !bg-zoru-ink !border-2 !border-zoru-line" />
+    <div className="absolute -bottom-6 left-[75%] -translate-x-1/2 text-[10px] font-medium text-zoru-ink-muted bg-zoru-ink px-1.5 py-0.5 rounded border border-zoru-line/30">No</div>
   </div>
 );
 
@@ -317,71 +317,71 @@ function JourneyCanvasContent() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)] w-full overflow-hidden bg-[#0c0c0e]">
+    <div className="flex h-[calc(100vh-64px)] w-full overflow-hidden bg-zoru-ink">
        {/* Left Palette - Draggable Components */}
-       <aside className="w-64 border-r border-white/10 bg-[#131316] p-4 overflow-y-auto flex flex-col gap-6 z-10 shrink-0">
+       <aside className="w-64 border-r border-white/10 bg-zoru-ink p-4 overflow-y-auto flex flex-col gap-6 z-10 shrink-0">
          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Triggers</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-zoru-ink mb-3">Triggers</h3>
             <div className="space-y-2">
               <div 
-                className="p-3 border border-white/10 bg-slate-800/50 rounded-lg cursor-grab hover:bg-slate-800 hover:border-blue-500/50 transition-colors flex items-center gap-3"
+                className="p-3 border border-white/10 bg-zoru-ink/50 rounded-lg cursor-grab hover:bg-zoru-ink hover:border-zoru-line/50 transition-colors flex items-center gap-3"
                 onDragStart={(event) => onDragStart(event, 'trigger')}
                 draggable
               >
-                <Zap className="h-4 w-4 text-blue-400" />
-                <span className="text-sm font-medium text-slate-200">Segment Join</span>
+                <Zap className="h-4 w-4 text-zoru-ink-muted" />
+                <span className="text-sm font-medium text-white">Segment Join</span>
               </div>
               <div 
-                className="p-3 border border-white/10 bg-slate-800/50 rounded-lg cursor-grab hover:bg-slate-800 hover:border-blue-500/50 transition-colors flex items-center gap-3"
+                className="p-3 border border-white/10 bg-zoru-ink/50 rounded-lg cursor-grab hover:bg-zoru-ink hover:border-zoru-line/50 transition-colors flex items-center gap-3"
                 onDragStart={(event) => onDragStart(event, 'trigger')}
                 draggable
               >
-                <Users className="h-4 w-4 text-blue-400" />
-                <span className="text-sm font-medium text-slate-200">Form Submit</span>
+                <Users className="h-4 w-4 text-zoru-ink-muted" />
+                <span className="text-sm font-medium text-white">Form Submit</span>
               </div>
             </div>
          </div>
 
          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Actions</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-zoru-ink mb-3">Actions</h3>
             <div className="space-y-2">
               <div 
-                className="p-3 border border-white/10 bg-slate-800/50 rounded-lg cursor-grab hover:bg-slate-800 hover:border-emerald-500/50 transition-colors flex items-center gap-3"
+                className="p-3 border border-white/10 bg-zoru-ink/50 rounded-lg cursor-grab hover:bg-zoru-ink hover:border-zoru-line/50 transition-colors flex items-center gap-3"
                 onDragStart={(event) => onDragStart(event, 'action', 'email')}
                 draggable
               >
-                <Mail className="h-4 w-4 text-emerald-400" />
-                <span className="text-sm font-medium text-slate-200">Send Email</span>
+                <Mail className="h-4 w-4 text-zoru-ink-muted" />
+                <span className="text-sm font-medium text-white">Send Email</span>
               </div>
               <div 
-                className="p-3 border border-white/10 bg-slate-800/50 rounded-lg cursor-grab hover:bg-slate-800 hover:border-emerald-500/50 transition-colors flex items-center gap-3"
+                className="p-3 border border-white/10 bg-zoru-ink/50 rounded-lg cursor-grab hover:bg-zoru-ink hover:border-zoru-line/50 transition-colors flex items-center gap-3"
                 onDragStart={(event) => onDragStart(event, 'action', 'sms')}
                 draggable
               >
-                <MessageSquare className="h-4 w-4 text-emerald-400" />
-                <span className="text-sm font-medium text-slate-200">Send SMS</span>
+                <MessageSquare className="h-4 w-4 text-zoru-ink-muted" />
+                <span className="text-sm font-medium text-white">Send SMS</span>
               </div>
             </div>
          </div>
 
          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Logic</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-zoru-ink mb-3">Logic</h3>
             <div className="space-y-2">
               <div 
-                className="p-3 border border-white/10 bg-slate-800/50 rounded-lg cursor-grab hover:bg-slate-800 hover:border-purple-500/50 transition-colors flex items-center gap-3"
+                className="p-3 border border-white/10 bg-zoru-ink/50 rounded-lg cursor-grab hover:bg-zoru-ink hover:border-zoru-line/50 transition-colors flex items-center gap-3"
                 onDragStart={(event) => onDragStart(event, 'logic')}
                 draggable
               >
-                <Clock className="h-4 w-4 text-purple-400" />
-                <span className="text-sm font-medium text-slate-200">Time Delay</span>
+                <Clock className="h-4 w-4 text-zoru-ink-muted" />
+                <span className="text-sm font-medium text-white">Time Delay</span>
               </div>
               <div 
-                className="p-3 border border-white/10 bg-slate-800/50 rounded-lg cursor-grab hover:bg-slate-800 hover:border-amber-500/50 transition-colors flex items-center gap-3"
+                className="p-3 border border-white/10 bg-zoru-ink/50 rounded-lg cursor-grab hover:bg-zoru-ink hover:border-zoru-line/50 transition-colors flex items-center gap-3"
                 onDragStart={(event) => onDragStart(event, 'condition')}
                 draggable
               >
-                <GitBranch className="h-4 w-4 text-amber-400" />
-                <span className="text-sm font-medium text-slate-200">If / Else</span>
+                <GitBranch className="h-4 w-4 text-zoru-ink-muted" />
+                <span className="text-sm font-medium text-white">If / Else</span>
               </div>
             </div>
          </div>
@@ -401,10 +401,10 @@ function JourneyCanvasContent() {
           fitView
           fitViewOptions={{ padding: 0.2 }}
           minZoom={0.1}
-          className="bg-[#0c0c0e]"
+          className="bg-zoru-ink"
         >
           <Background color="#334155" gap={24} size={1} />
-          <Controls className="bg-slate-900 border-white/10 fill-slate-300 [&>button]:border-b-white/10" />
+          <Controls className="bg-zoru-ink border-white/10 fill-zoru-ink-muted [&>button]:border-b-white/10" />
           <MiniMap 
             nodeColor={(n) => {
               if (n.type === 'trigger') return '#3b82f6';
@@ -414,7 +414,7 @@ function JourneyCanvasContent() {
               return '#64748b';
             }}
             maskColor="rgba(12, 12, 14, 0.7)"
-            style={{ backgroundColor: '#131316', border: '1px solid rgba(255,255,255,0.1)' }}
+            style={{ backgroundColor: 'var(--zoru-ink)', border: '1px solid var(--zoru-line)' }}
             className="rounded-lg overflow-hidden"
           />
           <Panel position="top-left" className="m-4">
@@ -423,9 +423,9 @@ function JourneyCanvasContent() {
                 <ChevronLeft className="h-4 w-4 mr-2" />
                 Back to Journeys
               </Button>
-              <div className="flex items-center gap-4 bg-slate-900/80 backdrop-blur-md p-2 px-4 rounded-full border border-white/10 shadow-lg">
-                <span className="text-sm font-medium text-slate-200">Welcome Series Journey</span>
-                <Badge variant="outline" className="border-emerald-500/50 text-emerald-400 bg-emerald-500/10">Active</Badge>
+              <div className="flex items-center gap-4 bg-zoru-ink/80 backdrop-blur-md p-2 px-4 rounded-full border border-white/10 shadow-lg">
+                <span className="text-sm font-medium text-white">Welcome Series Journey</span>
+                <Badge variant="outline" className="border-zoru-line/50 text-zoru-ink-muted bg-zoru-ink/10">Active</Badge>
               </div>
             </div>
           </Panel>
@@ -435,7 +435,7 @@ function JourneyCanvasContent() {
                 <Save className="h-4 w-4 mr-2" />
                 Save Draft
               </Button>
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button size="sm" className="bg-zoru-ink hover:bg-zoru-ink text-white">
                 <Play className="h-4 w-4 mr-2" />
                 Publish
               </Button>
@@ -446,10 +446,10 @@ function JourneyCanvasContent() {
 
       {/* Right Sidebar - Properties Panel */}
       {selectedNode && (
-        <aside className="w-80 border-l border-white/10 bg-[#131316] flex flex-col z-10 shrink-0">
+        <aside className="w-80 border-l border-white/10 bg-zoru-ink flex flex-col z-10 shrink-0">
           <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-              <Settings2 className="h-4 w-4 text-slate-400" />
+            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+              <Settings2 className="h-4 w-4 text-zoru-ink-muted" />
               Node Settings
             </h2>
             <Button variant="ghost" size="icon" onClick={() => setSelectedNode(null)} className="h-8 w-8">
@@ -538,14 +538,14 @@ function JourneyCanvasContent() {
 
 export default function MarketingJourneyPage() {
   return (
-    <div className="h-screen w-full flex flex-col bg-[#0c0c0e]">
+    <div className="h-screen w-full flex flex-col bg-zoru-ink">
       {/* Top Header can go here if needed, or layout wraps it. But we assumed a full-screen take over for canvas */}
-      <div className="h-16 border-b border-white/10 flex items-center px-6 shrink-0 bg-[#0c0c0e]">
+      <div className="h-16 border-b border-white/10 flex items-center px-6 shrink-0 bg-zoru-ink">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center">
+          <div className="h-8 w-8 rounded-lg bg-zoru-ink/20 text-zoru-ink-muted flex items-center justify-center">
             <GitBranch className="h-5 w-5" />
           </div>
-          <h1 className="text-lg font-semibold text-slate-100">Journey Builder</h1>
+          <h1 className="text-lg font-semibold text-white">Journey Builder</h1>
         </div>
       </div>
       

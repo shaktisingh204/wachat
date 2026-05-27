@@ -566,8 +566,8 @@ export function AutomationsDocsClient({
           {/* Variables section */}
           <Card>
             <div className="mb-4">
-              <h2 className="text-[16px] font-semibold text-foreground">Using Variables</h2>
-              <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+              <h2 className="text-[16px] font-semibold text-zoru-ink">Using Variables</h2>
+              <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
                 Variables let you personalise automations using live CRM data. Use double
                 curly braces:{' '}
                 <Badge variant="ghost" className="font-mono">
@@ -598,15 +598,15 @@ export function AutomationsDocsClient({
           <Separator />
 
           <div>
-            <h2 className="text-[18px] font-bold text-foreground">Automation Blocks</h2>
-            <p className="mt-1 text-[13px] text-muted-foreground">
+            <h2 className="text-[18px] font-bold text-zoru-ink">Automation Blocks</h2>
+            <p className="mt-1 text-[13px] text-zoru-ink-muted">
               All available triggers, actions, and logic nodes.
             </p>
           </div>
 
           {/* Triggers */}
           <div>
-            <h3 className="mb-2 text-[14px] font-semibold text-foreground">Triggers</h3>
+            <h3 className="mb-2 text-[14px] font-semibold text-zoru-ink">Triggers</h3>
             <Accordion type="multiple" className="w-full">
               {BLOCK_DOCS.filter((d) => d.category === 'Trigger').map((doc, idx) => (
                 <ZoruAccordionItem value={`trigger-${idx}`} key={idx}>
@@ -614,9 +614,9 @@ export function AutomationsDocsClient({
                     {doc.title}
                   </ZoruAccordionTrigger>
                   <ZoruAccordionContent className="space-y-3 pt-1">
-                    <p className="text-[13px] text-muted-foreground">{doc.description}</p>
+                    <p className="text-[13px] text-zoru-ink-muted">{doc.description}</p>
                     <div>
-                      <p className="mb-1 text-[12px] font-semibold text-foreground">
+                      <p className="mb-1 text-[12px] font-semibold text-zoru-ink">
                         Properties
                       </p>
                       <ul className="space-y-1 text-[12.5px]">
@@ -628,8 +628,8 @@ export function AutomationsDocsClient({
                       </ul>
                     </div>
                     <div>
-                      <p className="mb-1 text-[12px] font-semibold text-foreground">Outputs</p>
-                      <ul className="space-y-0.5 text-[12.5px] text-muted-foreground">
+                      <p className="mb-1 text-[12px] font-semibold text-zoru-ink">Outputs</p>
+                      <ul className="space-y-0.5 text-[12.5px] text-zoru-ink-muted">
                         {doc.outputs.map((o) => (
                           <li key={o}>{o}</li>
                         ))}
@@ -643,7 +643,7 @@ export function AutomationsDocsClient({
 
           {/* Actions */}
           <div>
-            <h3 className="mb-2 text-[14px] font-semibold text-foreground">Actions</h3>
+            <h3 className="mb-2 text-[14px] font-semibold text-zoru-ink">Actions</h3>
             <Accordion type="multiple" className="w-full">
               {BLOCK_DOCS.filter((d) => d.category === 'Action').map((doc, idx) => (
                 <ZoruAccordionItem value={`action-${idx}`} key={idx}>
@@ -651,9 +651,9 @@ export function AutomationsDocsClient({
                     {doc.title}
                   </ZoruAccordionTrigger>
                   <ZoruAccordionContent className="space-y-3 pt-1">
-                    <p className="text-[13px] text-muted-foreground">{doc.description}</p>
+                    <p className="text-[13px] text-zoru-ink-muted">{doc.description}</p>
                     <div>
-                      <p className="mb-1 text-[12px] font-semibold text-foreground">
+                      <p className="mb-1 text-[12px] font-semibold text-zoru-ink">
                         Properties
                       </p>
                       <ul className="space-y-1 text-[12.5px]">
@@ -672,7 +672,7 @@ export function AutomationsDocsClient({
 
           {/* Logic */}
           <div>
-            <h3 className="mb-2 text-[14px] font-semibold text-foreground">Logic</h3>
+            <h3 className="mb-2 text-[14px] font-semibold text-zoru-ink">Logic</h3>
             <Accordion type="multiple" className="w-full">
               {BLOCK_DOCS.filter((d) => d.category === 'Logic').map((doc, idx) => (
                 <ZoruAccordionItem value={`logic-${idx}`} key={idx}>
@@ -680,9 +680,9 @@ export function AutomationsDocsClient({
                     {doc.title}
                   </ZoruAccordionTrigger>
                   <ZoruAccordionContent className="space-y-3 pt-1">
-                    <p className="text-[13px] text-muted-foreground">{doc.description}</p>
+                    <p className="text-[13px] text-zoru-ink-muted">{doc.description}</p>
                     <div>
-                      <p className="mb-1 text-[12px] font-semibold text-foreground">
+                      <p className="mb-1 text-[12px] font-semibold text-zoru-ink">
                         Properties
                       </p>
                       <ul className="space-y-1 text-[12.5px]">
@@ -694,8 +694,8 @@ export function AutomationsDocsClient({
                       </ul>
                     </div>
                     <div>
-                      <p className="mb-1 text-[12px] font-semibold text-foreground">Outputs</p>
-                      <ul className="space-y-0.5 text-[12.5px] text-muted-foreground">
+                      <p className="mb-1 text-[12px] font-semibold text-zoru-ink">Outputs</p>
+                      <ul className="space-y-0.5 text-[12.5px] text-zoru-ink-muted">
                         {doc.outputs.map((o) => (
                           <li key={o}>{o}</li>
                         ))}
@@ -711,8 +711,8 @@ export function AutomationsDocsClient({
         {/* ── Templates tab ───────────────────────────────────────────── */}
         <TabsContent value="templates" className="mt-4">
           <div className="mb-4">
-            <h2 className="text-[16px] font-semibold text-foreground">Pre-built templates</h2>
-            <p className="mt-1 text-[13px] text-muted-foreground">
+            <h2 className="text-[16px] font-semibold text-zoru-ink">Pre-built templates</h2>
+            <p className="mt-1 text-[13px] text-zoru-ink-muted">
               Start from a working automation and customise it for your workflow.
             </p>
           </div>
@@ -720,8 +720,8 @@ export function AutomationsDocsClient({
             {TEMPLATES.map((tpl) => (
               <Card key={tpl.id} className="flex flex-col gap-3 p-4">
                 <div className="flex-1">
-                  <h3 className="text-[14px] font-semibold text-foreground">{tpl.title}</h3>
-                  <p className="mt-1 text-[12.5px] text-muted-foreground">{tpl.description}</p>
+                  <h3 className="text-[14px] font-semibold text-zoru-ink">{tpl.title}</h3>
+                  <p className="mt-1 text-[12.5px] text-zoru-ink-muted">{tpl.description}</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-1">
                   <Badge variant="outline" className="text-[11px]">

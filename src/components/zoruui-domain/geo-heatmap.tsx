@@ -73,7 +73,7 @@ export function GeoHeatmap({ data, isLoading }: GeoHeatmapProps) {
                 <div className="flex-1 min-w-0">
                   <div className="h-1.5 w-full rounded-full bg-zoru-surface-2 overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-[#6366f1] transition-all"
+                      className="h-full rounded-full bg-zoru-ink transition-all"
                       style={{ width: `${barWidth}%` }}
                     />
                   </div>

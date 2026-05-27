@@ -21,7 +21,7 @@ async function EditShell({ id }: { id: string }) {
                 title="Error"
                 subtitle="Failed to load structure"
             >
-                <div className="flex flex-col items-center justify-center p-8 space-y-4 rounded-xl border border-red-200 bg-red-50 text-red-600">
+                <div className="flex flex-col items-center justify-center p-8 space-y-4 rounded-xl border border-zoru-line bg-zoru-surface-2 text-zoru-ink">
                     <p className="font-medium text-lg">Data fetching failed.</p>
                     <p className="text-sm">We could not retrieve the requested salary structure. It might not exist or there is a network issue.</p>
                 </div>

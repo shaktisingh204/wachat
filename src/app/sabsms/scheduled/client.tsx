@@ -234,13 +234,13 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
             <div className="flex border rounded-md overflow-hidden bg-white">
               <button 
                 onClick={() => setViewType("calendar")}
-                className={`px-3 py-1.5 text-sm font-medium ${viewType === "calendar" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-700"}`}
+                className={`px-3 py-1.5 text-sm font-medium ${viewType === "calendar" ? "bg-zoru-surface-2 text-zoru-ink" : "text-zoru-ink hover:text-zoru-ink"}`}
               >
                 Calendar
               </button>
               <button 
                 onClick={() => setViewType("list")}
-                className={`px-3 py-1.5 text-sm font-medium border-l ${viewType === "list" ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-700"}`}
+                className={`px-3 py-1.5 text-sm font-medium border-l ${viewType === "list" ? "bg-zoru-surface-2 text-zoru-ink" : "text-zoru-ink hover:text-zoru-ink"}`}
               >
                 List
               </button>
@@ -251,20 +251,20 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
       }
     >
       {nextSend && (
-        <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100">
+        <Card className="mb-6 bg-gradient-to-r from-zoru-surface-2 to-zoru-surface-2 border-zoru-line">
           <ZoruCardContent className="p-4 flex items-center justify-between">
             <div className="flex items-center">
-              <Clock className="w-5 h-5 text-blue-600 mr-3" />
+              <Clock className="w-5 h-5 text-zoru-ink mr-3" />
               <div>
-                <h3 className="text-sm font-semibold text-blue-900">Next Scheduled Send: {nextSend.name}</h3>
-                <p className="text-xs text-blue-700 mt-1">
+                <h3 className="text-sm font-semibold text-zoru-ink">Next Scheduled Send: {nextSend.name}</h3>
+                <p className="text-xs text-zoru-ink mt-1">
                   Scheduled for {format(new Date(nextSend.sendAt), "PPP p")} Local ({new Date(nextSend.sendAt).toISOString().substring(11, 16)} UTC)
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-blue-900 tabular-nums">{getCountdownString(new Date(nextSend.sendAt))}</div>
-              <div className="text-xs text-blue-700 uppercase tracking-wider">Countdown</div>
+              <div className="text-2xl font-bold text-zoru-ink tabular-nums">{getCountdownString(new Date(nextSend.sendAt))}</div>
+              <div className="text-xs text-zoru-ink uppercase tracking-wider">Countdown</div>
             </div>
           </ZoruCardContent>
         </Card>
@@ -290,7 +290,7 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
                     <button
                       key={v}
                       onClick={() => setCalView(v as any)}
-                      className={`px-3 py-1 text-xs uppercase ${calView === v ? "bg-slate-100 text-slate-900" : "text-slate-500"} border-r last:border-0`}
+                      className={`px-3 py-1 text-xs uppercase ${calView === v ? "bg-zoru-surface-2 text-zoru-ink" : "text-zoru-ink"} border-r last:border-0`}
                     >
                       {v}
                     </button>
@@ -298,9 +298,9 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
                 </div>
               </ZoruCardHeader>
               <ZoruCardContent>
-                <div className="grid grid-cols-7 gap-px bg-slate-200 border border-slate-200">
+                <div className="grid grid-cols-7 gap-px bg-zoru-surface-2 border border-zoru-line">
                   {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
-                    <div key={d} className="bg-slate-50 p-2 text-xs font-medium text-slate-500 text-center">{d}</div>
+                    <div key={d} className="bg-zoru-surface-2 p-2 text-xs font-medium text-zoru-ink text-center">{d}</div>
                   ))}
                   {gridCells.map((c, i) => {
                     const d = parseISO(c.iso);
@@ -308,16 +308,16 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
                     return (
                       <div 
                         key={i} 
-                        className={`bg-white min-h-[120px] p-2 relative ${!c.inMonth ? "opacity-50 bg-slate-50" : ""}`}
+                        className={`bg-white min-h-[120px] p-2 relative ${!c.inMonth ? "opacity-50 bg-zoru-surface-2" : ""}`}
                         onDragOver={(e) => e.preventDefault()}
                         onDrop={(e) => handleDrop(e, c.iso)}
                       >
                         <div className="flex justify-between items-start mb-1">
-                          <span className={`text-sm font-medium ${isToday ? "bg-slate-900 text-white rounded-full w-6 h-6 flex items-center justify-center" : "text-slate-700"}`}>
+                          <span className={`text-sm font-medium ${isToday ? "bg-zoru-ink text-white rounded-full w-6 h-6 flex items-center justify-center" : "text-zoru-ink"}`}>
                             {format(d, "d")}
                           </span>
                           {c.holiday && (
-                            <span className="text-[10px] text-emerald-600 bg-emerald-50 px-1 rounded truncate max-w-[80px]">
+                            <span className="text-[10px] text-zoru-ink bg-zoru-surface-2 px-1 rounded truncate max-w-[80px]">
                               {c.holiday.name}
                             </span>
                           )}
@@ -329,15 +329,15 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
                               draggable
                               onDragStart={(e) => handleDragStart(e, s.id)}
                               onClick={() => openDrawer(s)}
-                              className="text-xs p-1.5 rounded bg-blue-50 border border-blue-100 text-blue-800 cursor-pointer hover:bg-blue-100 flex items-start shadow-sm"
+                              className="text-xs p-1.5 rounded bg-zoru-surface-2 border border-zoru-line text-zoru-ink cursor-pointer hover:bg-zoru-surface-2 flex items-start shadow-sm"
                             >
                               <GripVertical className="w-3 h-3 mr-1 opacity-50 flex-shrink-0 mt-0.5" />
                               <div className="truncate flex-1 flex flex-col">
                                 <span className="font-medium truncate">{format(new Date(s.sendAt), "HH:mm")} {s.name}</span>
-                                <span className="text-[10px] text-blue-600/70 truncate">{new Date(s.sendAt).toISOString().substring(11, 16)} UTC</span>
+                                <span className="text-[10px] text-zoru-ink/70 truncate">{new Date(s.sendAt).toISOString().substring(11, 16)} UTC</span>
                               </div>
-                              {quietConflicts.has(s.id) && <AlertCircle className="w-3 h-3 text-rose-500 ml-1 flex-shrink-0 mt-0.5" />}
-                              {campaignConflicts.has(s.id) && <AlertCircle className="w-3 h-3 text-amber-500 ml-1 flex-shrink-0 mt-0.5" />}
+                              {quietConflicts.has(s.id) && <AlertCircle className="w-3 h-3 text-zoru-ink ml-1 flex-shrink-0 mt-0.5" />}
+                              {campaignConflicts.has(s.id) && <AlertCircle className="w-3 h-3 text-zoru-ink ml-1 flex-shrink-0 mt-0.5" />}
                             </div>
                           ))}
                         </div>
@@ -359,12 +359,12 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
                       const dt = new Date(r.sendAt);
                       return (
                         <div className="flex flex-col">
-                          <span className="font-medium text-slate-900">{format(dt, "MMM d, HH:mm")} (Local)</span>
-                          <span className="text-[10px] text-slate-500">{dt.toISOString().substring(11, 16)} (UTC)</span>
+                          <span className="font-medium text-zoru-ink">{format(dt, "MMM d, HH:mm")} (Local)</span>
+                          <span className="text-[10px] text-zoru-ink">{dt.toISOString().substring(11, 16)} (UTC)</span>
                         </div>
                       );
                     } },
-                    { id: "name", header: "Name", render: r => <div className="font-medium text-slate-900">{r.name}</div> },
+                    { id: "name", header: "Name", render: r => <div className="font-medium text-zoru-ink">{r.name}</div> },
                     { id: "sender", header: "Sender", render: r => <Badge variant="outline">{r.senderId}</Badge> },
                     { id: "count", header: "Recipients", render: r => r.recipientCount.toLocaleString() },
                     { id: "status", header: "Status", render: r => <Badge>{r.status}</Badge> }
@@ -385,24 +385,24 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
               </ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent>
-              <p className="text-xs text-slate-500 mb-3">Drag drafts onto the calendar to schedule them.</p>
+              <p className="text-xs text-zoru-ink mb-3">Drag drafts onto the calendar to schedule them.</p>
               <div className="space-y-2">
                 {unscheduled.map(u => (
                   <div
                     key={u.id}
                     draggable
                     onDragStart={(e) => handleDragStart(e, u.id)}
-                    className="p-2 border rounded text-sm bg-white cursor-grab hover:border-slate-400 flex items-center"
+                    className="p-2 border rounded text-sm bg-white cursor-grab hover:border-zoru-line flex items-center"
                   >
-                    <GripVertical className="w-4 h-4 mr-2 text-slate-400" />
+                    <GripVertical className="w-4 h-4 mr-2 text-zoru-ink-muted" />
                     <div className="flex-1 truncate">
                       <div className="font-medium">{u.name}</div>
-                      <div className="text-xs text-slate-500">{u.recipientCount} recipients</div>
+                      <div className="text-xs text-zoru-ink">{u.recipientCount} recipients</div>
                     </div>
                   </div>
                 ))}
                 {unscheduled.length === 0 && (
-                  <div className="text-center p-4 border border-dashed rounded text-sm text-slate-500">
+                  <div className="text-center p-4 border border-dashed rounded text-sm text-zoru-ink">
                     No drafts available.
                   </div>
                 )}
@@ -423,30 +423,30 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <span className="text-xs text-slate-500">Scheduled For</span>
+                <span className="text-xs text-zoru-ink">Scheduled For</span>
                 <div className="font-medium">{format(new Date(selectedSend.sendAt), "PPP p")} (Local)</div>
-                <div className="text-xs text-slate-500">{new Date(selectedSend.sendAt).toISOString().substring(0, 16).replace("T", " ")} (UTC)</div>
+                <div className="text-xs text-zoru-ink">{new Date(selectedSend.sendAt).toISOString().substring(0, 16).replace("T", " ")} (UTC)</div>
               </div>
               <div className="space-y-1">
-                <span className="text-xs text-slate-500">Recipient TZ</span>
+                <span className="text-xs text-zoru-ink">Recipient TZ</span>
                 <div className="font-medium flex items-center">
-                  <Globe className="w-4 h-4 mr-1 text-slate-400" />
+                  <Globe className="w-4 h-4 mr-1 text-zoru-ink-muted" />
                   {selectedSend.recipientTz || "UTC"}
                 </div>
               </div>
               <div className="space-y-1">
-                <span className="text-xs text-slate-500">Sender</span>
+                <span className="text-xs text-zoru-ink">Sender</span>
                 <div><Badge variant="outline">{selectedSend.senderId}</Badge></div>
               </div>
               <div className="space-y-1">
-                <span className="text-xs text-slate-500">Recipients</span>
+                <span className="text-xs text-zoru-ink">Recipients</span>
                 <div className="font-medium">{selectedSend.recipientCount.toLocaleString()}</div>
               </div>
             </div>
 
             {selectedSend.cron && (
-              <div className="p-3 bg-slate-50 rounded border text-sm">
-                <div className="flex items-center text-slate-700 font-medium mb-1">
+              <div className="p-3 bg-zoru-surface-2 rounded border text-sm">
+                <div className="flex items-center text-zoru-ink font-medium mb-1">
                   <RefreshCcw className="w-4 h-4 mr-2" />
                   Recurring Schedule
                 </div>
@@ -455,14 +455,14 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
             )}
 
             {quietConflicts.has(selectedSend.id) && (
-              <div className="p-3 bg-rose-50 border border-rose-200 rounded text-sm text-rose-800 flex items-start">
+              <div className="p-3 bg-zoru-surface-2 border border-zoru-line rounded text-sm text-zoru-ink flex items-start">
                 <AlertCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
                 This send conflicts with configured quiet hours for some recipients.
               </div>
             )}
             
             {campaignConflicts.has(selectedSend.id) && (
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded text-sm text-amber-800 flex items-start">
+              <div className="p-3 bg-zoru-surface-2 border border-zoru-line rounded text-sm text-zoru-ink flex items-start">
                 <AlertCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
                 Sender capacity overlap detected with another campaign.
               </div>
@@ -488,14 +488,14 @@ export function ScheduledSendsClient({ workspaceId }: { workspaceId: string }) {
               <div className="space-y-3">
                 {auditLogs.map(log => (
                   <div key={log.id} className="text-sm flex gap-3">
-                    <span className="text-slate-400 w-16 flex-shrink-0">{format(new Date(log.at), "HH:mm")}</span>
+                    <span className="text-zoru-ink-muted w-16 flex-shrink-0">{format(new Date(log.at), "HH:mm")}</span>
                     <div>
                       <span className="font-medium">{log.action}</span>
-                      {log.meta && <span className="text-slate-500 ml-2">{JSON.stringify(log.meta)}</span>}
+                      {log.meta && <span className="text-zoru-ink ml-2">{JSON.stringify(log.meta)}</span>}
                     </div>
                   </div>
                 ))}
-                {auditLogs.length === 0 && <span className="text-slate-500 text-sm">No recent activity.</span>}
+                {auditLogs.length === 0 && <span className="text-zoru-ink text-sm">No recent activity.</span>}
               </div>
             </div>
           </div>

@@ -34,13 +34,13 @@ export default async function SabsmsNumberDetailPage({ params }: PageProps) {
           { label: "Not found" },
         ]}
       >
-        <div className="flex h-64 flex-col items-center justify-center space-y-4 rounded-lg border border-dashed border-slate-300 bg-slate-50">
-          <p className="text-sm text-slate-500">
+        <div className="flex h-64 flex-col items-center justify-center space-y-4 rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2">
+          <p className="text-sm text-zoru-ink">
             This number has been released or does not exist in your workspace.
           </p>
           <a
             href="/sabsms/numbers"
-            className="inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-slate-50 hover:bg-slate-900/90"
+            className="inline-flex items-center justify-center rounded-md bg-zoru-ink px-4 py-2 text-sm font-medium text-white hover:bg-zoru-ink/90"
           >
             Back to numbers
           </a>
@@ -68,7 +68,7 @@ export default async function SabsmsNumberDetailPage({ params }: PageProps) {
         <>
           Health, volume, cost and assignments for a single sender. Every
           override saved here lands in{" "}
-          <code className="rounded bg-slate-100 px-1">sabsms_numbers</code>
+          <code className="rounded bg-zoru-surface-2 px-1">sabsms_numbers</code>
           ; release / port-out / test-send write an audit-log entry that
           surfaces in the side drawer.
         </>

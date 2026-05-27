@@ -42,7 +42,7 @@ export default async function SabsmsContactDetailPage({ params }: PageProps) {
           { label: "Detail" },
         ]}
       >
-        <div className="text-sm text-slate-500">
+        <div className="text-sm text-zoru-ink">
           Please sign in to see this contact.
         </div>
       </SabsmsPageShell>
@@ -65,7 +65,7 @@ export default async function SabsmsContactDetailPage({ params }: PageProps) {
         ]}
       >
         <div className="space-y-3">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-zoru-ink">
             We could not find a contact for &ldquo;{decoded}&rdquo;. It may
             have been deleted, or the phone has not yet exchanged any
             messages with this workspace.
@@ -83,7 +83,7 @@ export default async function SabsmsContactDetailPage({ params }: PageProps) {
       eyebrow="Contact"
       title={contact.name ?? contact.phone}
       description={
-        <span className="font-mono text-xs text-slate-500">
+        <span className="font-mono text-xs text-zoru-ink">
           {contact.phone} · {contact.country} · {contact.source}
         </span>
       }

@@ -33,7 +33,6 @@ use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{document_to_clean_json, mongo::MongoHandle};
-use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{

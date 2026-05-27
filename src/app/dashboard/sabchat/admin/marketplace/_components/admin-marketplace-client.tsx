@@ -31,7 +31,7 @@ export function AdminMarketplaceClient({ initialData }: { initialData: any[] }) 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
             {initialData.length === 0 ? (
-                <div className="col-span-full text-center text-muted-foreground p-8">
+                <div className="col-span-full text-center text-zoru-ink-muted p-8">
                     No marketplace apps available.
                 </div>
             ) : (
@@ -41,7 +41,7 @@ export function AdminMarketplaceClient({ initialData }: { initialData: any[] }) 
                             {app.iconUrl ? (
                                 <img src={app.iconUrl} alt={app.name} className="w-10 h-10 rounded-md object-contain" />
                             ) : (
-                                <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center font-bold text-lg shrink-0">
+                                <div className="w-10 h-10 rounded-md bg-zoru-surface-2 flex items-center justify-center font-bold text-lg shrink-0">
                                     {app.name.charAt(0)}
                                 </div>
                             )}
@@ -50,7 +50,7 @@ export function AdminMarketplaceClient({ initialData }: { initialData: any[] }) 
                                 <ZoruCardDescription className="text-xs">{app.provider}</ZoruCardDescription>
                             </div>
                         </ZoruCardHeader>
-                        <ZoruCardContent className="flex-1 text-sm text-muted-foreground pt-4">
+                        <ZoruCardContent className="flex-1 text-sm text-zoru-ink-muted pt-4">
                             {app.description}
                         </ZoruCardContent>
                         <ZoruCardFooter>

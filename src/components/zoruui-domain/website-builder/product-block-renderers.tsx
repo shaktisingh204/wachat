@@ -14,7 +14,7 @@ interface ProductBlockProps {
 }
 
 const Placeholder = ({ text }: { text: string }) => (
-    <div className="bg-muted p-4 text-center text-muted-foreground rounded-lg border-2 border-dashed">
+    <div className="bg-zoru-surface-2 p-4 text-center text-zoru-ink-muted rounded-lg border-2 border-dashed">
         {text}
     </div>
 );
@@ -49,13 +49,13 @@ export const ProductTitleRenderer: React.FC<ProductBlockProps> = ({ product, set
 };
 
 export const ProductPriceRenderer: React.FC<ProductBlockProps> = ({ product, settings }) => {
-    if (!product) return <p className="text-2xl text-primary font-semibold">$99.99</p>;
+    if (!product) return <p className="text-2xl text-zoru-ink font-semibold">$99.99</p>;
 
     const alignment = settings.textAlign || 'left';
     const alignClass = `text-${alignment}`;
 
     return (
-        <p className={cn("text-2xl text-primary font-semibold", alignClass)}>
+        <p className={cn("text-2xl text-zoru-ink font-semibold", alignClass)}>
             {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(product.price)}
         </p>
     );
@@ -64,15 +64,15 @@ export const ProductPriceRenderer: React.FC<ProductBlockProps> = ({ product, set
 export const ProductDescriptionRenderer: React.FC<ProductBlockProps> = ({ product, settings }) => {
      if (!product) return (
         <div className="space-y-2">
-            <p className="bg-muted h-4 w-full rounded-full"></p>
-            <p className="bg-muted h-4 w-5/6 rounded-full"></p>
+            <p className="bg-zoru-surface-2 h-4 w-full rounded-full"></p>
+            <p className="bg-zoru-surface-2 h-4 w-5/6 rounded-full"></p>
         </div>
      );
 
     const alignment = settings.textAlign || 'left';
     const alignClass = `text-${alignment}`;
 
-    return <p className={cn("text-muted-foreground", alignClass)}>{product.description}</p>;
+    return <p className={cn("text-zoru-ink-muted", alignClass)}>{product.description}</p>;
 };
 
 export const ProductAddToCartRenderer: React.FC<ProductBlockProps> = ({ product, settings }) => {
@@ -90,12 +90,12 @@ export const ProductBreadcrumbsRenderer: React.FC<ProductBlockProps> = ({ produc
     const alignClass = `justify-${alignment}`;
 
     return (
-        <div className={cn("flex items-center gap-2 text-sm text-muted-foreground", alignClass)}>
+        <div className={cn("flex items-center gap-2 text-sm text-zoru-ink-muted", alignClass)}>
             <span>Home</span>
             <span>/</span>
             <span>Products</span>
             <span>/</span>
-            <span className="text-foreground">{product?.name || 'Product'}</span>
+            <span className="text-zoru-ink">{product?.name || 'Product'}</span>
         </div>
     );
 };

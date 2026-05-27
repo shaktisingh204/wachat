@@ -251,7 +251,7 @@ export function DebugConsolePanel({
     >
       {/* ── Header ───────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 border-b border-[var(--gray-4)] bg-[var(--gray-2)] px-3 py-2 shrink-0">
-        <LuTerminal className="h-3.5 w-3.5 text-[#f76808]" strokeWidth={2} />
+        <LuTerminal className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={2} />
         <span className="flex-1 text-[12.5px] font-semibold text-[var(--gray-12)]">
           {title}
         </span>
@@ -263,7 +263,7 @@ export function DebugConsolePanel({
           className={
             'flex h-6 w-6 items-center justify-center rounded-md transition-colors active:scale-95 ' +
             (paused
-              ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300'
+              ? 'bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]')
           }
         >
@@ -333,7 +333,7 @@ export function DebugConsolePanel({
                   className={
                     'inline-flex min-w-[16px] items-center justify-center rounded px-1 text-[10px] font-semibold tabular-nums ' +
                     (active
-                      ? 'bg-[#fff4ee] text-[#f76808]'
+                      ? 'bg-zoru-surface text-zoru-ink'
                       : 'bg-[var(--gray-3)] text-[var(--gray-10)]')
                   }
                 >
@@ -344,7 +344,7 @@ export function DebugConsolePanel({
           );
         })}
         {paused ? (
-          <span className="ml-auto self-center rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+          <span className="ml-auto self-center rounded bg-zoru-surface-2 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
             Paused
           </span>
         ) : null}
@@ -431,16 +431,16 @@ function EmptyState({ message }: { message: string }) {
 function LogRow({ log }: { log: DebugLog }) {
   const tone =
     log.level === 'error'
-      ? 'text-red-700 dark:text-red-400'
+      ? 'text-zoru-ink dark:text-zoru-ink-muted'
       : log.level === 'warn'
-        ? 'text-amber-700 dark:text-amber-400'
+        ? 'text-zoru-ink dark:text-zoru-ink-muted'
         : 'text-[var(--gray-10)]';
 
   const badge =
     log.level === 'error'
-      ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+      ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
       : log.level === 'warn'
-        ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+        ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
         : 'bg-[var(--gray-3)] text-[var(--gray-10)]';
 
   return (

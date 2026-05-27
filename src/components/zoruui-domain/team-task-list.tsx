@@ -33,9 +33,9 @@ import { format, isPast } from 'date-fns';
 import { Trash2 } from 'lucide-react';
 
 const priorityConfig = {
-    High: { color: 'bg-red-500', label: 'High' },
-    Medium: { color: 'bg-yellow-500', label: 'Medium' },
-    Low: { color: 'bg-green-500', label: 'Low' },
+    High: { color: 'bg-zoru-ink', label: 'High' },
+    Medium: { color: 'bg-zoru-ink', label: 'Medium' },
+    Low: { color: 'bg-zoru-ink', label: 'Low' },
 };
 
 export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask> & { assigneeName?: string, assigneeAvatar?: string })[], onTaskUpdated: () => void }) {
@@ -93,8 +93,8 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
                                                 <Select value={task.status} onValueChange={(val) => handleStatusChange(task._id.toString(), val as any)}>
                                                     <ZoruSelectTrigger className={cn(
                                                         'h-8 text-xs w-32',
-                                                        task.status === 'Completed' && 'border-green-500 text-green-600',
-                                                        task.status === 'In Progress' && 'border-blue-500 text-blue-600'
+                                                        task.status === 'Completed' && 'border-zoru-line text-zoru-ink',
+                                                        task.status === 'In Progress' && 'border-zoru-line text-zoru-ink'
                                                     )}>
                                                         <ZoruSelectValue />
                                                     </ZoruSelectTrigger>
@@ -106,10 +106,10 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
                                                 </Select>
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <p className={cn("font-medium", task.status === 'Completed' && 'line-through text-muted-foreground')}>
+                                                <p className={cn("font-medium", task.status === 'Completed' && 'line-through text-zoru-ink-muted')}>
                                                     {task.title}
                                                 </p>
-                                                <p className="text-xs text-muted-foreground line-clamp-1">{task.description}</p>
+                                                <p className="text-xs text-zoru-ink-muted line-clamp-1">{task.description}</p>
                                             </ZoruTableCell>
                                             <ZoruTableCell>
                                                 {task.assignedTo ? (
@@ -118,12 +118,12 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
                                                             <ZoruAvatarImage src={task.assigneeAvatar || ''} />
                                                             <ZoruAvatarFallback>{task.assigneeName?.charAt(0) || 'U'}</ZoruAvatarFallback>
                                                         </Avatar>
-                                                        <span className="text-sm text-muted-foreground">{task.assigneeName || 'Unknown'}</span>
+                                                        <span className="text-sm text-zoru-ink-muted">{task.assigneeName || 'Unknown'}</span>
                                                     </div>
-                                                ) : <span className="text-xs text-muted-foreground">Unassigned</span>}
+                                                ) : <span className="text-xs text-zoru-ink-muted">Unassigned</span>}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <span className={cn('text-sm', isOverdue && 'text-red-500 font-semibold')}>
+                                                <span className={cn('text-sm', isOverdue && 'text-zoru-ink font-semibold')}>
                                                     {task.dueDate ? format(new Date(task.dueDate), 'PPP') : 'No due date'}
                                                 </span>
                                             </ZoruTableCell>
@@ -132,7 +132,7 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleDelete(task._id.toString())} disabled={isUpdating}>
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                    <Trash2 className="h-4 w-4 text-zoru-ink" />
                                                 </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>
@@ -140,7 +140,7 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
                                 })
                             ) : (
                                 <ZoruTableRow>
-                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-muted-foreground">No tasks in this category.</ZoruTableCell>
+                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-zoru-ink-muted">No tasks in this category.</ZoruTableCell>
                                 </ZoruTableRow>
                             )}
                         </ZoruTableBody>

@@ -249,7 +249,7 @@ export function PaymentInputSettings({ block, onBlockChange, variables = [] }: P
               ))}
             </select>
             {credsError && (
-              <p className="mt-1 text-[10.5px] text-red-400">{credsError}</p>
+              <p className="mt-1 text-[10.5px] text-zoru-ink-muted">{credsError}</p>
             )}
             {!credsLoading && credentials.length === 0 && !credsError && (
               <p className="mt-1 text-[10.5px] text-[var(--gray-8)]">

@@ -197,7 +197,7 @@ export default function ClientSignupPage() {
             <Label htmlFor="company_name">Company name</Label>
             <Input id="company_name" {...register('company_name')} />
             {errors.company_name && (
-              <span className="text-xs text-red-500">{errors.company_name.message}</span>
+              <span className="text-xs text-zoru-ink">{errors.company_name.message}</span>
             )}
           </div>
 
@@ -205,7 +205,7 @@ export default function ClientSignupPage() {
             <Label htmlFor="contact_name">Contact name</Label>
             <Input id="contact_name" {...register('contact_name')} />
             {errors.contact_name && (
-              <span className="text-xs text-red-500">{errors.contact_name.message}</span>
+              <span className="text-xs text-zoru-ink">{errors.contact_name.message}</span>
             )}
           </div>
 
@@ -219,7 +219,7 @@ export default function ClientSignupPage() {
                 {...register('email')}
               />
               {errors.email && (
-                <span className="text-xs text-red-500">{errors.email.message}</span>
+                <span className="text-xs text-zoru-ink">{errors.email.message}</span>
               )}
             </div>
             <div className="grid gap-2">
@@ -231,7 +231,7 @@ export default function ClientSignupPage() {
                 {...register('password')}
               />
               {errors.password && (
-                <span className="text-xs text-red-500">{errors.password.message}</span>
+                <span className="text-xs text-zoru-ink">{errors.password.message}</span>
               )}
             </div>
           </div>
@@ -245,7 +245,7 @@ export default function ClientSignupPage() {
                 {...register('mobile')}
               />
               {errors.mobile && (
-                <span className="text-xs text-red-500">{errors.mobile.message}</span>
+                <span className="text-xs text-zoru-ink">{errors.mobile.message}</span>
               )}
             </div>
             <div className="grid gap-2">
@@ -269,7 +269,7 @@ export default function ClientSignupPage() {
                 )}
               />
               {errors.country && (
-                <span className="text-xs text-red-500">{errors.country.message}</span>
+                <span className="text-xs text-zoru-ink">{errors.country.message}</span>
               )}
             </div>
           </div>
@@ -283,7 +283,7 @@ export default function ClientSignupPage() {
               {...register('website')}
             />
             {errors.website && (
-              <span className="text-xs text-red-500">{errors.website.message}</span>
+              <span className="text-xs text-zoru-ink">{errors.website.message}</span>
             )}
           </div>
 
@@ -314,7 +314,7 @@ export default function ClientSignupPage() {
               </span>
             </label>
             {errors.agree_to_terms && (
-              <span className="text-xs text-red-500">{errors.agree_to_terms.message}</span>
+              <span className="text-xs text-zoru-ink">{errors.agree_to_terms.message}</span>
             )}
           </div>
 

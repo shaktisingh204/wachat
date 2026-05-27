@@ -26,7 +26,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-4 bg-red-50 text-red-600 rounded-md border border-red-200">
+        <div className="p-4 bg-zoru-surface-2 text-zoru-ink rounded-md border border-zoru-line">
           <h2 className="text-lg font-bold mb-2">Something went wrong.</h2>
           <p className="text-sm">{this.state.error?.message}</p>
           <Button className="mt-4" onClick={() => this.setState({ hasError: false, error: null })}>
@@ -153,7 +153,7 @@ function CharacterCounterContent() {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 rounded-[var(--zoru-radius-lg)] bg-red-50 text-red-600 flex items-center text-sm border border-red-200">
+        <div className="mb-4 p-3 rounded-[var(--zoru-radius-lg)] bg-zoru-surface-2 text-zoru-ink flex items-center text-sm border border-zoru-line">
           <AlertCircle className="w-4 h-4 mr-2 shrink-0" />
           <span>{error}</span>
         </div>
@@ -183,9 +183,9 @@ function CharacterCounterContent() {
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-4">
-        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.total}</div><div className="text-xs text-muted-foreground">With spaces</div></ZoruCardContent></Card>
-        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.noSpaces}</div><div className="text-xs text-muted-foreground">Without spaces</div></ZoruCardContent></Card>
-        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.words}</div><div className="text-xs text-muted-foreground">Words</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.total}</div><div className="text-xs text-zoru-ink-muted">With spaces</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.noSpaces}</div><div className="text-xs text-zoru-ink-muted">Without spaces</div></ZoruCardContent></Card>
+        <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.words}</div><div className="text-xs text-zoru-ink-muted">Words</div></ZoruCardContent></Card>
       </div>
 
       <Card>
@@ -198,12 +198,12 @@ function CharacterCounterContent() {
               <div key={label} className="space-y-1">
                 <div className="flex justify-between text-xs">
                   <span>{label}</span>
-                  <span className={over ? 'text-red-600' : 'text-muted-foreground'}>
+                  <span className={over ? 'text-zoru-ink' : 'text-zoru-ink-muted'}>
                     {stats.total} / {limit}
                   </span>
                 </div>
-                <div className="h-1.5 bg-muted rounded">
-                  <div className={`h-full rounded ${over ? 'bg-red-500' : 'bg-primary'}`} style={{ width: `${pct}%` }} />
+                <div className="h-1.5 bg-zoru-surface-2 rounded">
+                  <div className={`h-full rounded ${over ? 'bg-zoru-ink' : 'bg-zoru-ink'}`} style={{ width: `${pct}%` }} />
                 </div>
               </div>
             );

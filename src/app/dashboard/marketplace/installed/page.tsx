@@ -190,7 +190,7 @@ function StarRating({ rating: initialRating, count: initialCount, installId }: {
 
     return (
         <div className="flex items-center gap-1 mt-1" aria-label={`Rating: ${initialRating} out of 5 stars with ${initialCount} reviews`}>
-            <div className="flex items-center text-amber-500" onMouseLeave={() => setHoveredRating(null)}>
+            <div className="flex items-center text-zoru-ink" onMouseLeave={() => setHoveredRating(null)}>
                 {[...Array(5)].map((_, i) => {
                     const starValue = i + 1;
                     const isFilled = starValue <= Math.floor(displayRating);

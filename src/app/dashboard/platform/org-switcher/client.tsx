@@ -71,7 +71,7 @@ export default function OrgSwitcherClient({ initialData }: OrgSwitcherClientProp
             <div className="mt-6 flex items-center justify-between border-t border-zoru-line pt-4">
               <span className="text-sm font-medium capitalize px-2 py-1 bg-zoru-bg border border-zoru-line rounded-md">{item.role}</span>
               <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 transition-opacity" disabled={isPending}>
-                <Trash2 className="w-4 h-4 text-red-500" />
+                <Trash2 className="w-4 h-4 text-zoru-ink" />
               </Button>
             </div>
           </Card>

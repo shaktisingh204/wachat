@@ -30,7 +30,7 @@ const PIE_COLORS = [
 export function SalesLineChart({ lineData }: { lineData: any[] }) {
   if (lineData.length === 0) {
     return (
-      <div className="py-8 text-center text-[13px] text-muted-foreground">
+      <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
         No closed deals in this range.
       </div>
     );
@@ -100,7 +100,7 @@ export function SalesPieChart({ pieData }: { pieData: any[] }) {
 
   if (pieData.length === 0) {
     return (
-      <div className="py-8 text-center text-[13px] text-muted-foreground">
+      <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
         No deals.
       </div>
     );

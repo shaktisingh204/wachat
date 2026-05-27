@@ -24,7 +24,7 @@ export function GettingStarted() {
                             2. Copy the bot token and paste it into{' '}
                             <Link
                                 href="/dashboard/telegram/connections"
-                                className="text-sky-500 hover:underline"
+                                className="text-zoru-ink hover:underline"
                             >
                                 Connections
                             </Link>

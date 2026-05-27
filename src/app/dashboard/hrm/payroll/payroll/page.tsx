@@ -290,7 +290,7 @@ export default function PayrollRunsListPage() {
                             size="icon"
                             onClick={() => setPendingDelete(row)}
                         >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="h-4 w-4 text-zoru-ink" />
                         </Button>
                     </div>
                 );

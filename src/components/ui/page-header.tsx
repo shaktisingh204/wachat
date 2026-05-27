@@ -79,11 +79,11 @@ export function PageHeader({
                     )}
 
                     <div className="min-w-0">
-                        <h1 className="truncate text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                        <h1 className="truncate text-2xl font-bold tracking-tight text-zoru-ink sm:text-3xl">
                             {title}
                         </h1>
                         {subtitle && (
-                            <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                            <p className="mt-0.5 truncate text-sm text-zoru-ink-muted">
                                 {subtitle}
                             </p>
                         )}

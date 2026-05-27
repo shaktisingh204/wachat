@@ -69,22 +69,22 @@ export function ContractStatusTimeline({
                 <div className="timeline-step flex flex-col items-center relative z-10 w-20">
                   <div
                     className={`h-10 w-10 rounded-full flex items-center justify-center border-2 transition-colors duration-300
-                      ${isError ? 'border-destructive bg-destructive/10 text-destructive' 
-                        : isActive ? 'border-primary bg-primary/10 text-primary' : 'border-muted bg-muted/20 text-muted-foreground'}`}
+                      ${isError ? 'border-destructive bg-zoru-ink/10 text-zoru-ink' 
+                        : isActive ? 'border-primary bg-zoru-ink/10 text-zoru-ink' : 'border-muted bg-zoru-surface-2/20 text-zoru-ink-muted'}`}
                   >
                     {step === 'draft' && <FileText className="h-5 w-5" />}
                     {step === 'sent' && <Send className="h-5 w-5" />}
                     {step === 'signed' && (isError ? <XCircle className="h-5 w-5" /> : <CheckCircle2 className="h-5 w-5" />)}
                   </div>
                   <span className={`mt-2 text-[11px] font-medium uppercase tracking-wider text-center
-                    ${isError ? 'text-destructive' : isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    ${isError ? 'text-zoru-ink' : isActive ? 'text-zoru-ink' : 'text-zoru-ink-muted'}`}>
                     {isError && step === 'signed' ? status : step}
                   </span>
                 </div>
                 {i < ALL_STEPS.length - 1 && (
                   <div className="flex-1 px-2">
                     <div className={`timeline-connector h-1 w-full rounded-full transition-colors duration-300
-                      ${isCompleted && !isTerminated ? 'bg-primary' : 'bg-muted'}`} 
+                      ${isCompleted && !isTerminated ? 'bg-zoru-ink' : 'bg-zoru-surface-2'}`} 
                     />
                   </div>
                 )}

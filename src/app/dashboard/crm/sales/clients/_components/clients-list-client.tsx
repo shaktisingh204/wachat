@@ -311,7 +311,7 @@ export function ClientsListClient({
             <StatCard label="Active" value={kpis.active.toLocaleString()} />
             <StatCard label="Archived" value={kpis.archived.toLocaleString()} />
             <StatCard label="Strategic" value={kpis.strategic.toLocaleString()} />
-            <div className="flex flex-1 flex-col gap-1 rounded-md border border-emerald-500/40 bg-zoru-surface-2 px-3 py-2.5">
+            <div className="flex flex-1 flex-col gap-1 rounded-md border border-zoru-line/40 bg-zoru-surface-2 px-3 py-2.5">
               <span className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
                 <CircleDollarSign className="h-3 w-3" /> ARR
               </span>
@@ -323,7 +323,7 @@ export function ClientsListClient({
         ) : null}
 
         {error ? (
-          <div className="rounded border border-red-500/40 bg-red-500/10 px-3 py-2 text-[12.5px] text-red-700 dark:text-red-400">
+          <div className="rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
             {error}
           </div>
         ) : null}

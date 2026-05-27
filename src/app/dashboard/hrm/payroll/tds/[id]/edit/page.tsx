@@ -30,21 +30,21 @@ export default async function EditTdsPage({
         >
             <Suspense 
                 fallback={
-                    <div className="p-6 animate-pulse space-y-6 bg-white rounded-xl shadow-sm border border-slate-200">
-                        <div className="h-8 bg-slate-100 rounded w-1/4"></div>
+                    <div className="p-6 animate-pulse space-y-6 bg-white rounded-xl shadow-sm border border-zoru-line">
+                        <div className="h-8 bg-zoru-surface-2 rounded w-1/4"></div>
                         <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="h-12 bg-slate-100 rounded w-full"></div>
-                            <div className="h-12 bg-slate-100 rounded w-full"></div>
+                            <div className="h-12 bg-zoru-surface-2 rounded w-full"></div>
+                            <div className="h-12 bg-zoru-surface-2 rounded w-full"></div>
                         </div>
                         <div className="grid gap-4 sm:grid-cols-3">
-                            <div className="h-12 bg-slate-100 rounded w-full"></div>
-                            <div className="h-12 bg-slate-100 rounded w-full"></div>
-                            <div className="h-12 bg-slate-100 rounded w-full"></div>
+                            <div className="h-12 bg-zoru-surface-2 rounded w-full"></div>
+                            <div className="h-12 bg-zoru-surface-2 rounded w-full"></div>
+                            <div className="h-12 bg-zoru-surface-2 rounded w-full"></div>
                         </div>
-                        <div className="h-24 bg-slate-100 rounded w-full mt-4"></div>
+                        <div className="h-24 bg-zoru-surface-2 rounded w-full mt-4"></div>
                         <div className="flex justify-between pt-4">
-                            <div className="h-10 bg-slate-100 rounded w-24"></div>
-                            <div className="h-10 bg-slate-100 rounded w-32"></div>
+                            <div className="h-10 bg-zoru-surface-2 rounded w-24"></div>
+                            <div className="h-10 bg-zoru-surface-2 rounded w-32"></div>
                         </div>
                     </div>
                 }

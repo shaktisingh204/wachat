@@ -478,7 +478,7 @@ function CreateAdForm() {
 
             <div className="flex gap-4 min-h-[600px]">
                 {/* Form card — always full width except at 2xl+ where preview joins in */}
-                <div className="flex flex-col min-w-0 flex-1 border rounded-xl bg-background overflow-hidden">
+                <div className="flex flex-col min-w-0 flex-1 border rounded-xl bg-zoru-surface overflow-hidden">
                     <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3">
                         <Button variant="ghost" size="icon-sm" asChild>
                             <Link href="/dashboard/ad-manager/campaigns">
@@ -538,7 +538,7 @@ function CreateAdForm() {
                         </div>
                     </div>
 
-                    <div className="border-t px-4 py-3 flex flex-wrap items-center justify-between gap-2 bg-background">
+                    <div className="border-t px-4 py-3 flex flex-wrap items-center justify-between gap-2 bg-zoru-surface">
                         <Button variant="ghost" size="sm" onClick={goPrev} disabled={step === 1}>
                             Previous
                         </Button>
@@ -549,7 +549,7 @@ function CreateAdForm() {
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="2xl:hidden bg-[#1877F2]/5 border-[#1877F2]/30 text-[#1877F2] hover:bg-[#1877F2]/10"
+                                        className="2xl:hidden bg-zoru-ink/5 border-zoru-line/30 text-zoru-ink hover:bg-zoru-ink/10"
                                     >
                                         <Eye className="h-4 w-4 mr-1" /> Preview
                                     </Button>
@@ -569,8 +569,8 @@ function CreateAdForm() {
                                                     <div className="text-lg font-semibold tabular-nums">
                                                         {formatNumber(reach.lower)} – {formatNumber(reach.upper)}
                                                     </div>
-                                                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                                                        <div className="h-full w-3/5 bg-gradient-to-r from-amber-400 to-green-500" />
+                                                    <div className="h-1.5 rounded-full bg-zoru-surface-2 overflow-hidden">
+                                                        <div className="h-full w-3/5 bg-gradient-to-r from-zoru-surface-2 to-zoru-ink" />
                                                     </div>
                                                     <div className="flex justify-between text-[10px] text-zoru-ink-muted">
                                                         <span>Specific</span><span>Broad</span>
@@ -583,13 +583,13 @@ function CreateAdForm() {
                             </Sheet>
                         </div>
                         {step < 3 ? (
-                            <Button size="sm" className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={goNext}>
+                            <Button size="sm" className="bg-zoru-ink hover:bg-zoru-ink/90 text-white" onClick={goNext}>
                                 Next
                             </Button>
                         ) : (
                             <Button
                                 size="sm"
-                                className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
+                                className="bg-zoru-ink hover:bg-zoru-ink/90 text-white"
                                 onClick={submit}
                                 disabled={submitting}
                             >
@@ -601,7 +601,7 @@ function CreateAdForm() {
                 </div>
 
                 {/* Inline preview — only at 2xl (1536px+) where there's guaranteed room */}
-                <aside className="hidden 2xl:flex flex-col w-[420px] shrink-0 bg-background border rounded-xl overflow-hidden">
+                <aside className="hidden 2xl:flex flex-col w-[420px] shrink-0 bg-zoru-surface border rounded-xl overflow-hidden">
                     <div className="px-3 py-2 border-b text-sm font-medium flex items-center gap-2 shrink-0">
                         <Eye className="h-4 w-4" /> Ad preview
                     </div>
@@ -614,8 +614,8 @@ function CreateAdForm() {
                                     <div className="text-base font-semibold tabular-nums">
                                         {formatNumber(reach.lower)} – {formatNumber(reach.upper)}
                                     </div>
-                                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                                        <div className="h-full w-3/5 bg-gradient-to-r from-amber-400 to-green-500" />
+                                    <div className="h-1.5 rounded-full bg-zoru-surface-2 overflow-hidden">
+                                        <div className="h-full w-3/5 bg-gradient-to-r from-zoru-surface-2 to-zoru-ink" />
                                     </div>
                                     <div className="flex justify-between text-[9px] text-zoru-ink-muted">
                                         <span>Specific</span><span>Broad</span>
@@ -636,7 +636,7 @@ function CreateAdForm() {
 
 function StepHeader({ current, setCurrent, max }: { current: Step; setCurrent: (s: Step) => void; max: Step }) {
     return (
-        <div className="flex items-center gap-1 bg-background border rounded-xl p-1.5">
+        <div className="flex items-center gap-1 bg-zoru-surface border rounded-xl p-1.5">
             {STEPS.map((s, i) => {
                 const active = current === s.id;
                 const done = current > s.id;
@@ -649,9 +649,9 @@ function StepHeader({ current, setCurrent, max }: { current: Step; setCurrent: (
                             onClick={() => setCurrent(s.id)}
                             className={cn(
                                 'flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors',
-                                active && 'bg-[#1877F2] text-white font-medium',
-                                !active && done && 'bg-muted hover:bg-muted/80',
-                                !active && !done && 'text-zoru-ink-muted hover:bg-muted/60',
+                                active && 'bg-zoru-ink text-white font-medium',
+                                !active && done && 'bg-zoru-surface-2 hover:bg-zoru-surface-2/80',
+                                !active && !done && 'text-zoru-ink-muted hover:bg-zoru-surface-2/60',
                                 s.id > max && 'opacity-50 cursor-not-allowed',
                             )}
                         >
@@ -660,8 +660,8 @@ function StepHeader({ current, setCurrent, max }: { current: Step; setCurrent: (
                                 className={cn(
                                     'h-5 w-5 p-0 rounded-full flex items-center justify-center text-[11px] font-semibold',
                                     active && 'bg-zoru-bg/20 text-white border-transparent',
-                                    !active && done && 'bg-green-500 text-white border-transparent',
-                                    !active && !done && 'bg-muted-foreground/20 border-transparent',
+                                    !active && done && 'bg-zoru-ink text-white border-transparent',
+                                    !active && !done && 'bg-zoru-surface-2-foreground/20 border-transparent',
                                 )}
                             >
                                 {done ? <Check className="h-3 w-3" /> : s.id}
@@ -692,9 +692,9 @@ function Section({
 }) {
     return (
         <ZoruCollapsible defaultOpen={defaultOpen}>
-            <div className="rounded-xl border bg-background">
-                <ZoruCollapsibleTrigger className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/50 rounded-t-xl data-[state=closed]:rounded-b-xl">
-                    <Icon className="h-4 w-4 text-[#1877F2]" />
+            <div className="rounded-xl border bg-zoru-surface">
+                <ZoruCollapsibleTrigger className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-zoru-surface-2/50 rounded-t-xl data-[state=closed]:rounded-b-xl">
+                    <Icon className="h-4 w-4 text-zoru-ink" />
                     <div className="flex-1">
                         <div className="text-sm font-semibold">{title}</div>
                         {description && <div className="text-xs text-zoru-ink-muted mt-0.5">{description}</div>}
@@ -711,7 +711,7 @@ function Section({
 function FieldError({ issue }: { issue?: ValidationIssue }) {
     if (!issue) return null;
     return (
-        <p className="flex items-center gap-1 text-xs text-destructive">
+        <p className="flex items-center gap-1 text-xs text-zoru-ink">
             <AlertTriangle className="h-3 w-3" /> {issue.message}
         </p>
     );
@@ -745,16 +745,16 @@ function Step1Campaign({
                         type="button"
                         onClick={() => setField('objective', obj.id)}
                         className={cn(
-                            'text-left p-4 rounded-xl border-2 transition-all bg-background',
+                            'text-left p-4 rounded-xl border-2 transition-all bg-zoru-surface',
                             state.objective === obj.id
-                                ? 'border-[#1877F2] ring-2 ring-[#1877F2]/20 shadow-sm'
-                                : 'border-border hover:border-[#1877F2]/40',
+                                ? 'border-zoru-line ring-2 ring-zoru-line/20 shadow-sm'
+                                : 'border-zoru-line hover:border-zoru-line/40',
                         )}
                     >
                         <div className="flex items-center gap-2 mb-1">
-                            <Sparkles className="h-4 w-4 text-[#1877F2]" />
+                            <Sparkles className="h-4 w-4 text-zoru-ink" />
                             <span className="font-medium">{obj.label}</span>
-                            {state.objective === obj.id && <Check className="ml-auto h-4 w-4 text-[#1877F2]" />}
+                            {state.objective === obj.id && <Check className="ml-auto h-4 w-4 text-zoru-ink" />}
                         </div>
                         <p className="text-xs text-zoru-ink-muted">{obj.description}</p>
                     </button>
@@ -807,7 +807,7 @@ function Step1Campaign({
                     <Switch
                         checked={state.cbo}
                         onCheckedChange={(v) => setField('cbo', v)}
-                        className="data-[state=checked]:bg-[#1877F2]"
+                        className="data-[state=checked]:bg-zoru-ink"
                     />
                 </div>
 
@@ -942,7 +942,7 @@ function Step2AdSet({
                                 key={c.id}
                                 className={cn(
                                     'flex items-center gap-2 rounded-lg border-2 p-3 cursor-pointer',
-                                    state.conversionLocation === c.id ? 'border-[#1877F2]' : 'border-border',
+                                    state.conversionLocation === c.id ? 'border-zoru-line' : 'border-zoru-line',
                                 )}
                             >
                                 <ZoruRadioGroupItem value={c.id} />
@@ -1099,7 +1099,7 @@ function Step2AdSet({
                     <Switch
                         checked={state.advantageAudience}
                         onCheckedChange={(v) => setField('advantageAudience', v)}
-                        className="data-[state=checked]:bg-[#1877F2]"
+                        className="data-[state=checked]:bg-zoru-ink"
                     />
                 </div>
 
@@ -1181,8 +1181,8 @@ function Step2AdSet({
                                             className={cn(
                                                 'text-xs px-2.5 py-1 rounded-full border transition-colors',
                                                 selected
-                                                    ? 'bg-[#1877F2] text-white border-[#1877F2]'
-                                                    : 'bg-background hover:bg-muted',
+                                                    ? 'bg-zoru-ink text-white border-zoru-line'
+                                                    : 'bg-zoru-surface hover:bg-zoru-surface-2',
                                             )}
                                         >
                                             {c.name}
@@ -1277,7 +1277,7 @@ function Step2AdSet({
                                             }
                                             className={cn(
                                                 'text-xs px-2.5 py-1 rounded-full border transition-colors',
-                                                sel ? 'bg-[#1877F2] text-white border-[#1877F2]' : 'bg-background hover:bg-muted',
+                                                sel ? 'bg-zoru-ink text-white border-zoru-line' : 'bg-zoru-surface hover:bg-zoru-surface-2',
                                             )}
                                         >
                                             {l.name}
@@ -1301,7 +1301,7 @@ function Step2AdSet({
                     <Switch
                         checked={state.advantagePlacements}
                         onCheckedChange={(v) => setField('advantagePlacements', v)}
-                        className="data-[state=checked]:bg-[#1877F2]"
+                        className="data-[state=checked]:bg-zoru-ink"
                     />
                 </div>
 
@@ -1313,7 +1313,7 @@ function Step2AdSet({
                                 {['mobile', 'desktop'].map((d) => (
                                     <label key={d} className={cn(
                                         'flex items-center gap-2 rounded-lg border-2 p-3 cursor-pointer flex-1',
-                                        state.devices.includes(d) ? 'border-[#1877F2]' : 'border-border',
+                                        state.devices.includes(d) ? 'border-zoru-line' : 'border-zoru-line',
                                     )}>
                                         <Checkbox
                                             checked={state.devices.includes(d)}
@@ -1340,7 +1340,7 @@ function Step2AdSet({
                                             key={p.id}
                                             className={cn(
                                                 'flex items-center gap-2 rounded-lg border-2 p-3 cursor-pointer',
-                                                state.platforms.includes(p.id) ? 'border-[#1877F2]' : 'border-border',
+                                                state.platforms.includes(p.id) ? 'border-zoru-line' : 'border-zoru-line',
                                             )}
                                         >
                                             <Checkbox
@@ -1376,7 +1376,7 @@ function Step2AdSet({
                                                 }
                                                 className={cn(
                                                     'text-xs px-2.5 py-1 rounded-full border',
-                                                    sel ? 'bg-[#1877F2] text-white border-[#1877F2]' : 'bg-background hover:bg-muted',
+                                                    sel ? 'bg-zoru-ink text-white border-zoru-line' : 'bg-zoru-surface hover:bg-zoru-surface-2',
                                                 )}
                                             >
                                                 {p.replace(/_/g, ' ')}
@@ -1407,7 +1407,7 @@ function Step2AdSet({
                                                 }
                                                 className={cn(
                                                     'text-xs px-2.5 py-1 rounded-full border',
-                                                    sel ? 'bg-[#1877F2] text-white border-[#1877F2]' : 'bg-background hover:bg-muted',
+                                                    sel ? 'bg-zoru-ink text-white border-zoru-line' : 'bg-zoru-surface hover:bg-zoru-surface-2',
                                                 )}
                                             >
                                                 {p.replace(/_/g, ' ')}
@@ -1619,7 +1619,7 @@ function Step3Ad({
                     <Switch
                         checked={state.useExistingPost}
                         onCheckedChange={(v) => setField('useExistingPost', v)}
-                        className="data-[state=checked]:bg-[#1877F2]"
+                        className="data-[state=checked]:bg-zoru-ink"
                     />
                 </div>
 
@@ -1651,7 +1651,7 @@ function Step3Ad({
                                         key={f.id}
                                         className={cn(
                                             'flex items-center gap-2 rounded-lg border-2 p-3 cursor-pointer',
-                                            state.adFormat === f.id ? 'border-[#1877F2]' : 'border-border',
+                                            state.adFormat === f.id ? 'border-zoru-line' : 'border-zoru-line',
                                         )}
                                     >
                                         <ZoruRadioGroupItem value={f.id} />
@@ -1670,7 +1670,7 @@ function Step3Ad({
                         {state.adFormat === 'SINGLE_IMAGE' && (
                             <div>
                                 {/* Zoru has no tab primitive — use a segmented Button group */}
-                                <div className="grid grid-cols-2 gap-1 p-1 bg-muted rounded-lg">
+                                <div className="grid grid-cols-2 gap-1 p-1 bg-zoru-surface-2 rounded-lg">
                                     <Button
                                         type="button"
                                         size="sm"
@@ -1740,7 +1740,7 @@ function Step3Ad({
                                                     }}
                                                     className={cn(
                                                         'aspect-square rounded-lg overflow-hidden border-2',
-                                                        state.imageHash === img.hash ? 'border-[#1877F2]' : 'border-border',
+                                                        state.imageHash === img.hash ? 'border-zoru-line' : 'border-zoru-line',
                                                     )}
                                                 >
                                                     <img src={img.url} alt="" className="w-full h-full object-cover" />

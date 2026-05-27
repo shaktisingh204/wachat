@@ -175,7 +175,7 @@ export function ConversationList({
                           />
                         )}
                         {t.starred && (
-                          <Star className="h-3 w-3 fill-amber-400 text-amber-500" />
+                          <Star className="h-3 w-3 fill-zoru-ink-muted text-zoru-ink" />
                         )}
                         <Badge variant={tone.variant} className="text-[10px]">
                           {tone.label}

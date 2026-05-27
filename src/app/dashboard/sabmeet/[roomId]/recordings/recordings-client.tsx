@@ -142,7 +142,7 @@ function RecordingCard({ recording }: { recording: MeetRecording }) {
           </div>
         ) : null}
         {recording.errorMessage ? (
-          <div className="text-xs text-red-600">{recording.errorMessage}</div>
+          <div className="text-xs text-zoru-ink">{recording.errorMessage}</div>
         ) : null}
       </CardContent>
     </Card>

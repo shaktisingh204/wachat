@@ -402,7 +402,7 @@ export default function TicketReplyTemplatesPage() {
 
       {/* Confirm delete prompt */}
       {confirmDelete ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
+        <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3 text-sm text-zoru-ink dark:border-zoru-line dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
           <span className="font-medium">Confirm delete:</span> This will
           permanently delete {selectedIds.length} template
           {selectedIds.length !== 1 ? 's' : ''}. Click Delete again to confirm
@@ -453,7 +453,7 @@ export default function TicketReplyTemplatesPage() {
                 <ZoruTableRow className="border-zoru-line">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-24 text-center text-[13px] text-red-500"
+                    className="h-24 text-center text-[13px] text-zoru-ink"
                   >
                     {loadError}
                   </ZoruTableCell>

@@ -279,7 +279,7 @@ export function LoginForm() {
     }
 
     return (
-        <Card className="w-full max-w-md shadow-2xl rounded-2xl border-border/40 backdrop-blur-sm">
+        <Card className="w-full max-w-md shadow-2xl rounded-2xl border-zoru-line/40 backdrop-blur-sm">
             <form onSubmit={handleLogin} noValidate>
                 <ZoruCardHeader className="space-y-2">
                     <ZoruCardTitle className="text-2xl font-bold font-headline">
@@ -318,7 +318,7 @@ export function LoginForm() {
                             <Label htmlFor="password">Password</Label>
                             <Link
                                 href="/forgot-password"
-                                className="text-xs text-muted-foreground hover:text-primary"
+                                className="text-xs text-zoru-ink-muted hover:text-zoru-ink"
                             >
                                 Forgot password?
                             </Link>
@@ -337,7 +337,7 @@ export function LoginForm() {
                             <button
                                 type="button"
                                 onClick={() => setShowPassword((v) => !v)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-zoru-ink-muted hover:text-zoru-ink"
                                 aria-label={
                                     showPassword
                                         ? 'Hide password'
@@ -360,7 +360,7 @@ export function LoginForm() {
                             <span className="w-full border-t" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-card px-2 text-muted-foreground">
+                            <span className="bg-zoru-surface px-2 text-zoru-ink-muted">
                                 Or continue with
                             </span>
                         </div>
@@ -389,11 +389,11 @@ export function LoginForm() {
                 </ZoruCardContent>
 
                 <ZoruCardFooter className="justify-center">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-zoru-ink-muted">
                         New to SabNode?{' '}
                         <Link
                             href="/onboarding"
-                            className="font-semibold text-foreground hover:text-primary"
+                            className="font-semibold text-zoru-ink hover:text-zoru-ink"
                         >
                             Start your setup
                         </Link>
@@ -507,7 +507,7 @@ function TwoFaPanel(props: {
               : 'Open your authenticator app and enter the 6-digit code.';
 
     return (
-        <Card className="w-full max-w-md shadow-2xl rounded-2xl border-border/40 backdrop-blur-sm">
+        <Card className="w-full max-w-md shadow-2xl rounded-2xl border-zoru-line/40 backdrop-blur-sm">
             <form onSubmit={handleSubmit} noValidate>
                 <ZoruCardHeader className="space-y-2">
                     <ZoruCardTitle className="text-2xl font-bold font-headline">
@@ -567,7 +567,7 @@ function TwoFaPanel(props: {
                     <div className="flex flex-col items-center gap-2 text-sm">
                         <button
                             type="button"
-                            className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                            className="text-zoru-ink-muted hover:text-zoru-ink underline-offset-4 hover:underline"
                             onClick={() => {
                                 setMode((m) => (m === 'code' ? 'backup' : 'code'));
                                 setCode('');
@@ -583,7 +583,7 @@ function TwoFaPanel(props: {
                         {challenge.method === 'email' && mode === 'code' && (
                             <button
                                 type="button"
-                                className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                                className="text-zoru-ink-muted hover:text-zoru-ink underline-offset-4 hover:underline"
                                 onClick={onResend}
                                 disabled={isPending}
                             >
@@ -598,7 +598,7 @@ function TwoFaPanel(props: {
                         type="button"
                         onClick={onCancel}
                         disabled={isPending}
-                        className="text-sm text-muted-foreground hover:text-foreground"
+                        className="text-sm text-zoru-ink-muted hover:text-zoru-ink"
                     >
                         Cancel and return to sign in
                     </button>

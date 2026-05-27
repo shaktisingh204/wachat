@@ -372,7 +372,7 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                       step="0.1"
                       value={multiplier}
                       onChange={(e) => setMultiplier(Number(e.target.value))}
-                      className="w-32 accent-emerald-500 h-1.5 bg-zoru-surface rounded-lg cursor-pointer"
+                      className="w-32 accent-zoru-ink h-1.5 bg-zoru-surface rounded-lg cursor-pointer"
                     />
                     <span className={`text-[12px] font-mono font-bold px-2 py-0.5 rounded ${
                       multiplier > 1.0 ? 'bg-zoru-success/15 text-zoru-success-ink' : multiplier < 1.0 ? 'bg-zoru-danger/15 text-zoru-danger-ink' : 'bg-zoru-surface-2 text-zoru-ink'
@@ -424,10 +424,10 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                               </td>
                               <td className="p-3 text-right font-mono text-zoru-ink-muted">{inrFormatter.format(baseGross / 12)}</td>
                               <td className="p-3 text-right font-mono text-zoru-ink">{inrFormatter.format(basicAmt)}</td>
-                              <td className={`p-3 text-right font-mono font-medium transition-colors duration-300 ${multiplier !== 1.0 ? 'text-amber-500 bg-amber-500/5' : 'text-zoru-ink'}`}>
+                              <td className={`p-3 text-right font-mono font-medium transition-colors duration-300 ${multiplier !== 1.0 ? 'text-zoru-ink bg-zoru-ink/5' : 'text-zoru-ink'}`}>
                                 {inrFormatter.format(hraAmt)}
                               </td>
-                              <td className={`p-3 text-right font-mono font-medium transition-colors duration-300 ${multiplier !== 1.0 ? 'text-amber-500 bg-amber-500/5' : 'text-zoru-ink'}`}>
+                              <td className={`p-3 text-right font-mono font-medium transition-colors duration-300 ${multiplier !== 1.0 ? 'text-zoru-ink bg-zoru-ink/5' : 'text-zoru-ink'}`}>
                                 {inrFormatter.format(allowanceAmt)}
                               </td>
                               <td className="p-3 text-right font-mono text-zoru-danger-ink">{inrFormatter.format(totalDeductions)}</td>
@@ -464,7 +464,7 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
                         onChange={(e) => setIsApproved(e.target.checked)}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-zoru-surface-2 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zoru-ink-muted after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-white"></div>
+                      <div className="w-11 h-6 bg-zoru-surface-2 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zoru-ink-muted after:border-zoru-line after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-zoru-ink peer-checked:after:bg-white"></div>
                     </label>
                   </div>
                 )}
@@ -494,7 +494,7 @@ export function PayrollRunForm({ initialData }: PayrollRunFormProps) {
               disabled={!isEditing && !isApproved}
               className={`shadow-sm transition-all duration-300 ${
                 !isEditing && isApproved
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold ring-2 ring-emerald-500/20'
+                  ? 'bg-gradient-to-r from-zoru-ink to-zoru-ink hover:from-zoru-ink hover:to-zoru-ink text-white font-semibold ring-2 ring-zoru-line/20'
                   : ''
               }`}
             >

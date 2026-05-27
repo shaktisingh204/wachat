@@ -292,12 +292,12 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
           <div className="flex items-center gap-1.5">
             <Link
               href={`/sabsms/templates/${row.id}`}
-              className="font-medium text-slate-900 hover:text-amber-700"
+              className="font-medium text-zoru-ink hover:text-zoru-ink"
             >
               {row.name}
             </Link>
             {row.deprecated && (
-              <Badge variant="outline" className="text-rose-700">
+              <Badge variant="outline" className="text-zoru-ink">
                 Deprecated
               </Badge>
             )}
@@ -309,7 +309,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
               </Badge>
             ))}
             {row.tags.length > 4 && (
-              <span className="text-[10px] text-slate-500">+{row.tags.length - 4}</span>
+              <span className="text-[10px] text-zoru-ink">+{row.tags.length - 4}</span>
             )}
           </div>
         </div>
@@ -328,7 +328,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
       id: "category",
       header: "Category",
       render: (row) => (
-        <span className="text-xs uppercase text-slate-600">{row.category}</span>
+        <span className="text-xs uppercase text-zoru-ink">{row.category}</span>
       ),
       width: "120px",
     },
@@ -339,8 +339,8 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
         <ZoruTooltipProvider>
           <Tooltip>
             <ZoruTooltipTrigger asChild>
-              <span className="line-clamp-1 max-w-[320px] cursor-help text-xs text-slate-600">
-                {row.bodyPreview || <em className="text-slate-400">empty</em>}
+              <span className="line-clamp-1 max-w-[320px] cursor-help text-xs text-zoru-ink">
+                {row.bodyPreview || <em className="text-zoru-ink-muted">empty</em>}
               </span>
             </ZoruTooltipTrigger>
             <ZoruTooltipContent className="max-w-sm whitespace-pre-wrap text-left">
@@ -356,17 +356,17 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
       render: (row) => (
         <div className="flex flex-wrap gap-1">
           {row.dltRegistered && (
-            <Badge variant="outline" className="text-emerald-700">
+            <Badge variant="outline" className="text-zoru-ink">
               <ShieldCheck className="mr-1 h-3 w-3" /> DLT
             </Badge>
           )}
           {row.tendlcRegistered && (
-            <Badge variant="outline" className="text-blue-700">
+            <Badge variant="outline" className="text-zoru-ink">
               <ShieldCheck className="mr-1 h-3 w-3" /> 10DLC
             </Badge>
           )}
           {!row.dltRegistered && !row.tendlcRegistered && (
-            <span className="text-xs text-slate-400">—</span>
+            <span className="text-xs text-zoru-ink-muted">—</span>
           )}
         </div>
       ),
@@ -415,7 +415,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
       render: (row) => (
         <Link
           href={`/sabsms/analytics?templateId=${row.id}`}
-          className="inline-flex items-center gap-1 font-mono text-xs text-slate-700 hover:text-amber-700"
+          className="inline-flex items-center gap-1 font-mono text-xs text-zoru-ink hover:text-zoru-ink"
         >
           <BarChart3 className="h-3.5 w-3.5" />
           {fmtQty(row.usageCount)}
@@ -427,7 +427,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
       id: "updatedAt",
       header: "Updated",
       render: (row) => (
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-zoru-ink">
           {row.updatedAt ? fmtDate(row.updatedAt) : "—"}
         </span>
       ),
@@ -597,20 +597,20 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
         description="Synthesised from the template lifecycle until a full audit log lands."
       >
         {auditLoading ? (
-          <p className="text-sm text-slate-500">Loading…</p>
+          <p className="text-sm text-zoru-ink">Loading…</p>
         ) : auditEvents.length === 0 ? (
-          <p className="text-sm text-slate-500">No events recorded yet.</p>
+          <p className="text-sm text-zoru-ink">No events recorded yet.</p>
         ) : (
           <ol className="space-y-3">
             {auditEvents.map((e, i) => (
               <li
                 key={`${e.at}-${i}`}
-                className="flex items-start gap-3 rounded-md border border-slate-200 p-3"
+                className="flex items-start gap-3 rounded-md border border-zoru-line p-3"
               >
                 <Badge variant="outline">{e.kind}</Badge>
                 <div className="flex-1">
-                  <p className="text-sm text-slate-700">{e.detail}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-sm text-zoru-ink">{e.detail}</p>
+                  <p className="text-xs text-zoru-ink">
                     {formatUTC(e.at, true)}
                   </p>
                 </div>
@@ -696,7 +696,7 @@ export function TemplatesTable({ workspaceId: _workspaceId, initialRows, totalCo
               drip builder.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-zoru-ink">
             We will pre-fill the drip builder with the template content; you can
             edit before saving.
           </p>

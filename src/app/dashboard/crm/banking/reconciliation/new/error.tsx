@@ -17,12 +17,12 @@ export default function NewReconciliationError({
 
     return (
         <div className="flex h-[400px] flex-col items-center justify-center gap-4 rounded-xl border border-dashed p-8 text-center animate-in fade-in-50">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10 text-red-500">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-ink/10 text-zoru-ink">
                 <AlertCircle className="h-6 w-6" />
             </div>
             <div className="space-y-2 max-w-[420px]">
                 <h3 className="text-lg font-medium">Failed to load</h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-zoru-ink-muted">
                     An error occurred while loading the new reconciliation form. Please try again.
                 </p>
             </div>

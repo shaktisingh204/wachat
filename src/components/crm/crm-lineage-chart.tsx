@@ -28,9 +28,9 @@ export function CrmLineageChart({ nodes, onNodeClick }: CrmLineageChartProps) {
       iconBg: 'bg-zoru-success text-white',
     },
     active: {
-      card: 'border-primary bg-primary/5 hover:bg-primary/10 shadow-[0_0_12px_rgba(var(--primary-rgb),0.15)] ring-1 ring-primary/40',
+      card: 'border-primary bg-zoru-ink/5 hover:bg-zoru-ink/10 shadow-[0_0_12px_rgba(var(--primary-rgb),0.15)] ring-1 ring-primary/40',
       badge: 'info',
-      iconBg: 'bg-primary text-white animate-pulse',
+      iconBg: 'bg-zoru-ink text-white animate-pulse',
     },
     pending: {
       card: 'border-zoru-line bg-zoru-surface-2/20 hover:bg-zoru-surface-2/40 opacity-70',
@@ -43,7 +43,7 @@ export function CrmLineageChart({ nodes, onNodeClick }: CrmLineageChartProps) {
     <ZoruTooltipProvider>
       <Card className="p-5 border border-zoru-line bg-zoru-surface">
         <h4 className="text-[12px] font-semibold uppercase tracking-wider text-zoru-ink-muted mb-4 flex items-center gap-2">
-          <ArrowRightCircle className="h-4 w-4 text-primary" /> Document Conversion Lineage Track
+          <ArrowRightCircle className="h-4 w-4 text-zoru-ink" /> Document Conversion Lineage Track
         </h4>
 
         {/* Scrollable node track */}

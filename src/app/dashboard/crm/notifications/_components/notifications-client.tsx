@@ -298,7 +298,7 @@ export function NotificationsClient({
                             
                             return Object.entries(groups).filter(([_, items]) => items.length > 0).map(([label, items]) => (
                                 <div key={label}>
-                                    <h4 className="text-sm font-medium text-muted-foreground mb-2 px-2">{label}</h4>
+                                    <h4 className="text-sm font-medium text-zoru-ink-muted mb-2 px-2">{label}</h4>
                                     <Card className="p-0">
                                         <ul className="divide-y divide-zoru-line">
                                             {items.map((row) => {

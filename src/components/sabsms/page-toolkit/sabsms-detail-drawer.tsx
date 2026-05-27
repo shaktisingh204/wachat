@@ -38,7 +38,7 @@ export function SabsmsDetailDrawer({
             : "flex max-h-[80vh] flex-col gap-0 p-0"
         }
       >
-        <ZoruSheetHeader className="border-b border-slate-200 px-6 py-4">
+        <ZoruSheetHeader className="border-b border-zoru-line px-6 py-4">
           <ZoruSheetTitle>{title}</ZoruSheetTitle>
           {description && (
             <ZoruSheetDescription>{description}</ZoruSheetDescription>

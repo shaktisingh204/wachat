@@ -125,10 +125,10 @@ export default async function LeaveBalanceReportPage(props: PageProps) {
 
       <Card className="p-6">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[16px] font-semibold text-foreground">
+          <h2 className="text-[16px] font-semibold text-zoru-ink">
             Remaining leave by employee and type
           </h2>
-          <span className="text-[12px] text-muted-foreground">
+          <span className="text-[12px] text-zoru-ink-muted">
             Showing top {chartData.length} of {stacked.length}
           </span>
         </div>
@@ -136,25 +136,25 @@ export default async function LeaveBalanceReportPage(props: PageProps) {
       </Card>
 
       <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-border hover:bg-transparent">
-                <ZoruTableHead className="text-muted-foreground">Employee</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Department</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Leave Type</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Allocated</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Used</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Remaining</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Expires</ZoruTableHead>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Department</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Leave Type</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Allocated</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Used</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Remaining</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Expires</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-border">
+                <ZoruTableRow className="border-zoru-line">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-20 text-center text-[13px] text-muted-foreground"
+                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No employees or leave types configured.
                   </ZoruTableCell>
@@ -166,7 +166,7 @@ export default async function LeaveBalanceReportPage(props: PageProps) {
                   return (
                     <ZoruTableRow
                       key={`${r.employeeId}-${r.leaveTypeName}-${i}`}
-                      className={`border-border ${isNegative ? 'bg-destructive/10 hover:bg-destructive/20' : ''}`}
+                      className={`border-zoru-line ${isNegative ? 'bg-zoru-ink/10 hover:bg-zoru-ink/20' : ''}`}
                     >
                       <ZoruTableCell>
                         <EntityRowLink
@@ -174,24 +174,24 @@ export default async function LeaveBalanceReportPage(props: PageProps) {
                           label={r.employeeName}
                         />
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-foreground">
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">
                         <Badge variant="outline">{r.department}</Badge>
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-[13px] text-foreground">
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">
                         {r.leaveTypeName}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-foreground">
+                      <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                         {r.allocated}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-amber-500">
+                      <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                         {r.used}
                       </ZoruTableCell>
                       <ZoruTableCell
-                        className={`text-right text-[13px] font-medium ${low ? 'text-destructive' : 'text-emerald-500'}`}
+                        className={`text-right text-[13px] font-medium ${low ? 'text-zoru-ink' : 'text-zoru-ink'}`}
                       >
                         {r.remaining}
                       </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] text-muted-foreground">
+                      <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
                         {r.expiresAt ? r.expiresAt.slice(0, 10) : '—'}
                       </ZoruTableCell>
                     </ZoruTableRow>

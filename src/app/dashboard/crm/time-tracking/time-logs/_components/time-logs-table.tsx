@@ -197,7 +197,7 @@ export function TimeLogsTable({
                           onClick={() => log._id && onApprove(log._id)}
                           aria-label="Approve"
                         >
-                          <Check className="h-3.5 w-3.5 text-emerald-500" />
+                          <Check className="h-3.5 w-3.5 text-zoru-ink" />
                         </Button>
                         <Button
                           size="sm"

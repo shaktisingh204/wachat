@@ -46,7 +46,7 @@ function HighlightedPreview({ text }: { text: string }) {
   }
 
   return (
-    <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
+    <div className="whitespace-pre-wrap text-sm leading-relaxed text-zoru-ink">
       {chunks.map((chunk, idx) => {
         const words = countWords(chunk);
         let bgColor = 'transparent';
@@ -76,7 +76,7 @@ function HighlightedPreview({ text }: { text: string }) {
           elements.push(
             <span 
               key={`w_${wordMatch.index}`} 
-              className={cn(isComplex && "bg-purple-200 text-purple-900 font-medium px-0.5 rounded-sm")}
+              className={cn(isComplex && "bg-zoru-surface-2 text-zoru-ink font-medium px-0.5 rounded-sm")}
             >
               {word}
             </span>
@@ -154,26 +154,26 @@ export default function ReadabilityScorePage() {
             <Card>
               <ZoruCardContent className="p-4 flex flex-col items-center text-center justify-center">
                 <div className="text-3xl font-bold">{ease.toFixed(1)}</div>
-                <div className="text-xs text-muted-foreground mt-1">Flesch Ease</div>
-                <div className="text-[10px] text-muted-foreground mt-1 font-medium bg-slate-100 px-2 py-0.5 rounded-full">{easeLabel(ease)}</div>
+                <div className="text-xs text-zoru-ink-muted mt-1">Flesch Ease</div>
+                <div className="text-[10px] text-zoru-ink-muted mt-1 font-medium bg-zoru-surface-2 px-2 py-0.5 rounded-full">{easeLabel(ease)}</div>
               </ZoruCardContent>
             </Card>
             <Card>
               <ZoruCardContent className="p-4 flex flex-col items-center text-center justify-center">
                 <div className="text-3xl font-bold">{grade.toFixed(1)}</div>
-                <div className="text-xs text-muted-foreground mt-1">Flesch-Kincaid</div>
+                <div className="text-xs text-zoru-ink-muted mt-1">Flesch-Kincaid</div>
               </ZoruCardContent>
             </Card>
             <Card>
               <ZoruCardContent className="p-4 flex flex-col items-center text-center justify-center">
                 <div className="text-3xl font-bold">{gunningFog.toFixed(1)}</div>
-                <div className="text-xs text-muted-foreground mt-1">Gunning Fog</div>
+                <div className="text-xs text-zoru-ink-muted mt-1">Gunning Fog</div>
               </ZoruCardContent>
             </Card>
             <Card>
               <ZoruCardContent className="p-4 flex flex-col items-center text-center justify-center">
                 <div className="text-3xl font-bold">{smog.toFixed(1)}</div>
-                <div className="text-xs text-muted-foreground mt-1">SMOG Index</div>
+                <div className="text-xs text-zoru-ink-muted mt-1">SMOG Index</div>
               </ZoruCardContent>
             </Card>
           </div>
@@ -196,7 +196,7 @@ export default function ReadabilityScorePage() {
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                  <div className="flex h-full items-center justify-center text-sm text-zoru-ink-muted">
                     Add text to see distribution
                   </div>
                 )}
@@ -206,21 +206,21 @@ export default function ReadabilityScorePage() {
         </div>
 
         <div className="flex flex-col gap-6">
-          <Card className="flex-1 min-h-[500px] shadow-sm border-slate-200">
+          <Card className="flex-1 min-h-[500px] shadow-sm border-zoru-line">
             <ZoruCardContent className="p-0 h-full flex flex-col">
-              <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-t-lg">
-                <div className="text-sm font-semibold text-slate-800">Real-time Analysis Preview</div>
-                <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-600">
+              <div className="p-4 border-b border-zoru-line bg-zoru-surface-2/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-t-lg">
+                <div className="text-sm font-semibold text-zoru-ink">Real-time Analysis Preview</div>
+                <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-zoru-ink">
                   <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded-sm bg-yellow-300 border border-yellow-400"></div> 
+                    <div className="w-3 h-3 rounded-sm bg-zoru-surface-2 border border-zoru-line"></div> 
                     Long (&gt;20w)
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded-sm bg-red-300 border border-red-400"></div> 
+                    <div className="w-3 h-3 rounded-sm bg-zoru-surface-2 border border-zoru-line"></div> 
                     Very Long (&gt;30w)
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded-sm bg-purple-200 border border-purple-300"></div> 
+                    <div className="w-3 h-3 rounded-sm bg-zoru-surface-2 border border-zoru-line"></div> 
                     Complex
                   </div>
                 </div>
@@ -228,7 +228,7 @@ export default function ReadabilityScorePage() {
               <div className="p-5 overflow-y-auto flex-1 max-h-[700px]">
                 <HighlightedPreview text={text} />
                 {!text && (
-                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground/60 text-center">
+                  <div className="flex h-full items-center justify-center text-sm text-zoru-ink-muted/60 text-center">
                     Start typing or paste text in the editor<br/>to see the highlighted analysis...
                   </div>
                 )}

@@ -123,7 +123,7 @@ export function WhatsAppTrigger({ config, onChange, className }: WhatsAppTrigger
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#25d366]/10 text-[#25d366]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink/10 text-zoru-ink-muted">
           <LuMessageSquare className="h-4 w-4" strokeWidth={2} />
         </div>
         <div>
@@ -178,14 +178,14 @@ export function WhatsAppTrigger({ config, onChange, className }: WhatsAppTrigger
                 className={cn(
                   'flex items-center gap-2.5 rounded-lg border px-3 py-2 text-left text-[12.5px] transition-colors',
                   active
-                    ? 'border-[#25d366]/40 bg-[#25d366]/8 text-[var(--gray-12)]'
+                    ? 'border-zoru-line/40 bg-zoru-ink/8 text-[var(--gray-12)]'
                     : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-10)] hover:border-[var(--gray-6)]',
                 )}
               >
                 <span
                   className={cn(
                     'h-3.5 w-3.5 rounded border-2 flex items-center justify-center shrink-0',
-                    active ? 'border-[#25d366] bg-[#25d366]' : 'border-[var(--gray-6)]',
+                    active ? 'border-zoru-line bg-zoru-ink' : 'border-[var(--gray-6)]',
                   )}
                 >
                   {active && (
@@ -287,7 +287,7 @@ export function WhatsAppTrigger({ config, onChange, className }: WhatsAppTrigger
               {config.keywordFilter!.keywords.map((k) => (
                 <span
                   key={k}
-                  className="flex items-center gap-1 rounded-full border border-[#25d366]/30 bg-[#25d366]/10 pl-2.5 pr-1.5 py-0.5 text-[11.5px] text-[#25d366]"
+                  className="flex items-center gap-1 rounded-full border border-zoru-line/30 bg-zoru-ink/10 pl-2.5 pr-1.5 py-0.5 text-[11.5px] text-zoru-ink-muted"
                 >
                   {k}
                   <button
@@ -365,7 +365,7 @@ function OutputSchema({ fields }: { fields: OutputField[] }) {
       <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)]">
         {fields.map((f) => (
           <div key={f.key} className="flex items-center gap-2 px-3 py-1.5">
-            <code className="min-w-[90px] text-[11.5px] font-mono font-medium text-[#25d366]">{f.key}</code>
+            <code className="min-w-[90px] text-[11.5px] font-mono font-medium text-zoru-ink-muted">{f.key}</code>
             <span className="rounded bg-[var(--gray-4)] px-1 py-0.5 text-[10px] font-mono text-[var(--gray-9)]">{f.type}</span>
             <span className="flex-1 text-[11px] text-[var(--gray-9)] truncate">{f.description}</span>
           </div>
@@ -376,4 +376,4 @@ function OutputSchema({ fields }: { fields: OutputField[] }) {
 }
 
 const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808] transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';

@@ -421,9 +421,9 @@ export default function NewStockAdjustmentPage() {
                                                         className={[
                                                             'px-2 py-1.5 text-right font-mono',
                                                             delta > 0
-                                                                ? 'text-emerald-500'
+                                                                ? 'text-zoru-ink'
                                                                 : delta < 0
-                                                                  ? 'text-rose-500'
+                                                                  ? 'text-zoru-ink'
                                                                   : 'text-zoru-ink-muted',
                                                         ].join(' ')}
                                                     >
@@ -550,7 +550,7 @@ export default function NewStockAdjustmentPage() {
                                 <Label>Physical Stock Proofs</Label>
                                 <div className="flex flex-wrap gap-2">
                                     {attachments.map((url, i) => (
-                                        <div key={i} className="flex items-center gap-1 rounded bg-zinc-100 px-2 py-1 text-xs dark:bg-zinc-800">
+                                        <div key={i} className="flex items-center gap-1 rounded bg-zoru-surface-2 px-2 py-1 text-xs dark:bg-zoru-ink">
                                             <Paperclip className="h-3 w-3" />
                                             <span className="max-w-[200px] truncate">{url.split('/').pop()}</span>
                                         </div>

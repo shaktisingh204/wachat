@@ -70,7 +70,7 @@ export function JobForm({ clients, presetClientId }: { clients: ClientOpt[]; pre
             <CardContent className="p-6">
                 <form onSubmit={onSubmit} className="flex flex-col gap-5">
                     {error && (
-                        <div className="rounded-md border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-300">
+                        <div className="rounded-md border border-zoru-line/40 bg-zoru-ink/10 p-3 text-sm text-zoru-ink-muted">
                             {error}
                         </div>
                     )}

@@ -80,7 +80,7 @@ export function StepSchedule({ draft, drips, onChange }: StepScheduleProps) {
               })
             }
           />
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-zoru-ink">
             Stored as ISO; engine converts to recipient TZ when STO is on.
           </p>
         </div>
@@ -101,7 +101,7 @@ export function StepSchedule({ draft, drips, onChange }: StepScheduleProps) {
               })
             }
           />
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-zoru-ink">
             Standard 5-field cron (UTC). Example: <code>0 9 * * 1</code>{" "}
             (Mondays at 09:00 UTC).
           </p>
@@ -112,7 +112,7 @@ export function StepSchedule({ draft, drips, onChange }: StepScheduleProps) {
         <div className="space-y-2">
           <Label htmlFor="schedule-drip">Drip</Label>
           {drips.length === 0 ? (
-            <p className="rounded border border-slate-200 bg-slate-50 p-3 text-sm text-slate-500">
+            <p className="rounded border border-zoru-line bg-zoru-surface-2 p-3 text-sm text-zoru-ink">
               No drips yet. Create one at <code>/sabsms/drips/new</code>. {"// TODO: full drip picker dialog ships with Phase 4"}
             </p>
           ) : (

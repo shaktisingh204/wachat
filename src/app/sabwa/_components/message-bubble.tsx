@@ -180,7 +180,7 @@ function StatusTicks({ status }: { status: SabwaMessageStatus }) {
     );
   }
   if (status === "read") {
-    return <CheckCheck aria-label="Read" className="h-3 w-3 text-sky-500" />;
+    return <CheckCheck aria-label="Read" className="h-3 w-3 text-zoru-ink" />;
   }
   return null;
 }
@@ -200,7 +200,7 @@ function QuotedPreview({
       ? resolveJid(quoted.fromJid)
       : formatJid(quoted.fromJid);
   return (
-    <div className="mb-1 flex items-stretch gap-2 rounded-[var(--zoru-radius)] border-l-2 border-green-500 bg-zoru-surface p-1.5">
+    <div className="mb-1 flex items-stretch gap-2 rounded-[var(--zoru-radius)] border-l-2 border-zoru-line bg-zoru-surface p-1.5">
       {showAvatar ? (
         <div
           aria-hidden
@@ -208,7 +208,7 @@ function QuotedPreview({
         />
       ) : null}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[11px] font-medium text-green-700 dark:text-green-300">
+        <p className="truncate text-[11px] font-medium text-zoru-ink dark:text-zoru-ink-muted">
           {authorLabel}
         </p>
         <p className="line-clamp-1 text-[11px] text-zoru-ink-muted">
@@ -379,7 +379,7 @@ export function MessageBubble({
               "relative max-w-[min(80%,32rem)] rounded-[var(--zoru-radius)] px-3 py-2 text-sm shadow-sm",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink",
               fromMe
-                ? "bg-green-100 dark:bg-green-900/30"
+                ? "bg-zoru-surface-2 dark:bg-zoru-ink/30"
                 : "border border-zoru-line bg-zoru-bg",
             )}
           >
@@ -404,7 +404,7 @@ export function MessageBubble({
             <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-zoru-ink-muted">
               {message.starred ? (
                 <Star
-                  className="h-3 w-3 text-amber-500"
+                  className="h-3 w-3 text-zoru-ink"
                   fill="currentColor"
                   aria-label="Starred"
                 />

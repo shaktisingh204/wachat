@@ -24,11 +24,11 @@ function makeKV(): KVPair {
 
 function methodColor(method: HttpMethod): string {
   const map: Record<HttpMethod, string> = {
-    GET: 'border-blue-500/40 bg-blue-500/10 text-blue-400',
-    POST: 'border-green-500/40 bg-green-500/10 text-green-400',
-    PUT: 'border-amber-500/40 bg-amber-500/10 text-amber-400',
-    PATCH: 'border-orange-500/40 bg-orange-500/10 text-orange-400',
-    DELETE: 'border-red-500/40 bg-red-500/10 text-red-400',
+    GET: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
+    POST: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
+    PUT: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
+    PATCH: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
+    DELETE: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
   };
   return map[method];
 }
@@ -144,7 +144,7 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
                   <button
                     type="button"
                     onClick={() => removeHeader(h.id)}
-                    className="shrink-0 flex h-7 w-7 items-center justify-center rounded text-[var(--gray-8)] hover:text-red-500 hover:bg-[var(--gray-3)] transition-colors"
+                    className="shrink-0 flex h-7 w-7 items-center justify-center rounded text-[var(--gray-8)] hover:text-zoru-ink hover:bg-[var(--gray-3)] transition-colors"
                     aria-label="Remove header"
                   >
                     <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -186,7 +186,7 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
               />
               <p className="text-[11px] text-[var(--gray-8)] mt-1">
                 Use{' '}
-                <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[#f76808]">
+                <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">
                   {'{{variable}}'}
                 </code>{' '}
                 to inject dynamic values.

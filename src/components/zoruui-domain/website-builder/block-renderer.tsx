@@ -86,6 +86,6 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
         case 'productBreadcrumbs' as any: return <ProductBreadcrumbsRenderer product={productContext} settings={safeSettings} />;
         case 'section': return <SectionBlockRenderer {...(props as any)} children={block.children || []} />;
         case 'columns': return <ColumnsBlockRenderer {...(props as any)} children={block.children || []} />;
-        default: return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
+        default: return <div className="text-center text-zoru-ink-muted">Unsupported block type: {block.type}</div>;
     }
 };

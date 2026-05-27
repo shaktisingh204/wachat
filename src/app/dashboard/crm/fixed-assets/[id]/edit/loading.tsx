@@ -9,9 +9,9 @@ export default function LoadingFixedAssetEdit() {
             back={{ href: '/dashboard/crm/fixed-assets', label: 'Fixed Assets' }}
         >
             <div className="space-y-6 animate-pulse">
-                <Card className="h-[250px] w-full bg-muted/20" />
-                <Card className="h-[250px] w-full bg-muted/20" />
-                <Card className="h-[250px] w-full bg-muted/20" />
+                <Card className="h-[250px] w-full bg-zoru-surface-2/20" />
+                <Card className="h-[250px] w-full bg-zoru-surface-2/20" />
+                <Card className="h-[250px] w-full bg-zoru-surface-2/20" />
             </div>
         </EntityDetailShell>
     );

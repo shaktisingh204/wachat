@@ -145,7 +145,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                 </h3>
                 <div className="grid gap-4 md:grid-cols-3">
                     <div className="space-y-1.5 md:col-span-2">
-                        <Label className="text-foreground">
+                        <Label className="text-zoru-ink">
                             Name <span className="text-zoru-danger-ink">*</span>
                         </Label>
                         <Input
@@ -156,7 +156,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-foreground">Currency</Label>
+                        <Label className="text-zoru-ink">Currency</Label>
                         <EntityFormField
                             entity="currency"
                             name="currency"
@@ -165,7 +165,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label className="text-foreground">
+                        <Label className="text-zoru-ink">
                             Amount <span className="text-zoru-danger-ink">*</span>
                         </Label>
                         <Input
@@ -177,7 +177,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-foreground">Vendor</Label>
+                        <Label className="text-zoru-ink">Vendor</Label>
                         <EntityFormField
                             entity="vendor"
                             name="vendor_id"
@@ -191,7 +191,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-foreground">Category</Label>
+                        <Label className="text-zoru-ink">Category</Label>
                         <EntityFormField
                             entity="category"
                             name="category_id"
@@ -212,7 +212,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                 </h3>
                 <div className="grid gap-4 md:grid-cols-3">
                     <div className="space-y-1.5">
-                        <Label className="text-foreground">Every</Label>
+                        <Label className="text-zoru-ink">Every</Label>
                         <Input
                             name="frequency_count"
                             type="number"
@@ -221,7 +221,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-foreground">Frequency</Label>
+                        <Label className="text-zoru-ink">Frequency</Label>
                         <EnumFormField
                             enumName="wsFrequency"
                             name="__frequency_picker"
@@ -230,7 +230,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-foreground">
+                        <Label className="text-zoru-ink">
                             Start date{' '}
                             <span className="text-zoru-danger-ink">*</span>
                         </Label>
@@ -242,7 +242,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-foreground">Until date</Label>
+                        <Label className="text-zoru-ink">Until date</Label>
                         <Input
                             name="until_date"
                             type="date"
@@ -250,7 +250,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-foreground">
+                        <Label className="text-zoru-ink">
                             Stop after N runs
                         </Label>
                         <Input
@@ -261,7 +261,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-foreground">Status</Label>
+                        <Label className="text-zoru-ink">Status</Label>
                         <EnumFormField
                             enumName="wsRecurringStatus"
                             name="__status_picker"
@@ -278,7 +278,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-1.5">
-                        <Label className="text-foreground">
+                        <Label className="text-zoru-ink">
                             Payment method
                         </Label>
                         <Input
@@ -288,7 +288,7 @@ export function RecurringExpenseForm({ initialData }: RecurringExpenseFormProps)
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label className="text-foreground">
+                        <Label className="text-zoru-ink">
                             Bank account
                         </Label>
                         <EntityFormField

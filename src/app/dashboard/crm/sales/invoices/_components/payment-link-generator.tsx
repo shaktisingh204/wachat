@@ -77,7 +77,7 @@ export function PaymentLinkGenerator({
                                         onClick={() => setGateway('stripe')}
                                         className={`flex items-center justify-center gap-1.5 p-2 rounded-lg border text-xs transition ${
                                             gateway === 'stripe'
-                                                ? 'border-primary bg-primary/5 text-primary font-medium'
+                                                ? 'border-primary bg-zoru-ink/5 text-zoru-ink font-medium'
                                                 : 'border-zoru-line hover:bg-zoru-surface-2 text-zoru-ink'
                                         }`}
                                     >
@@ -89,7 +89,7 @@ export function PaymentLinkGenerator({
                                         onClick={() => setGateway('razorpay')}
                                         className={`flex items-center justify-center gap-1.5 p-2 rounded-lg border text-xs transition ${
                                             gateway === 'razorpay'
-                                                ? 'border-primary bg-primary/5 text-primary font-medium'
+                                                ? 'border-primary bg-zoru-ink/5 text-zoru-ink font-medium'
                                                 : 'border-zoru-line hover:bg-zoru-surface-2 text-zoru-ink'
                                         }`}
                                     >
@@ -159,8 +159,8 @@ export function PaymentLinkGenerator({
                     </div>
                 ) : (
                     <div className="flex flex-col gap-3">
-                        <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/10 p-2 rounded-lg border border-emerald-100 dark:border-emerald-900/30 text-emerald-800 dark:text-emerald-300 text-xs">
-                            <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-500" />
+                        <div className="flex items-center gap-2 bg-zoru-surface-2 dark:bg-zoru-ink/10 p-2 rounded-lg border border-zoru-line dark:border-zoru-line/30 text-zoru-ink dark:text-zoru-ink-muted text-xs">
+                            <ShieldCheck className="h-4 w-4 shrink-0 text-zoru-ink" />
                             <span>Gateway registration completed. Payment link generated for <strong>{fmtINR(targetAmount, currency)}</strong>.</span>
                         </div>
 

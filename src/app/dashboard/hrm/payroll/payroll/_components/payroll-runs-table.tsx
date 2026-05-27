@@ -195,7 +195,7 @@ export function PayrollRunsTable({
                           disabled={actionBusy}
                           title="Approve"
                         >
-                          <Check className="h-3.5 w-3.5 text-emerald-600" />{' '}
+                          <Check className="h-3.5 w-3.5 text-zoru-ink" />{' '}
                           Approve
                         </Button>
                       )}
@@ -227,7 +227,7 @@ export function PayrollRunsTable({
                           status === 'disbursed' || status === 'closed'
                         }
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-rose-500" />
+                        <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
                       </Button>
                     </div>
                   </ZoruTableCell>

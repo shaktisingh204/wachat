@@ -127,13 +127,13 @@ function ColorSwatchInput({
           onChange={(e) => onChange(e.target.value)}
           className={cn(
             'h-8 text-[12px] font-mono',
-            !valid && value && 'border-red-500/60',
+            !valid && value && 'border-zoru-line/60',
           )}
           placeholder="#RRGGBB"
         />
       </div>
       {!valid && value ? (
-        <span className="text-[10px] text-red-500">Expected #RRGGBB</span>
+        <span className="text-[10px] text-zoru-ink">Expected #RRGGBB</span>
       ) : null}
     </div>
   );
@@ -164,7 +164,7 @@ function ChipInput({
       {value.map((v) => (
         <span
           key={v}
-          className="inline-flex items-center gap-1 rounded-full bg-zoru-bg-muted px-2 py-0.5 text-[11px] text-zoru-ink"
+          className="inline-flex items-center gap-1 rounded-full bg-zoru-bg-zoru-surface-2 px-2 py-0.5 text-[11px] text-zoru-ink"
         >
           {v}
           <button
@@ -373,7 +373,7 @@ export function MiniAppFormDrawer({
                 placeholder="my_mini_app"
                 className={cn(
                   'font-mono',
-                  !slugValid && form.slug && 'border-red-500/60',
+                  !slugValid && form.slug && 'border-zoru-line/60',
                 )}
               />
               <span className="text-[11px] text-zoru-ink-muted">
@@ -391,7 +391,7 @@ export function MiniAppFormDrawer({
                 }
                 placeholder="https://example.com/app"
                 className={cn(
-                  !urlValid && form.webAppUrl && 'border-red-500/60',
+                  !urlValid && form.webAppUrl && 'border-zoru-line/60',
                 )}
               />
             </div>

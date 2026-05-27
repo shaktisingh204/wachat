@@ -213,8 +213,8 @@ export function FlowCanvas({
   return (
     <div className="flex h-full w-full">
       {/* Node palette */}
-      <aside className="flex w-56 shrink-0 flex-col gap-2 overflow-y-auto border-r bg-muted/30 p-3">
-        <p className="px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <aside className="flex w-56 shrink-0 flex-col gap-2 overflow-y-auto border-r bg-zoru-surface-2/30 p-3">
+        <p className="px-1 text-xs font-semibold uppercase tracking-wide text-zoru-ink-muted">
           Nodes
         </p>
         {TELEGRAM_NODE_TYPES.filter((m) => m.type !== 'trigger').map((m) => {
@@ -225,8 +225,8 @@ export function FlowCanvas({
               type="button"
               onClick={() => addNode(m)}
               className={cn(
-                'group flex items-start gap-2 rounded-lg border bg-background p-2 text-left text-sm shadow-sm transition',
-                'hover:border-primary hover:bg-accent disabled:opacity-50',
+                'group flex items-start gap-2 rounded-lg border bg-zoru-surface p-2 text-left text-sm shadow-sm transition',
+                'hover:border-primary hover:bg-zoru-surface-2 disabled:opacity-50',
               )}
               disabled={disabled}
             >
@@ -239,7 +239,7 @@ export function FlowCanvas({
               </span>
               <span className="flex flex-col">
                 <span className="font-medium">{m.label}</span>
-                <span className="text-xs text-muted-foreground">{m.subtitle}</span>
+                <span className="text-xs text-zoru-ink-muted">{m.subtitle}</span>
               </span>
             </button>
           );
@@ -342,7 +342,7 @@ export function FlowCanvas({
 
         {/* Trigger card */}
         <div
-          className="absolute rounded-lg border-2 border-[#229ED9] bg-white shadow-md"
+          className="absolute rounded-lg border-2 border-zoru-line bg-white shadow-md"
           style={cardStyle(triggerCard.position.x, triggerCard.position.y, NODE_WIDTH, NODE_HEIGHT)}
           onClick={(e) => {
             e.stopPropagation();
@@ -350,7 +350,7 @@ export function FlowCanvas({
           }}
         >
           <div className="flex h-full flex-col justify-center gap-1 px-3">
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-[#229ED9]">
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-zoru-ink">
               Trigger
             </span>
             <span className="truncate text-sm font-medium">{trigger?.kind ?? 'incoming_message'}</span>
@@ -371,7 +371,7 @@ export function FlowCanvas({
             <div
               key={node.id}
               className={cn(
-                'absolute rounded-lg border bg-background shadow-sm transition',
+                'absolute rounded-lg border bg-zoru-surface shadow-sm transition',
                 selected ? 'ring-2 ring-offset-2' : 'hover:shadow-md',
               )}
               style={{
@@ -396,7 +396,7 @@ export function FlowCanvas({
                     <Icon className="h-4 w-4" style={{ color: meta.accent }} />
                     <span className="truncate text-sm font-medium">{meta.label}</span>
                   </div>
-                  <span className="truncate text-xs text-muted-foreground">
+                  <span className="truncate text-xs text-zoru-ink-muted">
                     {summariseNode(node)}
                   </span>
                 </div>
@@ -408,7 +408,7 @@ export function FlowCanvas({
                       e.stopPropagation();
                       deleteNode(node.id);
                     }}
-                    className="absolute -right-2 -top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow"
+                    className="absolute -right-2 -top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-zoru-ink text-white shadow"
                   >
                     <Trash2 className="h-3 w-3" />
                   </button>
@@ -430,8 +430,8 @@ export function FlowCanvas({
         })}
 
         {nodes.length === 0 ? (
-          <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-            <div className="rounded-lg border border-dashed bg-background/80 p-6 text-center">
+          <div className="absolute inset-0 flex items-center justify-center text-sm text-zoru-ink-muted">
+            <div className="rounded-lg border border-dashed bg-zoru-surface/80 p-6 text-center">
               <p className="font-medium">Empty canvas</p>
               <p className="mt-1 text-xs">
                 Click a node in the palette to add it. Drag the right edge of a card to
@@ -523,7 +523,7 @@ function PortButton({
       aria-label={label}
       className={cn(
         'absolute inline-flex h-4 w-4 items-center justify-center rounded-full border-2 border-white shadow ring-1 ring-border',
-        inbound ? 'bg-muted' : 'bg-[#229ED9]',
+        inbound ? 'bg-zoru-surface-2' : 'bg-zoru-ink',
       )}
       style={style}
     />

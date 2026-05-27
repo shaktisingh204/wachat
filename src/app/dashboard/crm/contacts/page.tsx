@@ -409,7 +409,7 @@ export default function CrmContactsPage() {
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9 border border-zoru-line">
             <ZoruAvatarImage src={row.avatarUrl || ''} />
-            <ZoruAvatarFallback className="bg-accent text-[12px] text-accent-foreground">
+            <ZoruAvatarFallback className="bg-zoru-surface-2 text-[12px] text-zoru-ink">
               {row.name?.charAt(0) ?? '?'}
             </ZoruAvatarFallback>
           </Avatar>

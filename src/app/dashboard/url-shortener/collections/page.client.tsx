@@ -85,7 +85,7 @@ export default function CollectionsPage() {
                     ) : collections.length === 0 ? (
                         <Card className="p-4 text-center text-[12px] text-zoru-ink-muted mt-2">
                             No collections yet.<br />
-                            <a href="/dashboard/url-shortener" className="text-amber-400 hover:underline">Create one on the Links page</a>
+                            <a href="/dashboard/url-shortener" className="text-zoru-ink-muted hover:underline">Create one on the Links page</a>
                         </Card>
                     ) : (
                         collections.map((col) => (
@@ -95,8 +95,8 @@ export default function CollectionsPage() {
                                 className={cn(
                                     'w-full flex items-center gap-2 px-3 py-2 text-[12.5px] rounded-lg border transition-colors',
                                     selectedCollection === col._id
-                                        ? 'border-amber-400/50 bg-zinc-800 text-zoru-ink'
-                                        : 'border-transparent hover:bg-zinc-900 text-zoru-ink-muted'
+                                        ? 'border-zoru-line/50 bg-zoru-ink text-zoru-ink'
+                                        : 'border-transparent hover:bg-zoru-ink text-zoru-ink-muted'
                                 )}
                             >
                                 <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: col.color }} />
@@ -136,8 +136,8 @@ export default function CollectionsPage() {
                                             className={cn(
                                                 'group w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border text-left transition-colors',
                                                 inCollection
-                                                    ? 'border-amber-400/40 bg-amber-400/5'
-                                                    : 'border-zoru-border hover:border-zoru-border/80 hover:bg-zinc-900'
+                                                    ? 'border-zoru-line/40 bg-zoru-surface-2/5'
+                                                    : 'border-zoru-border hover:border-zoru-border/80 hover:bg-zoru-ink'
                                             )}
                                         >
                                             <button 
@@ -145,7 +145,7 @@ export default function CollectionsPage() {
                                                 disabled={isPending}
                                                 className="flex-1 min-w-0 flex items-center gap-3 text-left"
                                             >
-                                                <Link2 className={cn('h-3.5 w-3.5 flex-shrink-0', inCollection ? 'text-amber-400' : 'text-zoru-ink-muted')} />
+                                                <Link2 className={cn('h-3.5 w-3.5 flex-shrink-0', inCollection ? 'text-zoru-ink-muted' : 'text-zoru-ink-muted')} />
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-[12.5px] text-zoru-ink truncate">{url.originalUrl}</p>
                                                     <p className="text-[11px] text-zoru-ink-muted">/{url.shortCode}</p>

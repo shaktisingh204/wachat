@@ -24,10 +24,10 @@ export function TextInputEditor({ component, updateField }: TextInputEditorProps
                     value={component.name || ''}
                     onChange={(e) => updateField('name', e.target.value)}
                     required
-                    className="font-mono bg-muted/50"
+                    className="font-mono bg-zoru-surface-2/50"
                     placeholder="field_name"
                 />
-                <p className="text-[10px] text-muted-foreground">Unique ID for data binding.</p>
+                <p className="text-[10px] text-zoru-ink-muted">Unique ID for data binding.</p>
             </div>
             <div className="space-y-2">
                 <Label htmlFor="label">Label</Label>

@@ -32,7 +32,7 @@ interface CrmAutomationBlockEditorProps {
 const TriggerEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) => void }) => (
     <div className="space-y-2">
         <Label>Trigger Tag</Label>
-        <p className="text-xs text-muted-foreground">The exact name of the tag that should start this workflow.</p>
+        <p className="text-xs text-zoru-ink-muted">The exact name of the tag that should start this workflow.</p>
         <Input 
             placeholder="e.g., new_lead" 
             value={data.tagName || ''}
@@ -90,7 +90,7 @@ const SendEmailEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) 
 const AddTagEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) => void }) => (
      <div className="space-y-2">
         <Label>Tag Name</Label>
-        <p className="text-xs text-muted-foreground">The tag to add to the contact.</p>
+        <p className="text-xs text-zoru-ink-muted">The tag to add to the contact.</p>
         <Input 
             placeholder="e.g., contacted, follow_up" 
             value={data.tagName || ''}
@@ -138,7 +138,7 @@ const ConditionEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) 
                 {rules.map((rule: any, index: number) => (
                     <div key={index} className="p-3 border rounded-md space-y-2 relative">
                         <Button variant="ghost" size="icon" className="absolute -top-3 -right-3 h-6 w-6" onClick={() => removeRule(index)}>
-                            <Trash2 className="h-4 w-4 text-destructive"/>
+                            <Trash2 className="h-4 w-4 text-zoru-ink"/>
                         </Button>
                         <Select value={rule.field} onValueChange={(val) => handleRuleChange(index, 'field', val)}>
                             <ZoruSelectTrigger><ZoruSelectValue placeholder="Select a field..."/></ZoruSelectTrigger>
@@ -176,7 +176,7 @@ export function CrmAutomationBlockEditor({ node, onUpdate }: { node: any, onUpda
             case 'actionAddTag': return <AddTagEditor data={node.data} onUpdate={handleDataUpdate} />;
             case 'actionCreateTask': return <CreateTaskEditor data={node.data} onUpdate={handleDataUpdate} />;
             case 'condition': return <ConditionEditor data={node.data} onUpdate={handleDataUpdate} />;
-            default: return <p className="text-sm text-muted-foreground">No settings for this block type.</p>
+            default: return <p className="text-sm text-zoru-ink-muted">No settings for this block type.</p>
         }
     }
 

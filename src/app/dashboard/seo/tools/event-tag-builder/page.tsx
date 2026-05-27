@@ -21,9 +21,9 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   render() {
     if (this.state.hasError) {
       return (
-        <Card className="border-red-500 m-4">
+        <Card className="border-zoru-line m-4">
           <ZoruCardContent className="p-4 flex flex-col gap-2">
-            <span className="text-red-600 text-sm">Something went wrong: {this.state.error?.message}</span>
+            <span className="text-zoru-ink text-sm">Something went wrong: {this.state.error?.message}</span>
             <Button variant="outline" size="sm" onClick={() => this.setState({ hasError: false, error: null })}>
               Try Again
             </Button>
@@ -187,12 +187,12 @@ function EventTagBuilder() {
                 <div key={i} className="flex gap-2 items-center">
                   <Input value={r.k} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, k: e.target.value } : rr))} placeholder="Parameter Name (e.g. currency)" className="flex-1" />
                   <Input value={r.v} onChange={(e) => setRows((rs) => rs.map((rr, j) => j === i ? { ...rr, v: e.target.value } : rr))} placeholder="Value (e.g. USD)" className="flex-1" />
-                  <Button variant="ghost" size="icon" onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-red-500">
+                  <Button variant="ghost" size="icon" onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))} className="text-zoru-ink-muted hover:text-zoru-ink">
                     &times;
                   </Button>
                 </div>
               ))}
-              <Button variant="secondary" size="sm" onClick={() => setRows((r) => [...r, { k: '', v: '' }])} className="w-full border border-dashed border-muted-foreground/30 bg-muted/20">
+              <Button variant="secondary" size="sm" onClick={() => setRows((r) => [...r, { k: '', v: '' }])} className="w-full border border-dashed border-muted-foreground/30 bg-zoru-surface-2/20">
                 + Add Parameter
               </Button>
             </div>
@@ -201,14 +201,14 @@ function EventTagBuilder() {
           <div className="space-y-2 pt-4 border-t">
             <Label className="font-semibold">Generated Snippet</Label>
             <div className="relative">
-              <Textarea readOnly value={snippet} className="min-h-[160px] font-mono text-sm bg-muted/10" />
+              <Textarea readOnly value={snippet} className="min-h-[160px] font-mono text-sm bg-zoru-surface-2/10" />
               <Button 
                 size="sm" 
                 variant="secondary" 
                 className="absolute top-2 right-2 opacity-80 hover:opacity-100"
                 onClick={handleCopySnippet}
               >
-                {copiedSnippet ? <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" /> : <Copy className="w-4 h-4 mr-2" />}
+                {copiedSnippet ? <CheckCircle2 className="w-4 h-4 mr-2 text-zoru-ink" /> : <Copy className="w-4 h-4 mr-2" />}
                 {copiedSnippet ? 'Copied!' : 'Copy'}
               </Button>
             </div>
@@ -237,7 +237,7 @@ function EventTagBuilder() {
           </div>
 
           {extractionError && (
-            <div className="p-4 bg-red-50 text-red-600 rounded-md flex items-start gap-2 border border-red-200">
+            <div className="p-4 bg-zoru-surface-2 text-zoru-ink rounded-md flex items-start gap-2 border border-zoru-line">
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
               <div className="text-sm">{extractionError}</div>
             </div>
@@ -256,15 +256,15 @@ function EventTagBuilder() {
               </h3>
               
               {extractedEvents.length === 0 ? (
-                <div className="text-muted-foreground text-sm p-8 text-center bg-muted/20 border rounded-md border-dashed">
+                <div className="text-zoru-ink-muted text-sm p-8 text-center bg-zoru-surface-2/20 border rounded-md border-dashed">
                   No GA4 gtag or dataLayer events found on this page.
                 </div>
               ) : (
                 <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
                   {extractedEvents.map((evt, idx) => (
                     <Card key={idx} className="overflow-hidden">
-                      <div className="bg-muted px-4 py-2 font-mono text-sm border-b font-semibold flex justify-between items-center">
-                        <span>Event: <span className="text-primary">{evt.name}</span></span>
+                      <div className="bg-zoru-surface-2 px-4 py-2 font-mono text-sm border-b font-semibold flex justify-between items-center">
+                        <span>Event: <span className="text-zoru-ink">{evt.name}</span></span>
                         <div className="flex items-center gap-2">
                           <Button 
                             variant="ghost" 
@@ -272,7 +272,7 @@ function EventTagBuilder() {
                             className="h-6 px-2 text-xs" 
                             onClick={() => handleCopyExtractedSnippet(evt.params, idx)}
                           >
-                            {copiedIndex === idx ? <CheckCircle2 className="w-3 h-3 mr-1 text-green-500" /> : <Copy className="w-3 h-3 mr-1" />}
+                            {copiedIndex === idx ? <CheckCircle2 className="w-3 h-3 mr-1 text-zoru-ink" /> : <Copy className="w-3 h-3 mr-1" />}
                             {copiedIndex === idx ? 'Copied!' : 'Copy'}
                           </Button>
                           <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => {
@@ -298,7 +298,7 @@ function EventTagBuilder() {
                         <Textarea 
                           readOnly 
                           value={evt.params} 
-                          className="min-h-[100px] font-mono text-xs border-0 focus-visible:ring-0 rounded-none resize-none bg-muted/5" 
+                          className="min-h-[100px] font-mono text-xs border-0 focus-visible:ring-0 rounded-none resize-none bg-zoru-surface-2/5" 
                         />
                       </ZoruCardContent>
                     </Card>

@@ -188,7 +188,7 @@ export function InvoicePaymentPanel({
               <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
             </Alert>
           ) : null}
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-zoru-ink">
             {status === 'Paid'
               ? 'This invoice has been paid in full. Thank you!'
               : status === 'Pending-Confirmation'
@@ -221,7 +221,7 @@ export function InvoicePaymentPanel({
             <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
           </Alert>
         ) : null}
-        <p className="text-sm text-zinc-600">
+        <p className="text-sm text-zoru-ink">
           Choose a payment method below to settle this invoice.
         </p>
         <ZoruDrawer open={open} onOpenChange={setOpen}>
@@ -274,7 +274,7 @@ export function InvoicePaymentPanel({
                 </Button>
               </div>
 
-              <div className="rounded-md border border-zinc-200 p-3">
+              <div className="rounded-md border border-zoru-line p-3">
                 <h4 className="mb-2 text-sm font-semibold">Pay offline</h4>
                 <div className="space-y-3">
                   <div>
@@ -307,7 +307,7 @@ export function InvoicePaymentPanel({
                       {billUrl ? 'Replace file' : 'Attach proof from SabFiles'}
                     </SabFilePickerButton>
                     {billUrl ? (
-                      <p className="mt-1 text-xs text-zinc-500">Attached.</p>
+                      <p className="mt-1 text-xs text-zoru-ink">Attached.</p>
                     ) : null}
                   </div>
                   <Button onClick={handleOfflineSubmit} disabled={pending} block>
@@ -335,7 +335,7 @@ function DownloadPdfButton({ hash }: { hash: string }) {
       href={`/share/invoice/${hash}/download`}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex items-center text-sm text-zinc-700 underline-offset-2 hover:underline"
+      className="inline-flex items-center text-sm text-zoru-ink underline-offset-2 hover:underline"
     >
       Download PDF
     </a>

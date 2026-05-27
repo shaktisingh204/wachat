@@ -16,7 +16,7 @@ const btnBase =
     'inline-flex h-9 w-full items-center justify-center gap-2 rounded-full px-4 text-[13px] font-medium leading-none transition-colors';
 const btnObsidian = 'bg-zoru-ink text-white hover:bg-zoru-ink/90';
 const btnRoseSoft =
-    'bg-accent text-accent-foreground border border-accent hover:brightness-[0.97]';
+    'bg-zoru-surface-2 text-zoru-ink border border-accent hover:brightness-[0.97]';
 const btnDisabled =
     'bg-zoru-bg text-zoru-ink-muted border border-zoru-line opacity-60 pointer-events-none';
 
@@ -125,8 +125,8 @@ async function IntegrationsDashboard({ q }: { q?: string }) {
                                             className={
                                                 'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ' +
                                                 (connected
-                                                    ? 'bg-emerald-50 text-emerald-500'
-                                                    : 'bg-accent text-accent-foreground')
+                                                    ? 'bg-zoru-surface-2 text-zoru-ink'
+                                                    : 'bg-zoru-surface-2 text-zoru-ink')
                                             }
                                         >
                                             <Icon className="h-5 w-5" strokeWidth={1.75} />

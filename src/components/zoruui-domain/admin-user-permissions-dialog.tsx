@@ -134,7 +134,7 @@ export function AdminUserPermissionsDialog({ userId, userName, initialPermission
                                     <TabsTrigger
                                         key={category}
                                         value={category}
-                                        className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground border"
+                                        className="data-[state=active]:bg-zoru-ink data-[state=active]:text-white border"
                                     >
                                         {category}
                                     </TabsTrigger>
@@ -145,7 +145,7 @@ export function AdminUserPermissionsDialog({ userId, userName, initialPermission
                         <div className="flex-1 overflow-auto py-4">
                             {Object.entries(moduleCategories).map(([category, modules]) => (
                                 <TabsContent key={category} value={category} className="mt-0">
-                                    <div className="flex justify-between items-center mb-4 bg-muted/30 p-2 rounded-md">
+                                    <div className="flex justify-between items-center mb-4 bg-zoru-surface-2/30 p-2 rounded-md">
                                         <div className="flex items-center gap-2">
                                             <h3 className="font-semibold text-sm">{category} Modules</h3>
                                             <Badge variant="outline" className="text-[10px]">{modules.length}</Badge>
@@ -168,7 +168,7 @@ export function AdminUserPermissionsDialog({ userId, userName, initialPermission
                                                             <div className="font-medium text-sm flex items-center gap-2">
                                                                 {moduleKey.replace(/_/g, ' ')}
                                                             </div>
-                                                            <p className="text-xs text-muted-foreground">
+                                                            <p className="text-xs text-zoru-ink-muted">
                                                                 {moduleKey}
                                                             </p>
                                                         </div>

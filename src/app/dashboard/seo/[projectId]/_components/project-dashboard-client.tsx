@@ -138,7 +138,7 @@ function KeywordsTab({ projectId, project }: { projectId: string, project: any }
                                     </TableCell>
                                     <TableCell className="text-right">{kw.currentVolume?.toLocaleString() || '-'}</TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => handleDeleteKw(kw._id)}>
+                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2" onClick={() => handleDeleteKw(kw._id)}>
                                             <Trash2 className="h-3 w-3" />
                                         </Button>
                                     </TableCell>
@@ -296,7 +296,7 @@ function SettingsTab({ project, onUpdate }: { project: any, onUpdate: () => void
 
             <div className="mt-10 pt-6 border-t border-zoru-line border-dashed">
                 <div className="mb-4">
-                    <h3 className="text-sm font-medium text-red-500">Danger Zone</h3>
+                    <h3 className="text-sm font-medium text-zoru-ink">Danger Zone</h3>
                     <p className="text-[12.5px] text-zoru-ink-muted mt-1">Deleting this project will permanently remove all associated audits, keywords, and history.</p>
                 </div>
                 <Button variant="destructive" onClick={handleDelete} disabled={deleting}>

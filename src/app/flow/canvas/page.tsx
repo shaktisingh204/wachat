@@ -113,7 +113,7 @@ function LayoutFlow() {
   );
 
   return (
-    <div className="w-full h-screen bg-gray-50 text-black">
+    <div className="w-full h-screen bg-zoru-surface-2 text-black">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -125,13 +125,13 @@ function LayoutFlow() {
         <Panel position="top-right" className="flex gap-2">
           <button
             onClick={() => onLayout('TB')}
-            className="px-3 py-2 bg-white text-sm font-medium border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 bg-white text-sm font-medium border border-zoru-line rounded-md shadow-sm hover:bg-zoru-surface-2 focus:outline-none focus:ring-2 focus:ring-zoru-line"
           >
             Vertical Layout
           </button>
           <button
             onClick={() => onLayout('LR')}
-            className="px-3 py-2 bg-white text-sm font-medium border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 bg-white text-sm font-medium border border-zoru-line rounded-md shadow-sm hover:bg-zoru-surface-2 focus:outline-none focus:ring-2 focus:ring-zoru-line"
           >
             Horizontal Layout
           </button>

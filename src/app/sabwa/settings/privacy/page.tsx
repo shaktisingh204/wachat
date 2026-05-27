@@ -268,12 +268,12 @@ export default function PrivacySettingsPage() {
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
       <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-secondary p-3">
+        <div className="rounded-xl bg-zoru-surface-2 p-3">
           <ShieldCheck className="h-6 w-6" />
         </div>
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Settings — Privacy &amp; Security</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-zoru-ink-muted mt-1">
             Lock down who can see what, who can reach you, and how your session is encrypted.
           </p>
         </div>
@@ -336,7 +336,7 @@ export default function PrivacySettingsPage() {
         </ZoruCardHeader>
         <ZoruCardContent>
           {settings.blocked.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No blocked contacts.</p>
+            <p className="text-sm text-zoru-ink-muted">No blocked contacts.</p>
           ) : (
             <Table>
               <ZoruTableHeader>
@@ -350,7 +350,7 @@ export default function PrivacySettingsPage() {
                 {settings.blocked.map((b) => (
                   <ZoruTableRow key={b.jid}>
                     <ZoruTableCell className="font-mono text-sm">{b.name || b.jid}</ZoruTableCell>
-                    <ZoruTableCell className="text-sm text-muted-foreground">
+                    <ZoruTableCell className="text-sm text-zoru-ink-muted">
                       {b.blockedAt ? new Date(b.blockedAt).toLocaleDateString() : '—'}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
@@ -442,7 +442,7 @@ export default function PrivacySettingsPage() {
       <Card>
         <ZoruCardHeader>
           <ZoruCardTitle className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-green-600" />
+            <ShieldCheck className="h-4 w-4 text-zoru-ink" />
             End-to-end encryption
           </ZoruCardTitle>
           <ZoruCardDescription>

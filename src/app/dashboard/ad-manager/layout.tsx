@@ -55,11 +55,11 @@ function MetaFeatureLock() {
   return (
     <Card className="mt-6">
       <ZoruCardContent className="flex flex-col items-center justify-center gap-5 py-24 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-zoru-surface-2">
           <Lock className="h-7 w-7 text-zoru-ink-muted" strokeWidth={1.75} />
         </div>
         <div>
-          <h2 className="text-[20px] font-semibold text-foreground">
+          <h2 className="text-[20px] font-semibold text-zoru-ink">
             Meta Ads Manager is locked
           </h2>
           <p className="mt-1.5 max-w-md text-[13px] text-zoru-ink-muted leading-relaxed">
@@ -115,7 +115,7 @@ function DateRangeBar({
                   className={cn(
                     'text-left text-sm px-2 py-1.5 rounded transition',
                     preset === p.id
-                      ? 'bg-primary/10 text-primary font-medium'
+                      ? 'bg-zoru-ink/10 text-zoru-ink font-medium'
                       : 'hover:bg-zoru-surface-2 text-zoru-ink-muted',
                   )}
                 >
@@ -155,7 +155,7 @@ function AccountPill() {
     >
       <span
         className="mr-1.5 flex h-4 w-4 items-center justify-center rounded text-[8px] font-bold text-white"
-        style={{ background: '#4F46E5' }}
+        style={{ background: 'var(--zoru-ink)' }}
       >
         {(activeAccount?.name || 'AD').slice(0, 2).toUpperCase()}
       </span>

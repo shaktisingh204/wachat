@@ -17,12 +17,12 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 const BROADCASTS_PER_PAGE = 20;
 
 const STATUS_STYLES: Record<string, string> = {
-    completed: 'bg-emerald-100 text-emerald-600 border-emerald-200',
+    completed: 'bg-zoru-surface-2 text-zoru-ink border-zoru-line',
     queued: 'bg-zoru-surface text-zoru-ink border-zoru-line',
-    processing: 'bg-blue-100 text-blue-600 border-blue-200',
-    'partial failure': 'bg-amber-100 text-amber-600 border-amber-200',
+    processing: 'bg-zoru-surface-2 text-zoru-ink border-zoru-line',
+    'partial failure': 'bg-zoru-surface-2 text-zoru-ink border-zoru-line',
     cancelled: 'bg-zoru-surface text-zoru-ink-muted border-zoru-line',
-    failed: 'bg-red-500/15 text-red-600 border-red-500/30',
+    failed: 'bg-zoru-ink/15 text-zoru-ink border-zoru-line/30',
 };
 
 function statusStyle(status?: string) {
@@ -180,9 +180,9 @@ function BroadcastLogContent() {
                                             {b.projectId?.toString() || '—'}
                                         </td>
                                         <td className="px-6 py-3.5 text-xs">
-                                            <span className="text-emerald-600">{b.successCount || 0} sent</span>
+                                            <span className="text-zoru-ink">{b.successCount || 0} sent</span>
                                             <span className="text-zoru-ink-muted mx-1">/</span>
-                                            <span className="text-red-600">{b.errorCount || 0} failed</span>
+                                            <span className="text-zoru-ink">{b.errorCount || 0} failed</span>
                                         </td>
                                     </tr>
                                 ))

@@ -129,7 +129,7 @@ export function BulkUpload() {
                     </div>
                     {csvData.length > 0 && !isUploading && (
                         <div className="relative w-full sm:w-[250px]">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
                             <Input
                                 type="text"
                                 placeholder="Filter records..."
@@ -158,8 +158,8 @@ export function BulkUpload() {
                             </AlertDescription>
                         </Alert>
                         
-                        <div className="border rounded-md overflow-hidden bg-background">
-                            <div className="grid grid-cols-5 bg-muted/50 p-3 text-sm font-medium border-b">
+                        <div className="border rounded-md overflow-hidden bg-zoru-surface">
+                            <div className="grid grid-cols-5 bg-zoru-surface-2/50 p-3 text-sm font-medium border-b">
                                 <div>Employee Name</div>
                                 <div>FY</div>
                                 <div>Quarter</div>
@@ -168,7 +168,7 @@ export function BulkUpload() {
                             </div>
                             
                             {filteredData.length === 0 ? (
-                                <div className="p-4 text-center text-sm text-muted-foreground">
+                                <div className="p-4 text-center text-sm text-zoru-ink-muted">
                                     No records found matching your filter.
                                 </div>
                             ) : (
@@ -193,7 +193,7 @@ export function BulkUpload() {
                                                         height: `${virtualRow.size}px`,
                                                         transform: `translateY(${virtualRow.start}px)`,
                                                     }}
-                                                    className="grid grid-cols-5 p-3 text-sm border-b items-center hover:bg-muted/50 transition-colors"
+                                                    className="grid grid-cols-5 p-3 text-sm border-b items-center hover:bg-zoru-surface-2/50 transition-colors"
                                                 >
                                                     <div className="truncate font-medium pr-2">{row.employeeName}</div>
                                                     <div>{row.financialYear}</div>

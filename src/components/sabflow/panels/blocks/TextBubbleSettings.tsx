@@ -14,7 +14,7 @@ import { VariableAutocompleteInput } from './shared/VariableAutocompleteInput';
 
 /* ── Shared primitives ──────────────────────────────────────── */
 const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808] transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';
 
 /* ── Variable highlight renderer ────────────────────────────── */
 /**
@@ -27,7 +27,7 @@ function HighlightedText({ text }: { text: string }) {
     <>
       {parts.map((part, i) =>
         /^{{.*}}$/.test(part) ? (
-          <span key={i} className="text-[#f76808] font-medium">
+          <span key={i} className="text-zoru-ink font-medium">
             {part}
           </span>
         ) : (
@@ -66,7 +66,7 @@ function VariablePicker({ variables, onSelect }: VariablePickerProps) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 rounded-md border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1 text-[12px] text-[var(--gray-11)] hover:border-[#f76808] hover:text-[#f76808] transition-colors"
+        className="flex items-center gap-1 rounded-md border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1 text-[12px] text-[var(--gray-11)] hover:border-zoru-line hover:text-zoru-ink transition-colors"
       >
         <LuBraces className="h-3.5 w-3.5" strokeWidth={1.8} />
         Variable
@@ -91,7 +91,7 @@ function VariablePicker({ variables, onSelect }: VariablePickerProps) {
                   onSelect(varName);
                   setOpen(false);
                 }}
-                className="flex items-center gap-2 px-3 py-2 text-[12px] font-mono cursor-pointer text-[var(--gray-11)] hover:bg-[var(--gray-4)] hover:text-[#f76808] transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-[12px] font-mono cursor-pointer text-[var(--gray-11)] hover:bg-[var(--gray-4)] hover:text-zoru-ink transition-colors"
               >
                 {`{{${varName}}}`}
               </li>
@@ -175,8 +175,8 @@ export function TextBubbleSettings({
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#f76808]/10">
-          <LuMessageSquare className="h-4 w-4 text-[#f76808]" strokeWidth={1.8} />
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zoru-ink/10">
+          <LuMessageSquare className="h-4 w-4 text-zoru-ink" strokeWidth={1.8} />
         </div>
         <span className="text-[13px] font-semibold text-[var(--gray-12)]">
           Text Bubble
@@ -244,7 +244,7 @@ export function TextBubbleSettings({
 
       <p className="text-[11px] text-[var(--gray-8)] leading-relaxed">
         Use{' '}
-        <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[#f76808]">
+        <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">
           {'{{variableName}}'}
         </code>{' '}
         to insert dynamic values collected earlier in the flow.

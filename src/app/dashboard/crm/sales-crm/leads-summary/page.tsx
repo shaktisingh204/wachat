@@ -105,12 +105,12 @@ interface StatCardProps {
 function StatCard({ title, value, accent, suffix }: StatCardProps) {
     return (
         <Card>
-            <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
-            <p className="mt-1 flex items-baseline gap-1.5 text-[28px] font-semibold text-foreground">
+            <p className="text-[13px] font-medium text-zoru-ink-muted">{title}</p>
+            <p className="mt-1 flex items-baseline gap-1.5 text-[28px] font-semibold text-zoru-ink">
                 <span>{value.toLocaleString()}</span>
-                {suffix ? <span className="text-[13px] text-muted-foreground">{suffix}</span> : null}
+                {suffix ? <span className="text-[13px] text-zoru-ink-muted">{suffix}</span> : null}
             </p>
-            {accent ? <p className="mt-1 text-[11.5px] text-muted-foreground">{accent}</p> : null}
+            {accent ? <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{accent}</p> : null}
         </Card>
     );
 }
@@ -292,11 +292,11 @@ export default function LeadsSummaryPage() {
             {/* Filters */}
             <Card>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
+                    <h2 className="text-[16px] font-semibold text-zoru-ink">Filters</h2>
                 </div>
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                     <div className="space-y-1">
-                        <Label className="text-foreground">Pipeline</Label>
+                        <Label className="text-zoru-ink">Pipeline</Label>
                         <Select
                             value={filters.pipelineId}
                             onValueChange={(v) => handleFilterChange('pipelineId', v)}
@@ -314,7 +314,7 @@ export default function LeadsSummaryPage() {
                         </Select>
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-foreground">Lead Source</Label>
+                        <Label className="text-zoru-ink">Lead Source</Label>
                         <Select
                             value={filters.leadSource}
                             onValueChange={(v) => handleFilterChange('leadSource', v)}
@@ -332,7 +332,7 @@ export default function LeadsSummaryPage() {
                         </Select>
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-foreground">Assigned To</Label>
+                        <Label className="text-zoru-ink">Assigned To</Label>
                         <Select
                             value={filters.assigneeId}
                             onValueChange={(v) => handleFilterChange('assigneeId', v)}
@@ -350,7 +350,7 @@ export default function LeadsSummaryPage() {
                         </Select>
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-foreground">Current Stage</Label>
+                        <Label className="text-zoru-ink">Current Stage</Label>
                         <Select
                             value={filters.currentStage}
                             onValueChange={(v) => handleFilterChange('currentStage', v)}
@@ -368,7 +368,7 @@ export default function LeadsSummaryPage() {
                         </Select>
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-foreground">Created From</Label>
+                        <Label className="text-zoru-ink">Created From</Label>
                         <DatePicker
                             value={filters.createdFrom}
                             onChange={(d) => handleFilterChange('createdFrom', (d ?? undefined) as Date | undefined)}
@@ -376,7 +376,7 @@ export default function LeadsSummaryPage() {
                         />
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-foreground">Created To</Label>
+                        <Label className="text-zoru-ink">Created To</Label>
                         <DatePicker
                             value={filters.createdTo}
                             onChange={(d) => handleFilterChange('createdTo', (d ?? undefined) as Date | undefined)}
@@ -384,7 +384,7 @@ export default function LeadsSummaryPage() {
                         />
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-foreground">Closed From</Label>
+                        <Label className="text-zoru-ink">Closed From</Label>
                         <DatePicker
                             value={filters.closedFrom}
                             onChange={(d) => handleFilterChange('closedFrom', (d ?? undefined) as Date | undefined)}
@@ -392,7 +392,7 @@ export default function LeadsSummaryPage() {
                         />
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-foreground">Closed To</Label>
+                        <Label className="text-zoru-ink">Closed To</Label>
                         <DatePicker
                             value={filters.closedTo}
                             onChange={(d) => handleFilterChange('closedTo', (d ?? undefined) as Date | undefined)}
@@ -415,7 +415,7 @@ export default function LeadsSummaryPage() {
             {/* Active filters */}
             {activeFilters.length > 0 ? (
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[13px] font-semibold text-foreground">Applied:</span>
+                    <span className="text-[13px] font-semibold text-zoru-ink">Applied:</span>
                     {activeFilters.map(([key, value]) => {
                         let display: string;
                         if (value instanceof Date) display = format(value, 'PP');
@@ -436,8 +436,8 @@ export default function LeadsSummaryPage() {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <Card className="lg:col-span-2">
                     <div className="mb-4">
-                        <h2 className="text-[16px] font-semibold text-foreground">Pipeline funnel</h2>
-                        <p className="text-[12px] text-muted-foreground">
+                        <h2 className="text-[16px] font-semibold text-zoru-ink">Pipeline funnel</h2>
+                        <p className="text-[12px] text-zoru-ink-muted">
                             Leads per stage, ordered by volume.
                         </p>
                     </div>
@@ -455,13 +455,13 @@ export default function LeadsSummaryPage() {
 
                 <Card>
                     <div className="mb-4">
-                        <h2 className="text-[16px] font-semibold text-foreground">Source split</h2>
-                        <p className="text-[12px] text-muted-foreground">
+                        <h2 className="text-[16px] font-semibold text-zoru-ink">Source split</h2>
+                        <p className="text-[12px] text-zoru-ink-muted">
                             Distribution across lead sources.
                         </p>
                     </div>
                     {derived.sourcePie.length === 0 ? (
-                        <p className="py-12 text-center text-[13px] text-muted-foreground">
+                        <p className="py-12 text-center text-[13px] text-zoru-ink-muted">
                             No source data yet.
                         </p>
                     ) : (
@@ -493,8 +493,8 @@ export default function LeadsSummaryPage() {
             {/* Stage trend (line) */}
             <Card>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Stage curve</h2>
-                    <p className="text-[12px] text-muted-foreground">
+                    <h2 className="text-[16px] font-semibold text-zoru-ink">Stage curve</h2>
+                    <p className="text-[12px] text-zoru-ink-muted">
                         Leads vs weighted value across pipeline stages.
                     </p>
                 </div>
@@ -529,24 +529,24 @@ export default function LeadsSummaryPage() {
             {/* Per-stage table */}
             <Card>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Stages</h2>
+                    <h2 className="text-[16px] font-semibold text-zoru-ink">Stages</h2>
                 </div>
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
                     {pipelineSummary.map((stage) => (
                         <div
                             key={stage.name}
-                            className="rounded-lg border border-border bg-secondary p-4 text-center"
+                            className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-4 text-center"
                         >
-                            <h3 className="text-[13px] font-semibold text-foreground">{stage.name}</h3>
-                            <p className="text-[22px] font-semibold text-foreground">{stage.leadCount}</p>
-                            <p className="text-[11.5px] text-muted-foreground">Leads</p>
-                            <p className="mt-2 text-[11.5px] text-muted-foreground">
+                            <h3 className="text-[13px] font-semibold text-zoru-ink">{stage.name}</h3>
+                            <p className="text-[22px] font-semibold text-zoru-ink">{stage.leadCount}</p>
+                            <p className="text-[11.5px] text-zoru-ink-muted">Leads</p>
+                            <p className="mt-2 text-[11.5px] text-zoru-ink-muted">
                                 Total: ₹{stage.totalValue.toLocaleString()}
                             </p>
-                            <p className="text-[11.5px] text-muted-foreground">
+                            <p className="text-[11.5px] text-zoru-ink-muted">
                                 Weighted: ₹{stage.weightedValue.toLocaleString()}
                             </p>
-                            <p className="text-[11.5px] font-medium text-[hsl(var(--primary))]">
+                            <p className="text-[11.5px] font-medium text-zoru-ink">
                                 AI Score: {stage.avgPredictiveScore ?? 0}/100
                             </p>
                         </div>

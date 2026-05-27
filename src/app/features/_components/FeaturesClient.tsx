@@ -114,7 +114,7 @@ export function FeaturesClient() {
           {loading ? (
             <SkeletonList />
           ) : error ? (
-            <div className="border border-black p-6 bg-red-50 text-red-900">
+            <div className="border border-black p-6 bg-zoru-surface-2 text-zoru-ink">
               <div className="flex items-center gap-2 mb-2 font-bold uppercase tracking-widest">
                 <AlertTriangle className="w-5 h-5" />
                 API Error
@@ -122,7 +122,7 @@ export function FeaturesClient() {
               <p className="font-mono text-sm mb-4">{error}</p>
               <button 
                 onClick={() => loadFeatures()}
-                className="border border-red-900 px-4 py-2 text-xs uppercase tracking-widest font-bold hover:bg-red-900 hover:text-white transition-colors flex items-center gap-2"
+                className="border border-zoru-line px-4 py-2 text-xs uppercase tracking-widest font-bold hover:bg-zoru-ink hover:text-white transition-colors flex items-center gap-2"
               >
                 <RefreshCw className="w-3 h-3" /> Retry Request
               </button>

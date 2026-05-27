@@ -125,7 +125,7 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
                             case 'rating': return (
                                 <div className="flex items-center gap-1" aria-label="Star rating preview">
                                     {Array.from({ length: field.maxRating || 5 }).map((_, i) => (
-                                        <LucideIcons.Star key={i} className="h-5 w-5 text-muted-foreground" />
+                                        <LucideIcons.Star key={i} className="h-5 w-5 text-zoru-ink-muted" />
                                     ))}
                                 </div>
                             );

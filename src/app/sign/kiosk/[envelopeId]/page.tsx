@@ -92,7 +92,7 @@ export default function KioskSignPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <Card className="p-6 max-w-md">
-          <h2 className="text-lg font-semibold text-red-500">Cannot open kiosk session</h2>
+          <h2 className="text-lg font-semibold text-zoru-ink">Cannot open kiosk session</h2>
           <p className="text-sm text-zoru-ink-muted mt-2">{error}</p>
         </Card>
       </div>
@@ -149,7 +149,7 @@ export default function KioskSignPage() {
               value={pin}
               onChange={(e) => setPin(e.target.value)}
             />
-            {error && <p className="text-xs text-red-500">{error}</p>}
+            {error && <p className="text-xs text-zoru-ink">{error}</p>}
           </Card>
           <Card className="p-4 border border-zoru-line space-y-3">
             <h3 className="text-sm font-medium text-zoru-ink">Fields</h3>

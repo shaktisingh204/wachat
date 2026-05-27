@@ -540,7 +540,7 @@ export default function VendorLeadsPage() {
             variant="ghost"
             size="sm"
             onClick={() => setDeleteTargetId(String(row._id))}
-            className="text-destructive"
+            className="text-zoru-ink"
           >
             Delete
           </Button>
@@ -670,7 +670,7 @@ export default function VendorLeadsPage() {
 
           <Card>
             <div className="flex items-center justify-between">
-              <h2 className="text-[16px] font-semibold text-foreground">
+              <h2 className="text-[16px] font-semibold text-zoru-ink">
                 All Vendor Leads
                 {total > 0 ? (
                   <Badge variant="secondary" className="ml-2">
@@ -679,7 +679,7 @@ export default function VendorLeadsPage() {
                 ) : null}
               </h2>
             </div>
-            <div className="mt-4 overflow-hidden rounded-lg border border-border bg-zoru-surface">
+            <div className="mt-4 overflow-hidden rounded-lg border border-zoru-line bg-zoru-surface">
               <CrmBulkyGrid<WithId<CrmLead>>
                 columns={columns}
                 data={filtered}

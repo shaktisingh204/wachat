@@ -73,13 +73,13 @@ export function AdminTopBar() {
                             'text-zoru-ink hover:bg-zoru-surface data-[state=open]:bg-zoru-surface'
                         )}
                     >
-                        <div className="h-7 w-7 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center">
-                            <User className="h-3.5 w-3.5 text-amber-600" />
+                        <div className="h-7 w-7 rounded-lg bg-zoru-surface-2 border border-zoru-line flex items-center justify-center">
+                            <User className="h-3.5 w-3.5 text-zoru-ink" />
                         </div>
                         <span className="hidden sm:inline font-medium">Admin</span>
                         <Badge
                             variant="outline"
-                            className="rounded-full bg-amber-100 border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-600 uppercase tracking-wider"
+                            className="rounded-full bg-zoru-surface-2 border-zoru-line px-2 py-0.5 text-[10px] font-bold text-zoru-ink uppercase tracking-wider"
                         >
                             Root
                         </Badge>
@@ -95,7 +95,7 @@ export function AdminTopBar() {
                         <Link
                             href="/api/auth/admin-logout"
                             prefetch={false}
-                            className="flex items-center gap-2.5 text-sm text-zoru-ink hover:bg-red-50 hover:text-red-600 w-full cursor-pointer"
+                            className="flex items-center gap-2.5 text-sm text-zoru-ink hover:bg-zoru-surface-2 hover:text-zoru-ink w-full cursor-pointer"
                         >
                             <LogOut className="h-4 w-4" />
                             Sign Out

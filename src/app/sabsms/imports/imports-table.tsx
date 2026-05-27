@@ -184,7 +184,7 @@ export function ImportsTable({
       render: (r) => (
         <button
           type="button"
-          className="text-left font-medium text-slate-800 hover:underline"
+          className="text-left font-medium text-zoru-ink hover:underline"
           onClick={() => setDrawerImport(r)}
         >
           {r.name}
@@ -213,10 +213,10 @@ export function ImportsTable({
         return (
           <div className="min-w-[140px] space-y-1">
             <Progress value={pct} className="h-1.5" />
-            <p className="text-[10px] text-slate-500">
+            <p className="text-[10px] text-zoru-ink">
               {r.counts.imported.toLocaleString()} / {r.counts.total.toLocaleString()}
               {r.counts.failed > 0 && (
-                <span className="ml-1 text-red-600">
+                <span className="ml-1 text-zoru-ink">
                   ({r.counts.failed.toLocaleString()} failed)
                 </span>
               )}
@@ -237,13 +237,13 @@ export function ImportsTable({
               </Badge>
             ))}
             {r.options.bulkTags.length > 3 && (
-              <span className="text-[10px] text-slate-500">
+              <span className="text-[10px] text-zoru-ink">
                 +{r.options.bulkTags.length - 3}
               </span>
             )}
           </div>
         ) : (
-          <span className="text-xs text-slate-400">—</span>
+          <span className="text-xs text-zoru-ink-muted">—</span>
         ),
     },
     {
@@ -256,14 +256,14 @@ export function ImportsTable({
             ${r.costEstimate.amount.toFixed(2)}
           </span>
         ) : (
-          <span className="text-xs text-slate-400">—</span>
+          <span className="text-xs text-zoru-ink-muted">—</span>
         ),
     },
     {
       id: "createdAt",
       header: "Created",
       render: (r) => (
-        <span className="text-xs text-slate-600">
+        <span className="text-xs text-zoru-ink">
           {r.createdAt ? new Date(r.createdAt).toLocaleString() : "—"}
         </span>
       ),
@@ -490,30 +490,30 @@ function ImportDetail({
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-slate-700">Failed rows</h3>
+        <h3 className="text-sm font-medium text-zoru-ink">Failed rows</h3>
         {record.counts.failed > 0 ? (
           <SabsmsExportMenu
             filename={`sabsms-import-${record.id}-failures`}
             toCsv={onDownloadFailures}
           />
         ) : (
-          <p className="text-xs text-slate-500">No failed rows.</p>
+          <p className="text-xs text-zoru-ink">No failed rows.</p>
         )}
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-slate-700">Audit trail</h3>
+        <h3 className="text-sm font-medium text-zoru-ink">Audit trail</h3>
         <ol className="space-y-2">
           {record.audit.map((evt, i) => (
             <li
               key={i}
-              className="rounded-md border border-slate-200 bg-slate-50 p-2 text-xs"
+              className="rounded-md border border-zoru-line bg-zoru-surface-2 p-2 text-xs"
             >
-              <div className="font-medium text-slate-700">{evt.kind}</div>
+              <div className="font-medium text-zoru-ink">{evt.kind}</div>
               {evt.message && (
-                <div className="text-slate-600">{evt.message}</div>
+                <div className="text-zoru-ink">{evt.message}</div>
               )}
-              <div className="mt-0.5 text-[10px] text-slate-400">
+              <div className="mt-0.5 text-[10px] text-zoru-ink-muted">
                 {new Date(evt.at).toLocaleString()}
               </div>
             </li>
@@ -527,10 +527,10 @@ function ImportDetail({
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <div className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
+      <div className="text-[10px] font-medium uppercase tracking-wide text-zoru-ink">
         {label}
       </div>
-      <div className="text-sm text-slate-800">{value}</div>
+      <div className="text-sm text-zoru-ink">{value}</div>
     </div>
   );
 }

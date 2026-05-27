@@ -66,7 +66,7 @@ export function CrmFilterPanel({
           <SlidersHorizontal className="h-3.5 w-3.5" />
           Filter Options
           {hasActiveFilters && (
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-zoru-ink text-[10px] text-white">
               {Object.keys(filters).length}
             </span>
           )}
@@ -126,7 +126,7 @@ export function CrmFilterPanel({
 
                 {field.type === 'select' && (
                   <select
-                    className="flex h-9 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    className="flex h-9 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-line"
                     value={val ?? 'all'}
                     onChange={(e) => onUpdateFilter(field.key, e.target.value)}
                   >

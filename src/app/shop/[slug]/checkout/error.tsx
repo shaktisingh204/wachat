@@ -20,7 +20,7 @@ export default function CheckoutError({
     <div className="container mx-auto px-4 py-24 flex justify-center items-center">
       <Card className="max-w-md w-full border-destructive">
         <ZoruCardHeader>
-          <div className="flex items-center gap-2 text-destructive">
+          <div className="flex items-center gap-2 text-zoru-ink">
             <AlertCircle className="h-5 w-5" />
             <ZoruCardTitle>Something went wrong!</ZoruCardTitle>
           </div>
@@ -29,7 +29,7 @@ export default function CheckoutError({
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent className="flex flex-col gap-4">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-zoru-ink-muted">
             {error.message || 'An unexpected error occurred.'}
           </p>
           <Button onClick={() => reset()} variant="default">

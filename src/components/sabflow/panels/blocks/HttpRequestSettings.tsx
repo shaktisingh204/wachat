@@ -35,11 +35,11 @@ const BODY_TYPES: { value: BodyType; label: string }[] = [
 ];
 
 const METHOD_BADGE: Record<HttpMethod, string> = {
-  GET:    'border-emerald-500/40 bg-emerald-500/10 text-emerald-400',
-  POST:   'border-blue-500/40   bg-blue-500/10   text-blue-400',
-  PUT:    'border-amber-500/40  bg-amber-500/10  text-amber-400',
-  PATCH:  'border-purple-500/40 bg-purple-500/10 text-purple-400',
-  DELETE: 'border-red-500/40    bg-red-500/10    text-red-400',
+  GET:    'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
+  POST:   'border-zoru-line/40   bg-zoru-ink/10   text-zoru-ink-muted',
+  PUT:    'border-zoru-line/40  bg-zoru-ink/10  text-zoru-ink-muted',
+  PATCH:  'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink-muted',
+  DELETE: 'border-zoru-line/40    bg-zoru-ink/10    text-zoru-ink-muted',
 };
 
 /* ══════════════════════════════════════════════════════════
@@ -101,7 +101,7 @@ function KVList({
           <button
             type="button"
             onClick={() => remove(r.id)}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-red-400 transition-colors"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-zoru-ink-muted transition-colors"
             aria-label="Remove row"
           >
             <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -142,7 +142,7 @@ function Toggle({
       <Icon
         className={cn(
           'h-5 w-5 transition-colors',
-          checked ? 'text-[#f76808]' : 'text-[var(--gray-7)]',
+          checked ? 'text-zoru-ink' : 'text-[var(--gray-7)]',
         )}
         strokeWidth={1.8}
       />
@@ -156,10 +156,10 @@ function Toggle({
    ══════════════════════════════════════════════════════════ */
 
 function statusColor(code: number): string {
-  if (code >= 500) return 'text-red-400';
-  if (code >= 400) return 'text-amber-400';
-  if (code >= 300) return 'text-blue-400';
-  return 'text-emerald-400';
+  if (code >= 500) return 'text-zoru-ink-muted';
+  if (code >= 400) return 'text-zoru-ink-muted';
+  if (code >= 300) return 'text-zoru-ink-muted';
+  return 'text-zoru-ink-muted';
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -349,7 +349,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
             >
               {t.label}
               {t.count !== undefined && (
-                <span className="rounded-full bg-[#f76808] px-1.5 py-px text-[9px] font-semibold text-white leading-none">
+                <span className="rounded-full bg-zoru-ink px-1.5 py-px text-[9px] font-semibold text-white leading-none">
                   {t.count}
                 </span>
               )}
@@ -396,7 +396,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
                   className={cn(
                     'flex-1 rounded-md border py-1.5 text-[11.5px] font-medium transition-colors',
                     body.type === bt.value
-                      ? 'border-[#f76808] bg-[#f7680814] text-[#f76808]'
+                      ? 'border-zoru-line bg-zoru-ink text-zoru-ink'
                       : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
                   )}
                 >
@@ -419,7 +419,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
               />
               <p className="mt-1 text-[11px] text-[var(--gray-8)]">
                 Use{' '}
-                <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-[#f76808]">
+                <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-zoru-ink">
                   {'{{variable}}'}
                 </code>{' '}
                 to inject flow variables.
@@ -496,7 +496,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
             </span>
             <p className="text-[11px] text-[var(--gray-8)]">
               Extract values from the response using JSONPath expressions (e.g.{' '}
-              <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-[#f76808]">
+              <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-zoru-ink">
                 $.data.user.name
               </code>
               ).
@@ -543,7 +543,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
                       responseMappings: responseMappings.filter((x) => x.id !== m.id),
                     })
                   }
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-red-400 transition-colors"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-zoru-ink-muted transition-colors"
                   aria-label="Remove mapping"
                 >
                   <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -592,7 +592,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
         type="button"
         onClick={handleTest}
         disabled={!url.trim() || isTesting}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#f76808] px-3 py-2 text-[12px] font-medium text-[#f76808] hover:bg-[#f7680814] disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-zoru-line px-3 py-2 text-[12px] font-medium text-zoru-ink hover:bg-zoru-ink disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
       >
         {isTesting ? (
           <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
@@ -627,7 +627,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
                   </span>
                 </>
               ) : (
-                <span className="text-[11px] text-red-400 font-medium">Error</span>
+                <span className="text-[11px] text-zoru-ink-muted font-medium">Error</span>
               )}
             </div>
             {testExpanded ? (

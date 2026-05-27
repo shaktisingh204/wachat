@@ -94,7 +94,7 @@ export function CoaTree({ rows }: CoaTreeProps) {
     if (rows.length === 0) {
         return (
             <Card className="flex min-h-[200px] items-center justify-center">
-                <p className="text-[13px] text-muted-foreground">No accounts match this filter.</p>
+                <p className="text-[13px] text-zoru-ink-muted">No accounts match this filter.</p>
             </Card>
         );
     }
@@ -102,7 +102,7 @@ export function CoaTree({ rows }: CoaTreeProps) {
     return (
         <>
             <Card className="p-0">
-                <ul className="divide-y divide-border">
+                <ul className="divide-y divide-zoru-line">
                     {Array.from(tree.entries()).map(([nature, groups]) => {
                         const natureKey = `nature::${nature}`;
                         const natureOpen = !collapsed.has(natureKey);
@@ -114,15 +114,15 @@ export function CoaTree({ rows }: CoaTreeProps) {
                                 <button
                                     type="button"
                                     onClick={() => toggle(natureKey)}
-                                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-secondary"
+                                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-zoru-surface-2"
                                 >
                                     {natureOpen ? (
-                                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                                        <ChevronDown className="h-4 w-4 text-zoru-ink-muted" />
                                     ) : (
-                                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                        <ChevronRight className="h-4 w-4 text-zoru-ink-muted" />
                                     )}
                                     <StatusPill label={nature} tone={tone} />
-                                    <span className="ml-2 text-[12px] text-muted-foreground">
+                                    <span className="ml-2 text-[12px] text-zoru-ink-muted">
                                         {groupCount} groups · {accountCount} accounts
                                     </span>
                                 </button>
@@ -136,36 +136,36 @@ export function CoaTree({ rows }: CoaTreeProps) {
                                                     <button
                                                         type="button"
                                                         onClick={() => toggle(groupKey)}
-                                                        className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left text-[13px] text-foreground hover:bg-secondary"
+                                                        className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left text-[13px] text-zoru-ink hover:bg-zoru-surface-2"
                                                     >
                                                         {groupOpen ? (
-                                                            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                                                            <ChevronDown className="h-3.5 w-3.5 text-zoru-ink-muted" />
                                                         ) : (
-                                                            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                                                            <ChevronRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
                                                         )}
                                                         <span className="font-medium">{groupName}</span>
-                                                        <span className="text-[11.5px] text-muted-foreground">
+                                                        <span className="text-[11.5px] text-zoru-ink-muted">
                                                             · {list.length} accounts
                                                         </span>
                                                     </button>
                                                     {groupOpen ? (
-                                                        <ul className="ml-7 mb-2 border-l border-border">
+                                                        <ul className="ml-7 mb-2 border-l border-zoru-line">
                                                             {list.map((row) => (
                                                                 <li key={row._id}>
                                                                     <Link
                                                                         href={`/dashboard/crm/accounting/charts/${row._id}`}
                                                                         onClick={(e) => handleAccountClick(row, e)}
-                                                                        className="flex items-center justify-between gap-3 py-1.5 pl-4 pr-3 text-[12.5px] text-foreground hover:bg-secondary rounded-[var(--zoru-radius-sm)] transition-colors"
+                                                                        className="flex items-center justify-between gap-3 py-1.5 pl-4 pr-3 text-[12.5px] text-zoru-ink hover:bg-zoru-surface-2 rounded-[var(--zoru-radius-sm)] transition-colors"
                                                                     >
                                                                         <span className="truncate">
                                                                             {row.code ? (
-                                                                                <span className="mr-2 font-mono text-[11px] text-muted-foreground">
+                                                                                <span className="mr-2 font-mono text-[11px] text-zoru-ink-muted">
                                                                                     {row.code}
                                                                                 </span>
                                                                             ) : null}
                                                                             {row.name}
                                                                         </span>
-                                                                        <span className="shrink-0 font-mono text-[11.5px] text-muted-foreground">
+                                                                        <span className="shrink-0 font-mono text-[11.5px] text-zoru-ink-muted">
                                                                             {row.currentBalance != null
                                                                                 ? `${fmtMoney(row.currentBalance, row.currency)} ${row.currentBalanceType ?? 'Dr'}`
                                                                                 : fmtMoney(row.openingBalance, row.currency)}

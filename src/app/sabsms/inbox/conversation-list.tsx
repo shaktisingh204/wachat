@@ -87,7 +87,7 @@ export function ConversationList({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2 text-xs text-slate-500">
+      <div className="flex items-center justify-between border-b border-zoru-line px-3 py-2 text-xs text-zoru-ink">
         <span>
           {visible.length} conversation{visible.length === 1 ? "" : "s"}
         </span>
@@ -95,7 +95,7 @@ export function ConversationList({
       </div>
 
       {selectedRows.length > 0 && (
-        <div className="border-b border-slate-200 px-2 py-2">
+        <div className="border-b border-zoru-line px-2 py-2">
           <SabsmsBulkActionsBar
             selectedCount={selectedRows.length}
             totalCount={visible.length}
@@ -137,7 +137,7 @@ export function ConversationList({
             />
           </div>
         ) : (
-          <ul className="divide-y divide-slate-200">
+          <ul className="divide-y divide-zoru-line">
             {visible.map((c) => (
               <ConversationRow
                 key={c.id}
@@ -152,8 +152,8 @@ export function ConversationList({
         )}
       </ScrollArea>
 
-      <div className="border-t border-slate-200 px-3 py-2">
-        <div className="flex flex-wrap gap-1.5 text-[11px] text-slate-500">
+      <div className="border-t border-zoru-line px-3 py-2">
+        <div className="flex flex-wrap gap-1.5 text-[11px] text-zoru-ink">
           {SCOPE_FACETS.map((f) => (
             <span key={f.key} className="inline-flex items-center gap-1">
               {f.icon}
@@ -186,8 +186,8 @@ function ConversationRow({
   return (
     <li
       className={cn(
-        "flex cursor-pointer gap-2 px-3 py-3 transition-colors hover:bg-slate-50",
-        isActive && "bg-amber-50/60",
+        "flex cursor-pointer gap-2 px-3 py-3 transition-colors hover:bg-zoru-surface-2",
+        isActive && "bg-zoru-surface-2/60",
       )}
       onClick={onSelect}
       role="button"
@@ -207,21 +207,21 @@ function ConversationRow({
       </div>
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex items-center justify-between gap-2">
-          <span className="truncate font-mono text-xs text-slate-700">
+          <span className="truncate font-mono text-xs text-zoru-ink">
             {conversation.contactId}
           </span>
           <span
             className={cn(
-              "shrink-0 text-[11px] text-slate-400",
-              breaching && "animate-pulse text-rose-600",
+              "shrink-0 text-[11px] text-zoru-ink-muted",
+              breaching && "animate-pulse text-zoru-ink",
             )}
           >
             {formatRelative(conversation.lastMessageAt)}
           </span>
         </div>
-        <div className="line-clamp-2 text-sm text-slate-700">
+        <div className="line-clamp-2 text-sm text-zoru-ink">
           {conversation.lastMessagePreview ?? (
-            <span className="italic text-slate-400">No preview</span>
+            <span className="italic text-zoru-ink-muted">No preview</span>
           )}
         </div>
         <div className="flex flex-wrap items-center gap-1.5">

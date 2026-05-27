@@ -16,16 +16,16 @@ function SyntaxHighlightedHtml({ html }: { html: string }) {
     
     return tokenized.map((token, i) => {
       if (i % 2 === 0) {
-        return <span key={i} className="text-zinc-800 dark:text-zinc-300">{token}</span>;
+        return <span key={i} className="text-zoru-ink dark:text-zoru-ink-muted">{token}</span>;
       }
       
       if (token.startsWith('<!--')) {
-        return <span key={i} className="text-zinc-500 italic">{token}</span>;
+        return <span key={i} className="text-zoru-ink italic">{token}</span>;
       }
       
       const match = token.match(/^(<\/?)([a-zA-Z0-9:-]+)(.*?)(\/?>)$/s);
       if (!match) {
-        return <span key={i} className="text-blue-600 dark:text-blue-400">{token}</span>;
+        return <span key={i} className="text-zoru-ink dark:text-zoru-ink-muted">{token}</span>;
       }
       
       const [, prefix, tagName, rest, suffix] = match;
@@ -34,21 +34,21 @@ function SyntaxHighlightedHtml({ html }: { html: string }) {
       
       return (
         <span key={i}>
-          <span className="text-blue-600 dark:text-blue-400">{prefix}{tagName}</span>
+          <span className="text-zoru-ink dark:text-zoru-ink-muted">{prefix}{tagName}</span>
           {restParts.map((rp, j) => {
             const m = rp.match(/^([a-zA-Z0-9-]+)(=)(['"][^'"]*['"])$/);
             if (m) {
               return (
                 <span key={j}>
-                  <span className="text-yellow-600 dark:text-yellow-400">{m[1]}</span>
-                  <span className="text-zinc-500">{m[2]}</span>
-                  <span className="text-green-600 dark:text-green-400">{m[3]}</span>
+                  <span className="text-zoru-ink dark:text-zoru-ink-muted">{m[1]}</span>
+                  <span className="text-zoru-ink">{m[2]}</span>
+                  <span className="text-zoru-ink dark:text-zoru-ink-muted">{m[3]}</span>
                 </span>
               );
             }
-            return <span key={j} className="text-zinc-800 dark:text-zinc-300">{rp}</span>;
+            return <span key={j} className="text-zoru-ink dark:text-zoru-ink-muted">{rp}</span>;
           })}
-          <span className="text-blue-600 dark:text-blue-400">{suffix}</span>
+          <span className="text-zoru-ink dark:text-zoru-ink-muted">{suffix}</span>
         </span>
       );
     });
@@ -143,7 +143,7 @@ export default function HtmlFormatterPage() {
           <div className="flex items-center justify-between">
             <label className="text-sm font-semibold">
               Formatted Output
-              {isFormatting && <span className="ml-2 text-muted-foreground text-xs">(Formatting...)</span>}
+              {isFormatting && <span className="ml-2 text-zoru-ink-muted text-xs">(Formatting...)</span>}
             </label>
             {out && !error && (
               <Button
@@ -158,15 +158,15 @@ export default function HtmlFormatterPage() {
             )}
           </div>
           {error ? (
-            <div className="min-h-[400px] rounded-md border border-destructive bg-destructive/10 p-4 text-xs font-mono text-destructive overflow-auto whitespace-pre-wrap">
+            <div className="min-h-[400px] rounded-md border border-destructive bg-zoru-ink/10 p-4 text-xs font-mono text-zoru-ink overflow-auto whitespace-pre-wrap">
               {error}
             </div>
           ) : (
-            <div className="min-h-[400px] rounded-md border border-input bg-muted/30 p-3 overflow-auto relative">
+            <div className="min-h-[400px] rounded-md border border-zoru-line bg-zoru-surface-2/30 p-3 overflow-auto relative">
               {out ? (
                 <SyntaxHighlightedHtml html={out} />
               ) : (
-                <div className="text-xs text-muted-foreground">Formatted HTML will appear here...</div>
+                <div className="text-xs text-zoru-ink-muted">Formatted HTML will appear here...</div>
               )}
             </div>
           )}

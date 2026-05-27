@@ -438,7 +438,7 @@ export function PosTerminalClient({
                                             type="button"
                                             onClick={() => removeLine(line.key)}
                                             aria-label="Remove line"
-                                            className="text-zoru-ink-muted hover:text-red-500"
+                                            className="text-zoru-ink-muted hover:text-zoru-ink"
                                         >
                                             <Trash2 className="h-3.5 w-3.5" />
                                         </button>

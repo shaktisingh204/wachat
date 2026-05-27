@@ -68,9 +68,9 @@ interface SummaryChipProps {
 
 function SummaryChip({ kind, count, label }: SummaryChipProps) {
   const palette = {
-    added: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-300 dark:border-green-900/60',
-    removed: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-300 dark:border-red-900/60',
-    modified: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900/60',
+    added: 'bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/30 dark:text-zoru-ink-muted dark:border-zoru-line/60',
+    removed: 'bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/30 dark:text-zoru-ink-muted dark:border-zoru-line/60',
+    modified: 'bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/30 dark:text-zoru-ink-muted dark:border-zoru-line/60',
     neutral: 'bg-[var(--gray-2)] text-[var(--gray-11)] border-[var(--gray-5)]',
   }[kind];
 
@@ -125,7 +125,7 @@ function Section({ title, icon, count, defaultOpen, children }: SectionProps) {
           className={cn(
             'rounded-md px-1.5 py-0.5 text-[11px] font-medium tabular-nums',
             count > 0
-              ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+              ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
               : 'bg-[var(--gray-3)] text-[var(--gray-9)]',
           )}
         >
@@ -450,7 +450,7 @@ export function FlowDiffView({
       {/* ── Summary banner ─────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] px-4 py-3">
         <div
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400"
+          className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted"
           aria-hidden="true"
         >
           <LuGitCompare className="h-4 w-4" strokeWidth={2} />
@@ -516,7 +516,7 @@ export function FlowDiffView({
 
         <div className="flex flex-col gap-1.5 rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] p-3">
           <div className="flex items-center gap-2">
-            <span className="flex h-5 items-center gap-1 rounded-md bg-amber-100 px-1.5 text-[10.5px] font-semibold uppercase tracking-wide text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+            <span className="flex h-5 items-center gap-1 rounded-md bg-zoru-surface-2 px-1.5 text-[10.5px] font-semibold uppercase tracking-wide text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
               <LuWorkflow className="h-2.5 w-2.5" strokeWidth={2.5} />
               {afterLabel}
             </span>

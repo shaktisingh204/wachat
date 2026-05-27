@@ -659,9 +659,9 @@ export default async function InvoiceDetailPage({
       rightRail={
         <Suspense fallback={
           <div className="animate-pulse space-y-4">
-            <div className="h-28 bg-zinc-100 rounded-lg dark:bg-zinc-800/40"></div>
-            <div className="h-44 bg-zinc-100 rounded-lg dark:bg-zinc-800/40"></div>
-            <div className="h-40 bg-zinc-100 rounded-lg dark:bg-zinc-800/40"></div>
+            <div className="h-28 bg-zoru-surface-2 rounded-lg dark:bg-zoru-ink/40"></div>
+            <div className="h-44 bg-zoru-surface-2 rounded-lg dark:bg-zoru-ink/40"></div>
+            <div className="h-40 bg-zoru-surface-2 rounded-lg dark:bg-zoru-ink/40"></div>
           </div>
         }>
           <RightRailSuspense
@@ -695,9 +695,9 @@ export default async function InvoiceDetailPage({
       {/* Main Details and Tables section inside Suspense */}
       <Suspense fallback={
         <div className="animate-pulse space-y-6">
-          <div className="h-80 bg-zinc-100 rounded-lg dark:bg-zinc-800/40"></div>
-          <div className="h-28 bg-zinc-100 rounded-lg dark:bg-zinc-800/40"></div>
-          <div className="h-24 bg-zinc-100 rounded-lg dark:bg-zinc-800/40"></div>
+          <div className="h-80 bg-zoru-surface-2 rounded-lg dark:bg-zoru-ink/40"></div>
+          <div className="h-28 bg-zoru-surface-2 rounded-lg dark:bg-zoru-ink/40"></div>
+          <div className="h-24 bg-zoru-surface-2 rounded-lg dark:bg-zoru-ink/40"></div>
         </div>
       }>
         <DetailsAndTablesSuspense
@@ -715,10 +715,10 @@ export default async function InvoiceDetailPage({
       <div className="mt-8">
         <Suspense fallback={
           <div className="animate-pulse space-y-4">
-            <div className="h-6 bg-zinc-100 rounded w-1/4 dark:bg-zinc-800/40"></div>
+            <div className="h-6 bg-zoru-surface-2 rounded w-1/4 dark:bg-zoru-ink/40"></div>
             <div className="space-y-3">
-              <div className="h-4 bg-zinc-100 rounded dark:bg-zinc-800/40"></div>
-              <div className="h-4 bg-zinc-100 rounded w-5/6 dark:bg-zinc-800/40"></div>
+              <div className="h-4 bg-zoru-surface-2 rounded dark:bg-zoru-ink/40"></div>
+              <div className="h-4 bg-zoru-surface-2 rounded w-5/6 dark:bg-zoru-ink/40"></div>
             </div>
           </div>
         }>

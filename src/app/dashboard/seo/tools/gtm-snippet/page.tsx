@@ -158,7 +158,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             placeholder="GTM-XXXXXXX"
           />
           {showValidationError && (
-            <p className="text-destructive text-sm">
+            <p className="text-zoru-ink text-sm">
               Invalid GTM ID format. It should look like GTM-XXXXXXX.
             </p>
           )}
@@ -187,7 +187,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       <div className="space-y-4 pt-4 border-t">
         <h3 className="text-lg font-medium">DataLayer Initialization Templates</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-zoru-ink-muted">
           Use these snippets to initialize your dataLayer before the GTM container loads.
         </p>
 
@@ -218,7 +218,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       <div className="space-y-4 pt-4 border-t">
         <h3 className="text-lg font-medium">E-commerce DataLayer Snippets</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-zoru-ink-muted">
           Use these standard snippets to push e-commerce events to the dataLayer before the GTM tag fires, or on user interactions.
         </p>
 

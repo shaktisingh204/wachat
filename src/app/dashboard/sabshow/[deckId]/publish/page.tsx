@@ -33,7 +33,7 @@ export default async function PublishPage({ params }: PublishPageProps) {
             <header className="flex items-center justify-between">
                 <div>
                     <h1 className="text-xl font-semibold">{deck.title}</h1>
-                    <p className="text-sm text-muted-foreground">Publish settings</p>
+                    <p className="text-sm text-zoru-ink-muted">Publish settings</p>
                 </div>
                 <Button variant="outline" asChild>
                     <Link href={`/dashboard/sabshow/${deckId}`}>Back to editor</Link>

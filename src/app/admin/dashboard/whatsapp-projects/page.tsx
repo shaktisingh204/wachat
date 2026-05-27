@@ -26,12 +26,12 @@ import { AdminArchiveProjectButton } from '@/components/zoruui-domain/admin-arch
 const PROJECTS_PER_PAGE = 20;
 
 const STATUS_STYLES: Record<string, string> = {
-    approved: 'bg-emerald-100 text-emerald-600 border-emerald-200',
-    verified: 'bg-emerald-100 text-emerald-600 border-emerald-200',
-    pending: 'bg-amber-100 text-amber-600 border-amber-200',
-    failed: 'bg-red-100 text-red-600 border-red-200',
-    rejected: 'bg-red-100 text-red-600 border-red-200',
-    'partial failure': 'bg-amber-100 text-amber-600 border-amber-200',
+    approved: 'bg-zoru-surface-2 text-zoru-ink border-zoru-line',
+    verified: 'bg-zoru-surface-2 text-zoru-ink border-zoru-line',
+    pending: 'bg-zoru-surface-2 text-zoru-ink border-zoru-line',
+    failed: 'bg-zoru-surface-2 text-zoru-ink border-zoru-line',
+    rejected: 'bg-zoru-surface-2 text-zoru-ink border-zoru-line',
+    'partial failure': 'bg-zoru-surface-2 text-zoru-ink border-zoru-line',
     unknown: 'bg-zoru-surface text-zoru-ink-muted border-zoru-line',
 };
 

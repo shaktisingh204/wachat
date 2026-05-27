@@ -126,7 +126,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                     <div className="space-y-2">
                         <Label htmlFor="context">Business Context</Label>
                         <Textarea id="context" name="context" className="min-h-32" defaultValue={project.autoReplySettings?.aiAssistant?.context || ''} placeholder="We are a clothing store specializing in men's fashion. Our business hours are 9 AM to 6 PM. We offer free shipping on orders above $50..." />
-                        <p className="text-xs text-muted-foreground">Provide information about your business for the AI to use when answering questions.</p>
+                        <p className="text-xs text-zoru-ink-muted">Provide information about your business for the AI to use when answering questions.</p>
                     </div>
                     <div className="flex items-center space-x-2">
                         <Switch checked={autoTranslate} onCheckedChange={setAutoTranslate} />
@@ -162,7 +162,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                     </div>
                     <div className="space-y-2">
                         <Label>Active on these days</Label>
-                        <p className="text-xs text-muted-foreground mb-2">Away message will be sent on selected days during the inactive hours.</p>
+                        <p className="text-xs text-zoru-ink-muted mb-2">Away message will be sent on selected days during the inactive hours.</p>
                         <div className="flex flex-wrap gap-2">
                             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
                                 <button
@@ -172,8 +172,8 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                                     className={cn(
                                         'rounded-full px-3 py-1.5 text-xs font-medium border transition-colors',
                                         selectedDays.includes(index)
-                                            ? 'bg-primary text-primary-foreground border-primary'
-                                            : 'bg-background text-muted-foreground border-input hover:bg-accent'
+                                            ? 'bg-zoru-ink text-white border-primary'
+                                            : 'bg-zoru-surface text-zoru-ink-muted border-zoru-line hover:bg-zoru-surface-2'
                                     )}
                                 >
                                     {day}
@@ -189,11 +189,11 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
             return (
                 <div className="space-y-4">
                     {replies.length === 0 && (
-                        <p className="text-sm text-muted-foreground italic">No keyword rules yet. Add one below.</p>
+                        <p className="text-sm text-zoru-ink-muted italic">No keyword rules yet. Add one below.</p>
                     )}
                     {replies.map((rule) => (
-                        <div key={rule.id} className="p-4 border rounded-lg space-y-3 relative bg-muted/50">
-                             <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeReplyRule(rule.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                        <div key={rule.id} className="p-4 border rounded-lg space-y-3 relative bg-zoru-surface-2/50">
+                             <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeReplyRule(rule.id)}><Trash2 className="h-4 w-4 text-zoru-ink"/></Button>
                             <div className="space-y-2">
                                 <Label>Keywords (comma-separated)</Label>
                                 <Input value={rule.keywords} onChange={(e) => handleReplyRuleChange(rule.id, 'keywords', e.target.value)} placeholder="hello, hi, hey" />

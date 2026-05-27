@@ -435,7 +435,7 @@ function ConnectionBadge({
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 260, damping: 18 }}
       >
-        <Badge variant="default" className="gap-1 bg-emerald-500/15 text-emerald-700 border-emerald-500/30">
+        <Badge variant="default" className="gap-1 bg-zoru-ink/15 text-zoru-ink border-zoru-line/30">
           <CheckCircle2 className="h-3 w-3" />
           Connected
         </Badge>
@@ -472,7 +472,7 @@ function StepperHeader<TDraft extends Record<string, any>>({
                 className={cn(
                   'flex h-7 w-7 items-center justify-center rounded-full border text-xs font-medium',
                   state === 'done' &&
-                    'bg-emerald-500 border-emerald-500 text-white',
+                    'bg-zoru-ink border-zoru-line text-white',
                   state === 'active' &&
                     'bg-zoru-ink text-zoru-on-primary border-zoru-ink',
                   state === 'upcoming' &&

@@ -20,7 +20,7 @@ export function InputFieldError({ error }: Props) {
       <div
         role="alert"
         aria-live="polite"
-        className="flex items-start gap-1.5 text-[11.5px] text-red-500 leading-snug"
+        className="flex items-start gap-1.5 text-[11.5px] text-zoru-ink leading-snug"
         style={{
           animation: 'sabflow-error-slide-in 160ms ease-out',
         }}

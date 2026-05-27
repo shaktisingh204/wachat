@@ -14,5 +14,5 @@
   border-radius: var(--zoru-radius);
 }
 .rbc-today {
-  background-color: var(--zoru-primary-light, #f0fdf4); /* just a fallback */
+  background-color: var(--zoru-surface-2);
 }

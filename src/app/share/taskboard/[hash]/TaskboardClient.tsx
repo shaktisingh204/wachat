@@ -67,11 +67,11 @@ export default function TaskboardClient({
       <Card>
         <ZoruCardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-wide text-zoru-ink">
               Project taskboard
             </p>
             <ZoruCardTitle className="mt-1">{project.name}</ZoruCardTitle>
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-zoru-ink">
               {formatDate(project.startDate)} &middot;{' '}
               {formatDate(project.deadline)}
             </p>
@@ -98,23 +98,23 @@ export default function TaskboardClient({
       <div className="overflow-x-auto">
         <div className="flex min-w-full gap-4 pb-2">
           {filteredColumns.length === 0 ? (
-            <div className="w-full rounded-md border border-dashed border-zinc-300 p-8 text-center text-sm text-zinc-500">
+            <div className="w-full rounded-md border border-dashed border-zoru-line p-8 text-center text-sm text-zoru-ink">
               No taskboard columns configured for this project.
             </div>
           ) : (
             filteredColumns.map((col) => (
               <div
                 key={col._id}
-                className="flex w-72 shrink-0 flex-col rounded-md border border-zinc-200 bg-zinc-50"
+                className="flex w-72 shrink-0 flex-col rounded-md border border-zoru-line bg-zoru-surface-2"
               >
-                <div className="flex items-center justify-between gap-2 border-b border-zinc-200 px-3 py-2">
+                <div className="flex items-center justify-between gap-2 border-b border-zoru-line px-3 py-2">
                   <div className="flex items-center gap-2">
                     <span
                       className="inline-block h-2.5 w-2.5 rounded-full"
                       style={{ background: col.color }}
                       aria-hidden
                     />
-                    <span className="truncate text-sm font-semibold text-zinc-900">
+                    <span className="truncate text-sm font-semibold text-zoru-ink">
                       {col.name}
                     </span>
                   </div>
@@ -122,20 +122,20 @@ export default function TaskboardClient({
                 </div>
                 <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto p-2">
                   {col.cards.length === 0 ? (
-                    <p className="px-2 py-6 text-center text-xs text-zinc-400">
+                    <p className="px-2 py-6 text-center text-xs text-zoru-ink-muted">
                       No tasks match filter
                     </p>
                   ) : (
                     col.cards.map((card) => (
                       <article
                         key={card._id}
-                        className="rounded-md border border-zinc-200 bg-white p-3 shadow-sm"
+                        className="rounded-md border border-zoru-line bg-white p-3 shadow-sm"
                       >
-                        <h3 className="text-sm font-medium text-zinc-900">
+                        <h3 className="text-sm font-medium text-zoru-ink">
                           {card.heading || 'Untitled task'}
                         </h3>
                         {card.description ? (
-                          <p className="mt-1 line-clamp-2 text-xs text-zinc-600">
+                          <p className="mt-1 line-clamp-2 text-xs text-zoru-ink">
                             {card.description}
                           </p>
                         ) : null}
@@ -166,11 +166,11 @@ export default function TaskboardClient({
                               ))
                             : null}
                         </div>
-                        <div className="mt-2 flex items-center justify-between text-[11px] text-zinc-500">
+                        <div className="mt-2 flex items-center justify-between text-[11px] text-zoru-ink">
                           <span>{formatDate(card.dueDate)}</span>
                           {card.assigneeName ? (
                             <span className="inline-flex items-center gap-1">
-                              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-zinc-200 text-[10px] font-semibold text-zinc-700">
+                              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-zoru-surface-2 text-[10px] font-semibold text-zoru-ink">
                                 {card.assigneeName
                                   .split(/\s+/)
                                   .filter(Boolean)

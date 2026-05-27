@@ -72,11 +72,11 @@ export function VendorEditForm({ vendor }: Props) {
                      * All fields additive — legacy vendor rows have
                      * undefined values which coerce to non-MSME.
                      */}
-                    <div className="md:col-span-2 rounded-lg border border-border bg-muted/20 p-4">
+                    <div className="md:col-span-2 rounded-lg border border-zoru-line bg-zoru-surface-2/20 p-4">
                         <div className="mb-3 flex items-center justify-between">
                             <div>
                                 <div className="text-[13.5px] font-semibold">MSME / Compliance</div>
-                                <p className="text-[11.5px] text-muted-foreground">
+                                <p className="text-[11.5px] text-zoru-ink-muted">
                                     Bills to MSME-registered vendors must clear in 45 days (MSMED Act + IT §43B(h)).
                                 </p>
                             </div>
@@ -102,7 +102,7 @@ export function VendorEditForm({ vendor }: Props) {
                                     id="msmeCategory"
                                     name="msmeCategory"
                                     defaultValue={vendor.msmeCategory ?? ''}
-                                    className="h-10 w-full rounded-lg border border-border bg-card px-3 text-[13px]"
+                                    className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-surface px-3 text-[13px]"
                                 >
                                     <option value="">—</option>
                                     <option value="Micro">Micro</option>

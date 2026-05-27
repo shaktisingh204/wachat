@@ -91,7 +91,7 @@ export function AddThumbnailDialog({ isOpen, onOpenChange, videoId, projectId, o
                   <Upload className="h-4 w-4" /> Choose file
                 </SabFilePickerButton>
                 {thumbnailUrl && (
-                  <span className="truncate text-xs text-muted-foreground">
+                  <span className="truncate text-xs text-zoru-ink-muted">
                     {thumbnailName || thumbnailUrl}
                   </span>
                 )}

@@ -243,16 +243,16 @@ export function TicketReportClient({
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <Card className="lg:col-span-2">
                     <div className="mb-3">
-                        <h2 className="text-[16px] font-semibold text-foreground">
+                        <h2 className="text-[16px] font-semibold text-zoru-ink">
                             Tickets opened vs closed
                         </h2>
-                        <p className="text-[12.5px] text-muted-foreground">
+                        <p className="text-[12.5px] text-zoru-ink-muted">
                             Daily volume across the selected range.
                         </p>
                     </div>
                     <div className="h-[280px] w-full">
                         {metrics.byDay.length === 0 ? (
-                            <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
+                            <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
                                 No ticket activity in range.
                             </div>
                         ) : (
@@ -293,13 +293,13 @@ export function TicketReportClient({
 
                 <Card>
                     <div className="mb-3">
-                        <h2 className="text-[16px] font-semibold text-foreground">
+                        <h2 className="text-[16px] font-semibold text-zoru-ink">
                             By priority
                         </h2>
                     </div>
                     <div className="h-[280px] w-full">
                         {priorityData.length === 0 ? (
-                            <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
+                            <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
                                 No data.
                             </div>
                         ) : (
@@ -331,13 +331,13 @@ export function TicketReportClient({
 
             <Card className="mt-4">
                 <div className="mb-3">
-                    <h2 className="text-[16px] font-semibold text-foreground">
+                    <h2 className="text-[16px] font-semibold text-zoru-ink">
                         By category
                     </h2>
                 </div>
                 <div className="h-[260px] w-full">
                     {categoryData.length === 0 ? (
-                        <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
+                        <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
                             No category data.
                         </div>
                     ) : (
@@ -364,7 +364,7 @@ export function TicketReportClient({
 
             {/* Table toolbar */}
             <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-                <span className="text-[13px] text-muted-foreground">
+                <span className="text-[13px] text-zoru-ink-muted">
                     {selected.size > 0
                         ? `${selected.size} of ${rows.length} selected`
                         : `${rows.length} row${rows.length === 1 ? '' : 's'} on this page`}
@@ -413,17 +413,17 @@ export function TicketReportClient({
             {/* Table */}
             <Card className="mt-4">
                 <div className="mb-3">
-                    <h2 className="text-[16px] font-semibold text-foreground">
+                    <h2 className="text-[16px] font-semibold text-zoru-ink">
                         Tickets
                     </h2>
-                    <p className="text-[12.5px] text-muted-foreground">
+                    <p className="text-[12.5px] text-zoru-ink-muted">
                         Select rows to export a subset. Click a subject to open the ticket. Shows SLA status and CSAT.
                     </p>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
+                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead className="w-10">
                                     <input
                                         type="checkbox"
@@ -433,38 +433,38 @@ export function TicketReportClient({
                                             selected.size === rows.length
                                         }
                                         onChange={toggleAll}
-                                        className="h-4 w-4 rounded border-border"
+                                        className="h-4 w-4 rounded border-zoru-line"
                                     />
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     Subject
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     Status
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     Priority
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     Channel
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     Agent
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-center text-muted-foreground">
+                                <ZoruTableHead className="text-center text-zoru-ink-muted">
                                     CSAT
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">
+                                <ZoruTableHead className="text-right text-zoru-ink-muted">
                                     Resolution
                                 </ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {rows.length === 0 ? (
-                                <ZoruTableRow className="border-border">
+                                <ZoruTableRow className="border-zoru-line">
                                     <ZoruTableCell
                                         colSpan={8}
-                                        className="h-24 text-center text-[13px] text-muted-foreground"
+                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
                                     >
                                         No tickets in range.
                                     </ZoruTableCell>
@@ -476,7 +476,7 @@ export function TicketReportClient({
                                     return (
                                         <ZoruTableRow
                                             key={r.id}
-                                            className="border-border"
+                                            className="border-zoru-line"
                                         >
                                             <ZoruTableCell>
                                                 <input
@@ -484,10 +484,10 @@ export function TicketReportClient({
                                                     aria-label={`Select ${r.subject}`}
                                                     checked={selected.has(r.id)}
                                                     onChange={() => toggleRow(r.id)}
-                                                    className="h-4 w-4 rounded border-border"
+                                                    className="h-4 w-4 rounded border-zoru-line"
                                                 />
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-foreground">
+                                            <ZoruTableCell className="text-[13px] text-zoru-ink">
                                                 <div className="flex items-center gap-2">
                                                     <EntityRowLink
                                                         href={`/dashboard/sabdesk/${r.id}`}
@@ -497,7 +497,7 @@ export function TicketReportClient({
                                                     {slaStatus === 'breached' && (
                                                         <Tooltip>
                                                             <ZoruTooltipTrigger>
-                                                                <AlertCircle className="h-4 w-4 text-destructive" />
+                                                                <AlertCircle className="h-4 w-4 text-zoru-ink" />
                                                             </ZoruTooltipTrigger>
                                                             <ZoruTooltipContent>
                                                                 SLA Breached
@@ -507,7 +507,7 @@ export function TicketReportClient({
                                                     {slaStatus === 'warning' && (
                                                         <Tooltip>
                                                             <ZoruTooltipTrigger>
-                                                                <AlertTriangle className="h-4 w-4 text-amber-500" />
+                                                                <AlertTriangle className="h-4 w-4 text-zoru-ink" />
                                                             </ZoruTooltipTrigger>
                                                             <ZoruTooltipContent>
                                                                 SLA Warning (Approaching limit)
@@ -530,17 +530,17 @@ export function TicketReportClient({
                                                     {r.priority}
                                                 </Badge>
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-foreground">
+                                            <ZoruTableCell className="text-[13px] text-zoru-ink">
                                                 {r.channel}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[13px] text-foreground">
+                                            <ZoruTableCell className="text-[13px] text-zoru-ink">
                                                 {r.agent}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-center">
                                                 {csatScore ? (
                                                     <Tooltip>
                                                         <ZoruTooltipTrigger className="flex items-center justify-center gap-1">
-                                                            <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                                                            <Star className="h-3.5 w-3.5 fill-zoru-ink text-zoru-ink" />
                                                             <span className="text-[13px] font-medium">{csatScore}</span>
                                                         </ZoruTooltipTrigger>
                                                         <ZoruTooltipContent className="flex flex-col gap-1 p-3">
@@ -548,20 +548,20 @@ export function TicketReportClient({
                                                                 {Array.from({ length: 5 }).map((_, i) => (
                                                                     <Star
                                                                         key={i}
-                                                                        className={`h-4 w-4 ${i < csatScore ? 'fill-amber-500 text-amber-500' : 'fill-muted text-muted'}`}
+                                                                        className={`h-4 w-4 ${i < csatScore ? 'fill-zoru-ink text-zoru-ink' : 'fill-muted text-muted'}`}
                                                                     />
                                                                 ))}
                                                             </div>
-                                                            <span className="text-[12px] text-muted-foreground mt-1">
+                                                            <span className="text-[12px] text-zoru-ink-muted mt-1">
                                                                 "{getCsatComment(csatScore)}"
                                                             </span>
                                                         </ZoruTooltipContent>
                                                     </Tooltip>
                                                 ) : (
-                                                    <span className="text-[13px] text-muted-foreground">—</span>
+                                                    <span className="text-[13px] text-zoru-ink-muted">—</span>
                                                 )}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-right text-[13px] text-foreground">
+                                            <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                                                 {r.resolutionMinutes != null
                                                     ? fmtMinutes(r.resolutionMinutes)
                                                     : '—'}

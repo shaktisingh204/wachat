@@ -87,8 +87,8 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
       case 'image':
         addMessage('bot', (
             <div className="space-y-2">
-                <div className="block relative aspect-video w-full bg-muted rounded-lg overflow-hidden flex items-center justify-center">
-                    <ImageIcon className="h-10 w-10 text-muted-foreground"/>
+                <div className="block relative aspect-video w-full bg-zoru-surface-2 rounded-lg overflow-hidden flex items-center justify-center">
+                    <ImageIcon className="h-10 w-10 text-zoru-ink-muted"/>
                 </div>
                 {node.data.caption && <p className="text-sm">{node.data.caption}</p>}
             </div>
@@ -178,7 +178,7 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
               {messages.map(msg => (
                 <div key={msg.id} className={`flex items-end gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {msg.sender === 'bot' && <Avatar className="h-8 w-8"><ZoruAvatarFallback>B</ZoruAvatarFallback></Avatar>}
-                  <div className={`max-w-xs rounded-lg p-3 text-sm break-words ${msg.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                  <div className={`max-w-xs rounded-lg p-3 text-sm break-words ${msg.sender === 'user' ? 'bg-zoru-ink text-white' : 'bg-zoru-surface-2'}`}>
                     {msg.content}
                   </div>
                 </div>
@@ -186,10 +186,10 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
               {isBotTyping && (
                   <div className="flex items-end gap-2 justify-start">
                     <Avatar className="h-8 w-8"><ZoruAvatarFallback>B</ZoruAvatarFallback></Avatar>
-                    <div className="max-w-xs rounded-lg p-3 text-sm bg-muted flex items-center gap-1.5">
-                        <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.3s]"></span>
-                        <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.15s]"></span>
-                        <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse"></span>
+                    <div className="max-w-xs rounded-lg p-3 text-sm bg-zoru-surface-2 flex items-center gap-1.5">
+                        <span className="h-2 w-2 bg-zoru-surface-2-foreground rounded-full animate-pulse [animation-delay:-0.3s]"></span>
+                        <span className="h-2 w-2 bg-zoru-surface-2-foreground rounded-full animate-pulse [animation-delay:-0.15s]"></span>
+                        <span className="h-2 w-2 bg-zoru-surface-2-foreground rounded-full animate-pulse"></span>
                     </div>
                 </div>
               )}

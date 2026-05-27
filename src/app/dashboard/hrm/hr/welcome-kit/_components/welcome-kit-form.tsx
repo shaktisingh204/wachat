@@ -271,7 +271,7 @@ export function WelcomeKitForm({ initialData }: WelcomeKitFormProps) {
                                         onClick={() => removeItem(idx)}
                                         aria-label="Remove item"
                                     >
-                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
                                     </Button>
                                 </div>
                             ))}

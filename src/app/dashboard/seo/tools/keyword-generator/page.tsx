@@ -66,7 +66,7 @@ export default function KeywordGeneratorPage() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 bg-muted/50 rounded-lg border flex flex-col gap-3">
+          <div className="p-4 bg-zoru-surface-2/50 rounded-lg border flex flex-col gap-3">
             <h4 className="text-sm font-semibold mb-1">Search Engines</h4>
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center space-x-2">
@@ -96,7 +96,7 @@ export default function KeywordGeneratorPage() {
             </div>
           </div>
           
-          <div className="p-4 bg-muted/50 rounded-lg border flex flex-col gap-3">
+          <div className="p-4 bg-zoru-surface-2/50 rounded-lg border flex flex-col gap-3">
             <h4 className="text-sm font-semibold mb-1">Modifiers</h4>
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center space-x-2">
@@ -122,7 +122,7 @@ export default function KeywordGeneratorPage() {
       
       {results.length > 0 && (
         <Card className="mt-4">
-          <div className="p-4 border-b bg-muted/20 flex justify-between items-center">
+          <div className="p-4 border-b bg-zoru-surface-2/20 flex justify-between items-center">
             <h3 className="font-medium">Generated Keywords ({results.length})</h3>
             <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(results.join('\n'))}>
               Copy All

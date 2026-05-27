@@ -109,9 +109,9 @@ export default function PageSpeedPage() {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600 dark:text-green-400';
-    if (score >= 50) return 'text-amber-500 dark:text-amber-400';
-    return 'text-red-500 dark:text-red-400';
+    if (score >= 90) return 'text-zoru-ink dark:text-zoru-ink-muted';
+    if (score >= 50) return 'text-zoru-ink dark:text-zoru-ink-muted';
+    return 'text-zoru-ink dark:text-zoru-ink-muted';
   };
 
   return (
@@ -152,8 +152,8 @@ export default function PageSpeedPage() {
       </div>
 
       {error && (
-        <Card className="border-red-300 bg-red-50 dark:bg-red-950/30">
-          <ZoruCardContent className="p-3 text-sm text-red-600 dark:text-red-400">
+        <Card className="border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/30">
+          <ZoruCardContent className="p-3 text-sm text-zoru-ink dark:text-zoru-ink-muted">
             {error}
           </ZoruCardContent>
         </Card>
@@ -190,7 +190,7 @@ export default function PageSpeedPage() {
                         <div className="flex items-center gap-3">
                           <span className={cn(
                             "w-2 h-2 rounded-full flex-shrink-0",
-                            (opp.score !== null && opp.score < 0.5) ? 'bg-red-500' : 'bg-amber-500'
+                            (opp.score !== null && opp.score < 0.5) ? 'bg-zoru-ink' : 'bg-zoru-ink'
                           )} />
                           {opp.title}
                           {opp.displayValue && (
@@ -226,5 +226,5 @@ function MetricCard({ title, value }: { title: string, value: string }) {
 
 function formatDescription(desc: string) {
   // Simple markdown link replacement to HTML
-  return desc.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">$1</a>');
+  return desc.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-zoru-ink hover:underline">$1</a>');
 }

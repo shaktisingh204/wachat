@@ -38,7 +38,7 @@ export default function OrderDetailPage(): React.JSX.Element {
     React.useEffect(() => { load(); }, [load]);
 
     if (loading) return <div className="zoruui p-6 text-zoru-ink-muted">Loading…</div>;
-    if (!order) return <div className="zoruui p-6 text-red-500">Order not found.</div>;
+    if (!order) return <div className="zoruui p-6 text-zoru-ink">Order not found.</div>;
 
     async function setStatus(field: 'paymentStatus' | 'fulfillmentStatus', value: string) {
         const r = await updateOrder(params.orderId, { [field]: value });

@@ -194,7 +194,7 @@ export default function ApplyLeaveClient({
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value || undefined} onValueChange={field.onChange}>
-                    <ZoruSelectTrigger className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.userId ? 'border-red-500' : ''}`}>
+                    <ZoruSelectTrigger className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.userId ? 'border-zoru-line' : ''}`}>
                       <ZoruSelectValue placeholder="Select employee" />
                     </ZoruSelectTrigger>
                     <ZoruSelectContent>
@@ -208,7 +208,7 @@ export default function ApplyLeaveClient({
                 )}
               />
               {errors.userId && (
-                <p className="mt-1 text-[13px] text-red-500">{errors.userId.message}</p>
+                <p className="mt-1 text-[13px] text-zoru-ink">{errors.userId.message}</p>
               )}
             </div>
             <div>
@@ -218,7 +218,7 @@ export default function ApplyLeaveClient({
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value || undefined} onValueChange={field.onChange}>
-                    <ZoruSelectTrigger className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.leaveTypeId ? 'border-red-500' : ''}`}>
+                    <ZoruSelectTrigger className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.leaveTypeId ? 'border-zoru-line' : ''}`}>
                       <ZoruSelectValue placeholder="Select leave type" />
                     </ZoruSelectTrigger>
                     <ZoruSelectContent>
@@ -239,7 +239,7 @@ export default function ApplyLeaveClient({
                 )}
               />
               {errors.leaveTypeId && (
-                <p className="mt-1 text-[13px] text-red-500">{errors.leaveTypeId.message}</p>
+                <p className="mt-1 text-[13px] text-zoru-ink">{errors.leaveTypeId.message}</p>
               )}
             </div>
 
@@ -261,7 +261,7 @@ export default function ApplyLeaveClient({
                     </div>
                   </div>
                   {exceedsQuota && (
-                    <div className="flex items-center gap-1.5 text-amber-600">
+                    <div className="flex items-center gap-1.5 text-zoru-ink">
                       <AlertTriangle className="h-4 w-4" />
                       <span className="font-medium">Requested days exceed available quota</span>
                     </div>
@@ -317,10 +317,10 @@ export default function ApplyLeaveClient({
               <Input
                 type="date"
                 {...register('leaveDate')}
-                className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.leaveDate ? 'border-red-500' : ''}`}
+                className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.leaveDate ? 'border-zoru-line' : ''}`}
               />
               {errors.leaveDate && (
-                <p className="mt-1 text-[13px] text-red-500">{errors.leaveDate.message}</p>
+                <p className="mt-1 text-[13px] text-zoru-ink">{errors.leaveDate.message}</p>
               )}
             </div>
 
@@ -331,10 +331,10 @@ export default function ApplyLeaveClient({
                   type="date"
                   min={watchLeaveDate}
                   {...register('endDate')}
-                  className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.endDate ? 'border-red-500' : ''}`}
+                  className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.endDate ? 'border-zoru-line' : ''}`}
                 />
                 {errors.endDate && (
-                  <p className="mt-1 text-[13px] text-red-500">{errors.endDate.message}</p>
+                  <p className="mt-1 text-[13px] text-zoru-ink">{errors.endDate.message}</p>
                 )}
               </div>
             ) : null}
@@ -347,10 +347,10 @@ export default function ApplyLeaveClient({
                   step="0.5"
                   min="0.5"
                   {...register('hours')}
-                  className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.hours ? 'border-red-500' : ''}`}
+                  className={`mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] ${errors.hours ? 'border-zoru-line' : ''}`}
                 />
                 {errors.hours && (
-                  <p className="mt-1 text-[13px] text-red-500">{errors.hours.message}</p>
+                  <p className="mt-1 text-[13px] text-zoru-ink">{errors.hours.message}</p>
                 )}
               </div>
             ) : null}

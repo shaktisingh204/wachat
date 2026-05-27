@@ -27,11 +27,11 @@ import type { SabfilesNode } from '@/lib/rust-client/sabfiles';
 type Mode = 'recent' | 'starred' | 'shared' | 'trash';
 
 function fileIconFor(node: SabfilesNode): React.ReactElement {
-    if (node.type === 'folder') return <Folder className="text-amber-500" />;
+    if (node.type === 'folder') return <Folder className="text-zoru-ink" />;
     const mime = node.mime || '';
-    if (mime.startsWith('image/')) return <FileImage className="text-violet-500" />;
-    if (mime.startsWith('video/')) return <FileVideo className="text-rose-500" />;
-    if (mime.includes('text') || mime.includes('pdf')) return <FileText className="text-sky-500" />;
+    if (mime.startsWith('image/')) return <FileImage className="text-zoru-ink" />;
+    if (mime.startsWith('video/')) return <FileVideo className="text-zoru-ink" />;
+    if (mime.includes('text') || mime.includes('pdf')) return <FileText className="text-zoru-ink" />;
     return <FileIcon className="text-zoru-ink-muted" />;
 }
 
@@ -216,7 +216,7 @@ export function SimpleList({
                                                 >
                                                     <Star
                                                         className={cn(
-                                                            n.starred && 'fill-amber-400 text-amber-400',
+                                                            n.starred && 'fill-zoru-ink-muted text-zoru-ink-muted',
                                                         )}
                                                     />
                                                 </Button>

@@ -790,7 +790,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                               return (
                                 <ZoruTableCell
                                   key={c.key}
-                                  className="font-medium text-foreground"
+                                  className="font-medium text-zoru-ink"
                                 >
                                   <RowDrawer
                                     label={content}
@@ -808,7 +808,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                                             : String(raw);
                                         return (
                                           <div key={cc.key}>
-                                            <div className="text-muted-foreground text-xs">
+                                            <div className="text-zoru-ink-muted text-xs">
                                               {cc.label}
                                             </div>
                                             <div>{display}</div>
@@ -816,7 +816,7 @@ export function SettingsDeepPage<T extends SettingsRow>({
                                         );
                                       })}
                                       <div>
-                                        <div className="text-muted-foreground text-xs">
+                                        <div className="text-zoru-ink-muted text-xs">
                                           Created
                                         </div>
                                         <div>

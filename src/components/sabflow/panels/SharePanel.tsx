@@ -132,7 +132,7 @@ function CopyButton({ text, label = 'Copy', className }: { text: string; label?:
       className={cn(
         'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition-colors shrink-0',
         copied
-          ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
+          ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
           : 'bg-[var(--gray-3)] text-[var(--gray-11)] hover:bg-[var(--gray-4)] hover:text-[var(--gray-12)]',
         className,
       )}
@@ -523,21 +523,21 @@ function PublishSection({
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold',
                 isPublished
-                  ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
+                  ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
                   : 'bg-[var(--gray-3)] text-[var(--gray-10)]',
               )}
             >
               <span
                 className={cn(
                   'h-1.5 w-1.5 rounded-full',
-                  isPublished ? 'bg-green-500' : 'bg-[var(--gray-7)]',
+                  isPublished ? 'bg-zoru-ink' : 'bg-[var(--gray-7)]',
                 )}
               />
               {isPublished ? 'Published' : 'Draft'}
             </span>
 
             {status === 'DRAFT' && (
-              <span className="flex items-center gap-1 text-[11.5px] text-amber-600 dark:text-amber-400">
+              <span className="flex items-center gap-1 text-[11.5px] text-zoru-ink dark:text-zoru-ink-muted">
                 <LuAlertTriangle className="h-3.5 w-3.5" strokeWidth={2} />
                 Not publicly visible
               </span>
@@ -572,7 +572,7 @@ function PublishSection({
 
         {/* Error */}
         {error && (
-          <p className="flex items-center gap-1.5 text-[12px] text-red-600 dark:text-red-400">
+          <p className="flex items-center gap-1.5 text-[12px] text-zoru-ink dark:text-zoru-ink-muted">
             <LuAlertTriangle className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
             {error}
           </p>

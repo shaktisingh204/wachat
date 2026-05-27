@@ -270,17 +270,17 @@ export default function TelegramConnectionsPage() {
             {!projectId ? (
                 <div
                     className="flex items-start gap-3 rounded-2xl border p-4"
-                    style={{ borderColor: '#37BBFE66', background: '#E8F6FE' }}
+                    style={{ borderColor: 'var(--zoru-line)', background: 'var(--zoru-surface-2)' }}
                 >
-                    <Info className="mt-0.5 h-4 w-4 text-sky-700" />
-                    <div className="flex-1 text-[12.5px] leading-relaxed text-sky-900">
+                    <Info className="mt-0.5 h-4 w-4 text-zoru-ink" />
+                    <div className="flex-1 text-[12.5px] leading-relaxed text-zoru-ink">
                         Select a project before connecting a bot. Connections are
                         scoped per project — bots, webhooks, and chats belong to the
                         active workspace.
                         <div className="mt-2">
                             <Link
                                 href="/dashboard/telegram/projects?next=/dashboard/telegram/connections"
-                                className="inline-flex items-center gap-1 text-sky-900 underline underline-offset-2"
+                                className="inline-flex items-center gap-1 text-zoru-ink underline underline-offset-2"
                             >
                                 Choose a Telegram project{' '}
                                 <ArrowRight className="h-3 w-3" />
@@ -627,10 +627,10 @@ export default function TelegramConnectionsPage() {
                 {/* Preview note */}
                 <div
                     className="mt-4 flex items-start gap-3 rounded-2xl border p-3"
-                    style={{ borderColor: '#F1C40F66', background: '#FEF6D7' }}
+                    style={{ borderColor: 'var(--zoru-line)', background: 'var(--zoru-surface-2)' }}
                 >
-                    <AlertTriangle className="mt-0.5 h-4 w-4 text-amber-700" />
-                    <p className="text-[12.5px] leading-relaxed text-amber-900">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 text-zoru-ink" />
+                    <p className="text-[12.5px] leading-relaxed text-zoru-ink">
                         The MTProto login flow is in preview. Credentials saved here are
                         stored and audited; a future MTProto worker will perform the
                         real Telegram handshake.

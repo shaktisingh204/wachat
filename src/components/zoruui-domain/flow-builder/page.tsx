@@ -108,7 +108,7 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
         const parts = text.split(/({{\s*[\w\d._]+\s*}})/g);
         return parts.map((part, i) =>
             part.match(/^{{.*}}$/) ? (
-                <span key={i} className="font-semibold text-primary/90 bg-primary/10 rounded-sm px-1">
+                <span key={i} className="font-semibold text-zoru-ink/90 bg-zoru-ink/10 rounded-sm px-1">
                     {part}
                 </span>
             ) : (
@@ -125,8 +125,8 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
             case 'image':
                 return (
                      <div className="space-y-1">
-                        <div className="aspect-video bg-background/50 rounded-md flex items-center justify-center">
-                            <ImageIcon className="h-8 w-8 text-foreground/20" />
+                        <div className="aspect-video bg-zoru-surface/50 rounded-md flex items-center justify-center">
+                            <ImageIcon className="h-8 w-8 text-zoru-ink/20" />
                         </div>
                         {node.data.caption && <p className="whitespace-pre-wrap text-xs">{renderTextWithVariables(node.data.caption)}</p>}
                     </div>
@@ -137,7 +137,7 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
                         <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text)}</p>
                         <div className="space-y-1 mt-2 border-t border-muted-foreground/20 pt-2">
                             {(node.data.buttons || []).map((btn: any, index: number) => (
-                                <div key={btn.id || index} className="text-center text-primary font-medium bg-background/50 py-1.5 rounded-md text-xs">
+                                <div key={btn.id || index} className="text-center text-zoru-ink font-medium bg-zoru-surface/50 py-1.5 rounded-md text-xs">
                                     {btn.text || `Button ${index + 1}`}
                                 </div>
                             ))}
@@ -154,7 +154,7 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
 
     return (
         <ZoruCardContent className="p-2 pt-0">
-            <div className="bg-muted p-2 rounded-lg text-sm text-card-foreground/80">
+            <div className="bg-zoru-surface-2 p-2 rounded-lg text-sm text-zoru-ink/80">
                 {content}
             </div>
         </ZoruCardContent>
@@ -182,7 +182,7 @@ const NodeComponent = ({
             data-handle-pos={position}
             style={style}
             className={cn(
-                "absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10",
+                "absolute w-4 h-4 rounded-full bg-zoru-surface border-2 border-primary hover:bg-zoru-ink transition-colors z-10",
                 position === 'left' && "-left-2 top-1/2 -translate-y-1/2",
                 position === 'right' && "-right-2",
             )} 
@@ -198,13 +198,13 @@ const NodeComponent = ({
             onMouseDown={(e) => onNodeMouseDown(e, node.id)}
             onClick={(e) => { e.stopPropagation(); onSelectNode(node.id); }}
         >
-            <Card className={cn("w-64 hover:shadow-xl hover:-translate-y-1 bg-card", isSelected && "ring-2 ring-primary shadow-2xl")}>
+            <Card className={cn("w-64 hover:shadow-xl hover:-translate-y-1 bg-zoru-surface", isSelected && "ring-2 ring-primary shadow-2xl")}>
                 <ZoruCardHeader className="flex flex-row items-center gap-3 p-3">
-                    <BlockIcon className="h-5 w-5 text-muted-foreground" />
+                    <BlockIcon className="h-5 w-5 text-zoru-ink-muted" />
                     <ZoruCardTitle className="text-sm font-medium">{node.data.label}</ZoruCardTitle>
                 </ZoruCardHeader>
                 <NodePreview node={node} />
-                 {node.type === 'condition' && ( <ZoruCardContent className="p-3 pt-0 text-xs text-muted-foreground"><div className="flex justify-between items-center"><span>Yes</span></div><Separator className="my-1"/><div className="flex justify-between items-center"><span>No</span></div></ZoruCardContent>)}
+                 {node.type === 'condition' && ( <ZoruCardContent className="p-3 pt-0 text-xs text-zoru-ink-muted"><div className="flex justify-between items-center"><span>Yes</span></div><Separator className="my-1"/><div className="flex justify-between items-center"><span>No</span></div></ZoruCardContent>)}
             </Card>
 
             {node.type !== 'start' && <Handle position="left" id={`${node.id}-input`} style={{top: '50%', transform: 'translateY(-50%)'}} />}
@@ -257,7 +257,7 @@ const FlowsAndBlocksPanel = ({
                             <div key={flow._id.toString()} className="flex items-center group">
                                 <Button 
                                     variant="ghost" 
-                                    className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && 'bg-muted font-semibold')}
+                                    className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && 'bg-zoru-surface-2 font-semibold')}
                                     onClick={() => handleSelectFlow(flow._id.toString())}
                                 >
                                     <FileIcon className="mr-2 h-4 w-4"/>
@@ -577,12 +577,12 @@ export function FlowBuilder() {
     }
     
     return (
-        <div className="flex h-[calc(100vh-theme(spacing.20))] bg-muted/30">
-             <div className={cn("flex-col gap-4 p-2 bg-background border-r transition-all duration-300", isSidebarCollapsed ? 'hidden' : 'hidden md:flex md:w-64')}>
+        <div className="flex h-[calc(100vh-theme(spacing.20))] bg-zoru-surface-2/30">
+             <div className={cn("flex-col gap-4 p-2 bg-zoru-surface border-r transition-all duration-300", isSidebarCollapsed ? 'hidden' : 'hidden md:flex md:w-64')}>
                 <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
             </div>
             <div className="flex-1 flex flex-col relative">
-                 <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
+                 <header className="flex-shrink-0 flex items-center justify-between p-3 bg-zoru-surface border-b">
                      <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsBlocksSheetOpen(true)}>
                             <PanelLeft className="h-5 w-5" />
@@ -620,7 +620,7 @@ export function FlowBuilder() {
                     >
                         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px` }}/>
                         <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
-                            {isLoading && !currentFlow ? (<div className="absolute inset-0 flex items-center justify-center"><LoaderCircle className="h-8 w-8 animate-spin text-primary" /></div>) : (
+                            {isLoading && !currentFlow ? (<div className="absolute inset-0 flex items-center justify-center"><LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink" /></div>) : (
                                 <>
                                     {nodes.map(node => (<NodeComponent key={node.id} node={node} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick}/>))}
                                     <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
@@ -649,7 +649,7 @@ export function FlowBuilder() {
                             <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>{isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}</Button>
                         </div>
                     </Card>
-                    <aside className="hidden md:block col-span-3 bg-background p-4 overflow-y-auto">
+                    <aside className="hidden md:block col-span-3 bg-zoru-surface p-4 overflow-y-auto">
                         {selectedNode && <PropertiesPanel {...({ node: selectedNode, onUpdate: updateNodeData, deleteNode: deleteNode, availableVariables: [] } as any)} />}
                     </aside>
                  </main>

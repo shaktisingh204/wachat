@@ -186,7 +186,7 @@ export function BlockNode({
           'flex gap-2 flex-1 p-3 rounded-lg items-start w-full text-left select-none transition-[border-color] cursor-pointer bg-[var(--gray-2)]',
           supportsItems ? 'rounded-b-none border-b-0' : '',
           isOpen || isConnecting
-            ? 'border-2 border-[#f76808] -m-px'
+            ? 'border-2 border-zoru-line -m-px'
             : 'border border-[var(--gray-5)] hover:border-[var(--gray-7)]',
         )}
       >
@@ -229,7 +229,7 @@ export function BlockNode({
           className={cn(
             'rounded-b-lg border border-t-0 bg-[var(--gray-2)] px-2 pb-2 pt-1',
             isOpen || isConnecting
-              ? 'border-[#f76808]'
+              ? 'border-zoru-line'
               : 'border-[var(--gray-5)]',
           )}
         >

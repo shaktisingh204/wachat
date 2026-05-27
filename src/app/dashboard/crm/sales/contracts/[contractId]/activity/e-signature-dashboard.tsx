@@ -87,7 +87,7 @@ export function ESignatureDashboard({ contractId, provider, partyName, partyEmai
                           <CheckCircle2 className="h-3 w-3" /> Signed
                         </Badge>
                       ) : s.status === 'viewed' ? (
-                        <Badge variant="outline" className="flex w-fit items-center gap-1 text-blue-600 border-blue-200 bg-blue-50">
+                        <Badge variant="outline" className="flex w-fit items-center gap-1 text-zoru-ink border-zoru-line bg-zoru-surface-2">
                           <Clock className="h-3 w-3" /> Viewed
                         </Badge>
                       ) : s.status === 'declined' ? (
@@ -95,7 +95,7 @@ export function ESignatureDashboard({ contractId, provider, partyName, partyEmai
                           <XCircle className="h-3 w-3" /> Declined
                         </Badge>
                       ) : (
-                        <Badge variant="ghost" className="flex w-fit items-center gap-1 bg-amber-50 text-amber-700 border-amber-200">
+                        <Badge variant="ghost" className="flex w-fit items-center gap-1 bg-zoru-surface-2 text-zoru-ink border-zoru-line">
                           <Clock className="h-3 w-3" /> Pending
                         </Badge>
                       )}

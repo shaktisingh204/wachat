@@ -10,11 +10,11 @@ export default function ErrorBoundary({ error, reset }: { error: Error & { diges
 
   return (
     <div className="flex flex-col items-center justify-center p-8 text-center bg-white rounded-lg border shadow-sm space-y-4">
-      <h2 className="text-xl font-semibold text-red-600">Something went wrong!</h2>
-      <p className="text-gray-600 max-w-md">
+      <h2 className="text-xl font-semibold text-zoru-ink">Something went wrong!</h2>
+      <p className="text-zoru-ink max-w-md">
         We encountered an error while loading the performance reviews. Please try again.
       </p>
-      <div className="text-sm text-gray-500 bg-gray-50 p-2 rounded w-full max-w-md overflow-auto text-left">
+      <div className="text-sm text-zoru-ink bg-zoru-surface-2 p-2 rounded w-full max-w-md overflow-auto text-left">
         {error.message}
       </div>
       <Button onClick={() => reset()} variant="default">

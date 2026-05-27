@@ -195,7 +195,7 @@ export function FormDesignerClient({ app, form }: Props) {
         {/* Palette */}
         <aside>
           <Card className="p-3">
-            <h3 className="text-xs font-semibold text-muted-foreground mb-2">
+            <h3 className="text-xs font-semibold text-zoru-ink-muted mb-2">
               FIELD PALETTE
             </h3>
             <div className="space-y-1">
@@ -204,7 +204,7 @@ export function FormDesignerClient({ app, form }: Props) {
                   key={p.kind}
                   type="button"
                   onClick={() => addField(p.kind)}
-                  className="w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm text-left hover:bg-muted"
+                  className="w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm text-left hover:bg-zoru-surface-2"
                 >
                   {p.icon}
                   {p.label}
@@ -217,11 +217,11 @@ export function FormDesignerClient({ app, form }: Props) {
         {/* Canvas */}
         <main>
           <Card className="p-4">
-            <h3 className="text-xs font-semibold text-muted-foreground mb-3">
+            <h3 className="text-xs font-semibold text-zoru-ink-muted mb-3">
               FORM CANVAS
             </h3>
             {fields.length === 0 ? (
-              <div className="text-sm text-muted-foreground py-8 text-center">
+              <div className="text-sm text-zoru-ink-muted py-8 text-center">
                 Click a field in the palette to add it.
               </div>
             ) : (
@@ -232,8 +232,8 @@ export function FormDesignerClient({ app, form }: Props) {
                     onClick={() => setSelectedId(f.id)}
                     className={`p-3 border rounded-md cursor-pointer transition-colors ${
                       selectedId === f.id
-                        ? 'border-primary bg-primary/5'
-                        : 'hover:bg-muted/50'
+                        ? 'border-primary bg-zoru-ink/5'
+                        : 'hover:bg-zoru-surface-2/50'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
@@ -241,10 +241,10 @@ export function FormDesignerClient({ app, form }: Props) {
                         <div className="text-sm font-medium truncate">
                           {f.label}{' '}
                           {f.required ? (
-                            <span className="text-destructive">*</span>
+                            <span className="text-zoru-ink">*</span>
                           ) : null}
                         </div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-zoru-ink-muted">
                           {f.kind} · {f.tableFieldId}
                         </div>
                       </div>
@@ -281,7 +281,7 @@ export function FormDesignerClient({ app, form }: Props) {
         {/* Properties */}
         <aside className="space-y-4">
           <Card className="p-3">
-            <h3 className="text-xs font-semibold text-muted-foreground mb-2">
+            <h3 className="text-xs font-semibold text-zoru-ink-muted mb-2">
               FIELD PROPERTIES
             </h3>
             {selected ? (
@@ -331,14 +331,14 @@ export function FormDesignerClient({ app, form }: Props) {
                 </Button>
               </div>
             ) : (
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-zoru-ink-muted">
                 Select a field on the canvas to edit it.
               </div>
             )}
           </Card>
 
           <Card className="p-3">
-            <h3 className="text-xs font-semibold text-muted-foreground mb-2">
+            <h3 className="text-xs font-semibold text-zoru-ink-muted mb-2">
               SUBMIT BEHAVIOUR
             </h3>
             <div className="space-y-3">

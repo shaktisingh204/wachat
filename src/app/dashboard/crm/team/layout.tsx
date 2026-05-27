@@ -87,8 +87,8 @@ function RemoveAgentButton({
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle className="text-foreground">Are you sure?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription className="text-muted-foreground">
+          <ZoruAlertDialogTitle className="text-zoru-ink">Are you sure?</ZoruAlertDialogTitle>
+          <ZoruAlertDialogDescription className="text-zoru-ink-muted">
             This will remove the agent&apos;s access from all of your projects. This action cannot
             be undone.
           </ZoruAlertDialogDescription>
@@ -149,7 +149,7 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
             type="email"
             placeholder="Enter agent's email"
             required
-            className="h-10 rounded-lg border-border bg-card text-[13px]"
+            className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
           />
         </div>
         <div className="space-y-2">
@@ -159,7 +159,7 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
           <Select name="role" defaultValue="agent">
             <ZoruSelectTrigger
               id="role"
-              className="h-10 w-full rounded-lg border-border bg-card text-[13px] sm:w-[180px]"
+              className="h-10 w-full rounded-lg border-zoru-line bg-zoru-surface text-[13px] sm:w-[180px]"
             >
               <ZoruSelectValue placeholder="Select role" />
             </ZoruSelectTrigger>
@@ -231,27 +231,27 @@ export default function ManageUsersPage() {
             teamMembers.map((agent: any) => (
               <div
                 key={agent._id.toString()}
-                className="flex items-center justify-between gap-4 rounded-lg border border-border bg-secondary p-4"
+                className="flex items-center justify-between gap-4 rounded-lg border border-zoru-line bg-zoru-surface-2 p-4"
               >
                 <div className="flex items-center gap-4">
-                  <Avatar className="border border-border">
+                  <Avatar className="border border-zoru-line">
                     <ZoruAvatarImage
                       src={`https://i.pravatar.cc/150?u=${agent.email}`}
                       alt={agent.name}
                     />
-                    <ZoruAvatarFallback className="bg-accent text-[12px] text-accent-foreground">
+                    <ZoruAvatarFallback className="bg-zoru-surface-2 text-[12px] text-zoru-ink">
                       {agent.name.substring(0, 2).toUpperCase()}
                     </ZoruAvatarFallback>
                   </Avatar>
                   <div className="space-y-0.5">
-                    <p className="text-[13px] font-medium leading-none text-foreground">
+                    <p className="text-[13px] font-medium leading-none text-zoru-ink">
                       {agent.name}
                     </p>
-                    <p className="text-[12.5px] text-muted-foreground">{agent.email}</p>
+                    <p className="text-[12.5px] text-zoru-ink-muted">{agent.email}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="text-[12.5px] text-muted-foreground">
+                  <div className="text-[12.5px] text-zoru-ink-muted">
                     {agent.roles && Object.keys(agent.roles).length > 0
                       ? `Role: ${Object.values(agent.roles)[0]}`
                       : 'No specific project roles'}

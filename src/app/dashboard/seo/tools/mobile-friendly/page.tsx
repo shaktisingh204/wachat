@@ -169,8 +169,8 @@ export default function MobileFriendlyPage() {
       </div>
 
       {error && (
-        <Card className="border-red-500">
-          <ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent>
+        <Card className="border-zoru-line">
+          <ZoruCardContent className="p-4 text-zoru-ink text-sm">{error}</ZoruCardContent>
         </Card>
       )}
 
@@ -179,21 +179,21 @@ export default function MobileFriendlyPage() {
           <ZoruCardContent className="p-4 flex items-center gap-4">
             <div
               className={`text-4xl font-bold ${
-                score >= 90 ? 'text-green-600' : score >= 50 ? 'text-yellow-600' : 'text-red-600'
+                score >= 90 ? 'text-zoru-ink' : score >= 50 ? 'text-zoru-ink' : 'text-zoru-ink'
               }`}
             >
               {score}
             </div>
             <div>
               <div className="font-semibold text-lg">Mobile SEO Score</div>
-              <div className="text-sm text-muted-foreground">Powered by Google PageSpeed Insights</div>
+              <div className="text-sm text-zoru-ink-muted">Powered by Google PageSpeed Insights</div>
             </div>
           </ZoruCardContent>
         </Card>
       )}
 
       {method === 'fallback' && checks.length > 0 && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted p-2 rounded-md">
+        <div className="flex items-center gap-2 text-sm text-zoru-ink-muted bg-zoru-surface-2 p-2 rounded-md">
           <Info className="h-4 w-4" />
           <span>Google PageSpeed API unavailable. Used fallback manual CSS extraction.</span>
         </div>
@@ -209,13 +209,13 @@ export default function MobileFriendlyPage() {
               <div key={i} className="flex items-center justify-between text-sm border-b last:border-0 py-2">
                 <div className="flex items-center gap-2">
                   {c.pass ? (
-                    <Check className="h-4 w-4 text-green-600" />
+                    <Check className="h-4 w-4 text-zoru-ink" />
                   ) : (
-                    <X className="h-4 w-4 text-red-600" />
+                    <X className="h-4 w-4 text-zoru-ink" />
                   )}
                   <span className="font-medium">{c.label}</span>
                 </div>
-                {c.details && <span className="text-xs text-muted-foreground">{c.details}</span>}
+                {c.details && <span className="text-xs text-zoru-ink-muted">{c.details}</span>}
               </div>
             ))}
           </ZoruCardContent>

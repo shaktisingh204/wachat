@@ -194,7 +194,7 @@ export default function VisaDetailsPage() {
                       </td>
                       <td className="px-4 py-2.5">
                         {v.file ? (
-                          <a href={v.file} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] text-sky-500 hover:underline">
+                          <a href={v.file} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] text-zoru-ink hover:underline">
                             <ExternalLink className="h-3 w-3" /> View
                           </a>
                         ) : <span className="text-zoru-ink-muted">—</span>}

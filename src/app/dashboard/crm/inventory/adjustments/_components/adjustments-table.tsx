@@ -213,9 +213,9 @@ function AdjustmentRow({
                 className={[
                     'text-right font-mono text-[12.5px]',
                     a.quantity > 0
-                        ? 'text-emerald-500'
+                        ? 'text-zoru-ink'
                         : a.quantity < 0
-                          ? 'text-rose-500'
+                          ? 'text-zoru-ink'
                           : 'text-zoru-ink',
                 ].join(' ')}
             >

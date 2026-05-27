@@ -80,7 +80,7 @@ export function ClientSalesForecastingPage({ initialData }: { initialData: AISal
                 <ZoruTableCell>{item.drivers.join(', ')}</ZoruTableCell>
                 <ZoruTableCell className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
-                    <Trash2 className="w-4 h-4 text-red-500" />
+                    <Trash2 className="w-4 h-4 text-zoru-ink" />
                   </Button>
                 </ZoruTableCell>
               </ZoruTableRow>

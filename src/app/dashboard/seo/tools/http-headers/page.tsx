@@ -40,11 +40,11 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode, title?: 
   render() {
     if (this.state.hasError) {
       return (
-        <Card className="border-red-500 mt-4">
+        <Card className="border-zoru-line mt-4">
           <ZoruCardContent className="p-4 flex flex-col items-center justify-center space-y-4">
-            <AlertCircle className="w-8 h-8 text-red-500" />
-            <div className="text-red-500 font-semibold text-center">{this.props.title || 'Something went wrong rendering the results!'}</div>
-            <p className="text-sm text-gray-500 text-center max-w-md break-all">{this.state.error?.message}</p>
+            <AlertCircle className="w-8 h-8 text-zoru-ink" />
+            <div className="text-zoru-ink font-semibold text-center">{this.props.title || 'Something went wrong rendering the results!'}</div>
+            <p className="text-sm text-zoru-ink text-center max-w-md break-all">{this.state.error?.message}</p>
             <Button onClick={() => {
               this.setState({ hasError: false });
               this.props.onReset?.();
@@ -163,20 +163,20 @@ export default function HttpHeadersPage() {
                       <div key={idx} className="flex items-start gap-3 text-sm">
                         <div className="flex flex-col items-center gap-1 min-w-[50px] mt-0.5">
                           <span className={cn("px-2 py-0.5 rounded text-xs font-semibold", 
-                            step.status >= 300 && step.status < 400 ? "bg-yellow-100 text-yellow-800" :
-                            step.status >= 200 && step.status < 300 ? "bg-green-100 text-green-800" :
-                            "bg-red-100 text-red-800"
+                            step.status >= 300 && step.status < 400 ? "bg-zoru-surface-2 text-zoru-ink" :
+                            step.status >= 200 && step.status < 300 ? "bg-zoru-surface-2 text-zoru-ink" :
+                            "bg-zoru-surface-2 text-zoru-ink"
                           )}>
                             {step.status}
                           </span>
                           {idx < data.redirectChain.length - 1 && (
-                            <ArrowRightIcon className="w-4 h-4 text-gray-400 rotate-90" />
+                            <ArrowRightIcon className="w-4 h-4 text-zoru-ink-muted rotate-90" />
                           )}
                         </div>
                         <div className="flex flex-col break-all pt-0.5">
-                          <span className="font-mono text-gray-800 font-medium">{step.url}</span>
+                          <span className="font-mono text-zoru-ink font-medium">{step.url}</span>
                           {step.location && (
-                            <span className="text-gray-500 text-xs mt-1">↳ {step.location}</span>
+                            <span className="text-zoru-ink text-xs mt-1">↳ {step.location}</span>
                           )}
                         </div>
                       </div>
@@ -191,9 +191,9 @@ export default function HttpHeadersPage() {
                 <div className="flex items-center gap-2 mb-4">
                   <span className="font-semibold">Final Status:</span> 
                   <span className={cn("px-2 py-0.5 rounded text-sm font-semibold", 
-                    data.status >= 200 && data.status < 300 ? "bg-green-100 text-green-800" :
-                    data.status >= 400 ? "bg-red-100 text-red-800" :
-                    "bg-gray-100 text-gray-800"
+                    data.status >= 200 && data.status < 300 ? "bg-zoru-surface-2 text-zoru-ink" :
+                    data.status >= 400 ? "bg-zoru-surface-2 text-zoru-ink" :
+                    "bg-zoru-surface-2 text-zoru-ink"
                   )}>
                     {data.status}
                   </span>
@@ -204,9 +204,9 @@ export default function HttpHeadersPage() {
                   <table className="w-full text-xs text-left">
                     <tbody>
                       {Object.entries(data.headers || {}).map(([k, v]) => (
-                        <tr key={k} className="border-t border-gray-100 hover:bg-gray-50/50 transition-colors">
-                          <td className="py-2 pr-4 font-mono w-48 sm:w-60 align-top text-gray-600">{k}</td>
-                          <td className="py-2 break-all font-mono text-gray-900">{String(v)}</td>
+                        <tr key={k} className="border-t border-zoru-line hover:bg-zoru-surface-2/50 transition-colors">
+                          <td className="py-2 pr-4 font-mono w-48 sm:w-60 align-top text-zoru-ink">{k}</td>
+                          <td className="py-2 break-all font-mono text-zoru-ink">{String(v)}</td>
                         </tr>
                       ))}
                     </tbody>

@@ -99,7 +99,7 @@ export default async function SablensPage() {
                     {s.customerEmail || '—'}
                   </ZoruCardDescription>
                 </ZoruCardHeader>
-                <ZoruCardContent className="flex items-center justify-between text-xs text-muted-foreground">
+                <ZoruCardContent className="flex items-center justify-between text-xs text-zoru-ink-muted">
                   <span className="inline-flex items-center gap-1">
                     <Video className="size-3" />
                     {s.mode === 'live_call' ? 'Live call' : 'Async recorded'}

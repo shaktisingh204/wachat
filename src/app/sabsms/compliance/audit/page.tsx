@@ -372,11 +372,11 @@ export default function ComplianceAuditPage() {
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           {row.original.action === "send-blocked" ? (
-            <ShieldAlert className="h-4 w-4 text-destructive" />
+            <ShieldAlert className="h-4 w-4 text-zoru-ink" />
           ) : row.original.action === "consent-changed" ? (
-            <User className="h-4 w-4 text-orange-500" />
+            <User className="h-4 w-4 text-zoru-ink" />
           ) : (
-            <Activity className="h-4 w-4 text-primary" />
+            <Activity className="h-4 w-4 text-zoru-ink" />
           )}
           <span className="font-medium">{row.original.action}</span>
         </div>
@@ -388,7 +388,7 @@ export default function ComplianceAuditPage() {
       cell: ({ row }) => (
         <div className="flex flex-col">
           <span className="font-medium">{row.original.actorName}</span>
-          <span className="text-xs text-muted-foreground">{row.original.actor}</span>
+          <span className="text-xs text-zoru-ink-muted">{row.original.actor}</span>
         </div>
       ),
     },
@@ -398,7 +398,7 @@ export default function ComplianceAuditPage() {
       cell: ({ row }) => (
         <div className="flex flex-col">
           <span className="font-medium">{row.original.subjectId}</span>
-          <span className="text-xs text-muted-foreground">{row.original.subject}</span>
+          <span className="text-xs text-zoru-ink-muted">{row.original.subject}</span>
         </div>
       ),
     },
@@ -418,7 +418,7 @@ export default function ComplianceAuditPage() {
       accessorKey: "hash",
       header: "Hash",
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-muted-foreground bg-muted px-2 py-1 rounded" title={row.original.hash}>
+        <span className="font-mono text-xs text-zoru-ink-muted bg-zoru-surface-2 px-2 py-1 rounded" title={row.original.hash}>
           {isHashing ? "Hashing..." : `${row.original.hash.substring(0, 8)}...`}
         </span>
       ),
@@ -511,7 +511,7 @@ export default function ComplianceAuditPage() {
           icon={<Database />}
           items={statItems}
           footer="Audit logs are retained in cold storage for 7 years as per compliance policy."
-          className="bg-white/50 backdrop-blur-md shadow-sm border-slate-200"
+          className="bg-white/50 backdrop-blur-md shadow-sm border-zoru-line"
         />
 
         {/* Filter Bar */}
@@ -566,24 +566,24 @@ export default function ComplianceAuditPage() {
             <div className="space-y-6 pt-2">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Time</p>
+                  <p className="text-sm text-zoru-ink-muted mb-1">Time</p>
                   <p className="font-medium">{formatUTC(new Date(selectedRecord.timestamp), true)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Severity</p>
+                  <p className="text-sm text-zoru-ink-muted mb-1">Severity</p>
                   <Badge variant={selectedRecord.severity === 'critical' ? 'destructive' : selectedRecord.severity === 'warning' ? 'secondary' : 'default' as any}>
                     {selectedRecord.severity}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Actor</p>
+                  <p className="text-sm text-zoru-ink-muted mb-1">Actor</p>
                   <p className="font-medium">{selectedRecord.actorName}</p>
-                  <p className="text-xs text-muted-foreground">{selectedRecord.actor}</p>
+                  <p className="text-xs text-zoru-ink-muted">{selectedRecord.actor}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Subject</p>
+                  <p className="text-sm text-zoru-ink-muted mb-1">Subject</p>
                   <p className="font-medium">{selectedRecord.subjectId}</p>
-                  <p className="text-xs text-muted-foreground">{selectedRecord.subject}</p>
+                  <p className="text-xs text-zoru-ink-muted">{selectedRecord.subject}</p>
                 </div>
               </div>
 
@@ -600,14 +600,14 @@ export default function ComplianceAuditPage() {
                     <div className="border rounded-md overflow-hidden text-sm font-mono">
                       {selectedRecord.diff.map((d, i) => (
                         <div key={i} className="divide-y border-b last:border-b-0">
-                          <div className="bg-muted/50 p-2 border-b">
+                          <div className="bg-zoru-surface-2/50 p-2 border-b">
                             Field: <strong>{d.field}</strong>
                           </div>
-                          <div className="bg-red-500/10 text-red-600 p-2 flex gap-4">
+                          <div className="bg-zoru-ink/10 text-zoru-ink p-2 flex gap-4">
                             <span className="w-4 select-none opacity-50">-</span>
                             <span>{JSON.stringify(d.old)}</span>
                           </div>
-                          <div className="bg-green-500/10 text-green-600 p-2 flex gap-4">
+                          <div className="bg-zoru-ink/10 text-zoru-ink p-2 flex gap-4">
                             <span className="w-4 select-none opacity-50">+</span>
                             <span>{JSON.stringify(d.new)}</span>
                           </div>
@@ -615,7 +615,7 @@ export default function ComplianceAuditPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="p-8 text-center text-muted-foreground border rounded-md border-dashed">
+                    <div className="p-8 text-center text-zoru-ink-muted border rounded-md border-dashed">
                       No diff available for this action.
                     </div>
                   )}
@@ -623,7 +623,7 @@ export default function ComplianceAuditPage() {
                 
                 {/* 19. Per-record raw payload viewer */}
                 <TabsContent value="payload" className="mt-4">
-                  <div className="bg-muted p-4 rounded-md font-mono text-sm overflow-x-auto">
+                  <div className="bg-zoru-surface-2 p-4 rounded-md font-mono text-sm overflow-x-auto">
                     <pre>{JSON.stringify(selectedRecord.payload, null, 2)}</pre>
                   </div>
                 </TabsContent>
@@ -631,21 +631,21 @@ export default function ComplianceAuditPage() {
                 {/* 16. Tamper-evident hash chain display */}
                 <TabsContent value="hash" className="mt-4">
                   <div className="space-y-4">
-                    <div className="border rounded-md p-4 space-y-4 bg-muted/30">
+                    <div className="border rounded-md p-4 space-y-4 bg-zoru-surface-2/30">
                       <div className="flex items-start gap-3">
-                        <Lock className="h-5 w-5 text-primary mt-0.5" />
+                        <Lock className="h-5 w-5 text-zoru-ink mt-0.5" />
                         <div>
                           <p className="font-medium">Current Record Hash</p>
-                          <p className="font-mono text-xs text-muted-foreground mt-1 break-all bg-muted p-2 rounded border">
+                          <p className="font-mono text-xs text-zoru-ink-muted mt-1 break-all bg-zoru-surface-2 p-2 rounded border">
                             {selectedRecord.hash}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
-                        <History className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <History className="h-5 w-5 text-zoru-ink-muted mt-0.5" />
                         <div>
                           <p className="font-medium">Previous Record Hash</p>
-                          <p className="font-mono text-xs text-muted-foreground mt-1 break-all bg-muted p-2 rounded border">
+                          <p className="font-mono text-xs text-zoru-ink-muted mt-1 break-all bg-zoru-surface-2 p-2 rounded border">
                             {selectedRecord.previousHash}
                           </p>
                         </div>
@@ -668,14 +668,14 @@ export default function ComplianceAuditPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-primary" /> AI Summary (Last Hour)
+              <Bot className="h-5 w-5 text-zoru-ink" /> AI Summary (Last Hour)
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">
+          <div className="space-y-4 text-sm leading-relaxed text-zoru-ink-muted">
             <p><strong>38 events</strong> occurred in the last hour across 2 workspaces.</p>
             <ul className="list-disc pl-5 space-y-1">
               <li><strong>12</strong> consent changes (mostly inbound STOP keywords).</li>
-              <li><strong>5</strong> campaign sends blocked due to quiet hours policy violations in <span className="text-foreground font-medium">ws_acme_corp</span>.</li>
+              <li><strong>5</strong> campaign sends blocked due to quiet hours policy violations in <span className="text-zoru-ink font-medium">ws_acme_corp</span>.</li>
               <li><strong>1</strong> new API key provisioned by Admin.</li>
             </ul>
             <p>No anomalous activity detected. Hash chain integrity is 100% verified.</p>
@@ -699,7 +699,7 @@ export default function ComplianceAuditPage() {
             <div className="flex items-center justify-between">
               <div>
                 <Label className="text-base">Auto-Archive Policy</Label>
-                <p className="text-sm text-muted-foreground">Move logs to cold storage (S3 Glacier) after a set period.</p>
+                <p className="text-sm text-zoru-ink-muted">Move logs to cold storage (S3 Glacier) after a set period.</p>
               </div>
               <Switch defaultChecked />
             </div>
@@ -766,14 +766,14 @@ export default function ComplianceAuditPage() {
             <div className="flex items-center justify-between">
               <div>
                 <Label>Critical Severity Alerts</Label>
-                <p className="text-sm text-muted-foreground">Notify when any critical event is logged.</p>
+                <p className="text-sm text-zoru-ink-muted">Notify when any critical event is logged.</p>
               </div>
               <Switch defaultChecked />
             </div>
             <div className="flex items-center justify-between">
               <div>
                 <Label>Campaign Blocked Alerts</Label>
-                <p className="text-sm text-muted-foreground">Notify when a campaign is blocked by compliance.</p>
+                <p className="text-sm text-zoru-ink-muted">Notify when a campaign is blocked by compliance.</p>
               </div>
               <Switch defaultChecked />
             </div>

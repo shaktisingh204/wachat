@@ -15,25 +15,25 @@ const chartPoints = [10, 28, 22, 48, 40, 70, 62, 92, 86, 110];
 export function SeoHero() {
     return (
         <div className="relative h-full w-full">
-            <div aria-hidden className="absolute inset-0 rounded-3xl bg-rose-500/15 blur-3xl" />
+            <div aria-hidden className="absolute inset-0 rounded-3xl bg-zoru-ink/15 blur-3xl" />
 
             <m.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="relative h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-[#1d0814]/80 p-5 shadow-[0_30px_80px_-20px_rgba(244,63,94,0.5)] backdrop-blur"
+                className="relative h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-zoru-ink/80 p-5 shadow-[0_30px_80px_-20px_rgba(244,63,94,0.5)] backdrop-blur"
             >
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-rose-400 to-pink-500">
+                        <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-zoru-surface-2 to-zoru-ink">
                             <Globe2 className="h-4 w-4 text-white" />
                         </div>
                         <div>
                             <p className="text-[12px] font-semibold text-white">sabnode.in/launch</p>
-                            <p className="text-[10px] text-rose-200/70">Lighthouse · mobile</p>
+                            <p className="text-[10px] text-white/70">Lighthouse · mobile</p>
                         </div>
                     </div>
-                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-200">
+                    <span className="rounded-full bg-zoru-ink/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
                         Live
                     </span>
                 </div>
@@ -51,10 +51,10 @@ export function SeoHero() {
                         <div>
                             <p className="text-[11px] uppercase tracking-wider text-white/50">Organic traffic</p>
                             <p className="mt-0.5 text-lg font-semibold text-white">
-                                32,418 <span className="text-[11px] font-medium text-emerald-300">+184%</span>
+                                32,418 <span className="text-[11px] font-medium text-zoru-ink-muted">+184%</span>
                             </p>
                         </div>
-                        <TrendingUp className="h-4 w-4 text-rose-300" />
+                        <TrendingUp className="h-4 w-4 text-zoru-ink-muted" />
                     </div>
                     <svg viewBox="0 0 220 60" className="mt-3 h-16 w-full">
                         <defs>
@@ -96,11 +96,11 @@ export function SeoHero() {
                                 initial={{ opacity: 0, y: 6 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 1.0 + i * 0.1 }}
-                                className="flex items-center gap-1.5 rounded-full border border-rose-300/30 bg-rose-500/10 px-2.5 py-1 text-[10px] font-semibold text-rose-100"
+                                className="flex items-center gap-1.5 rounded-full border border-zoru-line/30 bg-zoru-ink/10 px-2.5 py-1 text-[10px] font-semibold text-white"
                             >
                                 <CIcon className="h-3 w-3" />
                                 {c.label}
-                                <span className="ml-1 text-rose-200/70">{c.n}</span>
+                                <span className="ml-1 text-white/70">{c.n}</span>
                             </m.div>
                         );
                     })}

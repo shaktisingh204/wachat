@@ -97,16 +97,16 @@ export default async function BatchDetailPage({
         >
             {/* Expiry alert */}
             {expired ? (
-                <Card className="flex items-center gap-3 border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/40">
-                    <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-300" />
-                    <div className="text-[13px] text-red-700 dark:text-red-200">
+                <Card className="flex items-center gap-3 border-zoru-line bg-zoru-surface-2 p-4 dark:border-zoru-line dark:bg-zoru-ink/40">
+                    <AlertTriangle className="h-5 w-5 text-zoru-ink dark:text-zoru-ink-muted" />
+                    <div className="text-[13px] text-zoru-ink dark:text-white">
                         This batch expired {Math.abs(days!)} day{Math.abs(days!) === 1 ? '' : 's'} ago. Quarantine remaining stock immediately.
                     </div>
                 </Card>
             ) : soon ? (
-                <Card className="flex items-center gap-3 border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">
-                    <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-300" />
-                    <div className="text-[13px] text-amber-700 dark:text-amber-200">
+                <Card className="flex items-center gap-3 border-zoru-line bg-zoru-surface-2 p-4 dark:border-zoru-line dark:bg-zoru-ink/40">
+                    <AlertTriangle className="h-5 w-5 text-zoru-ink dark:text-zoru-ink-muted" />
+                    <div className="text-[13px] text-zoru-ink dark:text-white">
                         Expires in {days} day{days === 1 ? '' : 's'}. Plan rotation or markdown.
                     </div>
                 </Card>
@@ -141,9 +141,9 @@ export default async function BatchDetailPage({
                         <div
                             className={
                                 expired
-                                    ? 'font-medium text-red-700 dark:text-red-300'
+                                    ? 'font-medium text-zoru-ink dark:text-zoru-ink-muted'
                                     : soon
-                                      ? 'font-medium text-amber-700 dark:text-amber-300'
+                                      ? 'font-medium text-zoru-ink dark:text-zoru-ink-muted'
                                       : 'text-zoru-ink'
                             }
                         >

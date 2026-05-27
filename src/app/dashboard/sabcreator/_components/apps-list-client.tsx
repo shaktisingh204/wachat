@@ -103,12 +103,12 @@ export function AppsListClient({ initialItems }: Props) {
             <Card key={app._id} className="p-5 flex flex-col gap-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="size-10 rounded-md bg-muted flex items-center justify-center shrink-0">
-                    <LayoutGrid className="size-5 text-muted-foreground" />
+                  <div className="size-10 rounded-md bg-zoru-surface-2 flex items-center justify-center shrink-0">
+                    <LayoutGrid className="size-5 text-zoru-ink-muted" />
                   </div>
                   <div className="min-w-0">
                     <div className="font-semibold truncate">{app.name}</div>
-                    <div className="text-xs text-muted-foreground truncate">/{app.slug}</div>
+                    <div className="text-xs text-zoru-ink-muted truncate">/{app.slug}</div>
                   </div>
                 </div>
                 <Badge variant={app.status === 'published' ? 'default' : 'outline'}>
@@ -116,7 +116,7 @@ export function AppsListClient({ initialItems }: Props) {
                 </Badge>
               </div>
               {app.description ? (
-                <p className="text-sm text-muted-foreground line-clamp-2">{app.description}</p>
+                <p className="text-sm text-zoru-ink-muted line-clamp-2">{app.description}</p>
               ) : null}
               <div className="flex gap-2 mt-auto pt-2">
                 <Button asChild variant="outline" size="sm" className="flex-1">

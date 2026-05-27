@@ -18,11 +18,11 @@ export default function AllTransactionsError({
 
     return (
         <div className="flex h-[400px] w-full flex-col items-center justify-center rounded-md border border-dashed p-8 text-center animate-in fade-in-50">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
-                <AlertCircle className="h-5 w-5 text-destructive" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zoru-ink/10">
+                <AlertCircle className="h-5 w-5 text-zoru-ink" />
             </div>
             <h2 className="mt-4 text-lg font-semibold">Something went wrong!</h2>
-            <p className="mt-2 text-sm text-muted-foreground max-w-md">
+            <p className="mt-2 text-sm text-zoru-ink-muted max-w-md">
                 We encountered an error loading the transaction data. Please try again or contact support if the issue persists.
             </p>
             <div className="mt-6 flex items-center gap-4">

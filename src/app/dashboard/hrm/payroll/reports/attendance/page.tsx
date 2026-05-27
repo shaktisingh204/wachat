@@ -344,10 +344,10 @@ export default function AttendanceReportPage() {
                             <tr className="border-b border-zoru-line bg-zoru-surface-2">
                                 <th className="px-4 py-3 font-medium text-zoru-ink-muted">Employee</th>
                                 <th className="px-4 py-3 font-medium text-zoru-ink-muted">Department</th>
-                                <th className="px-4 py-3 text-center font-medium text-green-600">Present</th>
-                                <th className="px-4 py-3 text-center font-medium text-red-600">Absent</th>
-                                <th className="px-4 py-3 text-center font-medium text-amber-500">Late</th>
-                                <th className="px-4 py-3 text-center font-medium text-sky-500">WFH</th>
+                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">Present</th>
+                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">Absent</th>
+                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">Late</th>
+                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">WFH</th>
                                 <th className="px-4 py-3 text-center font-medium text-zoru-ink-muted">Half Day</th>
                                 <th className="px-4 py-3 text-center font-medium text-zoru-ink-muted">Leave</th>
                                 <th className="px-4 py-3 text-center font-medium text-zoru-ink-muted">Total Days</th>
@@ -367,10 +367,10 @@ export default function AttendanceReportPage() {
                                         <tr key={row.employeeId} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50">
                                             <td className="px-4 py-3 font-medium text-zoru-ink">{row.employeeName}</td>
                                             <td className="px-4 py-3 text-zoru-ink-muted">{row.department}</td>
-                                            <td className="px-4 py-3 text-center font-semibold text-green-600">{row.present}</td>
-                                            <td className="px-4 py-3 text-center font-semibold text-red-600">{row.absent}</td>
-                                            <td className="px-4 py-3 text-center text-amber-500">{row.late}</td>
-                                            <td className="px-4 py-3 text-center text-sky-500">{row.wfh}</td>
+                                            <td className="px-4 py-3 text-center font-semibold text-zoru-ink">{row.present}</td>
+                                            <td className="px-4 py-3 text-center font-semibold text-zoru-ink">{row.absent}</td>
+                                            <td className="px-4 py-3 text-center text-zoru-ink">{row.late}</td>
+                                            <td className="px-4 py-3 text-center text-zoru-ink">{row.wfh}</td>
                                             <td className="px-4 py-3 text-center text-zoru-ink">{row.halfDay}</td>
                                             <td className="px-4 py-3 text-center text-zoru-ink">{row.leave}</td>
                                             <td className="px-4 py-3 text-center text-zoru-ink">{row.totalWorkingDays}</td>
@@ -385,10 +385,10 @@ export default function AttendanceReportPage() {
                                     <tr className="border-t-2 border-zoru-line bg-zoru-surface-2 font-semibold">
                                         <td className="px-4 py-3 text-zoru-ink">Totals</td>
                                         <td className="px-4 py-3" />
-                                        <td className="px-4 py-3 text-center text-green-600">{reportData.reduce((s, r) => s + r.present, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-red-600">{reportData.reduce((s, r) => s + r.absent, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-amber-500">{reportData.reduce((s, r) => s + r.late, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-sky-500">{reportData.reduce((s, r) => s + r.wfh, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.present, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.absent, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.late, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.wfh, 0)}</td>
                                         <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.halfDay, 0)}</td>
                                         <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.leave, 0)}</td>
                                         <td className="px-4 py-3 text-center text-zoru-ink">{reportData.reduce((s, r) => s + r.totalWorkingDays, 0)}</td>

@@ -134,26 +134,26 @@ export function RequeueBroadcastDialog({
         <button
           type="button"
           aria-label="Requeue broadcast"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink transition-colors"
         >
           <LuRotateCw className="h-3.5 w-3.5" strokeWidth={1.75} />
         </button>
       </ZoruDialogTrigger>
-      <ZoruDialogContent className="max-w-[540px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
+      <ZoruDialogContent className="max-w-[540px] rounded-[18px] border border-zoru-line bg-zoru-surface p-0 shadow-lg">
         <form ref={formRef} action={formAction}>
           <input type="hidden" name="broadcastId" value={broadcastId} />
           <input type="hidden" name="templateId" value={selectedTemplateId} />
           <input type="hidden" name="requeueScope" value={requeueScope} />
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
+          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-zoru-line px-6 py-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-zoru-surface-2 text-zoru-ink">
               <LuRotateCw className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
+              <ZoruDialogTitle className="text-[16px] font-semibold text-zoru-ink leading-tight">
                 Requeue broadcast
               </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
+              <ZoruDialogDescription className="mt-0.5 text-[12px] text-zoru-ink-muted leading-snug">
                 Send this campaign again to the same audience — all contacts
                 or only the ones that failed the first time.
               </ZoruDialogDescription>
@@ -163,8 +163,8 @@ export function RequeueBroadcastDialog({
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* Template select */}
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] font-semibold text-muted-foreground">
-                Message template <span className="ml-1 text-destructive">*</span>
+              <Label className="text-[11.5px] font-semibold text-zoru-ink-muted">
+                Message template <span className="ml-1 text-zoru-ink">*</span>
               </Label>
               <Select
                 value={selectedTemplateId}
@@ -181,7 +181,7 @@ export function RequeueBroadcastDialog({
                         value={template._id.toString()}
                       >
                         {template.name}
-                        <span className="ml-2 text-[11px] capitalize text-muted-foreground">
+                        <span className="ml-2 text-[11px] capitalize text-zoru-ink-muted">
                           {template.status
                             ? template.status.replace(/_/g, ' ').toLowerCase()
                             : 'n/a'}
@@ -189,7 +189,7 @@ export function RequeueBroadcastDialog({
                       </ZoruSelectItem>
                     ))
                   ) : (
-                    <div className="px-2 py-4 text-center text-[12px] text-muted-foreground">
+                    <div className="px-2 py-4 text-center text-[12px] text-zoru-ink-muted">
                       No approved templates found.
                     </div>
                   )}
@@ -202,10 +202,10 @@ export function RequeueBroadcastDialog({
               <div className="flex flex-col gap-1.5">
                 <Label
                   htmlFor="headerImageUrl"
-                  className="text-[11.5px] font-semibold text-muted-foreground"
+                  className="text-[11.5px] font-semibold text-zoru-ink-muted"
                 >
                   Header media URL
-                  <span className="ml-1 text-muted-foreground/70 font-normal">
+                  <span className="ml-1 text-zoru-ink-muted/70 font-normal">
                     (optional)
                   </span>
                 </Label>
@@ -215,7 +215,7 @@ export function RequeueBroadcastDialog({
                   type="url"
                   placeholder="https://example.com/image.jpg"
                 />
-                <div className="text-[11px] text-muted-foreground">
+                <div className="text-[11px] text-zoru-ink-muted">
                   Provide a new public media URL to override the template&apos;s
                   header image.
                 </div>
@@ -224,7 +224,7 @@ export function RequeueBroadcastDialog({
 
             {/* Scope radio group */}
             <div className="flex flex-col gap-2">
-              <Label className="text-[11.5px] font-semibold text-muted-foreground">
+              <Label className="text-[11.5px] font-semibold text-zoru-ink-muted">
                 Target contacts
               </Label>
               <RadioGroup
@@ -252,7 +252,7 @@ export function RequeueBroadcastDialog({
             </div>
           </div>
 
-          <ZoruDialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
+          <ZoruDialogFooter className="border-t border-zoru-line px-6 py-4 sm:justify-end gap-2">
             <Button
               type="button"
               variant="pill"
@@ -290,14 +290,14 @@ function ScopeOption({
       className={cn(
         'flex cursor-pointer items-center gap-2.5 rounded-[12px] border px-3 py-2.5 transition-colors',
         active
-          ? 'border-primary bg-accent/50'
-          : 'border-border bg-card hover:bg-secondary',
+          ? 'border-primary bg-zoru-surface-2/50'
+          : 'border-zoru-line bg-zoru-surface hover:bg-zoru-surface-2',
       )}
     >
       <ZoruRadioGroupItem value={value} id={id} />
       <div className="flex flex-col">
-        <span className="text-[13px] font-medium text-foreground">{title}</span>
-        <span className="text-[11px] text-muted-foreground">{description}</span>
+        <span className="text-[13px] font-medium text-zoru-ink">{title}</span>
+        <span className="text-[11px] text-zoru-ink-muted">{description}</span>
       </div>
     </label>
   );

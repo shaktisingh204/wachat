@@ -93,7 +93,7 @@ export function WorkspaceSettingsPage({
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
       <header className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 text-gray-700 dark:bg-zinc-800 dark:text-zinc-200">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-white">
           {workspace.iconUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -106,17 +106,17 @@ export function WorkspaceSettingsPage({
           )}
         </div>
         <div>
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <h1 className="text-xl font-semibold text-zoru-ink dark:text-white">
             {workspace.name}
           </h1>
-          <p className="text-[13px] text-gray-500">Workspace settings</p>
+          <p className="text-[13px] text-zoru-ink">Workspace settings</p>
         </div>
       </header>
 
       <nav
         role="tablist"
         aria-label="Workspace settings"
-        className="flex gap-1 border-b border-gray-200 dark:border-zinc-800"
+        className="flex gap-1 border-b border-zoru-line dark:border-zoru-line"
       >
         {tabs.map(({ id, label, icon: Icon }) => {
           const active = tab === id;
@@ -132,8 +132,8 @@ export function WorkspaceSettingsPage({
               className={cn(
                 'inline-flex items-center gap-2 rounded-t-md px-4 py-2.5 text-[13px] font-medium transition-colors',
                 active
-                  ? 'border-b-2 border-[var(--color-primary,#f76808)] text-gray-900 dark:text-white'
-                  : 'text-gray-500 hover:text-gray-800 dark:hover:text-zinc-200',
+                  ? 'border-b-2 border-[var(--color-primary,#f76808)] text-zoru-ink dark:text-white'
+                  : 'text-zoru-ink hover:text-zoru-ink dark:hover:text-white',
               )}
             >
               <Icon className="h-4 w-4" aria-hidden="true" />
@@ -267,7 +267,7 @@ function GeneralTab({
             value={name}
             disabled={!canEdit}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+            className="w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm text-zoru-ink focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zoru-line dark:bg-zoru-ink dark:text-white"
           />
         </Field>
         <Field
@@ -281,7 +281,7 @@ function GeneralTab({
             value={slug}
             disabled={!canEdit}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setSlug(e.target.value)}
-            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+            className="w-full rounded-md border border-zoru-line bg-white px-3 py-2 font-mono text-sm text-zoru-ink focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zoru-line dark:bg-zoru-ink dark:text-white"
           />
         </Field>
         <Field label="Icon URL" htmlFor="ws-icon">
@@ -292,13 +292,13 @@ function GeneralTab({
             disabled={!canEdit}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setIconUrl(e.target.value)}
             placeholder="https://…"
-            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+            className="w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm text-zoru-ink focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zoru-line dark:bg-zoru-ink dark:text-white"
           />
         </Field>
 
         <div className="flex items-center justify-end gap-3">
-          {ok && <span className="text-[13px] text-emerald-600">{ok}</span>}
-          {error && <span className="text-[13px] text-red-600">{error}</span>}
+          {ok && <span className="text-[13px] text-zoru-ink">{ok}</span>}
+          {error && <span className="text-[13px] text-zoru-ink">{error}</span>}
           <button
             type="submit"
             disabled={!canEdit || !dirty || saving}
@@ -318,7 +318,7 @@ function GeneralTab({
           type="button"
           onClick={handleDelete}
           disabled={!canEdit || deleting}
-          className="inline-flex items-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 px-4 py-2 text-[13px] font-medium text-red-600 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-md border border-zoru-line/40 bg-zoru-ink/10 px-4 py-2 text-[13px] font-medium text-zoru-ink hover:bg-zoru-ink/20 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <LuTrash2 className="h-4 w-4" aria-hidden="true" />
           {deleting ? 'Deleting…' : 'Delete workspace'}
@@ -433,14 +433,14 @@ function MembersTab({
     <div className="flex flex-col gap-4 py-2">
       <Panel title="Members" description={`${members.length} total`}>
         {error && (
-          <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-[13px] text-red-600">
+          <div className="rounded-md border border-zoru-line/30 bg-zoru-ink/10 p-3 text-[13px] text-zoru-ink">
             {error}
           </div>
         )}
         {loading ? (
           <div className="flex flex-col gap-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center gap-3 border-b border-gray-100 dark:border-zinc-800 pb-3">
+              <div key={i} className="flex items-center gap-3 border-b border-zoru-line dark:border-zoru-line pb-3">
                 <Skeleton className="h-8 w-8 rounded-full" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-1/3" />
@@ -451,11 +451,11 @@ function MembersTab({
             ))}
           </div>
         ) : members.length === 0 ? (
-          <div className="text-[13px] text-gray-500">No members yet.</div>
+          <div className="text-[13px] text-zoru-ink">No members yet.</div>
         ) : (
-          <div className="overflow-hidden rounded-md border border-gray-200 dark:border-zinc-800">
+          <div className="overflow-hidden rounded-md border border-zoru-line dark:border-zoru-line">
             <table className="w-full table-fixed text-left text-[13px]">
-              <thead className="bg-gray-50 text-gray-600 dark:bg-zinc-900/40 dark:text-zinc-400">
+              <thead className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
                 <tr>
                   <th className="px-3 py-2 font-medium">Member</th>
                   <th className="w-40 px-3 py-2 font-medium">Role</th>
@@ -476,25 +476,25 @@ function MembersTab({
                   return (
                     <tr
                       key={m.id}
-                      className="border-t border-gray-100 dark:border-zinc-800"
+                      className="border-t border-zoru-line dark:border-zoru-line"
                     >
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-[12px] font-semibold uppercase text-gray-600 dark:bg-zinc-800 dark:text-zinc-300">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-[12px] font-semibold uppercase text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
                             {display.slice(0, 2)}
                           </div>
                           <div className="min-w-0">
-                            <div className="truncate font-medium text-gray-900 dark:text-white">
+                            <div className="truncate font-medium text-zoru-ink dark:text-white">
                               {m.name || m.email || 'Unknown'}
                             </div>
                             {m.email && (
-                              <div className="truncate text-[12px] text-gray-500">
+                              <div className="truncate text-[12px] text-zoru-ink">
                                 {m.email}
                               </div>
                             )}
                           </div>
                           {m.role === 'owner' && (
-                            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
+                            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] font-medium text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted">
                               <LuCrown className="h-3 w-3" aria-hidden="true" />
                               Owner
                             </span>
@@ -508,7 +508,7 @@ function MembersTab({
                           onChange={(e) =>
                             handleRoleChange(m.id, e.target.value as WorkspaceRole)
                           }
-                          className="w-full rounded-md border border-gray-200 bg-white px-2 py-1.5 text-[13px] disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900"
+                          className="w-full rounded-md border border-zoru-line bg-white px-2 py-1.5 text-[13px] disabled:cursor-not-allowed disabled:opacity-60 dark:border-zoru-line dark:bg-zoru-ink"
                         >
                           {ROLE_OPTIONS.filter(
                             (o) => o.value !== 'owner' || isOwner,
@@ -519,7 +519,7 @@ function MembersTab({
                           ))}
                         </select>
                       </td>
-                      <td className="px-3 py-3 text-gray-500">
+                      <td className="px-3 py-3 text-zoru-ink">
                         {new Date(m.joinedAt).toLocaleDateString()}
                       </td>
                       <td className="px-3 py-3 text-right">
@@ -528,12 +528,12 @@ function MembersTab({
                             type="button"
                             onClick={() => handleRemove(m.id, display)}
                             aria-label={`Remove ${display}`}
-                            className="inline-flex items-center rounded-md p-1.5 text-gray-500 hover:bg-red-500/10 hover:text-red-600"
+                            className="inline-flex items-center rounded-md p-1.5 text-zoru-ink hover:bg-zoru-ink/10 hover:text-zoru-ink"
                           >
                             <LuTrash2 className="h-4 w-4" aria-hidden="true" />
                           </button>
                         ) : (
-                          <span className="text-gray-400">—</span>
+                          <span className="text-zoru-ink-muted">—</span>
                         )}
                       </td>
                     </tr>
@@ -664,7 +664,7 @@ function InvitesTab({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="teammate@example.com"
-                className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                className="w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-zoru-line dark:bg-zoru-ink dark:text-white"
               />
             </Field>
             <Field label="Role" htmlFor="invite-role" className="w-40">
@@ -672,7 +672,7 @@ function InvitesTab({
                 id="invite-role"
                 value={role}
                 onChange={(e) => setRole(e.target.value as WorkspaceRole)}
-                className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                className="w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm dark:border-zoru-line dark:bg-zoru-ink dark:text-white"
               >
                 {INVITE_ROLE_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -692,11 +692,11 @@ function InvitesTab({
           </form>
 
           {lastInviteUrl && (
-            <div className="mt-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3 text-[12px]">
-              <div className="font-medium text-emerald-700 dark:text-emerald-300">
+            <div className="mt-3 rounded-md border border-zoru-line/30 bg-zoru-ink/10 p-3 text-[12px]">
+              <div className="font-medium text-zoru-ink dark:text-zoru-ink-muted">
                 Invite created. Share this link:
               </div>
-              <code className="mt-1 block break-all text-emerald-800 dark:text-emerald-200">
+              <code className="mt-1 block break-all text-zoru-ink dark:text-white">
                 {lastInviteUrl}
               </code>
             </div>
@@ -706,14 +706,14 @@ function InvitesTab({
 
       <Panel title="Pending invites">
         {error && (
-          <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-[13px] text-red-600">
+          <div className="rounded-md border border-zoru-line/30 bg-zoru-ink/10 p-3 text-[13px] text-zoru-ink">
             {error}
           </div>
         )}
         {loading ? (
           <div className="flex flex-col gap-3">
             {[1, 2].map((i) => (
-              <div key={i} className="flex items-center justify-between gap-3 border-b border-gray-100 dark:border-zinc-800 pb-3">
+              <div key={i} className="flex items-center justify-between gap-3 border-b border-zoru-line dark:border-zoru-line pb-3">
                 <div className="flex items-center gap-3">
                   <Skeleton className="h-4 w-4" />
                   <Skeleton className="h-4 w-32" />
@@ -724,9 +724,9 @@ function InvitesTab({
             ))}
           </div>
         ) : invites.length === 0 ? (
-          <div className="text-[13px] text-gray-500">No pending invites.</div>
+          <div className="text-[13px] text-zoru-ink">No pending invites.</div>
         ) : (
-          <ul className="divide-y divide-gray-100 dark:divide-zinc-800">
+          <ul className="divide-y divide-zoru-line dark:divide-zoru-line">
             {invites.map((inv) => (
               <li
                 key={inv.id}
@@ -735,17 +735,17 @@ function InvitesTab({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <LuMail
-                      className="h-4 w-4 text-gray-400"
+                      className="h-4 w-4 text-zoru-ink-muted"
                       aria-hidden="true"
                     />
-                    <span className="truncate font-medium text-gray-900 dark:text-white">
+                    <span className="truncate font-medium text-zoru-ink dark:text-white">
                       {inv.email}
                     </span>
-                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-zinc-800 dark:text-zinc-300">
+                    <span className="rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] font-medium text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
                       {inv.role}
                     </span>
                   </div>
-                  <div className="text-[12px] text-gray-500">
+                  <div className="text-[12px] text-zoru-ink">
                     Expires {new Date(inv.expiresAt).toLocaleDateString()}
                   </div>
                 </div>
@@ -754,7 +754,7 @@ function InvitesTab({
                     type="button"
                     onClick={() => handleRevoke(inv.id)}
                     aria-label={`Revoke invite for ${inv.email}`}
-                    className="inline-flex items-center rounded-md p-1.5 text-gray-500 hover:bg-red-500/10 hover:text-red-600"
+                    className="inline-flex items-center rounded-md p-1.5 text-zoru-ink hover:bg-zoru-ink/10 hover:text-zoru-ink"
                   >
                     <LuTrash2 className="h-4 w-4" aria-hidden="true" />
                   </button>
@@ -779,14 +779,14 @@ function BillingTab({ workspace }: { workspace: Workspace }) {
       <Panel title="Current plan">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-300">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted">
               <LuShieldCheck className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
-              <div className="font-semibold capitalize text-gray-900 dark:text-white">
+              <div className="font-semibold capitalize text-zoru-ink dark:text-white">
                 {plan} plan
               </div>
-              <div className="text-[13px] text-gray-500">
+              <div className="text-[13px] text-zoru-ink">
                 {plan === 'free'
                   ? 'Basic features with usage limits.'
                   : 'Thanks for supporting SabFlow!'}
@@ -856,7 +856,7 @@ function AuditTab({
     return (
       <div className="flex flex-col gap-4 py-2">
         <Panel title="Audit Log">
-          <div className="text-[13px] text-gray-500">
+          <div className="text-[13px] text-zoru-ink">
             You do not have permission to view audit logs for this workspace.
           </div>
         </Panel>
@@ -868,14 +868,14 @@ function AuditTab({
     <div className="flex flex-col gap-4 py-2">
       <Panel title="Audit Log" description="Recent workspace activity.">
         {error && (
-          <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-[13px] text-red-600">
+          <div className="rounded-md border border-zoru-line/30 bg-zoru-ink/10 p-3 text-[13px] text-zoru-ink">
             {error}
           </div>
         )}
         {loading ? (
           <div className="flex flex-col gap-3">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex items-center gap-4 border-b border-gray-100 dark:border-zinc-800 pb-3">
+              <div key={i} className="flex items-center gap-4 border-b border-zoru-line dark:border-zoru-line pb-3">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-4 w-48" />
@@ -884,11 +884,11 @@ function AuditTab({
             ))}
           </div>
         ) : entries.length === 0 ? (
-          <div className="text-[13px] text-gray-500">No activity found.</div>
+          <div className="text-[13px] text-zoru-ink">No activity found.</div>
         ) : (
-          <div className="overflow-x-auto rounded-md border border-gray-200 dark:border-zinc-800">
+          <div className="overflow-x-auto rounded-md border border-zoru-line dark:border-zoru-line">
             <table className="w-full text-left text-[13px]">
-              <thead className="bg-gray-50 text-gray-600 dark:bg-zinc-900/40 dark:text-zinc-400">
+              <thead className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
                 <tr>
                   <th className="px-3 py-2 font-medium">Action</th>
                   <th className="px-3 py-2 font-medium">User</th>
@@ -896,19 +896,19 @@ function AuditTab({
                   <th className="px-3 py-2 font-medium">Time</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-zinc-800">
+              <tbody className="divide-y divide-zoru-line dark:divide-zoru-line">
                 {entries.map((entry) => (
                   <tr key={entry.id}>
-                    <td className="px-3 py-2.5 font-medium text-gray-900 dark:text-white">
+                    <td className="px-3 py-2.5 font-medium text-zoru-ink dark:text-white">
                       {entry.action}
                     </td>
-                    <td className="px-3 py-2.5 text-gray-600 dark:text-zinc-400 font-mono text-[12px]">
+                    <td className="px-3 py-2.5 text-zoru-ink dark:text-zoru-ink-muted font-mono text-[12px]">
                       {entry.userId}
                     </td>
-                    <td className="px-3 py-2.5 text-gray-600 dark:text-zinc-400">
+                    <td className="px-3 py-2.5 text-zoru-ink dark:text-zoru-ink-muted">
                       {entry.target || '—'}
                     </td>
-                    <td className="px-3 py-2.5 text-gray-500 whitespace-nowrap">
+                    <td className="px-3 py-2.5 text-zoru-ink whitespace-nowrap">
                       {new Date(entry.createdAt).toLocaleString()}
                     </td>
                   </tr>
@@ -942,19 +942,19 @@ function Panel({
       className={cn(
         'flex flex-col gap-4 rounded-lg border p-5',
         tone === 'danger'
-          ? 'border-red-500/30 bg-red-500/5'
-          : 'border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/40',
+          ? 'border-zoru-line/30 bg-zoru-ink/5'
+          : 'border-zoru-line bg-white dark:border-zoru-line dark:bg-zoru-ink/40',
       )}
     >
       {(title || description) && (
         <header className="flex flex-col gap-0.5">
           {title && (
-            <h2 className="text-[15px] font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-[15px] font-semibold text-zoru-ink dark:text-white">
               {title}
             </h2>
           )}
           {description && (
-            <p className="text-[13px] text-gray-500">{description}</p>
+            <p className="text-[13px] text-zoru-ink">{description}</p>
           )}
         </header>
       )}
@@ -980,12 +980,12 @@ function Field({
     <div className={cn('flex flex-col gap-1.5', className)}>
       <label
         htmlFor={htmlFor}
-        className="text-[12px] font-medium text-gray-700 dark:text-zinc-300"
+        className="text-[12px] font-medium text-zoru-ink dark:text-zoru-ink-muted"
       >
         {label}
       </label>
       {children}
-      {hint && <span className="text-[11px] text-gray-500">{hint}</span>}
+      {hint && <span className="text-[11px] text-zoru-ink">{hint}</span>}
     </div>
   );
 }

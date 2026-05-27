@@ -91,7 +91,7 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
   };
 
   return (
-    <div className="w-full lg:w-[450px] xl:w-[550px] bg-zinc-950 border-l border-white/20 p-6 flex flex-col md:h-screen md:overflow-y-auto">
+    <div className="w-full lg:w-[450px] xl:w-[550px] bg-zoru-ink border-l border-white/20 p-6 flex flex-col md:h-screen md:overflow-y-auto">
       <div className="mb-8">
         <h3 className="text-sm font-bold uppercase tracking-widest text-white/50 mb-3">Example Request</h3>
         <div className="bg-black border border-white/20 p-4 text-xs font-mono text-white/80 overflow-x-auto">
@@ -119,7 +119,7 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
                 value={formData.organization}
                 onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
                 placeholder="string" 
-                className="bg-zinc-900 border-white/20 text-white placeholder:text-white/30 rounded-none focus-visible:ring-1 focus-visible:ring-white" 
+                className="bg-zoru-ink border-white/20 text-white placeholder:text-white/30 rounded-none focus-visible:ring-1 focus-visible:ring-white" 
               />
             </div>
             <div className="space-y-2">
@@ -130,7 +130,7 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="string ($email)" 
-                className="bg-zinc-900 border-white/20 text-white placeholder:text-white/30 rounded-none focus-visible:ring-1 focus-visible:ring-white" 
+                className="bg-zoru-ink border-white/20 text-white placeholder:text-white/30 rounded-none focus-visible:ring-1 focus-visible:ring-white" 
               />
             </div>
             <div className="space-y-2">
@@ -139,7 +139,7 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
                 id="volume" 
                 value={formData.volume}
                 onChange={(e) => setFormData({ ...formData, volume: e.target.value })}
-                className="w-full h-9 bg-zinc-900 border border-white/20 text-white px-3 text-sm rounded-none focus-visible:outline-none focus-visible:border-white"
+                className="w-full h-9 bg-zoru-ink border border-white/20 text-white px-3 text-sm rounded-none focus-visible:outline-none focus-visible:border-white"
               >
                 <option value="<100k">&lt; 100k</option>
                 <option value="100k-500k">100k - 500k</option>
@@ -154,12 +154,12 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
                 value={formData.useCase}
                 onChange={(e) => setFormData({ ...formData, useCase: e.target.value })}
                 placeholder="string" 
-                className="bg-zinc-900 border-white/20 text-white placeholder:text-white/30 rounded-none min-h-[100px] focus-visible:ring-1 focus-visible:ring-white" 
+                className="bg-zoru-ink border-white/20 text-white placeholder:text-white/30 rounded-none min-h-[100px] focus-visible:ring-1 focus-visible:ring-white" 
               />
             </div>
             <Button 
               onClick={handleExecute}
-              className="w-full bg-white text-black hover:bg-zinc-200 rounded-none font-bold uppercase tracking-widest mt-4 flex items-center justify-center gap-2"
+              className="w-full bg-white text-black hover:bg-zoru-surface-2 rounded-none font-bold uppercase tracking-widest mt-4 flex items-center justify-center gap-2"
               disabled={responseState === 'executing'}
             >
               {responseState === 'executing' ? (
@@ -174,8 +174,8 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
 
         {/* Response Box */}
         {responseState !== 'idle' && (
-          <div className={`border p-4 bg-black ${responseState === 'error' ? 'border-red-500/50' : 'border-white/20'}`}>
-            <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${responseState === 'error' ? 'text-red-400' : 'text-white/50'}`}>
+          <div className={`border p-4 bg-black ${responseState === 'error' ? 'border-zoru-line/50' : 'border-white/20'}`}>
+            <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${responseState === 'error' ? 'text-zoru-ink-muted' : 'text-white/50'}`}>
               {responseState === 'success' ? (
                 <>
                   <CheckCircle className="h-4 w-4 text-white" />
@@ -183,7 +183,7 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
                 </>
               ) : responseState === 'error' ? (
                 <>
-                  <AlertTriangle className="h-4 w-4 text-red-400" />
+                  <AlertTriangle className="h-4 w-4 text-zoru-ink-muted" />
                   Request Failed
                 </>
               ) : (
@@ -197,10 +197,10 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
             {(responseState === 'success' || responseState === 'error') && responsePayload ? (
               <div className="space-y-3">
                 <div className="flex gap-4 text-xs font-bold">
-                  <span className={`px-2 py-0.5 ${responseState === 'error' ? 'bg-red-500/20 text-red-400' : 'bg-white/10 text-white'}`}>
+                  <span className={`px-2 py-0.5 ${responseState === 'error' ? 'bg-zoru-ink/20 text-zoru-ink-muted' : 'bg-white/10 text-white'}`}>
                     HTTP {responsePayload.status}
                   </span>
-                  <span className={responseState === 'error' ? 'text-red-400/80' : 'text-white/60'}>
+                  <span className={responseState === 'error' ? 'text-zoru-ink-muted/80' : 'text-white/60'}>
                     {responsePayload.status_text}
                   </span>
                 </div>
@@ -211,7 +211,7 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
                     <div className="h-4 bg-white/10 rounded w-1/2"></div>
                   </div>
                 ) : (
-                  <pre className={`text-xs font-mono p-3 overflow-x-auto max-h-[220px] ${responseState === 'error' ? 'bg-red-500/5 text-red-300' : 'bg-white/5 text-white/80'}`}>
+                  <pre className={`text-xs font-mono p-3 overflow-x-auto max-h-[220px] ${responseState === 'error' ? 'bg-zoru-ink/5 text-zoru-ink-muted' : 'bg-white/5 text-white/80'}`}>
                     <code>{JSON.stringify(responsePayload, null, 2)}</code>
                   </pre>
                 )}

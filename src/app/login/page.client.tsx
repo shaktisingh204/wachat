@@ -121,8 +121,8 @@ function LiveStatus() {
     return (
         <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zoru-surface-2 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-zoru-ink"></span>
             </span>
             <span className={`transition-opacity duration-300 ${fade ? 'opacity-0' : 'opacity-100'}`}>
                 {statusText}

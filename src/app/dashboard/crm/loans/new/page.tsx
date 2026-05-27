@@ -107,7 +107,7 @@ function LoanFormInner() {
       {/* Borrower */}
       <div className="flex flex-col gap-1.5">
         <Label>
-          Borrower <span className="text-red-500">*</span>
+          Borrower <span className="text-zoru-ink">*</span>
         </Label>
         <EntityFormField
           entity={borrowerEntityForType(loanType)}
@@ -122,7 +122,7 @@ function LoanFormInner() {
       {/* Principal Amount */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="principal">
-          Principal Amount (₹) <span className="text-red-500">*</span>
+          Principal Amount (₹) <span className="text-zoru-ink">*</span>
         </Label>
         <Input
           id="principal"
@@ -228,7 +228,7 @@ function LoanFormInner() {
       </div>
 
       {state.error && (
-        <p className="text-[13px] text-red-500">{state.error}</p>
+        <p className="text-[13px] text-zoru-ink">{state.error}</p>
       )}
 
       <div className="flex items-center gap-3">

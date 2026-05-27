@@ -56,10 +56,10 @@ export function SabChatConversationList({
     
     return (
         <>
-            <div className="h-full flex flex-col overflow-hidden bg-card">
+            <div className="h-full flex flex-col overflow-hidden bg-zoru-surface">
                 <div className="p-3 border-b flex-shrink-0">
                      <div className="relative">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
                         <Input 
                             placeholder="Search by email or message..." 
                             className="pl-10" 
@@ -81,8 +81,8 @@ export function SabChatConversationList({
                                         key={convo._id.toString()}
                                         onClick={() => onSelectConversation(convo)}
                                         className={cn(
-                                            "flex w-full items-start gap-3 p-3 text-left transition-colors hover:bg-accent border-b",
-                                            selectedConversationId === convo._id.toString() && "bg-accent"
+                                            "flex w-full items-start gap-3 p-3 text-left transition-colors hover:bg-zoru-surface-2 border-b",
+                                            selectedConversationId === convo._id.toString() && "bg-zoru-surface-2"
                                         )}
                                     >
                                         <Avatar>
@@ -91,18 +91,18 @@ export function SabChatConversationList({
                                         <div className="flex-1 overflow-hidden">
                                             <div className="flex items-center justify-between">
                                                 <p className="font-semibold truncate">{convo.visitorInfo?.email || 'New Visitor'}</p>
-                                                <p className="text-xs text-muted-foreground whitespace-nowrap">
+                                                <p className="text-xs text-zoru-ink-muted whitespace-nowrap">
                                                     {formatDistanceToNow(new Date(convo.updatedAt), { addSuffix: true })}
                                                 </p>
                                             </div>
-                                            <p className="text-sm text-muted-foreground truncate">{lastMessage?.content || 'No messages yet.'}</p>
+                                            <p className="text-sm text-zoru-ink-muted truncate">{lastMessage?.content || 'No messages yet.'}</p>
                                         </div>
                                     </button>
                                 )
                             })}
                         </>
                     ) : (
-                        <div className="p-8 text-center text-sm text-muted-foreground">
+                        <div className="p-8 text-center text-sm text-zoru-ink-muted">
                             No conversations found.
                         </div>
                     )}

@@ -281,17 +281,17 @@ export function TimeTravelPanel({
     }
     if (bin.errorRate >= 0.1) {
       return isActive
-        ? 'bg-red-500'
-        : 'bg-red-400/70 dark:bg-red-600/60';
+        ? 'bg-zoru-ink'
+        : 'bg-zoru-surface-2/70 dark:bg-zoru-ink/60';
     }
     if (bin.errorRate > 0) {
       return isActive
-        ? 'bg-amber-400'
-        : 'bg-amber-300/70 dark:bg-amber-500/60';
+        ? 'bg-zoru-surface-2'
+        : 'bg-zoru-surface-2/70 dark:bg-zoru-ink/60';
     }
     return isActive
-      ? 'bg-emerald-500'
-      : 'bg-emerald-400/60 dark:bg-emerald-600/50';
+      ? 'bg-zoru-ink'
+      : 'bg-zoru-surface-2/60 dark:bg-zoru-ink/50';
   }
 
   /* ── Elapsed for current position ────────────────────────────────────── */
@@ -448,13 +448,13 @@ export function TimeTravelPanel({
             '[&::-webkit-slider-thumb]:w-3.5',
             '[&::-webkit-slider-thumb]:h-3.5',
             '[&::-webkit-slider-thumb]:rounded-full',
-            '[&::-webkit-slider-thumb]:bg-[#f76808]',
+            '[&::-webkit-slider-thumb]:bg-zoru-ink',
             '[&::-webkit-slider-thumb]:cursor-pointer',
             '[&::-webkit-slider-thumb]:shadow-sm',
             '[&::-moz-range-thumb]:w-3.5',
             '[&::-moz-range-thumb]:h-3.5',
             '[&::-moz-range-thumb]:rounded-full',
-            '[&::-moz-range-thumb]:bg-[#f76808]',
+            '[&::-moz-range-thumb]:bg-zoru-ink',
             '[&::-moz-range-thumb]:border-0',
             '[&::-moz-range-thumb]:cursor-pointer',
             count === 0 && 'opacity-40 cursor-not-allowed',
@@ -496,7 +496,7 @@ function TransportButton({
       className={cn(
         'flex h-7 w-7 items-center justify-center rounded-lg transition-colors',
         prominent
-          ? 'bg-[#f76808] text-white hover:bg-[#e25c00] active:bg-[#c94e00]'
+          ? 'bg-zoru-ink text-white hover:bg-zoru-ink active:bg-zoru-ink'
           : 'text-[var(--gray-10)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
         disabled && 'opacity-40 cursor-not-allowed pointer-events-none',
       )}

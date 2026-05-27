@@ -17,8 +17,8 @@ export default function PortalError({
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 p-8 text-center bg-zoru-surface-1 rounded-xl border border-zoru-line">
-            <div className="h-12 w-12 rounded-full bg-red-100/10 flex items-center justify-center">
-                <AlertCircle className="h-6 w-6 text-red-500" />
+            <div className="h-12 w-12 rounded-full bg-zoru-surface-2/10 flex items-center justify-center">
+                <AlertCircle className="h-6 w-6 text-zoru-ink" />
             </div>
             <div className="space-y-1">
                 <h2 className="text-[15px] font-semibold text-zoru-ink">Failed to load portal data</h2>

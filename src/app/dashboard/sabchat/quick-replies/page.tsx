@@ -201,7 +201,7 @@ function QuickReplyFormDialog({
               <div className="flex items-center justify-between">
                 <Label htmlFor="message">Message Template</Label>
                 <Button type="button" variant="outline" size="sm" className="h-7 text-xs">
-                  <Wand2 className="h-3 w-3 mr-1 text-purple-500" />
+                  <Wand2 className="h-3 w-3 mr-1 text-zoru-ink" />
                   AI Improve
                 </Button>
               </div>
@@ -387,7 +387,7 @@ export default function SabChatQuickRepliesPage() {
           {selectedBulk.length > 0 && (
             <div className="flex items-center gap-3 bg-zoru-surface-2 px-3 py-1.5 rounded-[var(--zoru-radius-sm)] border border-zoru-line">
               <span className="text-xs font-medium">{selectedBulk.length} selected</span>
-              <Button variant="outline" size="sm" className="h-7 text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
+              <Button variant="outline" size="sm" className="h-7 text-xs text-zoru-ink border-zoru-line hover:bg-zoru-surface-2 hover:text-zoru-ink">
                 <Trash2 className="h-3 w-3 mr-1.5" /> Delete
               </Button>
             </div>
@@ -453,7 +453,7 @@ export default function SabChatQuickRepliesPage() {
                       <ZoruTooltipProvider>
                         <ZoruTooltip>
                           <ZoruTooltipTrigger asChild>
-                            <Badge variant="outline" className={cn("gap-1.5", isTeam ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-purple-50 text-purple-700 border-purple-200")}>
+                            <Badge variant="outline" className={cn("gap-1.5", isTeam ? "bg-zoru-surface-2 text-zoru-ink border-zoru-line" : "bg-zoru-surface-2 text-zoru-ink border-zoru-line")}>
                               {isTeam ? <Users className="h-3 w-3" /> : <User className="h-3 w-3" />}
                               {isTeam ? "Team" : "Personal"}
                             </Badge>
@@ -464,7 +464,7 @@ export default function SabChatQuickRepliesPage() {
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right">
                       <div className="flex flex-col items-end gap-1 text-xs text-zoru-ink-muted">
-                        <span className="flex items-center gap-1.5 font-medium text-zoru-ink"><Activity className="h-3 w-3 text-emerald-500" /> {uses}</span>
+                        <span className="flex items-center gap-1.5 font-medium text-zoru-ink"><Activity className="h-3 w-3 text-zoru-ink" /> {uses}</span>
                         <span className="text-[10px] flex items-center gap-1"><Clock className="h-3 w-3" /> 2d ago</span>
                       </div>
                     </ZoruTableCell>
@@ -480,7 +480,7 @@ export default function SabChatQuickRepliesPage() {
                         </Button>
                         <ZoruAlertDialog>
                           <ZoruAlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon-sm" className="text-red-500 hover:text-red-600 hover:bg-red-50">
+                            <Button variant="ghost" size="icon-sm" className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2">
                               <Trash2 />
                             </Button>
                           </ZoruAlertDialogTrigger>

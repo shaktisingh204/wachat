@@ -12,9 +12,9 @@ export default function ExpensePolicyError({
 }) {
   return (
     <div className="flex h-full min-h-[400px] flex-col items-center justify-center gap-4 text-center">
-      <div className="rounded-full bg-red-100 p-4">
+      <div className="rounded-full bg-zoru-surface-2 p-4">
         <svg
-          className="h-8 w-8 text-red-600"
+          className="h-8 w-8 text-zoru-ink"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

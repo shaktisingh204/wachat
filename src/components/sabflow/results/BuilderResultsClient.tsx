@@ -50,12 +50,12 @@ export function BuilderResultsTable({ data }: { data: any[] }) {
     {
       accessorKey: "createdAt",
       header: "Started",
-      cell: ({ row }) => <span className="text-zinc-500">{format(new Date(row.original.createdAt), "MMM d, h:mm a")}</span>,
+      cell: ({ row }) => <span className="text-zoru-ink">{format(new Date(row.original.createdAt), "MMM d, h:mm a")}</span>,
     },
     {
       accessorKey: "updatedAt",
       header: "Last Update",
-      cell: ({ row }) => <span className="text-zinc-500">{format(new Date(row.original.updatedAt), "MMM d, h:mm a")}</span>,
+      cell: ({ row }) => <span className="text-zoru-ink">{format(new Date(row.original.updatedAt), "MMM d, h:mm a")}</span>,
     },
     {
       accessorKey: "messageCount",

@@ -138,7 +138,7 @@ export default function CampaignComparePage() {
                 description="Select 2-5 campaigns to compare side by side."
                 actions={
                     <div className="flex gap-2 items-center">
-                        <GitCompareArrows className="h-5 w-5 text-muted-foreground" />
+                        <GitCompareArrows className="h-5 w-5 text-zoru-ink-muted" />
                         {selected.size > 0 && (
                             <Button variant="outline" size="sm" onClick={clearAll}>
                                 <X className="h-4 w-4 mr-1" /> Clear
@@ -158,12 +158,12 @@ export default function CampaignComparePage() {
                     <ZoruCardHeader><ZoruCardTitle className="text-base">Select campaigns</ZoruCardTitle></ZoruCardHeader>
                     <ZoruCardContent className="max-h-60 overflow-y-auto space-y-2">
                         {campaigns.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">No campaigns found.</p>
+                            <p className="text-sm text-zoru-ink-muted">No campaigns found.</p>
                         ) : campaigns.map((c) => (
-                            <label key={c.id} className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 rounded p-1.5">
+                            <label key={c.id} className="flex items-center gap-3 cursor-pointer hover:bg-zoru-surface-2/50 rounded p-1.5">
                                 <Checkbox checked={selected.has(c.id)} onCheckedChange={() => toggle(c.id)} />
                                 <span className="text-sm flex-1 truncate">{c.name}</span>
-                                <span className="text-xs text-muted-foreground">{c.status}</span>
+                                <span className="text-xs text-zoru-ink-muted">{c.status}</span>
                             </label>
                         ))}
                     </ZoruCardContent>
@@ -176,7 +176,7 @@ export default function CampaignComparePage() {
                         <Table>
                             <ZoruTableHeader>
                                 <ZoruTableRow>
-                                    <ZoruTableHead className="sticky left-0 bg-background z-10">Metric</ZoruTableHead>
+                                    <ZoruTableHead className="sticky left-0 bg-zoru-surface z-10">Metric</ZoruTableHead>
                                     {results.map((r) => (
                                         <ZoruTableHead key={r.campaignId} className="min-w-[140px]">
                                             {r.campaign_name || r.campaignId}
@@ -189,14 +189,14 @@ export default function CampaignComparePage() {
                                     const bw = bestWorst(m.key, m.higherIsBetter);
                                     return (
                                         <ZoruTableRow key={m.key}>
-                                            <ZoruTableCell className="font-medium sticky left-0 bg-background z-10">{m.label}</ZoruTableCell>
+                                            <ZoruTableCell className="font-medium sticky left-0 bg-zoru-surface z-10">{m.label}</ZoruTableCell>
                                             {results.map((r) => {
                                                 const isBest = r.campaignId === bw.best;
                                                 const isWorst = r.campaignId === bw.worst;
                                                 return (
                                                     <ZoruTableCell
                                                         key={r.campaignId}
-                                                        className={`tabular-nums ${isBest ? 'text-green-600 font-semibold' : ''} ${isWorst ? 'text-red-500' : ''}`}
+                                                        className={`tabular-nums ${isBest ? 'text-zoru-ink font-semibold' : ''} ${isWorst ? 'text-zoru-ink' : ''}`}
                                                     >
                                                         {m.format(r[m.key])}
                                                     </ZoruTableCell>

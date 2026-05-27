@@ -97,10 +97,10 @@ export function SabsmsFilterBar({
 
   return (
     <div
-      className={`flex flex-wrap items-center gap-2 rounded-md border border-slate-200 bg-white p-2 ${className ?? ""}`}
+      className={`flex flex-wrap items-center gap-2 rounded-md border border-zoru-line bg-white p-2 ${className ?? ""}`}
     >
       <div className="relative flex min-w-[220px] flex-1 items-center">
-        <Search className="pointer-events-none absolute left-2.5 h-4 w-4 text-slate-400" />
+        <Search className="pointer-events-none absolute left-2.5 h-4 w-4 text-zoru-ink-muted" />
         <Input
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
@@ -112,7 +112,7 @@ export function SabsmsFilterBar({
           <button
             type="button"
             onClick={() => setSearchInput("")}
-            className="absolute right-2 text-slate-400 hover:text-slate-600"
+            className="absolute right-2 text-zoru-ink-muted hover:text-zoru-ink"
             aria-label="Clear search"
           >
             <X className="h-3.5 w-3.5" />
@@ -149,7 +149,7 @@ export function SabsmsFilterBar({
           onValueChange={(v) => url.setOne("sort", v)}
         >
           <ZoruSelectTrigger className="w-[180px]">
-            <ArrowDownUp className="mr-1.5 h-3.5 w-3.5 text-slate-500" />
+            <ArrowDownUp className="mr-1.5 h-3.5 w-3.5 text-zoru-ink" />
             <ZoruSelectValue placeholder="Sort" />
           </ZoruSelectTrigger>
           <ZoruSelectContent>

@@ -46,7 +46,7 @@ export default async function SabsmsDripsPage({
         description="Sign in to view your drip sequences."
         breadcrumbs={[{ label: "Drips" }]}
       >
-        <div className="rounded-md border border-dashed border-slate-200 bg-white p-10 text-center text-sm text-slate-500">
+        <div className="rounded-md border border-dashed border-zoru-line bg-white p-10 text-center text-sm text-zoru-ink">
           Workspace not resolved.
         </div>
       </SabsmsPageShell>
@@ -111,63 +111,63 @@ export default async function SabsmsDripsPage({
     >
       {/* BULKY DATA-RICH DASHBOARD HEADER */}
       <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-xl">
+        <Card className="bg-gradient-to-br from-zoru-ink to-zoru-ink text-white shadow-xl">
           <ZoruCardHeader className="pb-2">
-            <ZoruCardTitle className="text-slate-200 text-sm font-medium flex items-center gap-2">
-              <Workflow className="h-4 w-4 text-emerald-400" />
+            <ZoruCardTitle className="text-white text-sm font-medium flex items-center gap-2">
+              <Workflow className="h-4 w-4 text-zoru-ink-muted" />
               Active Nodes
             </ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
             <div className="text-4xl font-bold tracking-tight">{totalActiveNodes}</div>
-            <p className="mt-1 text-xs text-slate-400 flex items-center gap-1">
+            <p className="mt-1 text-xs text-zoru-ink-muted flex items-center gap-1">
               Across {activeDrips} running drips
             </p>
           </ZoruCardContent>
         </Card>
 
-        <Card className="shadow-md border-slate-200/60">
+        <Card className="shadow-md border-zoru-line/60">
           <ZoruCardHeader className="pb-2">
-            <ZoruCardTitle className="text-slate-600 text-sm font-medium flex items-center gap-2">
-              <Users className="h-4 w-4 text-blue-500" />
+            <ZoruCardTitle className="text-zoru-ink text-sm font-medium flex items-center gap-2">
+              <Users className="h-4 w-4 text-zoru-ink" />
               Active Enrolments
             </ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <div className="text-4xl font-bold tracking-tight text-slate-900">{totalActiveRecipients.toLocaleString()}</div>
-            <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
+            <div className="text-4xl font-bold tracking-tight text-zoru-ink">{totalActiveRecipients.toLocaleString()}</div>
+            <p className="mt-1 text-xs text-zoru-ink flex items-center gap-1">
               Contacts currently flowing
             </p>
           </ZoruCardContent>
         </Card>
 
-        <Card className="shadow-md border-slate-200/60">
+        <Card className="shadow-md border-zoru-line/60">
           <ZoruCardHeader className="pb-2">
-            <ZoruCardTitle className="text-slate-600 text-sm font-medium flex items-center gap-2">
-              <Activity className="h-4 w-4 text-amber-500" />
+            <ZoruCardTitle className="text-zoru-ink text-sm font-medium flex items-center gap-2">
+              <Activity className="h-4 w-4 text-zoru-ink" />
               Global Throughput
             </ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <div className="text-4xl font-bold tracking-tight text-slate-900">{totalThroughput.toFixed(1)}</div>
-            <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
+            <div className="text-4xl font-bold tracking-tight text-zoru-ink">{totalThroughput.toFixed(1)}</div>
+            <p className="mt-1 text-xs text-zoru-ink flex items-center gap-1">
               Messages per minute
             </p>
           </ZoruCardContent>
         </Card>
 
-        <Card className="shadow-md border-slate-200/60 bg-gradient-to-br from-indigo-50/50 to-white">
+        <Card className="shadow-md border-zoru-line/60 bg-gradient-to-br from-zoru-surface-2/50 to-white">
           <ZoruCardHeader className="pb-2">
-            <ZoruCardTitle className="text-slate-600 text-sm font-medium flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-indigo-500" />
+            <ZoruCardTitle className="text-zoru-ink text-sm font-medium flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-zoru-ink" />
               Avg Conversion
             </ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <div className="text-4xl font-bold tracking-tight text-indigo-900">
+            <div className="text-4xl font-bold tracking-tight text-zoru-ink">
               {(avgConversion * 100).toFixed(1)}%
             </div>
-            <p className="mt-1 text-xs text-indigo-600/70 flex items-center gap-1">
+            <p className="mt-1 text-xs text-zoru-ink/70 flex items-center gap-1">
               End-to-end success rate
             </p>
           </ZoruCardContent>
@@ -177,8 +177,8 @@ export default async function SabsmsDripsPage({
       {rows.length === 0 && Object.values(filters).every((v) => !v || v === "all") ? (
         <EmptyHero />
       ) : (
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="p-1 border-b border-slate-100 bg-slate-50/50">
+        <div className="rounded-xl border border-zoru-line bg-white shadow-sm overflow-hidden">
+          <div className="p-1 border-b border-zoru-line bg-zoru-surface-2/50">
             <DripsTable rows={rows} templateOptions={templateOptions} />
           </div>
         </div>
@@ -189,19 +189,19 @@ export default async function SabsmsDripsPage({
 
 function EmptyHero() {
   return (
-    <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-sm">
-      <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 text-slate-400 border border-slate-100 shadow-sm">
+    <div className="rounded-2xl border border-dashed border-zoru-line bg-white p-12 text-center shadow-sm">
+      <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted border border-zoru-line shadow-sm">
         <GitBranch className="h-6 w-6" />
       </div>
-      <h2 className="text-lg font-semibold text-slate-900 tracking-tight">No drips yet</h2>
-      <p className="mx-auto mt-2 max-w-md text-sm text-slate-500 leading-relaxed">
+      <h2 className="text-lg font-semibold text-zoru-ink tracking-tight">No drips yet</h2>
+      <p className="mx-auto mt-2 max-w-md text-sm text-zoru-ink leading-relaxed">
         Build your first drip to nudge replies, recover abandoned carts, or
         send a welcome series. The visual builder ships with templates,
         branches, and a dry-run mode.
       </p>
       <a
         href="/sabsms/drips/new"
-        className="mt-6 inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-800 transition-colors"
+        className="mt-6 inline-flex items-center rounded-lg bg-zoru-ink px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-zoru-ink transition-colors"
       >
         <PlayCircle className="mr-2 h-4 w-4" /> Create First Drip
       </a>

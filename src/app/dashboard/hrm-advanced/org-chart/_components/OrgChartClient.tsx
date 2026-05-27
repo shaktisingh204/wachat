@@ -165,7 +165,7 @@ export function OrgChartClient({ initialData }: OrgChartClientProps) {
                 <Button variant="ghost" size="icon" className="h-6 w-6 text-zoru-ink-muted" onClick={() => { setEditingItem(node); setIsDialogOpen(true); }}>
                   <Edit className="h-3 w-3" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-6 w-6 text-red-500" onClick={() => handleDelete(node._id)}>
+                <Button variant="ghost" size="icon" className="h-6 w-6 text-zoru-ink" onClick={() => handleDelete(node._id)}>
                   <Trash className="h-3 w-3" />
                 </Button>
               </div>
@@ -200,7 +200,7 @@ export function OrgChartClient({ initialData }: OrgChartClientProps) {
           <Button size="icon" variant="ghost" onClick={() => { setEditingItem(row); setIsDialogOpen(true); }}>
             <Edit className="h-4 w-4" />
           </Button>
-          <Button size="icon" variant="ghost" className="text-red-500" onClick={() => handleDelete(row._id!)}>
+          <Button size="icon" variant="ghost" className="text-zoru-ink" onClick={() => handleDelete(row._id!)}>
             <Trash className="h-4 w-4" />
           </Button>
         </div>

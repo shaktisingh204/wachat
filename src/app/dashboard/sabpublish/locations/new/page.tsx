@@ -105,7 +105,7 @@ export default function NewSabpublishLocationPage() {
               <Textarea id="categories" name="categories" rows={2} />
             </div>
             {error ? (
-              <p className="sm:col-span-2 text-sm text-destructive">{error}</p>
+              <p className="sm:col-span-2 text-sm text-zoru-ink">{error}</p>
             ) : null}
             <div className="sm:col-span-2 flex gap-2">
               <Button type="submit" disabled={pending}>

@@ -26,7 +26,7 @@ export function ColorPicker({ value, onChange, className, id }: ColorPickerProps
                     className={cn("w-full justify-start text-left font-normal px-3", className)}
                 >
                     <div
-                        className="w-4 h-4 rounded-full mr-2 border border-gray-200"
+                        className="w-4 h-4 rounded-full mr-2 border border-zoru-line"
                         style={{ backgroundColor: value }}
                     />
                     {value}

@@ -41,7 +41,9 @@ use crate::settings::EmailSettingsDoc;
 
 /// Queue + job-name constants. Producers must keep these in lockstep.
 const SEND_QUEUE: &str = "email-send";
+#[allow(dead_code)]
 const JOB_TEST: &str = "test-send";
+#[allow(dead_code)]
 const JOB_START: &str = "start-campaign";
 const JOB_DELIVER: &str = "deliver";
 

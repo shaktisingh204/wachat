@@ -19,10 +19,10 @@ async function ConversationContent({ peerId }: { peerId: string }) {
   
   if (!ObjectId.isValid(peerId)) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center border border-border rounded-lg bg-card">
-        <MessageSquare className="h-10 w-10 text-muted-foreground mb-4" />
+      <div className="flex flex-col items-center justify-center p-12 text-center border border-zoru-line rounded-lg bg-zoru-surface">
+        <MessageSquare className="h-10 w-10 text-zoru-ink-muted mb-4" />
         <h3 className="text-lg font-medium">Invalid User ID</h3>
-        <p className="text-sm text-muted-foreground mt-1">The user you are trying to message does not exist or the ID is invalid.</p>
+        <p className="text-sm text-zoru-ink-muted mt-1">The user you are trying to message does not exist or the ID is invalid.</p>
       </div>
     );
   }

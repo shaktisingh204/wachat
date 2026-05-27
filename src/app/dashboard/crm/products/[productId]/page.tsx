@@ -39,10 +39,10 @@ function ProductHistoryGraphSkeleton() {
       <ZoruCardHeader>
         <ZoruCardTitle className="text-lg">Price & Stock History</ZoruCardTitle>
       </ZoruCardHeader>
-      <ZoruCardContent className="h-64 flex items-center justify-center bg-zinc-50 dark:bg-zinc-900/50">
+      <ZoruCardContent className="h-64 flex items-center justify-center bg-zoru-surface-2 dark:bg-zoru-ink/50">
         <div className="flex flex-col items-center gap-2">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-400 border-t-transparent" />
-          <span className="text-sm text-zinc-500">Loading chart history...</span>
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-zoru-line border-t-transparent" />
+          <span className="text-sm text-zoru-ink">Loading chart history...</span>
         </div>
       </ZoruCardContent>
     </Card>

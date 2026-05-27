@@ -110,7 +110,7 @@ function SmartVariableInput({ id, name, placeholder, required, variableOptions =
                     </Popover>
                 )}
             </div>
-            {variableOptions.length > 0 && <p className="text-[10px] text-muted-foreground mt-1">Type manually or select a variable.</p>}
+            {variableOptions.length > 0 && <p className="text-[10px] text-zoru-ink-muted mt-1">Type manually or select a variable.</p>}
         </div>
     );
 }
@@ -157,7 +157,7 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                                     <Label className="font-semibold">Header Variables</Label>
                                     {vars.map(v => (
                                         <div key={`header-var-${v}`} className="space-y-1">
-                                            <Label htmlFor={`variable_header_${v}`} className="text-xs text-muted-foreground">Variable {'{{'}{v}{'}}'}</Label>
+                                            <Label htmlFor={`variable_header_${v}`} className="text-xs text-zoru-ink-muted">Variable {'{{'}{v}{'}}'}</Label>
                                             <SmartVariableInput
                                                 id={`variable_header_${v}`}
                                                 name={`variable_header_${v}`}
@@ -172,7 +172,7 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                         }
                     } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(component.format || '')) {
                         return (
-                            <div key={`header-${idx}`} className="space-y-3 p-3 border rounded-md bg-muted/10">
+                            <div key={`header-${idx}`} className="space-y-3 p-3 border rounded-md bg-zoru-surface-2/10">
                                 <Label className="font-semibold">Header Media ({component.format})</Label>
                                 <RadioGroup value={headerMediaSource} onValueChange={(v) => setHeaderMediaSource(v as 'url' | 'file')} className="flex gap-4">
                                     <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="file" id="h-source-file" /><Label htmlFor="h-source-file" className="font-normal flex items-center gap-1 cursor-pointer"><UploadCloud className="h-4 w-4" /> Upload</Label></div>
@@ -188,10 +188,10 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                                             type="file"
                                             accept={component.format === 'IMAGE' ? "image/*" : component.format === 'VIDEO' ? "video/*" : "application/pdf"}
                                             required
-                                            className="file:text-primary file:font-medium"
+                                            className="file:text-zoru-ink file:font-medium"
                                         />
                                         <div className="flex items-center justify-between gap-2 pt-1">
-                                            <p className="text-[10px] text-muted-foreground">
+                                            <p className="text-[10px] text-zoru-ink-muted">
                                                 Supports {component.format === 'IMAGE' ? 'JPG, PNG' : component.format === 'VIDEO' ? 'MP4' : 'PDF'}
                                                 {pickedHeaderMediaName ? ` · Picked: ${pickedHeaderMediaName}` : ''}
                                             </p>
@@ -216,7 +216,7 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                         );
                     } else if (component.format === 'LOCATION') {
                         return (
-                            <div key={`header-${idx}`} className="space-y-3 p-3 border rounded-md bg-muted/10">
+                            <div key={`header-${idx}`} className="space-y-3 p-3 border rounded-md bg-zoru-surface-2/10">
                                 <Label className="font-semibold flex items-center gap-2"><MapPin className="h-4 w-4" /> Location Header</Label>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="space-y-1">
@@ -257,7 +257,7 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                         <div className="grid gap-3">
                             {vars.map(v => (
                                 <div key={`body-var-${v}`} className="space-y-1">
-                                    <Label htmlFor={`variable_body_${v}`} className="text-xs text-muted-foreground">Variable {'{{'}{v}{'}}'}</Label>
+                                    <Label htmlFor={`variable_body_${v}`} className="text-xs text-zoru-ink-muted">Variable {'{{'}{v}{'}}'}</Label>
                                     <SmartVariableInput
                                         id={`variable_body_${v}`}
                                         name={`variable_body_${v}`}
@@ -290,7 +290,7 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                         <div className="grid gap-3">
                             {interactiveButtons.map((btn: any) => (
                                 <div key={`btn-${btn.index}`} className="space-y-1">
-                                    <Label htmlFor={`variable_button_${btn.index}`} className="text-xs text-muted-foreground">
+                                    <Label htmlFor={`variable_button_${btn.index}`} className="text-xs text-zoru-ink-muted">
                                         {btn.type === 'COPY_CODE' ? `Coupon Code (ZoruButton: ${btn.text})` : `URL Suffix (ZoruButton: ${btn.text})`}
                                     </Label>
                                     <SmartVariableInput
@@ -300,7 +300,7 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                                         required
                                         variableOptions={variableOptions}
                                     />
-                                    {btn.type === 'URL' && <p className="text-[10px] text-muted-foreground">Appended to: {btn.url.split('{{1}}')[0]}</p>}
+                                    {btn.type === 'URL' && <p className="text-[10px] text-zoru-ink-muted">Appended to: {btn.url.split('{{1}}')[0]}</p>}
                                 </div>
                             ))}
                         </div>
@@ -312,7 +312,7 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
             {template.type === 'MARKETING_CAROUSEL' && (
                 <div className="space-y-4 border-t pt-4">
                     <h3 className="font-semibold text-sm">Carousel Cards Media</h3>
-                    <p className="text-xs text-muted-foreground">Upload media for each card.</p>
+                    <p className="text-xs text-zoru-ink-muted">Upload media for each card.</p>
 
                     <div className="grid gap-4">
                         {template.components?.find(c => c.type === 'CAROUSEL')?.cards?.map((card: any, index: number) => {
@@ -320,7 +320,7 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                             if (!header || !['IMAGE', 'VIDEO'].includes(header.format)) return null;
 
                             return (
-                                <div key={index} className="p-4 border rounded-md bg-muted/20 space-y-3">
+                                <div key={index} className="p-4 border rounded-md bg-zoru-surface-2/20 space-y-3">
                                     <div className="flex justify-between items-center">
                                         <Label className="font-medium">Card {index + 1} ({header.format})</Label>
                                     </div>
@@ -332,10 +332,10 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                                         type="file"
                                         accept={header.format === 'IMAGE' ? "image/*" : "video/*"}
                                         required
-                                        className="file:text-primary file:font-medium"
+                                        className="file:text-zoru-ink file:font-medium"
                                     />
                                     <div className="flex items-center justify-between gap-2">
-                                        <p className="text-[10px] text-muted-foreground">
+                                        <p className="text-[10px] text-zoru-ink-muted">
                                             {pickedCardMediaNames[index] ? `Picked: ${pickedCardMediaNames[index]}` : 'Or pick from SabFiles'}
                                         </p>
                                         <SabFileToFileButton

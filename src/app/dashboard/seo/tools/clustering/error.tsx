@@ -12,15 +12,15 @@ export default function ErrorBoundary({ error, reset }: { error: Error & { diges
 
   return (
     <div className="p-6 flex items-center justify-center min-h-[400px]">
-      <Card className="w-full max-w-md border-red-500/50">
+      <Card className="w-full max-w-md border-zoru-line/50">
         <ZoruCardHeader>
-          <ZoruCardTitle className="text-red-500 flex items-center gap-2">
+          <ZoruCardTitle className="text-zoru-ink flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             Something went wrong!
           </ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground break-words">
+          <p className="text-sm text-zoru-ink-muted break-words">
             {error.message || 'An unexpected error occurred while clustering keywords.'}
           </p>
           <Button onClick={() => reset()} variant="outline" className="w-full">

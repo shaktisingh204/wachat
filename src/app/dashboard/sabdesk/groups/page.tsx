@@ -274,10 +274,10 @@ function TicketGroupDialog({
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-md border border-border px-3 py-2">
+            <div className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-2">
               <div className="flex flex-col">
                 <Label htmlFor="isActiveToggle">Active</Label>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-zoru-ink-muted">
                   Inactive groups are hidden from ticket pickers.
                 </span>
               </div>
@@ -325,16 +325,16 @@ function TicketGroupDialog({
 
 function ColorSwatch({ color }: { color?: string }) {
   if (!color) {
-    return <span className="text-xs text-muted-foreground">—</span>;
+    return <span className="text-xs text-zoru-ink-muted">—</span>;
   }
   return (
     <span className="inline-flex items-center gap-2">
       <span
-        className="inline-block h-4 w-4 rounded-full border border-border"
+        className="inline-block h-4 w-4 rounded-full border border-zoru-line"
         style={{ backgroundColor: color }}
         aria-hidden
       />
-      <span className="font-mono text-xs text-foreground">{color}</span>
+      <span className="font-mono text-xs text-zoru-ink">{color}</span>
     </span>
   );
 }
@@ -603,10 +603,10 @@ export default function TicketGroupsPage() {
               </div>
             ) : null}
 
-          <div className="overflow-x-auto rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
             <Table>
               <ZoruTableHeader>
-                <ZoruTableRow className="border-border hover:bg-transparent">
+                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                   <ZoruTableHead className="w-10">
                     <Checkbox
                       checked={
@@ -624,44 +624,44 @@ export default function TicketGroupsPage() {
                       aria-label="Select all"
                     />
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-muted-foreground">
+                  <ZoruTableHead className="text-zoru-ink-muted">
                     Name
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-muted-foreground">
+                  <ZoruTableHead className="text-zoru-ink-muted">
                     Parent Group
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-muted-foreground">
+                  <ZoruTableHead className="text-zoru-ink-muted">
                     Default Assignee
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-muted-foreground">
+                  <ZoruTableHead className="text-zoru-ink-muted">
                     Default SLA
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-muted-foreground">
+                  <ZoruTableHead className="text-zoru-ink-muted">
                     Color
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-muted-foreground text-right">
+                  <ZoruTableHead className="text-zoru-ink-muted text-right">
                     Tickets
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-muted-foreground">
+                  <ZoruTableHead className="text-zoru-ink-muted">
                     Status
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-muted-foreground text-right">
+                  <ZoruTableHead className="text-zoru-ink-muted text-right">
                     Actions
                   </ZoruTableHead>
                 </ZoruTableRow>
               </ZoruTableHeader>
               <ZoruTableBody>
                 {isLoading ? (
-                  <ZoruTableRow className="border-border">
+                  <ZoruTableRow className="border-zoru-line">
                     <ZoruTableCell colSpan={9} className="h-24 text-center">
-                      <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                      <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ) : filtered.length === 0 ? (
-                  <ZoruTableRow className="border-border">
+                  <ZoruTableRow className="border-zoru-line">
                     <ZoruTableCell
                       colSpan={9}
-                      className="h-24 text-center text-muted-foreground"
+                      className="h-24 text-center text-zoru-ink-muted"
                     >
                       No ticket groups match this filter.
                     </ZoruTableCell>
@@ -674,7 +674,7 @@ export default function TicketGroupsPage() {
                     return (
                       <ZoruTableRow
                         key={String(g._id)}
-                        className={cn('border-border', selected.has(String(g._id)) && 'bg-zoru-surface')}
+                        className={cn('border-zoru-line', selected.has(String(g._id)) && 'bg-zoru-surface')}
                       >
                         <ZoruTableCell>
                           <Checkbox
@@ -691,58 +691,58 @@ export default function TicketGroupsPage() {
                             aria-label={`Select ${g.name}`}
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-foreground">
+                        <ZoruTableCell className="font-medium text-zoru-ink">
                           <div className="flex flex-col">
                             <span>{g.name}</span>
                             {g.description ? (
-                              <span className="text-xs text-muted-foreground line-clamp-1">
+                              <span className="text-xs text-zoru-ink-muted line-clamp-1">
                                 {g.description}
                               </span>
                             ) : null}
                           </div>
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-foreground">
+                        <ZoruTableCell className="text-zoru-ink">
                           {parent ? (
                             parent.name
                           ) : g.parentGroupId ? (
                             <span
-                              className="font-mono text-xs text-muted-foreground"
+                              className="font-mono text-xs text-zoru-ink-muted"
                               title={g.parentGroupId}
                             >
                               {g.parentGroupId.slice(0, 8)}…
                             </span>
                           ) : (
-                            <span className="text-muted-foreground">—</span>
+                            <span className="text-zoru-ink-muted">—</span>
                           )}
                         </ZoruTableCell>
                         <ZoruTableCell>
                           {g.defaultAssigneeId ? (
                             <span
-                              className="font-mono text-xs text-foreground"
+                              className="font-mono text-xs text-zoru-ink"
                               title={g.defaultAssigneeId}
                             >
                               {g.defaultAssigneeId.slice(0, 8)}…
                             </span>
                           ) : (
-                            <span className="text-muted-foreground">—</span>
+                            <span className="text-zoru-ink-muted">—</span>
                           )}
                         </ZoruTableCell>
                         <ZoruTableCell>
                           {g.defaultSlaId ? (
                             <span
-                              className="font-mono text-xs text-foreground"
+                              className="font-mono text-xs text-zoru-ink"
                               title={g.defaultSlaId}
                             >
                               {g.defaultSlaId.slice(0, 8)}…
                             </span>
                           ) : (
-                            <span className="text-muted-foreground">—</span>
+                            <span className="text-zoru-ink-muted">—</span>
                           )}
                         </ZoruTableCell>
                         <ZoruTableCell>
                           <ColorSwatch color={g.color} />
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-foreground">
+                        <ZoruTableCell className="text-right font-mono text-zoru-ink">
                           {g.ticketsCount ?? 0}
                         </ZoruTableCell>
                         <ZoruTableCell>
@@ -766,7 +766,7 @@ export default function TicketGroupsPage() {
                             onClick={() => setPendingDelete(g)}
                             aria-label="Delete group"
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="h-4 w-4 text-zoru-ink" />
                           </Button>
                         </ZoruTableCell>
                       </ZoruTableRow>

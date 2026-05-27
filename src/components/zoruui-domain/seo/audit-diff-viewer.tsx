@@ -82,12 +82,12 @@ export function AuditDiffViewer({ currentPages, pastPages }: AuditDiffViewerProp
 
           {diff.newPages.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold flex items-center gap-2 text-blue-600">
+              <h4 className="text-sm font-semibold flex items-center gap-2 text-zoru-ink">
                 <FilePlus className="h-4 w-4" /> New Pages Crawled ({diff.newPages.length})
               </h4>
               <ul className="text-sm space-y-1">
                 {diff.newPages.map(p => (
-                  <li key={p.url} className="border p-2 rounded bg-muted/30 truncate">
+                  <li key={p.url} className="border p-2 rounded bg-zoru-surface-2/30 truncate">
                     <a href={p.url} target="_blank" rel="noreferrer" className="hover:underline">{p.url}</a>
                   </li>
                 ))}
@@ -97,12 +97,12 @@ export function AuditDiffViewer({ currentPages, pastPages }: AuditDiffViewerProp
 
           {diff.removedPages.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold flex items-center gap-2 text-gray-500">
+              <h4 className="text-sm font-semibold flex items-center gap-2 text-zoru-ink">
                 <FileMinus className="h-4 w-4" /> Pages No Longer Found ({diff.removedPages.length})
               </h4>
               <ul className="text-sm space-y-1">
                 {diff.removedPages.map(p => (
-                  <li key={p.url} className="border p-2 rounded bg-muted/30 truncate line-through opacity-70">
+                  <li key={p.url} className="border p-2 rounded bg-zoru-surface-2/30 truncate line-through opacity-70">
                     {p.url}
                   </li>
                 ))}
@@ -112,14 +112,14 @@ export function AuditDiffViewer({ currentPages, pastPages }: AuditDiffViewerProp
 
           {diff.improvedPages.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold flex items-center gap-2 text-green-600">
+              <h4 className="text-sm font-semibold flex items-center gap-2 text-zoru-ink">
                 <CheckCircle className="h-4 w-4" /> Improved Pages ({diff.improvedPages.length})
               </h4>
               <ul className="text-sm space-y-1">
                 {diff.improvedPages.map(p => (
-                  <li key={p.url} className="flex flex-col sm:flex-row sm:items-center justify-between border p-2 rounded bg-muted/30 gap-2">
+                  <li key={p.url} className="flex flex-col sm:flex-row sm:items-center justify-between border p-2 rounded bg-zoru-surface-2/30 gap-2">
                     <a href={p.url} target="_blank" rel="noreferrer" className="truncate flex-1 hover:underline">{p.url}</a>
-                    <Badge variant="outline" className="shrink-0 bg-green-50 text-green-700 border-green-200">
+                    <Badge variant="outline" className="shrink-0 bg-zoru-surface-2 text-zoru-ink border-zoru-line">
                       Issues: {p.oldIssues} <ArrowRight className="h-3 w-3 mx-1 inline" /> {p.newIssues}
                     </Badge>
                   </li>
@@ -130,14 +130,14 @@ export function AuditDiffViewer({ currentPages, pastPages }: AuditDiffViewerProp
 
           {diff.degradedPages.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold flex items-center gap-2 text-red-600">
+              <h4 className="text-sm font-semibold flex items-center gap-2 text-zoru-ink">
                 <AlertCircle className="h-4 w-4" /> Degraded Pages ({diff.degradedPages.length})
               </h4>
               <ul className="text-sm space-y-1">
                 {diff.degradedPages.map(p => (
-                  <li key={p.url} className="flex flex-col sm:flex-row sm:items-center justify-between border p-2 rounded bg-muted/30 gap-2">
+                  <li key={p.url} className="flex flex-col sm:flex-row sm:items-center justify-between border p-2 rounded bg-zoru-surface-2/30 gap-2">
                     <a href={p.url} target="_blank" rel="noreferrer" className="truncate flex-1 hover:underline">{p.url}</a>
-                    <Badge variant="outline" className="shrink-0 bg-red-50 text-red-700 border-red-200">
+                    <Badge variant="outline" className="shrink-0 bg-zoru-surface-2 text-zoru-ink border-zoru-line">
                       Issues: {p.oldIssues} <ArrowRight className="h-3 w-3 mx-1 inline" /> {p.newIssues}
                     </Badge>
                   </li>

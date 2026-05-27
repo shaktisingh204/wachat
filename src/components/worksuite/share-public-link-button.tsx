@@ -81,10 +81,10 @@ export function SharePublicLinkButton({
           <Card className="w-full max-w-md p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-[15px] font-semibold text-foreground">
+                <h3 className="text-[15px] font-semibold text-zoru-ink">
                   Shareable link
                 </h3>
-                <p className="mt-1 text-[12.5px] text-muted-foreground">
+                <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
                   Anyone with this link can view this {resourceType} without
                   logging in.
                 </p>
@@ -92,7 +92,7 @@ export function SharePublicLinkButton({
               <button
                 type="button"
                 onClick={close}
-                className="rounded-lg p-1 text-muted-foreground hover:bg-secondary"
+                className="rounded-lg p-1 text-zoru-ink-muted hover:bg-zoru-surface-2"
                 aria-label="Close"
               >
                 <X className="h-4 w-4" />
@@ -100,17 +100,17 @@ export function SharePublicLinkButton({
             </div>
             <div className="mt-4">
               {busy ? (
-                <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
+                <div className="flex items-center gap-2 text-[13px] text-zoru-ink-muted">
                   <LoaderCircle className="h-4 w-4 animate-spin" /> Generating
                   link…
                 </div>
               ) : error ? (
-                <p className="text-[12.5px] text-accent-foreground">{error}</p>
+                <p className="text-[12.5px] text-zoru-ink">{error}</p>
               ) : url ? (
                 <div className="flex flex-col gap-2">
                   <Input value={url} readOnly />
                   <div className="flex items-center justify-between">
-                    <span className="text-[11.5px] text-muted-foreground">
+                    <span className="text-[11.5px] text-zoru-ink-muted">
                       {copied ? 'Copied!' : 'Copy and share with your client.'}
                     </span>
                     <Button

@@ -447,7 +447,7 @@ export function ZoruSabChatWidgetGenerator({
                 <div className={`static w-full h-full flex flex-col ${settings.widgetPosition === 'left' ? 'items-start' : 'items-end'} justify-end`}>
                   
                   {showWidget && (
-                    <div className={`mb-4 flex h-[400px] w-[320px] flex-col overflow-hidden rounded-xl border border-zoru-line ${settings.darkMode === 'dark' ? 'bg-zinc-950 text-white' : 'bg-white text-zinc-900'} shadow-[0_8px_30px_rgb(0,0,0,0.12)]`}>
+                    <div className={`mb-4 flex h-[400px] w-[320px] flex-col overflow-hidden rounded-xl border border-zoru-line ${settings.darkMode === 'dark' ? 'bg-zoru-ink text-white' : 'bg-white text-zoru-ink'} shadow-[0_8px_30px_rgb(0,0,0,0.12)]`}>
                       <div
                         style={{ backgroundColor: settings.widgetColor }}
                         className="flex flex-col gap-3 p-5 text-white"
@@ -471,7 +471,7 @@ export function ZoruSabChatWidgetGenerator({
                           </div>
                         </div>
                       </div>
-                      <div className={`flex-1 overflow-y-auto p-4 ${settings.darkMode === 'dark' ? 'bg-zinc-950' : 'bg-zinc-50'}`}>
+                      <div className={`flex-1 overflow-y-auto p-4 ${settings.darkMode === 'dark' ? 'bg-zoru-ink' : 'bg-zoru-surface-2'}`}>
                         <div className="flex gap-2">
                           <Avatar className="h-6 w-6 mt-1">
                             {settings.avatarUrl && (
@@ -481,24 +481,24 @@ export function ZoruSabChatWidgetGenerator({
                               {settings.teamName?.charAt(0) || "S"}
                             </ZoruAvatarFallback>
                           </Avatar>
-                          <div className={`rounded-2xl rounded-tl-sm px-4 py-2 text-sm ${settings.darkMode === 'dark' ? 'bg-zinc-900 text-zinc-200' : 'bg-white text-zinc-700'} shadow-sm`}>
+                          <div className={`rounded-2xl rounded-tl-sm px-4 py-2 text-sm ${settings.darkMode === 'dark' ? 'bg-zoru-ink text-white' : 'bg-white text-zoru-ink'} shadow-sm`}>
                             {settings.welcomeMessage}
                           </div>
                         </div>
 
                         {settings.preChatFormEnabled && (
-                          <div className={`mt-4 rounded-xl border p-4 ${settings.darkMode === 'dark' ? 'border-zinc-800 bg-zinc-950' : 'border-zinc-200 bg-white'}`}>
+                          <div className={`mt-4 rounded-xl border p-4 ${settings.darkMode === 'dark' ? 'border-zoru-line bg-zoru-ink' : 'border-zoru-line bg-white'}`}>
                             <p className="mb-3 text-sm font-medium">{settings.preChatFormMessage}</p>
                             <div className="space-y-3">
-                              <Input className={settings.darkMode === 'dark' ? 'bg-zinc-900 border-zinc-800' : ''} placeholder="Your name" />
-                              <Input className={settings.darkMode === 'dark' ? 'bg-zinc-900 border-zinc-800' : ''} placeholder="Your email" />
+                              <Input className={settings.darkMode === 'dark' ? 'bg-zoru-ink border-zoru-line' : ''} placeholder="Your name" />
+                              <Input className={settings.darkMode === 'dark' ? 'bg-zoru-ink border-zoru-line' : ''} placeholder="Your email" />
                               <Button className="w-full text-white" style={{ backgroundColor: settings.widgetColor }}>Start Conversation</Button>
                             </div>
                           </div>
                         )}
                       </div>
-                      <div className={`border-t p-3 ${settings.darkMode === 'dark' ? 'border-zinc-800 bg-zinc-950' : 'border-zinc-100 bg-white'}`}>
-                        <div className={`flex items-center gap-2 rounded-full border px-3 py-2 ${settings.darkMode === 'dark' ? 'border-zinc-800 bg-zinc-900' : 'border-zinc-200 bg-zinc-50'}`}>
+                      <div className={`border-t p-3 ${settings.darkMode === 'dark' ? 'border-zoru-line bg-zoru-ink' : 'border-zoru-line bg-white'}`}>
+                        <div className={`flex items-center gap-2 rounded-full border px-3 py-2 ${settings.darkMode === 'dark' ? 'border-zoru-line bg-zoru-ink' : 'border-zoru-line bg-zoru-surface-2'}`}>
                           <input 
                             placeholder="Type a message..." 
                             className="flex-1 bg-transparent text-sm outline-none" 

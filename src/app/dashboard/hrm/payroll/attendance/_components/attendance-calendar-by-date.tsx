@@ -151,17 +151,17 @@ export function AttendanceCalendarByDate({
               {bucket ? (
                 <div className="mt-1 flex flex-wrap gap-1 text-[10px]">
                   {bucket.present > 0 ? (
-                    <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-emerald-900 dark:text-emerald-100">
+                    <span className="rounded bg-zoru-ink/20 px-1.5 py-0.5 text-zoru-ink dark:text-white">
                       P {bucket.present}
                     </span>
                   ) : null}
                   {bucket.absent > 0 ? (
-                    <span className="rounded bg-rose-500/20 px-1.5 py-0.5 text-rose-900 dark:text-rose-100">
+                    <span className="rounded bg-zoru-ink/20 px-1.5 py-0.5 text-zoru-ink dark:text-white">
                       A {bucket.absent}
                     </span>
                   ) : null}
                   {bucket.leave > 0 ? (
-                    <span className="rounded bg-sky-500/20 px-1.5 py-0.5 text-sky-900 dark:text-sky-100">
+                    <span className="rounded bg-zoru-ink/20 px-1.5 py-0.5 text-zoru-ink dark:text-white">
                       L {bucket.leave}
                     </span>
                   ) : null}

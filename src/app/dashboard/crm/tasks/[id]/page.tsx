@@ -181,7 +181,7 @@ export default async function TaskDetailPage({ params }: PageProps) {
                                     <CheckCircle2
                                         className={`mt-0.5 h-4 w-4 ${
                                             item.done
-                                                ? 'text-green-500'
+                                                ? 'text-zoru-ink'
                                                 : 'text-zoru-ink-muted'
                                         }`}
                                     />

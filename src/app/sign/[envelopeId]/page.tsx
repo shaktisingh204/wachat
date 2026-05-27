@@ -126,7 +126,7 @@ export default function PublicSignPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <Card className="p-6 max-w-md">
-          <h2 className="text-lg font-semibold text-red-500">Unable to load envelope</h2>
+          <h2 className="text-lg font-semibold text-zoru-ink">Unable to load envelope</h2>
           <p className="text-sm text-zoru-ink-muted mt-2">{error}</p>
         </Card>
       </div>

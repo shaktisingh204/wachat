@@ -263,7 +263,7 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
       }
     >
       {filteredData.length === 0 ? (
-        <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
+        <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-zoru-ink-muted">
           No records found.
         </div>
       ) : (
@@ -311,10 +311,10 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
                   
                   <ZoruTableCell className="text-right space-x-2">
                     <Button variant="ghost" size="icon" disabled={isPending} onClick={() => openEdit(item)}>
-                      <Edit2 className="h-4 w-4 text-blue-500" />
+                      <Edit2 className="h-4 w-4 text-zoru-ink" />
                     </Button>
                     <Button variant="ghost" size="icon" disabled={isPending} onClick={() => handleDelete(item._id)}>
-                      <Trash2 className="h-4 w-4 text-red-500" />
+                      <Trash2 className="h-4 w-4 text-zoru-ink" />
                     </Button>
                   </ZoruTableCell>
                 </ZoruTableRow>

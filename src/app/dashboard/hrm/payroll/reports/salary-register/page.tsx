@@ -185,21 +185,21 @@ export default function SalaryRegisterPage() {
                                 <th className="sticky left-0 z-20 bg-zoru-surface-2 w-[180px] min-w-[180px] px-4 py-3 font-medium text-zoru-ink-muted">Employee</th>
                                 <th className="sticky left-[180px] z-20 bg-zoru-surface-2 border-r border-zoru-line w-[140px] min-w-[140px] px-4 py-3 font-medium text-zoru-ink-muted shadow-[4px_0_12px_-4px_rgba(0,0,0,0.1)]">Department</th>
                                 {/* Earnings */}
-                                <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-green-600">Basic</th>
-                                <th className="px-4 py-3 text-right font-medium text-green-600">HRA</th>
-                                <th className="px-4 py-3 text-right font-medium text-green-600">Spl. Allow.</th>
-                                <th className="px-4 py-3 text-right font-medium text-green-600">Other</th>
-                                <th className="px-4 py-3 text-right font-medium text-green-700">Total Gross</th>
-                                <th className="px-4 py-3 text-right font-medium text-green-700/80">YTD Gross</th>
-                                <th className="px-4 py-3 text-right font-medium text-green-700/80">YTD Basic</th>
+                                <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-zoru-ink">Basic</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">HRA</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">Spl. Allow.</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">Other</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">Total Gross</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink/80">YTD Gross</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink/80">YTD Basic</th>
                                 {/* Deductions */}
-                                <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-red-500">PF</th>
-                                <th className="px-4 py-3 text-right font-medium text-red-500/80">YTD PF</th>
-                                <th className="px-4 py-3 text-right font-medium text-red-500">ESI</th>
-                                <th className="px-4 py-3 text-right font-medium text-red-500">TDS</th>
-                                <th className="px-4 py-3 text-right font-medium text-red-500/80">YTD TDS</th>
-                                <th className="px-4 py-3 text-right font-medium text-red-600">Total Deductions</th>
-                                <th className="px-4 py-3 text-right font-medium text-red-600/80">YTD Deductions</th>
+                                <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-zoru-ink">PF</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink/80">YTD PF</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">ESI</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">TDS</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink/80">YTD TDS</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink">Total Deductions</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink/80">YTD Deductions</th>
                                 {/* Net */}
                                 <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-zoru-ink">Net Pay</th>
                                 <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">YTD Net Pay</th>
@@ -223,17 +223,17 @@ export default function SalaryRegisterPage() {
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.hra)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.specialAllowance)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.otherEarnings)}</td>
-                                            <td className="px-4 py-3 text-right font-mono font-semibold text-green-700">{fmt(row.totalGross)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-green-700/80">{fmt(row.ytdGross)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-green-700/80">{fmt(row.ytdBasic)}</td>
+                                            <td className="px-4 py-3 text-right font-mono font-semibold text-zoru-ink">{fmt(row.totalGross)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">{fmt(row.ytdGross)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">{fmt(row.ytdBasic)}</td>
                                             {/* Deductions */}
                                             <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.pf)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-red-500/80">{fmt(row.ytdPf)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">{fmt(row.ytdPf)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.esi)}</td>
                                             <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.tds)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-red-500/80">{fmt(row.ytdTds)}</td>
-                                            <td className="px-4 py-3 text-right font-mono font-semibold text-red-600">{fmt(row.totalDeductions)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-red-600/80">{fmt(row.ytdDeductions)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">{fmt(row.ytdTds)}</td>
+                                            <td className="px-4 py-3 text-right font-mono font-semibold text-zoru-ink">{fmt(row.totalDeductions)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">{fmt(row.ytdDeductions)}</td>
                                             {/* Net */}
                                             <td className="border-l border-zoru-line px-4 py-3 text-right font-mono font-bold text-zoru-ink">{fmt(row.netPay)}</td>
                                             <td className="px-4 py-3 text-right font-mono font-medium text-zoru-ink-muted">{fmt(row.ytdNetPay)}</td>
@@ -255,19 +255,19 @@ export default function SalaryRegisterPage() {
                                         <td className="px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(reportData.reduce((s, r) => s + r.otherEarnings, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-green-700">
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(summary.totalGross)}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-green-700/80">
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">
                                             {fmt(reportData.reduce((s, r) => s + r.ytdGross, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-green-700/80">
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">
                                             {fmt(reportData.reduce((s, r) => s + r.ytdBasic, 0))}
                                         </td>
                                         <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(reportData.reduce((s, r) => s + r.pf, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-red-500/80">
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">
                                             {fmt(reportData.reduce((s, r) => s + r.ytdPf, 0))}
                                         </td>
                                         <td className="px-4 py-3 text-right font-mono text-zoru-ink">
@@ -276,13 +276,13 @@ export default function SalaryRegisterPage() {
                                         <td className="px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(reportData.reduce((s, r) => s + r.tds, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-red-500/80">
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">
                                             {fmt(reportData.reduce((s, r) => s + r.ytdTds, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-red-600">
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(summary.totalDeductions)}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-red-600/80">
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink/80">
                                             {fmt(reportData.reduce((s, r) => s + r.ytdDeductions, 0))}
                                         </td>
                                         <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">

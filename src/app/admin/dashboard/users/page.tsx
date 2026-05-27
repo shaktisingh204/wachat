@@ -71,16 +71,16 @@ export default async function AdminUsersPage({
                     <p className="text-sm text-zoru-ink-muted mt-1">Manage accounts, permissions, and plans.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-600">
+                    <div className="flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-3 py-1.5 text-xs font-medium text-zoru-ink">
                         <CheckCircle className="h-3.5 w-3.5" />
                         {approved} approved
                     </div>
-                    <div className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-600">
+                    <div className="flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-3 py-1.5 text-xs font-medium text-zoru-ink">
                         <Clock className="h-3.5 w-3.5" />
                         {pending} pending
                     </div>
                     {suspended > 0 && (
-                        <div className="flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600">
+                        <div className="flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-3 py-1.5 text-xs font-medium text-zoru-ink">
                             <Ban className="h-3.5 w-3.5" />
                             {suspended} suspended
                         </div>

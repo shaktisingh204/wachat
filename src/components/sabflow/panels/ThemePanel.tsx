@@ -87,7 +87,7 @@ const DEFAULT_THEME: SabFlowTheme = {
 const inputCls = [
   'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]',
   'px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-9)]',
-  'outline-none focus:border-[#f76808] focus:ring-1 focus:ring-[#f76808]/20 transition-colors',
+  'outline-none focus:border-zoru-line focus:ring-1 focus:ring-zoru-line/20 transition-colors',
 ].join(' ');
 
 /** Extract a plain hex string from a ThemeColor (falls back to empty). */
@@ -144,7 +144,7 @@ function ColorSwatch({ value, onChange }: ColorSwatchProps) {
         className={cn(
           'w-[90px] rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)]',
           'px-2 py-1 text-[12px] font-mono text-[var(--gray-12)]',
-          'outline-none focus:border-[#f76808] transition-colors',
+          'outline-none focus:border-zoru-line transition-colors',
         )}
       />
     </div>
@@ -181,7 +181,7 @@ function ColorField({ label, value, fallback = '#ffffff', onChange }: ColorField
               className={cn(
                 'h-5 w-5 rounded border-2 transition-transform hover:scale-110',
                 hex === c
-                  ? 'border-[#f76808] scale-110'
+                  ? 'border-zoru-line scale-110'
                   : 'border-transparent hover:border-[var(--gray-6)]',
               )}
               style={{ backgroundColor: c }}
@@ -295,7 +295,7 @@ function ToggleRow({
         onClick={() => onChange(!checked)}
         className={cn(
           'relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0',
-          checked ? 'bg-[#f76808]' : 'bg-[var(--gray-5)]',
+          checked ? 'bg-zoru-ink' : 'bg-[var(--gray-5)]',
         )}
       >
         <span
@@ -346,7 +346,7 @@ function RoundnessPreset({
               v === 'Medium' && 'rounded-lg',
               v === 'Large'  && 'rounded-full',
               active === v
-                ? 'border-[#f76808] bg-[#f76808]/10 text-[#f76808]'
+                ? 'border-zoru-line bg-zoru-ink/10 text-zoru-ink'
                 : 'border-[var(--gray-5)] text-[var(--gray-9)] hover:bg-[var(--gray-3)]',
             )}
           >
@@ -506,7 +506,7 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
           className={cn(
             'flex h-6 w-6 items-center justify-center rounded transition-colors',
             showPresets
-              ? 'bg-[#f76808]/15 text-[#f76808]'
+              ? 'bg-zoru-ink/15 text-zoru-ink'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
           )}
         >
@@ -581,7 +581,7 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
                   className={cn(
                     'flex-1 rounded-lg border py-1.5 text-[12px] font-medium transition-colors',
                     bgType === t
-                      ? 'border-[#f76808] bg-[#f76808]/10 text-[#f76808]'
+                      ? 'border-zoru-line bg-zoru-ink/10 text-zoru-ink'
                       : 'border-[var(--gray-5)] text-[var(--gray-9)] hover:bg-[var(--gray-3)]',
                   )}
                 >
@@ -643,7 +643,7 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
                         className={cn(
                           'flex-1 rounded-lg border py-1.5 text-[12px] font-medium transition-colors capitalize',
                           progressBarPlacement === p
-                            ? 'border-[#f76808] bg-[#f76808]/10 text-[#f76808]'
+                            ? 'border-zoru-line bg-zoru-ink/10 text-zoru-ink'
                             : 'border-[var(--gray-5)] text-[var(--gray-9)] hover:bg-[var(--gray-3)]',
                         )}
                       >

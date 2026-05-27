@@ -192,7 +192,7 @@ function OptionsRepeater({
                 </Button>
             </div>
             {options.length === 0 ? (
-                <p className="rounded-md border border-dashed border-border px-3 py-4 text-center text-xs text-muted-foreground">
+                <p className="rounded-md border border-dashed border-zoru-line px-3 py-4 text-center text-xs text-zoru-ink-muted">
                     Add at least one option for a select / multiselect field.
                 </p>
             ) : (
@@ -449,8 +449,8 @@ function CustomFieldDialog({
                         {/* Flag grid — checkbox + label rows. Each checkbox writes
                             `on` when checked so the action's `pickBool` parser
                             reads them correctly. */}
-                        <div className="rounded-md border border-border p-3">
-                            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        <div className="rounded-md border border-zoru-line p-3">
+                            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
                                 Flags
                             </p>
                             <div className="grid grid-cols-2 gap-3">
@@ -494,7 +494,7 @@ function CustomFieldDialog({
                         </div>
 
                         {showOptions ? (
-                            <div className="rounded-md border border-border p-3">
+                            <div className="rounded-md border border-zoru-line p-3">
                                 <OptionsRepeater
                                     options={options}
                                     onChange={setOptions}
@@ -503,8 +503,8 @@ function CustomFieldDialog({
                         ) : null}
 
                         {showValidation ? (
-                            <div className="rounded-md border border-border p-3">
-                                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            <div className="rounded-md border border-zoru-line p-3">
+                                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
                                     Validation
                                 </p>
                                 <div className="grid grid-cols-3 gap-3">
@@ -789,60 +789,60 @@ export default function CustomFieldsPage() {
                         <StatCard label="Select / multi" value={selectTypeCount.toLocaleString()} />
                     </div>
 
-                    <div className="overflow-x-auto rounded-lg border border-border">
+                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-border hover:bg-transparent">
-                                    <ZoruTableHead className="text-muted-foreground w-16 text-right">
+                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableHead className="text-zoru-ink-muted w-16 text-right">
                                         Order
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">
+                                    <ZoruTableHead className="text-zoru-ink-muted">
                                         Label
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">
+                                    <ZoruTableHead className="text-zoru-ink-muted">
                                         Type
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground text-center">
+                                    <ZoruTableHead className="text-zoru-ink-muted text-center">
                                         Required
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground text-center">
+                                    <ZoruTableHead className="text-zoru-ink-muted text-center">
                                         Unique
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground text-center">
+                                    <ZoruTableHead className="text-zoru-ink-muted text-center">
                                         In list
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">
+                                    <ZoruTableHead className="text-zoru-ink-muted">
                                         Status
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground text-right">
+                                    <ZoruTableHead className="text-zoru-ink-muted text-right">
                                         Actions
                                     </ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-border">
+                                    <ZoruTableRow className="border-zoru-line">
                                         <ZoruTableCell
                                             colSpan={8}
                                             className="h-24 text-center"
                                         >
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : filtered.length === 0 ? (
-                                    <ZoruTableRow className="border-border hover:bg-transparent">
+                                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                         <ZoruTableCell
                                             colSpan={8}
                                             className="py-12 text-center"
                                         >
                                             <div className="mx-auto flex max-w-[420px] flex-col items-center justify-center text-center">
-                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-muted-foreground">
+                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                                                     <LayoutGrid className="h-6 w-6" />
                                                 </div>
-                                                <h3 className="mt-4 text-sm font-semibold text-foreground">
+                                                <h3 className="mt-4 text-sm font-semibold text-zoru-ink">
                                                     No Custom Fields Configured
                                                 </h3>
-                                                <p className="mt-2 text-xs text-muted-foreground">
+                                                <p className="mt-2 text-xs text-zoru-ink-muted">
                                                     Configure tailor-made custom properties for your {labelForEntity(activeEntity)} records. You can define text fields, select lists, dates, and more.
                                                 </p>
                                                 <div className="mt-4">
@@ -861,9 +861,9 @@ export default function CustomFieldsPage() {
                                     filtered.map((f) => (
                                         <ZoruTableRow
                                             key={String(f._id)}
-                                            className="border-border"
+                                            className="border-zoru-line"
                                         >
-                                            <ZoruTableCell className="text-right font-mono text-foreground">
+                                            <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                                 {f.displayOrder ?? 0}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
@@ -885,32 +885,32 @@ export default function CustomFieldsPage() {
                                                     }
                                                 />
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-foreground">
+                                            <ZoruTableCell className="text-zoru-ink">
                                                 {labelForType(f.fieldType)}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-center">
                                                 {f.required ? (
-                                                    <Check className="mx-auto h-4 w-4 text-foreground" />
+                                                    <Check className="mx-auto h-4 w-4 text-zoru-ink" />
                                                 ) : (
-                                                    <span className="text-muted-foreground">
+                                                    <span className="text-zoru-ink-muted">
                                                         —
                                                     </span>
                                                 )}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-center">
                                                 {f.unique ? (
-                                                    <Check className="mx-auto h-4 w-4 text-foreground" />
+                                                    <Check className="mx-auto h-4 w-4 text-zoru-ink" />
                                                 ) : (
-                                                    <span className="text-muted-foreground">
+                                                    <span className="text-zoru-ink-muted">
                                                         —
                                                     </span>
                                                 )}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-center">
                                                 {f.visibleInList ? (
-                                                    <Check className="mx-auto h-4 w-4 text-foreground" />
+                                                    <Check className="mx-auto h-4 w-4 text-zoru-ink" />
                                                 ) : (
-                                                    <span className="text-muted-foreground">
+                                                    <span className="text-zoru-ink-muted">
                                                         —
                                                     </span>
                                                 )}
@@ -948,7 +948,7 @@ export default function CustomFieldsPage() {
                                                     }
                                                     aria-label="Delete field"
                                                 >
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                    <Trash2 className="h-4 w-4 text-zoru-ink" />
                                                 </Button>
                                             </ZoruTableCell>
                                         </ZoruTableRow>

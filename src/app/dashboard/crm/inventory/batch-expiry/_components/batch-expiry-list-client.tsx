@@ -146,9 +146,9 @@ function KpiCard({
   const borderCls = active ? 'border-zoru-primary ring-1 ring-zoru-primary' : 'border-zoru-line';
   const valueCls =
     tone === 'danger'
-      ? 'text-red-700 dark:text-red-400'
+      ? 'text-zoru-ink dark:text-zoru-ink-muted'
       : tone === 'warning'
-        ? 'text-amber-600 dark:text-amber-400'
+        ? 'text-zoru-ink dark:text-zoru-ink-muted'
         : 'text-zoru-ink';
   return (
     <button
@@ -690,9 +690,9 @@ export function BatchExpiryListClient({
                         key={b._id}
                         className={
                           flag.expired
-                            ? 'border-zoru-line bg-red-50 dark:bg-red-950/30'
+                            ? 'border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/30'
                             : flag.soon
-                              ? 'border-zoru-line bg-amber-50/50 dark:bg-amber-950/20'
+                              ? 'border-zoru-line bg-zoru-surface-2/50 dark:bg-zoru-ink/20'
                               : 'border-zoru-line'
                         }
                       >
@@ -723,7 +723,7 @@ export function BatchExpiryListClient({
                         <ZoruTableCell
                           className={
                             danger
-                              ? 'text-[13px] font-medium text-red-700 dark:text-red-300'
+                              ? 'text-[13px] font-medium text-zoru-ink dark:text-zoru-ink-muted'
                               : 'text-[13px] text-zoru-ink-muted'
                           }
                         >
@@ -755,7 +755,7 @@ export function BatchExpiryListClient({
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() => setSingleDeleteTarget(b)}
-                                className="text-destructive focus:bg-red-50 focus:text-red-700 dark:focus:bg-red-950/50 dark:focus:text-red-300"
+                                className="text-zoru-ink focus:bg-zoru-surface-2 focus:text-zoru-ink dark:focus:bg-zoru-ink/50 dark:focus:text-zoru-ink-muted"
                               >
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete
                               </DropdownMenuItem>

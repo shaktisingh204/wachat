@@ -143,44 +143,44 @@ export default async function BomDetailPage({ params }: PageProps) {
         <ZoruCardContent>
           <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-xs text-zinc-500">BOM code</dt>
-              <dd className="font-mono text-zinc-900 dark:text-zinc-100">
+              <dt className="text-xs text-zoru-ink">BOM code</dt>
+              <dd className="font-mono text-zoru-ink dark:text-white">
                 {bom.bomNo || '—'}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-500">Finished good</dt>
-              <dd className="text-zinc-900 dark:text-zinc-100">
+              <dt className="text-xs text-zoru-ink">Finished good</dt>
+              <dd className="text-zoru-ink dark:text-white">
                 {bom.finishedGoodName || '—'}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-500">Output qty</dt>
-              <dd className="text-zinc-900 dark:text-zinc-100">
+              <dt className="text-xs text-zoru-ink">Output qty</dt>
+              <dd className="text-zoru-ink dark:text-white">
                 {typeof bom.outputQty === 'number' ? bom.outputQty : '—'}{' '}
                 {bom.unit || ''}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-500">Version</dt>
-              <dd className="text-zinc-900 dark:text-zinc-100">{bom.version || '—'}</dd>
+              <dt className="text-xs text-zoru-ink">Version</dt>
+              <dd className="text-zoru-ink dark:text-white">{bom.version || '—'}</dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-500">Effective date</dt>
-              <dd className="text-zinc-900 dark:text-zinc-100">
+              <dt className="text-xs text-zoru-ink">Effective date</dt>
+              <dd className="text-zoru-ink dark:text-white">
                 {formatDate(bom.effectiveDate)}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-500">Created</dt>
-              <dd className="text-zinc-900 dark:text-zinc-100">
+              <dt className="text-xs text-zoru-ink">Created</dt>
+              <dd className="text-zoru-ink dark:text-white">
                 {formatDate(bom.createdAt)}
               </dd>
             </div>
             {bom.notes ? (
               <div className="sm:col-span-2">
-                <dt className="text-xs text-zinc-500">Notes</dt>
-                <dd className="whitespace-pre-wrap text-zinc-900 dark:text-zinc-100">
+                <dt className="text-xs text-zoru-ink">Notes</dt>
+                <dd className="whitespace-pre-wrap text-zoru-ink dark:text-white">
                   {bom.notes}
                 </dd>
               </div>
@@ -195,7 +195,7 @@ export default async function BomDetailPage({ params }: PageProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {components.length === 0 ? (
-            <p className="text-sm text-zinc-500">No components yet.</p>
+            <p className="text-sm text-zoru-ink">No components yet.</p>
           ) : (
             <Table>
               <ZoruTableHeader>
@@ -232,20 +232,20 @@ export default async function BomDetailPage({ params }: PageProps) {
         <ZoruCardContent>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-4">
             <div>
-              <dt className="text-xs text-zinc-500">Material cost</dt>
-              <dd className="font-mono text-zinc-900 dark:text-zinc-100">{fmtINR(materialCost)}</dd>
+              <dt className="text-xs text-zoru-ink">Material cost</dt>
+              <dd className="font-mono text-zoru-ink dark:text-white">{fmtINR(materialCost)}</dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-500">Labour cost</dt>
-              <dd className="font-mono text-zinc-900 dark:text-zinc-100">{fmtINR(labour)}</dd>
+              <dt className="text-xs text-zoru-ink">Labour cost</dt>
+              <dd className="font-mono text-zoru-ink dark:text-white">{fmtINR(labour)}</dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-500">Overhead cost</dt>
-              <dd className="font-mono text-zinc-900 dark:text-zinc-100">{fmtINR(overhead)}</dd>
+              <dt className="text-xs text-zoru-ink">Overhead cost</dt>
+              <dd className="font-mono text-zoru-ink dark:text-white">{fmtINR(overhead)}</dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-500">Total cost</dt>
-              <dd className="font-mono font-semibold text-zinc-900 dark:text-zinc-100">
+              <dt className="text-xs text-zoru-ink">Total cost</dt>
+              <dd className="font-mono font-semibold text-zoru-ink dark:text-white">
                 {fmtINR(total)}
               </dd>
             </div>

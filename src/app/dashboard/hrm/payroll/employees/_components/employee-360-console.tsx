@@ -138,8 +138,8 @@ export function Employee360Console({
         <div className="flex items-center gap-2 pr-2">
           <Badge tone="success" className="relative flex items-center gap-1.5 py-1 px-2.5 text-[11px] font-semibold tracking-wide uppercase">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zoru-surface-2 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-zoru-ink"></span>
             </span>
             KYC VERIFIED
           </Badge>
@@ -158,7 +158,7 @@ export function Employee360Console({
                   <ShieldCheck className="h-32 w-32 text-zoru-success" />
                 </div>
                 {/* Hologram Circle */}
-                <div className="absolute right-4 top-4 h-10 w-10 rounded-full bg-gradient-to-tr from-amber-400 via-teal-400 to-indigo-500 opacity-80 blur-[2px]" />
+                <div className="absolute right-4 top-4 h-10 w-10 rounded-full bg-gradient-to-tr from-zoru-surface-2 via-zoru-surface-2 to-zoru-ink opacity-80 blur-[2px]" />
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -195,7 +195,7 @@ export function Employee360Console({
                   <UserCheck className="h-32 w-32 text-zoru-info" />
                 </div>
                 {/* Hologram Circle */}
-                <div className="absolute right-4 top-4 h-10 w-10 rounded-full bg-gradient-to-tr from-rose-400 via-sky-400 to-emerald-400 opacity-80 blur-[2px]" />
+                <div className="absolute right-4 top-4 h-10 w-10 rounded-full bg-gradient-to-tr from-zoru-surface-2 via-zoru-surface-2 to-zoru-surface-2 opacity-80 blur-[2px]" />
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>

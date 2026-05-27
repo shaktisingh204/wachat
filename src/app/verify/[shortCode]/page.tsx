@@ -25,11 +25,11 @@ export default function VerifyLinkPage({ params }: { params: Promise<{ shortCode
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-zoru-ink px-4">
       <Card className="w-full max-w-sm p-8">
         <div className="flex flex-col items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800">
-            <Lock className="h-5 w-5 text-zinc-400" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-ink">
+            <Lock className="h-5 w-5 text-zoru-ink-muted" />
           </div>
           <div className="text-center">
             <h1 className="text-[17px] font-medium text-zoru-ink">This link is protected</h1>

@@ -23,8 +23,8 @@ export default async function AllProductsPage(props: { params: Promise<{ slug: s
                     isEditable={false}
                 />
             ) : (
-                <div className="text-center py-24 text-muted-foreground">
-                    <LayoutGrid className="mx-auto h-12 w-12 text-muted-foreground/50"/>
+                <div className="text-center py-24 text-zoru-ink-muted">
+                    <LayoutGrid className="mx-auto h-12 w-12 text-zoru-ink-muted/50"/>
                     <h1 className="mt-4 text-2xl font-semibold">All Products</h1>
                     <p className="mt-2 text-sm">This page is under construction.</p>
                 </div>

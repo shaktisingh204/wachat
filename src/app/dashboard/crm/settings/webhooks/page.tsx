@@ -415,7 +415,7 @@ export default function CrmWebhooksListPage() {
                 <ZoruTableRow>
                   <ZoruTableCell
                     colSpan={7}
-                    className="text-center text-muted-foreground py-12"
+                    className="text-center text-zoru-ink-muted py-12"
                   >
                     {rows.length === 0
                       ? 'No subscriptions yet.'

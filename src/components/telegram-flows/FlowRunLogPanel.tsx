@@ -88,7 +88,7 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
       <header className="flex items-center justify-between border-b p-3">
         <div>
           <h3 className="text-sm font-semibold">Run log</h3>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-zoru-ink-muted">
             Includes simulated runs from the Test panel.
           </p>
         </div>
@@ -109,7 +109,7 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
 
       <div className="max-h-64 overflow-y-auto">
         {runs.length === 0 ? (
-          <p className="p-4 text-center text-xs text-muted-foreground">
+          <p className="p-4 text-center text-xs text-zoru-ink-muted">
             No runs yet. Press <strong>Test</strong> to simulate a message.
           </p>
         ) : (
@@ -122,7 +122,7 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
                     type="button"
                     onClick={() => setExpanded(isOpen ? null : r._id)}
                     className={cn(
-                      'flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted/50',
+                      'flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-zoru-surface-2/50',
                     )}
                   >
                     {isOpen ? (
@@ -131,11 +131,11 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
                       <ChevronRight className="h-4 w-4" />
                     )}
                     <Badge variant={statusVariant(r.status)}>{r.status}</Badge>
-                    <span className="font-mono text-xs text-muted-foreground">
+                    <span className="font-mono text-xs text-zoru-ink-muted">
                       {r._id.slice(-6)}
                     </span>
-                    <span className="text-xs text-muted-foreground">{fmt(r.startedAt)}</span>
-                    <span className="ml-auto text-xs text-muted-foreground">
+                    <span className="text-xs text-zoru-ink-muted">{fmt(r.startedAt)}</span>
+                    <span className="ml-auto text-xs text-zoru-ink-muted">
                       {r.steps.length} step{r.steps.length === 1 ? '' : 's'}
                     </span>
                   </button>
@@ -146,12 +146,12 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
                           <Badge variant={statusVariant(s.status)} className="shrink-0">
                             {s.status}
                           </Badge>
-                          <span className="font-mono text-muted-foreground">{s.nodeType}</span>
+                          <span className="font-mono text-zoru-ink-muted">{s.nodeType}</span>
                           <span>{s.message}</span>
                         </li>
                       ))}
                       {r.error ? (
-                        <li className="text-destructive">Error: {r.error}</li>
+                        <li className="text-zoru-ink">Error: {r.error}</li>
                       ) : null}
                     </ol>
                   ) : null}

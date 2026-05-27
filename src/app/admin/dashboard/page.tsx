@@ -111,16 +111,16 @@ function HeroStat({
           {title}
         </span>
         <div
-          className={`h-8 w-8 rounded-lg flex items-center justify-center ${accent ? "bg-amber-100 border border-amber-200" : "bg-zoru-surface"}`}
+          className={`h-8 w-8 rounded-lg flex items-center justify-center ${accent ? "bg-zoru-surface-2 border border-zoru-line" : "bg-zoru-surface"}`}
         >
           <Icon
-            className={`h-4 w-4 ${accent ? "text-amber-600" : "text-zoru-ink"}`}
+            className={`h-4 w-4 ${accent ? "text-zoru-ink" : "text-zoru-ink"}`}
           />
         </div>
       </div>
       <div>
         <div
-          className={`text-3xl font-bold tracking-tight ${accent ? "text-amber-600" : "text-zoru-ink"}`}
+          className={`text-3xl font-bold tracking-tight ${accent ? "text-zoru-ink" : "text-zoru-ink"}`}
         >
           {value}
         </div>
@@ -173,30 +173,30 @@ function StatSection({
     { bg: string; text: string; border: string }
   > = {
     emerald: {
-      bg: "bg-emerald-100",
-      text: "text-emerald-600",
-      border: "border-emerald-200",
+      bg: "bg-zoru-surface-2",
+      text: "text-zoru-ink",
+      border: "border-zoru-line",
     },
-    sky: { bg: "bg-sky-100", text: "text-sky-600", border: "border-sky-200" },
+    sky: { bg: "bg-zoru-surface-2", text: "text-zoru-ink", border: "border-zoru-line" },
     violet: {
-      bg: "bg-violet-100",
-      text: "text-violet-600",
-      border: "border-violet-200",
+      bg: "bg-zoru-surface-2",
+      text: "text-zoru-ink",
+      border: "border-zoru-line",
     },
     rose: {
-      bg: "bg-rose-100",
-      text: "text-rose-600",
-      border: "border-rose-200",
+      bg: "bg-zoru-surface-2",
+      text: "text-zoru-ink",
+      border: "border-zoru-line",
     },
     amber: {
-      bg: "bg-amber-100",
-      text: "text-amber-600",
-      border: "border-amber-200",
+      bg: "bg-zoru-surface-2",
+      text: "text-zoru-ink",
+      border: "border-zoru-line",
     },
     cyan: {
-      bg: "bg-cyan-100",
-      text: "text-cyan-600",
-      border: "border-cyan-200",
+      bg: "bg-zoru-surface-2",
+      text: "text-zoru-ink",
+      border: "border-zoru-line",
     },
   };
   const c = accentClasses[accent] ?? accentClasses.emerald;
@@ -235,10 +235,10 @@ function StatSection({
 /* ---------------------------------------------------------------- */
 
 const statusVariant: Record<string, string> = {
-  Completed: "bg-emerald-100 text-emerald-600 border-emerald-200",
+  Completed: "bg-zoru-surface-2 text-zoru-ink border-zoru-line",
   Queued: "bg-zoru-surface text-zoru-ink border-zoru-line",
-  Processing: "bg-blue-100 text-blue-600 border-blue-200",
-  Failed: "bg-red-500/15 text-red-600 border-red-500/30",
+  Processing: "bg-zoru-surface-2 text-zoru-ink border-zoru-line",
+  Failed: "bg-zoru-ink/15 text-zoru-ink border-zoru-line/30",
 };
 
 import { cache, Suspense } from "react";
@@ -761,7 +761,7 @@ async function RecentBroadcastsWrapper() {
       <div className="px-6 py-3 border-t border-zoru-line">
         <Link
           href="/admin/dashboard/broadcast-log"
-          className="text-xs text-amber-600 hover:text-amber-300 font-medium transition-colors"
+          className="text-xs text-zoru-ink hover:text-zoru-ink-muted font-medium transition-colors"
         >
           View all broadcasts →
         </Link>
@@ -794,7 +794,7 @@ export default async function AdminDashboardPage({
         </div>
         <div className="text-right hidden sm:block">
           <div className="text-xs text-zoru-ink-muted">Total data points</div>
-          <div className="text-sm font-semibold text-amber-600">Live</div>
+          <div className="text-sm font-semibold text-zoru-ink">Live</div>
         </div>
       </div>
 

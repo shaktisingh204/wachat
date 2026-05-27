@@ -42,20 +42,20 @@ export function WhatsAppTools() {
         </ZoruCardHeader>
         <ZoruCardContent>
           <div className="flex flex-col gap-4">
-            <div className="flex justify-between items-center p-3 border rounded-lg bg-muted/20">
+            <div className="flex justify-between items-center p-3 border rounded-lg bg-zoru-surface-2/20">
               <span className="font-medium">Status</span>
               {isRefreshing && !status ? (
-                <span className="text-sm text-muted-foreground animate-pulse">Checking...</span>
+                <span className="text-sm text-zoru-ink-muted animate-pulse">Checking...</span>
               ) : (
                 <div className="flex items-center gap-2">
-                  {status?.status === 'connected' && <CheckCircle2 className="w-4 h-4 text-green-500" />}
-                  {status?.status === 'disconnected' && <XCircle className="w-4 h-4 text-red-500" />}
-                  {status?.status === 'pending' && <Clock className="w-4 h-4 text-yellow-500" />}
+                  {status?.status === 'connected' && <CheckCircle2 className="w-4 h-4 text-zoru-ink" />}
+                  {status?.status === 'disconnected' && <XCircle className="w-4 h-4 text-zoru-ink" />}
+                  {status?.status === 'pending' && <Clock className="w-4 h-4 text-zoru-ink" />}
                   <span className="capitalize font-semibold">{status?.status || 'Unknown'}</span>
                 </div>
               )}
             </div>
-            <div className="flex justify-between items-center p-3 border rounded-lg bg-muted/20">
+            <div className="flex justify-between items-center p-3 border rounded-lg bg-zoru-surface-2/20">
               <span className="font-medium">Quality Rating</span>
               <span className="capitalize">{status?.qualityRating || 'N/A'}</span>
             </div>
@@ -88,7 +88,7 @@ export function WhatsAppTools() {
               <MessageSquare className="w-4 h-4 mr-2" />
               Send Hello World
             </Button>
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-xs text-zoru-ink-muted text-center">
               Requires a verified template or an active 24-hour window.
             </p>
           </div>

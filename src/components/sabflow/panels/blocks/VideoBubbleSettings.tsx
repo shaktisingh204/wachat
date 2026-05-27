@@ -8,7 +8,7 @@ import { FileUploadInput } from './shared/FileUploadInput';
 
 /* ── Shared primitives ──────────────────────────────────────── */
 const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808] transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -83,10 +83,10 @@ const providerLabels: Record<VideoProvider, string> = {
 };
 
 const providerColors: Record<VideoProvider, string> = {
-  youtube: 'bg-red-500/10 text-red-400 border-red-500/30',
-  vimeo: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
-  direct: 'bg-green-500/10 text-green-400 border-green-500/30',
-  variable: 'bg-[#f76808]/10 text-[#f76808] border-[#f76808]/30',
+  youtube: 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/30',
+  vimeo: 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/30',
+  direct: 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/30',
+  variable: 'bg-zoru-ink/10 text-zoru-ink border-zoru-line/30',
   unknown: 'bg-[var(--gray-3)] text-[var(--gray-8)] border-[var(--gray-5)]',
 };
 
@@ -204,8 +204,8 @@ export function VideoBubbleSettings({
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#f76808]/10">
-          <LuVideo className="h-4 w-4 text-[#f76808]" strokeWidth={1.8} />
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zoru-ink/10">
+          <LuVideo className="h-4 w-4 text-zoru-ink" strokeWidth={1.8} />
         </div>
         <span className="text-[13px] font-semibold text-[var(--gray-12)]">
           Video Bubble
@@ -266,7 +266,7 @@ export function VideoBubbleSettings({
                 Supports <strong>YouTube</strong>, <strong>Vimeo</strong>, direct{' '}
                 <code className="font-mono bg-[var(--gray-3)] px-1 rounded">.mp4</code> URLs,
                 or{' '}
-                <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[#f76808]">
+                <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">
                   {'{{variable}}'}
                 </code>
               </span>

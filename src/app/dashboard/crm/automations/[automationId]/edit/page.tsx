@@ -37,7 +37,7 @@ export default async function EditAutomationPage({
                 back={{ href: `${BASE}/${automationId}`, label: 'Back to detail' }}
             >
                 <div className="flex h-32 items-center justify-center">
-                    <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+                    <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
                 </div>
             </EntityDetailShell>
         }>

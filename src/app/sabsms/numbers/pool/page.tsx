@@ -163,7 +163,7 @@ export default function NumberPoolPage() {
       <div className="flex items-center justify-between space-y-2">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Number Pool</h2>
-          <p className="text-muted-foreground">
+          <p className="text-zoru-ink-muted">
             Manage your dedicated numbers, monitor reputation, and analyze throughput.
           </p>
         </div>
@@ -217,7 +217,7 @@ export default function NumberPoolPage() {
         <Card className="md:col-span-1">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Settings className="h-5 w-5 text-muted-foreground" />
+              <Settings className="h-5 w-5 text-zoru-ink-muted" />
               <span>Pool Settings</span>
             </CardTitle>
             <CardDescription>
@@ -229,7 +229,7 @@ export default function NumberPoolPage() {
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <Label className="text-base">Sticky Sender</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-zoru-ink-muted">
                     Ensure recipients always receive messages from the same number.
                   </p>
                 </div>
@@ -242,7 +242,7 @@ export default function NumberPoolPage() {
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <Label className="text-base">Auto-Scaling</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-zoru-ink-muted">
                     Automatically buy numbers when limits are reached.
                   </p>
                 </div>
@@ -253,7 +253,7 @@ export default function NumberPoolPage() {
               </div>
 
               {isAutoScalingEnabled && (
-                <div className="space-y-4 rounded-lg border p-4 bg-muted/50">
+                <div className="space-y-4 rounded-lg border p-4 bg-zoru-surface-2/50">
                   <div className="space-y-2">
                     <Label>Throughput Threshold (%)</Label>
                     <Input 
@@ -263,7 +263,7 @@ export default function NumberPoolPage() {
                       value={throughputThreshold}
                       onChange={(e) => setThroughputThreshold(Number(e.target.value))}
                     />
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-zoru-ink-muted">
                       Scale when a number exceeds this capacity.
                     </p>
                   </div>
@@ -276,7 +276,7 @@ export default function NumberPoolPage() {
                       value={maxAutoBuy}
                       onChange={(e) => setMaxAutoBuy(Number(e.target.value))}
                     />
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-zoru-ink-muted">
                       Maximum numbers to purchase automatically ({autoBuyCount} used).
                     </p>
                   </div>
@@ -297,7 +297,7 @@ export default function NumberPoolPage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex flex-1 items-center space-x-2">
                 <div className="relative w-72">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
                   <Input
                     placeholder="Search numbers or providers..."
                     className="pl-8"
@@ -347,7 +347,7 @@ export default function NumberPoolPage() {
                         <TableCell className="font-medium">
                           <div className="flex flex-col">
                             <span>{num.number}</span>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-zoru-ink-muted">
                               {num.country} • {num.type}
                             </span>
                           </div>
@@ -365,9 +365,9 @@ export default function NumberPoolPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-col space-y-1.5">
-                            <div className="flex justify-between text-xs text-muted-foreground">
+                            <div className="flex justify-between text-xs text-zoru-ink-muted">
                               <span>{Math.round(num.currentThroughput)} / {num.throughputLimit}</span>
-                              <span className={throughputPercent > 90 ? "text-red-500 font-bold" : ""}>
+                              <span className={throughputPercent > 90 ? "text-zoru-ink font-bold" : ""}>
                                 {throughputPercent}%
                               </span>
                             </div>
@@ -390,7 +390,7 @@ export default function NumberPoolPage() {
                               <DropdownMenuItem>View Analytics</DropdownMenuItem>
                               <DropdownMenuItem>Edit Routing</DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive">Release Number</DropdownMenuItem>
+                              <DropdownMenuItem className="text-zoru-ink">Release Number</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -399,7 +399,7 @@ export default function NumberPoolPage() {
                   })}
                   {filteredNumbers.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                      <TableCell colSpan={6} className="text-center py-6 text-zoru-ink-muted">
                         No numbers found.
                       </TableCell>
                     </TableRow>

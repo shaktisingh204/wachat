@@ -205,7 +205,7 @@ export function SetVariableSettings({ block, onBlockChange, variables = [] }: Pr
 
       {/* Type badge + description */}
       <div className="flex items-start gap-2.5 rounded-lg border border-[var(--gray-4)] bg-[var(--gray-2)] px-3 py-2.5">
-        <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#f7680818] text-[#f76808]">
+        <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-zoru-ink text-zoru-ink">
           <TypeIcon className="h-3.5 w-3.5" strokeWidth={1.8} />
         </div>
         <p className="text-[11.5px] text-[var(--gray-9)] leading-relaxed">{cfg.description}</p>
@@ -279,15 +279,15 @@ export function SetVariableSettings({ block, onBlockChange, variables = [] }: Pr
               placeholder={'// Return the value to store\nreturn {{inputVar}} + " world";'}
               spellCheck={false}
               className={cn(
-                'w-full rounded-lg border border-[var(--gray-5)] bg-[#0d0d0d]',
-                'px-3 py-3 font-mono text-[12px] text-green-400 leading-relaxed',
-                'outline-none focus:border-[#f76808] resize-y min-h-[130px]',
+                'w-full rounded-lg border border-[var(--gray-5)] bg-zoru-ink',
+                'px-3 py-3 font-mono text-[12px] text-zoru-ink-muted leading-relaxed',
+                'outline-none focus:border-zoru-line resize-y min-h-[130px]',
                 'placeholder:text-[var(--gray-7)] transition-colors',
               )}
             />
             <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
               Variables are interpolated before evaluation.{' '}
-              <code className="font-mono text-[#f76808]">return</code> the value to store.
+              <code className="font-mono text-zoru-ink">return</code> the value to store.
             </p>
           </Field>
 
@@ -349,7 +349,7 @@ function NumericOperandField({
   return (
     <Field label={labelMap[op] ?? 'Operand value'}>
       <div className="flex items-center gap-2">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] text-[13px] font-semibold text-[#f76808]">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] text-[13px] font-semibold text-zoru-ink">
           {symbol}
         </span>
         <div className="relative flex-1 flex items-center">
@@ -380,7 +380,7 @@ function VariableHint() {
     <p className="text-[10.5px] text-[var(--gray-8)] mt-1 flex items-center gap-1">
       <LuBraces className="h-3 w-3 shrink-0" strokeWidth={1.8} />
       Use{' '}
-      <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[#f76808]">
+      <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">
         {'{{variable}}'}
       </code>{' '}
       to reference collected values.

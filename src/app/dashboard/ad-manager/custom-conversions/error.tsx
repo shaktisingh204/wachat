@@ -29,7 +29,7 @@ export default function CustomConversionsError({
         <ZoruAlertTitle>Something went wrong!</ZoruAlertTitle>
         <ZoruAlertDescription className="mt-2">
           <p className="mb-4">{error.message || 'An unexpected error occurred while loading custom conversions.'}</p>
-          <Button onClick={() => reset()} variant="outline" size="sm" className="bg-background">
+          <Button onClick={() => reset()} variant="outline" size="sm" className="bg-zoru-surface">
             <RefreshCw className="mr-2 h-4 w-4" />
             Try again
           </Button>

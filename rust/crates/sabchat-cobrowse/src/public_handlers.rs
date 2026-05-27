@@ -50,7 +50,7 @@ pub async fn grant_consent(
         update_doc.insert("startedAt", bson::DateTime::from_chrono(now));
     }
 
-    let updated = sessions_coll
+    let _updated = sessions_coll
         .find_one_and_update(
             doc! { "visitorToken": &visitor_token },
             doc! { "$set": update_doc },

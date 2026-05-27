@@ -1,26 +1,15 @@
-import { redirect } from 'next/navigation';
+'use client';
 
-/**
- * New exit page — server wrapper around `<ExitForm />`.
- */
+import React from 'react';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
+import { saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { getSession } from '@/app/actions/user.actions';
-
-import { ExitForm } from '../_components/exit-form';
-
-export const dynamic = 'force-dynamic';
-
-export default async function NewExitPage() {
-    const session = await getSession();
-    if (!session?.user) redirect('/login');
-
+export default function NewExitPage() {
     return (
-        <EntityListShell
-            title="New Exit"
-            subtitle="Record an offboarding case with clearance and F&F tracking."
-        >
-            <ExitForm />
-        </EntityListShell>
+        <LiveDocumentEditor
+            documentType="exit_letter"
+            saveAction={saveLiveDocument}
+            backHref="/dashboard/hrm/hr/exits"
+        />
     );
 }

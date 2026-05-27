@@ -16,14 +16,12 @@
 use axum::{
     Json,
     extract::{Path, Query, State},
-    http::HeaderMap,
 };
 use bson::{Document, doc, oid::ObjectId};
-use futures::stream::{FuturesUnordered, StreamExt};
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
-use tracing::{debug, info, instrument, warn};
+use tracing::{debug, instrument};
 use wachat_templates::LibraryTemplate;
 use wachat_templates_categories::{LibraryTemplateId, SaveLibraryTemplateReq};
 use wachat_templates_mutate::{
@@ -34,9 +32,9 @@ use wachat_types::{Project, Template};
 
 use crate::dto::{
     ApplyLibraryBody, ApplyLibraryResponse, BulkCreateBody, BulkCreateResponse, BulkFailure,
-    CreateFlowTemplateBody, CreateTemplateBody, CronSyncAllResponse, CronSyncProjectOutcome,
-    CronTokenQuery, DeleteByNameQuery, EditTemplateBody, OkResponse, ProjectIdQuery,
-    SaveLibraryResponse, SendResponse, SendTemplateBody, SyncRequest, SyncResponse, oid_hex,
+    CreateFlowTemplateBody, CreateTemplateBody, DeleteByNameQuery, EditTemplateBody, OkResponse,
+    ProjectIdQuery, SaveLibraryResponse, SendResponse, SendTemplateBody, SyncRequest,
+    SyncResponse, oid_hex,
 };
 use crate::state::TemplatesState;
 

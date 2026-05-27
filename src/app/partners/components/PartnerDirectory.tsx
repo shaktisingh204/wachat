@@ -59,7 +59,7 @@ export function PartnerDirectory() {
 
       <div className="grid sm:grid-cols-2 gap-4">
         {filteredPartners.length > 0 ? filteredPartners.map(partner => (
-          <div key={partner.id} className="p-5 border border-white/10 rounded-lg bg-[#050505] hover:bg-white/5 transition-colors group flex flex-col h-full">
+          <div key={partner.id} className="p-5 border border-white/10 rounded-lg bg-zoru-ink hover:bg-white/5 transition-colors group flex flex-col h-full">
             <div className="flex justify-between items-start mb-3">
               <h4 className="font-bold text-base text-white">{partner.name}</h4>
               <Badge variant="outline" className="border-white/20 text-white/70 text-[10px] font-normal uppercase tracking-wider">

@@ -17,7 +17,7 @@ pub mod state;
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::{get, post}};
+use axum::{Router, extract::FromRef, routing::get};
 use sabnode_db::mongo::MongoHandle;
 
 pub use state::SabChatPublicApiState;

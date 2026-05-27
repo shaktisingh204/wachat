@@ -292,6 +292,7 @@ impl EventBus {
     /// Internal Mongo handle accessor — exposed `pub(crate)` so the
     /// HTTP handlers can read the persisted log without re-threading
     /// the handle.
+    #[allow(dead_code)]
     pub(crate) fn mongo(&self) -> &MongoHandle {
         &self.mongo
     }

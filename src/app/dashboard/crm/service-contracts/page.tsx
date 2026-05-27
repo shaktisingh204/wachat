@@ -112,7 +112,7 @@ export default async function ServiceContractsPage() {
       }
     >
       {loadError ? (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
+        <div className="rounded-md border border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink">
           Could not load service contracts. Please try again.
         </div>
       ) : null}

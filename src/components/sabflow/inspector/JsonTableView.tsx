@@ -35,14 +35,14 @@ function formatCell(v: unknown): { text: string; cls: string } {
   if (typeof v === 'string') {
     return {
       text: v.length > 120 ? `${v.slice(0, 117)}…` : v,
-      cls: 'text-emerald-600 dark:text-emerald-400',
+      cls: 'text-zoru-ink dark:text-zoru-ink-muted',
     };
   }
   if (typeof v === 'number') {
-    return { text: String(v), cls: 'text-sky-600 dark:text-sky-400' };
+    return { text: String(v), cls: 'text-zoru-ink dark:text-zoru-ink-muted' };
   }
   if (typeof v === 'boolean') {
-    return { text: String(v), cls: 'text-[#f76808]' };
+    return { text: String(v), cls: 'text-zoru-ink' };
   }
   if (Array.isArray(v)) {
     return { text: `Array(${v.length})`, cls: 'text-[var(--gray-9)] italic' };

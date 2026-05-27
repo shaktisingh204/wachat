@@ -151,9 +151,9 @@ export default function CacheCheckerPage() {
   };
 
   const StatusBadge = ({ status }: { status: CacheResult['googleCacheStatus'] }) => {
-    if (status === 'pending') return <Badge variant="outline" className="text-gray-500">Pending</Badge>;
+    if (status === 'pending') return <Badge variant="outline" className="text-zoru-ink">Pending</Badge>;
     if (status === 'loading') return <Badge variant="secondary" className="animate-pulse">Checking...</Badge>;
-    if (status === 'cached') return <Badge className="bg-green-500 hover:bg-green-600">Cached</Badge>;
+    if (status === 'cached') return <Badge className="bg-zoru-ink hover:bg-zoru-ink">Cached</Badge>;
     if (status === 'not-cached') return <Badge variant="destructive">Not Cached</Badge>;
     return <Badge variant="destructive">Error</Badge>;
   };
@@ -176,7 +176,7 @@ export default function CacheCheckerPage() {
       {results.length > 0 && (
         <Card className="mt-8">
           <ZoruCardContent className="p-0">
-            <div className="flex justify-between items-center p-4 border-b border-border/50">
+            <div className="flex justify-between items-center p-4 border-b border-zoru-line/50">
               <h3 className="text-lg font-semibold">Results</h3>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={copyToClipboard}>
@@ -212,7 +212,7 @@ export default function CacheCheckerPage() {
                               href={r.googleCacheUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-blue-500 hover:underline"
+                              className="text-xs text-zoru-ink hover:underline"
                             >
                               View
                             </a>
@@ -227,7 +227,7 @@ export default function CacheCheckerPage() {
                               href={r.waybackUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-blue-500 hover:underline"
+                              className="text-xs text-zoru-ink hover:underline"
                             >
                               View
                             </a>

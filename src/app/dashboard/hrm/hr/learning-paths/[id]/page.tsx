@@ -126,7 +126,7 @@ export default async function LearningPathDetailPage({
                         strokeWidth="4"
                       />
                       <path
-                        className="text-primary transition-all duration-500 ease-in-out"
+                        className="text-zoru-ink transition-all duration-500 ease-in-out"
                         strokeDasharray={`${steps.length > 0 ? (steps.filter(s => s.done).length / steps.length) * 100 : 0}, 100`}
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         fill="none"
@@ -140,14 +140,14 @@ export default async function LearningPathDetailPage({
                   </div>
                   <div className="flex gap-2">
                     {steps.length > 0 && steps.every(s => s.done) ? (
-                      <div className="flex flex-col items-center p-2 border border-yellow-400 bg-yellow-50 rounded-md">
-                        <Trophy className="h-6 w-6 text-yellow-500 mb-1" />
-                        <span className="text-xs font-semibold text-yellow-700">Mastery Badge</span>
+                      <div className="flex flex-col items-center p-2 border border-zoru-line bg-zoru-surface-2 rounded-md">
+                        <Trophy className="h-6 w-6 text-zoru-ink mb-1" />
+                        <span className="text-xs font-semibold text-zoru-ink">Mastery Badge</span>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center p-2 border border-zoru-line bg-muted rounded-md opacity-50">
-                        <Award className="h-6 w-6 text-muted-foreground mb-1" />
-                        <span className="text-xs font-semibold text-muted-foreground">Keep Going</span>
+                      <div className="flex flex-col items-center p-2 border border-zoru-line bg-zoru-surface-2 rounded-md opacity-50">
+                        <Award className="h-6 w-6 text-zoru-ink-muted mb-1" />
+                        <span className="text-xs font-semibold text-zoru-ink-muted">Keep Going</span>
                       </div>
                     )}
                   </div>

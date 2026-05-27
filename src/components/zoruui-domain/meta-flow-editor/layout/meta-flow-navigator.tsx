@@ -91,8 +91,8 @@ export function MetaFlowNavigator({
     }, [paletteQuery]);
 
     return (
-        <div className="flex h-full flex-col border-r bg-muted/10">
-            <div className="flex items-center justify-between border-b bg-background p-3">
+        <div className="flex h-full flex-col border-r bg-zoru-surface-2/10">
+            <div className="flex items-center justify-between border-b bg-zoru-surface p-3">
                 <span className="flex items-center gap-2 text-sm font-semibold">
                     <Layers className="h-4 w-4" /> Flow builder
                 </span>
@@ -111,7 +111,7 @@ export function MetaFlowNavigator({
 
                 <TabsContent value="screens" className="m-0 flex-1 overflow-hidden">
                     <div className="flex items-center justify-between px-3 py-2">
-                        <span className="text-[10.5px] font-medium uppercase tracking-wide text-muted-foreground">
+                        <span className="text-[10.5px] font-medium uppercase tracking-wide text-zoru-ink-muted">
                             {screens.length} screen{screens.length === 1 ? '' : 's'}
                         </span>
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onAddScreen} title="Add screen">
@@ -126,17 +126,17 @@ export function MetaFlowNavigator({
                                     <AccordionItem value={screen.id} key={screen.id} className="mb-1 border-b-0">
                                         <div className={cn(
                                             "group flex items-center rounded-md pr-1 transition-colors",
-                                            selectedScreenId === screen.id ? "bg-accent text-accent-foreground" : "hover:bg-muted",
+                                            selectedScreenId === screen.id ? "bg-zoru-surface-2 text-zoru-ink" : "hover:bg-zoru-surface-2",
                                         )}>
                                             <AccordionTrigger
                                                 onClick={() => onSelectScreen(screen.id)}
                                                 className="flex-1 px-3 py-2 text-sm hover:no-underline"
                                             >
                                                 <div className="flex items-center gap-2 overflow-hidden">
-                                                    <Layout className="h-3 w-3 flex-shrink-0 text-muted-foreground" />
+                                                    <Layout className="h-3 w-3 flex-shrink-0 text-zoru-ink-muted" />
                                                     <span className="truncate">{screen.title || screen.id}</span>
                                                     {screen.terminal ? (
-                                                        <span className="ml-1 rounded bg-green-100 px-1 text-[9px] font-semibold uppercase text-green-800 dark:bg-green-950 dark:text-green-300">
+                                                        <span className="ml-1 rounded bg-zoru-surface-2 px-1 text-[9px] font-semibold uppercase text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
                                                             terminal
                                                         </span>
                                                     ) : null}
@@ -164,7 +164,7 @@ export function MetaFlowNavigator({
 
                                                 <Button
                                                     variant="ghost" size="icon"
-                                                    className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                                                    className="h-6 w-6 text-zoru-ink-muted hover:text-zoru-ink"
                                                     onClick={(e) => { e.stopPropagation(); onDeleteScreen(screen.id); }}
                                                     title="Delete screen"
                                                 >
@@ -176,7 +176,7 @@ export function MetaFlowNavigator({
                                         <AccordionContent className="pb-2 pl-4 pr-1 pt-1">
                                             <div className="space-y-0.5 border-l px-2">
                                                 {comps.length === 0 ? (
-                                                    <div className="px-2 py-2 text-[11px] italic text-muted-foreground/60">
+                                                    <div className="px-2 py-2 text-[11px] italic text-zoru-ink-muted/60">
                                                         No components. Open the Components tab to add.
                                                     </div>
                                                 ) : comps.map((comp: any, idx: number) => (
@@ -185,21 +185,21 @@ export function MetaFlowNavigator({
                                                         className={cn(
                                                             "group/row flex cursor-pointer items-center justify-between rounded-sm px-2 py-1.5 text-xs transition-colors",
                                                             (selectedComponent === comp || (selectedComponent?.name && selectedComponent.name === comp.name))
-                                                                ? "bg-primary/10 font-medium text-primary"
-                                                                : "text-muted-foreground hover:bg-muted",
+                                                                ? "bg-zoru-ink/10 font-medium text-zoru-ink"
+                                                                : "text-zoru-ink-muted hover:bg-zoru-surface-2",
                                                         )}
                                                         onClick={(e) => { e.stopPropagation(); onSelectScreen(screen.id); onSelectComponent(comp); }}
                                                     >
                                                         <span className="flex flex-1 items-center gap-2 truncate">
                                                             {comp.type === 'Footer' ? <MousePointerClick className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                                                             <span className="truncate">{comp.label || comp.text || comp.name || comp.type}</span>
-                                                            <span className="ml-auto shrink-0 rounded bg-muted px-1 py-px font-mono text-[9px] text-muted-foreground">
+                                                            <span className="ml-auto shrink-0 rounded bg-zoru-surface-2 px-1 py-px font-mono text-[9px] text-zoru-ink-muted">
                                                                 {comp.type}
                                                             </span>
                                                         </span>
                                                         <Button
                                                             variant="ghost" size="icon"
-                                                            className="-mr-1 h-5 w-5 opacity-0 hover:bg-destructive/10 hover:text-destructive group-hover/row:opacity-100"
+                                                            className="-mr-1 h-5 w-5 opacity-0 hover:bg-zoru-ink/10 hover:text-zoru-ink group-hover/row:opacity-100"
                                                             onClick={(e) => { e.stopPropagation(); onDeleteComponent(comp.name || comp); }}
                                                         >
                                                             <Trash2 className="h-3 w-3" />
@@ -214,9 +214,9 @@ export function MetaFlowNavigator({
                         </Accordion>
 
                         {screens.length === 0 ? (
-                            <div className="py-8 text-center text-sm text-muted-foreground">
+                            <div className="py-8 text-center text-sm text-zoru-ink-muted">
                                 <p>No screens yet.</p>
-                                <Button variant="link" size="sm" onClick={onAddScreen} className="mt-2 text-primary">
+                                <Button variant="link" size="sm" onClick={onAddScreen} className="mt-2 text-zoru-ink">
                                     Add your first screen
                                 </Button>
                             </div>
@@ -227,7 +227,7 @@ export function MetaFlowNavigator({
                 <TabsContent value="palette" className="m-0 flex-1 overflow-hidden">
                     <div className="border-b px-3 py-2">
                         <div className="relative">
-                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
+                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-zoru-ink-muted" />
                             <Input
                                 value={paletteQuery}
                                 onChange={(e) => setPaletteQuery(e.target.value)}
@@ -236,11 +236,11 @@ export function MetaFlowNavigator({
                             />
                         </div>
                         {!selectedScreenId ? (
-                            <p className="mt-2 text-[10.5px] text-destructive">
+                            <p className="mt-2 text-[10.5px] text-zoru-ink">
                                 Select a screen first to add components.
                             </p>
                         ) : (
-                            <p className="mt-2 text-[10.5px] text-muted-foreground">
+                            <p className="mt-2 text-[10.5px] text-zoru-ink-muted">
                                 Adding to <span className="font-mono">{selectedScreenId}</span>
                             </p>
                         )}
@@ -249,7 +249,7 @@ export function MetaFlowNavigator({
                     <ScrollArea className="h-[calc(100%-4.5rem)] px-2 py-2">
                         {filteredPalette.map((group) => (
                             <div key={group.name} className="mb-3">
-                                <div className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                <div className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                                     {group.name}
                                 </div>
                                 <div className="grid grid-cols-2 gap-1.5">
@@ -264,16 +264,16 @@ export function MetaFlowNavigator({
                                                 title={c.description}
                                                 className={cn(
                                                     "group flex flex-col items-start gap-1 rounded-md border p-2 text-left transition-colors",
-                                                    "bg-background hover:border-primary hover:bg-primary/5",
-                                                    "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border disabled:hover:bg-background",
+                                                    "bg-zoru-surface hover:border-primary hover:bg-zoru-ink/5",
+                                                    "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-zoru-line disabled:hover:bg-zoru-surface",
                                                 )}
                                             >
                                                 <div className="flex w-full items-center justify-between">
-                                                    <Icon className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
-                                                    <Plus className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100" />
+                                                    <Icon className="h-3.5 w-3.5 text-zoru-ink-muted group-hover:text-zoru-ink" />
+                                                    <Plus className="h-3 w-3 text-zoru-ink-muted opacity-0 group-hover:opacity-100" />
                                                 </div>
                                                 <span className="text-[11.5px] font-semibold leading-tight">{c.label}</span>
-                                                <span className="line-clamp-2 text-[10px] leading-snug text-muted-foreground">{c.description}</span>
+                                                <span className="line-clamp-2 text-[10px] leading-snug text-zoru-ink-muted">{c.description}</span>
                                             </button>
                                         );
                                     })}
@@ -281,7 +281,7 @@ export function MetaFlowNavigator({
                             </div>
                         ))}
                         {filteredPalette.length === 0 ? (
-                            <div className="px-2 py-6 text-center text-[11px] text-muted-foreground">
+                            <div className="px-2 py-6 text-center text-[11px] text-zoru-ink-muted">
                                 No components match "{paletteQuery}".
                             </div>
                         ) : null}

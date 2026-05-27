@@ -43,7 +43,7 @@ function fmtPeriod(p: string | undefined): string {
 
 function FormattedAmount({ amount }: { amount: number | null | undefined }) {
     if (amount === null || amount === undefined) {
-        return <span className="text-red-500 font-medium">N/A</span>;
+        return <span className="text-zoru-ink font-medium">N/A</span>;
     }
     return <>{inr.format(amount)}</>;
 }

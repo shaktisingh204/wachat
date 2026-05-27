@@ -53,7 +53,7 @@ use std::sync::Arc;
 use axum::{
     Router,
     extract::FromRef,
-    routing::{delete, get, post},
+    routing::{get, post},
 };
 use sabnode_auth::AuthConfig;
 

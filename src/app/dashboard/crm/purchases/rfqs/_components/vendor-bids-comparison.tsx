@@ -36,9 +36,9 @@ export function VendorBidsComparison({ bids }: VendorBidsComparisonProps) {
                     <table className="w-full text-sm border-collapse">
                         <thead>
                             <tr>
-                                <th className="border p-2 text-left bg-muted">Item / Vendor</th>
+                                <th className="border p-2 text-left bg-zoru-surface-2">Item / Vendor</th>
                                 {bids.map((b) => (
-                                    <th key={b._id} className="border p-2 text-right bg-muted">
+                                    <th key={b._id} className="border p-2 text-right bg-zoru-surface-2">
                                         {b.vendorName || b.vendorId || 'Unknown'}
                                     </th>
                                 ))}
@@ -53,7 +53,7 @@ export function VendorBidsComparison({ bids }: VendorBidsComparisonProps) {
                                         return (
                                             <td key={b._id} className="border p-2 text-right">
                                                 {item ? `${b.currency || 'INR'} ${item.rate}` : '—'}
-                                                <div className="text-xs text-muted-foreground">
+                                                <div className="text-xs text-zoru-ink-muted">
                                                     Qty: {item?.qty || 0}
                                                 </div>
                                             </td>
@@ -61,7 +61,7 @@ export function VendorBidsComparison({ bids }: VendorBidsComparisonProps) {
                                     })}
                                 </tr>
                             ))}
-                            <tr className="bg-muted/50 font-bold">
+                            <tr className="bg-zoru-surface-2/50 font-bold">
                                 <td className="border p-2">Total</td>
                                 {bids.map((b) => (
                                     <td key={b._id} className="border p-2 text-right">

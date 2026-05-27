@@ -88,7 +88,7 @@ export function WhatsAppSendNode({ config, onChange, className }: WhatsAppSendNo
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#25d366]/10 text-[#25d366]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink/10 text-zoru-ink-muted">
           <LuSend className="h-4 w-4" strokeWidth={2} />
         </div>
         <div>
@@ -136,7 +136,7 @@ export function WhatsAppSendNode({ config, onChange, className }: WhatsAppSendNo
               className={cn(
                 'flex flex-col items-center gap-1 rounded-lg border py-2 px-1 text-[11px] font-medium transition-colors',
                 config.messageType === type
-                  ? 'border-[#25d366]/40 bg-[#25d366]/8 text-[#25d366]'
+                  ? 'border-zoru-line/40 bg-zoru-ink/8 text-zoru-ink-muted'
                   : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:border-[var(--gray-6)]',
               )}
             >
@@ -284,7 +284,7 @@ function TemplateEditor({ config, onChange }: WhatsAppSendNodeProps) {
               <button
                 type="button"
                 onClick={() => removeComponent(ci)}
-                className="flex h-5 w-5 items-center justify-center rounded text-[var(--gray-8)] hover:text-red-500 transition-colors"
+                className="flex h-5 w-5 items-center justify-center rounded text-[var(--gray-8)] hover:text-zoru-ink transition-colors"
               >
                 <LuX className="h-3.5 w-3.5" strokeWidth={2} />
               </button>
@@ -304,7 +304,7 @@ function TemplateEditor({ config, onChange }: WhatsAppSendNodeProps) {
             <button
               type="button"
               onClick={() => addParam(ci)}
-              className="flex items-center gap-1 text-[11.5px] text-[#f76808] hover:text-[#e25c00] transition-colors"
+              className="flex items-center gap-1 text-[11.5px] text-zoru-ink hover:text-zoru-ink transition-colors"
             >
               <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
               Add parameter
@@ -394,7 +394,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       onClick={() => onChange(!checked)}
       className={cn(
         'relative h-5 w-9 rounded-full transition-colors',
-        checked ? 'bg-[#f76808]' : 'bg-[var(--gray-5)]',
+        checked ? 'bg-zoru-ink' : 'bg-[var(--gray-5)]',
       )}
     >
       <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform', checked ? 'translate-x-4' : 'translate-x-0.5')} />
@@ -422,4 +422,4 @@ function OutputSchema({ accent, fields }: { accent: string; fields: OutputField[
 }
 
 const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808] transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';

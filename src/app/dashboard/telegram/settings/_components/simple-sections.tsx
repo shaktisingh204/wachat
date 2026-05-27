@@ -429,7 +429,7 @@ export function NotificationsSection({
                         placeholder="https://hooks.slack.com/services/..."
                     />
                     {!slackOk ? (
-                        <p className="text-xs text-red-500">Must be a hooks.slack.com URL.</p>
+                        <p className="text-xs text-zoru-ink">Must be a hooks.slack.com URL.</p>
                     ) : null}
                 </div>
                 <div className="md:col-span-2">

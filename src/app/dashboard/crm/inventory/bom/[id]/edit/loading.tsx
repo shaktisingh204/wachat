@@ -4,9 +4,9 @@ export default function Loading() {
   return (
     <div className="flex min-h-[400px] w-full items-center justify-center rounded-md border border-dashed p-8 text-center animate-in fade-in-50">
       <div className="flex flex-col items-center gap-2">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="h-8 w-8 animate-spin text-zoru-ink-muted" />
         <h3 className="text-lg font-medium">Loading BOM Editor</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-zoru-ink-muted">
           Please wait while we load the bill of materials details...
         </p>
       </div>

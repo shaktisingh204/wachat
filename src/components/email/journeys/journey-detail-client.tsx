@@ -177,7 +177,7 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
       <div
         role="tablist"
         aria-label="Journey view"
-        className="inline-flex items-center rounded-lg border border-border bg-zoru-surface-2 p-1"
+        className="inline-flex items-center rounded-lg border border-zoru-line bg-zoru-surface-2 p-1"
       >
         <SegmentedButton active={tab === 'canvas'}   onClick={() => setTab('canvas')}>
           <GitBranch className="h-4 w-4" /> Canvas
@@ -301,7 +301,7 @@ function ReportTab({ journeyId }: { journeyId: string }) {
         {Object.keys(report.perNode).length === 0 ? (
           <p className="text-sm text-zoru-ink-muted">No node-level data yet — runs haven't accumulated.</p>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-zoru-line">
             {Object.entries(report.perNode).map(([nodeId, stats]) => (
               <li key={nodeId} className="flex items-center justify-between py-2 text-sm">
                 <span className="font-mono text-xs">{nodeId}</span>

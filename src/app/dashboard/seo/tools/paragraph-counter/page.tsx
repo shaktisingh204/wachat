@@ -66,26 +66,26 @@ export default function ParagraphCounterPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Card>
               <ZoruCardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
-                <div className="text-3xl font-bold text-primary">{p}</div>
-                <div className="text-sm font-medium text-muted-foreground mt-1">Paragraphs</div>
+                <div className="text-3xl font-bold text-zoru-ink">{p}</div>
+                <div className="text-sm font-medium text-zoru-ink-muted mt-1">Paragraphs</div>
               </ZoruCardContent>
             </Card>
             <Card>
               <ZoruCardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
-                <div className="text-3xl font-bold text-primary">{s}</div>
-                <div className="text-sm font-medium text-muted-foreground mt-1">Sentences</div>
+                <div className="text-3xl font-bold text-zoru-ink">{s}</div>
+                <div className="text-sm font-medium text-zoru-ink-muted mt-1">Sentences</div>
               </ZoruCardContent>
             </Card>
             <Card>
               <ZoruCardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
-                <div className="text-3xl font-bold text-primary">{w}</div>
-                <div className="text-sm font-medium text-muted-foreground mt-1">Words</div>
+                <div className="text-3xl font-bold text-zoru-ink">{w}</div>
+                <div className="text-sm font-medium text-zoru-ink-muted mt-1">Words</div>
               </ZoruCardContent>
             </Card>
             <Card>
               <ZoruCardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
-                <div className="text-3xl font-bold text-primary">{readTime}</div>
-                <div className="text-sm font-medium text-muted-foreground mt-1">Min Read</div>
+                <div className="text-3xl font-bold text-zoru-ink">{readTime}</div>
+                <div className="text-sm font-medium text-zoru-ink-muted mt-1">Min Read</div>
               </ZoruCardContent>
             </Card>
           </div>
@@ -93,13 +93,13 @@ export default function ParagraphCounterPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
              <Card>
               <ZoruCardContent className="p-4 flex justify-between items-center h-full">
-                <div className="text-sm font-medium text-muted-foreground">Characters (no spaces)</div>
+                <div className="text-sm font-medium text-zoru-ink-muted">Characters (no spaces)</div>
                 <div className="text-xl font-bold">{charsWithoutSpaces}</div>
               </ZoruCardContent>
             </Card>
             <Card>
               <ZoruCardContent className="p-4 flex justify-between items-center h-full">
-                <div className="text-sm font-medium text-muted-foreground">Characters (with spaces)</div>
+                <div className="text-sm font-medium text-zoru-ink-muted">Characters (with spaces)</div>
                 <div className="text-xl font-bold">{charsWithSpaces}</div>
               </ZoruCardContent>
             </Card>
@@ -118,7 +118,7 @@ export default function ParagraphCounterPage() {
                 </div>
                 <Progress value={text ? Math.min(100, Math.max(0, readingEase)) : 0} className="h-2 mb-3" />
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted-foreground">0-100 (Higher is easier)</span>
+                  <span className="text-xs text-zoru-ink-muted">0-100 (Higher is easier)</span>
                   <Badge tone={readingFeedback.tone}>{readingFeedback.label}</Badge>
                 </div>
               </div>
@@ -128,7 +128,7 @@ export default function ParagraphCounterPage() {
                   <div className="text-sm font-medium">Flesch-Kincaid Grade Level</div>
                   <div className="text-2xl font-bold">{text ? Math.max(0, gradeLevel).toFixed(1) : 0}</div>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-zoru-ink-muted">
                   Approximate years of schooling required to understand the text.
                 </p>
               </div>
@@ -141,13 +141,13 @@ export default function ParagraphCounterPage() {
               {keywords.length > 0 ? (
                 <div className="space-y-6">
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-3">Top Words</h4>
+                    <h4 className="text-sm font-medium text-zoru-ink-muted mb-3">Top Words</h4>
                     <div className="space-y-2.5">
                       {keywords.slice(0, 5).map((kw, i) => (
                         <div key={i} className="flex items-center justify-between">
                           <span className="text-sm font-medium truncate max-w-[120px]" title={kw.word}>{kw.word}</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground w-4 text-right">{kw.count}</span>
+                            <span className="text-xs text-zoru-ink-muted w-4 text-right">{kw.count}</span>
                             <Badge variant="secondary" className="text-[10px] h-5 px-1.5 w-12 justify-center">{kw.density.toFixed(1)}%</Badge>
                           </div>
                         </div>
@@ -157,13 +157,13 @@ export default function ParagraphCounterPage() {
                   
                   {bigrams.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-medium text-muted-foreground mb-3">Top 2-Word Phrases</h4>
+                      <h4 className="text-sm font-medium text-zoru-ink-muted mb-3">Top 2-Word Phrases</h4>
                       <div className="space-y-2.5">
                         {bigrams.slice(0, 5).map((bg, i) => (
                           <div key={i} className="flex items-center justify-between">
                             <span className="text-sm font-medium truncate max-w-[120px]" title={bg.word}>{bg.word}</span>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-muted-foreground w-4 text-right">{bg.count}</span>
+                              <span className="text-xs text-zoru-ink-muted w-4 text-right">{bg.count}</span>
                               <Badge variant="secondary" className="text-[10px] h-5 px-1.5 w-12 justify-center">{bg.density.toFixed(1)}%</Badge>
                             </div>
                           </div>
@@ -173,7 +173,7 @@ export default function ParagraphCounterPage() {
                   )}
                 </div>
               ) : (
-                <div className="text-sm text-muted-foreground text-center py-8">
+                <div className="text-sm text-zoru-ink-muted text-center py-8">
                   Paste some text to see keyword density.
                 </div>
               )}

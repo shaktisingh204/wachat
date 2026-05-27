@@ -165,10 +165,10 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
               placeholder="https://example.com/thanks (optional)"
             />
           </div>
-          <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
+          <div className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-2 sm:col-span-2">
             <div className="flex flex-col">
               <Label htmlFor="captcha-toggle">Require CAPTCHA</Label>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-zoru-ink-muted">
                 Recommended for public-facing forms to deter bot
                 submissions.
               </span>

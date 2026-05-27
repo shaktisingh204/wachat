@@ -28,9 +28,9 @@ export const leadCaptureTemplate: TemplateDefinition = {
   name: 'Lead Capture',
   description: 'Collect name, email, and phone number from prospects.',
   emoji: '🎯',
-  color: 'text-blue-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuUserRoundSearch,
   category: 'Marketing',
   build: () => {
@@ -88,9 +88,9 @@ export const customerSupportTemplate: TemplateDefinition = {
   name: 'Customer Support',
   description: 'Route users to the right support agent or knowledge base.',
   emoji: '🎧',
-  color: 'text-purple-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuHeadphones,
   category: 'Support',
   build: () => {
@@ -157,9 +157,9 @@ export const feedbackSurveyTemplate: TemplateDefinition = {
   name: 'Feedback Survey',
   description: 'Gather product or service feedback with ratings and comments.',
   emoji: '📝',
-  color: 'text-green-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuMessageSquareText,
   category: 'Marketing',
   build: () => {
@@ -225,9 +225,9 @@ export const quizTemplate: TemplateDefinition = {
   name: 'Quiz',
   description: 'Engage users with a trivia or knowledge quiz.',
   emoji: '🧠',
-  color: 'text-orange-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuBrain,
   category: 'Marketing',
   build: () => {

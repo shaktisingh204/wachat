@@ -51,7 +51,7 @@ export function MergeTagPicker({ onPick }: MergeTagPickerProps) {
                 onClick={() => onPick(`{{${tag.key}}}`)}
               >
                 <span className="font-medium">{tag.label}</span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-zoru-ink-muted">
                   <code className="font-mono">{`{{${tag.key}}}`}</code>
                   {tag.description ? ` — ${tag.description}` : null}
                 </span>

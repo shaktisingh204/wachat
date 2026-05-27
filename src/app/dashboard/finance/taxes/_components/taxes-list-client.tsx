@@ -254,7 +254,7 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
       }
     >
       {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+        <div className="mb-4 rounded-md border border-zoru-line bg-zoru-surface-2 p-4 text-sm text-zoru-ink">
           {error}
         </div>
       )}
@@ -262,15 +262,15 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
       {/* Summary Widgets */}
       <div className="grid gap-4 md:grid-cols-3 mb-6">
         <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <div className="text-sm font-medium text-muted-foreground mb-2">Total Taxable Income</div>
+          <div className="text-sm font-medium text-zoru-ink-muted mb-2">Total Taxable Income</div>
           <div className="text-2xl font-bold">{fmtINR(totalTaxable)}</div>
         </div>
         <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <div className="text-sm font-medium text-muted-foreground mb-2">Total Tax Owed</div>
+          <div className="text-sm font-medium text-zoru-ink-muted mb-2">Total Tax Owed</div>
           <div className="text-2xl font-bold">{fmtINR(totalOwed)}</div>
         </div>
         <div className="rounded-xl border bg-white p-6 shadow-sm max-h-[120px] overflow-y-auto">
-          <div className="text-sm font-medium text-muted-foreground mb-2">By Jurisdiction (Owed)</div>
+          <div className="text-sm font-medium text-zoru-ink-muted mb-2">By Jurisdiction (Owed)</div>
           <div className="space-y-1">
             {Object.entries(byJurisdiction).map(([j, vals]: [string, any]) => (
               <div key={j} className="flex justify-between text-sm">
@@ -279,7 +279,7 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
               </div>
             ))}
             {Object.keys(byJurisdiction).length === 0 && (
-              <div className="text-sm text-muted-foreground">No data</div>
+              <div className="text-sm text-zoru-ink-muted">No data</div>
             )}
           </div>
         </div>
@@ -287,7 +287,7 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
 
       <div className="mb-6 flex flex-col sm:flex-row items-center gap-4 justify-between">
         <div className="relative flex-1 w-full max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
           <Input 
             placeholder="Search records..." 
             className="pl-8"
@@ -337,7 +337,7 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
                         <ZoruDropdownMenuItem onClick={() => openEdit(item._id as string)}>
                           <Pencil className="mr-2 h-4 w-4" /> Edit
                         </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem className="text-red-600 focus:bg-red-50" onClick={() => handleDelete(item._id as string)}>
+                        <ZoruDropdownMenuItem className="text-zoru-ink focus:bg-zoru-surface-2" onClick={() => handleDelete(item._id as string)}>
                           <Trash className="mr-2 h-4 w-4" /> Delete
                         </ZoruDropdownMenuItem>
                       </ZoruDropdownMenuContent>
@@ -358,7 +358,7 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
           <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
               <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
-                <div className="font-medium text-sm text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="font-medium text-sm text-zoru-ink-muted capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
                 <div className="col-span-2 text-sm">{String(value)}</div>
               </div>
             ))}

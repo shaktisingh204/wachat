@@ -90,7 +90,7 @@ export default function CartPage(): React.JSX.Element {
                         {li.imageUrl ? (
                             <img src={li.imageUrl} alt={li.name} className="h-16 w-16 rounded-md object-cover" />
                         ) : (
-                            <div className="h-16 w-16 rounded-md bg-gray-100" />
+                            <div className="h-16 w-16 rounded-md bg-zoru-surface-2" />
                         )}
                         <div className="flex-1">
                             <div className="font-medium">{li.name}</div>

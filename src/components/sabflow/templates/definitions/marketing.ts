@@ -28,9 +28,9 @@ export const productRecommendationTemplate: TemplateDefinition = {
   name: 'Product Recommendation',
   description: 'Asks preferences and recommends products with branching logic.',
   emoji: '🎁',
-  color: 'text-pink-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-pink-50 dark:bg-pink-950/30 border-pink-200 dark:border-pink-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuGift,
   category: 'E-commerce',
   build: () => {
@@ -112,9 +112,9 @@ export const newsletterSignupTemplate: TemplateDefinition = {
   name: 'Newsletter Signup',
   description: 'Email capture with interest selection and welcome message.',
   emoji: '📰',
-  color: 'text-indigo-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuNewspaper,
   category: 'Marketing',
   build: () => {
@@ -189,9 +189,9 @@ export const customerOnboardingTemplate: TemplateDefinition = {
   name: 'Customer Onboarding',
   description: 'New customer welcome flow with preferences setup.',
   emoji: '🚀',
-  color: 'text-cyan-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-cyan-50 dark:bg-cyan-950/30 border-cyan-200 dark:border-cyan-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuRocket,
   category: 'Sales',
   build: () => {
@@ -272,9 +272,9 @@ export const saasDemoRequestTemplate: TemplateDefinition = {
   name: 'SaaS Demo Request',
   description: 'Qualify leads with company size and use case questions.',
   emoji: '📝',
-  color: 'text-sky-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-sky-50 dark:bg-sky-950/30 border-sky-200 dark:border-sky-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuClipboardList,
   category: 'Sales',
   build: () => {
@@ -371,9 +371,9 @@ export const mortgageCalculatorTemplate: TemplateDefinition = {
   name: 'Mortgage Calculator',
   description: 'Collects income, loan amount, then calculates estimated payment.',
   emoji: '🏠',
-  color: 'text-emerald-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuHouse,
   category: 'Sales',
   build: () => {

@@ -400,7 +400,7 @@ export function ProvisionWizard({
                 />
               ))}
             </RadioGroup>
-            <div className="rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-800">
+            <div className="rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm text-zoru-ink">
               <strong className="font-semibold">Auto-suggest: </strong>
               {getRecommendedProvider(state.country).reason} (Recommended:{" "}
               {providers.find(p => p.id === getRecommendedProvider(state.country).provider)?.label})
@@ -441,7 +441,7 @@ export function ProvisionWizard({
             <div className="space-y-2">
               <Label htmlFor="pattern">Area code / pattern</Label>
               <div className="relative">
-                <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+                <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
                 <Input
                   id="pattern"
                   value={state.pattern}
@@ -472,7 +472,7 @@ export function ProvisionWizard({
             {(["sms", "mms", "rcs", "voice"] as const).map((cap) => (
               <label
                 key={cap}
-                className="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"
+                className="flex items-center gap-2 rounded-md border border-zoru-line bg-white px-3 py-2 text-sm"
               >
                 <Checkbox
                   checked={state.capabilities[cap]}
@@ -494,7 +494,7 @@ export function ProvisionWizard({
                 placeholder="e.g. SABSMS"
                 maxLength={11}
               />
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-zoru-ink">
                 One-way only. Max 11 chars. Country support varies.
               </p>
             </div>
@@ -567,13 +567,13 @@ export function ProvisionWizard({
         </ZoruCardHeader>
         <ZoruCardContent>
           {available.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-sm text-slate-500">
-              <Phone className="h-6 w-6 text-slate-300" />
+            <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-sm text-zoru-ink">
+              <Phone className="h-6 w-6 text-zoru-ink-muted" />
               <div>No results yet — pick the shape above and search.</div>
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs text-slate-500">
+              <div className="flex items-center justify-between text-xs text-zoru-ink">
                 <div className="flex items-center gap-3">
                   <Button
                     type="button"
@@ -596,9 +596,9 @@ export function ProvisionWizard({
                   Selected {state.selected.size}/{available.length}
                 </div>
               </div>
-              <div className="overflow-hidden rounded-md border border-slate-200">
+              <div className="overflow-hidden rounded-md border border-zoru-line">
                 <table className="w-full text-sm">
-                  <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                  <thead className="bg-zoru-surface-2 text-xs uppercase tracking-wide text-zoru-ink">
                     <tr>
                       <th className="w-10 px-3 py-2"></th>
                       <th className="px-3 py-2 text-left">Number</th>
@@ -613,7 +613,7 @@ export function ProvisionWizard({
                       return (
                         <tr
                           key={n.e164}
-                          className={checked ? "bg-amber-50/50" : undefined}
+                          className={checked ? "bg-zoru-surface-2/50" : undefined}
                         >
                           <td className="px-3 py-2">
                             <Checkbox
@@ -713,8 +713,8 @@ export function ProvisionWizard({
               }
               placeholder="https://… (leave blank to use workspace defaults)"
             />
-            <div className="rounded-md border border-dashed border-slate-200 bg-slate-50 p-3 text-xs text-slate-500">
-              <div className="font-medium text-slate-600">
+            <div className="rounded-md border border-dashed border-zoru-line bg-zoru-surface-2 p-3 text-xs text-zoru-ink">
+              <div className="font-medium text-zoru-ink">
                 Auto-configured webhook preview
               </div>
               <ul className="mt-1 space-y-1 font-mono">
@@ -745,7 +745,7 @@ export function ProvisionWizard({
                 onChange={(e) => patch({ testCallTarget: e.target.value })}
                 placeholder="+15555550100"
               />
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-zoru-ink">
                 Engine doesn{`’`}t support voice yet (Phase 7) — this
                 queues an audit-log entry only.
               </p>
@@ -802,7 +802,7 @@ export function ProvisionWizard({
             <ZoruAlertTitle>Audit log</ZoruAlertTitle>
             <ZoruAlertDescription>
               Every provision (and every test call) writes an entry to{" "}
-              <code className="rounded bg-slate-100 px-1">sabsms_audit_log</code>{" "}
+              <code className="rounded bg-zoru-surface-2 px-1">sabsms_audit_log</code>{" "}
               with the workspace, provider, country, type, attested use
               case and the numbers touched.
             </ZoruAlertDescription>
@@ -811,7 +811,7 @@ export function ProvisionWizard({
       </Card>
 
       {/* Sticky action bar */}
-      <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-3 rounded-md border border-slate-200 bg-white px-4 py-3 shadow-md">
+      <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-3 rounded-md border border-zoru-line bg-white px-4 py-3 shadow-md">
         <div className="flex flex-wrap items-center gap-3 text-xs">
           <Badge variant="secondary">
             <MapPin className="mr-1 h-3 w-3" />
@@ -824,7 +824,7 @@ export function ProvisionWizard({
             est. ${(monthlyCostEstimate / 100).toFixed(2)}/mo
           </span>
           {validationIssues.length > 0 && (
-            <span className="text-amber-700">
+            <span className="text-zoru-ink">
               {validationIssues[0].message}
             </span>
           )}
@@ -870,7 +870,7 @@ export function ProvisionWizard({
               <Label>Tax ID / Registration Number</Label>
               <Input placeholder="XX-XXXXXXX" />
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-zoru-ink">
               This is a mock registration flow for Phase 1. Submitting will mark your workspace as compliant instantly.
             </p>
           </div>

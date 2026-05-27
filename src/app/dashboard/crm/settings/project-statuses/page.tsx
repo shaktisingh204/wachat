@@ -97,23 +97,23 @@ export default function ProjectStatusesPage() {
                         >
                             <div className="space-y-3 text-sm">
                                 <div>
-                                    <div className="text-muted-foreground text-xs">Slug</div>
+                                    <div className="text-zoru-ink-muted text-xs">Slug</div>
                                     <div className="font-mono">{row.slug || '—'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-muted-foreground text-xs">Color</div>
+                                    <div className="text-zoru-ink-muted text-xs">Color</div>
                                     <div className="font-mono">{row.color || '—'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-muted-foreground text-xs">Order</div>
+                                    <div className="text-zoru-ink-muted text-xs">Order</div>
                                     <div>{row.priority != null ? String(row.priority) : '—'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-muted-foreground text-xs">Terminal</div>
+                                    <div className="text-zoru-ink-muted text-xs">Terminal</div>
                                     <div>{row.is_final ? 'Yes' : 'No'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-muted-foreground text-xs">Default</div>
+                                    <div className="text-zoru-ink-muted text-xs">Default</div>
                                     <div>{row.is_default ? 'Yes' : 'No'}</div>
                                 </div>
                             </div>

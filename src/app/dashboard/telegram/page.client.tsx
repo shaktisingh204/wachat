@@ -280,14 +280,14 @@ export default function TelegramOverviewPage() {
 
             {/* Error Display */}
             {error && (
-                <div className="bg-red-50 text-red-600 p-4 rounded-xl flex items-center gap-3 border border-red-100">
+                <div className="bg-zoru-surface-2 text-zoru-ink p-4 rounded-xl flex items-center gap-3 border border-zoru-line">
                     <AlertCircle className="h-5 w-5 shrink-0" />
                     <p className="text-sm font-medium">{error}</p>
                     <Button 
                         variant="ghost" 
                         size="sm" 
                         onClick={() => loadData(true)} 
-                        className="ml-auto text-red-600 hover:text-red-700 hover:bg-red-100"
+                        className="ml-auto text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2"
                     >
                         Try Again
                     </Button>
@@ -379,7 +379,7 @@ export default function TelegramOverviewPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-10 bg-slate-50/50 rounded-xl border border-slate-100">
+                    <div className="text-center py-10 bg-zoru-surface-2/50 rounded-xl border border-zoru-line">
                         <p className="text-zoru-ink-muted text-[13px]">No actions match your search.</p>
                         <Button variant="ghost" size="sm" className="mt-2" onClick={() => setSearchQuery('')}>
                             Clear search

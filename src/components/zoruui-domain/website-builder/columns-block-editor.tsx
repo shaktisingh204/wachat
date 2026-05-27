@@ -29,7 +29,7 @@ export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUp
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
                                 <Label>Columns</Label>
-                                <span className="text-sm text-muted-foreground">{columnCount}</span>
+                                <span className="text-sm text-zoru-ink-muted">{columnCount}</span>
                             </div>
                             <Slider
                                 value={[columnCount]}
@@ -42,7 +42,7 @@ export function ColumnsBlockEditor({ settings, onUpdate }: { settings: any, onUp
                         <div className="space-y-2">
                              <div className="flex justify-between items-center">
                                 <Label>Gap between columns (px)</Label>
-                                <span className="text-sm text-muted-foreground">{settings.gap || 16}px</span>
+                                <span className="text-sm text-zoru-ink-muted">{settings.gap || 16}px</span>
                              </div>
                             <Slider
                                 value={[settings.gap || 16]}

@@ -26,30 +26,30 @@ import { hoverLift, tapShrink } from "@/lib/motion"
  * Falls back gracefully without motion via CSS transitions on `transition-all`.
  */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:grayscale [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:grayscale [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "text-primary-foreground shadow-md hover:shadow-[0_0_24px_-4px_hsl(var(--prism-indigo)/0.5)] [background:linear-gradient(135deg,hsl(var(--prism-indigo)),hsl(var(--prism-violet)))] hover:[background:linear-gradient(135deg,hsl(var(--prism-indigo-hover)),hsl(var(--prism-violet)))]",
+          "text-white shadow-md hover:shadow-[0_0_24px_-4px_hsl(var(--prism-indigo)/0.5)] [background:linear-gradient(135deg,hsl(var(--prism-indigo)),hsl(var(--prism-violet)))] hover:[background:linear-gradient(135deg,hsl(var(--prism-indigo-hover)),hsl(var(--prism-violet)))]",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-md hover:bg-destructive/90 hover:shadow-[0_0_20px_-4px_hsl(var(--prism-rose)/0.45)]",
+          "bg-zoru-ink text-white shadow-md hover:bg-zoru-ink/90 hover:shadow-[0_0_20px_-4px_hsl(var(--prism-rose)/0.45)]",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground hover:border-[hsl(var(--prism-indigo)/0.4)]",
+          "border border-zoru-line bg-zoru-surface hover:bg-zoru-surface-2 hover:text-zoru-ink hover:border-zoru-line",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2/80",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground",
+          "hover:bg-zoru-surface-2 hover:text-zoru-ink",
         link:
-          "text-primary underline-offset-4 hover:underline",
+          "text-zoru-ink underline-offset-4 hover:underline",
         "sidebar-active":
           "bg-[var(--app-light)] text-[var(--app-text)] shadow-[0_0_12px_var(--app-glow)] ring-1 ring-[var(--app-border)] hover:bg-[var(--app-light)] hover:text-[var(--app-text)]",
         premium:
-          "text-primary-foreground shadow-lg [background:var(--prism-gradient)] hover:shadow-[0_0_32px_-4px_hsl(var(--prism-indigo)/0.5),0_8px_24px_-8px_hsl(var(--prism-violet)/0.4)] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/25 before:to-transparent before:translate-x-[-200%] before:transition-transform before:duration-700 hover:before:translate-x-[200%]",
+          "text-white shadow-lg [background:var(--prism-gradient)] hover:shadow-[0_0_32px_-4px_hsl(var(--prism-indigo)/0.5),0_8px_24px_-8px_hsl(var(--prism-violet)/0.4)] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/25 before:to-transparent before:translate-x-[-200%] before:transition-transform before:duration-700 hover:before:translate-x-[200%]",
         glass:
-          "bg-background/40 backdrop-blur-xl border border-white/20 shadow-md hover:bg-background/60 hover:shadow-lg dark:border-white/10 dark:bg-background/30",
+          "bg-zoru-surface/40 backdrop-blur-xl border border-white/20 shadow-md hover:bg-zoru-surface/60 hover:shadow-lg dark:border-white/10 dark:bg-zoru-surface/30",
         shine:
-          "text-primary-foreground shadow-md [background:linear-gradient(135deg,hsl(var(--prism-indigo)),hsl(var(--prism-violet)))] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-500 hover:shadow-[0_0_24px_-4px_hsl(var(--prism-indigo)/0.5)]",
+          "text-white shadow-md [background:linear-gradient(135deg,hsl(var(--prism-indigo)),hsl(var(--prism-violet)))] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-500 hover:shadow-[0_0_24px_-4px_hsl(var(--prism-indigo)/0.5)]",
       },
       size: {
         default: "h-10 px-4 py-2",

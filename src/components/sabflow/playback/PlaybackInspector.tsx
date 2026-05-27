@@ -153,22 +153,22 @@ function StatusPill({ status }: { status: PlaybackStatus }) {
       },
       playing: {
         label: 'Playing',
-        className: 'bg-green-900/60 text-green-300 border border-green-700/40',
+        className: 'bg-zoru-ink/60 text-zoru-ink-muted border border-zoru-line/40',
         icon: <LuPlay className="h-3 w-3" strokeWidth={2} />,
       },
       paused: {
         label: 'Paused',
-        className: 'bg-amber-900/50 text-amber-300 border border-amber-700/40',
+        className: 'bg-zoru-ink/50 text-zoru-ink-muted border border-zoru-line/40',
         icon: <LuPause className="h-3 w-3" strokeWidth={2} />,
       },
       done: {
         label: 'Done',
-        className: 'bg-blue-900/50 text-blue-300 border border-blue-700/40',
+        className: 'bg-zoru-ink/50 text-zoru-ink-muted border border-zoru-line/40',
         icon: <LuCheck className="h-3 w-3" strokeWidth={2} />,
       },
       error: {
         label: 'Error',
-        className: 'bg-red-900/50 text-red-300 border border-red-700/40',
+        className: 'bg-zoru-ink/50 text-zoru-ink-muted border border-zoru-line/40',
         icon: <LuCircleAlert className="h-3 w-3" strokeWidth={2} />,
       },
     };
@@ -234,7 +234,7 @@ function TimelineRow({
       className={cn(
         'group flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors',
         isSelected
-          ? 'bg-[#f76808]/10 border border-[#f76808]/30'
+          ? 'bg-zoru-ink/10 border border-zoru-line/30'
           : 'hover:bg-[var(--gray-2)]',
       )}
     >
@@ -465,7 +465,7 @@ export function PlaybackInspector({
     >
       {/* ── Header ─────────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 shrink-0 border-b border-[var(--gray-5)] px-3 py-2">
-        <LuBraces className="h-4 w-4 text-[#f76808] shrink-0" strokeWidth={2} />
+        <LuBraces className="h-4 w-4 text-zoru-ink shrink-0" strokeWidth={2} />
         <span className="text-[13px] font-semibold text-[var(--gray-12)]">
           Replay
         </span>
@@ -489,7 +489,7 @@ export function PlaybackInspector({
               className={cn(
                 'rounded px-2 py-0.5 text-[11px] font-semibold transition-colors',
                 speed === s
-                  ? 'bg-[#f76808] text-white'
+                  ? 'bg-zoru-ink text-white'
                   : 'text-[var(--gray-9)] hover:text-[var(--gray-12)] hover:bg-[var(--gray-3)]',
               )}
             >
@@ -515,7 +515,7 @@ export function PlaybackInspector({
           onClick={handlePlayPause}
           disabled={events.length === 0}
           aria-label={isPlaying ? 'Pause' : 'Play'}
-          className="flex h-7 w-7 items-center justify-center rounded-md bg-[#f76808] text-white hover:bg-[#e25c00] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-md bg-zoru-ink text-white hover:bg-zoru-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {isPlaying ? (
             <LuPause className="h-3.5 w-3.5" strokeWidth={2.5} />
@@ -558,15 +558,15 @@ export function PlaybackInspector({
           >
             {status === 'loading' || status === 'buffering' ? (
               <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-                <LuLoader className="h-5 w-5 text-[#f76808] animate-spin" strokeWidth={1.75} />
+                <LuLoader className="h-5 w-5 text-zoru-ink animate-spin" strokeWidth={1.75} />
                 <p className="text-[12px] text-[var(--gray-9)]">
                   {status === 'loading' ? 'Connecting to replay stream…' : 'Waiting for events…'}
                 </p>
               </div>
             ) : status === 'error' ? (
               <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-                <LuCircleAlert className="h-5 w-5 text-red-400" strokeWidth={1.75} />
-                <p className="text-[12px] text-red-400">
+                <LuCircleAlert className="h-5 w-5 text-zoru-ink-muted" strokeWidth={1.75} />
+                <p className="text-[12px] text-zoru-ink-muted">
                   {sseError ?? 'Replay stream error'}
                 </p>
               </div>
@@ -622,7 +622,7 @@ export function PlaybackInspector({
               }}
               disabled={events.length === 0}
               aria-label="Playback position"
-              className="flex-1 h-1 accent-[#f76808] cursor-pointer disabled:opacity-40"
+              className="flex-1 h-1 accent-zoru-ink cursor-pointer disabled:opacity-40"
             />
             <span className="text-[10.5px] tabular-nums text-[var(--gray-8)] w-14">
               {events.length > 0 ? formatTs(maxTs, minTs) : '—'}
@@ -663,12 +663,12 @@ export function PlaybackInspector({
               {/* Panel body */}
               <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-4">
                 {selected.error ? (
-                  <div className="rounded-md border border-red-500/30 bg-red-950/30 p-3">
-                    <div className="flex items-center gap-1.5 text-[12px] font-semibold text-red-300 mb-2">
+                  <div className="rounded-md border border-zoru-line/30 bg-zoru-ink/30 p-3">
+                    <div className="flex items-center gap-1.5 text-[12px] font-semibold text-zoru-ink-muted mb-2">
                       <LuCircleAlert className="h-3.5 w-3.5" strokeWidth={2} />
                       Error
                     </div>
-                    <pre className="text-[11px] font-mono leading-relaxed whitespace-pre-wrap break-words text-red-300">
+                    <pre className="text-[11px] font-mono leading-relaxed whitespace-pre-wrap break-words text-zoru-ink-muted">
                       {selected.error}
                     </pre>
                   </div>

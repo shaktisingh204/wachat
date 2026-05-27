@@ -77,17 +77,17 @@ export function MultiSelectCombobox({
                     {option.label}
                     <button
                       type="button"
-                      className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      className="ml-1 rounded-full outline-none ring-offset-zoru-surface focus:ring-2 focus:ring-zoru-line focus:ring-offset-2"
                       onKeyDown={(e) => { if (e.key === "Enter") handleSelect(option.value); }}
                       onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
                       onClick={(e) => { e.stopPropagation(); handleSelect(option.value); }}
                     >
-                      <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                      <X className="h-3 w-3 text-zoru-ink-muted hover:text-zoru-ink" />
                     </button>
                   </Badge>
                 ))
             ) : (
-              <span className="text-muted-foreground font-normal">{placeholder}</span>
+              <span className="text-zoru-ink-muted font-normal">{placeholder}</span>
             )}
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

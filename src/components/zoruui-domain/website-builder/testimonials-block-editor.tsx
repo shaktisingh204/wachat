@@ -66,9 +66,9 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
                             <Input id={`title-${settings.id}`} value={settings.title || 'What Our Customers Say'} onChange={(e) => onUpdate({ ...settings, title: e.target.value })} />
                         </div>
                         {testimonials.map((item: any, index: number) => (
-                            <div key={item.id} className="p-3 border rounded-md space-y-2 relative bg-background">
+                            <div key={item.id} className="p-3 border rounded-md space-y-2 relative bg-zoru-surface">
                                 <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => removeItem(index)}>
-                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                    <Trash2 className="h-4 w-4 text-zoru-ink" />
                                 </Button>
                                 <Label>Testimonial {index + 1}</Label>
                                 <Textarea placeholder="Quote..." value={item.quote || ''} onChange={(e) => handleItemChange(index, 'quote', e.target.value)} />

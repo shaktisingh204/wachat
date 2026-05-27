@@ -60,7 +60,7 @@ export function SubscriptionsSection({
     return (
       <Card>
         <ZoruCardContent className="p-6">
-          <div className="flex items-center gap-2 text-destructive">
+          <div className="flex items-center gap-2 text-zoru-ink">
             <AlertCircle className="h-4 w-4" />
             {error}
           </div>
@@ -120,11 +120,11 @@ function SubscriptionRow({
             <Badge variant="info">
               @{s.botUsername ?? s.botId.slice(0, 8)}
             </Badge>
-            <code className="break-all rounded bg-muted px-2 py-0.5 text-xs">
+            <code className="break-all rounded bg-zoru-surface-2 px-2 py-0.5 text-xs">
               {s.url}
             </code>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
             <span>Max conns: {s.maxConnections}</span>
             <span>•</span>
             <span>Drop pending: {s.dropPendingUpdates ? "on" : "off"}</span>
@@ -146,7 +146,7 @@ function SubscriptionRow({
           </div>
           <div className="flex items-center gap-2 text-xs">
             <Label>Secret:</Label>
-            <code className="rounded bg-muted px-2 py-0.5">
+            <code className="rounded bg-zoru-surface-2 px-2 py-0.5">
               {showSecret ? (s.secretToken ?? "—") : maskSecret(s.secretToken)}
             </code>
             <Button
@@ -175,7 +175,7 @@ function SubscriptionRow({
             )}
           </div>
           {s.lastTelegramErrorMessage && (
-            <div className="flex items-center gap-1 text-xs text-destructive">
+            <div className="flex items-center gap-1 text-xs text-zoru-ink">
               <AlertCircle className="h-3 w-3" />
               {s.lastTelegramErrorMessage}
             </div>

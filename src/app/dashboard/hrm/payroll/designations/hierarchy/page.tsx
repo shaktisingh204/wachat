@@ -146,7 +146,7 @@ function TreeRow({
                     onClick={() => onDelete(node._id)}
                     aria-label="Delete"
                 >
-                    <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                    <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
                 </Button>
             </div>
             {hasChildren && isOpen ? (
@@ -313,7 +313,7 @@ export default function DesignationsHierarchyPage() {
                         ) : null}
                         <div>
                             <Label htmlFor="name" className="text-[13px] text-zoru-ink">
-                                Name <span className="text-red-500">*</span>
+                                Name <span className="text-zoru-ink">*</span>
                             </Label>
                             <Input
                                 id="name"

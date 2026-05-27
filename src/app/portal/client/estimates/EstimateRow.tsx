@@ -23,11 +23,11 @@ function fmtCurrency(n: number, ccy: string): string {
 
 function getStatusColor(status: string) {
     const s = status.toLowerCase();
-    if (s === 'waiting' || s === 'sent') return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    if (s === 'accepted') return 'bg-green-100 text-green-800 border-green-200';
-    if (s === 'declined') return 'bg-red-100 text-red-800 border-red-200';
-    if (s === 'revision-requested') return 'bg-purple-100 text-purple-800 border-purple-200';
-    return 'bg-gray-100 text-gray-800 border-gray-200';
+    if (s === 'waiting' || s === 'sent') return 'bg-zoru-surface-2 text-zoru-ink border-zoru-line';
+    if (s === 'accepted') return 'bg-zoru-surface-2 text-zoru-ink border-zoru-line';
+    if (s === 'declined') return 'bg-zoru-surface-2 text-zoru-ink border-zoru-line';
+    if (s === 'revision-requested') return 'bg-zoru-surface-2 text-zoru-ink border-zoru-line';
+    return 'bg-zoru-surface-2 text-zoru-ink border-zoru-line';
 }
 
 export function EstimateRow({ est }: { est: ClientEstimate }) {
@@ -76,9 +76,9 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
 
     return (
         <>
-            <ZoruTableRow className="cursor-pointer hover:bg-slate-50" onClick={toggleExpand}>
+            <ZoruTableRow className="cursor-pointer hover:bg-zoru-surface-2" onClick={toggleExpand}>
                 <ZoruTableCell className="w-10">
-                    {expanded ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
+                    {expanded ? <ChevronDown className="h-4 w-4 text-zoru-ink-muted" /> : <ChevronRight className="h-4 w-4 text-zoru-ink-muted" />}
                 </ZoruTableCell>
                 <ZoruTableCell className="font-medium text-zoru-ink">{est.number}</ZoruTableCell>
                 <ZoruTableCell>{fmtDate(est.validTill)}</ZoruTableCell>
@@ -100,18 +100,18 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
             </ZoruTableRow>
             {expanded && (
                 <ZoruTableRow>
-                    <ZoruTableCell colSpan={6} className="bg-slate-50 p-0 border-b">
+                    <ZoruTableCell colSpan={6} className="bg-zoru-surface-2 p-0 border-b">
                         <div className="p-6">
                             <h3 className="font-semibold text-lg mb-4">Line Items</h3>
                             {loading ? (
-                                <div className="flex items-center gap-2 text-sm text-slate-500">
+                                <div className="flex items-center gap-2 text-sm text-zoru-ink">
                                     <Loader2 className="h-4 w-4 animate-spin" /> Loading items...
                                 </div>
                             ) : items && items.length > 0 ? (
                                 <div className="space-y-6">
                                     <div className="border rounded-md overflow-hidden bg-white">
                                         <table className="w-full text-sm text-left">
-                                            <thead className="bg-slate-100 text-slate-600 font-medium">
+                                            <thead className="bg-zoru-surface-2 text-zoru-ink font-medium">
                                                 <tr>
                                                     <th className="px-4 py-2 border-b">Description</th>
                                                     <th className="px-4 py-2 border-b text-right">Qty</th>
@@ -128,7 +128,7 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
                                                                 <div>{item.description}</div>
                                                                 {waiting && (
                                                                     <div className="mt-2 text-xs">
-                                                                        <div className="flex items-center gap-1 text-slate-500 mb-1">
+                                                                        <div className="flex items-center gap-1 text-zoru-ink mb-1">
                                                                             <MessageSquare className="h-3 w-3" /> Comment on this item
                                                                         </div>
                                                                         <textarea
@@ -154,7 +154,7 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
                                     {waiting && (
                                         <div className="bg-white p-4 border rounded-md">
                                             <h4 className="font-medium mb-2">Request Revision</h4>
-                                            <p className="text-sm text-slate-500 mb-3">
+                                            <p className="text-sm text-zoru-ink mb-3">
                                                 If you need changes to this estimate before accepting, leave your comments above and provide a general note below.
                                             </p>
                                             <textarea
@@ -164,7 +164,7 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
                                                 className="w-full border rounded p-2 text-sm mb-3"
                                                 rows={3}
                                             />
-                                            {error && <div className="text-red-500 text-sm mb-3">{error}</div>}
+                                            {error && <div className="text-zoru-ink text-sm mb-3">{error}</div>}
                                             <Button 
                                                 onClick={handleRequestRevision} 
                                                 disabled={submitting || (generalComment.trim() === '' && Object.keys(itemComments).filter(k => itemComments[k].trim() !== '').length === 0)}
@@ -175,7 +175,7 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
                                     )}
                                 </div>
                             ) : (
-                                <div className="text-sm text-slate-500 italic">No line items found.</div>
+                                <div className="text-sm text-zoru-ink italic">No line items found.</div>
                             )}
                         </div>
                     </ZoruTableCell>

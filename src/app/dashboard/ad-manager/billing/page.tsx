@@ -180,10 +180,10 @@ export default function BillingPage() {
                     title="Billing"
                     description={`Payment methods, spend and account balance for ${activeAccount.name}.`}
                 />
-                <ZoruCard className="border border-red-500/20 bg-red-500/5 shadow-[var(--zoru-shadow-sm)]">
+                <ZoruCard className="border border-zoru-line/20 bg-zoru-ink/5 shadow-[var(--zoru-shadow-sm)]">
                     <ZoruCardHeader className="pb-3 text-center flex flex-col items-center">
-                        <div className="h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-3">
-                            <Lock className="h-6 w-6 text-red-600 dark:text-red-400" />
+                        <div className="h-12 w-12 rounded-full bg-zoru-surface-2 dark:bg-zoru-ink/30 flex items-center justify-center mb-3">
+                            <Lock className="h-6 w-6 text-zoru-ink dark:text-zoru-ink-muted" />
                         </div>
                         <ZoruCardTitle className="text-xl text-zoru-ink">Connect Billing Permissions</ZoruCardTitle>
                     </ZoruCardHeader>

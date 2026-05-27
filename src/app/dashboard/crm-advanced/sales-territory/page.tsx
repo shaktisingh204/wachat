@@ -131,7 +131,7 @@ export default function SalesTerritoryPage() {
                         <Button variant="ghost" size="sm" onClick={() => handleOpenEdit(item)}>
                           <Edit2 className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 hover:bg-red-500/10" onClick={() => handleDelete(item._id)}>
+                        <Button variant="ghost" size="sm" className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-ink/10" onClick={() => handleDelete(item._id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </td>

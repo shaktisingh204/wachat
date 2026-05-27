@@ -256,7 +256,7 @@ export function ReportsHubClient({
                                                             <button 
                                                                 type="button" 
                                                                 onClick={(e) => toggleFavorite(e, href)}
-                                                                className={`text-zoru-ink-muted hover:text-amber-500 transition-colors ${isFav ? 'text-amber-500 opacity-100' : ''}`}
+                                                                className={`text-zoru-ink-muted hover:text-zoru-ink transition-colors ${isFav ? 'text-zoru-ink opacity-100' : ''}`}
                                                                 aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
                                                             >
                                                                 <Star className="h-4 w-4" fill={isFav ? "currentColor" : "none"} />

@@ -82,12 +82,12 @@ export function TemplateGrid({
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-muted-foreground">
+              <div className="flex h-full items-center justify-center text-zoru-ink-muted">
                 <FileText className="h-8 w-8" />
               </div>
             )}
             {t.isLibrary ? (
-              <Badge variant="outline" className="absolute right-2 top-2 gap-1 bg-card">
+              <Badge variant="outline" className="absolute right-2 top-2 gap-1 bg-zoru-surface">
                 <Sparkles className="h-3 w-3" /> Library
               </Badge>
             ) : null}
@@ -95,7 +95,7 @@ export function TemplateGrid({
           <ZoruCardHeader>
             <ZoruCardTitle className="line-clamp-1 text-sm">{t.name}</ZoruCardTitle>
           </ZoruCardHeader>
-          <ZoruCardContent className="flex-1 text-xs text-muted-foreground">
+          <ZoruCardContent className="flex-1 text-xs text-zoru-ink-muted">
             {t.category ? <span className="mr-2">{t.category}</span> : null}
             <span>Updated {relativeTime(t.updatedAt)}</span>
           </ZoruCardContent>

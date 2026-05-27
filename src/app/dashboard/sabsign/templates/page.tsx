@@ -119,7 +119,7 @@ export default function TemplatesPage() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-red-500"
+                      className="text-zoru-ink"
                       onClick={() => handleDelete(t._id)}
                     >
                       <Trash2 className="h-3 w-3" />

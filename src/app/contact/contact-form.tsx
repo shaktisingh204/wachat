@@ -29,20 +29,20 @@ export function ContactForm() {
         <form action={formAction} ref={formRef} className="space-y-5">
           <div className="space-y-2">
               <Label htmlFor="name" className="text-white">name <span className="text-white/50">*</span></Label>
-              <Input id="name" name="name" required placeholder="string" className="bg-zinc-900 border-white/20 text-white placeholder:text-white/30 rounded-none focus-visible:ring-1 focus-visible:ring-white" />
-              {state.errors?.name && <p className="text-red-500 text-xs mt-1">{state.errors.name[0]}</p>}
+              <Input id="name" name="name" required placeholder="string" className="bg-zoru-ink border-white/20 text-white placeholder:text-white/30 rounded-none focus-visible:ring-1 focus-visible:ring-white" />
+              {state.errors?.name && <p className="text-zoru-ink text-xs mt-1">{state.errors.name[0]}</p>}
           </div>
            <div className="space-y-2">
               <Label htmlFor="email" className="text-white">email <span className="text-white/50">*</span></Label>
-              <Input id="email" name="email" type="email" required placeholder="string ($email)" className="bg-zinc-900 border-white/20 text-white placeholder:text-white/30 rounded-none focus-visible:ring-1 focus-visible:ring-white" />
-              {state.errors?.email && <p className="text-red-500 text-xs mt-1">{state.errors.email[0]}</p>}
+              <Input id="email" name="email" type="email" required placeholder="string ($email)" className="bg-zoru-ink border-white/20 text-white placeholder:text-white/30 rounded-none focus-visible:ring-1 focus-visible:ring-white" />
+              {state.errors?.email && <p className="text-zoru-ink text-xs mt-1">{state.errors.email[0]}</p>}
           </div>
            <div className="space-y-2">
               <Label htmlFor="message" className="text-white">message <span className="text-white/50">*</span></Label>
-              <Textarea id="message" name="message" required minLength={10} placeholder="string" className="bg-zinc-900 border-white/20 text-white placeholder:text-white/30 rounded-none min-h-[120px] focus-visible:ring-1 focus-visible:ring-white" />
-              {state.errors?.message && <p className="text-red-500 text-xs mt-1">{state.errors.message[0]}</p>}
+              <Textarea id="message" name="message" required minLength={10} placeholder="string" className="bg-zoru-ink border-white/20 text-white placeholder:text-white/30 rounded-none min-h-[120px] focus-visible:ring-1 focus-visible:ring-white" />
+              {state.errors?.message && <p className="text-zoru-ink text-xs mt-1">{state.errors.message[0]}</p>}
           </div>
-          <Button type="submit" disabled={pending} className="w-full bg-white text-black hover:bg-zinc-200 rounded-none font-bold uppercase tracking-widest mt-4 disabled:opacity-50">
+          <Button type="submit" disabled={pending} className="w-full bg-white text-black hover:bg-zoru-surface-2 rounded-none font-bold uppercase tracking-widest mt-4 disabled:opacity-50">
             {pending ? 'Executing...' : 'Execute'}
           </Button>
         </form>

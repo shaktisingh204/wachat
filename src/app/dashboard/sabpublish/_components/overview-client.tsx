@@ -95,11 +95,11 @@ export function SabpublishOverviewClient({
                     <div className="font-medium">
                       {j.providerId} · {j.kind}
                     </div>
-                    <div className="text-muted-foreground">
+                    <div className="text-zoru-ink-muted">
                       {new Date(j.startedAt).toLocaleString()}
                     </div>
                   </div>
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
+                  <span className="rounded-full bg-zoru-surface-2 px-2 py-0.5 text-xs">
                     {j.status}
                   </span>
                 </li>

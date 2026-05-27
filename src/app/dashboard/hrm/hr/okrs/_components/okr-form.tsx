@@ -386,7 +386,7 @@ export function OkrForm({ initialData }: OkrFormProps) {
                                             onClick={() => removeKr(kr.id)}
                                             aria-label="Remove key result"
                                         >
-                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
                                         </Button>
                                     </div>
                                     <div className="grid gap-3 sm:grid-cols-4">

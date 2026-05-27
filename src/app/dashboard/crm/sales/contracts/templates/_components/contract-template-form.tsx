@@ -138,7 +138,7 @@ export function ContractTemplateForm({
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <Label htmlFor="name">
-                            Name <span className="text-red-500">*</span>
+                            Name <span className="text-zoru-ink">*</span>
                         </Label>
                         <Input
                             id="name"

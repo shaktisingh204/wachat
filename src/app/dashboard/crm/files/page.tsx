@@ -92,7 +92,7 @@ function TreeNode({
   const isActive = selected === id;
   return (
     <div>
-      <div className={`flex w-full items-center gap-1 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors ${isActive ? 'bg-accent text-accent-foreground' : 'text-zoru-ink hover:bg-zoru-surface-2'}`} style={{ paddingLeft: 8 + depth * 12 }}>
+      <div className={`flex w-full items-center gap-1 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors ${isActive ? 'bg-zoru-surface-2 text-zoru-ink' : 'text-zoru-ink hover:bg-zoru-surface-2'}`} style={{ paddingLeft: 8 + depth * 12 }}>
         {hasChildren ? (
           <button type="button" onClick={() => setIsOpen(!isOpen)} className="p-0.5 hover:bg-black/5 rounded">
              {isOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
@@ -256,18 +256,18 @@ export default function CrmFilesPage() {
                 <a href={previewFile.url} download target="_blank" rel="noreferrer" className="text-sm font-medium hover:underline flex items-center gap-1">
                   <Download className="h-4 w-4" /> Download
                 </a>
-                <button onClick={() => setPreviewFile(null)} className="p-1 hover:bg-gray-100 rounded ml-4">
+                <button onClick={() => setPreviewFile(null)} className="p-1 hover:bg-zoru-surface-2 rounded ml-4">
                   <X className="h-5 w-5" />
                 </button>
               </div>
             </div>
-            <div className="flex-1 bg-gray-100 p-4 relative">
+            <div className="flex-1 bg-zoru-surface-2 p-4 relative">
               {previewFile.mime_type?.startsWith('image/') || previewFile.extension?.match(/^(jpg|jpeg|png|gif|webp)$/i) ? (
                 <img src={previewFile.url} className="w-full h-full object-contain" alt={previewFile.filename} />
               ) : previewFile.mime_type === 'application/pdf' || previewFile.extension === 'pdf' ? (
                 <iframe src={previewFile.url} className="w-full h-full border-0" />
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                <div className="flex flex-col items-center justify-center h-full text-zoru-ink">
                   <FileIcon className="h-16 w-16 mb-4 opacity-50" />
                   <p>Preview not available for this file type.</p>
                 </div>
@@ -289,7 +289,7 @@ export default function CrmFilesPage() {
               onClick={() => setSelected(null)}
               className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors ${
                 selected === null
-                  ? 'bg-accent text-accent-foreground'
+                  ? 'bg-zoru-surface-2 text-zoru-ink'
                   : 'text-zoru-ink hover:bg-zoru-surface-2'
               }`}
             >
@@ -354,7 +354,7 @@ export default function CrmFilesPage() {
                   <ZoruTableHead className="w-10">
                     <input 
                       type="checkbox" 
-                      className="rounded border-gray-300"
+                      className="rounded border-zoru-line"
                       checked={filteredFiles.length > 0 && selectedFiles.size === filteredFiles.length}
                       onChange={(e) => toggleAll(e.target.checked)}
                     />
@@ -393,7 +393,7 @@ export default function CrmFilesPage() {
                       <ZoruTableCell>
                         <input 
                           type="checkbox" 
-                          className="rounded border-gray-300"
+                          className="rounded border-zoru-line"
                           checked={selectedFiles.has(String(file._id))}
                           onChange={(e) => toggleFile(String(file._id), e.target.checked)}
                         />
@@ -405,7 +405,7 @@ export default function CrmFilesPage() {
                               <img src={file.url} alt={file.filename} className="h-full w-full object-cover" />
                             ) : file.mime_type === 'application/pdf' || file.extension === 'pdf' ? (
                               <div className="flex flex-col items-center justify-center">
-                                <span className="text-[10px] font-bold text-red-500">PDF</span>
+                                <span className="text-[10px] font-bold text-zoru-ink">PDF</span>
                               </div>
                             ) : (
                               <FileIcon className="h-5 w-5 text-zoru-ink-muted" />
@@ -445,7 +445,7 @@ export default function CrmFilesPage() {
                               <button
                                 type="button"
                                 onClick={() => setPreviewFile(file)}
-                                className="inline-flex items-center gap-1 text-[12px] font-medium text-primary hover:underline"
+                                className="inline-flex items-center gap-1 text-[12px] font-medium text-zoru-ink hover:underline"
                               >
                                 <Eye className="h-3.5 w-3.5" />
                                 View
@@ -454,7 +454,7 @@ export default function CrmFilesPage() {
                                 href={file.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-[12px] font-medium text-accent-foreground hover:underline"
+                                className="inline-flex items-center gap-1 text-[12px] font-medium text-zoru-ink hover:underline"
                               >
                                 <Download className="h-3.5 w-3.5" />
                                 Get

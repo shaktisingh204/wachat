@@ -33,7 +33,7 @@ export function PayrollRunsBulkBar({
       </span>
       <span className="mx-1 h-4 w-px bg-zoru-line" aria-hidden />
       <Button size="sm" variant="outline" onClick={onApprove}>
-        <Check className="h-3.5 w-3.5 text-emerald-600" /> Approve
+        <Check className="h-3.5 w-3.5 text-zoru-ink" /> Approve
       </Button>
       <Button size="sm" variant="outline" onClick={onDisburse}>
         <Banknote className="h-3.5 w-3.5" /> Disburse

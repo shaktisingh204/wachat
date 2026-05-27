@@ -34,7 +34,7 @@ export default function SyncSettingsPage() {
           <ZoruCardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
             <div className="space-y-1">
               <ZoruCardTitle className="flex items-center text-base font-semibold">
-                <Calendar className="mr-2 h-5 w-5 text-blue-500" />
+                <Calendar className="mr-2 h-5 w-5 text-zoru-ink" />
                 Google Calendar
               </ZoruCardTitle>
               <ZoruCardDescription>
@@ -68,7 +68,7 @@ export default function SyncSettingsPage() {
           <ZoruCardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
             <div className="space-y-1">
               <ZoruCardTitle className="flex items-center text-base font-semibold">
-                <Mail className="mr-2 h-5 w-5 text-blue-600" />
+                <Mail className="mr-2 h-5 w-5 text-zoru-ink" />
                 Outlook Calendar
               </ZoruCardTitle>
               <ZoruCardDescription>

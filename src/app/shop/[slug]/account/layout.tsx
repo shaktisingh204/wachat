@@ -83,7 +83,7 @@ export default function AccountLayout(
             </Button>
              <Button
               variant="ghost"
-              className="justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="justify-start text-zoru-ink hover:text-zoru-ink hover:bg-zoru-ink/10"
             >
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout

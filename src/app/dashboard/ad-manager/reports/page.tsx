@@ -162,7 +162,7 @@ export default function ReportsPage() {
                         <Button variant="outline" onClick={() => fileRef.current?.click()}>
                             <Download className="h-4 w-4 mr-1" /> Import
                         </Button>
-                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setCreateOpen(true)}>
+                        <Button className="bg-zoru-ink hover:bg-zoru-ink/90 text-white" onClick={() => setCreateOpen(true)}>
                             <Plus className="h-4 w-4 mr-1" /> Create custom report
                         </Button>
                     </div>
@@ -175,10 +175,10 @@ export default function ReportsPage() {
                     {TEMPLATES.map((t) => {
                         const Icon = t.icon;
                         return (
-                            <Card key={t.id} className="cursor-pointer hover:border-[#1877F2]/50 transition-colors">
+                            <Card key={t.id} className="cursor-pointer hover:border-zoru-line/50 transition-colors">
                                 <ZoruCardHeader className="pb-2">
                                     <div className="flex items-start justify-between">
-                                        <div className="h-10 w-10 rounded-lg bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2]">
+                                        <div className="h-10 w-10 rounded-lg bg-zoru-ink/10 flex items-center justify-center text-zoru-ink">
                                             <Icon className="h-5 w-5" />
                                         </div>
                                         <Badge variant="outline">Template</Badge>
@@ -186,7 +186,7 @@ export default function ReportsPage() {
                                     <ZoruCardTitle className="text-base mt-2">{t.name}</ZoruCardTitle>
                                 </ZoruCardHeader>
                                 <ZoruCardContent>
-                                    <p className="text-xs text-muted-foreground">{t.desc}</p>
+                                    <p className="text-xs text-zoru-ink-muted">{t.desc}</p>
                                     <div className="mt-3 flex gap-2">
                                         <Button size="sm" variant="outline" className="flex-1" onClick={() => router.push('/dashboard/ad-manager/insights?preset=' + t.id)}>
                                             <Mail className="h-3 w-3 mr-1" /> Schedule
@@ -207,7 +207,7 @@ export default function ReportsPage() {
                     <h2 className="text-sm font-semibold">Saved reports</h2>
                     <div className="flex flex-wrap items-center gap-2">
                         <div className="relative">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
                             <Input
                                 type="text"
                                 placeholder="Search reports..."
@@ -230,15 +230,15 @@ export default function ReportsPage() {
                 </div>
 
                 {!isHydrated ? (
-                    <div className="py-12 flex justify-center items-center text-muted-foreground">
+                    <div className="py-12 flex justify-center items-center text-zoru-ink-muted">
                         <Loader2 className="h-8 w-8 animate-spin" />
                     </div>
                 ) : filteredReports.length === 0 ? (
                     <Card className="border-dashed">
                         <ZoruCardContent className="py-12 text-center">
-                            <Calendar className="h-10 w-10 mx-auto text-muted-foreground" />
+                            <Calendar className="h-10 w-10 mx-auto text-zoru-ink-muted" />
                             <p className="mt-3 font-medium">No saved reports found</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-zoru-ink-muted">
                                 {searchQuery ? 'Try adjusting your search query.' : 'Create and save a custom report to see it here.'}
                             </p>
                         </ZoruCardContent>
@@ -259,7 +259,7 @@ export default function ReportsPage() {
                         )}
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
                             {filteredReports.map((r) => (
-                                <Card key={r.id} className="hover:border-[#1877F2]/50 transition-colors relative">
+                                <Card key={r.id} className="hover:border-zoru-line/50 transition-colors relative">
                                     <div className="absolute top-4 left-4 z-10">
                                         <Checkbox 
                                             checked={selectedIds.has(r.id)} 
@@ -272,7 +272,7 @@ export default function ReportsPage() {
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-7 w-7 text-muted-foreground hover:text-red-600 shrink-0"
+                                                className="h-7 w-7 text-zoru-ink-muted hover:text-zoru-ink shrink-0"
                                                 onClick={() => {
                                                     const updated = savedReports.filter((s) => s.id !== r.id);
                                                     updateReports(updated);
@@ -287,10 +287,10 @@ export default function ReportsPage() {
                                         </div>
                                     </ZoruCardHeader>
                                     <ZoruCardContent className="pl-12">
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className="text-xs text-zoru-ink-muted">
                                             {r.dateRange.replace(/_/g, ' ')} &middot; {r.level} level
                                         </p>
-                                        <p className="text-[10px] text-muted-foreground mt-1">
+                                        <p className="text-[10px] text-zoru-ink-muted mt-1">
                                             Saved {new Date(r.createdAt).toLocaleDateString()}
                                         </p>
                                         <Button
@@ -322,7 +322,7 @@ export default function ReportsPage() {
                                 placeholder="e.g. Weekly Performance Summary"
                                 {...register('name')}
                             />
-                            {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+                            {errors.name && <p className="text-xs text-zoru-ink">{errors.name.message}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label>Date Range</Label>
@@ -367,7 +367,7 @@ export default function ReportsPage() {
                             <Button type="submit">
                                 <Save className="h-4 w-4 mr-1" /> Save
                             </Button>
-                            <Button type="button" className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleSubmit((data) => {
+                            <Button type="button" className="bg-zoru-ink hover:bg-zoru-ink/90 text-white" onClick={handleSubmit((data) => {
                                 onSubmit(data);
                                 router.push('/dashboard/ad-manager/insights');
                             })}>

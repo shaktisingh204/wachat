@@ -208,7 +208,7 @@ export default function VoiceDidsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-2 text-red-500"
+                  className="mt-2 text-zoru-ink"
                   onClick={() => handleRelease(d._id)}
                 >
                   <Trash2 className="h-3 w-3 mr-1" /> Release

@@ -103,7 +103,7 @@ export function EmployeeDashboardClient({
         <Card className="p-5 border border-zoru-line flex flex-col justify-between lg:col-span-2 relative overflow-hidden">
           <div className="flex justify-between items-start mb-4 relative z-10">
             <h3 className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted flex items-center gap-2">
-                <CalendarHeart className="w-4 h-4 text-rose-400" /> Leave Balances
+                <CalendarHeart className="w-4 h-4 text-zoru-ink-muted" /> Leave Balances
             </h3>
             <Link href="/dashboard/crm/hr-payroll/leave/new">
               <Button size="sm" variant="outline" className="h-7 text-[11px] font-bold gap-1 shadow-sm">
@@ -120,7 +120,7 @@ export function EmployeeDashboardClient({
                 <span className="text-zoru-ink-muted">{elTotal - usedEl} / {elTotal}</span>
               </div>
               <div className="h-2 bg-zoru-surface-2 rounded-full overflow-hidden">
-                <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${((elTotal - usedEl)/elTotal)*100}%` }} />
+                <div className="h-full bg-zoru-ink rounded-full transition-all" style={{ width: `${((elTotal - usedEl)/elTotal)*100}%` }} />
               </div>
             </div>
             {/* CL */}
@@ -130,7 +130,7 @@ export function EmployeeDashboardClient({
                 <span className="text-zoru-ink-muted">{clTotal - usedCl} / {clTotal}</span>
               </div>
               <div className="h-2 bg-zoru-surface-2 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${((clTotal - usedCl)/clTotal)*100}%` }} />
+                <div className="h-full bg-zoru-ink rounded-full transition-all" style={{ width: `${((clTotal - usedCl)/clTotal)*100}%` }} />
               </div>
             </div>
             {/* SL */}
@@ -140,7 +140,7 @@ export function EmployeeDashboardClient({
                 <span className="text-zoru-ink-muted">{slTotal - usedSl} / {slTotal}</span>
               </div>
               <div className="h-2 bg-zoru-surface-2 rounded-full overflow-hidden">
-                <div className="h-full bg-rose-500 rounded-full transition-all" style={{ width: `${((slTotal - usedSl)/slTotal)*100}%` }} />
+                <div className="h-full bg-zoru-ink rounded-full transition-all" style={{ width: `${((slTotal - usedSl)/slTotal)*100}%` }} />
               </div>
             </div>
           </div>

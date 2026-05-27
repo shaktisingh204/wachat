@@ -79,18 +79,18 @@ export function HrReportToolbar({
   return (
     <form
       method="get"
-      className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-card px-3 py-2"
+      className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
     >
       {monthPicker ? (
         <>
           <label className="flex flex-col gap-1">
-            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               Month
             </span>
             <select
               name="month"
               defaultValue={String(monthPicker.month)}
-              className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+              className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
             >
               {MONTHS.map((m, i) => (
                 <option key={m} value={i + 1}>
@@ -100,13 +100,13 @@ export function HrReportToolbar({
             </select>
           </label>
           <label className="flex flex-col gap-1">
-            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               Year
             </span>
             <select
               name="year"
               defaultValue={String(monthPicker.year)}
-              className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+              className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
             >
               {years.map((y) => (
                 <option key={y} value={y}>
@@ -118,13 +118,13 @@ export function HrReportToolbar({
         </>
       ) : hideDateRange ? null : windowDays !== undefined ? (
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Window
           </span>
           <select
             name="days"
             defaultValue={String(windowDays)}
-            className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
           >
             {WINDOW_OPTIONS.map((w) => (
               <option key={w.value} value={w.value}>
@@ -136,38 +136,38 @@ export function HrReportToolbar({
       ) : (
         <>
           <label className="flex flex-col gap-1">
-            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               From
             </span>
             <input
               type="date"
               name="from"
               defaultValue={from}
-              className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+              className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               To
             </span>
             <input
               type="date"
               name="to"
               defaultValue={to}
-              className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+              className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
             />
           </label>
         </>
       )}
 
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
           Department
         </span>
         <select
           name="departmentId"
           defaultValue={departmentId || ''}
-          className="h-9 min-w-[160px] rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+          className="h-9 min-w-[160px] rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
         >
           <option value="">All departments</option>
           {departments.map((d) => (

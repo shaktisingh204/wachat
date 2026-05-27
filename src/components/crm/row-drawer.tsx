@@ -31,7 +31,7 @@ export interface RowDrawerProps {
 }
 
 const triggerBase =
-    "group inline-flex flex-col items-start gap-0.5 rounded-sm text-left outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1";
+    "group inline-flex flex-col items-start gap-0.5 rounded-sm text-left outline-none transition-colors hover:text-zoru-ink focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-1";
 
 export function RowDrawer({
     label,
@@ -52,11 +52,11 @@ export function RowDrawer({
                 onClick={() => setOpen(true)}
                 className={cn(triggerBase, triggerClassName)}
             >
-                <span className="font-medium text-foreground transition-colors group-hover:text-primary group-hover:underline group-focus-visible:underline">
+                <span className="font-medium text-zoru-ink transition-colors group-hover:text-zoru-ink group-hover:underline group-focus-visible:underline">
                     {label}
                 </span>
                 {subtitle ? (
-                    <span className="text-[12px] text-muted-foreground">
+                    <span className="text-[12px] text-zoru-ink-muted">
                         {subtitle}
                     </span>
                 ) : null}

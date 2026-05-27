@@ -133,7 +133,7 @@ export default function SabsmsSuppressionsPage(props: SuppressionsPageProps) {
         </>
       }
     >
-      <Suspense fallback={<div className="h-96 w-full animate-pulse bg-slate-100 rounded-xl" />}>
+      <Suspense fallback={<div className="h-96 w-full animate-pulse bg-zoru-surface-2 rounded-xl" />}>
         <SuppressionsDataLoader {...props} />
       </Suspense>
     </SabsmsPageShell>

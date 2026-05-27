@@ -58,13 +58,13 @@ export function ProjectsGantt({ rows }: { rows: ProjectRow[] }) {
           const tone = statusToTone(p.status || '');
           const colorClass =
             tone === 'green'
-              ? 'bg-emerald-500'
+              ? 'bg-zoru-ink'
               : tone === 'amber'
-                ? 'bg-amber-500'
+                ? 'bg-zoru-ink'
                 : tone === 'red'
-                  ? 'bg-rose-500'
+                  ? 'bg-zoru-ink'
                   : tone === 'blue'
-                    ? 'bg-blue-500'
+                    ? 'bg-zoru-ink'
                     : 'bg-zoru-ink-muted';
           return (
             <div key={p._id} className="flex items-center gap-3">

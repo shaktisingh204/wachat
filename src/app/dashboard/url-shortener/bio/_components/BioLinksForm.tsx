@@ -63,7 +63,7 @@ export function BioLinksForm({ state, update }: Props) {
         ) : (
           <ul className="space-y-4">
             {state.links.map((link) => (
-              <li key={link.id} className="border border-zoru-line rounded-lg p-3 bg-zinc-900/30">
+              <li key={link.id} className="border border-zoru-line rounded-lg p-3 bg-zoru-ink/30">
                 <div className="flex items-start gap-2">
                   <button
                     type="button"
@@ -137,18 +137,18 @@ export function BioLinksForm({ state, update }: Props) {
 
                 {/* Expanded Settings */}
                 {expandedSettings[link.id] && (
-                  <div className="mt-3 ml-6 p-3 rounded-md bg-zinc-950 border border-zinc-800 space-y-3">
+                  <div className="mt-3 ml-6 p-3 rounded-md bg-zoru-ink border border-zoru-line space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label className="text-xs text-zinc-300">Enable A/B Testing</Label>
+                      <Label className="text-xs text-zoru-ink-muted">Enable A/B Testing</Label>
                       <Switch
                         checked={link.enableABTesting || false}
                         onCheckedChange={(checked) => updateLink(link.id, { enableABTesting: checked })}
                       />
                     </div>
                     {link.enableABTesting && (
-                      <div className="space-y-2 pt-2 border-t border-zinc-800">
+                      <div className="space-y-2 pt-2 border-t border-zoru-line">
                         <div className="flex flex-col gap-1.5">
-                          <Label className="text-xs text-zinc-400">Variant B URL</Label>
+                          <Label className="text-xs text-zoru-ink-muted">Variant B URL</Label>
                           <Input
                             placeholder="https:// variant B..."
                             value={link.urlB || ''}
@@ -157,7 +157,7 @@ export function BioLinksForm({ state, update }: Props) {
                           />
                         </div>
                         <div className="flex items-center justify-between gap-4">
-                          <Label className="text-xs text-zinc-400 whitespace-nowrap">Traffic Split (A/B)</Label>
+                          <Label className="text-xs text-zoru-ink-muted whitespace-nowrap">Traffic Split (A/B)</Label>
                           <div className="flex items-center gap-2 flex-1">
                             <input
                               type="range"
@@ -167,12 +167,12 @@ export function BioLinksForm({ state, update }: Props) {
                               onChange={(e) => updateLink(link.id, { splitRatio: parseInt(e.target.value, 10) })}
                               className="flex-1 w-full"
                             />
-                            <span className="text-xs font-mono text-zinc-500 w-10 text-right">
+                            <span className="text-xs font-mono text-zoru-ink w-10 text-right">
                               {link.splitRatio ?? 50}%
                             </span>
                           </div>
                         </div>
-                        <p className="text-[10px] text-zinc-500">
+                        <p className="text-[10px] text-zoru-ink">
                           {link.splitRatio ?? 50}% of traffic goes to Variant A, {100 - (link.splitRatio ?? 50)}% to Variant B.
                         </p>
                       </div>

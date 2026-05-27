@@ -526,7 +526,7 @@ export function ChatWindow({ flow }: ChatWindowProps) {
                 <div
                   key={i}
                   className="text-center text-[12px] italic px-2 py-1"
-                  style={{ color: '#ef4444' }}
+                  style={{ color: 'var(--zoru-ink)' }}
                 >
                   {msg.text}
                 </div>
@@ -619,7 +619,7 @@ export function ChatWindow({ flow }: ChatWindowProps) {
 
         {/* ── Error banner ──────────────────────────────────── */}
         {error && (
-          <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 text-[12.5px] bg-red-50 border-t border-red-200 text-red-700 dark:bg-red-950/30 dark:border-red-900 dark:text-red-400">
+          <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 text-[12.5px] bg-zoru-surface-2 border-t border-zoru-line text-zoru-ink dark:bg-zoru-ink/30 dark:border-zoru-line dark:text-zoru-ink-muted">
             <span className="flex-1">{error}</span>
             <button
               type="button"

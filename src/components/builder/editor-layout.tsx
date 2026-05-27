@@ -217,16 +217,16 @@ const EditorInterface = () => {
 
     return (
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-            <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
+            <div className="flex h-screen w-full bg-zoru-surface-2 overflow-hidden">
                 <BuilderSidebar />
                 <main className="flex-1 overflow-hidden flex flex-col relative">
                     <header className="h-14 border-b bg-white flex items-center px-4 justify-between shadow-sm z-10">
-                        <h1 className="font-semibold text-gray-700">Page Builder</h1>
+                        <h1 className="font-semibold text-zoru-ink">Page Builder</h1>
                         <div className="flex gap-2">
-                            <button onClick={handleSave} className="px-3 py-1 bg-black text-white rounded text-sm hover:bg-gray-800">Publish</button>
+                            <button onClick={handleSave} className="px-3 py-1 bg-black text-white rounded text-sm hover:bg-zoru-ink">Publish</button>
                         </div>
                     </header>
-                    <div className="flex-1 overflow-auto bg-slate-100 p-8">
+                    <div className="flex-1 overflow-auto bg-zoru-surface-2 p-8">
                         <CanvasRenderer />
                     </div>
                 </main>

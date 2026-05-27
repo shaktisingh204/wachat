@@ -47,7 +47,7 @@ export default function GuestOrdersPage(): React.JSX.Element {
                     {busy ? '…' : 'Look up'}
                 </button>
             </form>
-            {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+            {error && <p className="mt-3 text-sm text-zoru-ink">{error}</p>}
             {order && (
                 <div className="mt-6 rounded-xl border p-4">
                     <h2 className="text-lg font-semibold">{order.orderCode}</h2>

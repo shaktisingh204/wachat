@@ -79,8 +79,8 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
                 className={cn(
                     'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors',
                     selectedCollectionId === null
-                        ? 'bg-zinc-800 text-zoru-ink'
-                        : 'text-zoru-ink-muted hover:bg-zinc-900 hover:text-zoru-ink'
+                        ? 'bg-zoru-ink text-zoru-ink'
+                        : 'text-zoru-ink-muted hover:bg-zoru-ink hover:text-zoru-ink'
                 )}
             >
                 <Folder className="h-3.5 w-3.5 flex-shrink-0" />
@@ -88,7 +88,7 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
             </button>
 
             {adding && (
-                <div className="mx-2 p-2 rounded-md border border-zoru-border bg-zinc-900 space-y-2">
+                <div className="mx-2 p-2 rounded-md border border-zoru-border bg-zoru-ink space-y-2">
                     <Input
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
@@ -127,8 +127,8 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
                     className={cn(
                         'group flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors',
                         selectedCollectionId === col._id
-                            ? 'bg-zinc-800 text-zoru-ink'
-                            : 'text-zoru-ink-muted hover:bg-zinc-900 hover:text-zoru-ink'
+                            ? 'bg-zoru-ink text-zoru-ink'
+                            : 'text-zoru-ink-muted hover:bg-zoru-ink hover:text-zoru-ink'
                     )}
                 >
                     <span

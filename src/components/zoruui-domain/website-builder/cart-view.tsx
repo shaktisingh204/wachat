@@ -19,9 +19,9 @@ export function CartView() {
     if (itemCount === 0) {
         return (
             <div className="text-center py-20">
-                <ShoppingCart className="mx-auto h-16 w-16 text-muted-foreground" />
+                <ShoppingCart className="mx-auto h-16 w-16 text-zoru-ink-muted" />
                 <h2 className="mt-4 text-2xl font-semibold">Your cart is empty</h2>
-                <p className="mt-2 text-muted-foreground">Looks like you haven't added anything to your cart yet.</p>
+                <p className="mt-2 text-zoru-ink-muted">Looks like you haven't added anything to your cart yet.</p>
                 <Button asChild className="mt-6">
                      <Link href={`/shop/${shopSlug}`}>Continue Shopping</Link>
                 </Button>
@@ -34,12 +34,12 @@ export function CartView() {
             <div className="md:col-span-2 space-y-4">
                 {cart.map(item => (
                      <Card key={item.productId} className="flex items-center p-4 gap-4">
-                         <div className="relative h-24 w-24 bg-muted rounded-md overflow-hidden">
+                         <div className="relative h-24 w-24 bg-zoru-surface-2 rounded-md overflow-hidden">
                             <Image src={item.imageUrl || 'https://placehold.co/100x100.png'} alt={item.name} fill objectFit="cover" data-ai-hint="product image" />
                          </div>
                          <div className="flex-1">
                             <h3 className="font-semibold">{item.name}</h3>
-                            <p className="text-muted-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price)}</p>
+                            <p className="text-zoru-ink-muted">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price)}</p>
                          </div>
                          <div className="flex items-center border rounded-md">
                             <Button variant="ghost" size="icon" onClick={() => updateQuantity(item.productId, item.quantity - 1)}>-</Button>
@@ -48,7 +48,7 @@ export function CartView() {
                          </div>
                          <p className="font-semibold w-24 text-right">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price * item.quantity)}</p>
                          <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.productId)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="h-4 w-4 text-zoru-ink" />
                          </Button>
                     </Card>
                 ))}

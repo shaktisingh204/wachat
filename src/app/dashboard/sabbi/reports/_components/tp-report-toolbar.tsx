@@ -43,26 +43,26 @@ export function TpReportToolbar({
   return (
     <form
       method="get"
-      className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-card px-3 py-2"
+      className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
     >
       {!hideDateRange ? (
         <>
           <label className="flex flex-col gap-1">
-            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">From</span>
+            <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">From</span>
             <input
               type="date"
               name="from"
               defaultValue={from}
-              className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+              className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
             />
           </label>
           <label className="flex flex-col gap-1">
-            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">To</span>
+            <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">To</span>
             <input
               type="date"
               name="to"
               defaultValue={to}
-              className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+              className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
             />
           </label>
         </>
@@ -70,11 +70,11 @@ export function TpReportToolbar({
 
       {projects.length > 0 ? (
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">Project</span>
+          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Project</span>
           <select
             name="projectId"
             defaultValue={projectId ?? ''}
-            className="h-9 min-w-[160px] rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+            className="h-9 min-w-[160px] rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
           >
             <option value="">All projects</option>
             {projects.map((p) => (
@@ -86,11 +86,11 @@ export function TpReportToolbar({
 
       {owners.length > 0 ? (
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">Owner</span>
+          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Owner</span>
           <select
             name="ownerId"
             defaultValue={ownerId ?? ''}
-            className="h-9 min-w-[140px] rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+            className="h-9 min-w-[140px] rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
           >
             <option value="">All owners</option>
             {owners.map((o) => (

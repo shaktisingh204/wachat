@@ -197,7 +197,7 @@ export function TestEndpointRunner({
             {pathParams.map((p) => (
               <div key={p.name} className="space-y-1">
                 <Label className="text-xs font-normal text-zoru-ink-muted">
-                  <span className="font-mono text-amber-400">{p.name}</span>
+                  <span className="font-mono text-zoru-ink-muted">{p.name}</span>
                   {p.description ? <span className="ml-1">— {p.description}</span> : null}
                 </Label>
                 <Input
@@ -218,7 +218,7 @@ export function TestEndpointRunner({
             {queryParams.map((q) => (
               <div key={q.name} className="space-y-1">
                 <Label className="text-xs font-normal text-zoru-ink-muted">
-                  <span className="font-mono text-amber-400">{q.name}</span>
+                  <span className="font-mono text-zoru-ink-muted">{q.name}</span>
                   {q.required ? <span className="ml-1 text-zoru-danger">*</span> : null}
                   {q.description ? <span className="ml-1">— {q.description}</span> : null}
                 </Label>
@@ -247,7 +247,7 @@ export function TestEndpointRunner({
       ) : null}
 
       <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 text-xs font-mono text-zoru-ink break-all">
-        <span className="text-amber-400">{method}</span>{' '}
+        <span className="text-zoru-ink-muted">{method}</span>{' '}
         <span>{builtUrl}</span>
       </div>
 
@@ -268,7 +268,7 @@ export function TestEndpointRunner({
                   : result.status >= 400
                     ? 'text-zoru-warning'
                     : result.status >= 300
-                      ? 'text-blue-400'
+                      ? 'text-zoru-ink-muted'
                       : 'text-zoru-success'
               }
             >

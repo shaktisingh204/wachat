@@ -86,7 +86,7 @@ export function ManualFacebookSetupDialog({ onSuccess }: ManualFacebookSetupDial
               <div className="space-y-2">
                 <Label htmlFor="projectName">Project Name</Label>
                 <Input id="projectName" name="projectName" placeholder="e.g., My Facebook Page" required />
-                <p className="text-xs text-muted-foreground">A name for you to identify this connection.</p>
+                <p className="text-xs text-zoru-ink-muted">A name for you to identify this connection.</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="facebookPageId">Facebook Page ID</Label>

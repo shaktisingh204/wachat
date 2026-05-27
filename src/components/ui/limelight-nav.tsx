@@ -115,7 +115,7 @@ export const LimelightNav = ({
 
   return (
     <nav
-      className={`relative inline-flex items-center h-16 rounded-lg bg-card text-foreground shadow-sm px-2 ${
+      className={`relative inline-flex items-center h-16 rounded-lg bg-zoru-surface text-zoru-ink shadow-sm px-2 ${
         className || ""
       }`}
     >
@@ -144,7 +144,7 @@ export const LimelightNav = ({
 
       <div
         ref={limelightRef}
-        className={`absolute top-0 z-10 w-11 h-[5px] rounded-full bg-primary shadow-[0_50px_15px_var(--primary)] ${
+        className={`absolute top-0 z-10 w-11 h-[5px] rounded-full bg-zoru-ink shadow-[0_50px_15px_var(--primary)] ${
           isReady ? "transition-[left] duration-400 ease-in-out" : ""
         } ${limelightClassName || ""}`}
         style={{ left: "-999px" }}

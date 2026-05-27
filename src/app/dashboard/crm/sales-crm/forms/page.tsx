@@ -435,14 +435,14 @@ export default function CrmFormsPage() {
         ) : filtered.length === 0 ? (
           <Card variant="outline" className="border-dashed">
             <div className="flex flex-col items-center gap-3 py-12 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
                 <ClipboardList
-                  className="h-6 w-6 text-accent-foreground"
+                  className="h-6 w-6 text-zoru-ink"
                   strokeWidth={1.75}
                 />
               </div>
-              <h3 className="text-[15px] font-semibold text-foreground">No forms found</h3>
-              <p className="max-w-md text-[12.5px] text-muted-foreground">
+              <h3 className="text-[15px] font-semibold text-zoru-ink">No forms found</h3>
+              <p className="max-w-md text-[12.5px] text-zoru-ink-muted">
                 {statusFilter !== 'all'
                   ? 'No forms match the current status filter.'
                   : 'Create your first form to start capturing leads.'}
@@ -546,7 +546,7 @@ export default function CrmFormsPage() {
                               aria-label="Delete"
                               onClick={() => setDeletingId(id)}
                             >
-                              <Trash2 className="h-4 w-4 text-destructive" />
+                              <Trash2 className="h-4 w-4 text-zoru-ink" />
                             </Button>
                           </div>
                         </ZoruTableCell>

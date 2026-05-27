@@ -41,12 +41,12 @@ export function MaintenanceModeToggle() {
             <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm">
                 <div className="space-y-0.5">
                     <Label htmlFor="maintenance-switch" className="text-base font-semibold">Maintenance Mode</Label>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-zoru-ink-muted">
                         Put the system into maintenance mode. Regular users will see a maintenance page.
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
-                    {isUpdating && <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" />}
+                    {isUpdating && <LoaderCircle className="h-4 w-4 animate-spin text-zoru-ink-muted" />}
                     <Switch
                         id="maintenance-switch"
                         checked={isEnabled}

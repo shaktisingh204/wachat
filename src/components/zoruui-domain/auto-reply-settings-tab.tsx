@@ -50,7 +50,7 @@ export function AutoReplySettingsTab({ project }: AutoReplySettingsTabProps) {
                             <ZoruCardDescription>Enable or disable all auto-reply functionality for this project.</ZoruCardDescription>
                         </div>
                          <div className="flex items-center gap-2">
-                             {isSwitchPending && <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" />}
+                             {isSwitchPending && <LoaderCircle className="h-4 w-4 animate-spin text-zoru-ink-muted" />}
                              <Switch 
                                 defaultChecked={project.autoReplySettings?.masterEnabled !== false}
                                 onCheckedChange={onMasterSwitchChange}

@@ -121,7 +121,7 @@ export default function RedirectCheckerPage() {
           <ZoruCardContent className="p-6 space-y-6">
             
             {isChainTooLong && (
-              <Alert variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
+              <Alert variant="destructive" className="bg-zoru-ink/10 text-zoru-ink border-destructive/20">
                 <AlertCircle className="h-4 w-4" />
                 <ZoruAlertTitle>Too Many Redirects</ZoruAlertTitle>
                 <ZoruAlertDescription>
@@ -131,7 +131,7 @@ export default function RedirectCheckerPage() {
             )}
             
             {displayChain.some(h => h.isMeta) && (
-              <Alert className="bg-blue-50 text-blue-900 border-blue-200 dark:bg-blue-950/50 dark:text-blue-200 dark:border-blue-900">
+              <Alert className="bg-zoru-surface-2 text-zoru-ink border-zoru-line dark:bg-zoru-ink/50 dark:text-white dark:border-zoru-line">
                 <Info className="h-4 w-4" />
                 <ZoruAlertTitle>Meta Refresh Detected</ZoruAlertTitle>
                 <ZoruAlertDescription>
@@ -150,7 +150,7 @@ export default function RedirectCheckerPage() {
               <div className="text-base font-semibold">Redirect Timeline</div>
               
               {displayChain.length === 0 ? (
-                <div className="text-sm text-muted-foreground">No data available.</div>
+                <div className="text-sm text-zoru-ink-muted">No data available.</div>
               ) : (
                 <div className="space-y-0 relative ml-2">
                   {displayChain.map((hop, i) => {
@@ -169,7 +169,7 @@ export default function RedirectCheckerPage() {
                         <div className="flex flex-col items-center mt-1">
                           <div className={cn(
                             "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold z-10 ring-4 ring-background",
-                            isLast ? (isError ? "bg-destructive text-destructive-foreground" : "bg-primary text-primary-foreground") : "bg-muted text-muted-foreground"
+                            isLast ? (isError ? "bg-zoru-ink text-white" : "bg-zoru-ink text-white") : "bg-zoru-surface-2 text-zoru-ink-muted"
                           )}>
                             {i + 1}
                           </div>
@@ -180,21 +180,21 @@ export default function RedirectCheckerPage() {
                           <div className="flex items-center gap-2 mb-2">
                             <Badge 
                               variant={hop.isMeta ? "secondary" : isError ? "destructive" : isWarning ? "default" : "secondary"}
-                              className={cn(hop.isMeta && "bg-blue-100 text-blue-800 hover:bg-blue-100 dark:bg-blue-900 dark:text-blue-100")}
+                              className={cn(hop.isMeta && "bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 dark:bg-zoru-ink dark:text-white")}
                             >
                               {hop.isMeta ? "META REFRESH" : `HTTP ${hop.status}`}
                             </Badge>
                             {isLast && (
-                              <Badge variant="outline" className="text-muted-foreground border-muted-foreground/30">
+                              <Badge variant="outline" className="text-zoru-ink-muted border-muted-foreground/30">
                                 Final Destination
                               </Badge>
                             )}
                           </div>
-                          <div className="font-mono text-sm break-all text-foreground bg-muted/40 p-3 rounded-md border border-border/50">
+                          <div className="font-mono text-sm break-all text-zoru-ink bg-zoru-surface-2/40 p-3 rounded-md border border-zoru-line/50">
                             {hop.url}
                           </div>
                           {hop.location && (
-                            <div className="mt-3 text-sm flex items-center gap-2 text-muted-foreground ml-1">
+                            <div className="mt-3 text-sm flex items-center gap-2 text-zoru-ink-muted ml-1">
                               <MoveDown className="w-3.5 h-3.5" />
                               <span className="font-medium">Redirects to</span>
                             </div>
@@ -215,8 +215,8 @@ export default function RedirectCheckerPage() {
 
 function Stat({ label, value, mono, className }: { label: string; value: string; mono?: boolean, className?: string }) {
   return (
-    <div className={cn("rounded-lg border bg-card p-4 shadow-sm", className)}>
-      <div className="text-xs text-muted-foreground font-medium mb-1">{label}</div>
+    <div className={cn("rounded-lg border bg-zoru-surface p-4 shadow-sm", className)}>
+      <div className="text-xs text-zoru-ink-muted font-medium mb-1">{label}</div>
       <div className={cn("truncate", mono ? 'font-mono text-sm' : 'text-xl font-bold')} title={mono ? value : undefined}>{value}</div>
     </div>
   );

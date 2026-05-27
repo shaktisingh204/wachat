@@ -76,20 +76,20 @@ export function LiveCanvas({ docState, updateDocState, documentType }: LiveCanva
                         type="text"
                         value={docState.title}
                         onChange={(e) => updateDocState({ title: e.target.value })}
-                        className="text-4xl font-bold bg-transparent outline-none w-full hover:bg-zoru-surface-2 transition-colors placeholder:text-gray-300"
+                        className="text-4xl font-bold bg-transparent outline-none w-full hover:bg-zoru-surface-2 transition-colors placeholder:text-zoru-ink-muted"
                         placeholder="Document Title"
                         style={{ color: designMetadata.themeColor }}
                     />
                     
-                    <div className="text-sm text-gray-500 uppercase tracking-widest">
+                    <div className="text-sm text-zoru-ink uppercase tracking-widest">
                         {documentType} 
-                        {docState.status && <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-gray-100">{docState.status}</span>}
+                        {docState.status && <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-zoru-surface-2">{docState.status}</span>}
                     </div>
                 </div>
                 
-                <div className="text-right space-y-1 text-sm text-gray-600">
-                    <div><span className="font-semibold text-gray-900">Total Amount:</span> {docState.currency} <input type="number" value={docState.totalAmount} onChange={(e) => updateDocState({ totalAmount: Number(e.target.value) })} className="w-24 text-right bg-transparent outline-none hover:bg-gray-50 p-1 rounded" /></div>
-                    {docState.validUntil && <div><span className="font-semibold text-gray-900">Valid Until:</span> {new Date(docState.validUntil).toLocaleDateString()}</div>}
+                <div className="text-right space-y-1 text-sm text-zoru-ink">
+                    <div><span className="font-semibold text-zoru-ink">Total Amount:</span> {docState.currency} <input type="number" value={docState.totalAmount} onChange={(e) => updateDocState({ totalAmount: Number(e.target.value) })} className="w-24 text-right bg-transparent outline-none hover:bg-zoru-surface-2 p-1 rounded" /></div>
+                    {docState.validUntil && <div><span className="font-semibold text-zoru-ink">Valid Until:</span> {new Date(docState.validUntil).toLocaleDateString()}</div>}
                 </div>
             </div>
 
@@ -102,7 +102,7 @@ export function LiveCanvas({ docState, updateDocState, documentType }: LiveCanva
                             value={section.heading}
                             onChange={(e) => updateSection(idx, { heading: e.target.value })}
                             placeholder="Section Heading"
-                            className="text-xl font-semibold mb-3 w-full bg-transparent outline-none hover:bg-gray-50 p-1 -ml-1 rounded transition-colors"
+                            className="text-xl font-semibold mb-3 w-full bg-transparent outline-none hover:bg-zoru-surface-2 p-1 -ml-1 rounded transition-colors"
                             style={{ color: designMetadata.themeColor }}
                         />
                         
@@ -111,7 +111,7 @@ export function LiveCanvas({ docState, updateDocState, documentType }: LiveCanva
                             value={section.body}
                             onChange={(e) => updateSection(idx, { body: e.target.value })}
                             placeholder="Enter section content here. Markdown is supported."
-                            className="w-full min-h-[100px] text-gray-700 leading-relaxed bg-transparent outline-none hover:bg-gray-50 p-1 -ml-1 rounded transition-colors resize-none overflow-hidden"
+                            className="w-full min-h-[100px] text-zoru-ink leading-relaxed bg-transparent outline-none hover:bg-zoru-surface-2 p-1 -ml-1 rounded transition-colors resize-none overflow-hidden"
                             onInput={(e) => {
                                 // Auto-resize
                                 e.currentTarget.style.height = 'auto';
@@ -121,13 +121,13 @@ export function LiveCanvas({ docState, updateDocState, documentType }: LiveCanva
 
                         {/* Hover actions for blocks */}
                         <div className="absolute -left-12 top-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
-                            <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-400 hover:text-gray-600 cursor-move">
+                            <Button variant="ghost" size="icon" className="h-6 w-6 text-zoru-ink-muted hover:text-zoru-ink cursor-move">
                                 <GripVertical className="h-4 w-4" />
                             </Button>
                             <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                className="h-6 w-6 text-gray-400 hover:text-red-500"
+                                className="h-6 w-6 text-zoru-ink-muted hover:text-zoru-ink"
                                 onClick={() => removeSection(idx)}
                                 disabled={docState.sections.length === 1}
                             >
@@ -139,14 +139,14 @@ export function LiveCanvas({ docState, updateDocState, documentType }: LiveCanva
             </div>
 
             {/* Add block trigger */}
-            <div className="mt-8 pt-4 border-t border-dashed border-gray-200 text-center">
-                <Button variant="outline" size="sm" onClick={addSection} className="text-gray-500">
+            <div className="mt-8 pt-4 border-t border-dashed border-zoru-line text-center">
+                <Button variant="outline" size="sm" onClick={addSection} className="text-zoru-ink">
                     <Plus className="mr-2 h-4 w-4" /> Add Section
                 </Button>
             </div>
 
             {/* Footer */}
-            <div className="absolute bottom-12 left-12 right-12 text-center text-xs text-gray-400 border-t pt-4">
+            <div className="absolute bottom-12 left-12 right-12 text-center text-xs text-zoru-ink-muted border-t pt-4">
                 Generated dynamically via Sabnode Live Editor
             </div>
         </div>

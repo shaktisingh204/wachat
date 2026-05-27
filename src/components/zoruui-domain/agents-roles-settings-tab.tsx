@@ -143,7 +143,7 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
                     </Avatar>
                     <div className="space-y-0.5">
                         <p className="text-sm font-medium leading-none">{agent.name}</p>
-                        <p className="text-sm text-muted-foreground">{agent.email}</p>
+                        <p className="text-sm text-zoru-ink-muted">{agent.email}</p>
                     </div>
                 </div>
                 <div>
@@ -160,13 +160,13 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
                 <ZoruCardDescription>Manage agents and their roles for this project.</ZoruCardDescription>
             </ZoruCardHeader>
              <ZoruCardContent className="space-y-6">
-                <div className="p-4 bg-muted/50 rounded-lg space-y-2 text-sm text-muted-foreground">
-                    <h4 className="font-semibold text-card-foreground">Team Management</h4>
+                <div className="p-4 bg-zoru-surface-2/50 rounded-lg space-y-2 text-sm text-zoru-ink-muted">
+                    <h4 className="font-semibold text-zoru-ink">Team Management</h4>
                     <p>Invite team members to assist with managing this project.</p>
-                    <p>Your current <span className="font-semibold capitalize text-primary">{planName}</span> plan allows for <span className="font-semibold text-primary">{limit}</span> team members. There are currently <span className="font-semibold text-primary">{project.agents?.length || 0}</span> team member(s) assigned to this project.</p>
+                    <p>Your current <span className="font-semibold capitalize text-zoru-ink">{planName}</span> plan allows for <span className="font-semibold text-zoru-ink">{limit}</span> team members. There are currently <span className="font-semibold text-zoru-ink">{project.agents?.length || 0}</span> team member(s) assigned to this project.</p>
                     {limit < 10 && (
                         <p className="font-semibold">
-                            <Link href="/dashboard/billing" className="text-primary hover:underline">Upgrade your plan</Link> to invite more team members! 🚀
+                            <Link href="/dashboard/billing" className="text-zoru-ink hover:underline">Upgrade your plan</Link> to invite more team members! 🚀
                         </p>
                     )}
                 </div>
@@ -180,7 +180,7 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
                             <TeamMemberCard key={agent.userId.toString()} agent={agent} />
                         ))
                     ) : (
-                        <p className="text-sm text-muted-foreground">No team members have been added to this project yet.</p>
+                        <p className="text-sm text-zoru-ink-muted">No team members have been added to this project yet.</p>
                     )}
                 </div>
              </ZoruCardContent>

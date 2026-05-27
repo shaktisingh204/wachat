@@ -217,7 +217,7 @@ export function EWayBillsClient({ bills }: Props) {
     return (
         <div className="flex flex-col gap-3">
             {/* Filter row */}
-            <div className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-card px-3 py-2">
+            <div className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2">
                 <Input
                     placeholder="Search EWB no, GSTIN, vehicle…"
                     value={search}
@@ -227,7 +227,7 @@ export function EWayBillsClient({ bills }: Props) {
                 <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                    className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+                    className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
                 >
                     <option value="all">All statuses</option>
                     <option value="active">Active</option>
@@ -235,25 +235,25 @@ export function EWayBillsClient({ bills }: Props) {
                     <option value="cancelled">Cancelled</option>
                 </select>
                 <label className="flex flex-col gap-0.5">
-                    <span className="text-[10.5px] uppercase tracking-wide text-muted-foreground">
+                    <span className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
                         From
                     </span>
                     <input
                         type="date"
                         value={dateFrom}
                         onChange={(e) => setDateFrom(e.target.value)}
-                        className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+                        className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
                     />
                 </label>
                 <label className="flex flex-col gap-0.5">
-                    <span className="text-[10.5px] uppercase tracking-wide text-muted-foreground">
+                    <span className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
                         To
                     </span>
                     <input
                         type="date"
                         value={dateTo}
                         onChange={(e) => setDateTo(e.target.value)}
-                        className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+                        className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
                     />
                 </label>
                 {(search || statusFilter !== 'all' || dateFrom || dateTo) && (
@@ -275,7 +275,7 @@ export function EWayBillsClient({ bills }: Props) {
 
             {/* Bulk action bar */}
             {selectionCount > 0 && (
-                <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-[13px]">
+                <div className="flex flex-wrap items-center gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2/40 px-3 py-2 text-[13px]">
                     <span className="font-medium">{selectionCount} selected</span>
                     <Button
                         size="sm"
@@ -329,16 +329,16 @@ export function EWayBillsClient({ bills }: Props) {
 
             {/* Table */}
             {filtered.length === 0 ? (
-                <p className="text-[13px] text-muted-foreground">
+                <p className="text-[13px] text-zoru-ink-muted">
                     {bills.length === 0
                         ? 'No e-way bills yet. Generate one for a consignment greater than ₹50,000.'
                         : 'No bills match the current filters.'}
                 </p>
             ) : (
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <table className="min-w-full text-[13px]">
                         <thead>
-                            <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted-foreground">
+                            <tr className="border-b border-zoru-line text-left text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                                 <th className="px-2 py-2">
                                     <Checkbox
                                         checked={allSelected ? true : someSelected ? 'indeterminate' : false}
@@ -359,7 +359,7 @@ export function EWayBillsClient({ bills }: Props) {
                             {filtered.map((b) => (
                                 <tr
                                     key={b._id}
-                                    className={`border-b border-border/60 ${selected.has(b._id) ? 'bg-muted/30' : ''}`}
+                                    className={`border-b border-zoru-line/60 ${selected.has(b._id) ? 'bg-zoru-surface-2/30' : ''}`}
                                 >
                                     <td className="px-2 py-2">
                                         <Checkbox
@@ -403,16 +403,16 @@ export function EWayBillsClient({ bills }: Props) {
             {/* Bulk cancel confirm dialog */}
             {confirmOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-xl">
-                        <h2 className="text-[15px] font-semibold text-foreground">
+                    <div className="w-full max-w-md rounded-xl border border-zoru-line bg-zoru-surface p-6 shadow-xl">
+                        <h2 className="text-[15px] font-semibold text-zoru-ink">
                             Cancel {cancelableSelected.length} e-way bill{cancelableSelected.length !== 1 ? 's' : ''}
                         </h2>
-                        <p className="mt-1 text-[13px] text-muted-foreground">
+                        <p className="mt-1 text-[13px] text-zoru-ink-muted">
                             This will cancel all selected active bills. Cancelled bills cannot be
                             reactivated.
                         </p>
                         <label className="mt-4 flex flex-col gap-1">
-                            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                            <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                                 Cancellation reason (required)
                             </span>
                             <Input
@@ -423,7 +423,7 @@ export function EWayBillsClient({ bills }: Props) {
                             />
                         </label>
                         {cancelError && (
-                            <p className="mt-2 text-[12.5px] text-destructive">{cancelError}</p>
+                            <p className="mt-2 text-[12.5px] text-zoru-ink">{cancelError}</p>
                         )}
                         <div className="mt-4 flex justify-end gap-2">
                             <Button

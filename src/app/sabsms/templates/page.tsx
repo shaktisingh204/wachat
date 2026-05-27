@@ -142,7 +142,7 @@ export default async function SabsmsTemplatesPage(props: PageProps) {
         breadcrumbs={[{ label: "Templates" }]}
         eyebrow="SabSMS"
       >
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-zoru-ink">
           Sign in to view your SabSMS templates.
         </p>
       </SabsmsPageShell>
@@ -178,7 +178,7 @@ export default async function SabsmsTemplatesPage(props: PageProps) {
           </li>
           <li>
             Bulk-submit drafts from the action bar; submissions queue up
-            in <code className="rounded bg-slate-100 px-1">/sabsms/templates/approvals</code>.
+            in <code className="rounded bg-zoru-surface-2 px-1">/sabsms/templates/approvals</code>.
           </li>
           <li>
             Import accepts native SabSMS bundles or a single WhatsApp
@@ -187,7 +187,7 @@ export default async function SabsmsTemplatesPage(props: PageProps) {
         </ul>
       }
     >
-      <Suspense fallback={<div className="h-96 w-full animate-pulse bg-slate-100 rounded-xl" />}>
+      <Suspense fallback={<div className="h-96 w-full animate-pulse bg-zoru-surface-2 rounded-xl" />}>
         <TemplatesDataLoader {...props} />
       </Suspense>
     </SabsmsPageShell>

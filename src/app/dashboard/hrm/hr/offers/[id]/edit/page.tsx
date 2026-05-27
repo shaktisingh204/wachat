@@ -1,62 +1,30 @@
-'use client';
+import { notFound, redirect } from 'next/navigation';
+import { getSession } from '@/app/actions/user.actions';
+import { loadLiveDocument, saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
 
-import { Skeleton } from '@/components/zoruui';
-import {
-  use,
-  useEffect,
-  useState } from 'react';
-import { Send } from 'lucide-react';
-import { HrFormPage } from '../../../_components/hr-form-page';
-import { fields,
-  sections } from '../../_config';
-import { getOfferLetterById,
-  saveOfferLetter } from '@/app/actions/hr.actions';
+export const dynamic = 'force-dynamic';
 
-export default function EditOfferPage({
-  params,
+const BASE = '/dashboard/hrm/hr/offers';
+
+export default async function EditOfferPage({
+    params,
 }: {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const [initial, setInitial] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+    const { id } = await params;
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const doc = await getOfferLetterById(id);
-        if (!mounted) return;
-        setInitial(doc ? ({ ...doc, _id: String((doc as any)._id) } as any) : null);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [id]);
+    const doc = await loadLiveDocument('offer_letter', id);
+    if (!doc) notFound();
 
-  if (loading) {
     return (
-      <div className="flex w-full flex-col gap-4">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+        <LiveDocumentEditor
+            documentType="offer_letter"
+            initialData={doc as Record<string, unknown>}
+            saveAction={saveLiveDocument}
+            backHref={BASE}
+        />
     );
-  }
-
-  return (
-    <HrFormPage
-      title="Edit Offer"
-      subtitle="Update offer details."
-      icon={Send}
-      backHref="/dashboard/hrm/hr/offers"
-      singular="Offer"
-      fields={fields}
-      sections={sections}
-      saveAction={saveOfferLetter}
-      initial={initial}
-    />
-  );
 }

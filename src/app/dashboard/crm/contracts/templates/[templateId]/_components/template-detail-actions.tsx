@@ -110,7 +110,7 @@ export function TemplateDetailActions({
           <ZoruDropdownMenuSeparator />
           <ZoruDropdownMenuItem
             onSelect={onDelete}
-            className="text-destructive focus:text-destructive"
+            className="text-zoru-ink focus:text-zoru-ink"
           >
             <Trash2 className="mr-2 h-4 w-4" /> Delete
           </ZoruDropdownMenuItem>

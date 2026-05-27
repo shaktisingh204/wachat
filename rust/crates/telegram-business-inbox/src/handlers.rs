@@ -25,6 +25,7 @@ use serde::{Deserialize, Serialize};
 use crate::state::TelegramBusinessInboxState;
 
 const PROJECTS: &str = "projects";
+#[allow(dead_code)]
 const BOTS: &str = "telegram_bots";
 const CHATS: &str = "telegram_chats";
 const MESSAGES: &str = "telegram_messages";

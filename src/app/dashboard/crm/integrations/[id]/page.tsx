@@ -182,7 +182,7 @@ export default async function IntegrationDetailPage({
         {/* Credentials — never plaintext */}
         <Card className="p-6">
           <div className="mb-3 flex items-center gap-1.5 text-[14px] font-medium text-zoru-ink">
-            <ShieldAlert className="h-4 w-4 text-amber-600" />
+            <ShieldAlert className="h-4 w-4 text-zoru-ink" />
             Credentials
           </div>
           <p className="text-[13px] text-zoru-ink-muted">

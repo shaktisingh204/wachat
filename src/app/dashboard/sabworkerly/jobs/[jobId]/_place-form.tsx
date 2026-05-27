@@ -68,7 +68,7 @@ export function PlaceWorkerForm({
     return (
         <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 md:grid-cols-5">
             {error && (
-                <div className="md:col-span-5 rounded-md border border-red-500/40 bg-red-500/10 p-2 text-sm text-red-300">
+                <div className="md:col-span-5 rounded-md border border-zoru-line/40 bg-zoru-ink/10 p-2 text-sm text-zoru-ink-muted">
                     {error}
                 </div>
             )}

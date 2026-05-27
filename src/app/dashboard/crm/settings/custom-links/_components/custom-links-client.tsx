@@ -363,13 +363,13 @@ export function CustomLinksClient(): React.JSX.Element {
                         <ZoruTableCell>
                           <Checkbox checked={selected.has(row._id)} onCheckedChange={() => toggleOne(row._id)} aria-label={`Select ${row.link_name}`} />
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-foreground">
+                        <ZoruTableCell className="font-medium text-zoru-ink">
                           <RowDrawer label={row.link_name} title={`Custom Link · ${row.link_name}`} description="Link details. Use Edit to modify.">
                             <div className="space-y-3 text-sm">
-                              <div><div className="text-xs text-muted-foreground">Name</div><div>{row.link_name}</div></div>
-                              <div><div className="text-xs text-muted-foreground">URL</div><div className="break-all">{row.url}</div></div>
-                              <div><div className="text-xs text-muted-foreground">Opens In</div><div>{row.open_in_new_tab ? 'New tab' : 'Same tab'}</div></div>
-                              <div><div className="text-xs text-muted-foreground">Order</div><div>{row.position ?? 0}</div></div>
+                              <div><div className="text-xs text-zoru-ink-muted">Name</div><div>{row.link_name}</div></div>
+                              <div><div className="text-xs text-zoru-ink-muted">URL</div><div className="break-all">{row.url}</div></div>
+                              <div><div className="text-xs text-zoru-ink-muted">Opens In</div><div>{row.open_in_new_tab ? 'New tab' : 'Same tab'}</div></div>
+                              <div><div className="text-xs text-zoru-ink-muted">Order</div><div>{row.position ?? 0}</div></div>
                             </div>
                           </RowDrawer>
                         </ZoruTableCell>

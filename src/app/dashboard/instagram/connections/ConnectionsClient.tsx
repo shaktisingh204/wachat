@@ -189,7 +189,7 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
 
       {projects.length > 0 ? (
         <>
-          <div className="flex flex-col md:flex-row items-center gap-4 justify-between bg-card p-4 rounded-lg border shadow-sm shrink-0">
+          <div className="flex flex-col md:flex-row items-center gap-4 justify-between bg-zoru-surface p-4 rounded-lg border shadow-sm shrink-0">
             <div className="relative w-full md:w-96">
               <Search className="absolute left-3 top-3 h-4 w-4 text-zoru-ink-muted" />
               <Input
@@ -264,7 +264,7 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
                               </div>
                             </ZoruCardHeader>
                             <ZoruCardContent className="flex-grow pt-2">
-                              <div className="grid grid-cols-2 gap-4 bg-muted/30 p-3 rounded-md">
+                              <div className="grid grid-cols-2 gap-4 bg-zoru-surface-2/30 p-3 rounded-md">
                                 <div>
                                   <p className="text-xs text-zoru-ink-muted mb-1">Followers</p>
                                   <p className="font-semibold text-sm">

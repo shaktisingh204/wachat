@@ -16,12 +16,12 @@ export default function BacklinkCheckerError({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] p-4">
-      <Card className="w-full max-w-md border-destructive/50 bg-destructive/10">
+      <Card className="w-full max-w-md border-destructive/50 bg-zoru-ink/10">
         <ZoruCardContent className="p-6 flex flex-col items-center text-center gap-4">
-          <AlertCircle className="w-10 h-10 text-destructive" />
+          <AlertCircle className="w-10 h-10 text-zoru-ink" />
           <div className="space-y-2">
             <h3 className="text-lg font-semibold tracking-tight">Something went wrong!</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-zoru-ink-muted">
               {error.message || "An unexpected error occurred while loading the backlink checker."}
             </p>
           </div>

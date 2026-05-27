@@ -7,7 +7,7 @@ export const DynamicBooleanInput = ({ label, description, value, onChange, place
     return (
         <div className="space-y-2 rounded-lg border p-4">
             <Label className="font-semibold">{label}</Label>
-            {description && <p className="text-xs text-muted-foreground pb-2">{description}</p>}
+            {description && <p className="text-xs text-zoru-ink-muted pb-2">{description}</p>}
             <RadioGroup
                 value={currentMode}
                 onValueChange={(newMode) => {

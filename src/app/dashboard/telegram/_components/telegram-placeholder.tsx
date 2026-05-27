@@ -33,11 +33,10 @@ export function TelegramPlaceholder({
                     <div
                         className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
                         style={{
-                            background: 'linear-gradient(135deg, #37BBFE 0%, #007DBB 100%)',
-                            boxShadow: '0 10px 28px rgba(0, 125, 187, 0.25)',
+                            background: 'var(--zoru-ink)',
                         }}
                     >
-                        <Icon className="h-6 w-6 text-white" strokeWidth={1.75} />
+                        <Icon className="h-6 w-6" style={{ color: 'var(--zoru-surface)' }} strokeWidth={1.75} />
                     </div>
                     <div className="min-w-0">
                         <div className="flex items-center gap-2">
@@ -84,7 +83,7 @@ export function TelegramPlaceholder({
                             <li key={b} className="flex items-start gap-2 text-[13px] text-zoru-ink">
                                 <span
                                     className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full"
-                                    style={{ background: '#37BBFE' }}
+                                    style={{ background: 'var(--zoru-ink)' }}
                                 />
                                 <span>{b}</span>
                             </li>

@@ -66,13 +66,13 @@ function LiveTerminalSkeleton() {
                 {/* Left 60% — item picker skeleton */}
                 <Card className="md:col-span-3">
                     <ZoruCardContent className="flex flex-col gap-3 p-4">
-                        <div className="h-10 bg-zinc-200 dark:bg-zinc-800 rounded w-full animate-pulse" />
+                        <div className="h-10 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-full animate-pulse" />
                         <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
                             {[...Array(8)].map((_, i) => (
                                 <div key={i} className="h-[90px] rounded-md border border-zoru-line bg-zoru-surface p-3 flex flex-col justify-between">
-                                    <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-5/6 animate-pulse" />
-                                    <div className="h-2 bg-zinc-100 dark:bg-zinc-900 rounded w-1/2 animate-pulse" />
-                                    <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-2/3 animate-pulse" />
+                                    <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-5/6 animate-pulse" />
+                                    <div className="h-2 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-1/2 animate-pulse" />
+                                    <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-2/3 animate-pulse" />
                                 </div>
                             ))}
                         </div>
@@ -83,45 +83,45 @@ function LiveTerminalSkeleton() {
                 <Card className="md:col-span-2">
                     <ZoruCardContent className="flex flex-col gap-4 p-4">
                         <div className="flex items-center justify-between">
-                            <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-1/4 animate-pulse" />
-                            <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-12 animate-pulse" />
+                            <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-1/4 animate-pulse" />
+                            <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-12 animate-pulse" />
                         </div>
                         <div className="space-y-1.5">
-                            <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-16 animate-pulse" />
-                            <div className="h-9 bg-zinc-100 dark:bg-zinc-900 rounded w-full animate-pulse" />
+                            <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
+                            <div className="h-9 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-full animate-pulse" />
                         </div>
                         <div className="h-[120px] rounded-md border border-dashed border-zoru-line p-6 flex items-center justify-center">
-                            <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-1/2 animate-pulse" />
+                            <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-1/2 animate-pulse" />
                         </div>
                         <div className="space-y-2 border-t border-zoru-line pt-3">
                             <div className="flex justify-between">
-                                <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-12 animate-pulse" />
-                                <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-16 animate-pulse" />
+                                <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-12 animate-pulse" />
+                                <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
                             </div>
                             <div className="flex justify-between">
-                                <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-10 animate-pulse" />
-                                <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-16 animate-pulse" />
+                                <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-10 animate-pulse" />
+                                <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
                             </div>
                             <div className="flex justify-between">
-                                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-12 animate-pulse" />
-                                <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-20 animate-pulse" />
+                                <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-12 animate-pulse" />
+                                <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-20 animate-pulse" />
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-24 animate-pulse" />
+                            <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-24 animate-pulse" />
                             <div className="grid grid-cols-4 gap-1">
                                 {[...Array(4)].map((_, i) => (
-                                    <div key={i} className="h-12 bg-zinc-100 dark:bg-zinc-900 rounded animate-pulse" />
+                                    <div key={i} className="h-12 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
                                 ))}
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-32 animate-pulse" />
-                            <div className="h-12 bg-zinc-100 dark:bg-zinc-900 rounded animate-pulse" />
+                            <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-32 animate-pulse" />
+                            <div className="h-12 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
                         </div>
                         <div className="flex gap-2 pt-2">
-                            <div className="h-10 bg-zinc-100 dark:bg-zinc-900 rounded flex-1 animate-pulse" />
-                            <div className="h-10 bg-zinc-200 dark:bg-zinc-800 rounded flex-1 animate-pulse" />
+                            <div className="h-10 bg-zoru-surface-2 dark:bg-zoru-ink rounded flex-1 animate-pulse" />
+                            <div className="h-10 bg-zoru-surface-2 dark:bg-zoru-ink rounded flex-1 animate-pulse" />
                         </div>
                     </ZoruCardContent>
                 </Card>
@@ -139,10 +139,10 @@ function TerminalManagerSkeleton() {
                     <Card key={i}>
                         <ZoruCardContent className="flex items-start justify-between p-3.5 h-[68px]">
                             <div className="space-y-1.5 w-full">
-                                <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-16 animate-pulse" />
-                                <div className="h-5 bg-zinc-200 dark:bg-zinc-800 rounded w-8 animate-pulse" />
+                                <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
+                                <div className="h-5 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-8 animate-pulse" />
                             </div>
-                            <div className="h-4 w-4 rounded bg-zinc-200 dark:bg-zinc-800 animate-pulse" />
+                            <div className="h-4 w-4 rounded bg-zoru-surface-2 dark:bg-zoru-ink animate-pulse" />
                         </ZoruCardContent>
                     </Card>
                 ))}
@@ -151,12 +151,12 @@ function TerminalManagerSkeleton() {
             {/* Filter and table skeleton */}
             <div className="flex flex-col gap-4">
                 <div className="flex flex-wrap items-center gap-2">
-                    <div className="h-9 bg-zinc-200 dark:bg-zinc-800 rounded max-w-sm flex-1 animate-pulse" />
-                    <div className="h-9 bg-zinc-200 dark:bg-zinc-800 rounded w-[150px] animate-pulse" />
+                    <div className="h-9 bg-zoru-surface-2 dark:bg-zoru-ink rounded max-w-sm flex-1 animate-pulse" />
+                    <div className="h-9 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-[150px] animate-pulse" />
                     <div className="ml-auto flex items-center gap-1">
-                        <div className="h-8 bg-zinc-100 dark:bg-zinc-900 rounded w-20 animate-pulse" />
-                        <div className="h-8 bg-zinc-100 dark:bg-zinc-900 rounded w-14 animate-pulse" />
-                        <div className="h-8 bg-zinc-100 dark:bg-zinc-900 rounded w-16 animate-pulse" />
+                        <div className="h-8 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-20 animate-pulse" />
+                        <div className="h-8 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-14 animate-pulse" />
+                        <div className="h-8 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
                     </div>
                 </div>
 
@@ -165,34 +165,34 @@ function TerminalManagerSkeleton() {
                         <div className="min-w-full divide-y divide-zoru-line">
                             {/* Table Header */}
                             <div className="flex items-center px-4 py-3 bg-zoru-surface-2 text-zoru-ink-muted">
-                                <div className="h-4 w-4 rounded bg-zinc-200 dark:bg-zinc-800 mr-4 animate-pulse" />
+                                <div className="h-4 w-4 rounded bg-zoru-surface-2 dark:bg-zoru-ink mr-4 animate-pulse" />
                                 <div className="flex-1 grid grid-cols-6 gap-4">
-                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-16 animate-pulse" />
-                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-12 animate-pulse" />
-                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-24 animate-pulse" />
-                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-28 animate-pulse" />
-                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-16 text-right justify-self-end animate-pulse" />
-                                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-20 text-right justify-self-end animate-pulse" />
+                                    <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
+                                    <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-12 animate-pulse" />
+                                    <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-24 animate-pulse" />
+                                    <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-28 animate-pulse" />
+                                    <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 text-right justify-self-end animate-pulse" />
+                                    <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-20 text-right justify-self-end animate-pulse" />
                                 </div>
-                                <div className="h-4 w-20 rounded bg-zinc-200 dark:bg-zinc-800 ml-4 animate-pulse" />
+                                <div className="h-4 w-20 rounded bg-zoru-surface-2 dark:bg-zoru-ink ml-4 animate-pulse" />
                             </div>
 
                             {/* Table Rows */}
                             {[...Array(5)].map((_, rowIndex) => (
                                 <div key={rowIndex} className="flex items-center px-4 py-4 border-t border-zoru-line">
-                                    <div className="h-4 w-4 rounded bg-zinc-100 dark:bg-zinc-900 mr-4 animate-pulse" />
+                                    <div className="h-4 w-4 rounded bg-zoru-surface-2 dark:bg-zoru-ink mr-4 animate-pulse" />
                                     <div className="flex-1 grid grid-cols-6 gap-4">
                                         <div className="space-y-1">
-                                            <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-20 animate-pulse" />
-                                            <div className="h-3 bg-zinc-100 dark:bg-zinc-900 rounded w-12 animate-pulse" />
+                                            <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-20 animate-pulse" />
+                                            <div className="h-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-12 animate-pulse" />
                                         </div>
-                                        <div className="h-5 bg-zinc-200 dark:bg-zinc-800 rounded-full w-14 animate-pulse" />
-                                        <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-24 animate-pulse" />
-                                        <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-16 animate-pulse" />
-                                        <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-8 text-right justify-self-end animate-pulse" />
-                                        <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-16 text-right justify-self-end animate-pulse" />
+                                        <div className="h-5 bg-zoru-surface-2 dark:bg-zoru-ink rounded-full w-14 animate-pulse" />
+                                        <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-24 animate-pulse" />
+                                        <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 animate-pulse" />
+                                        <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-8 text-right justify-self-end animate-pulse" />
+                                        <div className="h-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded w-16 text-right justify-self-end animate-pulse" />
                                     </div>
-                                    <div className="h-8 w-24 bg-zinc-200 dark:bg-zinc-800 rounded ml-4 animate-pulse" />
+                                    <div className="h-8 w-24 bg-zoru-surface-2 dark:bg-zoru-ink rounded ml-4 animate-pulse" />
                                 </div>
                             ))}
                         </div>
@@ -414,11 +414,11 @@ async function TerminalManagerContainer() {
                             <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
                                 Online
                             </p>
-                            <p className="mt-0.5 text-xl font-semibold text-emerald-500">
+                            <p className="mt-0.5 text-xl font-semibold text-zoru-ink">
                                 {onlineCount}
                             </p>
                         </div>
-                        <span className="inline-block h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                        <span className="inline-block h-2.5 w-2.5 rounded-full bg-zoru-ink" />
                     </ZoruCardContent>
                 </Card>
                 <Card>
@@ -431,7 +431,7 @@ async function TerminalManagerContainer() {
                                 {terminals.length - onlineCount}
                             </p>
                         </div>
-                        <span className="inline-block h-2.5 w-2.5 rounded-full bg-zinc-400" />
+                        <span className="inline-block h-2.5 w-2.5 rounded-full bg-zoru-surface-2" />
                     </ZoruCardContent>
                 </Card>
                 <Card>

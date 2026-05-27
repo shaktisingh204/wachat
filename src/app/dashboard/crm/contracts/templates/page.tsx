@@ -444,7 +444,7 @@ export default function ContractTemplatesPage() {
                   <ZoruTableRow className="border-zoru-line">
                     <ZoruTableCell
                       colSpan={5}
-                      className="h-24 text-center text-[13px] text-muted-foreground"
+                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
                     >
                       {filtersActive
                         ? 'No templates match the current filters.'
@@ -470,7 +470,7 @@ export default function ContractTemplatesPage() {
                       <ZoruTableCell>
                         <TemplateBadge status={row.status} />
                       </ZoruTableCell>
-                      <ZoruTableCell className="max-w-[360px] truncate text-[13px] text-muted-foreground">
+                      <ZoruTableCell className="max-w-[360px] truncate text-[13px] text-zoru-ink-muted">
                         {(row.body || '').slice(0, 120)}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
@@ -507,7 +507,7 @@ export default function ContractTemplatesPage() {
                             aria-label="Delete"
                             onClick={() => setDeletingId(row._id)}
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                            <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
                           </Button>
                         </div>
                       </ZoruTableCell>
@@ -525,29 +525,29 @@ export default function ContractTemplatesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-2xl">
           <ZoruDialogHeader>
-            <ZoruDialogTitle className="text-foreground">
+            <ZoruDialogTitle className="text-zoru-ink">
               {editing ? 'Edit Template' : 'Add Template'}
             </ZoruDialogTitle>
-            <ZoruDialogDescription className="text-muted-foreground">
+            <ZoruDialogDescription className="text-zoru-ink-muted">
               Placeholders like {'{{client_name}}'} are supported.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <form action={saveFormAction} className="space-y-4">
             {editing?._id ? <input type="hidden" name="_id" value={editing._id} /> : null}
             <div>
-              <Label htmlFor="name" className="text-foreground">
-                Template Name <span className="text-destructive">*</span>
+              <Label htmlFor="name" className="text-zoru-ink">
+                Template Name <span className="text-zoru-ink">*</span>
               </Label>
               <Input
                 id="name"
                 name="name"
                 required
                 defaultValue={editing?.name || ''}
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="status" className="text-foreground">
+              <Label htmlFor="status" className="text-zoru-ink">
                 Status
               </Label>
               <Select
@@ -565,8 +565,8 @@ export default function ContractTemplatesPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="body" className="text-foreground">
-                Body <span className="text-destructive">*</span>
+              <Label htmlFor="body" className="text-zoru-ink">
+                Body <span className="text-zoru-ink">*</span>
               </Label>
               <Textarea
                 id="body"
@@ -574,7 +574,7 @@ export default function ContractTemplatesPage() {
                 required
                 rows={10}
                 defaultValue={editing?.body || ''}
-                className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
                 placeholder="Contract body with placeholders like {{client_name}}, {{start_date}}…"
               />
             </div>
@@ -601,8 +601,8 @@ export default function ContractTemplatesPage() {
       >
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-foreground">Delete Template?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription className="text-muted-foreground">
+            <ZoruAlertDialogTitle className="text-zoru-ink">Delete Template?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription className="text-zoru-ink-muted">
               This action cannot be undone.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>

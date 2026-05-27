@@ -52,10 +52,10 @@ export default async function PublicInvoicePage({ params }: PageProps) {
       <div className="lg:col-span-2 print:hidden">
         <div className="sticky top-6 flex flex-col gap-5">
           <div className="flex items-center gap-3">
-            <span className="rounded bg-secondary border border-border px-2 py-0.5 font-mono text-[11px] font-bold text-green-600 uppercase">
+            <span className="rounded bg-zoru-surface-2 border border-zoru-line px-2 py-0.5 font-mono text-[11px] font-bold text-zoru-ink uppercase">
               POST
             </span>
-            <span className="font-mono text-[13px] text-foreground tracking-tight">
+            <span className="font-mono text-[13px] text-zoru-ink tracking-tight">
               /v1/invoices/{token.slice(0, 8)}.../pay
             </span>
           </div>

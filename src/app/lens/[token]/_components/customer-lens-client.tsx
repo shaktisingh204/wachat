@@ -107,7 +107,7 @@ export function CustomerLensClient({ token, session }: Props) {
             </ZoruCardHeader>
             <ZoruCardContent className="flex flex-col gap-3">
               {permissionState === 'denied' && (
-                <p className="text-sm text-destructive">
+                <p className="text-sm text-zoru-ink">
                   Camera permission denied. Update your browser settings and
                   try again.
                 </p>

@@ -346,7 +346,7 @@ export function ActivityTimelinePage({ getList, bulkDelete }: ActivityTimelinePa
                   <Download className="h-3.5 w-3.5" strokeWidth={1.75} /> Export selected
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setPendingBulk(true)}>
-                  <Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} /> Delete selected
+                  <Trash2 className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={1.75} /> Delete selected
                 </Button>
               </div>
             </div>

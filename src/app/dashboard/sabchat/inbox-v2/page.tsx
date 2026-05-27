@@ -36,7 +36,7 @@ export default async function SabChatInboxV2Page({
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     {inboxes.length === 0 ? (
-                        <div className="rounded border border-dashed p-6 text-center text-sm text-muted-foreground">
+                        <div className="rounded border border-dashed p-6 text-center text-sm text-zoru-ink-muted">
                             No inboxes yet. Create one via{' '}
                             <code>POST /v1/sabchat/inboxes</code> or the admin UI.
                         </div>

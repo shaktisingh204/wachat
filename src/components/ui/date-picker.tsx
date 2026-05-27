@@ -22,7 +22,7 @@ export function DatePicker({ date, setDate, className, placeholder }: { date?: D
           variant={"outline"}
           className={cn(
             "w-full justify-start text-left font-normal",
-            !date && "text-muted-foreground",
+            !date && "text-zoru-ink-muted",
             className
           )}
         >

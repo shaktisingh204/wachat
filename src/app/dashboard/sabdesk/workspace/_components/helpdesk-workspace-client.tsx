@@ -362,7 +362,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                   (selected.internalNotes as Array<Record<string, unknown>>).map((n, i) => (
                     <Card
                       key={String(n._id ?? i)}
-                      className={n.isInternal ? 'border-amber-500/30' : ''}
+                      className={n.isInternal ? 'border-zoru-line/30' : ''}
                     >
                       <ZoruCardContent className="space-y-1 p-3 text-[13px]">
                         <div className="flex items-center gap-2 text-[11px] text-zoru-ink-muted">

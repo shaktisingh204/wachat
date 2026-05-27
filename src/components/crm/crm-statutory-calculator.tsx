@@ -172,7 +172,7 @@ export function CrmStatutoryCalculator({
       <Card className="p-0 border border-zoru-line overflow-hidden bg-zoru-surface">
         <div className="flex items-center justify-between border-b border-zoru-line px-4 py-3 bg-zoru-surface-2/40">
           <h4 className="text-[13px] font-semibold text-zoru-ink flex items-center gap-2">
-            <Calculator className="h-4 w-4 text-primary" /> Invoice Line Items & Taxes
+            <Calculator className="h-4 w-4 text-zoru-ink" /> Invoice Line Items & Taxes
           </h4>
           <div className="flex items-center gap-2 text-[11px] text-zoru-ink-muted">
             <Info className="h-3.5 w-3.5" />
@@ -432,7 +432,7 @@ export function CrmStatutoryCalculator({
 
           <div className="flex justify-between text-[15px] font-bold text-zoru-ink border-t border-zoru-line pt-2.5 mt-2">
             <span>Grand Total (Net Receivable):</span>
-            <span className="text-primary">{totals.grandTotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
+            <span className="text-zoru-ink">{totals.grandTotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>
           </div>
         </div>
       </div>

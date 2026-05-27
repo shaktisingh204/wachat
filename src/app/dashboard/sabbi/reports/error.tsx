@@ -16,8 +16,8 @@ export default function ReportsError({
 
     return (
         <div className="flex h-[400px] w-full flex-col items-center justify-center gap-4 rounded-lg border border-dashed p-8 text-center">
-            <h2 className="text-xl font-semibold text-foreground">Something went wrong!</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="text-xl font-semibold text-zoru-ink">Something went wrong!</h2>
+            <p className="text-sm text-zoru-ink-muted">
                 {error.message || 'An unexpected error occurred in the Reports module.'}
             </p>
             <Button onClick={() => reset()} variant="outline">

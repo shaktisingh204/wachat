@@ -63,7 +63,7 @@ function ContextMenu({
       ref={ref}
       role="menu"
       style={{ top: position.y, left: position.x }}
-      className="fixed z-[60] min-w-[180px] rounded-xl bg-white py-1 shadow-2xl ring-1 ring-zinc-200/80 backdrop-blur-xl"
+      className="fixed z-[60] min-w-[180px] rounded-xl bg-white py-1 shadow-2xl ring-1 ring-zoru-line/80 backdrop-blur-xl"
     >
       {items.map((item, i) => (
         <button
@@ -79,10 +79,10 @@ function ContextMenu({
           className={cn(
             "flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12.5px] font-bold transition-colors",
             item.disabled
-              ? "text-zinc-300 cursor-not-allowed"
+              ? "text-zoru-ink-muted cursor-not-allowed"
               : item.danger
-                ? "text-rose-600 hover:bg-rose-50"
-                : "text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900",
+                ? "text-zoru-ink hover:bg-zoru-surface-2"
+                : "text-zoru-ink hover:bg-zoru-surface-2 hover:text-zoru-ink",
           )}
         >
           {item.icon ? <span className="shrink-0">{item.icon}</span> : null}
@@ -166,8 +166,8 @@ const TabChip = React.forwardRef<
         "rounded-t-xl px-3 h-9 border-x border-t border-transparent",
         "transition-all duration-150",
         active
-          ? cn("bg-white border-zinc-200/80 -mb-px", "shadow-[0_-1px_0_rgba(255,255,255,0.9)_inset]")
-          : cn("bg-zinc-50/70 hover:bg-white", tab.hue.hoverSoft, "text-zinc-600 hover:text-zinc-900"),
+          ? cn("bg-white border-zoru-line/80 -mb-px", "shadow-[0_-1px_0_rgba(255,255,255,0.9)_inset]")
+          : cn("bg-zoru-surface-2/70 hover:bg-white", tab.hue.hoverSoft, "text-zoru-ink hover:text-zoru-ink"),
         tab.pinned ? "px-2.5" : "pr-2",
       )}
       title={tab.title}
@@ -194,7 +194,7 @@ const TabChip = React.forwardRef<
       {tab.pinned ? (
         <LuPin
           aria-hidden
-          className={cn("size-3 shrink-0", active ? tab.hue.ink : "text-zinc-500")}
+          className={cn("size-3 shrink-0", active ? tab.hue.ink : "text-zoru-ink")}
         />
       ) : null}
 
@@ -203,7 +203,7 @@ const TabChip = React.forwardRef<
         <span
           className={cn(
             "max-w-[140px] truncate text-[12.5px] font-bold tracking-tight",
-            active ? "text-zinc-900" : undefined,
+            active ? "text-zoru-ink" : undefined,
           )}
         >
           {tab.title}
@@ -221,7 +221,7 @@ const TabChip = React.forwardRef<
           }}
           className={cn(
             "ml-0.5 grid size-5 shrink-0 place-items-center rounded-md",
-            "text-zinc-400 hover:text-zinc-900 hover:bg-zinc-200/70",
+            "text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2/70",
             "opacity-0 group-hover:opacity-100 focus:opacity-100",
             active && "opacity-100",
           )}
@@ -270,7 +270,7 @@ export function TabsBar({ className }: { className?: string }) {
     return (
       <div
         className={cn(
-          "flex items-center h-10 px-4 text-[12px] font-bold tracking-tight text-zinc-400 select-none",
+          "flex items-center h-10 px-4 text-[12px] font-bold tracking-tight text-zoru-ink-muted select-none",
           className,
         )}
       >
@@ -282,19 +282,19 @@ export function TabsBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "relative flex items-stretch h-10 border-b border-zinc-200/80 bg-zinc-50/40",
+        "relative flex items-stretch h-10 border-b border-zoru-line/80 bg-zoru-surface-2/40",
         className,
       )}
     >
       {/* Scroll fade — left */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-zinc-50/80 to-transparent z-10"
+        className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-zoru-surface-2/80 to-transparent z-10"
       />
       {/* Scroll fade — right */}
       <div
         aria-hidden
-        className="pointer-events-none absolute right-10 top-0 bottom-0 w-6 bg-gradient-to-l from-zinc-50/80 to-transparent z-10"
+        className="pointer-events-none absolute right-10 top-0 bottom-0 w-6 bg-gradient-to-l from-zoru-surface-2/80 to-transparent z-10"
       />
 
       <div
@@ -352,7 +352,7 @@ export function TabsBar({ className }: { className?: string }) {
             position: { x: rect.right - 220, y: rect.bottom + 4 },
           });
         }}
-        className="grid size-9 shrink-0 self-center mr-1 place-items-center rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200/70 transition-colors"
+        className="grid size-9 shrink-0 self-center mr-1 place-items-center rounded-lg text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2/70 transition-colors"
       >
         <LuChevronDown className="size-4" />
       </button>

@@ -156,7 +156,7 @@ export default function SabChatVisitorsPage() {
         <ZoruPageHeading>
           <div className="flex items-center gap-3">
             <ZoruPageTitle>Live visitors</ZoruPageTitle>
-            <Badge variant="secondary" className="px-2 py-0.5 animate-pulse bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+            <Badge variant="secondary" className="px-2 py-0.5 animate-pulse bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
               {filteredVisitors.length} Online
             </Badge>
           </div>
@@ -261,7 +261,7 @@ export default function SabChatVisitorsPage() {
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-zoru-ink">{name}</span>
                           {isReturning && (
-                            <Badge variant="outline" className="h-4 px-1 text-[9px] uppercase tracking-wider text-purple-600 border-purple-200 bg-purple-50">
+                            <Badge variant="outline" className="h-4 px-1 text-[9px] uppercase tracking-wider text-zoru-ink border-zoru-line bg-zoru-surface-2">
                               Returning
                             </Badge>
                           )}
@@ -362,7 +362,7 @@ export default function SabChatVisitorsPage() {
                             <ZoruDropdownMenuItem>View full profile</ZoruDropdownMenuItem>
                             <ZoruDropdownMenuItem>Block IP Address</ZoruDropdownMenuItem>
                             <ZoruDropdownMenuSeparator />
-                            <ZoruDropdownMenuItem className="text-red-600">Delete session</ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem className="text-zoru-ink">Delete session</ZoruDropdownMenuItem>
                           </ZoruDropdownMenuContent>
                         </ZoruDropdownMenu>
                       </div>

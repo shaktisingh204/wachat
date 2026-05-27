@@ -551,26 +551,26 @@ export default function DashboardWidgetsPage() {
                         >
                           <div className="space-y-3 text-sm">
                             <div>
-                              <div className="text-muted-foreground text-xs">
+                              <div className="text-zoru-ink-muted text-xs">
                                 Type
                               </div>
                               <div>{w.type}</div>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <div className="text-muted-foreground text-xs">
+                                <div className="text-zoru-ink-muted text-xs">
                                   Width
                                 </div>
                                 <div>{w.width}</div>
                               </div>
                               <div>
-                                <div className="text-muted-foreground text-xs">
+                                <div className="text-zoru-ink-muted text-xs">
                                   Position
                                 </div>
                                 <div>{w.position ?? 0}</div>
                               </div>
                               <div>
-                                <div className="text-muted-foreground text-xs">
+                                <div className="text-zoru-ink-muted text-xs">
                                   Visible
                                 </div>
                                 <div>
@@ -578,7 +578,7 @@ export default function DashboardWidgetsPage() {
                                 </div>
                               </div>
                               <div>
-                                <div className="text-muted-foreground text-xs">
+                                <div className="text-zoru-ink-muted text-xs">
                                   Data source
                                 </div>
                                 <div className="font-mono text-xs">
@@ -588,7 +588,7 @@ export default function DashboardWidgetsPage() {
                             </div>
                             {w.config && Object.keys(w.config).length > 0 ? (
                               <div>
-                                <div className="text-muted-foreground text-xs">
+                                <div className="text-zoru-ink-muted text-xs">
                                   Config
                                 </div>
                                 <pre className="rounded bg-zoru-surface-2 p-2 text-[11px]">

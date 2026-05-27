@@ -422,10 +422,10 @@ export default function BankAccountsClient({
 
                     {/* Table */}
                     <Card>
-                        <div className="overflow-x-auto rounded-lg border border-border">
+                        <div className="overflow-x-auto rounded-lg border border-zoru-line">
                             <Table>
                                 <ZoruTableHeader>
-                                    <ZoruTableRow className="border-border hover:bg-transparent">
+                                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                         <ZoruTableHead className="w-10">
                                             <Checkbox
                                                 checked={pageRows.length > 0 && pageRows.every((r) => selected.has(String(r._id)))}
@@ -433,12 +433,12 @@ export default function BankAccountsClient({
                                                 aria-label="Select all"
                                             />
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-muted-foreground">Account Name</ZoruTableHead>
-                                        <ZoruTableHead className="text-muted-foreground">Bank</ZoruTableHead>
-                                        <ZoruTableHead className="text-muted-foreground">Account Number</ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-muted-foreground">Balance</ZoruTableHead>
-                                        <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-muted-foreground">Actions</ZoruTableHead>
+                                        <ZoruTableHead className="text-zoru-ink-muted">Account Name</ZoruTableHead>
+                                        <ZoruTableHead className="text-zoru-ink-muted">Bank</ZoruTableHead>
+                                        <ZoruTableHead className="text-zoru-ink-muted">Account Number</ZoruTableHead>
+                                        <ZoruTableHead className="text-right text-zoru-ink-muted">Balance</ZoruTableHead>
+                                        <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                                        <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
                                     </ZoruTableRow>
                                 </ZoruTableHeader>
                                 <ZoruTableBody>
@@ -446,7 +446,7 @@ export default function BankAccountsClient({
                                         const id = String(account._id);
                                         const checked = selected.has(id);
                                         return (
-                                            <ZoruTableRow key={id} className="border-border">
+                                            <ZoruTableRow key={id} className="border-zoru-line">
                                                 <ZoruTableCell>
                                                     <Checkbox
                                                         checked={checked}
@@ -454,20 +454,20 @@ export default function BankAccountsClient({
                                                         aria-label={`Select ${account.accountName}`}
                                                     />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-medium text-foreground">
+                                                <ZoruTableCell className="font-medium text-zoru-ink">
                                                     <EntityRowLink
                                                         href={`/dashboard/crm/banking/bank-accounts/${id}`}
                                                         label={account.accountName}
                                                         subtitle={account.bankDetails?.accountHolder || undefined}
                                                     />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-[13px] text-foreground">
+                                                <ZoruTableCell className="text-[13px] text-zoru-ink">
                                                     {account.bankDetails?.bankName || 'N/A'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-xs text-foreground">
+                                                <ZoruTableCell className="font-mono text-xs text-zoru-ink">
                                                     {account.bankDetails?.accountNumber || 'N/A'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-semibold text-foreground">
+                                                <ZoruTableCell className="text-right font-semibold text-zoru-ink">
                                                     {new Intl.NumberFormat('en-IN', {
                                                         style: 'currency',
                                                         currency: account.currency || 'INR',
@@ -488,7 +488,7 @@ export default function BankAccountsClient({
                                                         onClick={() => setDeleteTargetId(id)}
                                                         aria-label="Delete"
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
@@ -496,7 +496,7 @@ export default function BankAccountsClient({
                                     })}
                                     {pageRows.length === 0 && accounts.length > 0 ? (
                                         <ZoruTableRow>
-                                            <ZoruTableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
+                                            <ZoruTableCell colSpan={7} className="py-8 text-center text-sm text-zoru-ink-muted">
                                                 No accounts match your filters.
                                             </ZoruTableCell>
                                         </ZoruTableRow>

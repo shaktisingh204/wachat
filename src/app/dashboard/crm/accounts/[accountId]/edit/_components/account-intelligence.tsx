@@ -23,15 +23,15 @@ export function AccountIntelligence() {
         <Card className="w-full">
             <ZoruCardHeader className="pb-4">
                 <ZoruCardTitle className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-emerald-500" />
+                    <Sparkles className="h-4 w-4 text-zoru-ink" />
                     Account Intelligence
                 </ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent className="grid gap-4">
                 <div className="flex items-center justify-between rounded-lg border border-zoru-line p-3">
                     <div className="flex items-center gap-3">
-                        <div className="rounded-md bg-emerald-100 p-2 dark:bg-emerald-900/20">
-                            <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        <div className="rounded-md bg-zoru-surface-2 p-2 dark:bg-zoru-ink/20">
+                            <TrendingUp className="h-4 w-4 text-zoru-ink dark:text-zoru-ink-muted" />
                         </div>
                         <div>
                             <p className="text-sm font-medium">Account Health</p>
@@ -66,7 +66,7 @@ export function AccountIntelligence() {
                 </div>
 
                 <div className="rounded-lg bg-zoru-surface-2 p-3 flex items-start gap-2 text-xs text-zoru-ink-muted">
-                    <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-blue-500" />
+                    <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-zoru-ink" />
                     <p>
                         Enriched data will pre-fill any empty fields without overwriting your existing manual changes.
                     </p>

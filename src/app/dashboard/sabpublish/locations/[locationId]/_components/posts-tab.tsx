@@ -118,7 +118,7 @@ export function SabpublishPostsTab({
               <input
                 id="schedule-at"
                 type="datetime-local"
-                className="block w-full rounded-md border bg-background px-3 py-2 text-sm"
+                className="block w-full rounded-md border bg-zoru-surface px-3 py-2 text-sm"
                 value={scheduleAt}
                 onChange={(e) => setScheduleAt(e.target.value)}
               />
@@ -134,14 +134,14 @@ export function SabpublishPostsTab({
                 Add media from library
               </SabFilePickerButton>
               {mediaFileIds.length > 0 ? (
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-zoru-ink-muted">
                   {mediaFileIds.length} file(s) attached
                 </div>
               ) : null}
             </div>
           </div>
           {error ? (
-            <p className="text-sm text-destructive">{error}</p>
+            <p className="text-sm text-zoru-ink">{error}</p>
           ) : null}
           <div className="flex gap-2">
             <Button onClick={() => handlePublish(false)} disabled={pending}>
@@ -159,7 +159,7 @@ export function SabpublishPostsTab({
       </Card>
 
       <div>
-        <h3 className="mb-3 text-sm font-semibold uppercase text-muted-foreground">
+        <h3 className="mb-3 text-sm font-semibold uppercase text-zoru-ink-muted">
           Recent posts
         </h3>
         {posts.length === 0 ? (
@@ -174,7 +174,7 @@ export function SabpublishPostsTab({
                 <CardContent className="space-y-2 p-4">
                   <div className="flex items-center justify-between">
                     <Badge variant="outline">{p.status}</Badge>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-zoru-ink-muted">
                       {p.scheduleAt
                         ? `Scheduled for ${new Date(p.scheduleAt).toLocaleString()}`
                         : p.publishedAt
@@ -183,7 +183,7 @@ export function SabpublishPostsTab({
                     </span>
                   </div>
                   <p className="text-sm">{p.body}</p>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-zoru-ink-muted">
                     Providers: {(p.providerIds ?? []).join(', ') || '—'}
                   </div>
                 </CardContent>

@@ -28,9 +28,9 @@ function statusLabel(session: FlowSession): 'completed' | 'active' | 'abandoned'
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  completed: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-  active: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  abandoned: 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400',
+  completed: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted',
+  active: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted',
+  abandoned: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted',
 };
 
 function exportToCsv(sessions: FlowSession[]) {
@@ -62,28 +62,28 @@ function ExpandedRow({ session }: { session: FlowSession }) {
 
   return (
     <tr>
-      <td colSpan={5} className="px-4 py-3 bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-700">
+      <td colSpan={5} className="px-4 py-3 bg-zoru-surface-2 dark:bg-zoru-ink/50 border-b border-zoru-line dark:border-zoru-line">
         <div className="max-w-2xl">
-          <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-2">
+          <p className="text-xs font-semibold text-zoru-ink dark:text-zoru-ink-muted uppercase tracking-wide mb-2">
             Collected variables
           </p>
           {entries.length === 0 ? (
-            <p className="text-sm text-zinc-400 dark:text-zinc-500 italic">No variables collected.</p>
+            <p className="text-sm text-zoru-ink-muted dark:text-zoru-ink italic">No variables collected.</p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {entries.map(([key, val]) => (
                 <div
                   key={key}
-                  className="flex items-center gap-1.5 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md px-2.5 py-1 text-sm"
+                  className="flex items-center gap-1.5 bg-white dark:bg-zoru-ink border border-zoru-line dark:border-zoru-line rounded-md px-2.5 py-1 text-sm"
                 >
-                  <span className="font-mono text-xs text-amber-600 dark:text-amber-400">{key}</span>
-                  <span className="text-zinc-400 dark:text-zinc-500">=</span>
-                  <span className="text-zinc-700 dark:text-zinc-300 max-w-[200px] truncate">{val}</span>
+                  <span className="font-mono text-xs text-zoru-ink dark:text-zoru-ink-muted">{key}</span>
+                  <span className="text-zoru-ink-muted dark:text-zoru-ink">=</span>
+                  <span className="text-zoru-ink dark:text-zoru-ink-muted max-w-[200px] truncate">{val}</span>
                 </div>
               ))}
             </div>
           )}
-          <div className="mt-3 text-xs text-zinc-400 dark:text-zinc-500 space-y-0.5">
+          <div className="mt-3 text-xs text-zoru-ink-muted dark:text-zoru-ink space-y-0.5">
             <div>Session ID: <span className="font-mono">{session.sessionId}</span></div>
             <div>Last updated: {fmtDate(session.updatedAt)}</div>
           </div>
@@ -106,19 +106,19 @@ function DateRangeFilter({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <LuCalendar className="w-4 h-4 text-zinc-400" />
+      <LuCalendar className="w-4 h-4 text-zoru-ink-muted" />
       <input
         type="date"
         value={value.from}
         onChange={(e) => onChange({ ...value, from: e.target.value })}
-        className="text-sm border border-zinc-200 dark:border-zinc-700 rounded-md px-2 py-1 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-amber-500"
+        className="text-sm border border-zoru-line dark:border-zoru-line rounded-md px-2 py-1 bg-white dark:bg-zoru-ink text-zoru-ink dark:text-zoru-ink-muted focus:outline-none focus:ring-2 focus:ring-zoru-line"
       />
-      <span className="text-zinc-400 text-sm">—</span>
+      <span className="text-zoru-ink-muted text-sm">—</span>
       <input
         type="date"
         value={value.to}
         onChange={(e) => onChange({ ...value, to: e.target.value })}
-        className="text-sm border border-zinc-200 dark:border-zinc-700 rounded-md px-2 py-1 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-amber-500"
+        className="text-sm border border-zoru-line dark:border-zoru-line rounded-md px-2 py-1 bg-white dark:bg-zoru-ink text-zoru-ink dark:text-zoru-ink-muted focus:outline-none focus:ring-2 focus:ring-zoru-line"
       />
     </div>
   );
@@ -173,7 +173,7 @@ export function ResultsTable({
           <button
             onClick={() => startTransition(onRefresh)}
             disabled={isLoading}
-            className="flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 text-sm text-zoru-ink hover:text-zoru-ink dark:hover:text-zoru-ink-muted transition-colors disabled:opacity-50"
           >
             <LuRefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
@@ -181,7 +181,7 @@ export function ResultsTable({
           <button
             onClick={() => exportToCsv(filtered)}
             disabled={filtered.length === 0}
-            className="flex items-center gap-1.5 text-sm bg-amber-500 hover:bg-amber-600 text-white rounded-md px-3 py-1.5 font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 text-sm bg-zoru-ink hover:bg-zoru-ink text-white rounded-md px-3 py-1.5 font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <LuDownload className="w-4 h-4" />
             Export CSV
@@ -190,31 +190,31 @@ export function ResultsTable({
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden">
+      <div className="rounded-xl border border-zoru-line dark:border-zoru-line overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-zinc-50 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-700">
+          <thead className="bg-zoru-surface-2 dark:bg-zoru-ink/60 border-b border-zoru-line dark:border-zoru-line">
             <tr>
               <th className="w-8" />
-              <th className="text-left px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">Session ID</th>
-              <th className="text-left px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">Started</th>
-              <th className="text-left px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">Status</th>
-              <th className="text-left px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">Messages</th>
+              <th className="text-left px-4 py-3 font-medium text-zoru-ink dark:text-zoru-ink-muted">Session ID</th>
+              <th className="text-left px-4 py-3 font-medium text-zoru-ink dark:text-zoru-ink-muted">Started</th>
+              <th className="text-left px-4 py-3 font-medium text-zoru-ink dark:text-zoru-ink-muted">Status</th>
+              <th className="text-left px-4 py-3 font-medium text-zoru-ink dark:text-zoru-ink-muted">Messages</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+          <tbody className="divide-y divide-zoru-line dark:divide-zoru-line">
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i} className="animate-pulse">
-                  <td className="px-4 py-3"><div className="h-4 w-4 bg-zinc-200 dark:bg-zinc-700 rounded" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-28 bg-zinc-200 dark:bg-zinc-700 rounded" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-32 bg-zinc-200 dark:bg-zinc-700 rounded" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-8 bg-zinc-200 dark:bg-zinc-700 rounded" /></td>
+                  <td className="px-4 py-3"><div className="h-4 w-4 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
+                  <td className="px-4 py-3"><div className="h-4 w-28 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
+                  <td className="px-4 py-3"><div className="h-4 w-32 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
+                  <td className="px-4 py-3"><div className="h-4 w-20 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
+                  <td className="px-4 py-3"><div className="h-4 w-8 bg-zoru-surface-2 dark:bg-zoru-ink rounded" /></td>
                 </tr>
               ))
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-12 text-center text-zinc-400 dark:text-zinc-500">
+                <td colSpan={5} className="px-4 py-12 text-center text-zoru-ink-muted dark:text-zoru-ink">
                   No sessions found.
                 </td>
               </tr>
@@ -226,17 +226,17 @@ export function ResultsTable({
                   <tr
                     key={session.sessionId}
                     onClick={() => toggleRow(session.sessionId)}
-                    className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors"
+                    className="cursor-pointer hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink/40 transition-colors"
                   >
-                    <td className="px-3 py-3 text-zinc-400">
+                    <td className="px-3 py-3 text-zoru-ink-muted">
                       {isExpanded
                         ? <LuChevronDown className="w-4 h-4" />
                         : <LuChevronRight className="w-4 h-4" />}
                     </td>
-                    <td className="px-4 py-3 font-mono text-zinc-600 dark:text-zinc-300">
+                    <td className="px-4 py-3 font-mono text-zoru-ink dark:text-zoru-ink-muted">
                       {truncateId(session.sessionId)}
                     </td>
-                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-300">
+                    <td className="px-4 py-3 text-zoru-ink dark:text-zoru-ink-muted">
                       {fmtDate(session.createdAt)}
                     </td>
                     <td className="px-4 py-3">
@@ -244,7 +244,7 @@ export function ResultsTable({
                         {status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-300">
+                    <td className="px-4 py-3 text-zoru-ink dark:text-zoru-ink-muted">
                       {session.messageCount ?? 0}
                     </td>
                   </tr>,
@@ -258,7 +258,7 @@ export function ResultsTable({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-zinc-500 dark:text-zinc-400">
+        <div className="flex items-center justify-between text-sm text-zoru-ink dark:text-zoru-ink-muted">
           <span>
             {total} session{total !== 1 ? 's' : ''} total
           </span>
@@ -266,7 +266,7 @@ export function ResultsTable({
             <button
               onClick={() => onPageChange(page - 1)}
               disabled={page <= 1}
-              className="px-2 py-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-2 py-1 rounded hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink disabled:opacity-40 disabled:cursor-not-allowed"
             >
               ‹
             </button>
@@ -286,8 +286,8 @@ export function ResultsTable({
                     onClick={() => onPageChange(item as number)}
                     className={`w-7 h-7 rounded text-sm font-medium transition-colors ${
                       item === page
-                        ? 'bg-amber-500 text-white'
-                        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                        ? 'bg-zoru-ink text-white'
+                        : 'hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink'
                     }`}
                   >
                     {item}
@@ -297,7 +297,7 @@ export function ResultsTable({
             <button
               onClick={() => onPageChange(page + 1)}
               disabled={page >= totalPages}
-              className="px-2 py-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-2 py-1 rounded hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink disabled:opacity-40 disabled:cursor-not-allowed"
             >
               ›
             </button>

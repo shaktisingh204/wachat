@@ -239,7 +239,7 @@ pub async fn delete_user(
 }
 
 fn map_user_to_scim(doc: &Document) -> Value {
-    let mut val = document_to_clean_json(doc.clone());
+    let val = document_to_clean_json(doc.clone());
     let mut obj = serde_json::Map::new();
 
     obj.insert("schemas".into(), serde_json::json!(["urn:ietf:params:scim:schemas:core:2.0:User"]));

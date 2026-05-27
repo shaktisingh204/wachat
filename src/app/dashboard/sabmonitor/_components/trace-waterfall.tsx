@@ -34,7 +34,7 @@ export function TraceWaterfall({
                         </div>
                         <div className="relative h-5 flex-1 rounded-[var(--zoru-radius)] bg-zoru-surface-muted">
                             <div
-                                className={`absolute top-0 h-full rounded-[var(--zoru-radius)] ${s.errored ? 'bg-rose-500/70' : 'bg-zoru-brand/70'}`}
+                                className={`absolute top-0 h-full rounded-[var(--zoru-radius)] ${s.errored ? 'bg-zoru-ink/70' : 'bg-zoru-brand/70'}`}
                                 style={{ left: `${pctStart}%`, width: `${pctWidth}%` }}
                                 title={`${s.durationMs}ms`}
                             />

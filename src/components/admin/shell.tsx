@@ -25,13 +25,13 @@ export function AdminPageHeader({
         <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
                 {eyebrow && (
-                    <div className="mb-1 text-xs font-semibold uppercase tracking-widest text-amber-600">
+                    <div className="mb-1 text-xs font-semibold uppercase tracking-widest text-zoru-ink">
                         {eyebrow}
                     </div>
                 )}
-                <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
+                <h1 className="text-2xl font-bold text-zoru-ink">{title}</h1>
                 {description && (
-                    <p className="mt-1 text-sm text-slate-500">{description}</p>
+                    <p className="mt-1 text-sm text-zoru-ink">{description}</p>
                 )}
             </div>
             {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
@@ -49,7 +49,7 @@ export function AdminCard({
     return (
         <div
             className={cn(
-                'rounded-2xl border border-slate-200 bg-white overflow-hidden',
+                'rounded-2xl border border-zoru-line bg-white overflow-hidden',
                 className,
             )}
         >
@@ -70,17 +70,17 @@ export function AdminCardHeader({
     children?: React.ReactNode;
 }) {
     return (
-        <div className="px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div className="px-6 py-4 border-b border-zoru-line flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
-                {Icon && <Icon className="h-4 w-4 text-slate-500 shrink-0" />}
+                {Icon && <Icon className="h-4 w-4 text-zoru-ink shrink-0" />}
                 <div className="min-w-0">
                     {title && (
-                        <div className="font-semibold text-slate-900 text-sm truncate">
+                        <div className="font-semibold text-zoru-ink text-sm truncate">
                             {title}
                         </div>
                     )}
                     {description && (
-                        <div className="text-xs text-slate-500 truncate">{description}</div>
+                        <div className="text-xs text-zoru-ink truncate">{description}</div>
                     )}
                 </div>
             </div>
@@ -103,14 +103,14 @@ export function AdminEmptyState({
     return (
         <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
             {Icon && (
-                <div className="h-12 w-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center">
-                    <Icon className="h-5 w-5 text-slate-400" />
+                <div className="h-12 w-12 rounded-2xl bg-zoru-surface-2 border border-zoru-line flex items-center justify-center">
+                    <Icon className="h-5 w-5 text-zoru-ink-muted" />
                 </div>
             )}
             <div>
-                <p className="text-sm font-medium text-slate-700">{title}</p>
+                <p className="text-sm font-medium text-zoru-ink">{title}</p>
                 {description && (
-                    <p className="mt-1 text-xs text-slate-500 max-w-md">{description}</p>
+                    <p className="mt-1 text-xs text-zoru-ink max-w-md">{description}</p>
                 )}
             </div>
             {action && <div className="mt-2">{action}</div>}
@@ -119,12 +119,12 @@ export function AdminEmptyState({
 }
 
 const STATUS_PRESETS = {
-    success: 'border-emerald-200 bg-emerald-50 text-emerald-600',
-    pending: 'border-amber-200 bg-amber-50 text-amber-600',
-    info: 'border-blue-200 bg-blue-50 text-blue-600',
-    danger: 'border-red-200 bg-red-50 text-red-600',
-    neutral: 'border-slate-300 bg-slate-100 text-slate-700',
-    muted: 'border-slate-200 bg-slate-50 text-slate-500',
+    success: 'border-zoru-line bg-zoru-surface-2 text-zoru-ink',
+    pending: 'border-zoru-line bg-zoru-surface-2 text-zoru-ink',
+    info: 'border-zoru-line bg-zoru-surface-2 text-zoru-ink',
+    danger: 'border-zoru-line bg-zoru-surface-2 text-zoru-ink',
+    neutral: 'border-zoru-line bg-zoru-surface-2 text-zoru-ink',
+    muted: 'border-zoru-line bg-zoru-surface-2 text-zoru-ink',
 } as const;
 
 export type AdminStatusTone = keyof typeof STATUS_PRESETS;
@@ -141,12 +141,12 @@ export function AdminStatusBadge({
     className?: string;
 }) {
     const dotColor: Record<AdminStatusTone, string> = {
-        success: 'bg-emerald-400',
-        pending: 'bg-amber-400',
-        info: 'bg-blue-400',
-        danger: 'bg-red-400',
-        neutral: 'bg-slate-400',
-        muted: 'bg-slate-300',
+        success: 'bg-zoru-surface-2',
+        pending: 'bg-zoru-surface-2',
+        info: 'bg-zoru-surface-2',
+        danger: 'bg-zoru-surface-2',
+        neutral: 'bg-zoru-surface-2',
+        muted: 'bg-zoru-surface-2',
     };
     return (
         <span
@@ -173,7 +173,7 @@ export function AdminTable({
         <div className="overflow-x-auto">
             <table className="w-full text-sm">
                 <thead>
-                    <tr className="border-b border-slate-200">
+                    <tr className="border-b border-zoru-line">
                         {columns.map((c, i) => {
                             const label = typeof c === 'string' ? c : c.label;
                             const align = typeof c === 'string' ? 'left' : (c.align ?? 'left');
@@ -182,7 +182,7 @@ export function AdminTable({
                                 <th
                                     key={i}
                                     className={cn(
-                                        'px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500',
+                                        'px-6 py-3 text-xs font-semibold uppercase tracking-wider text-zoru-ink',
                                         align === 'right' && 'text-right',
                                         align === 'center' && 'text-center',
                                         align === 'left' && 'text-left',
@@ -195,7 +195,7 @@ export function AdminTable({
                         })}
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200">{children}</tbody>
+                <tbody className="divide-y divide-zoru-line">{children}</tbody>
             </table>
         </div>
     );
@@ -215,8 +215,8 @@ export function AdminPagination({
     const sep = queryString ? `&${queryString}` : '';
     const pages = Math.max(totalPages, 1);
     return (
-        <div className="px-6 py-3 border-t border-slate-200 flex items-center justify-between">
-            <span className="text-xs text-slate-500">
+        <div className="px-6 py-3 border-t border-zoru-line flex items-center justify-between">
+            <span className="text-xs text-zoru-ink">
                 Page {currentPage} of {pages}
             </span>
             <div className="flex gap-2">
@@ -225,7 +225,7 @@ export function AdminPagination({
                     size="sm"
                     asChild
                     disabled={currentPage <= 1}
-                    className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40"
+                    className="border-zoru-line bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-40"
                 >
                     <Link href={`${basePath}?page=${currentPage - 1}${sep}`}>Previous</Link>
                 </Button>
@@ -234,7 +234,7 @@ export function AdminPagination({
                     size="sm"
                     asChild
                     disabled={currentPage >= pages}
-                    className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40"
+                    className="border-zoru-line bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-40"
                 >
                     <Link href={`${basePath}?page=${currentPage + 1}${sep}`}>Next</Link>
                 </Button>
@@ -251,13 +251,13 @@ export function AdminWarningBanner({
     children?: React.ReactNode;
 }) {
     return (
-        <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
-            <div className="h-5 w-5 rounded-full bg-amber-200 text-amber-700 flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+        <div className="flex items-start gap-3 rounded-2xl border border-zoru-line bg-zoru-surface-2 px-5 py-4">
+            <div className="h-5 w-5 rounded-full bg-zoru-surface-2 text-zoru-ink flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
                 !
             </div>
             <div className="text-sm">
-                <p className="font-medium text-amber-800">{title}</p>
-                {children && <p className="text-xs text-amber-700/70 mt-0.5">{children}</p>}
+                <p className="font-medium text-zoru-ink">{title}</p>
+                {children && <p className="text-xs text-zoru-ink/70 mt-0.5">{children}</p>}
             </div>
         </div>
     );
@@ -282,15 +282,15 @@ export function AdminMetricGrid({
             {items.map((it) => (
                 <div
                     key={it.label}
-                    className="rounded-2xl border border-slate-200 bg-white p-4 flex flex-col gap-1"
+                    className="rounded-2xl border border-zoru-line bg-white p-4 flex flex-col gap-1"
                 >
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-zoru-ink">
                         {it.label}
                     </div>
-                    <div className="text-2xl font-bold tabular-nums text-slate-900">
+                    <div className="text-2xl font-bold tabular-nums text-zoru-ink">
                         {it.value}
                     </div>
-                    {it.sub && <div className="text-xs text-slate-500">{it.sub}</div>}
+                    {it.sub && <div className="text-xs text-zoru-ink">{it.sub}</div>}
                 </div>
             ))}
         </div>
@@ -299,7 +299,7 @@ export function AdminMetricGrid({
 
 export function AdminToolbar({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white p-3">
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-zoru-line bg-white p-3">
             {children}
         </div>
     );

@@ -32,7 +32,7 @@ export default async function RequestsIndexPage() {
             <header className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold">SabRequests</h1>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-zoru-ink-muted">
                         Submit, track, and approve workflows powered by blueprints.
                     </p>
                 </div>

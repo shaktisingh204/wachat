@@ -135,11 +135,11 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
   const empty =
     filtered.length === 0 ? (
       <div className="flex flex-col items-center gap-3 py-16 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
-          <Columns3 className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
+          <Columns3 className="h-6 w-6 text-zoru-ink" strokeWidth={1.75} />
         </div>
-        <h3 className="text-[15px] font-semibold text-foreground">No Pipelines Found</h3>
-        <p className="text-[12.5px] text-muted-foreground">
+        <h3 className="text-[15px] font-semibold text-zoru-ink">No Pipelines Found</h3>
+        <p className="text-[12.5px] text-zoru-ink-muted">
           {search ? 'No pipelines match your search.' : "You haven't created any pipelines yet."}
         </p>
         {!search ? (
@@ -265,11 +265,11 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                   <ZoruAccordionItem
                     key={pipeline.id}
                     value={pipeline.id}
-                    className="rounded-xl border border-border bg-card"
+                    className="rounded-xl border border-zoru-line bg-zoru-surface"
                   >
-                    <ZoruAccordionTrigger className="px-4 py-3 text-[13.5px] font-semibold text-foreground hover:no-underline">
+                    <ZoruAccordionTrigger className="px-4 py-3 text-[13.5px] font-semibold text-zoru-ink hover:no-underline">
                       {pipeline.name}
-                      <span className="ml-auto mr-2 font-normal text-[11.5px] text-muted-foreground">
+                      <span className="ml-auto mr-2 font-normal text-[11.5px] text-zoru-ink-muted">
                         {pipeline.stages?.length ?? 0} stage{(pipeline.stages?.length ?? 0) === 1 ? '' : 's'}
                       </span>
                     </ZoruAccordionTrigger>
@@ -278,12 +278,12 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                         {(pipeline.stages ?? []).map((stage) => (
                           <div
                             key={stage.id}
-                            className="rounded-lg border border-border bg-secondary p-3 text-center"
+                            className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-3 text-center"
                           >
-                            <p className="text-[13px] font-medium text-foreground">
+                            <p className="text-[13px] font-medium text-zoru-ink">
                               {stage.name}
                             </p>
-                            <p className="mt-1 text-[11px] text-muted-foreground">
+                            <p className="mt-1 text-[11px] text-zoru-ink-muted">
                               {stage.chance}% chance
                             </p>
                           </div>

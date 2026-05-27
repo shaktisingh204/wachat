@@ -90,7 +90,7 @@ export function StepAudience({
         <div className="space-y-2">
           <Label>Segment</Label>
           {segments.length === 0 ? (
-            <p className="rounded border border-slate-200 bg-slate-50 p-3 text-sm text-slate-500">
+            <p className="rounded border border-zoru-line bg-zoru-surface-2 p-3 text-sm text-zoru-ink">
               No segments yet. Create one in the CRM.
             </p>
           ) : (
@@ -130,7 +130,7 @@ export function StepAudience({
           </ZoruCardHeader>
           <ZoruCardContent>
             {contacts.length === 0 ? (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-zoru-ink">
                 No contacts yet — add them at <code>/sabsms/contacts</code>.
               </p>
             ) : (
@@ -144,7 +144,7 @@ export function StepAudience({
                   return (
                     <label
                       key={c.id}
-                      className="flex cursor-pointer items-center gap-3 rounded p-2 hover:bg-slate-50"
+                      className="flex cursor-pointer items-center gap-3 rounded p-2 hover:bg-zoru-surface-2"
                     >
                       <Checkbox
                         checked={checked}
@@ -161,8 +161,8 @@ export function StepAudience({
                         }}
                       />
                       <div className="flex flex-1 items-center justify-between">
-                        <span className="text-sm text-slate-700">{c.name}</span>
-                        <code className="text-xs text-slate-500">
+                        <span className="text-sm text-zoru-ink">{c.name}</span>
+                        <code className="text-xs text-zoru-ink">
                           {c.phone}
                         </code>
                       </div>
@@ -201,11 +201,11 @@ export function StepAudience({
                 : "Pick a CSV"}
             </SabFilePickerButton>
             {draft.audience?.kind === "csv" && draft.audience.sabFileId && (
-              <div className="flex items-center gap-2 text-sm text-slate-600">
+              <div className="flex items-center gap-2 text-sm text-zoru-ink">
                 <Badge variant="secondary">
                   {draft.audience.sabFileName ?? "csv"}
                 </Badge>
-                <code className="text-xs text-slate-500">
+                <code className="text-xs text-zoru-ink">
                   sabFileId={draft.audience.sabFileId}
                 </code>
               </div>

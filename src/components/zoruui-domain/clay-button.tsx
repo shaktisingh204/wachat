@@ -37,19 +37,19 @@ const variantToZoru: Record<Variant, ZoruButtonProps['variant']> = {
 
 const variantOverride: Record<Variant, string> = {
   // Use `[background-image:none]` (not `[background:none]`) to strip the
-  // shadcn `default` gradient WITHOUT also wiping the `bg-foreground` color.
+  // shadcn `default` gradient WITHOUT also wiping the `bg-zoru-ink` color.
   // The shorthand `background` resets all background props, which had been
   // rendering the obsidian CTA as a blank/invisible pill.
   obsidian:
-    'rounded-full bg-foreground text-background [background-image:none] hover:bg-foreground/90 hover:[background-image:none] shadow-none',
+    'rounded-full bg-zoru-ink text-zoru-surface [background-image:none] hover:bg-zoru-ink/90 hover:[background-image:none] shadow-none',
   rose:
-    'rounded-full bg-primary text-primary-foreground [background-image:none] hover:bg-primary/90 hover:[background-image:none] shadow-none',
+    'rounded-full bg-zoru-ink text-white [background-image:none] hover:bg-zoru-ink/90 hover:[background-image:none] shadow-none',
   'rose-soft':
-    'rounded-full bg-accent text-accent-foreground border-accent hover:bg-accent/80 hover:border-accent',
+    'rounded-full bg-zoru-surface-2 text-zoru-ink border-accent hover:bg-zoru-surface-2/80 hover:border-accent',
   pill:
-    'rounded-full bg-card text-foreground hover:bg-secondary',
+    'rounded-full bg-zoru-surface text-zoru-ink hover:bg-zoru-surface-2',
   ghost:
-    'rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary',
+    'rounded-lg text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2',
 };
 
 const sizeToZoru: Record<Size, ZoruButtonProps['size']> = {

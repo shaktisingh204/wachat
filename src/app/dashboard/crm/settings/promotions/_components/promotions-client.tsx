@@ -458,16 +458,16 @@ export function PromotionsClient(): React.JSX.Element {
                         <ZoruTableCell>
                           <Checkbox checked={selected.has(row._id)} onCheckedChange={() => toggleOne(row._id)} aria-label={`Select ${row.name}`} />
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-foreground">
+                        <ZoruTableCell className="font-medium text-zoru-ink">
                           <RowDrawer label={row.name} title={`Promotion · ${row.name}`} description="Promotion details. Use Edit to modify.">
                             <div className="space-y-3 text-sm">
-                              <div><div className="text-xs text-muted-foreground">Name</div><div>{row.name}</div></div>
-                              <div><div className="text-xs text-muted-foreground">Code</div><Badge>{row.code}</Badge></div>
-                              <div><div className="text-xs text-muted-foreground">Discount</div><div>{row.type === 'percent' ? `${row.value}%` : `${row.value} (fixed)`}</div></div>
-                              <div><div className="text-xs text-muted-foreground">Start</div><div>{fmtDate(row.start_date)}</div></div>
-                              <div><div className="text-xs text-muted-foreground">End</div><div>{fmtDate(row.end_date)}</div></div>
-                              <div><div className="text-xs text-muted-foreground">Usage limit</div><div>{row.usage_limit ?? 'Unlimited'}</div></div>
-                              <div><div className="text-xs text-muted-foreground">Status</div><Badge variant={statusVariant(row)}>{statusLabel(row)}</Badge></div>
+                              <div><div className="text-xs text-zoru-ink-muted">Name</div><div>{row.name}</div></div>
+                              <div><div className="text-xs text-zoru-ink-muted">Code</div><Badge>{row.code}</Badge></div>
+                              <div><div className="text-xs text-zoru-ink-muted">Discount</div><div>{row.type === 'percent' ? `${row.value}%` : `${row.value} (fixed)`}</div></div>
+                              <div><div className="text-xs text-zoru-ink-muted">Start</div><div>{fmtDate(row.start_date)}</div></div>
+                              <div><div className="text-xs text-zoru-ink-muted">End</div><div>{fmtDate(row.end_date)}</div></div>
+                              <div><div className="text-xs text-zoru-ink-muted">Usage limit</div><div>{row.usage_limit ?? 'Unlimited'}</div></div>
+                              <div><div className="text-xs text-zoru-ink-muted">Status</div><Badge variant={statusVariant(row)}>{statusLabel(row)}</Badge></div>
                             </div>
                           </RowDrawer>
                         </ZoruTableCell>

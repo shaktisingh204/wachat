@@ -37,24 +37,24 @@ export interface ClayModuleTileProps {
 }
 
 const accentClasses: Record<NonNullable<ClayModuleTileProps['accent']>, string> = {
-  rose:     'bg-accent text-accent-foreground',
-  obsidian: 'bg-foreground text-background',
-  violet:   'bg-[#EEE8FF] text-[#5B21B6]',
-  amber:    'bg-[#FEF3C7] text-[#92400E]',
-  green:    'bg-[#DCFCE7] text-[#166534]',
-  blue:     'bg-[#DBEAFE] text-[#1E40AF]',
-  orange:   'bg-[#FFEDD5] text-[#9A3412]',
-  pink:     'bg-[#FCE7F3] text-[#9D174D]',
-  teal:     'bg-[#CCFBF1] text-[#115E59]',
-  lime:     'bg-[#ECFCCB] text-[#3F6212]',
-  indigo:   'bg-[#E0E7FF] text-[#3730A3]',
-  slate:    'bg-[#F1F5F9] text-[#334155]',
+  rose:     'bg-zoru-surface-2 text-zoru-ink',
+  obsidian: 'bg-zoru-ink text-zoru-surface',
+  violet:   'bg-zoru-surface-2 text-zoru-ink',
+  amber:    'bg-zoru-surface text-zoru-ink',
+  green:    'bg-zoru-surface text-zoru-ink',
+  blue:     'bg-zoru-surface-2 text-zoru-ink',
+  orange:   'bg-zoru-surface text-zoru-ink',
+  pink:     'bg-zoru-surface text-zoru-ink',
+  teal:     'bg-zoru-surface text-zoru-ink',
+  lime:     'bg-zoru-surface text-zoru-ink',
+  indigo:   'bg-zoru-surface-2 text-zoru-ink',
+  slate:    'bg-zoru-surface text-zoru-ink',
 };
 
 const statusClasses = {
-  ok:   'bg-emerald-500',
-  warn: 'bg-amber-500',
-  off:  'bg-muted-foreground/70',
+  ok:   'bg-zoru-ink',
+  warn: 'bg-zoru-ink',
+  off:  'bg-zoru-surface-2-foreground/70',
 };
 
 /**
@@ -92,17 +92,17 @@ export function ClayModuleTile({
             </span>
           </span>
           <LuArrowUpRight
-            className="h-3.5 w-3.5 text-muted-foreground/70 transition-[color,transform] group-hover:text-foreground group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            className="h-3.5 w-3.5 text-zoru-ink-muted/70 transition-[color,transform] group-hover:text-zoru-ink group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             strokeWidth={2}
           />
         </div>
 
-        <div className="mt-3.5 text-xs font-medium text-muted-foreground leading-none">
+        <div className="mt-3.5 text-xs font-medium text-zoru-ink-muted leading-none">
           {name}
         </div>
 
         <div className="mt-1.5 flex items-baseline gap-1.5">
-          <div className="text-xl font-semibold tracking-[-0.01em] text-foreground leading-none">
+          <div className="text-xl font-semibold tracking-[-0.01em] text-zoru-ink leading-none">
             {primary}
           </div>
           {status ? (
@@ -116,7 +116,7 @@ export function ClayModuleTile({
         </div>
 
         {secondary ? (
-          <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
+          <div className="mt-1 text-[11px] text-zoru-ink-muted leading-tight truncate">
             {secondary}
           </div>
         ) : null}

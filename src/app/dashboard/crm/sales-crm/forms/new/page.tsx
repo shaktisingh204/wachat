@@ -34,9 +34,9 @@ export default async function NewCrmFormPage() {
     if (total >= formLimit) {
         return (
             <div className="w-full p-12 text-center mt-20">
-                <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-6" />
-                <h1 className="text-3xl font-bold text-foreground mb-4">Quota Exceeded</h1>
-                <p className="text-lg text-muted-foreground mb-8">
+                <AlertCircle className="w-16 h-16 text-zoru-ink mx-auto mb-6" />
+                <h1 className="text-3xl font-bold text-zoru-ink mb-4">Quota Exceeded</h1>
+                <p className="text-lg text-zoru-ink-muted mb-8">
                     You have reached your limit of {formLimit} CRM forms for your current plan. 
                     Please upgrade your plan to create more forms.
                 </p>

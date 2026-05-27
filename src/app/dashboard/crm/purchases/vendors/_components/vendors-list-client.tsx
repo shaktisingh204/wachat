@@ -82,9 +82,9 @@ function StarRating({ score = 0 }: { score?: number }) {
   return (
     <div className="flex items-center gap-0.5" title={`Score: ${score}/5`}>
       {Array.from({ length: fullStars }).map((_, i) => (
-        <Star key={`full-${i}`} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+        <Star key={`full-${i}`} className="h-3.5 w-3.5 fill-zoru-ink-muted text-zoru-ink-muted" />
       ))}
-      {halfStar && <StarHalf className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />}
+      {halfStar && <StarHalf className="h-3.5 w-3.5 fill-zoru-ink-muted text-zoru-ink-muted" />}
       {Array.from({ length: emptyStars }).map((_, i) => (
         <Star key={`empty-${i}`} className="h-3.5 w-3.5 text-zoru-line" />
       ))}

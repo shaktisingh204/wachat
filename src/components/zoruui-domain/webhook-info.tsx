@@ -124,21 +124,21 @@ function WebhookStatus() {
                     <div className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex items-center gap-3">
                             {status.isActive ? (
-                                <CheckCircle className="h-5 w-5 text-primary" />
+                                <CheckCircle className="h-5 w-5 text-zoru-ink" />
                             ) : (
-                                <AlertTriangle className="h-5 w-5 text-destructive" />
+                                <AlertTriangle className="h-5 w-5 text-zoru-ink" />
                             )}
                             <div className="flex flex-col">
-                                <span className={cn("font-semibold", status.isActive ? 'text-primary' : 'text-destructive')}>
+                                <span className={cn("font-semibold", status.isActive ? 'text-zoru-ink' : 'text-zoru-ink')}>
                                     {status.isActive ? 'Active' : 'Inactive'}
                                 </span>
-                                {status.error && <span className="text-xs text-muted-foreground font-mono">{status.error}</span>}
+                                {status.error && <span className="text-xs text-zoru-ink-muted font-mono">{status.error}</span>}
                             </div>
                         </div>
                         <SubscribeProjectButton projectId={projectId} isActive={status.isActive} />
                     </div>
                 ) : (
-                    <p className="text-muted-foreground text-sm">Could not determine status. Select a project.</p>
+                    <p className="text-zoru-ink-muted text-sm">Could not determine status. Select a project.</p>
                 )}
             </ZoruCardContent>
         </Card>

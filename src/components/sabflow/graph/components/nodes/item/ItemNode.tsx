@@ -73,7 +73,7 @@ export function ItemNode({ item, block, blockType, groupId, onDelete, onMouseDow
           className={cn(
             'flex items-center rounded-md border w-full min-h-[36px] transition-colors bg-[var(--gray-1)] select-none',
             isContextMenuOpen || isPreviewing
-              ? 'border-[#f76808]'
+              ? 'border-zoru-line'
               : 'border-[var(--gray-5)] hover:border-[var(--gray-7)]',
           )}
         >
@@ -104,7 +104,7 @@ export function ItemNode({ item, block, blockType, groupId, onDelete, onMouseDow
           >
             <button
               type="button"
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] text-red-600 hover:bg-[var(--gray-3)] transition-colors"
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] text-zoru-ink hover:bg-[var(--gray-3)] transition-colors"
               onClick={handleDelete}
             >
               Delete

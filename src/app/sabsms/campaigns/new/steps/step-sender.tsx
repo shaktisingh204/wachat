@@ -76,7 +76,7 @@ export function StepSender({ draft, numbers, onChange }: StepSenderProps) {
         </ZoruCardHeader>
         <ZoruCardContent>
           {numbers.length === 0 ? (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-zoru-ink">
               No active numbers. Provision one at <code>/sabsms/numbers</code>.
             </p>
           ) : (
@@ -86,7 +86,7 @@ export function StepSender({ draft, numbers, onChange }: StepSenderProps) {
                 return (
                   <label
                     key={n.id}
-                    className="flex cursor-pointer items-center gap-3 rounded border border-slate-200 p-3 hover:border-slate-400"
+                    className="flex cursor-pointer items-center gap-3 rounded border border-zoru-line p-3 hover:border-zoru-line"
                   >
                     <Checkbox
                       checked={checked}
@@ -99,7 +99,7 @@ export function StepSender({ draft, numbers, onChange }: StepSenderProps) {
                       }}
                     />
                     <div className="flex flex-1 items-center justify-between">
-                      <code className="text-sm text-slate-700">{n.e164}</code>
+                      <code className="text-sm text-zoru-ink">{n.e164}</code>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">{n.country}</Badge>
                         <Badge variant="secondary">{n.type}</Badge>

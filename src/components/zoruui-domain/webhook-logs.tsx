@@ -305,7 +305,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                                 <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
                             </div>
                         ) : selectedLogPayload ? (
-                            <pre className="p-4 bg-muted rounded-md whitespace-pre-wrap font-mono text-xs">
+                            <pre className="p-4 bg-zoru-surface-2 rounded-md whitespace-pre-wrap font-mono text-xs">
                                 {JSON.stringify(selectedLogPayload, null, 2)}
                             </pre>
                         ) : (

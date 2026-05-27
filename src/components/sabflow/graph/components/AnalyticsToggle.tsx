@@ -80,7 +80,7 @@ export function AnalyticsToggle({ isHeatmapEnabled, onHeatmapToggle }: Props) {
         className={cn(
           'flex h-7 w-7 items-center justify-center rounded transition-colors',
           isEnabled
-            ? 'bg-[#f76808] text-white hover:bg-[#ea580c]'
+            ? 'bg-zoru-ink text-white hover:bg-zoru-ink'
             : 'text-[var(--gray-11)] hover:bg-[var(--gray-3)]',
         )}
       >
@@ -119,7 +119,7 @@ export function AnalyticsToggle({ isHeatmapEnabled, onHeatmapToggle }: Props) {
               onClick={toggleEnabled}
               className={cn(
                 'relative h-4 w-7 rounded-full transition-colors',
-                isEnabled ? 'bg-[#f76808]' : 'bg-[var(--gray-5)]',
+                isEnabled ? 'bg-zoru-ink' : 'bg-[var(--gray-5)]',
               )}
             >
               <span
@@ -151,7 +151,7 @@ export function AnalyticsToggle({ isHeatmapEnabled, onHeatmapToggle }: Props) {
               className={cn(
                 'relative h-4 w-7 rounded-full transition-colors',
                 isHeatmapEnabled && isEnabled
-                  ? 'bg-[#f76808]'
+                  ? 'bg-zoru-ink'
                   : 'bg-[var(--gray-5)]',
                 !isEnabled && 'cursor-not-allowed',
               )}
@@ -186,7 +186,7 @@ export function AnalyticsToggle({ isHeatmapEnabled, onHeatmapToggle }: Props) {
                   <div className="h-3 w-28 animate-pulse rounded bg-[var(--gray-5)]" />
                 </div>
               ) : error ? (
-                <div className="text-[11px] text-red-600 dark:text-red-400">
+                <div className="text-[11px] text-zoru-ink dark:text-zoru-ink-muted">
                   {error}
                 </div>
               ) : totals ? (

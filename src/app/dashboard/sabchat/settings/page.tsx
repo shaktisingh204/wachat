@@ -304,7 +304,7 @@ export default function SabchatSettingsPage() {
                                         </ZoruSelectContent>
                                     </Select>
                                 </div>
-                                <Button variant="outline" className="text-red-500">Remove</Button>
+                                <Button variant="outline" className="text-zoru-ink">Remove</Button>
                             </div>
                             <Button variant="secondary" size="sm">+ Add Routing Rule</Button>
                         </div>
@@ -509,11 +509,11 @@ function WorkingHoursSection({
             </div>
             
             {/* Advanced map mock UI */}
-            <div className="mt-6 p-4 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/50 rounded-[var(--zoru-radius)] flex items-center gap-3">
-                <MapPin className="h-8 w-8 text-blue-500 opacity-50" />
+            <div className="mt-6 p-4 bg-zoru-surface-2/50 dark:bg-zoru-ink/10 border border-zoru-line dark:border-zoru-line/50 rounded-[var(--zoru-radius)] flex items-center gap-3">
+                <MapPin className="h-8 w-8 text-zoru-ink opacity-50" />
                 <div>
-                    <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200">Global Timezone Map Active</h4>
-                    <p className="text-xs text-blue-700 dark:text-blue-400 mt-1">Your business hours are currently set to active in the selected region.</p>
+                    <h4 className="text-sm font-medium text-zoru-ink dark:text-white">Global Timezone Map Active</h4>
+                    <p className="text-xs text-zoru-ink dark:text-zoru-ink-muted mt-1">Your business hours are currently set to active in the selected region.</p>
                 </div>
             </div>
 

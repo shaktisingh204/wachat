@@ -155,9 +155,9 @@ export default function LogAnalyzerPage() {
       {results && (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.total.toLocaleString()}</div><div className="text-xs text-muted-foreground">Lines parsed</div></ZoruCardContent></Card>
-            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.bots.toLocaleString()}</div><div className="text-xs text-muted-foreground">Bot hits</div></ZoruCardContent></Card>
-            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.topIps.length.toLocaleString()}</div><div className="text-xs text-muted-foreground">Unique IPs (top)</div></ZoruCardContent></Card>
+            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.total.toLocaleString()}</div><div className="text-xs text-zoru-ink-muted">Lines parsed</div></ZoruCardContent></Card>
+            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.bots.toLocaleString()}</div><div className="text-xs text-zoru-ink-muted">Bot hits</div></ZoruCardContent></Card>
+            <Card><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{results.topIps.length.toLocaleString()}</div><div className="text-xs text-zoru-ink-muted">Unique IPs (top)</div></ZoruCardContent></Card>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[['Top IPs', results.topIps], ['Top paths', results.topPaths], ['Top user agents', results.topUAs]].map(([title, list]) => (

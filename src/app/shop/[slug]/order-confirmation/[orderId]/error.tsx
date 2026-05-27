@@ -14,7 +14,7 @@ export default function ErrorBoundary({
         <div className="container mx-auto px-4 py-12 flex justify-center min-h-[50vh] items-center">
              <Card className="w-full max-w-lg text-center border-destructive">
                 <ZoruCardHeader>
-                    <div className="mx-auto bg-destructive/10 text-destructive rounded-full h-16 w-16 flex items-center justify-center mb-4">
+                    <div className="mx-auto bg-zoru-ink/10 text-zoru-ink rounded-full h-16 w-16 flex items-center justify-center mb-4">
                         <AlertCircle className="h-10 w-10" />
                     </div>
                     <ZoruCardTitle className="text-2xl">Something went wrong!</ZoruCardTitle>
@@ -23,7 +23,7 @@ export default function ErrorBoundary({
                     </ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground">{error.message || 'Unknown error occurred.'}</p>
+                    <p className="text-sm text-zoru-ink-muted">{error.message || 'Unknown error occurred.'}</p>
                     <Button onClick={() => reset()} variant="default">
                         Try again
                     </Button>

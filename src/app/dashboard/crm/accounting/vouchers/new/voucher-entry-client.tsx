@@ -87,14 +87,14 @@ function LineItemsSection({ title, items, setItems, baseCurrency }: LineItemsSec
     return (
         <section>
             <div className="flex justify-between items-baseline mb-2">
-                <h3 className="text-[15px] font-semibold text-foreground">{title}</h3>
-                <p className="text-[13px] font-medium text-foreground">
+                <h3 className="text-[15px] font-semibold text-zoru-ink">{title}</h3>
+                <p className="text-[13px] font-medium text-zoru-ink">
                     Total: {new Intl.NumberFormat('en-IN', { style: 'currency', currency: baseCurrency }).format(totalAmount)}
                 </p>
             </div>
             <div className="space-y-3">
                 {items.map((item, index) => (
-                    <div key={item.id} className="p-3 border border-border rounded-lg bg-secondary space-y-3">
+                    <div key={item.id} className="p-3 border border-zoru-line rounded-lg bg-zoru-surface-2 space-y-3">
                         <div className="flex justify-between items-center">
                             <Label>Item {index + 1}</Label>
                             {items.length > 1 && (
@@ -105,7 +105,7 @@ function LineItemsSection({ title, items, setItems, baseCurrency }: LineItemsSec
                                     className="h-7 w-7"
                                     onClick={() => handleRemoveItem(item.id)}
                                 >
-                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                    <Trash2 className="h-4 w-4 text-zoru-ink" />
                                 </Button>
                             )}
                         </div>
@@ -306,7 +306,7 @@ export function NewVoucherEntryClient({ presetBookId, initialUser, initialVouche
 
             <div className="w-full flex flex-col gap-6">
                 <header className="flex justify-between items-center">
-                    <Button variant="ghost" asChild className="-ml-4 text-muted-foreground hover:text-foreground">
+                    <Button variant="ghost" asChild className="-ml-4 text-zoru-ink-muted hover:text-zoru-ink">
                         <Link href="/dashboard/crm/accounting/vouchers">
                             <ArrowLeft className="mr-2 h-4 w-4" />Back to Voucher Books
                         </Link>
@@ -317,8 +317,8 @@ export function NewVoucherEntryClient({ presetBookId, initialUser, initialVouche
                 </header>
                 <Card className="w-full p-4 sm:p-8 md:p-12">
                     <header className="text-center mb-8">
-                        <h1 className="text-[26px] font-semibold text-accent-foreground">New Voucher Entry</h1>
-                        <p className="mt-1 text-[13px] text-muted-foreground">Record a new journal entry.</p>
+                        <h1 className="text-[26px] font-semibold text-zoru-ink">New Voucher Entry</h1>
+                        <p className="mt-1 text-[13px] text-zoru-ink-muted">Record a new journal entry.</p>
                     </header>
 
                     {!businessProfile?.name && (
@@ -376,17 +376,17 @@ export function NewVoucherEntryClient({ presetBookId, initialUser, initialVouche
                         <div className="space-y-1 md:col-span-3">
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="note">Note</Label>
-                                <Button type="button" variant="ghost" size="sm" onClick={handleAutoCategorize} className="h-6 text-xs text-primary">
+                                <Button type="button" variant="ghost" size="sm" onClick={handleAutoCategorize} className="h-6 text-xs text-zoru-ink">
                                     <Wand2 className="mr-1 h-3 w-3" /> Auto-categorize
                                 </Button>
                             </div>
                             <Textarea id="note" name="note" placeholder="Add a note" value={note} onChange={e => setNote(e.target.value)} />
                         </div>
                         
-                        <div className="md:col-span-3 space-y-4 border p-4 rounded-lg bg-secondary/50">
+                        <div className="md:col-span-3 space-y-4 border p-4 rounded-lg bg-zoru-surface-2/50">
                             <div className="flex items-center gap-2">
                                 <input type="checkbox" id="isRecurring" checked={isRecurring} onChange={(e) => setIsRecurring(e.target.checked)} className="h-4 w-4" />
-                                <Label htmlFor="isRecurring" className="font-semibold text-accent-foreground">Schedule Recurring Voucher</Label>
+                                <Label htmlFor="isRecurring" className="font-semibold text-zoru-ink">Schedule Recurring Voucher</Label>
                             </div>
                             {isRecurring && (
                                 <div className="grid md:grid-cols-2 gap-4">
@@ -433,16 +433,16 @@ export function NewVoucherEntryClient({ presetBookId, initialUser, initialVouche
 
                     <div className="flex justify-end font-semibold text-[15px] p-4">
                         <div className="w-full max-w-sm space-y-2">
-                            <div className="flex justify-between text-foreground">
+                            <div className="flex justify-between text-zoru-ink">
                                 <span>Total Debit</span>
                                 <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: baseCurrency }).format(totalDebits)}</span>
                             </div>
-                            <div className="flex justify-between text-foreground">
+                            <div className="flex justify-between text-zoru-ink">
                                 <span>Total Credit</span>
                                 <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: baseCurrency }).format(totalCredits)}</span>
                             </div>
                             {difference !== 0 && (
-                                <div className="flex justify-between text-destructive pt-2 border-t border-border">
+                                <div className="flex justify-between text-zoru-ink pt-2 border-t border-zoru-line">
                                     <span>Difference</span>
                                     <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: baseCurrency }).format(Math.abs(difference))}</span>
                                 </div>

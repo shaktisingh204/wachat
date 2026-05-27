@@ -39,10 +39,10 @@ function FilterBar({ value, onChange, counts }: FilterBarProps) {
             className={cn(
               'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-medium',
               'transition-colors duration-150',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line',
               isActive
-                ? 'border-amber-500 bg-amber-50 text-amber-700 dark:border-amber-400/70 dark:bg-amber-950/40 dark:text-amber-300'
-                : 'border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-100',
+                ? 'border-zoru-line bg-zoru-surface-2 text-zoru-ink dark:border-zoru-line/70 dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
+                : 'border-zoru-line bg-white text-zoru-ink hover:border-zoru-line hover:text-zoru-ink dark:border-zoru-line dark:bg-zoru-ink dark:text-zoru-ink-muted dark:hover:border-zoru-line dark:hover:text-white',
             )}
           >
             <span>{cat}</span>
@@ -50,8 +50,8 @@ function FilterBar({ value, onChange, counts }: FilterBarProps) {
               className={cn(
                 'inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full px-1 text-[10px]',
                 isActive
-                  ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300'
-                  : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400',
+                  ? 'bg-zoru-ink/20 text-zoru-ink dark:text-zoru-ink-muted'
+                  : 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted',
               )}
             >
               {count}
@@ -84,14 +84,14 @@ function TemplateCard({ template, isLoading, isBusy, onSelect }: CardProps) {
         'transition-all duration-200',
         template.bgColor,
         'hover:shadow-md hover:scale-[1.02]',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line',
         isBusy && !isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
       )}
       aria-label={`Use template ${template.name}`}
     >
       <div
         className={cn(
-          'flex h-9 w-9 items-center justify-center rounded-lg bg-white dark:bg-zinc-900 shadow-sm border border-zinc-100 dark:border-zinc-800',
+          'flex h-9 w-9 items-center justify-center rounded-lg bg-white dark:bg-zoru-ink shadow-sm border border-zoru-line dark:border-zoru-line',
           template.color,
         )}
       >
@@ -103,14 +103,14 @@ function TemplateCard({ template, isLoading, isBusy, onSelect }: CardProps) {
       </div>
 
       <div className="flex flex-col gap-0.5">
-        <span className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1">
+        <span className="text-[13px] font-semibold text-zoru-ink dark:text-white flex items-center gap-1">
           <span aria-hidden>{template.emoji}</span>
           <span>{template.name}</span>
         </span>
-        <span className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-snug">
+        <span className="text-[11px] text-zoru-ink dark:text-zoru-ink-muted leading-snug">
           {template.description}
         </span>
-        <span className="mt-1 inline-flex w-fit items-center rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:bg-zinc-900/50 dark:text-zinc-400">
+        <span className="mt-1 inline-flex w-fit items-center rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-medium text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted">
           {template.category}
         </span>
       </div>
@@ -207,19 +207,19 @@ export function FlowTemplates({ onFlowCreated }: Props) {
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-150 dark:border-zinc-800 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line dark:border-zoru-line pb-3">
         <div className="flex items-center gap-3">
-          <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100">
+          <h2 className="text-[15px] font-semibold text-zoru-ink dark:text-white">
             Start from a template
           </h2>
-          <span className="text-[11px] text-zinc-450 dark:text-zinc-400">
+          <span className="text-[11px] text-zoru-ink-muted dark:text-zoru-ink-muted">
             {filtered.length} of {TEMPLATES.length} templates
           </span>
         </div>
         <button
           type="button"
           onClick={() => router.push('/dashboard/sabflow/marketplace')}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 px-3 py-1.5 text-[11.5px] font-semibold text-white transition-all shadow-sm duration-150 hover:shadow cursor-pointer"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-zoru-ink hover:bg-zoru-ink px-3 py-1.5 text-[11.5px] font-semibold text-white transition-all shadow-sm duration-150 hover:shadow cursor-pointer"
         >
           <LuSparkles className="w-3.5 h-3.5" />
           <span>Browse 250+ workflow templates in Marketplace →</span>
@@ -241,7 +241,7 @@ export function FlowTemplates({ onFlowCreated }: Props) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zinc-200 p-6 text-center text-[12px] text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+        <div className="rounded-xl border border-dashed border-zoru-line p-6 text-center text-[12px] text-zoru-ink dark:border-zoru-line dark:text-zoru-ink-muted">
           No templates in this category yet.
         </div>
       ) : null}

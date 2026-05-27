@@ -194,7 +194,7 @@ export function DetailDrawer({
               className={cn(
                 'rounded-full px-3 py-1.5 text-[12px]',
                 tab === k
-                  ? 'bg-zoru-bg-muted text-zoru-ink'
+                  ? 'bg-zoru-bg-zoru-surface-2 text-zoru-ink'
                   : 'text-zoru-ink-muted hover:text-zoru-ink',
               )}
             >
@@ -211,7 +211,7 @@ export function DetailDrawer({
                   href={app.webAppUrl}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="inline-flex items-center gap-1 text-[12px] text-blue-500 hover:underline"
+                  className="inline-flex items-center gap-1 text-[12px] text-zoru-ink hover:underline"
                 >
                   <LinkIcon className="h-3.5 w-3.5" /> {app.webAppUrl}
                 </a>
@@ -220,7 +220,7 @@ export function DetailDrawer({
                     href={link}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="inline-flex items-center gap-1 text-[12px] text-blue-500 hover:underline"
+                    className="inline-flex items-center gap-1 text-[12px] text-zoru-ink hover:underline"
                   >
                     <ExternalLink className="h-3.5 w-3.5" /> {link}
                   </a>
@@ -231,7 +231,7 @@ export function DetailDrawer({
                     onClick={() => setDevice('desktop')}
                     className={cn(
                       'px-2 py-1 text-[11px]',
-                      device === 'desktop' && 'bg-zoru-bg-muted',
+                      device === 'desktop' && 'bg-zoru-bg-zoru-surface-2',
                     )}
                   >
                     <Monitor className="h-3.5 w-3.5" />
@@ -241,14 +241,14 @@ export function DetailDrawer({
                     onClick={() => setDevice('mobile')}
                     className={cn(
                       'px-2 py-1 text-[11px]',
-                      device === 'mobile' && 'bg-zoru-bg-muted',
+                      device === 'mobile' && 'bg-zoru-bg-zoru-surface-2',
                     )}
                   >
                     <Smartphone className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>
-              <div className="flex justify-center rounded-md border border-zoru-line bg-zoru-bg-muted p-3">
+              <div className="flex justify-center rounded-md border border-zoru-line bg-zoru-bg-zoru-surface-2 p-3">
                 <div
                   className="overflow-hidden rounded-md border border-zoru-line bg-white"
                   style={{
@@ -292,8 +292,8 @@ export function DetailDrawer({
                       className={cn(
                         'text-[11px]',
                         initDataResult.ok
-                          ? 'text-emerald-500'
-                          : 'text-red-500',
+                          ? 'text-zoru-ink'
+                          : 'text-zoru-ink',
                       )}
                     >
                       {initDataResult.ok ? 'Signature OK' : 'Signature failed'}
@@ -301,7 +301,7 @@ export function DetailDrawer({
                   )}
                 </div>
                 {initDataResult && (
-                  <pre className="mt-2 max-h-40 overflow-auto rounded bg-zoru-bg-muted p-2 text-[11px]">
+                  <pre className="mt-2 max-h-40 overflow-auto rounded bg-zoru-bg-zoru-surface-2 p-2 text-[11px]">
                     {initDataResult.body}
                   </pre>
                 )}

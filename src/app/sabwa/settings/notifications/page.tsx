@@ -200,12 +200,12 @@ export default function NotificationsSettingsPage() {
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
       <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-secondary p-3">
+        <div className="rounded-xl bg-zoru-surface-2 p-3">
           <Bell className="h-6 w-6" />
         </div>
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Settings — Notifications</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-zoru-ink-muted mt-1">
             Control where SabWa pings you when new messages, calls, or system events come in.
           </p>
         </div>
@@ -383,7 +383,7 @@ export default function NotificationsSettingsPage() {
                     type="button"
                     onClick={() => removeRecipient(r)}
                     aria-label={`Remove ${r}`}
-                    className="hover:text-destructive"
+                    className="hover:text-zoru-ink"
                   >
                     <Trash2 className="h-3 w-3" />
                   </button>
@@ -439,7 +439,7 @@ export default function NotificationsSettingsPage() {
         <ZoruCardContent>
           <div className="flex items-center gap-3">
             <Switch checked={prefs.push.enabled} disabled aria-label="Toggle push notifications" />
-            <Label className="text-sm text-muted-foreground">Enable mobile push</Label>
+            <Label className="text-sm text-zoru-ink-muted">Enable mobile push</Label>
           </div>
         </ZoruCardContent>
       </Card>
@@ -501,7 +501,7 @@ export default function NotificationsSettingsPage() {
         </ZoruCardHeader>
         <ZoruCardContent>
           {prefs.muteSchedules.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No mute schedules — notifications are always on.</p>
+            <p className="text-sm text-zoru-ink-muted">No mute schedules — notifications are always on.</p>
           ) : (
             <Table>
               <ZoruTableHeader>
@@ -550,8 +550,8 @@ export default function NotificationsSettingsPage() {
                               onClick={() => toggleDay(w.id, d.value)}
                               className={
                                 active
-                                  ? 'rounded-md bg-primary text-primary-foreground px-2 py-1 text-xs font-medium'
-                                  : 'rounded-md border px-2 py-1 text-xs text-muted-foreground hover:text-foreground'
+                                  ? 'rounded-md bg-zoru-ink text-white px-2 py-1 text-xs font-medium'
+                                  : 'rounded-md border px-2 py-1 text-xs text-zoru-ink-muted hover:text-zoru-ink'
                               }
                             >
                               {d.label}

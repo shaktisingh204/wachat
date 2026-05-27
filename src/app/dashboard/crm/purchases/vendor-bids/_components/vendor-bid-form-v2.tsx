@@ -354,7 +354,7 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
                                         onClick={() => removeRow(i)}
                                         disabled={items.length === 1}
                                     >
-                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
                                     </Button>
                                 </div>
                             </div>

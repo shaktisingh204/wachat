@@ -77,12 +77,12 @@ function Kpi({
 }) {
     const toneClass =
         tone === 'danger'
-            ? 'text-red-500'
+            ? 'text-zoru-ink'
             : tone === 'warning'
-              ? 'text-amber-500'
+              ? 'text-zoru-ink'
               : tone === 'ok'
-                ? 'text-emerald-500'
-                : 'text-foreground';
+                ? 'text-zoru-ink'
+                : 'text-zoru-ink';
     return (
         <Card>
             <ZoruCardHeader className="pb-2">
@@ -93,7 +93,7 @@ function Kpi({
             <ZoruCardContent>
                 <div className={`text-3xl font-semibold tabular-nums ${toneClass}`}>{value}</div>
                 {sub ? (
-                    <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+                    <div className="mt-1 text-xs text-zoru-ink-muted">{sub}</div>
                 ) : null}
             </ZoruCardContent>
         </Card>
@@ -175,7 +175,7 @@ export default async function SabChatReportsPage({
                             </ZoruCardDescription>
                         </div>
                         {anyError ? (
-                            <Badge variant="outline" className="border-amber-500 text-amber-500">
+                            <Badge variant="outline" className="border-zoru-line text-zoru-ink">
                                 Partial data
                             </Badge>
                         ) : null}
@@ -407,15 +407,15 @@ export default async function SabChatReportsPage({
                                                             <span className="w-8 font-mono">
                                                                 {rating}
                                                             </span>
-                                                            <div className="h-2 flex-1 overflow-hidden rounded bg-muted">
+                                                            <div className="h-2 flex-1 overflow-hidden rounded bg-zoru-surface-2">
                                                                 <div
-                                                                    className="h-full bg-primary"
+                                                                    className="h-full bg-zoru-ink"
                                                                     style={{
                                                                         width: `${pct.toFixed(1)}%`,
                                                                     }}
                                                                 />
                                                             </div>
-                                                            <span className="w-12 text-right tabular-nums text-muted-foreground">
+                                                            <span className="w-12 text-right tabular-nums text-zoru-ink-muted">
                                                                 {fmtNum(count)}
                                                             </span>
                                                         </div>
@@ -442,7 +442,7 @@ export default async function SabChatReportsPage({
 function Stat({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex flex-col gap-1">
-            <span className="text-xs uppercase tracking-wide text-muted-foreground">{label}</span>
+            <span className="text-xs uppercase tracking-wide text-zoru-ink-muted">{label}</span>
             <span className="text-xl font-semibold tabular-nums">{value}</span>
         </div>
     );
@@ -450,7 +450,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function EmptyHint({ message }: { message: string }) {
     return (
-        <div className="rounded border border-dashed p-6 text-center text-sm text-muted-foreground">
+        <div className="rounded border border-dashed p-6 text-center text-sm text-zoru-ink-muted">
             {message}
         </div>
     );
@@ -464,10 +464,10 @@ function SimpleTable({
     rows: React.ReactNode[][];
 }) {
     return (
-        <div className="overflow-x-auto rounded border bg-card">
+        <div className="overflow-x-auto rounded border bg-zoru-surface">
             <table className="w-full text-sm">
                 <thead>
-                    <tr className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                    <tr className="border-b bg-zoru-surface-2/40 text-left text-xs uppercase tracking-wide text-zoru-ink-muted">
                         {head.map((h, i) => (
                             <th key={i} className="px-3 py-2 font-medium">
                                 {h}
@@ -479,7 +479,7 @@ function SimpleTable({
                     {rows.map((row, i) => (
                         <tr
                             key={i}
-                            className="border-b last:border-b-0 hover:bg-muted/20"
+                            className="border-b last:border-b-0 hover:bg-zoru-surface-2/20"
                         >
                             {row.map((cell, j) => (
                                 <td key={j} className="px-3 py-2 align-middle">

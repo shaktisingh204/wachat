@@ -141,7 +141,7 @@ export function SabsmsDebugSendForm({ engineHealthy = true }: { engineHealthy?: 
       </div>
 
       {error && (
-        <p className="rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+        <p className="rounded border border-zoru-line bg-zoru-surface-2 p-3 text-sm text-zoru-ink">
           {error}
         </p>
       )}

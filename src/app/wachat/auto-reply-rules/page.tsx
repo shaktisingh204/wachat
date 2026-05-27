@@ -317,7 +317,7 @@ export default function AutoReplyRulesPage() {
             variant="outline"
             onClick={() => setAiSuggestionsOpen(true)}
             disabled={!projectId}
-            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+            className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2"
           >
             <Wand2 className="mr-2 h-4 w-4" /> AI Suggestions
           </Button>

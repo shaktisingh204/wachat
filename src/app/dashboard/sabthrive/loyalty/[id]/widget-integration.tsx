@@ -34,7 +34,7 @@ export function WidgetIntegration({ loyaltyId }: { loyaltyId: string }) {
                     onClick={copyToClipboard}
                     title="Copy snippet"
                 >
-                    {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                    {copied ? <Check className="h-4 w-4 text-zoru-ink" /> : <Copy className="h-4 w-4" />}
                 </Button>
             </div>
         </Card>

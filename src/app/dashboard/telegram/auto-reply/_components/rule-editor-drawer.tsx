@@ -280,7 +280,7 @@ export function RuleEditorDrawer({
                                                 patch('status', v ? 'enabled' : 'disabled')
                                             }
                                         />
-                                        <span className="text-sm text-muted-foreground">
+                                        <span className="text-sm text-zoru-ink-muted">
                                             {form.status === 'enabled' ? 'Enabled' : 'Disabled'}
                                         </span>
                                     </div>
@@ -335,7 +335,7 @@ export function RuleEditorDrawer({
                                                 form.trigger.kind === 'media_only'
                                             }
                                         />
-                                        <span className="text-sm text-muted-foreground">
+                                        <span className="text-sm text-zoru-ink-muted">
                                             {form.trigger.caseSensitive ? 'Yes' : 'No'}
                                         </span>
                                     </div>
@@ -353,14 +353,14 @@ export function RuleEditorDrawer({
                         <Section title="3. Conditions (all must pass)">
                             <div className="grid gap-2">
                                 {form.conditions.length === 0 && (
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm text-zoru-ink-muted">
                                         No conditions — the rule fires whenever the trigger matches.
                                     </p>
                                 )}
                                 {form.conditions.map((c, i) => (
                                     <div
                                         key={i}
-                                        className="flex flex-col gap-2 rounded-md border bg-card/60 p-3 sm:flex-row sm:items-end"
+                                        className="flex flex-col gap-2 rounded-md border bg-zoru-surface/60 p-3 sm:flex-row sm:items-end"
                                     >
                                         <div className="flex-1">
                                             <Label>Condition</Label>
@@ -415,7 +415,7 @@ export function RuleEditorDrawer({
                         <Section title="4. Actions">
                             <div className="grid gap-2">
                                 {form.actions.length === 0 && (
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-sm text-zoru-ink-muted">
                                         No actions yet — add at least one to make the rule useful.
                                     </p>
                                 )}
@@ -540,14 +540,14 @@ export function RuleEditorDrawer({
                         </Section>
 
                         {err && (
-                            <p className="text-sm text-destructive" role="alert">
+                            <p className="text-sm text-zoru-ink" role="alert">
                                 {err}
                             </p>
                         )}
                     </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 border-t bg-background p-4">
+                <div className="flex items-center justify-end gap-2 border-t bg-zoru-surface p-4">
                     <Button
                         variant="ghost"
                         onClick={() => onOpenChange(false)}
@@ -690,7 +690,7 @@ function TriggerPayloadEditor({
         );
     }
     return (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-zoru-ink-muted">
             This trigger has no extra payload.
         </p>
     );
@@ -760,7 +760,7 @@ function ConditionPayloadEditor({
         );
     }
     return (
-        <p className="text-xs text-muted-foreground">No payload needed.</p>
+        <p className="text-xs text-zoru-ink-muted">No payload needed.</p>
     );
 }
 
@@ -945,7 +945,7 @@ function ActionPayloadEditor({
         case 'do_nothing':
         default:
             return (
-                <p className="text-xs text-muted-foreground">No payload.</p>
+                <p className="text-xs text-zoru-ink-muted">No payload.</p>
             );
     }
 }

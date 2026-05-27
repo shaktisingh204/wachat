@@ -61,10 +61,10 @@ const COLORS: {
   border: string;
   label: string;
 }[] = [
-  { key: 'yellow', bg: 'bg-amber-100', border: 'border-amber-300', label: 'Yellow' },
-  { key: 'rose', bg: 'bg-rose-100', border: 'border-rose-300', label: 'Rose' },
-  { key: 'blue', bg: 'bg-sky-100', border: 'border-sky-300', label: 'Blue' },
-  { key: 'green', bg: 'bg-emerald-100', border: 'border-emerald-300', label: 'Green' },
+  { key: 'yellow', bg: 'bg-zoru-surface-2', border: 'border-zoru-line', label: 'Yellow' },
+  { key: 'rose', bg: 'bg-zoru-surface-2', border: 'border-zoru-line', label: 'Rose' },
+  { key: 'blue', bg: 'bg-zoru-surface-2', border: 'border-zoru-line', label: 'Blue' },
+  { key: 'green', bg: 'bg-zoru-surface-2', border: 'border-zoru-line', label: 'Green' },
 ];
 
 type ColourFilter = 'all' | WsStickyNoteColour;

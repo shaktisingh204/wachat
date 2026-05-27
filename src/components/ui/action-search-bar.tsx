@@ -125,9 +125,9 @@ function ActionSearchBar({ actions = defaultActions }: { actions?: Action[] }) {
     return (
         <div className="w-full max-w-xl mx-auto">
             <div className="relative flex flex-col justify-start items-center min-h-[300px]">
-                <div className="w-full max-w-sm sticky top-0 bg-background z-10 pt-4 pb-1">
+                <div className="w-full max-w-sm sticky top-0 bg-zoru-surface z-10 pt-4 pb-1">
                     <label
-                        className="text-xs font-medium text-muted-foreground mb-1 block"
+                        className="text-xs font-medium text-zoru-ink-muted mb-1 block"
                         htmlFor="search"
                     >
                         Search Commands
@@ -154,7 +154,7 @@ function ActionSearchBar({ actions = defaultActions }: { actions?: Action[] }) {
                                         exit={{ y: 20, opacity: 0 }}
                                         transition={{ duration: 0.2 }}
                                     >
-                                        <Send className="w-4 h-4 text-muted-foreground" />
+                                        <Send className="w-4 h-4 text-zoru-ink-muted" />
                                     </motion.div>
                                 ) : (
                                     <motion.div
@@ -164,7 +164,7 @@ function ActionSearchBar({ actions = defaultActions }: { actions?: Action[] }) {
                                         exit={{ y: 20, opacity: 0 }}
                                         transition={{ duration: 0.2 }}
                                     >
-                                        <Search className="w-4 h-4 text-muted-foreground" />
+                                        <Search className="w-4 h-4 text-zoru-ink-muted" />
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -176,7 +176,7 @@ function ActionSearchBar({ actions = defaultActions }: { actions?: Action[] }) {
                     <AnimatePresence>
                         {isFocused && result && !selectedAction && (
                             <motion.div
-                                className="w-full rounded-md shadow-md overflow-hidden bg-popover mt-1"
+                                className="w-full rounded-md shadow-md overflow-hidden bg-zoru-surface mt-1"
                                 variants={container}
                                 initial="hidden"
                                 animate="show"
@@ -186,7 +186,7 @@ function ActionSearchBar({ actions = defaultActions }: { actions?: Action[] }) {
                                     {result.actions.map((action) => (
                                         <motion.li
                                             key={action.id}
-                                            className="px-3 py-2 flex items-center justify-between hover:bg-accent cursor-pointer rounded-md"
+                                            className="px-3 py-2 flex items-center justify-between hover:bg-zoru-surface-2 cursor-pointer rounded-md"
                                             variants={item}
                                             layout
                                             onClick={() =>
@@ -195,30 +195,30 @@ function ActionSearchBar({ actions = defaultActions }: { actions?: Action[] }) {
                                         >
                                             <div className="flex items-center gap-2 justify-between">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-muted-foreground">
+                                                    <span className="text-zoru-ink-muted">
                                                         {action.icon}
                                                     </span>
-                                                    <span className="text-sm font-medium text-foreground">
+                                                    <span className="text-sm font-medium text-zoru-ink">
                                                         {action.label}
                                                     </span>
-                                                    <span className="text-xs text-muted-foreground">
+                                                    <span className="text-xs text-zoru-ink-muted">
                                                         {action.description}
                                                     </span>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-xs text-muted-foreground">
+                                                <span className="text-xs text-zoru-ink-muted">
                                                     {action.short}
                                                 </span>
-                                                <span className="text-xs text-muted-foreground text-right">
+                                                <span className="text-xs text-zoru-ink-muted text-right">
                                                     {action.end}
                                                 </span>
                                             </div>
                                         </motion.li>
                                     ))}
                                 </motion.ul>
-                                <div className="mt-2 px-3 py-2 border-t border-border">
-                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                <div className="mt-2 px-3 py-2 border-t border-zoru-line">
+                                    <div className="flex items-center justify-between text-xs text-zoru-ink-muted">
                                         <span>Press ⌘K to open commands</span>
                                         <span>ESC to cancel</span>
                                     </div>

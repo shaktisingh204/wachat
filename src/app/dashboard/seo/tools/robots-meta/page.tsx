@@ -76,7 +76,7 @@ export default function RobotsMetaPage() {
                 value={maxSnippet} 
                 onChange={(e) => setMaxSnippet(e.target.value)} 
               />
-              <p className="text-xs text-muted-foreground">Maximum text-length, in characters, of a snippet.</p>
+              <p className="text-xs text-zoru-ink-muted">Maximum text-length, in characters, of a snippet.</p>
             </div>
 
             <div className="space-y-2">
@@ -87,7 +87,7 @@ export default function RobotsMetaPage() {
                 value={maxVideoPreview} 
                 onChange={(e) => setMaxVideoPreview(e.target.value)} 
               />
-              <p className="text-xs text-muted-foreground">Maximum number of seconds for a video snippet.</p>
+              <p className="text-xs text-zoru-ink-muted">Maximum number of seconds for a video snippet.</p>
             </div>
 
             <div className="space-y-2">
@@ -103,14 +103,14 @@ export default function RobotsMetaPage() {
                   <SelectItem value="large">Large</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">Maximum size of an image preview.</p>
+              <p className="text-xs text-zoru-ink-muted">Maximum size of an image preview.</p>
             </div>
           </div>
         </div>
 
         <div className="space-y-2 pt-4 border-t">
           <Label>Generated Meta Tag</Label>
-          <div className="font-mono text-sm bg-muted p-4 rounded-md break-all">{output}</div>
+          <div className="font-mono text-sm bg-zoru-surface-2 p-4 rounded-md break-all">{output}</div>
           <Button onClick={() => navigator.clipboard.writeText(output)} className="mt-2">Copy Tag</Button>
         </div>
       </div>

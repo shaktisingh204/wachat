@@ -30,7 +30,7 @@ function CopyText({ text }: { text: string }) {
         title="Copy to clipboard"
         aria-label="Copy to clipboard"
       >
-        {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-zoru-ink/60" />}
+        {copied ? <Check className="w-4 h-4 text-zoru-ink" /> : <Copy className="w-4 h-4 text-zoru-ink/60" />}
       </button>
     </div>
   );

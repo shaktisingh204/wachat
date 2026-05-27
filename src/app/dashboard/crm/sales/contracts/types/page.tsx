@@ -466,9 +466,9 @@ export default function ContractTypesPage() {
                                 </span>
                             </ZoruCardContent>
                         </Card>
-                        <Card className="p-0 border-emerald-500/30">
+                        <Card className="p-0 border-zoru-line/30">
                             <ZoruCardHeader className="pb-1 pt-3 px-4">
-                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink dark:text-zoru-ink-muted">
                                     Active
                                 </ZoruCardTitle>
                             </ZoruCardHeader>
@@ -604,7 +604,7 @@ export default function ContractTypesPage() {
                                                             )
                                                         }
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>

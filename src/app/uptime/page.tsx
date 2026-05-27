@@ -18,12 +18,12 @@ function bannerForChecks(checks: { lastStatus: string }[]): {
     const anyDown = checks.some((c) => c.lastStatus === 'down');
     const anyWarn = checks.some((c) => c.lastStatus === 'warning');
     if (anyDown) {
-        return { label: 'Partial outage', tone: 'bg-rose-500/15 text-rose-700 border-rose-500/30' };
+        return { label: 'Partial outage', tone: 'bg-zoru-ink/15 text-zoru-ink border-zoru-line/30' };
     }
     if (anyWarn) {
-        return { label: 'Degraded performance', tone: 'bg-amber-500/15 text-amber-700 border-amber-500/30' };
+        return { label: 'Degraded performance', tone: 'bg-zoru-ink/15 text-zoru-ink border-zoru-line/30' };
     }
-    return { label: 'All systems operational', tone: 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30' };
+    return { label: 'All systems operational', tone: 'bg-zoru-ink/15 text-zoru-ink border-zoru-line/30' };
 }
 
 export default async function PublicStatusPage({ params }: PageProps): Promise<React.JSX.Element> {
@@ -53,7 +53,7 @@ export default async function PublicStatusPage({ params }: PageProps): Promise<R
             <header className="flex flex-col gap-2">
                 <h1 className="text-3xl font-semibold">{page.title}</h1>
                 {page.customHeader && (
-                    <p className="text-sm text-zinc-600">{page.customHeader}</p>
+                    <p className="text-sm text-zoru-ink">{page.customHeader}</p>
                 )}
             </header>
 
@@ -66,28 +66,28 @@ export default async function PublicStatusPage({ params }: PageProps): Promise<R
             </section>
 
             <section className="flex flex-col gap-2">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-zoru-ink">
                     Components
                 </h2>
-                <ul className="divide-y divide-zinc-200 rounded-md border border-zinc-200">
+                <ul className="divide-y divide-zoru-line rounded-md border border-zoru-line">
                     {page.checks.length === 0 ? (
-                        <li className="p-3 text-sm text-zinc-500">No components configured.</li>
+                        <li className="p-3 text-sm text-zoru-ink">No components configured.</li>
                     ) : (
                         page.checks.map((c) => (
                             <li
                                 key={c.id}
                                 className="flex items-center justify-between p-3 text-sm"
                             >
-                                <span className="font-medium text-zinc-800">{c.name}</span>
+                                <span className="font-medium text-zoru-ink">{c.name}</span>
                                 <span
                                     className={
                                         c.lastStatus === 'up'
-                                            ? 'text-emerald-700'
+                                            ? 'text-zoru-ink'
                                             : c.lastStatus === 'warning'
-                                              ? 'text-amber-700'
+                                              ? 'text-zoru-ink'
                                               : c.lastStatus === 'down'
-                                                ? 'text-rose-700'
-                                                : 'text-zinc-500'
+                                                ? 'text-zoru-ink'
+                                                : 'text-zoru-ink'
                                     }
                                 >
                                     {c.lastStatus}
@@ -99,23 +99,23 @@ export default async function PublicStatusPage({ params }: PageProps): Promise<R
             </section>
 
             <section className="flex flex-col gap-2">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-zoru-ink">
                     Recent incidents
                 </h2>
                 {incidents.length === 0 ? (
-                    <p className="text-sm text-zinc-500">No recent incidents to report.</p>
+                    <p className="text-sm text-zoru-ink">No recent incidents to report.</p>
                 ) : (
                     <ul className="flex flex-col gap-3">
                         {incidents.map((i) => (
-                            <li key={i._id} className="rounded-md border border-zinc-200 p-3">
+                            <li key={i._id} className="rounded-md border border-zoru-line p-3">
                                 <div className="flex items-baseline justify-between">
-                                    <span className="font-medium text-zinc-800">{i.title}</span>
-                                    <span className="text-[12px] uppercase tracking-wide text-zinc-500">
+                                    <span className="font-medium text-zoru-ink">{i.title}</span>
+                                    <span className="text-[12px] uppercase tracking-wide text-zoru-ink">
                                         {i.kind}
                                     </span>
                                 </div>
-                                <p className="mt-1 text-sm text-zinc-600">{i.body}</p>
-                                <span className="mt-2 block text-[11px] text-zinc-400">
+                                <p className="mt-1 text-sm text-zoru-ink">{i.body}</p>
+                                <span className="mt-2 block text-[11px] text-zoru-ink-muted">
                                     {new Date(i.postedAt).toLocaleString()}
                                 </span>
                             </li>
@@ -124,7 +124,7 @@ export default async function PublicStatusPage({ params }: PageProps): Promise<R
                 )}
             </section>
 
-            <footer className="pt-6 text-[11px] text-zinc-400">
+            <footer className="pt-6 text-[11px] text-zoru-ink-muted">
                 Powered by SabMonitor
             </footer>
         </main>

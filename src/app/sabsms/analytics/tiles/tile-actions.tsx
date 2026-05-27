@@ -99,7 +99,7 @@ export function TileActions({
         {busy && (
           <p className="text-sm text-zoru-ink-muted">Asking the model…</p>
         )}
-        {error && <p className="text-sm text-rose-600">{error}</p>}
+        {error && <p className="text-sm text-zoru-ink">{error}</p>}
         {explanation && (
           <p className="whitespace-pre-wrap text-sm leading-6 text-zoru-ink">
             {explanation}

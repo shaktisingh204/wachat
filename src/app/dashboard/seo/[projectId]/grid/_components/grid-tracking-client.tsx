@@ -59,7 +59,7 @@ function GridMap({ points, center, loading, onMapClick }: { points: any[], cente
                     // @ts-ignore
                     lat={center.lat}
                     lng={center.lng}
-                    className="absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-blue-500 border-2 border-white shadow z-10"
+                    className="absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-zoru-ink border-2 border-white shadow z-10"
                     title="Center Coordinates"
                 />
 

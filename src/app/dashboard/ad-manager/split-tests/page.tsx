@@ -130,14 +130,14 @@ export default function SplitTestsPage() {
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
                         <FlaskConical className="h-6 w-6" /> A/B split tests
-                        <Badge className="bg-[#1877F2] text-white">Advanced</Badge>
+                        <Badge className="bg-zoru-ink text-white">Advanced</Badge>
                     </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-sm text-zoru-ink-muted mt-1">
                         Run scientific experiments across creatives, audiences, placements and bid strategies.
                         Winner is auto-selected when statistical significance is reached.
                     </p>
                 </div>
-                <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setSelectedVar('creative')}>
+                <Button className="bg-zoru-ink hover:bg-zoru-ink/90 text-white" onClick={() => setSelectedVar('creative')}>
                     <Plus className="h-4 w-4 mr-1" /> Create split test
                 </Button>
             </div>
@@ -155,12 +155,12 @@ export default function SplitTestsPage() {
                 <h2 className="text-sm font-semibold mb-2">Pick a variable to test</h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {VARIABLES.map((v) => (
-                        <Card key={v.id} className="cursor-pointer hover:border-[#1877F2]/50 transition-colors" onClick={() => setSelectedVar(v.id)}>
+                        <Card key={v.id} className="cursor-pointer hover:border-zoru-line/50 transition-colors" onClick={() => setSelectedVar(v.id)}>
                             <ZoruCardHeader className="pb-2">
                                 <ZoruCardTitle className="text-base">{v.label}</ZoruCardTitle>
                             </ZoruCardHeader>
                             <ZoruCardContent>
-                                <p className="text-xs text-muted-foreground">{v.desc}</p>
+                                <p className="text-xs text-zoru-ink-muted">{v.desc}</p>
                             </ZoruCardContent>
                         </Card>
                     ))}
@@ -193,17 +193,17 @@ export default function SplitTestsPage() {
                                         <ZoruTableRow key={t.id}>
                                             <ZoruTableCell className="font-medium">{t.name}</ZoruTableCell>
                                             <ZoruTableCell><Badge variant="outline">{t.variable}</Badge></ZoruTableCell>
-                                            <ZoruTableCell className="text-sm text-muted-foreground max-w-[120px] truncate">{t.variantA}</ZoruTableCell>
-                                            <ZoruTableCell className="text-sm text-muted-foreground max-w-[120px] truncate">{t.variantB}</ZoruTableCell>
+                                            <ZoruTableCell className="text-sm text-zoru-ink-muted max-w-[120px] truncate">{t.variantA}</ZoruTableCell>
+                                            <ZoruTableCell className="text-sm text-zoru-ink-muted max-w-[120px] truncate">{t.variantB}</ZoruTableCell>
                                             <ZoruTableCell className="tabular-nums">${t.budget}/day</ZoruTableCell>
-                                            <ZoruTableCell className="text-xs text-muted-foreground">
+                                            <ZoruTableCell className="text-xs text-zoru-ink-muted">
                                                 {new Date(t.createdAt).toLocaleDateString()}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
                                                 <Badge variant={t.status === 'running' ? 'default' : 'secondary'}>{t.status}</Badge>
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(t.id)}>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-zoru-ink" onClick={() => handleDelete(t.id)}>
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             </ZoruTableCell>
@@ -243,7 +243,7 @@ export default function SplitTestsPage() {
                     </div>
                     <ZoruDialogFooter>
                         <Button variant="outline" onClick={() => { setSelectedVar(null); resetForm(); }}>Cancel</Button>
-                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleLaunch}>
+                        <Button className="bg-zoru-ink hover:bg-zoru-ink/90 text-white" onClick={handleLaunch}>
                             Launch Test
                         </Button>
                     </ZoruDialogFooter>

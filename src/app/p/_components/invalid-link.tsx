@@ -9,10 +9,10 @@ export function InvalidLinkCard({ message }: { message?: string }) {
           <AlertCircle className="h-5 w-5" />
         </div>
         <div>
-          <h2 className="text-[14px] font-bold tracking-tight text-foreground font-mono uppercase">
+          <h2 className="text-[14px] font-bold tracking-tight text-zoru-ink font-mono uppercase">
             // REFERENCE.EXPIRED
           </h2>
-          <p className="mt-2 text-[12.5px] text-muted-foreground max-w-sm">
+          <p className="mt-2 text-[12.5px] text-zoru-ink-muted max-w-sm">
             {message || 'This reference URL has expired, been revoked, or reached its security threshold.'}
           </p>
         </div>

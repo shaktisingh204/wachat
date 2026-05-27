@@ -207,7 +207,7 @@ export function NoteList({
                       {n.title?.trim() || 'Untitled'}
                     </span>
                     {n.pinned && (
-                      <Pin className="ml-auto h-3 w-3 text-amber-500" />
+                      <Pin className="ml-auto h-3 w-3 text-zoru-ink" />
                     )}
                   </div>
                   {n.preview && (

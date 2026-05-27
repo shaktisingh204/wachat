@@ -172,18 +172,18 @@ export default function ExecutionReplayPage({
         subtitle={`Execution ID: ${resolvedParams.executionId}`}
         icon={TerminalSquare}
         breadcrumb={
-          <div className="flex items-center gap-2 text-muted-foreground">
+          <div className="flex items-center gap-2 text-zoru-ink-muted">
             <span>Dashboard</span>
             <span className="text-xs">&bull;</span>
             <span>Sabflow</span>
             <span className="text-xs">&bull;</span>
-            <span className="text-foreground font-medium">Replay</span>
+            <span className="text-zoru-ink font-medium">Replay</span>
           </div>
         }
         actions={
           <Badge variant="outline" className="text-sm py-1 px-3 shadow-sm">
             <span className="flex items-center">
-              <span className="w-2 h-2 rounded-full bg-red-500 mr-2 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-zoru-ink mr-2 animate-pulse" />
               Failed Execution
             </span>
           </Badge>
@@ -193,7 +193,7 @@ export default function ExecutionReplayPage({
       <div className="flex flex-1 gap-6 min-h-[600px] overflow-hidden">
         {/* Left Pane - Visual Timeline */}
         <div className="w-1/3 flex flex-col shrink-0">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4 pl-1">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-zoru-ink-muted mb-4 pl-1">
             Execution Path
           </h2>
           <ScrollArea className="flex-1 pr-4">
@@ -217,7 +217,7 @@ export default function ExecutionReplayPage({
                       className={cn(
                         "relative z-10 transition-all border-l-4",
                         isSelected
-                          ? "border-l-indigo-500 ring-1 ring-indigo-500/20"
+                          ? "border-l-indigo-500 ring-1 ring-zoru-line/20"
                           : "border-l-transparent",
                         node.status === "error" && !isSelected && "border-l-destructive",
                         node.status === "success" && !isSelected && "border-l-emerald-500"
@@ -230,8 +230,8 @@ export default function ExecutionReplayPage({
                               className={cn(
                                 "p-2 rounded-xl shadow-sm",
                                 isSelected
-                                  ? "bg-indigo-500 text-white"
-                                  : "bg-muted text-muted-foreground"
+                                  ? "bg-zoru-ink text-white"
+                                  : "bg-zoru-surface-2 text-zoru-ink-muted"
                               )}
                             >
                               <node.icon className="w-4 h-4" />
@@ -240,7 +240,7 @@ export default function ExecutionReplayPage({
                               <CardTitle className="text-[15px]">
                                 {node.title}
                               </CardTitle>
-                              <span className="text-[11px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded mt-1 inline-block">
+                              <span className="text-[11px] font-mono text-zoru-ink-muted bg-zoru-surface-2 px-1.5 py-0.5 rounded mt-1 inline-block">
                                 {node.type}
                               </span>
                             </div>
@@ -255,7 +255,7 @@ export default function ExecutionReplayPage({
                         </div>
                       </CardHeader>
                       <CardContent className="p-4 pt-1">
-                        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                        <p className="text-xs text-zoru-ink-muted leading-relaxed line-clamp-2">
                           {node.description}
                         </p>
                       </CardContent>
@@ -268,41 +268,41 @@ export default function ExecutionReplayPage({
         </div>
 
         {/* Right Pane - Raw JSON Logs */}
-        <div className="w-2/3 flex flex-col bg-card rounded-2xl border shadow-sm overflow-hidden">
-          <div className="bg-muted/40 border-b p-5">
+        <div className="w-2/3 flex flex-col bg-zoru-surface rounded-2xl border shadow-sm overflow-hidden">
+          <div className="bg-zoru-surface-2/40 border-b p-5">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-semibold flex items-center gap-2">
-                  <selectedNode.icon className="w-5 h-5 text-indigo-500" />
+                  <selectedNode.icon className="w-5 h-5 text-zoru-ink" />
                   {selectedNode.title}
                 </h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-zoru-ink-muted mt-1">
                   {selectedNode.description}
                 </p>
               </div>
               <div className="flex flex-col items-end gap-2">
                 <Badge variant="outline" className="font-mono text-xs shadow-sm">
-                  <Clock className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
+                  <Clock className="w-3.5 h-3.5 mr-1.5 text-zoru-ink-muted" />
                   {selectedNode.duration}
                 </Badge>
-                <span className="text-xs font-mono text-muted-foreground">
+                <span className="text-xs font-mono text-zoru-ink-muted">
                   Start: {selectedNode.startTime}
                 </span>
               </div>
             </div>
           </div>
 
-          <ScrollArea className="flex-1 p-6 bg-zinc-50 dark:bg-zinc-950/50">
+          <ScrollArea className="flex-1 p-6 bg-zoru-surface-2 dark:bg-zoru-ink/50">
             {selectedNode.error && (
               <m.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="mb-6 p-4 border border-destructive/30 bg-destructive/10 text-destructive text-sm rounded-xl flex items-start gap-3 shadow-sm"
+                className="mb-6 p-4 border border-destructive/30 bg-zoru-ink/10 text-zoru-ink text-sm rounded-xl flex items-start gap-3 shadow-sm"
               >
                 <XCircle className="w-5 h-5 shrink-0 mt-0.5" />
                 <div className="flex flex-col">
                   <span className="font-semibold mb-1">Execution Error</span>
-                  <span className="text-destructive/90">{selectedNode.error}</span>
+                  <span className="text-zoru-ink/90">{selectedNode.error}</span>
                 </div>
               </m.div>
             )}
@@ -310,16 +310,16 @@ export default function ExecutionReplayPage({
             <div className="grid grid-cols-1 gap-6">
               {/* Input Log */}
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground/80 uppercase tracking-wider">
-                  <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-md">
+                <h4 className="text-sm font-semibold flex items-center gap-2 text-zoru-ink/80 uppercase tracking-wider">
+                  <div className="p-1.5 bg-zoru-surface-2 dark:bg-zoru-ink/30 text-zoru-ink dark:text-zoru-ink-muted rounded-md">
                     <ArrowRight className="w-4 h-4" />
                   </div>
                   Input Payload
                 </h4>
                 <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative bg-[#0d1117] border border-border/50 rounded-xl p-4 overflow-x-auto shadow-inner">
-                    <pre className="text-[13px] font-mono leading-relaxed text-[#7ee787]">
+                  <div className="absolute inset-0 bg-gradient-to-r from-zoru-ink/10 to-zoru-ink/10 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative bg-zoru-ink border border-zoru-line/50 rounded-xl p-4 overflow-x-auto shadow-inner">
+                    <pre className="text-[13px] font-mono leading-relaxed text-zoru-ink-muted">
                       {JSON.stringify(selectedNode.input, null, 2)}
                     </pre>
                   </div>
@@ -328,21 +328,21 @@ export default function ExecutionReplayPage({
 
               {/* Output Log */}
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground/80 uppercase tracking-wider">
-                  <div className="p-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-md">
+                <h4 className="text-sm font-semibold flex items-center gap-2 text-zoru-ink/80 uppercase tracking-wider">
+                  <div className="p-1.5 bg-zoru-surface-2 dark:bg-zoru-ink/30 text-zoru-ink dark:text-zoru-ink-muted rounded-md">
                     <ArrowLeft className="w-4 h-4" />
                   </div>
                   Output Result
                 </h4>
                 <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative bg-[#0d1117] border border-border/50 rounded-xl p-4 overflow-x-auto shadow-inner min-h-[100px] flex flex-col justify-center">
+                  <div className="absolute inset-0 bg-gradient-to-r from-zoru-ink/10 to-zoru-ink/10 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative bg-zoru-ink border border-zoru-line/50 rounded-xl p-4 overflow-x-auto shadow-inner min-h-[100px] flex flex-col justify-center">
                     {selectedNode.output ? (
-                      <pre className="text-[13px] font-mono leading-relaxed text-[#79c0ff]">
+                      <pre className="text-[13px] font-mono leading-relaxed text-zoru-ink-muted">
                         {JSON.stringify(selectedNode.output, null, 2)}
                       </pre>
                     ) : (
-                      <div className="text-center text-muted-foreground/60 italic text-sm">
+                      <div className="text-center text-zoru-ink-muted/60 italic text-sm">
                         {selectedNode.status === "pending"
                           ? "Node has not executed yet"
                           : "No output generated"}

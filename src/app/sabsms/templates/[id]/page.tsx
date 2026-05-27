@@ -52,7 +52,7 @@ async function TemplateDataLoader({ id, isNew }: { id: string; isNew: boolean })
 
   if (!workspaceId) {
     return (
-      <p className="text-sm text-slate-600">
+      <p className="text-sm text-zoru-ink">
         You need to sign in to edit templates.
       </p>
     );
@@ -85,9 +85,9 @@ export default async function TemplateEditorPage({ params }: PageProps) {
       helpBody={
         <ul className="list-disc pl-4 space-y-1">
           <li>
-            Use <code className="rounded bg-slate-100 px-1">{"{{ var }}"}</code>{" "}
+            Use <code className="rounded bg-zoru-surface-2 px-1">{"{{ var }}"}</code>{" "}
             for substitutions and{" "}
-            <code className="rounded bg-slate-100 px-1">
+            <code className="rounded bg-zoru-surface-2 px-1">
               {"{% if x %}…{% endif %}"}
             </code>{" "}
             for conditionals.
@@ -103,7 +103,7 @@ export default async function TemplateEditorPage({ params }: PageProps) {
         </ul>
       }
     >
-      <Suspense fallback={<div className="h-96 w-full bg-slate-100 animate-pulse rounded-xl" />}>
+      <Suspense fallback={<div className="h-96 w-full bg-zoru-surface-2 animate-pulse rounded-xl" />}>
         <TemplateDataLoader id={id} isNew={isNew} />
       </Suspense>
     </SabsmsPageShell>

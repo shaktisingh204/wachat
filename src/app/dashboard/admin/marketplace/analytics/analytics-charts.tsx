@@ -29,7 +29,7 @@ export function TopTemplatesChart({ data }: { data: TopTemplate[] }) {
 
     if (safeData.length === 0) {
         return (
-            <div className="py-16 text-center text-sm text-zinc-500">
+            <div className="py-16 text-center text-sm text-zoru-ink">
                 No install events recorded yet.
             </div>
         );
@@ -74,7 +74,7 @@ export function TopTemplatesChart({ data }: { data: TopTemplate[] }) {
 export function InstallTrendsChart({ data }: { data: TrendData[] }) {
     if (data.length === 0) {
         return (
-            <div className="py-16 text-center text-sm text-zinc-500">
+            <div className="py-16 text-center text-sm text-zoru-ink">
                 No trend data available.
             </div>
         );

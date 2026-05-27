@@ -34,7 +34,7 @@ export function Footer() {
           <div className="grid grid-cols-12 gap-8">
             <div className="col-span-12 md:col-span-5 space-y-4">
               <SabNodeLogo className="h-8 w-auto" />
-              <p className="text-sm text-emerald-900/70 max-w-sm leading-relaxed">
+              <p className="text-sm text-zoru-ink/70 max-w-sm leading-relaxed">
                 A connected platform for WhatsApp, marketing, sales and daily
                 business operations. Built for execution.
               </p>
@@ -49,7 +49,7 @@ export function Footer() {
                   <Linkedin className="h-4 w-4" />
                 </FooterIcon>
               </div>
-              <div className="text-xs text-emerald-800/60 space-y-0.5 pt-4">
+              <div className="text-xs text-zoru-ink/60 space-y-0.5 pt-4">
                 <p>info@sabnode.in</p>
                 <p>D829 Sector 5, Malviya Nagar, Jaipur 302017</p>
               </div>
@@ -82,7 +82,7 @@ export function Footer() {
             />
           </div>
 
-          <div className="mt-12 pt-6 border-t border-emerald-200/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-emerald-800/60">
+          <div className="mt-12 pt-6 border-t border-zoru-line/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-zoru-ink/60">
             <p>© {new Date().getFullYear()} SabNode. Built for execution.</p>
             <p className="tracking-[0.12em] uppercase">Proof &gt; Promise</p>
           </div>
@@ -96,7 +96,7 @@ function FooterIcon({ children }: { children: React.ReactNode }) {
   return (
     <Link
       href="#"
-      className="h-9 w-9 rounded-full border border-emerald-200 bg-white/70 flex items-center justify-center text-emerald-700 hover:text-white hover:bg-emerald-600 hover:border-emerald-600 transition-colors"
+      className="h-9 w-9 rounded-full border border-zoru-line bg-white/70 flex items-center justify-center text-zoru-ink hover:text-white hover:bg-zoru-ink hover:border-zoru-line transition-colors"
     >
       {children}
     </Link>
@@ -112,13 +112,13 @@ function FooterGroup({
 }) {
   return (
     <div className="col-span-6 md:col-span-2">
-      <h3 className="text-[11px] tracking-[0.12em] uppercase text-emerald-950 font-semibold mb-4">
+      <h3 className="text-[11px] tracking-[0.12em] uppercase text-zoru-ink font-semibold mb-4">
         {title}
       </h3>
       <ul className="space-y-2.5 text-sm">
         {links.map((l) => (
           <li key={l.href + l.label}>
-            <Link href={l.href} className="text-emerald-900/70 hover:text-emerald-700 transition-colors">
+            <Link href={l.href} className="text-zoru-ink/70 hover:text-zoru-ink transition-colors">
               {l.label}
             </Link>
           </li>

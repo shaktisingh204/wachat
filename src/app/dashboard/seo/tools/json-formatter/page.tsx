@@ -49,17 +49,17 @@ function JsonHighlighter({ jsonString }: { jsonString: string }) {
     if (!jsonString) return '';
     const sanitized = jsonString.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return sanitized.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-        let cls = 'text-sky-600 dark:text-sky-400';
+        let cls = 'text-zoru-ink dark:text-zoru-ink-muted';
         if (/^"/.test(match)) {
             if (/:$/.test(match)) {
-                cls = 'text-zinc-700 dark:text-zinc-300 font-medium';
+                cls = 'text-zoru-ink dark:text-zoru-ink-muted font-medium';
             } else {
-                cls = 'text-emerald-600 dark:text-emerald-400';
+                cls = 'text-zoru-ink dark:text-zoru-ink-muted';
             }
         } else if (/true|false/.test(match)) {
-            cls = 'text-orange-500';
+            cls = 'text-zoru-ink';
         } else if (/null/.test(match)) {
-            cls = 'text-gray-500 italic';
+            cls = 'text-zoru-ink italic';
         }
         return '<span class="' + cls + '">' + match + '</span>';
     });
@@ -136,7 +136,7 @@ export default function JsonFormatterPage() {
   return (
     <ToolShell title="JSON Formatter" description="Format, minify, and visualize JSON with validation.">
       <div className="flex flex-col sm:flex-row gap-4 mb-4 justify-between items-start sm:items-center">
-        <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+        <div className="flex gap-1 bg-zoru-surface-2 dark:bg-zoru-ink p-1 rounded-lg">
           <Button 
             variant={viewMode === 'raw' ? 'default' : 'ghost'} 
             size="sm" 
@@ -205,14 +205,14 @@ export default function JsonFormatterPage() {
       </div>
 
       {error && (
-        <Card className="border-red-500 overflow-hidden">
-          <ZoruCardContent className="p-4 bg-red-50/50">
-            <p className="text-red-600 font-semibold mb-2">{error.message}</p>
+        <Card className="border-zoru-line overflow-hidden">
+          <ZoruCardContent className="p-4 bg-zoru-surface-2/50">
+            <p className="text-zoru-ink font-semibold mb-2">{error.message}</p>
             {error.pos !== undefined && text && (
-              <pre className="text-xs font-mono text-slate-800 bg-red-100 p-2 rounded overflow-x-auto whitespace-pre-wrap break-words">
+              <pre className="text-xs font-mono text-zoru-ink bg-zoru-surface-2 p-2 rounded overflow-x-auto whitespace-pre-wrap break-words">
                 {Math.max(0, error.pos - 40) > 0 && '...'}
                 {text.slice(Math.max(0, error.pos - 40), error.pos)}
-                <span className="bg-red-500 text-white font-bold px-1 rounded shadow-sm">
+                <span className="bg-zoru-ink text-white font-bold px-1 rounded shadow-sm">
                   {text[error.pos] === '\n' ? '↵' : text[error.pos] === ' ' ? '␣' : (text[error.pos] || 'EOF')}
                 </span>
                 {text.slice(error.pos + 1, Math.min(text.length, error.pos + 40))}

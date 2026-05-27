@@ -160,7 +160,7 @@ export function JourneyCanvas({
   return (
     <div className="flex flex-col items-center gap-0">
       {nodes.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-zoru-surface-2 px-6 py-12 text-center">
+        <div className="rounded-xl border border-dashed border-zoru-line bg-zoru-surface-2 px-6 py-12 text-center">
           <p className="text-sm text-zoru-ink-muted">This journey has no steps yet.</p>
         </div>
       ) : (

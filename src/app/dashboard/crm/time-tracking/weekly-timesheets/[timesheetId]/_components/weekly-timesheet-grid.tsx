@@ -323,7 +323,7 @@ export function WeeklyTimesheetGrid({ timesheetId, dataPromise }: WeeklyTimeshee
       ) : (
         <>
           {ts.reason ? (
-            <div className="rounded-lg border border-rose-50 bg-rose-50/40 p-3 text-[12.5px] text-zoru-danger-ink">
+            <div className="rounded-lg border border-zoru-line bg-zoru-surface-2/40 p-3 text-[12.5px] text-zoru-danger-ink">
               <span className="font-semibold">Rejection reason: </span>
               {ts.reason}
             </div>

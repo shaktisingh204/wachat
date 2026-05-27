@@ -27,7 +27,7 @@ function CalendarLume() {
   });
 
   return (
-    <div className="rounded-xl bg-background/80 backdrop-blur-md w-[380px] p-4 shadow-md">
+    <div className="rounded-xl bg-zoru-surface/80 backdrop-blur-md w-[380px] p-4 shadow-md">
       {/* Header */}
       <div className="flex justify-between items-center mb-3">
         <h2 className="font-semibold text-lg">
@@ -116,7 +116,7 @@ function CalendarLume() {
                 <span className="text-sm font-medium">
                   {format(month, "MMM")}
                 </span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-zoru-ink-muted">
                   {selectedYear}
                 </span>
               </Button>
@@ -140,7 +140,7 @@ function CalendarLume() {
                 setSelectedYear(date.getFullYear());
                 setSelectedMonth(date.getMonth());
               }}
-              className="rounded-lg bg-card mx-auto shadow-sm"
+              className="rounded-lg bg-zoru-surface mx-auto shadow-sm"
             />
           </motion.div>
         )}

@@ -20,8 +20,8 @@ interface ReportsKpiStripProps {
 
 const KPI_ICONS = [
   <ClipboardList key="0" className="h-4 w-4 text-zoru-ink-muted" />,
-  <Clock key="1" className="h-4 w-4 text-amber-500" />,
-  <CheckCircle2 key="2" className="h-4 w-4 text-emerald-500" />,
+  <Clock key="1" className="h-4 w-4 text-zoru-ink" />,
+  <CheckCircle2 key="2" className="h-4 w-4 text-zoru-ink" />,
   <CalendarDays key="3" className="h-4 w-4 text-zoru-ink-muted" />,
 ];
 
@@ -42,7 +42,7 @@ export function ReportsKpiStrip({ kpisPromise }: ReportsKpiStripProps) {
             <p
               className={`text-2xl font-semibold tabular-nums ${
                 i === 1 && kpi.value > 0
-                  ? 'text-amber-600'
+                  ? 'text-zoru-ink'
                   : 'text-zoru-ink'
               }`}
             >

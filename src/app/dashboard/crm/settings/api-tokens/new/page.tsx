@@ -156,7 +156,7 @@ export default function NewCrmApiTokenPage() {
                 </Alert>
 
                 <Card className="p-4">
-                    <div className="font-mono text-sm break-all rounded-md bg-muted p-3">
+                    <div className="font-mono text-sm break-all rounded-md bg-zoru-surface-2 p-3">
                         {issuedToken}
                     </div>
                     <div className="mt-3 flex gap-2">
@@ -237,7 +237,7 @@ export default function NewCrmApiTokenPage() {
                 <Card className="p-4">
                     <div className="mb-3 flex items-center justify-between">
                         <Label>Scopes</Label>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-zoru-ink-muted">
                             {selectedScopes.size} selected
                         </span>
                     </div>
@@ -287,7 +287,7 @@ export default function NewCrmApiTokenPage() {
                 </div>
 
                 {/* Reference: full scope catalogue for power users */}
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-zoru-ink-muted">
                     {ALL_CRM_SCOPES.length} scopes available. Tokens with the wildcard
                     {` `}
                     <code className="font-mono">crm:*</code> scope are not creatable from

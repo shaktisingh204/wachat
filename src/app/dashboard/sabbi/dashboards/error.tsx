@@ -20,7 +20,7 @@ export default function DashboardsError({
     return (
         <div className="flex h-full w-full flex-col items-center justify-center p-6 sm:p-8">
             <Card className="flex max-w-md flex-col items-center p-8 text-center shadow-sm">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100/50 text-red-600 mb-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2/50 text-zoru-ink mb-4">
                     <AlertCircle className="h-6 w-6" />
                 </div>
                 <h2 className="mb-2 text-xl font-semibold text-zoru-ink">

@@ -336,7 +336,7 @@ function ChatSidebar({
                         ))}
                     </div>
                 ) : chatsError ? (
-                    <div className="p-4 text-sm text-red-500">{chatsError}</div>
+                    <div className="p-4 text-sm text-zoru-ink">{chatsError}</div>
                 ) : chats.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 p-8 text-center">
                         <MessageCircle className="h-8 w-8 text-zoru-ink-muted" />
@@ -885,7 +885,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
                         ))}
                     </div>
                 ) : historyError ? (
-                    <div className="rounded-[var(--zoru-radius)] border border-red-500/40 bg-red-500/5 p-3 text-sm text-red-500">
+                    <div className="rounded-[var(--zoru-radius)] border border-zoru-line/40 bg-zoru-ink/5 p-3 text-sm text-zoru-ink">
                         {historyError}
                     </div>
                 ) : messages.length === 0 ? (

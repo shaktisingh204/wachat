@@ -45,13 +45,13 @@ export function FindIdsCard() {
       <ZoruCardContent className="space-y-4">
         <div>
           <h3 className="font-semibold">WhatsApp Business Account (WABA) ID</h3>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-zoru-ink-muted mt-1">
             Navigate to your Meta App's dashboard. Under the WhatsApp product, go to <strong>API Setup</strong>. Your WABA ID will be listed there.
           </p>
         </div>
         <div>
           <h3 className="font-semibold">App ID</h3>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-zoru-ink-muted mt-1">
             Your App ID is visible at the top of your Meta App's dashboard at all times.
           </p>
         </div>
@@ -104,7 +104,7 @@ export function ConnectToSabNodeCard() {
       <ZoruCardContent>
         <p className="text-sm">
           Go back to the{' '}
-          <Link href="/wachat/setup" className="text-primary hover:underline">
+          <Link href="/wachat/setup" className="text-zoru-ink hover:underline">
             Setup Page
           </Link>
           , open the "Manual Setup" dialog, and paste your{' '}

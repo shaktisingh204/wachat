@@ -143,10 +143,10 @@ export default async function ProjectStatusReportPage(props: PageProps) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
         <Card className="p-6">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[16px] font-semibold text-foreground">
+            <h2 className="text-[16px] font-semibold text-zoru-ink">
               Projects by RAG status
             </h2>
-            <span className="text-[12px] text-muted-foreground">
+            <span className="text-[12px] text-zoru-ink-muted">
               {fmtNumber(totals.totalActive)} active
             </span>
           </div>
@@ -155,10 +155,10 @@ export default async function ProjectStatusReportPage(props: PageProps) {
 
         <Card className="p-6">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[16px] font-semibold text-foreground">
+            <h2 className="text-[16px] font-semibold text-zoru-ink">
               Delivery velocity
             </h2>
-            <span className="text-[12px] text-muted-foreground">
+            <span className="text-[12px] text-zoru-ink-muted">
               tasks completed / month
             </span>
           </div>
@@ -173,58 +173,58 @@ export default async function ProjectStatusReportPage(props: PageProps) {
       </div>
 
       <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-border hover:bg-transparent">
-                <ZoruTableHead className="text-muted-foreground">Project</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">RAG</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Owner</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Completion</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Tasks</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Overdue</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Deadline</ZoruTableHead>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Project</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">RAG</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Owner</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Completion</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Tasks</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Overdue</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Deadline</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-border">
+                <ZoruTableRow className="border-zoru-line">
                   <ZoruTableCell
                     colSpan={8}
-                    className="h-20 text-center text-[13px] text-muted-foreground"
+                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No active projects.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
                 pageRows.map((r) => (
-                  <ZoruTableRow key={r._id} className="border-border">
+                  <ZoruTableRow key={r._id} className="border-zoru-line">
                     <ZoruTableCell>
                       <EntityRowLink
                         href={`/dashboard/crm/projects/${r._id}`}
                         label={r.name}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-foreground">
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">
                       {r.status}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <Badge variant={ragVariant(r.rag)}>{r.rag}</Badge>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-foreground">
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">
                       {r.ownerName}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-foreground">
+                    <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
                       {r.completionPercent}%
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-foreground">
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                       {fmtNumber(r.tasksCount)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-destructive">
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                       {fmtNumber(r.overdueTasks)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-muted-foreground">
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink-muted">
                       {r.deadline ? r.deadline.slice(0, 10) : '—'}
                       {r.daysToDeadline != null ? (
                         <span className="ml-1 text-[11px]">

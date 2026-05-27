@@ -10,7 +10,7 @@ interface UseCasesSectionProps {
 
 export function UseCasesSection({ color, useCases }: UseCasesSectionProps) {
   return (
-    <section className="border-t sn-hair bg-[#121126] text-white">
+    <section className="border-t sn-hair bg-zoru-ink text-white">
       <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
         <div className="flex items-end justify-between mb-10 gap-6 flex-wrap">
           <div>

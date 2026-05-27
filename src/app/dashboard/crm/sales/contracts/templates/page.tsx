@@ -350,7 +350,7 @@ export default function ContractTemplatesListPage() {
                                                             setPendingDelete(t)
                                                         }
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

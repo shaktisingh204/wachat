@@ -76,7 +76,7 @@ async function PublicInvoiceContainer({ hash, searchParamsMap }: { hash: string;
         <ZoruCardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <ZoruCardTitle>Invoice {invoice.invoiceNumber}</ZoruCardTitle>
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-zoru-ink">
               Issued {fmtDate(invoice.invoiceDate)} &middot; Due {fmtDate(invoice.dueDate)}
             </p>
           </div>
@@ -86,7 +86,7 @@ async function PublicInvoiceContainer({ hash, searchParamsMap }: { hash: string;
               href={`/share/invoice/${hash}/download`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 shadow-sm hover:bg-zinc-50"
+              className="inline-flex items-center gap-1.5 rounded-md border border-zoru-line bg-white px-3 py-1.5 text-xs font-medium text-zoru-ink shadow-sm hover:bg-zoru-surface-2"
             >
               Download PDF
             </a>
@@ -95,7 +95,7 @@ async function PublicInvoiceContainer({ hash, searchParamsMap }: { hash: string;
         <ZoruCardContent className="space-y-6">
           {invoice.billTo.name || invoice.billTo.email || invoice.billTo.address ? (
             <section>
-              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-zoru-ink">
                 Bill to
               </h3>
               <div className="text-sm">
@@ -103,22 +103,22 @@ async function PublicInvoiceContainer({ hash, searchParamsMap }: { hash: string;
                   <div className="font-medium">{invoice.billTo.name}</div>
                 ) : null}
                 {invoice.billTo.email ? (
-                  <div className="text-zinc-600">{invoice.billTo.email}</div>
+                  <div className="text-zoru-ink">{invoice.billTo.email}</div>
                 ) : null}
                 {invoice.billTo.address ? (
-                  <div className="text-zinc-600">{invoice.billTo.address}</div>
+                  <div className="text-zoru-ink">{invoice.billTo.address}</div>
                 ) : null}
               </div>
             </section>
           ) : null}
 
           <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zoru-ink">
               Line items
             </h3>
-            <div className="overflow-x-auto rounded-md border border-zinc-200">
-              <table className="min-w-full divide-y divide-zinc-200 text-sm">
-                <thead className="bg-zinc-50 text-left text-xs uppercase text-zinc-500">
+            <div className="overflow-x-auto rounded-md border border-zoru-line">
+              <table className="min-w-full divide-y divide-zoru-line text-sm">
+                <thead className="bg-zoru-surface-2 text-left text-xs uppercase text-zoru-ink">
                   <tr>
                     <th className="px-3 py-2">Description</th>
                     <th className="px-3 py-2 text-right">Qty</th>
@@ -126,10 +126,10 @@ async function PublicInvoiceContainer({ hash, searchParamsMap }: { hash: string;
                     <th className="px-3 py-2 text-right">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-100 bg-white">
+                <tbody className="divide-y divide-zoru-line bg-white">
                   {invoice.lineItems.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-3 py-4 text-center text-zinc-400">
+                      <td colSpan={4} className="px-3 py-4 text-center text-zoru-ink-muted">
                         No line items.
                       </td>
                     </tr>
@@ -153,31 +153,31 @@ async function PublicInvoiceContainer({ hash, searchParamsMap }: { hash: string;
           </section>
 
           <section className="flex flex-col items-end gap-1 text-sm">
-            <div className="flex w-full max-w-xs justify-between text-zinc-600">
+            <div className="flex w-full max-w-xs justify-between text-zoru-ink">
               <span>Subtotal</span>
               <span>{fmtINR(invoice.subtotal)}</span>
             </div>
             {typeof invoice.tax === 'number' ? (
-              <div className="flex w-full max-w-xs justify-between text-zinc-600">
+              <div className="flex w-full max-w-xs justify-between text-zoru-ink">
                 <span>Tax</span>
                 <span>{fmtINR(invoice.tax)}</span>
               </div>
             ) : null}
             {typeof invoice.discount === 'number' ? (
-              <div className="flex w-full max-w-xs justify-between text-zinc-600">
+              <div className="flex w-full max-w-xs justify-between text-zoru-ink">
                 <span>Discount</span>
                 <span>-{fmtINR(invoice.discount)}</span>
               </div>
             ) : null}
-            <div className="flex w-full max-w-xs justify-between border-t border-zinc-200 pt-1 text-base font-semibold">
+            <div className="flex w-full max-w-xs justify-between border-t border-zoru-line pt-1 text-base font-semibold">
               <span>Total</span>
               <span>{fmtINR(invoice.total)}</span>
             </div>
           </section>
 
           {invoice.notes ? (
-            <section className="rounded-md bg-zinc-50 p-3 text-sm text-zinc-600">
-              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            <section className="rounded-md bg-zoru-surface-2 p-3 text-sm text-zoru-ink">
+              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-zoru-ink">
                 Notes
               </h3>
               <p className="whitespace-pre-line">{invoice.notes}</p>

@@ -26,7 +26,7 @@ use sabnode_auth::AuthUser;
 use sabnode_db::mongo::MongoHandle;
 use serde::{Deserialize, Serialize};
 
-use crate::bot_api::{BotApiClient, BotApiError, SetWebhookParams};
+use crate::bot_api::{BotApiError, SetWebhookParams};
 use crate::state::TelegramWebhooksState;
 
 // ---------------------------------------------------------------------------

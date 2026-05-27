@@ -55,29 +55,29 @@ export function BroadcastComposer({ mod }: SectionProps) {
         <Wrap mod={mod} kicker="Broadcasts that don't get flagged" title={`Compose, throttle, retry — keep ${mod.name} green.`}>
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.2fr_1fr]">
                 <m.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                    className="rounded-2xl border border-zinc-200 bg-white p-5">
-                    <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
+                    className="rounded-2xl border border-zoru-line bg-white p-5">
+                    <div className="flex items-center gap-2 border-b border-zoru-line pb-3">
                         <Megaphone className="h-4 w-4" style={{ color: mod.accentDeep }} />
-                        <span className="text-sm font-semibold text-zinc-900">Campaign · spring-launch · v3</span>
-                        <span className="ml-auto rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">Draft</span>
+                        <span className="text-sm font-semibold text-zoru-ink">Campaign · spring-launch · v3</span>
+                        <span className="ml-auto rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[10px] font-semibold text-zoru-ink">Draft</span>
                     </div>
-                    <div className="mt-4 rounded-xl border border-zinc-100 bg-zinc-50/60 p-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Template · approved</p>
-                        <p className="mt-2 text-[13px] text-zinc-800">
+                    <div className="mt-4 rounded-xl border border-zoru-line bg-zoru-surface-2/60 p-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-zoru-ink">Template · approved</p>
+                        <p className="mt-2 text-[13px] text-zoru-ink">
                             Hi <span className="rounded bg-white px-1 font-semibold">{'{{name}}'}</span> 👋
                             Your <span className="rounded bg-white px-1 font-semibold">{'{{cart_item}}'}</span> is still waiting —
                             tap the link to pay with UPI.
                         </p>
                         <div className="mt-3 flex gap-2">
-                            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-zinc-700 border border-zinc-200">Pay now</span>
-                            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-zinc-700 border border-zinc-200">Talk to us</span>
+                            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-zoru-ink border border-zoru-line">Pay now</span>
+                            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-zoru-ink border border-zoru-line">Talk to us</span>
                         </div>
                     </div>
                     <div className="mt-3 grid grid-cols-3 gap-2">
                         {[{ k: 'Send rate', v: '40 / sec' }, { k: 'Retry', v: '3× backoff' }, { k: 'Quiet hrs', v: '10p–8a' }].map(s => (
-                            <div key={s.k} className="rounded-lg border border-zinc-100 bg-white px-2 py-1.5">
-                                <p className="text-[10px] uppercase tracking-wider text-zinc-500">{s.k}</p>
-                                <p className="text-[12px] font-semibold text-zinc-900">{s.v}</p>
+                            <div key={s.k} className="rounded-lg border border-zoru-line bg-white px-2 py-1.5">
+                                <p className="text-[10px] uppercase tracking-wider text-zoru-ink">{s.k}</p>
+                                <p className="text-[12px] font-semibold text-zoru-ink">{s.v}</p>
                             </div>
                         ))}
                     </div>
@@ -85,9 +85,9 @@ export function BroadcastComposer({ mod }: SectionProps) {
 
                 <div className="space-y-3">
                     <m.div initial={{ opacity: 0, x: 8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-                        className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5">
+                        className="relative overflow-hidden rounded-2xl border border-zoru-line bg-white p-5">
                         <Gauge className="h-5 w-5" style={{ color: mod.accentDeep }} />
-                        <p className="mt-3 text-base font-semibold text-zinc-950">Quality rating</p>
+                        <p className="mt-3 text-base font-semibold text-zoru-ink">Quality rating</p>
                         <div className="mt-4 flex items-end gap-1">
                             {[40, 70, 80, 90, 95, 92, 96, 98].map((v, i) => (
                                 <m.span key={i} initial={{ height: 0 }} whileInView={{ height: `${v}%` }} viewport={{ once: true }}
@@ -95,7 +95,7 @@ export function BroadcastComposer({ mod }: SectionProps) {
                                     className={`block w-3 rounded-t-sm bg-gradient-to-t ${mod.accentFrom} ${mod.accentTo}`} />
                             ))}
                         </div>
-                        <p className="mt-3 text-[12px] text-zinc-600">High · last 7 days. Auto-pauses if it dips.</p>
+                        <p className="mt-3 text-[12px] text-zoru-ink">High · last 7 days. Auto-pauses if it dips.</p>
                     </m.div>
                 </div>
             </div>
@@ -116,7 +116,7 @@ export function BotBuilder({ mod }: SectionProps) {
     return (
         <Wrap mod={mod} kicker="Bots that pass the Turing-ish test" title="Visual flows. Real branching. AI fallback.">
             <m.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                className="relative aspect-[16/9] overflow-hidden rounded-3xl border border-zinc-200 bg-white">
+                className="relative aspect-[16/9] overflow-hidden rounded-3xl border border-zoru-line bg-white">
                 <div aria-hidden className="absolute inset-0 opacity-40"
                     style={{ backgroundImage: 'radial-gradient(#e4e4e7 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                 <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 80" preserveAspectRatio="none">
@@ -140,11 +140,11 @@ export function BotBuilder({ mod }: SectionProps) {
                             transition={{ delay: 0.1 + i * 0.06 }}
                             className="absolute -translate-x-1/2 -translate-y-1/2"
                             style={{ left: `${n.x}%`, top: `${n.y}%` }}>
-                            <div className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 shadow-sm">
+                            <div className="flex items-center gap-2 rounded-xl border border-zoru-line bg-white px-3 py-2 shadow-sm">
                                 <div className={`grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo}`}>
                                     <NIcon className="h-3.5 w-3.5 text-white" />
                                 </div>
-                                <span className="text-[11px] font-semibold text-zinc-900">{n.label}</span>
+                                <span className="text-[11px] font-semibold text-zoru-ink">{n.label}</span>
                             </div>
                         </m.div>
                     );
@@ -163,27 +163,27 @@ export function CallQueue({ mod }: SectionProps) {
         { who: '+91 97654 33211', status: 'wrap', agent: 'Priya', tag: 'Onboard', tone: 'violet', t: '03:01' },
     ];
     const dotMap: Record<string, string> = {
-        emerald: 'bg-emerald-500', amber: 'bg-amber-500', sky: 'bg-sky-500', violet: 'bg-violet-500',
+        emerald: 'bg-zoru-ink', amber: 'bg-zoru-ink', sky: 'bg-zoru-ink', violet: 'bg-zoru-ink',
     };
     return (
         <Wrap mod={mod} kicker="Calls routed in 200ms" title="Live agent queue with whisper, barge, and recording.">
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-                <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
+            <div className="rounded-2xl border border-zoru-line bg-white p-5">
+                <div className="flex items-center gap-2 border-b border-zoru-line pb-3">
                     <Headphones className="h-4 w-4" style={{ color: mod.accentDeep }} />
-                    <span className="text-sm font-semibold text-zinc-900">Voice queue · live</span>
-                    <span className="ml-auto text-[11px] text-zinc-500">avg wait 4s</span>
+                    <span className="text-sm font-semibold text-zoru-ink">Voice queue · live</span>
+                    <span className="ml-auto text-[11px] text-zoru-ink">avg wait 4s</span>
                 </div>
-                <div className="mt-3 divide-y divide-zinc-100">
+                <div className="mt-3 divide-y divide-zoru-line">
                     {calls.map((c, i) => (
                         <m.div key={c.who} initial={{ opacity: 0, x: -6 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
                             className="grid grid-cols-12 items-center gap-3 py-3">
                             <span className={`col-span-1 h-2 w-2 rounded-full ${dotMap[c.tone]}`} />
-                            <span className="col-span-3 font-mono text-[12px] text-zinc-800">{c.who}</span>
-                            <span className="col-span-2 text-[11px] uppercase tracking-wider text-zinc-500">{c.status}</span>
-                            <span className="col-span-2 text-[12px] text-zinc-700">{c.agent}</span>
-                            <span className="col-span-2 rounded-full bg-zinc-100 px-2 py-0.5 text-center text-[10px] font-semibold text-zinc-700">{c.tag}</span>
-                            <span className="col-span-2 text-right text-[12px] font-semibold text-zinc-900">{c.t}</span>
+                            <span className="col-span-3 font-mono text-[12px] text-zoru-ink">{c.who}</span>
+                            <span className="col-span-2 text-[11px] uppercase tracking-wider text-zoru-ink">{c.status}</span>
+                            <span className="col-span-2 text-[12px] text-zoru-ink">{c.agent}</span>
+                            <span className="col-span-2 rounded-full bg-zoru-surface-2 px-2 py-0.5 text-center text-[10px] font-semibold text-zoru-ink">{c.tag}</span>
+                            <span className="col-span-2 text-right text-[12px] font-semibold text-zoru-ink">{c.t}</span>
                         </m.div>
                     ))}
                 </div>
@@ -203,25 +203,25 @@ export function StorefrontPreview({ mod }: SectionProps) {
         <Wrap mod={mod} kicker="Storefronts that ship" title="Brandable themes. Real checkout. Real revenue.">
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_1fr]">
                 <m.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                    className="rounded-3xl border border-zinc-200 bg-white p-5">
-                    <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-                        <span className="text-sm font-semibold text-zinc-900">solecompany.in</span>
-                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">Live</span>
+                    className="rounded-3xl border border-zoru-line bg-white p-5">
+                    <div className="flex items-center justify-between border-b border-zoru-line pb-3">
+                        <span className="text-sm font-semibold text-zoru-ink">solecompany.in</span>
+                        <span className="rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[10px] font-semibold text-zoru-ink">Live</span>
                     </div>
-                    <div className="mt-4 rounded-2xl bg-gradient-to-br from-zinc-100 to-zinc-50 p-5 text-center">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Spring drop</p>
-                        <p className="mt-2 text-3xl font-semibold text-zinc-950">Made by hand. Shipped fast.</p>
-                        <span className="mt-3 inline-block rounded-full bg-zinc-900 px-3 py-1 text-[11px] font-semibold text-white">Shop</span>
+                    <div className="mt-4 rounded-2xl bg-gradient-to-br from-zoru-surface-2 to-zoru-surface-2 p-5 text-center">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zoru-ink">Spring drop</p>
+                        <p className="mt-2 text-3xl font-semibold text-zoru-ink">Made by hand. Shipped fast.</p>
+                        <span className="mt-3 inline-block rounded-full bg-zoru-ink px-3 py-1 text-[11px] font-semibold text-white">Shop</span>
                     </div>
                     <div className="mt-3 grid grid-cols-3 gap-2">
                         {items.map((it, i) => (
                             <m.div key={it.n} initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                                 transition={{ delay: i * 0.06 }}
-                                className="rounded-xl border border-zinc-200 bg-white p-2">
+                                className="rounded-xl border border-zoru-line bg-white p-2">
                                 <div className={`aspect-square rounded-lg bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo} opacity-70`} />
-                                <p className="mt-1.5 text-[11px] font-semibold text-zinc-900">{it.n}</p>
+                                <p className="mt-1.5 text-[11px] font-semibold text-zoru-ink">{it.n}</p>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[11px] text-zinc-600">{it.p}</span>
+                                    <span className="text-[11px] text-zoru-ink">{it.p}</span>
                                     <span className="text-[9px] font-semibold uppercase" style={{ color: mod.accentDeep }}>{it.t}</span>
                                 </div>
                             </m.div>
@@ -230,17 +230,17 @@ export function StorefrontPreview({ mod }: SectionProps) {
                 </m.div>
 
                 <m.div initial={{ opacity: 0, x: 8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-                    className="rounded-3xl border border-zinc-200 bg-white p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Checkout</p>
-                    <p className="mt-2 text-3xl font-semibold text-zinc-950">₹6,297</p>
-                    <p className="text-[12px] text-zinc-500">3 items · COD ready · UPI · cards</p>
+                    className="rounded-3xl border border-zoru-line bg-white p-5">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-zoru-ink">Checkout</p>
+                    <p className="mt-2 text-3xl font-semibold text-zoru-ink">₹6,297</p>
+                    <p className="text-[12px] text-zoru-ink">3 items · COD ready · UPI · cards</p>
                     <div className="mt-4 space-y-2">
                         {['UPI · Google Pay', 'Card · ending 4242', 'Cash on Delivery'].map((p, i) => (
                             <m.div key={p} initial={{ opacity: 0, x: -6 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                                 transition={{ delay: i * 0.05 }}
-                                className="flex items-center gap-2 rounded-xl border border-zinc-100 px-3 py-2">
-                                <Circle className="h-3.5 w-3.5 text-zinc-400" />
-                                <span className="text-[12px] text-zinc-800">{p}</span>
+                                className="flex items-center gap-2 rounded-xl border border-zoru-line px-3 py-2">
+                                <Circle className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                <span className="text-[12px] text-zoru-ink">{p}</span>
                             </m.div>
                         ))}
                     </div>
@@ -261,12 +261,12 @@ export function ApiPlayground({ mod }: SectionProps) {
         <Wrap mod={mod} kicker="Open by default" title="Every action exposed as a signed, idempotent API.">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <m.div initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                    className="overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-950 font-mono">
+                    className="overflow-hidden rounded-2xl border border-zoru-line bg-zoru-ink font-mono">
                     <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2 text-[11px] text-white/60">
-                        <span className="rounded bg-emerald-500/20 px-1.5 text-[10px] font-bold text-emerald-300">POST</span>
+                        <span className="rounded bg-zoru-ink/20 px-1.5 text-[10px] font-bold text-zoru-ink-muted">POST</span>
                         <span>/v1/{mod.slug}/run</span>
                     </div>
-                    <pre className="p-4 text-[11.5px] leading-relaxed text-zinc-200"><span className="text-fuchsia-300">{`{`}</span>{`
+                    <pre className="p-4 text-[11.5px] leading-relaxed text-white"><span className="text-zoru-ink-muted">{`{`}</span>{`
   "trigger": "order.completed",
   "payload": {
     "id": "ORD-4821",
@@ -274,16 +274,16 @@ export function ApiPlayground({ mod }: SectionProps) {
     "currency": "INR"
   },
   "idempotencyKey": "evt_8e1c..."
-`}<span className="text-fuchsia-300">{`}`}</span></pre>
+`}<span className="text-zoru-ink-muted">{`}`}</span></pre>
                 </m.div>
                 <m.div initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                     transition={{ delay: 0.1 }}
-                    className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-                    <div className="flex items-center gap-2 border-b border-zinc-100 px-4 py-2 text-[11px] text-zinc-500">
-                        <span className="rounded bg-emerald-100 px-1.5 text-[10px] font-bold text-emerald-700">200</span>
+                    className="overflow-hidden rounded-2xl border border-zoru-line bg-white">
+                    <div className="flex items-center gap-2 border-b border-zoru-line px-4 py-2 text-[11px] text-zoru-ink">
+                        <span className="rounded bg-zoru-surface-2 px-1.5 text-[10px] font-bold text-zoru-ink">200</span>
                         <span>Response · 42ms</span>
                     </div>
-                    <pre className="p-4 text-[11.5px] leading-relaxed text-zinc-800">{`{
+                    <pre className="p-4 text-[11.5px] leading-relaxed text-zoru-ink">{`{
   "ok": true,
   "runId": "run_4f7e...",
   "tracedSpans": 7,
@@ -308,24 +308,24 @@ export function KnowledgeBase({ mod }: SectionProps) {
         <Wrap mod={mod} kicker="Help that helps" title="A knowledge base your customers actually find.">
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.1fr]">
                 <m.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                    className="rounded-2xl border border-zinc-200 bg-white p-5">
-                    <div className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2">
-                        <Eye className="h-3.5 w-3.5 text-zinc-500" />
-                        <span className="text-[12px] text-zinc-700">How do I…</span>
-                        <span className="ml-auto rounded bg-zinc-200 px-1.5 text-[10px] font-semibold text-zinc-600">⌘K</span>
+                    className="rounded-2xl border border-zoru-line bg-white p-5">
+                    <div className="flex items-center gap-2 rounded-xl border border-zoru-line bg-zoru-surface-2 px-3 py-2">
+                        <Eye className="h-3.5 w-3.5 text-zoru-ink" />
+                        <span className="text-[12px] text-zoru-ink">How do I…</span>
+                        <span className="ml-auto rounded bg-zoru-surface-2 px-1.5 text-[10px] font-semibold text-zoru-ink">⌘K</span>
                     </div>
                     <div className="mt-4 space-y-1">
                         {arts.map((a, i) => (
                             <m.div key={a.t} initial={{ opacity: 0, x: -4 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                                 transition={{ delay: i * 0.05 }}
-                                className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-zinc-50">
-                                <File className="h-3.5 w-3.5 text-zinc-400" />
+                                className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-zoru-surface-2">
+                                <File className="h-3.5 w-3.5 text-zoru-ink-muted" />
                                 <div className="min-w-0 flex-1">
-                                    <p className="truncate text-[13px] font-semibold text-zinc-900">{a.t}</p>
-                                    <p className="text-[11px] text-zinc-500">{a.cat} · {a.read}</p>
+                                    <p className="truncate text-[13px] font-semibold text-zoru-ink">{a.t}</p>
+                                    <p className="text-[11px] text-zoru-ink">{a.cat} · {a.read}</p>
                                 </div>
                                 {a.hot && (
-                                    <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold text-amber-700">Hot</span>
+                                    <span className="rounded-full bg-zoru-surface-2 px-1.5 py-0.5 text-[9px] font-semibold text-zoru-ink">Hot</span>
                                 )}
                             </m.div>
                         ))}
@@ -341,9 +341,9 @@ export function KnowledgeBase({ mod }: SectionProps) {
                     ].map((p, i) => (
                         <m.li key={p.t} initial={{ opacity: 0, x: 8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
-                            className="rounded-2xl border border-zinc-200 bg-white p-4">
-                            <p className="text-base font-semibold text-zinc-950">{p.t}</p>
-                            <p className="mt-1 text-[13px] text-zinc-600">{p.d}</p>
+                            className="rounded-2xl border border-zoru-line bg-white p-4">
+                            <p className="text-base font-semibold text-zoru-ink">{p.t}</p>
+                            <p className="mt-1 text-[13px] text-zoru-ink">{p.d}</p>
                         </m.li>
                     ))}
                 </ul>
@@ -363,11 +363,11 @@ export function QrStudio({ mod }: SectionProps) {
         <Wrap mod={mod} kicker="One square, infinite analytics" title="Dynamic QR — change the destination, keep the print.">
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.2fr]">
                 <m.div initial={{ opacity: 0, scale: 0.94 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-                    className="relative mx-auto aspect-square w-56 overflow-hidden rounded-3xl border border-zinc-200 bg-white p-6">
+                    className="relative mx-auto aspect-square w-56 overflow-hidden rounded-3xl border border-zoru-line bg-white p-6">
                     <div aria-hidden className="grid h-full w-full grid-cols-12 grid-rows-12 gap-px"
                         style={{ background: '#fff' }}>
                         {Array.from({ length: 144 }).map((_, i) => (
-                            <div key={i} className={Math.random() > 0.5 ? 'bg-zinc-900' : 'bg-white'} />
+                            <div key={i} className={Math.random() > 0.5 ? 'bg-zoru-ink' : 'bg-white'} />
                         ))}
                     </div>
                     <div className={`absolute inset-1/3 grid place-items-center rounded-xl bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo}`}>
@@ -379,15 +379,15 @@ export function QrStudio({ mod }: SectionProps) {
                     {codes.map((c, i) => (
                         <m.div key={c.t} initial={{ opacity: 0, x: 8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
-                            className="flex items-center gap-4 rounded-2xl border border-zinc-200 bg-white p-4">
+                            className="flex items-center gap-4 rounded-2xl border border-zoru-line bg-white p-4">
                             <div className={`grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo}`}>
                                 <QrCode className="h-5 w-5 text-white" />
                             </div>
                             <div className="flex-1">
-                                <p className="text-base font-semibold text-zinc-950">{c.t}</p>
-                                <p className="text-[12px] text-zinc-500">{c.n} scans · last 7d</p>
+                                <p className="text-base font-semibold text-zoru-ink">{c.t}</p>
+                                <p className="text-[12px] text-zoru-ink">{c.n} scans · last 7d</p>
                             </div>
-                            <span className="rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-semibold text-emerald-700">{c.delta}</span>
+                            <span className="rounded-full bg-zoru-surface-2 px-2 py-1 text-[11px] font-semibold text-zoru-ink">{c.delta}</span>
                         </m.div>
                     ))}
                 </div>
@@ -409,19 +409,19 @@ export function RecordingLibrary({ mod }: SectionProps) {
                 {recs.map((r, i) => (
                     <m.div key={r.t} initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                         transition={{ delay: i * 0.05 }}
-                        className="grid grid-cols-12 items-center gap-4 rounded-2xl border border-zinc-200 bg-white p-4">
+                        className="grid grid-cols-12 items-center gap-4 rounded-2xl border border-zoru-line bg-white p-4">
                         <div className={`col-span-2 grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo}`}>
                             <PlayCircle className="h-6 w-6 text-white" />
                         </div>
                         <div className="col-span-5">
-                            <p className="text-base font-semibold text-zinc-950">{r.t}</p>
-                            <p className="text-[12px] text-zinc-500">{r.who} · {r.dur}</p>
+                            <p className="text-base font-semibold text-zoru-ink">{r.t}</p>
+                            <p className="text-[12px] text-zoru-ink">{r.who} · {r.dur}</p>
                         </div>
                         <div className="col-span-2">
-                            <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-semibold text-zinc-700">{r.tag}</span>
+                            <span className="rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] font-semibold text-zoru-ink">{r.tag}</span>
                         </div>
                         <div className="col-span-3 flex justify-end gap-2">
-                            <button className="rounded-full border border-zinc-200 px-3 py-1.5 text-[11px] font-semibold text-zinc-700">Transcript</button>
+                            <button className="rounded-full border border-zoru-line px-3 py-1.5 text-[11px] font-semibold text-zoru-ink">Transcript</button>
                             <button className="rounded-full px-3 py-1.5 text-[11px] font-semibold text-white"
                                 style={{ background: mod.accentDeep }}>Summary</button>
                         </div>
@@ -447,14 +447,14 @@ export function FunnelChart({ mod }: SectionProps) {
                     {steps.map((s, i) => (
                         <m.div key={s.l} initial={{ opacity: 0, x: -8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                             transition={{ delay: i * 0.06 }}
-                            className="rounded-2xl border border-zinc-200 bg-white p-4">
+                            className="rounded-2xl border border-zoru-line bg-white p-4">
                             <div className="flex items-baseline justify-between">
-                                <span className="text-[14px] font-semibold text-zinc-900">{s.l}</span>
+                                <span className="text-[14px] font-semibold text-zoru-ink">{s.l}</span>
                                 <span className="text-[14px] font-semibold" style={{ color: mod.accentDeep }}>
-                                    {s.n.toLocaleString('en-IN')} <span className="text-[11px] text-zinc-500">({s.pct.toFixed(1)}%)</span>
+                                    {s.n.toLocaleString('en-IN')} <span className="text-[11px] text-zoru-ink">({s.pct.toFixed(1)}%)</span>
                                 </span>
                             </div>
-                            <div className="mt-2 h-2 overflow-hidden rounded-full bg-zinc-100">
+                            <div className="mt-2 h-2 overflow-hidden rounded-full bg-zoru-surface-2">
                                 <m.div initial={{ width: 0 }} whileInView={{ width: `${s.pct}%` }} viewport={{ once: true }}
                                     transition={{ delay: i * 0.06 + 0.1, duration: 0.6 }}
                                     className={`h-full bg-gradient-to-r ${mod.accentFrom} ${mod.accentTo}`} />
@@ -463,10 +463,10 @@ export function FunnelChart({ mod }: SectionProps) {
                     ))}
                 </div>
                 <m.div initial={{ opacity: 0, x: 8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-                    className="rounded-2xl border border-zinc-200 bg-white p-5">
+                    className="rounded-2xl border border-zoru-line bg-white p-5">
                     <Sparkles className="h-5 w-5" style={{ color: mod.accentDeep }} />
-                    <p className="mt-3 text-base font-semibold text-zinc-950">AI insight</p>
-                    <p className="mt-2 text-[13px] leading-relaxed text-zinc-700">
+                    <p className="mt-3 text-base font-semibold text-zoru-ink">AI insight</p>
+                    <p className="mt-2 text-[13px] leading-relaxed text-zoru-ink">
                         The biggest drop is between cart and checkout (−50%). Mobile users on slow networks
                         are abandoning at the address step. Try the simpler 2-field address you have in /experiments.
                     </p>
@@ -488,28 +488,28 @@ export function VaultEntries({ mod }: SectionProps) {
     ];
     return (
         <Wrap mod={mod} kicker="Secrets with consequences" title="Every secret is gated, rotated, and audited.">
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-                <div className="grid grid-cols-12 border-b border-zinc-100 pb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+            <div className="rounded-2xl border border-zoru-line bg-white p-5">
+                <div className="grid grid-cols-12 border-b border-zoru-line pb-2 text-[10px] font-semibold uppercase tracking-wider text-zoru-ink">
                     <div className="col-span-4">Secret</div>
                     <div className="col-span-2">Env</div>
                     <div className="col-span-3">Readers</div>
                     <div className="col-span-2">Last read</div>
                     <div className="col-span-1 text-right">Rotation</div>
                 </div>
-                <div className="divide-y divide-zinc-100">
+                <div className="divide-y divide-zoru-line">
                     {entries.map((e, i) => (
                         <m.div key={e.name} initial={{ opacity: 0, x: -6 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
                             className="grid grid-cols-12 items-center gap-2 py-3">
                             <div className="col-span-4 flex items-center gap-2">
                                 <Key className="h-3.5 w-3.5" style={{ color: mod.accentDeep }} />
-                                <span className="font-mono text-[12px] text-zinc-900">{e.name}</span>
+                                <span className="font-mono text-[12px] text-zoru-ink">{e.name}</span>
                             </div>
                             <div className="col-span-2">
-                                <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${e.env === 'prod' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>{e.env}</span>
+                                <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${e.env === 'prod' ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>{e.env}</span>
                             </div>
-                            <div className="col-span-3 text-[12px] text-zinc-700">{e.who}</div>
-                            <div className="col-span-2 text-[12px] text-zinc-500">{e.last}</div>
+                            <div className="col-span-3 text-[12px] text-zoru-ink">{e.who}</div>
+                            <div className="col-span-2 text-[12px] text-zoru-ink">{e.last}</div>
                             <div className="col-span-1 text-right text-[11px] font-semibold" style={{ color: mod.accentDeep }}>{e.rotation}</div>
                         </m.div>
                     ))}
@@ -533,13 +533,13 @@ export function ESignFlow({ mod }: SectionProps) {
                     return (
                         <m.div key={s.n} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                             transition={{ delay: i * 0.06 }}
-                            className="rounded-2xl border border-zinc-200 bg-white p-5">
+                            className="rounded-2xl border border-zoru-line bg-white p-5">
                             <div className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo}`}>
                                 <SIcon className="h-5 w-5 text-white" />
                             </div>
                             <p className="mt-4 text-[11px] font-semibold uppercase tracking-wider" style={{ color: mod.accentDeep }}>Step 0{s.n}</p>
-                            <p className="mt-1 text-lg font-semibold text-zinc-950">{s.t}</p>
-                            <p className="mt-1.5 text-[13px] text-zinc-600">{s.d}</p>
+                            <p className="mt-1 text-lg font-semibold text-zoru-ink">{s.t}</p>
+                            <p className="mt-1.5 text-[13px] text-zoru-ink">{s.d}</p>
                         </m.div>
                     );
                 })}
@@ -561,20 +561,20 @@ export function RoadmapKanban({ mod }: SectionProps) {
                 {cols.map((c, ci) => (
                     <m.div key={c.name} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                         transition={{ delay: ci * 0.06 }}
-                        className="rounded-2xl border border-zinc-200 bg-white p-4">
-                        <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
+                        className="rounded-2xl border border-zoru-line bg-white p-4">
+                        <div className="flex items-center justify-between border-b border-zoru-line pb-2">
                             <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: mod.accentDeep }}>{c.name}</span>
-                            <span className="text-[10px] text-zinc-400">{c.items.length}</span>
+                            <span className="text-[10px] text-zoru-ink-muted">{c.items.length}</span>
                         </div>
                         <div className="mt-3 space-y-2">
                             {c.items.map((t, i) => (
                                 <m.div key={t} initial={{ opacity: 0, x: -4 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                                     transition={{ delay: ci * 0.06 + i * 0.04 }}
-                                    className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5">
-                                    <p className="text-[12px] font-semibold text-zinc-900">{t}</p>
+                                    className="rounded-lg border border-zoru-line bg-zoru-surface-2/60 p-2.5">
+                                    <p className="text-[12px] font-semibold text-zoru-ink">{t}</p>
                                     <div className="mt-1.5 flex items-center justify-between">
-                                        <span className="rounded-full bg-white px-1.5 py-0.5 text-[9px] font-semibold text-zinc-600 border border-zinc-200">OKR-{ci + 1}.{i + 1}</span>
-                                        <span className={`h-1.5 w-1.5 rounded-full ${ci === 0 ? 'bg-emerald-500' : ci === 1 ? 'bg-amber-500' : 'bg-zinc-300'}`} />
+                                        <span className="rounded-full bg-white px-1.5 py-0.5 text-[9px] font-semibold text-zoru-ink border border-zoru-line">OKR-{ci + 1}.{i + 1}</span>
+                                        <span className={`h-1.5 w-1.5 rounded-full ${ci === 0 ? 'bg-zoru-ink' : ci === 1 ? 'bg-zoru-ink' : 'bg-zoru-surface-2'}`} />
                                     </div>
                                 </m.div>
                             ))}
@@ -596,23 +596,23 @@ export function SlideEditor({ mod }: SectionProps) {
                     {['Hero', 'Problem', 'Solution', 'Metrics', 'Ask'].map((s, i) => (
                         <m.div key={s} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
-                            className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${i === 1 ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 bg-white'}`}>
-                            <span className="text-[10px] font-bold text-zinc-400">{String(i + 1).padStart(2, '0')}</span>
-                            <span className="text-[12px] font-semibold text-zinc-900">{s}</span>
-                            {i === 1 && <span className="ml-auto rounded-full bg-emerald-100 px-1.5 text-[9px] font-semibold text-emerald-700">edit</span>}
+                            className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${i === 1 ? 'border-zoru-line bg-zoru-surface-2' : 'border-zoru-line bg-white'}`}>
+                            <span className="text-[10px] font-bold text-zoru-ink-muted">{String(i + 1).padStart(2, '0')}</span>
+                            <span className="text-[12px] font-semibold text-zoru-ink">{s}</span>
+                            {i === 1 && <span className="ml-auto rounded-full bg-zoru-surface-2 px-1.5 text-[9px] font-semibold text-zoru-ink">edit</span>}
                         </m.div>
                     ))}
                 </m.div>
 
                 <m.div initial={{ opacity: 0, x: 8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-                    className="aspect-video rounded-3xl border border-zinc-200 bg-gradient-to-br from-zinc-100 to-white p-10">
+                    className="aspect-video rounded-3xl border border-zoru-line bg-gradient-to-br from-zoru-surface-2 to-white p-10">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: mod.accentDeep }}>Slide 02 · Problem</p>
-                    <p className="mt-4 text-balance text-3xl font-semibold leading-tight text-zinc-950 md:text-4xl">
+                    <p className="mt-4 text-balance text-3xl font-semibold leading-tight text-zoru-ink md:text-4xl">
                         Most teams stitch 6 tools together — and pay twice for the duct tape.
                     </p>
                     <div className="mt-5 grid grid-cols-3 gap-3">
                         {['HubSpot', 'Calendly', 'Loyalzoo'].map(b => (
-                            <div key={b} className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-[12px] font-semibold text-zinc-700">{b}</div>
+                            <div key={b} className="rounded-lg border border-zoru-line bg-white px-3 py-2 text-[12px] font-semibold text-zoru-ink">{b}</div>
                         ))}
                     </div>
                 </m.div>
@@ -633,34 +633,34 @@ export function SheetPreview({ mod }: SectionProps) {
     return (
         <Wrap mod={mod} kicker="Sheets that talk to your data" title="Real-time. Formula-rich. Connected to your DB.">
             <m.div initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-                <div className="flex items-center gap-2 border-b border-zinc-100 px-4 py-2 text-[11px] text-zinc-500">
+                className="overflow-hidden rounded-2xl border border-zoru-line bg-white">
+                <div className="flex items-center gap-2 border-b border-zoru-line px-4 py-2 text-[11px] text-zoru-ink">
                     <Hash className="h-3.5 w-3.5" />
                     <span>customers.sheet · live · pulled from postgres</span>
-                    <span className="ml-auto flex items-center gap-1"><span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />Refreshes every 30s</span>
+                    <span className="ml-auto flex items-center gap-1"><span className="h-2 w-2 animate-pulse rounded-full bg-zoru-ink" />Refreshes every 30s</span>
                 </div>
                 <table className="w-full text-left text-[12px]">
-                    <thead className="border-b border-zinc-100 bg-zinc-50">
+                    <thead className="border-b border-zoru-line bg-zoru-surface-2">
                         <tr>
-                            <th className="px-4 py-2 w-10 text-zinc-400">#</th>
-                            {cols.map(c => <th key={c} className="px-4 py-2 font-semibold text-zinc-700">{c}</th>)}
+                            <th className="px-4 py-2 w-10 text-zoru-ink-muted">#</th>
+                            {cols.map(c => <th key={c} className="px-4 py-2 font-semibold text-zoru-ink">{c}</th>)}
                         </tr>
                     </thead>
                     <tbody>
                         {rows.map((r, i) => (
                             <m.tr key={i} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
                                 transition={{ delay: i * 0.04 }}
-                                className="border-b border-zinc-50">
-                                <td className="px-4 py-2 text-zinc-400">{i + 1}</td>
+                                className="border-b border-zoru-line">
+                                <td className="px-4 py-2 text-zoru-ink-muted">{i + 1}</td>
                                 {r.map((cell, ci) => (
-                                    <td key={ci} className={`px-4 py-2 ${ci === 0 ? 'font-semibold text-zinc-900' : 'text-zinc-700'}`}>{cell}</td>
+                                    <td key={ci} className={`px-4 py-2 ${ci === 0 ? 'font-semibold text-zoru-ink' : 'text-zoru-ink'}`}>{cell}</td>
                                 ))}
                             </m.tr>
                         ))}
                     </tbody>
                 </table>
-                <div className="border-t border-zinc-100 bg-zinc-50 px-4 py-2 text-[11px] text-zinc-500">
-                    SUM(MRR) = <span className="font-mono font-semibold text-zinc-900">₹28,998</span>
+                <div className="border-t border-zoru-line bg-zoru-surface-2 px-4 py-2 text-[11px] text-zoru-ink">
+                    SUM(MRR) = <span className="font-mono font-semibold text-zoru-ink">₹28,998</span>
                 </div>
             </m.div>
         </Wrap>
@@ -673,8 +673,8 @@ export function TablesPreview({ mod }: SectionProps) {
         <Wrap mod={mod} kicker="Airtable, minus the upcharge" title="Typed columns. Real relations. Forms + API for free.">
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.2fr_1fr]">
                 <m.div initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                    className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-                    <div className="grid grid-cols-12 border-b border-zinc-100 bg-zinc-50 px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                    className="overflow-hidden rounded-2xl border border-zoru-line bg-white">
+                    <div className="grid grid-cols-12 border-b border-zoru-line bg-zoru-surface-2 px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-zoru-ink">
                         <div className="col-span-1">Tag</div>
                         <div className="col-span-3">Project</div>
                         <div className="col-span-3">Owner</div>
@@ -688,24 +688,24 @@ export function TablesPreview({ mod }: SectionProps) {
                     ].map((r, i) => (
                         <m.div key={i} initial={{ opacity: 0, x: -4 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
-                            className="grid grid-cols-12 items-center gap-2 border-b border-zinc-50 px-2 py-2 text-[12px]">
+                            className="grid grid-cols-12 items-center gap-2 border-b border-zoru-line px-2 py-2 text-[12px]">
                             <div className="col-span-1">
-                                <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold text-white ${r.tag === 'P1' ? 'bg-rose-500' : 'bg-amber-500'}`}>{r.tag}</span>
+                                <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold text-white ${r.tag === 'P1' ? 'bg-zoru-ink' : 'bg-zoru-ink'}`}>{r.tag}</span>
                             </div>
-                            <div className="col-span-3 font-semibold text-zinc-900">{r.proj}</div>
-                            <div className="col-span-3 text-zinc-700">{r.owner}</div>
+                            <div className="col-span-3 font-semibold text-zoru-ink">{r.proj}</div>
+                            <div className="col-span-3 text-zoru-ink">{r.owner}</div>
                             <div className="col-span-3">
-                                <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${r.status === 'On track' ? 'bg-emerald-100 text-emerald-700' : r.status === 'Blocked' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>{r.status}</span>
+                                <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${r.status === 'On track' ? 'bg-zoru-surface-2 text-zoru-ink' : r.status === 'Blocked' ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>{r.status}</span>
                             </div>
-                            <div className="col-span-2 text-right text-zinc-500">{r.due}</div>
+                            <div className="col-span-2 text-right text-zoru-ink">{r.due}</div>
                         </m.div>
                     ))}
                 </m.div>
                 <ul className="space-y-3">
                     {['Typed columns (number, date, select, relation)', 'Auto REST + GraphQL API', 'Forms that populate rows', 'Trigger SabFlow on every change'].map(b => (
-                        <li key={b} className="flex items-start gap-2 rounded-2xl border border-zinc-200 bg-white p-3">
+                        <li key={b} className="flex items-start gap-2 rounded-2xl border border-zoru-line bg-white p-3">
                             <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" style={{ color: mod.accentDeep }} />
-                            <span className="text-[14px] text-zinc-800">{b}</span>
+                            <span className="text-[14px] text-zoru-ink">{b}</span>
                         </li>
                     ))}
                 </ul>
@@ -717,10 +717,10 @@ export function TablesPreview({ mod }: SectionProps) {
 // ──────── Loyalty rings ────────
 export function LoyaltyRings({ mod }: SectionProps) {
     const tiers = [
-        { name: 'Bronze', members: 12000, color: 'from-amber-400 to-orange-400' },
-        { name: 'Silver', members: 4200, color: 'from-zinc-400 to-zinc-300' },
-        { name: 'Gold', members: 920, color: 'from-yellow-400 to-amber-500' },
-        { name: 'Platinum', members: 140, color: 'from-violet-400 to-fuchsia-500' },
+        { name: 'Bronze', members: 12000, color: 'from-zoru-surface-2 to-zoru-surface-2' },
+        { name: 'Silver', members: 4200, color: 'from-zoru-surface-2 to-zoru-surface-2' },
+        { name: 'Gold', members: 920, color: 'from-zoru-surface-2 to-zoru-ink' },
+        { name: 'Platinum', members: 140, color: 'from-zoru-surface-2 to-zoru-ink' },
     ];
     return (
         <Wrap mod={mod} kicker="A loop that actually loops" title="Tiers, points, referrals — all earning, all the time.">
@@ -728,10 +728,10 @@ export function LoyaltyRings({ mod }: SectionProps) {
                 {tiers.map((t, i) => (
                     <m.div key={t.name} initial={{ opacity: 0, scale: 0.94 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
                         transition={{ delay: i * 0.06 }}
-                        className="relative overflow-hidden rounded-3xl border border-zinc-200 bg-white p-5">
+                        className="relative overflow-hidden rounded-3xl border border-zoru-line bg-white p-5">
                         <div className={`h-24 w-24 rounded-full bg-gradient-to-br ${t.color} shadow-xl mx-auto`} />
-                        <p className="mt-4 text-center text-base font-semibold text-zinc-950">{t.name}</p>
-                        <p className="text-center text-[12px] text-zinc-500">{t.members.toLocaleString('en-IN')} members</p>
+                        <p className="mt-4 text-center text-base font-semibold text-zoru-ink">{t.name}</p>
+                        <p className="text-center text-[12px] text-zoru-ink">{t.members.toLocaleString('en-IN')} members</p>
                         <div className="mt-3 flex justify-center gap-1">
                             {Array.from({ length: i + 1 }).map((_, k) => (
                                 <Star key={k} className="h-3 w-3 fill-current" style={{ color: mod.accentDeep }} />
@@ -758,16 +758,16 @@ export function CommunityFeed({ mod }: SectionProps) {
                 {posts.map((p, i) => (
                     <m.div key={p.what} initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                         transition={{ delay: i * 0.05 }}
-                        className="rounded-2xl border border-zinc-200 bg-white p-4">
+                        className="rounded-2xl border border-zoru-line bg-white p-4">
                         <div className="flex items-center gap-2">
                             <div className={`grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo} text-[12px] font-semibold text-white`}>
                                 {p.who[0]}
                             </div>
-                            <span className="text-[12px] font-semibold text-zinc-900">{p.who}</span>
-                            <span className="ml-auto text-[11px] text-zinc-400">{p.t}</span>
+                            <span className="text-[12px] font-semibold text-zoru-ink">{p.who}</span>
+                            <span className="ml-auto text-[11px] text-zoru-ink-muted">{p.t}</span>
                         </div>
-                        <p className="mt-3 text-[14px] font-semibold text-zinc-950">{p.what}</p>
-                        <span className="mt-2 inline-block rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] text-zinc-700">{p.tag}</span>
+                        <p className="mt-3 text-[14px] font-semibold text-zoru-ink">{p.what}</p>
+                        <span className="mt-2 inline-block rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] text-zoru-ink">{p.tag}</span>
                     </m.div>
                 ))}
             </div>
@@ -789,10 +789,10 @@ export function BookingCalendar({ mod }: SectionProps) {
     ];
     return (
         <Wrap mod={mod} kicker="Bookings without back-and-forth" title="Share a link. Customers pick a slot. Pays a deposit.">
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-                <div className="grid grid-cols-5 gap-3 border-b border-zinc-100 pb-3">
+            <div className="rounded-2xl border border-zoru-line bg-white p-5">
+                <div className="grid grid-cols-5 gap-3 border-b border-zoru-line pb-3">
                     {days.map(d => (
-                        <p key={d} className="text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-500">{d}</p>
+                        <p key={d} className="text-center text-[11px] font-semibold uppercase tracking-wider text-zoru-ink">{d}</p>
                     ))}
                 </div>
                 <div className="mt-3 grid grid-cols-5 gap-3">
@@ -801,9 +801,9 @@ export function BookingCalendar({ mod }: SectionProps) {
                             {slots.filter(s => s.d === di).map((s, i) => (
                                 <m.div key={s.h} initial={{ opacity: 0, scale: 0.94 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
                                     transition={{ delay: i * 0.05 }}
-                                    className="rounded-lg border border-zinc-200 bg-zinc-50 p-2">
-                                    <p className="text-[11px] font-semibold text-zinc-900">{s.h}</p>
-                                    <p className="truncate text-[10px] text-zinc-500">{s.label}</p>
+                                    className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-2">
+                                    <p className="text-[11px] font-semibold text-zoru-ink">{s.h}</p>
+                                    <p className="truncate text-[10px] text-zoru-ink">{s.label}</p>
                                 </m.div>
                             ))}
                         </div>
@@ -828,16 +828,16 @@ export function AffiliateBoard({ mod }: SectionProps) {
                 {rows.map((r, i) => (
                     <m.div key={r.who} initial={{ opacity: 0, x: -8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                         transition={{ delay: i * 0.05 }}
-                        className="grid grid-cols-12 items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3">
-                        <div className={`col-span-1 grid h-10 w-10 place-items-center rounded-xl text-base font-bold text-white bg-gradient-to-br ${i === 0 ? 'from-amber-400 to-orange-500' : i === 1 ? 'from-zinc-400 to-zinc-500' : i === 2 ? 'from-amber-600 to-amber-700' : `${mod.accentFrom} ${mod.accentTo}`}`}>
+                        className="grid grid-cols-12 items-center gap-3 rounded-2xl border border-zoru-line bg-white p-3">
+                        <div className={`col-span-1 grid h-10 w-10 place-items-center rounded-xl text-base font-bold text-white bg-gradient-to-br ${i === 0 ? 'from-zoru-surface-2 to-zoru-ink' : i === 1 ? 'from-zoru-surface-2 to-zoru-ink' : i === 2 ? 'from-zoru-ink to-zoru-ink' : `${mod.accentFrom} ${mod.accentTo}`}`}>
                             {r.rank}
                         </div>
                         <div className="col-span-7">
-                            <p className="text-[14px] font-semibold text-zinc-950">{r.who}</p>
-                            <p className="text-[11px] text-zinc-500">{r.refs} referrals this month</p>
+                            <p className="text-[14px] font-semibold text-zoru-ink">{r.who}</p>
+                            <p className="text-[11px] text-zoru-ink">{r.refs} referrals this month</p>
                         </div>
                         <div className="col-span-4 text-right">
-                            <p className="text-base font-semibold text-zinc-950">{r.earn}</p>
+                            <p className="text-base font-semibold text-zoru-ink">{r.earn}</p>
                             <p className="text-[10px] uppercase tracking-wider" style={{ color: mod.accentDeep }}>this month</p>
                         </div>
                     </m.div>
@@ -858,21 +858,21 @@ export function AbTestRunner({ mod }: SectionProps) {
                 ].map((t, i) => (
                     <m.div key={t.v} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                         transition={{ delay: i * 0.06 }}
-                        className={`rounded-3xl border p-6 ${t.win ? 'border-zinc-900 bg-white' : 'border-zinc-200 bg-white'}`}>
+                        className={`rounded-3xl border p-6 ${t.win ? 'border-zoru-line bg-white' : 'border-zoru-line bg-white'}`}>
                         <div className="flex items-center justify-between">
                             <div className={`grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo} text-base font-bold text-white`}>{t.v}</div>
                             {t.win && (
-                                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                <span className="rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[10px] font-semibold text-zoru-ink">
                                     Winner · p &lt; 0.01
                                 </span>
                             )}
                         </div>
-                        <p className="mt-4 text-2xl font-semibold leading-tight text-zinc-950">“{t.copy}”</p>
+                        <p className="mt-4 text-2xl font-semibold leading-tight text-zoru-ink">“{t.copy}”</p>
                         <div className="mt-5 flex items-baseline gap-2">
-                            <span className="text-3xl font-semibold text-zinc-950">{t.conv}%</span>
-                            <span className="text-[12px] text-zinc-500">conversion</span>
+                            <span className="text-3xl font-semibold text-zoru-ink">{t.conv}%</span>
+                            <span className="text-[12px] text-zoru-ink">conversion</span>
                         </div>
-                        <div className="mt-3 h-2 overflow-hidden rounded-full bg-zinc-100">
+                        <div className="mt-3 h-2 overflow-hidden rounded-full bg-zoru-surface-2">
                             <m.div initial={{ width: 0 }} whileInView={{ width: `${t.conv * 14}%` }} viewport={{ once: true }}
                                 transition={{ duration: 0.7 }}
                                 className={`h-full bg-gradient-to-r ${mod.accentFrom} ${mod.accentTo}`} />
@@ -895,7 +895,7 @@ export function FieldJobsMap({ mod }: SectionProps) {
         <Wrap mod={mod} kicker="Field ops that don't get lost" title="Jobs dispatched by skill, distance, and rating.">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <m.div initial={{ opacity: 0, scale: 0.96 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-                    className="relative aspect-square overflow-hidden rounded-3xl border border-zinc-200 bg-zinc-50">
+                    className="relative aspect-square overflow-hidden rounded-3xl border border-zoru-line bg-zoru-surface-2">
                     <div aria-hidden className="absolute inset-0 opacity-30"
                         style={{ backgroundImage: 'linear-gradient(#cbd5e1 1px, transparent 1px), linear-gradient(90deg, #cbd5e1 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
                     {[[30, 40], [60, 35], [50, 65], [70, 55], [25, 70]].map(([x, y], i) => (
@@ -913,15 +913,15 @@ export function FieldJobsMap({ mod }: SectionProps) {
                     {jobs.map((j, i) => (
                         <m.div key={j.who} initial={{ opacity: 0, x: 8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                             transition={{ delay: i * 0.06 }}
-                            className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3">
+                            className="flex items-center gap-3 rounded-2xl border border-zoru-line bg-white p-3">
                             <div className={`grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo} text-[13px] font-semibold text-white`}>
                                 {j.who[0]}
                             </div>
                             <div className="flex-1">
-                                <p className="text-[13px] font-semibold text-zinc-900">{j.who}</p>
-                                <p className="text-[11px] text-zinc-500">{j.area}</p>
+                                <p className="text-[13px] font-semibold text-zoru-ink">{j.who}</p>
+                                <p className="text-[11px] text-zoru-ink">{j.area}</p>
                             </div>
-                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${j.tone === 'emerald' ? 'bg-emerald-100 text-emerald-700' : j.tone === 'amber' ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700'}`}>{j.eta}</span>
+                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${j.tone === 'emerald' ? 'bg-zoru-surface-2 text-zoru-ink' : j.tone === 'amber' ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>{j.eta}</span>
                         </m.div>
                     ))}
                 </div>
@@ -942,11 +942,11 @@ export function ClientPortal({ mod }: SectionProps) {
                 ].map((c, i) => (
                     <m.div key={c.c} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                         transition={{ delay: i * 0.06 }}
-                        className="rounded-2xl border border-zinc-200 bg-white p-4">
-                        <p className="text-base font-semibold text-zinc-950">{c.c}</p>
-                        <p className="mt-1 text-[12px] text-zinc-500">{c.stage}</p>
+                        className="rounded-2xl border border-zoru-line bg-white p-4">
+                        <p className="text-base font-semibold text-zoru-ink">{c.c}</p>
+                        <p className="mt-1 text-[12px] text-zoru-ink">{c.stage}</p>
                         <div className="mt-3 flex items-center justify-between">
-                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${c.tone === 'emerald' ? 'bg-emerald-100 text-emerald-700' : c.tone === 'amber' ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700'}`}>{c.deadline}</span>
+                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${c.tone === 'emerald' ? 'bg-zoru-surface-2 text-zoru-ink' : c.tone === 'amber' ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>{c.deadline}</span>
                             <button className="rounded-full px-2 py-0.5 text-[11px] font-semibold text-white" style={{ background: mod.accentDeep }}>Open</button>
                         </div>
                     </m.div>
@@ -973,12 +973,12 @@ export function OpsCommand({ mod }: SectionProps) {
                 ].map((t, i) => (
                     <m.div key={t.l} initial={{ opacity: 0, scale: 0.94 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
                         transition={{ delay: i * 0.04 }}
-                        className="rounded-2xl border border-zinc-200 bg-white p-4">
+                        className="rounded-2xl border border-zoru-line bg-white p-4">
                         <div className="flex items-center gap-1.5">
-                            <span className={`h-1.5 w-1.5 rounded-full ${t.tone === 'emerald' ? 'bg-emerald-500' : t.tone === 'amber' ? 'bg-amber-500' : 'bg-sky-500'}`} />
-                            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">{t.l}</span>
+                            <span className={`h-1.5 w-1.5 rounded-full ${t.tone === 'emerald' ? 'bg-zoru-ink' : t.tone === 'amber' ? 'bg-zoru-ink' : 'bg-zoru-ink'}`} />
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-zoru-ink">{t.l}</span>
                         </div>
-                        <p className="mt-2 text-2xl font-semibold text-zinc-950">{t.v}</p>
+                        <p className="mt-2 text-2xl font-semibold text-zoru-ink">{t.v}</p>
                     </m.div>
                 ))}
             </div>
@@ -996,7 +996,7 @@ function Wrap({ mod, kicker, title, children }: { mod: ModuleDef; kicker: string
                     style={{ color: mod.accentDeep }}>{kicker}</m.p>
                 <m.h2 initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                     transition={{ delay: 0.05 }}
-                    className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">{title}</m.h2>
+                    className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">{title}</m.h2>
                 <div className="mt-12">{children}</div>
             </div>
         </section>

@@ -21,7 +21,7 @@ export default function ErrorBoundary({
       <Card className="max-w-sm text-center">
         <ZoruCardHeader>
           <div className="flex justify-center mb-4">
-            <AlertTriangle className="h-10 w-10 text-destructive" />
+            <AlertTriangle className="h-10 w-10 text-zoru-ink" />
           </div>
           <ZoruCardTitle>Something went wrong!</ZoruCardTitle>
           <ZoruCardDescription>

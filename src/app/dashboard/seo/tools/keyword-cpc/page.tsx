@@ -164,14 +164,14 @@ export default function KeywordCpcPage() {
           <ZoruCardContent className="p-6 space-y-4">
             <div className="flex items-baseline gap-2">
               <span className="text-4xl font-bold">${heuristicResult.low}</span>
-              <span className="text-muted-foreground">–</span>
+              <span className="text-zoru-ink-muted">–</span>
               <span className="text-4xl font-bold">${heuristicResult.high}</span>
             </div>
             <div className="text-sm">
-              <span className="text-muted-foreground">Intent: </span>
+              <span className="text-zoru-ink-muted">Intent: </span>
               <span className="font-medium">{heuristicResult.intent}</span>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-zoru-ink-muted">
               Heuristic estimate based on commercial intent words and keyword length. Switch to Live Data API for precise numbers.
             </p>
           </ZoruCardContent>
@@ -183,25 +183,25 @@ export default function KeywordCpcPage() {
           <ZoruCardContent className="p-6 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Average CPC</p>
+                <p className="text-sm text-zoru-ink-muted mb-1">Average CPC</p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-bold">{apiResult.cpc != null ? fmtINR(apiResult.cpc, 'USD') : fmtINR(0, 'USD')}</span>
                 </div>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Search Volume</p>
+                <p className="text-sm text-zoru-ink-muted mb-1">Search Volume</p>
                 <span className="text-2xl font-semibold">{apiResult.search_volume?.toLocaleString() ?? 'N/A'}</span>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Competition Level</p>
+                <p className="text-sm text-zoru-ink-muted mb-1">Competition Level</p>
                 <span className="text-lg font-medium capitalize">{apiResult.competition_level?.toLowerCase() ?? 'Unknown'}</span>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Competition Index</p>
+                <p className="text-sm text-zoru-ink-muted mb-1">Competition Index</p>
                 <span className="text-lg font-medium">{apiResult.competition ?? 'N/A'}</span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-4 border-t pt-4">
+            <p className="text-xs text-zoru-ink-muted mt-4 border-t pt-4">
               Production-grade estimate retrieved via DataForSEO Live API.
             </p>
           </ZoruCardContent>

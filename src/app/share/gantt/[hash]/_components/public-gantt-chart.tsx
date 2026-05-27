@@ -122,7 +122,7 @@ export function PublicGanttChart({
 }: Props): React.ReactElement {
   if (tasks.length === 0 && milestones.length === 0) {
     return (
-      <div className="rounded-md border border-dashed border-zinc-300 p-8 text-center text-sm text-zinc-500">
+      <div className="rounded-md border border-dashed border-zoru-line p-8 text-center text-sm text-zoru-ink">
         No tasks or milestones to chart.
       </div>
     );
@@ -156,13 +156,13 @@ export function PublicGanttChart({
       <div className="min-w-[720px]">
         {/* Header — week ticks */}
         <div
-          className="relative border-b border-zinc-200 bg-zinc-50"
+          className="relative border-b border-zoru-line bg-zoru-surface-2"
           style={{ height: HEADER_HEIGHT }}
         >
           {ticks.map((t, i) => (
             <div
               key={i}
-              className="absolute top-0 flex h-full items-center pl-1 text-[11px] text-zinc-500"
+              className="absolute top-0 flex h-full items-center pl-1 text-[11px] text-zoru-ink"
               style={{
                 left: `${t.leftPct}%`,
                 borderLeft: '1px solid rgb(228 228 231)',
@@ -177,7 +177,7 @@ export function PublicGanttChart({
         {/* Milestones strip */}
         {milestones.length > 0 ? (
           <div
-            className="relative border-b border-zinc-200 bg-white"
+            className="relative border-b border-zoru-line bg-white"
             style={{ height: MILESTONE_STRIP_HEIGHT }}
           >
             {milestones.map((m) => {
@@ -209,7 +209,7 @@ export function PublicGanttChart({
 
         {/* Body — task rows */}
         <div
-          className="relative border-b border-zinc-200 bg-white"
+          className="relative border-b border-zoru-line bg-white"
           style={{ height: bodyHeight }}
         >
           {/* Vertical week guides */}
@@ -299,21 +299,21 @@ export function PublicGanttChart({
         </div>
 
         {/* Legend */}
-        <div className="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-zinc-500">
+        <div className="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-zoru-ink">
           <LegendSwatch color={PRIORITY_COLOR.urgent} label="Urgent" />
           <LegendSwatch color={PRIORITY_COLOR.high} label="High" />
           <LegendSwatch color={PRIORITY_COLOR.medium} label="Medium" />
           <LegendSwatch color={PRIORITY_COLOR.low} label="Low" />
           <span className="ml-2 inline-flex items-center gap-1.5">
-            <span className="inline-block h-3 w-3 rotate-45 border-2 border-emerald-500 bg-emerald-500" />
+            <span className="inline-block h-3 w-3 rotate-45 border-2 border-zoru-line bg-zoru-ink" />
             Milestone (done)
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-3 w-3 rotate-45 border-2 border-amber-500 bg-white" />
+            <span className="inline-block h-3 w-3 rotate-45 border-2 border-zoru-line bg-white" />
             Milestone
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-3 w-[2px] bg-red-500" />
+            <span className="inline-block h-3 w-[2px] bg-zoru-ink" />
             Today
           </span>
         </div>

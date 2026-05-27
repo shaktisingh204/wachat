@@ -43,9 +43,9 @@ type Kpis = {
 };
 
 const STATUS_COLOR: Record<Agent['status'], string> = {
-  available: 'text-green-500',
-  busy: 'text-amber-500',
-  away: 'text-blue-500',
+  available: 'text-zoru-ink',
+  busy: 'text-zoru-ink',
+  away: 'text-zoru-ink',
   offline: 'text-zoru-ink-muted',
 };
 
@@ -88,12 +88,12 @@ export default function VoiceAgentDashboardPage() {
           <StatCard
             label="Available"
             value={kpis.agentsAvailable}
-            icon={<Circle className="h-4 w-4 fill-green-500 text-green-500" />}
+            icon={<Circle className="h-4 w-4 fill-zoru-ink text-zoru-ink" />}
           />
           <StatCard
             label="On Call"
             value={kpis.agentsBusy}
-            icon={<PhoneCall className="h-4 w-4 text-amber-500" />}
+            icon={<PhoneCall className="h-4 w-4 text-zoru-ink" />}
           />
           <StatCard
             label="Active Calls"
@@ -114,7 +114,7 @@ export default function VoiceAgentDashboardPage() {
             <StatCard
               label="Away"
               value={kpis.agentsAway}
-              icon={<Circle className="h-4 w-4 fill-blue-500 text-blue-500" />}
+              icon={<Circle className="h-4 w-4 fill-zoru-ink text-zoru-ink" />}
             />
             <StatCard
               label="Offline"

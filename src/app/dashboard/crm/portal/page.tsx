@@ -95,7 +95,7 @@ async function PortalListContainer() {
   return (
     <>
       {loadError ? (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600 mb-4 animate-in fade-in-50">
+        <div className="rounded-md border border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink mb-4 animate-in fade-in-50">
           Could not load portal users. Please try again.
         </div>
       ) : null}

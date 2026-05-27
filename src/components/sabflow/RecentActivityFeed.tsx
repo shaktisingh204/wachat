@@ -59,49 +59,49 @@ export function RecentActivityFeed() {
   }, []);
 
   return (
-    <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
+    <div className="rounded-xl border border-zoru-line dark:border-zoru-line bg-white dark:bg-zoru-ink overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50">
-        <LuInbox className="h-4 w-4 text-amber-500" strokeWidth={1.75} />
-        <span className="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 mr-auto">
+      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-zoru-line dark:border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/50">
+        <LuInbox className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
+        <span className="text-[13px] font-semibold text-zoru-ink dark:text-white mr-auto">
           Recent Submissions
         </span>
         {!loading && !error && rows.length > 0 && (
-          <span className="text-[11px] text-zinc-400 tabular-nums">{rows.length} shown</span>
+          <span className="text-[11px] text-zoru-ink-muted tabular-nums">{rows.length} shown</span>
         )}
       </div>
 
       {/* Body */}
       <div className="max-h-72 overflow-y-auto">
         {loading ? (
-          <div className="flex items-center justify-center gap-2 py-10 text-zinc-400">
+          <div className="flex items-center justify-center gap-2 py-10 text-zoru-ink-muted">
             <LuLoader className="h-4 w-4 animate-spin" />
             <span className="text-[12px]">Loading…</span>
           </div>
         ) : error ? (
-          <div className="py-8 text-center text-[12px] text-zinc-500 dark:text-zinc-400">
+          <div className="py-8 text-center text-[12px] text-zoru-ink dark:text-zoru-ink-muted">
             Could not load recent submissions.
           </div>
         ) : rows.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 py-10 text-zinc-400">
+          <div className="flex flex-col items-center gap-2 py-10 text-zoru-ink-muted">
             <LuInbox className="h-7 w-7 opacity-40" strokeWidth={1.25} />
             <span className="text-[12px]">No submissions yet.</span>
           </div>
         ) : (
-          <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
+          <ul className="divide-y divide-zoru-line dark:divide-zoru-line">
             {rows.map((row) => (
               <li
                 key={row.submissionId}
-                className="flex items-center gap-3 px-4 py-2.5 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors group"
+                className="flex items-center gap-3 px-4 py-2.5 hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink/40 transition-colors group"
               >
                 {/* Flow name */}
-                <span className="flex-1 truncate text-[12.5px] font-medium text-zinc-800 dark:text-zinc-200">
+                <span className="flex-1 truncate text-[12.5px] font-medium text-zoru-ink dark:text-white">
                   {row.flowName}
                 </span>
 
                 {/* Time ago */}
                 <span className={cn(
-                  'flex shrink-0 items-center gap-1 text-[11px] text-zinc-400 tabular-nums',
+                  'flex shrink-0 items-center gap-1 text-[11px] text-zoru-ink-muted tabular-nums',
                 )}>
                   <LuClock className="h-3 w-3" strokeWidth={1.75} />
                   {timeAgo(row.completedAt)}
@@ -112,7 +112,7 @@ export function RecentActivityFeed() {
                   href={`/dashboard/sabflow/logs?flowId=${row.flowId}`}
                   className={cn(
                     'shrink-0 flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[11px] font-medium transition-colors',
-                    'text-zinc-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30',
+                    'text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2 dark:hover:bg-zoru-ink/30',
                     'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
                   )}
                 >

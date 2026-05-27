@@ -39,16 +39,16 @@ export function TelegramProjectGate({
     return (
         <div
             className="flex items-start gap-3 rounded-2xl border p-4"
-            style={{ borderColor: '#37BBFE66', background: '#E8F6FE' }}
+            style={{ borderColor: 'var(--zoru-line)', background: 'var(--zoru-surface-2)' }}
         >
-            <Info className="mt-0.5 h-4 w-4 text-sky-700" />
-            <div className="flex-1 text-[12.5px] leading-relaxed text-sky-900">
+            <Info className="mt-0.5 h-4 w-4 text-zoru-ink" />
+            <div className="flex-1 text-[12.5px] leading-relaxed text-zoru-ink">
                 {explainer ??
                     'Pick a Telegram project to see data here. Bots, chats, broadcasts, and rules are all scoped to a project.'}
                 <div className="mt-2">
                     <Link
                         href={href}
-                        className="inline-flex items-center gap-1 text-sky-900 underline underline-offset-2"
+                        className="inline-flex items-center gap-1 text-zoru-ink underline underline-offset-2"
                     >
                         Choose a Telegram project{' '}
                         <ArrowRight className="h-3 w-3" />

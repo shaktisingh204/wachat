@@ -180,7 +180,7 @@ export function ThreadView({
 
   if (!thread) {
     return (
-      <div className="flex h-full items-center justify-center p-10 text-center text-sm text-slate-500">
+      <div className="flex h-full items-center justify-center p-10 text-center text-sm text-zoru-ink">
         Select a conversation to view the thread.
       </div>
     );
@@ -396,7 +396,7 @@ export function ThreadView({
         slaBreached={sla.firstResponseBreached || sla.resolutionBreached}
       />
 
-      <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-200 px-3 py-2">
+      <div className="flex flex-wrap items-center gap-1.5 border-b border-zoru-line px-3 py-2">
         {conversation.labels.map((l) => (
           <Badge key={l} variant="secondary" className="gap-1 text-[10px]">
             {l}
@@ -404,7 +404,7 @@ export function ThreadView({
               type="button"
               onClick={() => applyRemoveLabel(l)}
               aria-label={`Remove label ${l}`}
-              className="text-slate-500 hover:text-slate-700"
+              className="text-zoru-ink hover:text-zoru-ink"
             >
               <X className="h-3 w-3" />
             </button>
@@ -429,10 +429,10 @@ export function ThreadView({
         </div>
       </div>
 
-      <ScrollArea className="flex-1 bg-slate-50/50">
+      <ScrollArea className="flex-1 bg-zoru-surface-2/50">
         <div className="space-y-3 px-4 py-4">
           {visibleMessages.length === 0 ? (
-            <div className="rounded-md border border-dashed border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
+            <div className="rounded-md border border-dashed border-zoru-line bg-white p-6 text-center text-sm text-zoru-ink">
               No messages in this conversation yet.
             </div>
           ) : (
@@ -448,8 +448,8 @@ export function ThreadView({
         </div>
       </ScrollArea>
 
-      <div className="border-t border-slate-200 bg-white">
-        <div className="flex items-center justify-between border-b border-slate-100 px-3 py-1.5 text-xs">
+      <div className="border-t border-zoru-line bg-white">
+        <div className="flex items-center justify-between border-b border-zoru-line px-3 py-1.5 text-xs">
           <div className="flex gap-1">
             <Button
               size="sm"
@@ -467,7 +467,7 @@ export function ThreadView({
             </Button>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="ghost" onClick={getAiSuggestion} disabled={busy} className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50">
+            <Button size="sm" variant="ghost" onClick={getAiSuggestion} disabled={busy} className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2">
               <Sparkles className="mr-1 h-3.5 w-3.5" /> AI Suggest
             </Button>
             <DropdownMenu>
@@ -574,7 +574,7 @@ export function ThreadView({
               onChange={(e) => setNoteBody(e.target.value)}
               placeholder="Internal note — visible to your team only"
               rows={3}
-              className="resize-none border-amber-300 bg-amber-50/40"
+              className="resize-none border-zoru-line bg-zoru-surface-2/40"
             />
             <div className="flex items-center justify-end">
               <Button onClick={postNote} disabled={busy || !noteBody.trim()}>
@@ -604,7 +604,7 @@ export function ThreadView({
               type="number"
               min="1"
             />
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-zoru-ink">
               Tip: when set to 0 the thread waits indefinitely for a reply.
             </p>
           </div>
@@ -720,8 +720,8 @@ export function ThreadView({
             )}
             <Separator />
             <div>
-              <div className="mb-1 text-xs uppercase text-slate-500">Body</div>
-              <div className="whitespace-pre-wrap rounded-md bg-slate-50 p-3 text-sm">
+              <div className="mb-1 text-xs uppercase text-zoru-ink">Body</div>
+              <div className="whitespace-pre-wrap rounded-md bg-zoru-surface-2 p-3 text-sm">
                 {detailMessage.body}
               </div>
             </div>
@@ -762,11 +762,11 @@ function ThreadHeader({
   slaBreached,
 }: ThreadHeaderProps) {
   return (
-    <div className="border-b border-slate-200 px-4 py-3">
+    <div className="border-b border-zoru-line px-4 py-3">
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="truncate font-mono text-sm font-medium text-slate-800">
+            <span className="truncate font-mono text-sm font-medium text-zoru-ink">
               {conversation.contactId}
             </span>
             <Badge
@@ -781,7 +781,7 @@ function ThreadHeader({
               </Badge>
             )}
           </div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-zoru-ink">
             Conversation {conversation.id}
           </div>
         </div>
@@ -875,14 +875,14 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
         className={cn(
           "max-w-[80%] space-y-1 rounded-lg border px-3 py-2 text-sm",
           isNote
-            ? "border-amber-300 bg-amber-50 text-slate-800"
+            ? "border-zoru-line bg-zoru-surface-2 text-zoru-ink"
             : isInbound
-              ? "border-slate-200 bg-white text-slate-800"
-              : "border-slate-800 bg-slate-800 text-white",
+              ? "border-zoru-line bg-white text-zoru-ink"
+              : "border-zoru-line bg-zoru-ink text-white",
         )}
       >
         {isNote && (
-          <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-amber-700">
+          <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-zoru-ink">
             <StickyNote className="h-3 w-3" /> Internal note
           </div>
         )}
@@ -899,7 +899,7 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
         <div
           className={cn(
             "flex items-center justify-between gap-2 text-[10px]",
-            isInbound || isNote ? "text-slate-400" : "text-slate-300",
+            isInbound || isNote ? "text-zoru-ink-muted" : "text-zoru-ink-muted",
           )}
         >
           <span>
@@ -933,7 +933,7 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
               <ZoruDropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="text-[10px] text-slate-400 hover:text-slate-600"
+                  className="text-[10px] text-zoru-ink-muted hover:text-zoru-ink"
                   aria-label="React"
                 >
                   <Smile className="h-3.5 w-3.5" />
@@ -953,7 +953,7 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
             <button
               type="button"
               onClick={onInspect}
-              className="text-[10px] text-slate-400 hover:text-slate-600"
+              className="text-[10px] text-zoru-ink-muted hover:text-zoru-ink"
             >
               Inspect
             </button>
@@ -964,7 +964,7 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
             <button
               type="button"
               onClick={onInspect}
-              className="text-[10px] text-slate-300 hover:text-white"
+              className="text-[10px] text-zoru-ink-muted hover:text-white"
             >
               Inspect
             </button>
@@ -1005,7 +1005,7 @@ function DeliveryTicks({ status }: { status: string }) {
     status === "undelivered"
   ) {
     return (
-      <span className="flex items-center gap-0.5 text-rose-300">
+      <span className="flex items-center gap-0.5 text-zoru-ink-muted">
         <Trash2 className="h-3 w-3" /> {status}
       </span>
     );
@@ -1016,8 +1016,8 @@ function DeliveryTicks({ status }: { status: string }) {
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <dt className="text-xs uppercase tracking-wide text-slate-500">{label}</dt>
-      <dd className="text-sm text-slate-800">{value}</dd>
+      <dt className="text-xs uppercase tracking-wide text-zoru-ink">{label}</dt>
+      <dd className="text-sm text-zoru-ink">{value}</dd>
     </div>
   );
 }

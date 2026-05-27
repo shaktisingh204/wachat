@@ -55,7 +55,7 @@ type StringRow = Omit<Row, '_id'> & { _id: string };
 function AchievementBar({ target, actual }: { target: number; actual: number }) {
   const pct = target > 0 ? Math.min(100, Math.round((actual / target) * 100)) : 0;
   const color =
-    pct >= 100 ? 'bg-green-500' : pct >= 60 ? 'bg-amber-500' : 'bg-red-500';
+    pct >= 100 ? 'bg-zoru-ink' : pct >= 60 ? 'bg-zoru-ink' : 'bg-zoru-ink';
   return (
     <div className="flex items-center gap-2">
       <div className="h-1.5 w-20 overflow-hidden rounded-full bg-zoru-line">
@@ -125,7 +125,7 @@ function InlineActualEditor({ row, onRefresh }: { row: StringRow; onRefresh: () 
               setVal(String(row.actual_value));
             }
           }}
-          className="w-16 h-7 text-xs tabular-nums px-2 py-1 bg-background"
+          className="w-16 h-7 text-xs tabular-nums px-2 py-1 bg-zoru-surface"
         />
         <span className="text-[11px] text-zoru-ink-muted">{row.unit}</span>
       </div>

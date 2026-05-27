@@ -323,7 +323,7 @@ export function ClientPage({ initialData }: { initialData: ExpenseClaim[] }) {
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="ghost" size="sm" onClick={() => { setEditingClaim(row); setIsFormOpen(true); }}>Edit</Button>
-                          <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700" onClick={() => handleDelete(id)}>Del</Button>
+                          <Button variant="ghost" size="sm" className="text-zoru-ink hover:text-zoru-ink" onClick={() => handleDelete(id)}>Del</Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>

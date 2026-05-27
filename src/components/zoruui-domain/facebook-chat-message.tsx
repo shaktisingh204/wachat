@@ -29,12 +29,12 @@ export const FacebookChatMessage = React.memo(function FacebookChatMessage({ mes
                 className={cn(
                     "max-w-[70%] rounded-lg p-2 px-3 text-sm flex flex-col shadow-sm",
                     isOutgoing
-                        ? "bg-primary text-primary-foreground rounded-br-none"
-                        : "bg-white dark:bg-muted rounded-bl-none"
+                        ? "bg-zoru-ink text-white rounded-br-none"
+                        : "bg-white dark:bg-zoru-surface-2 rounded-bl-none"
                 )}
             >
                 <p className="whitespace-pre-wrap">{message.message}</p>
-                <div className={cn("flex items-center gap-1.5 self-end mt-1 text-xs", isOutgoing ? 'text-primary-foreground/80' : 'text-muted-foreground/80')}>
+                <div className={cn("flex items-center gap-1.5 self-end mt-1 text-xs", isOutgoing ? 'text-white/80' : 'text-zoru-ink-muted/80')}>
                     <p>
                         {format(new Date(message.created_time), 'p')}
                     </p>

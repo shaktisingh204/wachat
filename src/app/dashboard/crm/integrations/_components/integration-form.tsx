@@ -199,7 +199,7 @@ export function IntegrationForm({
             <h3 className="text-lg font-medium text-zoru-ink">Step 3: Secure Credentials</h3>
             <div className="space-y-1.5">
                 <Label htmlFor="credentials" className="flex items-center gap-1.5">
-                    <ShieldAlert className="h-3.5 w-3.5 text-amber-600" />
+                    <ShieldAlert className="h-3.5 w-3.5 text-zoru-ink" />
                     Credentials (JSON)
                 </Label>
                 <Textarea
@@ -247,10 +247,10 @@ export function IntegrationForm({
                 <div className="mb-8 flex items-center justify-center space-x-4">
                     {[1, 2, 3].map(i => (
                         <div key={i} className="flex items-center">
-                            <div className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${step === i ? 'border-primary text-primary' : step > i ? 'border-primary bg-primary text-primary-foreground' : 'border-zoru-line text-zoru-ink-muted'}`}>
+                            <div className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${step === i ? 'border-primary text-zoru-ink' : step > i ? 'border-primary bg-zoru-ink text-white' : 'border-zoru-line text-zoru-ink-muted'}`}>
                                 {step > i ? <CheckCircle2 className="h-5 w-5" /> : <span className="text-sm font-semibold">{i}</span>}
                             </div>
-                            {i < 3 && <div className={`h-1 w-12 mx-2 rounded ${step > i ? 'bg-primary' : 'bg-zoru-line'}`} />}
+                            {i < 3 && <div className={`h-1 w-12 mx-2 rounded ${step > i ? 'bg-zoru-ink' : 'bg-zoru-line'}`} />}
                         </div>
                     ))}
                 </div>
@@ -311,7 +311,7 @@ export function IntegrationForm({
 
                         <div className="space-y-1.5">
                             <Label htmlFor="credentials" className="flex items-center gap-1.5">
-                                <ShieldAlert className="h-3.5 w-3.5 text-amber-600" />
+                                <ShieldAlert className="h-3.5 w-3.5 text-zoru-ink" />
                                 Credentials (JSON)
                             </Label>
                             <Textarea

@@ -126,7 +126,7 @@ export default async function SabsmsAdminOverviewPage() {
             ·{' '}
             <Link
               href="/admin/dashboard/sabsms/debug"
-              className="text-amber-600 underline underline-offset-2"
+              className="text-zoru-ink underline underline-offset-2"
             >
               open send debug
             </Link>
@@ -152,7 +152,7 @@ export default async function SabsmsAdminOverviewPage() {
               <span className="text-zoru-ink-muted">version {health.version}</span>
             )}
             {health.error && (
-              <span className="text-rose-600">{health.error}</span>
+              <span className="text-zoru-ink">{health.error}</span>
             )}
           </ZoruCardContent>
         </Card>

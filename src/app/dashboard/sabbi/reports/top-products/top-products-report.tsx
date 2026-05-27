@@ -145,32 +145,32 @@ export function TopProductsReport({
       {/* Filter row */}
       <form
         onSubmit={pushFilters}
-        className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-card px-3 py-2"
+        className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
       >
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             From
           </span>
           <input
             type="date"
             name="from"
             defaultValue={from}
-            className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             To
           </span>
           <input
             type="date"
             name="to"
             defaultValue={to}
-            className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Category
           </span>
           <input
@@ -178,11 +178,11 @@ export function TopProductsReport({
             value={categoryInput}
             onChange={(e) => setCategoryInput(e.target.value)}
             placeholder="Any"
-            className="h-9 w-32 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+            className="h-9 w-32 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
             Min units
           </span>
           <input
@@ -191,7 +191,7 @@ export function TopProductsReport({
             value={minQtyInput}
             onChange={(e) => setMinQtyInput(e.target.value)}
             placeholder="0"
-            className="h-9 w-24 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+            className="h-9 w-24 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
           />
         </label>
         <Button type="submit" size="sm" disabled={isPending}>
@@ -228,12 +228,12 @@ export function TopProductsReport({
       {/* Bar chart */}
       <Card>
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-foreground">
+          <h2 className="text-[16px] font-semibold text-zoru-ink">
             Top 10 products by revenue
           </h2>
         </div>
         {chartData.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-muted-foreground">
+          <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
             No product sales in this range.
           </div>
         ) : (
@@ -285,36 +285,36 @@ export function TopProductsReport({
 
       {/* Data table */}
       <Card>
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-border hover:bg-transparent">
-                <ZoruTableHead className="w-10 text-muted-foreground">
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="w-10 text-zoru-ink-muted">
                   #
                 </ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">
+                <ZoruTableHead className="text-zoru-ink-muted">
                   Product
                 </ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">
+                <ZoruTableHead className="text-zoru-ink-muted">
                   Category
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">
+                <ZoruTableHead className="text-right text-zoru-ink-muted">
                   Units
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">
+                <ZoruTableHead className="text-right text-zoru-ink-muted">
                   Revenue
                 </ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">
+                <ZoruTableHead className="text-right text-zoru-ink-muted">
                   Avg price
                 </ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-border">
+                <ZoruTableRow className="border-zoru-line">
                   <ZoruTableCell
                     colSpan={6}
-                    className="h-20 text-center text-[13px] text-muted-foreground"
+                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No products sold in this range.
                   </ZoruTableCell>
@@ -323,27 +323,27 @@ export function TopProductsReport({
                 pageRows.map((r, i) => (
                   <ZoruTableRow
                     key={`${r.productName}-${start + i}`}
-                    className="border-border"
+                    className="border-zoru-line"
                   >
-                    <ZoruTableCell className="text-muted-foreground">
+                    <ZoruTableCell className="text-zoru-ink-muted">
                       {start + i + 1}
                     </ZoruTableCell>
-                    <ZoruTableCell className="font-medium text-foreground">
+                    <ZoruTableCell className="font-medium text-zoru-ink">
                       <EntityRowLink
                         href={productHref(r.productName)}
                         label={r.productName}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-muted-foreground">
+                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
                       {r.category}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-foreground">
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                       {fmtNumber(r.units)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-emerald-500">
+                    <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
                       {fmtMoney(r.revenue)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-foreground">
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                       {fmtMoney(r.avgPrice)}
                     </ZoruTableCell>
                   </ZoruTableRow>

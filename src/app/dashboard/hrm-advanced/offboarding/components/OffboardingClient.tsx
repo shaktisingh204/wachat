@@ -253,10 +253,10 @@ export function OffboardingClient({ initialTasks, onSaveTask, onDeleteTask }: Of
         </select>
         
         {selectedIds.size > 0 && (
-          <div className="flex gap-2 items-center bg-blue-50 text-blue-800 px-3 py-1.5 rounded-md dark:bg-blue-900 dark:text-blue-200">
+          <div className="flex gap-2 items-center bg-zoru-surface-2 text-zoru-ink px-3 py-1.5 rounded-md dark:bg-zoru-ink dark:text-white">
             <span className="text-sm font-medium">{selectedIds.size} selected</span>
             <Button variant="ghost" size="sm" onClick={handleBulkComplete}>Mark Complete</Button>
-            <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 dark:text-red-400" onClick={handleBulkDelete}>Delete</Button>
+            <Button variant="ghost" size="sm" className="text-zoru-ink hover:text-zoru-ink dark:text-zoru-ink-muted" onClick={handleBulkDelete}>Delete</Button>
           </div>
         )}
       </div>
@@ -264,7 +264,7 @@ export function OffboardingClient({ initialTasks, onSaveTask, onDeleteTask }: Of
       <div className="rounded-md border border-zoru-line overflow-hidden flex flex-col h-[500px]">
         <div className="overflow-auto flex-1" ref={parentRef}>
           <Table>
-            <ZoruTableHeader className="sticky top-0 bg-white dark:bg-gray-900 z-10">
+            <ZoruTableHeader className="sticky top-0 bg-white dark:bg-zoru-ink z-10">
               <ZoruTableRow>
                 <ZoruTableHead className="w-[50px]">
                   <input 
@@ -304,7 +304,7 @@ export function OffboardingClient({ initialTasks, onSaveTask, onDeleteTask }: Of
                     <ZoruTableCell>{row.taskName}</ZoruTableCell>
                     <ZoruTableCell>{row.employeeId}</ZoruTableCell>
                     <ZoruTableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${row.isCompleted ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${row.isCompleted ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-white' : 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-white'}`}>
                         {row.isCompleted ? 'Yes' : 'No'}
                       </span>
                     </ZoruTableCell>
@@ -314,7 +314,7 @@ export function OffboardingClient({ initialTasks, onSaveTask, onDeleteTask }: Of
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button variant="ghost" size="sm" onClick={() => { setEditingItem(row); setIsDialogOpen(true); }}>Edit</Button>
-                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(row._id!)}>Del</Button>
+                        <Button variant="ghost" size="sm" className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2" onClick={() => handleDelete(row._id!)}>Del</Button>
                       </div>
                     </ZoruTableCell>
                   </ZoruTableRow>

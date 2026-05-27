@@ -84,7 +84,7 @@ export function SimulatePointsCalculator({
                     {redemptionRatio ? (
                         <div className="flex justify-between border-t border-zoru-border pt-3 mt-1">
                             <span className="text-zoru-ink-muted">Redemption Value:</span>
-                            <span className="font-semibold text-green-600">₹{redemptionValue.toFixed(2)}</span>
+                            <span className="font-semibold text-zoru-ink">₹{redemptionValue.toFixed(2)}</span>
                         </div>
                     ) : null}
                 </div>

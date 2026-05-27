@@ -100,7 +100,7 @@ export default function SitemapGeneratorPage() {
         <ZoruAlertTitle>Manual Builder</ZoruAlertTitle>
         <ZoruAlertDescription>
           This tool does not crawl your website. You must provide the URLs manually or import them via a CSV file.
-          <br/>You can paste a simple list of URLs (one per line) or a CSV with headers: <code className="bg-background px-1.5 py-0.5 rounded-md border text-xs">loc, changefreq, priority, image, video</code>.
+          <br/>You can paste a simple list of URLs (one per line) or a CSV with headers: <code className="bg-zoru-surface px-1.5 py-0.5 rounded-md border text-xs">loc, changefreq, priority, image, video</code>.
         </ZoruAlertDescription>
       </Alert>
 
@@ -134,14 +134,14 @@ export default function SitemapGeneratorPage() {
             </Button>
           </div>
           
-          <div className="flex gap-4 p-4 bg-muted rounded-lg border">
+          <div className="flex gap-4 p-4 bg-zoru-surface-2 rounded-lg border">
             <div className="space-y-1 flex-1">
               <Label className="text-xs">Fallback Priority</Label>
-              <Input value={globalPriority} onChange={(e) => setGlobalPriority(e.target.value)} className="h-8 text-sm bg-background" placeholder="priority" />
+              <Input value={globalPriority} onChange={(e) => setGlobalPriority(e.target.value)} className="h-8 text-sm bg-zoru-surface" placeholder="priority" />
             </div>
             <div className="space-y-1 flex-1">
               <Label className="text-xs">Fallback Changefreq</Label>
-              <select className="border rounded h-8 px-2 bg-background w-full text-sm" value={globalChangefreq} onChange={(e) => setGlobalChangefreq(e.target.value)}>
+              <select className="border rounded h-8 px-2 bg-zoru-surface w-full text-sm" value={globalChangefreq} onChange={(e) => setGlobalChangefreq(e.target.value)}>
                 <option>always</option><option>hourly</option><option>daily</option><option>weekly</option><option>monthly</option><option>yearly</option><option>never</option>
               </select>
             </div>

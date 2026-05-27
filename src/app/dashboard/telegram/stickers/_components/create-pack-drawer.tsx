@@ -357,7 +357,7 @@ function Step1Basics({
                             'rounded-[var(--zoru-radius)] border px-3 py-2 text-[12px]',
                             validName
                                 ? 'border-zoru-line bg-zoru-surface text-zoru-ink'
-                                : 'border-red-300 bg-red-50 text-red-700',
+                                : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink',
                         )}
                     >
                         Final name: <code className="font-mono">{fullPackName}</code>

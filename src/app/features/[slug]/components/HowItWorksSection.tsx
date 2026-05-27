@@ -16,13 +16,13 @@ export function HowItWorksSection({ featureName, color, howItWorks }: HowItWorks
         <div className="grid grid-cols-12 gap-6 md:gap-10">
           <div className="col-span-12 md:col-span-4">
             <div className="md:sticky md:top-28">
-              <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7878A1]">
+              <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-zoru-ink">
                 How it works
               </div>
-              <h2 className="mt-3 font-display tracking-[-0.02em] text-[28px] md:text-[40px] leading-[1.05] text-[#121126]">
+              <h2 className="mt-3 font-display tracking-[-0.02em] text-[28px] md:text-[40px] leading-[1.05] text-zoru-ink">
                 From signup to first send in minutes.
               </h2>
-              <p className="mt-4 text-[14px] leading-[1.7] text-[#4A4A6B] max-w-sm">
+              <p className="mt-4 text-[14px] leading-[1.7] text-zoru-ink max-w-sm">
                 {featureName} is included on every SabNode workspace. No
                 separate billing, no extra setup — flip it on from your
                 workspace settings.
@@ -48,10 +48,10 @@ export function HowItWorksSection({ featureName, color, howItWorks }: HowItWorks
                   >
                     {s.step}
                   </span>
-                  <h3 className="font-display text-[20px] leading-tight text-[#121126]">
+                  <h3 className="font-display text-[20px] leading-tight text-zoru-ink">
                     {s.title}
                   </h3>
-                  <p className="mt-2 text-[14.5px] leading-[1.7] text-[#4A4A6B]">
+                  <p className="mt-2 text-[14.5px] leading-[1.7] text-zoru-ink">
                     {s.body}
                   </p>
                 </li>

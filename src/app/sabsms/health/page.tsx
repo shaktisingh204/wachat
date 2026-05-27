@@ -115,8 +115,8 @@ export default function HealthMonitorPage() {
       }}
       toolbar={
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-sm bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-md">
-            <span className="text-muted-foreground">Mode:</span>
+          <div className="flex items-center gap-2 text-sm bg-zoru-surface-2 dark:bg-zoru-ink px-3 py-1.5 rounded-md">
+            <span className="text-zoru-ink-muted">Mode:</span>
             <select 
               className="bg-transparent font-medium outline-none"
               value={updateMode}
@@ -147,21 +147,21 @@ export default function HealthMonitorPage() {
               title="Engine Uptime SLA" 
               value="99.99%" 
               trend={{ value: "+0.01%", label: "vs last month" }}
-              icon={<CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+              icon={<CheckCircle2 className="h-4 w-4 text-zoru-ink" />}
             />
             <StatCard 
               title="Global DLR" 
               value="94.2%" 
               trend={{ value: "-0.5%", label: "vs yesterday" }}
-              icon={<Activity className="h-4 w-4 text-blue-500" />}
+              icon={<Activity className="h-4 w-4 text-zoru-ink" />}
             />
             <StatCard 
               title="Webhook Success" 
               value="99.8%" 
               trend={{ value: "Stable", label: "last 24h" }}
-              icon={<Webhook className="h-4 w-4 text-purple-500" />}
+              icon={<Webhook className="h-4 w-4 text-zoru-ink" />}
             />
-            <Card className="border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-900 flex flex-col justify-center">
+            <Card className="border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/20 dark:border-zoru-line flex flex-col justify-center">
               <ZoruCardContent className="p-4 pt-4">
                 <Button variant="destructive" className="w-full">
                   <Power className="mr-2 h-4 w-4" /> Pause All Sends
@@ -170,8 +170,8 @@ export default function HealthMonitorPage() {
             </Card>
           </div>
 
-          <div className="flex items-center text-xs text-muted-foreground">
-            <Zap className="h-3 w-3 mr-1 text-amber-500" />
+          <div className="flex items-center text-xs text-zoru-ink-muted">
+            <Zap className="h-3 w-3 mr-1 text-zoru-ink" />
             Last updated: {lastUpdated.toLocaleTimeString()} ({updateMode === 'websocket' ? 'WebSocket Connection' : 'Visibility-Optimized Polling'})
           </div>
 
@@ -203,25 +203,25 @@ export default function HealthMonitorPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium flex items-center gap-2"><List className="h-4 w-4"/> Queue Depth</span>
-                    <span className="text-muted-foreground">1,245 pending</span>
+                    <span className="text-zoru-ink-muted">1,245 pending</span>
                   </div>
                   <Progress value={30} className="h-2" />
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium flex items-center gap-2"><Server className="h-4 w-4"/> Worker Concurrency</span>
-                    <span className="text-muted-foreground">42 / 50 active</span>
+                    <span className="text-zoru-ink-muted">42 / 50 active</span>
                   </div>
                   <Progress value={84} className="h-2" />
                 </div>
                 <div className="space-y-2 pt-2">
                   <div className="flex items-center justify-between text-sm mb-3">
                     <span className="font-medium flex items-center gap-2"><Globe className="h-4 w-4"/> EU-West Region Health</span>
-                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">Healthy</Badge>
+                    <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink">Healthy</Badge>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium flex items-center gap-2"><Globe className="h-4 w-4"/> US-East Region Health</span>
-                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">Healthy</Badge>
+                    <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink">Healthy</Badge>
                   </div>
                 </div>
               </ZoruCardContent>
@@ -249,13 +249,13 @@ export default function HealthMonitorPage() {
                   <ZoruTableBody>
                     <ZoruTableRow>
                       <ZoruTableCell className="font-medium">Twilio</ZoruTableCell>
-                      <ZoruTableCell><Badge variant="outline" className="border-emerald-200 text-emerald-700">98.2%</Badge></ZoruTableCell>
+                      <ZoruTableCell><Badge variant="outline" className="border-zoru-line text-zoru-ink">98.2%</Badge></ZoruTableCell>
                       <ZoruTableCell>97.5%</ZoruTableCell>
                       <ZoruTableCell>97.8%</ZoruTableCell>
                     </ZoruTableRow>
                     <ZoruTableRow>
                       <ZoruTableCell className="font-medium">Vonage</ZoruTableCell>
-                      <ZoruTableCell><Badge variant="outline" className="border-amber-200 text-amber-700">89.1%</Badge></ZoruTableCell>
+                      <ZoruTableCell><Badge variant="outline" className="border-zoru-line text-zoru-ink">89.1%</Badge></ZoruTableCell>
                       <ZoruTableCell>92.4%</ZoruTableCell>
                       <ZoruTableCell>94.1%</ZoruTableCell>
                     </ZoruTableRow>
@@ -301,12 +301,12 @@ export default function HealthMonitorPage() {
                   <ZoruTableBody>
                     <ZoruTableRow>
                       <ZoruTableCell className="font-mono text-sm">+1234567890</ZoruTableCell>
-                      <ZoruTableCell><Badge variant="secondary" className="bg-red-100 text-red-700">High Spam</Badge></ZoruTableCell>
+                      <ZoruTableCell><Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink">High Spam</Badge></ZoruTableCell>
                       <ZoruTableCell>64%</ZoruTableCell>
                     </ZoruTableRow>
                     <ZoruTableRow>
                       <ZoruTableCell className="font-mono text-sm">+1987654321</ZoruTableCell>
-                      <ZoruTableCell><Badge variant="secondary" className="bg-amber-100 text-amber-700">Throttled</Badge></ZoruTableCell>
+                      <ZoruTableCell><Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink">Throttled</Badge></ZoruTableCell>
                       <ZoruTableCell>88%</ZoruTableCell>
                     </ZoruTableRow>
                   </ZoruTableBody>
@@ -350,7 +350,7 @@ export default function HealthMonitorPage() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-medium">Incident History</h3>
-              <p className="text-sm text-muted-foreground">Log of past system incidents and current outages.</p>
+              <p className="text-sm text-zoru-ink-muted">Log of past system incidents and current outages.</p>
             </div>
             <Button><Plus className="h-4 w-4 mr-2" /> Report Incident</Button>
           </div>
@@ -368,19 +368,19 @@ export default function HealthMonitorPage() {
                <ZoruTableBody>
                  <ZoruTableRow>
                    <ZoruTableCell className="font-medium">Vodafone UK Gateway Timeout</ZoruTableCell>
-                   <ZoruTableCell><Badge variant="secondary" className="bg-emerald-100 text-emerald-700">Resolved</Badge></ZoruTableCell>
+                   <ZoruTableCell><Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink">Resolved</Badge></ZoruTableCell>
                    <ZoruTableCell>May 20, 2026</ZoruTableCell>
                    <ZoruTableCell>Traffic rerouted to secondary provider. Connectivity restored.</ZoruTableCell>
                  </ZoruTableRow>
                  <ZoruTableRow>
                    <ZoruTableCell className="font-medium">US Shortcode Processing Delay</ZoruTableCell>
-                   <ZoruTableCell><Badge variant="secondary" className="bg-emerald-100 text-emerald-700">Resolved</Badge></ZoruTableCell>
+                   <ZoruTableCell><Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink">Resolved</Badge></ZoruTableCell>
                    <ZoruTableCell>May 18, 2026</ZoruTableCell>
                    <ZoruTableCell>Increased worker pool size to handle burst traffic.</ZoruTableCell>
                  </ZoruTableRow>
                  <ZoruTableRow>
                    <ZoruTableCell className="font-medium">Webhook Delivery High Latency</ZoruTableCell>
-                   <ZoruTableCell><Badge variant="outline" className="border-amber-200 text-amber-700">Monitoring</Badge></ZoruTableCell>
+                   <ZoruTableCell><Badge variant="outline" className="border-zoru-line text-zoru-ink">Monitoring</Badge></ZoruTableCell>
                    <ZoruTableCell>Today</ZoruTableCell>
                    <ZoruTableCell>Investigating database lock contention in webhooks table.</ZoruTableCell>
                  </ZoruTableRow>
@@ -395,20 +395,20 @@ export default function HealthMonitorPage() {
                 <ZoruCardDescription>Recent incidents & compliance alerts</ZoruCardDescription>
               </ZoruCardHeader>
               <ZoruCardContent className="space-y-4">
-                <div className="flex gap-4 border-l-2 border-red-200 pl-4 py-2">
-                  <ShieldAlert className="h-5 w-5 text-red-500 mt-0.5" />
+                <div className="flex gap-4 border-l-2 border-zoru-line pl-4 py-2">
+                  <ShieldAlert className="h-5 w-5 text-zoru-ink mt-0.5" />
                   <div>
                     <h4 className="font-medium">Carrier Block Detected</h4>
-                    <p className="text-sm text-muted-foreground">T-Mobile blocking campaign CX-992</p>
-                    <span className="text-xs text-muted-foreground">Today, 14:20</span>
+                    <p className="text-sm text-zoru-ink-muted">T-Mobile blocking campaign CX-992</p>
+                    <span className="text-xs text-zoru-ink-muted">Today, 14:20</span>
                   </div>
                 </div>
-                <div className="flex gap-4 border-l-2 border-amber-200 pl-4 py-2">
-                  <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5" />
+                <div className="flex gap-4 border-l-2 border-zoru-line pl-4 py-2">
+                  <AlertTriangle className="h-5 w-5 text-zoru-ink mt-0.5" />
                   <div>
                     <h4 className="font-medium">High Latency</h4>
-                    <p className="text-sm text-muted-foreground">Vodafone UK API response {">"} 5s</p>
-                    <span className="text-xs text-muted-foreground">Yesterday, 09:15</span>
+                    <p className="text-sm text-zoru-ink-muted">Vodafone UK API response {">"} 5s</p>
+                    <span className="text-xs text-zoru-ink-muted">Yesterday, 09:15</span>
                   </div>
                 </div>
               </ZoruCardContent>
@@ -425,21 +425,21 @@ export default function HealthMonitorPage() {
                   <div className="flex items-center justify-between">
                     <Label htmlFor="slack-alerts" className="flex flex-col gap-1">
                       <span>Slack Alerts</span>
-                      <span className="text-xs text-muted-foreground">Send to #sabsms-ops</span>
+                      <span className="text-xs text-zoru-ink-muted">Send to #sabsms-ops</span>
                     </Label>
                     <Switch id="slack-alerts" defaultChecked />
                   </div>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="email-alerts" className="flex flex-col gap-1">
                       <span>Email Alerts</span>
-                      <span className="text-xs text-muted-foreground">Send to on-call</span>
+                      <span className="text-xs text-zoru-ink-muted">Send to on-call</span>
                     </Label>
                     <Switch id="email-alerts" defaultChecked />
                   </div>
                 </div>
                 <div className="pt-4 border-t">
                   <h4 className="text-sm font-medium mb-3">Active Rules</h4>
-                  <div className="bg-slate-50 dark:bg-slate-900 rounded-md p-3 text-sm flex justify-between items-center">
+                  <div className="bg-zoru-surface-2 dark:bg-zoru-ink rounded-md p-3 text-sm flex justify-between items-center">
                     <span>If <strong>DLR %</strong> &lt; <strong>90%</strong> over <strong>15m</strong></span>
                     <Badge variant="outline">Active</Badge>
                   </div>
@@ -467,7 +467,7 @@ export default function HealthMonitorPage() {
                 
                 <div className="space-y-2">
                   <Label>Components to Display</Label>
-                  <div className="flex flex-col gap-3 p-4 border rounded-md bg-slate-50 dark:bg-slate-900/50">
+                  <div className="flex flex-col gap-3 p-4 border rounded-md bg-zoru-surface-2 dark:bg-zoru-ink/50">
                     <div className="flex items-center gap-2">
                       <Checkbox id="comp-engine" defaultChecked /> 
                       <Label htmlFor="comp-engine" className="font-normal cursor-pointer">SMS Delivery Engine</Label>
@@ -490,7 +490,7 @@ export default function HealthMonitorPage() {
                 <div className="flex items-center justify-between p-4 border rounded-md">
                   <div className="space-y-0.5">
                     <Label className="text-base">Auto-publish Incidents</Label>
-                    <p className="text-sm text-muted-foreground">Automatically mirror 'Monitoring' or worse alerts to the public page.</p>
+                    <p className="text-sm text-zoru-ink-muted">Automatically mirror 'Monitoring' or worse alerts to the public page.</p>
                   </div>
                   <Switch defaultChecked />
                 </div>
@@ -510,7 +510,7 @@ export default function HealthMonitorPage() {
               <ZoruCardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Monitor className="h-5 w-5 text-purple-600" />
+                    <Monitor className="h-5 w-5 text-zoru-ink" />
                     <ZoruCardTitle>Datadog Integration</ZoruCardTitle>
                   </div>
                   <Switch defaultChecked />
@@ -528,7 +528,7 @@ export default function HealthMonitorPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Site Region</Label>
-                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                  <select className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-sm ring-offset-zoru-surface file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zoru-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                     <option>US1 (datadoghq.com)</option>
                     <option>US3 (us3.datadoghq.com)</option>
                     <option>US5 (us5.datadoghq.com)</option>
@@ -543,7 +543,7 @@ export default function HealthMonitorPage() {
               <ZoruCardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Settings className="h-5 w-5 text-orange-500" />
+                    <Settings className="h-5 w-5 text-zoru-ink" />
                     <ZoruCardTitle>Prometheus Exporter</ZoruCardTitle>
                   </div>
                   <Switch />
@@ -559,8 +559,8 @@ export default function HealthMonitorPage() {
                   <Label>Bearer Token (Optional)</Label>
                   <Input type="password" placeholder="Require token for scraping" />
                 </div>
-                <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border">
-                  <code className="text-xs break-all text-slate-600 dark:text-slate-400">
+                <div className="p-3 bg-zoru-surface-2 dark:bg-zoru-ink rounded-md border">
+                  <code className="text-xs break-all text-zoru-ink dark:text-zoru-ink-muted">
                     scrape_configs:<br/>
                     &nbsp;&nbsp;- job_name: 'sabsms-engine'<br/>
                     &nbsp;&nbsp;&nbsp;&nbsp;metrics_path: '/metrics/prometheus'<br/>

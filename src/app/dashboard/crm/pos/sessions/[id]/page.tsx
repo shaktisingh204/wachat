@@ -158,30 +158,30 @@ function PosSessionDetailsSkeleton() {
             <div className="min-w-0 flex-1 space-y-6">
                 {/* Tabs skeleton */}
                 <div className="flex border-b border-zoru-line gap-4 pb-2">
-                    <div className="h-4 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                    <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                    <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                    <div className="h-4 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                    <div className="h-4 w-16 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                    <div className="h-4 w-24 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                    <div className="h-4 w-24 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                    <div className="h-4 w-16 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
                 </div>
 
                 {/* KPI block skeleton */}
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="h-20 bg-zinc-100 dark:bg-zinc-900/40 rounded-xl border border-zoru-line/50 p-4 space-y-2">
-                            <div className="h-3 w-12 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                            <div className="h-5 w-20 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                        <div key={i} className="h-20 bg-zoru-surface-2 dark:bg-zoru-ink/40 rounded-xl border border-zoru-line/50 p-4 space-y-2">
+                            <div className="h-3 w-12 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                            <div className="h-5 w-20 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
                         </div>
                     ))}
                 </div>
 
                 {/* Main detail card skeleton */}
-                <div className="bg-zinc-100 dark:bg-zinc-900/40 rounded-xl border border-zoru-line/50 p-6 space-y-6">
-                    <div className="h-4 w-32 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                <div className="bg-zoru-surface-2 dark:bg-zoru-ink/40 rounded-xl border border-zoru-line/50 p-6 space-y-6">
+                    <div className="h-4 w-32 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
                     <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
                             <div key={i} className="space-y-1.5">
-                                <div className="h-2.5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                                <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                                <div className="h-2.5 w-16 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                                <div className="h-4 w-24 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
                             </div>
                         ))}
                     </div>
@@ -191,26 +191,26 @@ function PosSessionDetailsSkeleton() {
             {/* Right Aside column */}
             <div className="w-full md:w-80 md:shrink-0 space-y-4">
                 {/* Totals skeleton */}
-                <div className="bg-zinc-100 dark:bg-zinc-900/40 rounded-xl border border-zoru-line/50 p-6 space-y-4">
-                    <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                <div className="bg-zoru-surface-2 dark:bg-zoru-ink/40 rounded-xl border border-zoru-line/50 p-6 space-y-4">
+                    <div className="h-4 w-20 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
                     <div className="space-y-3">
                         {[1, 2, 3, 4, 5].map((i) => (
                             <div key={i} className="space-y-1">
-                                <div className="h-2.5 w-12 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                                <div className="h-4 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                                <div className="h-2.5 w-12 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                                <div className="h-4 w-16 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
                             </div>
                         ))}
                     </div>
                 </div>
 
                 {/* Terminal skeleton */}
-                <div className="bg-zinc-100 dark:bg-zinc-900/40 rounded-xl border border-zoru-line/50 p-6 space-y-4">
-                    <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                <div className="bg-zoru-surface-2 dark:bg-zoru-ink/40 rounded-xl border border-zoru-line/50 p-6 space-y-4">
+                    <div className="h-4 w-20 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
                     <div className="space-y-3">
                         {[1, 2, 3, 4].map((i) => (
                             <div key={i} className="space-y-1">
-                                <div className="h-2.5 w-12 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                                <div className="h-4 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                                <div className="h-2.5 w-12 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
+                                <div className="h-4 w-16 bg-zoru-surface-2 dark:bg-zoru-ink rounded" />
                             </div>
                         ))}
                     </div>

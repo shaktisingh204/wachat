@@ -231,10 +231,10 @@ export function MetaFlowBuilderLayout({
             `}</style>
 
             {isEmpty ? (
-                <div className="flex h-full flex-col items-center justify-center bg-muted/20">
+                <div className="flex h-full flex-col items-center justify-center bg-zoru-surface-2/20">
                     <div className="space-y-4 text-center">
-                        <div className="mb-4 inline-block rounded-full bg-background p-4 shadow-sm">
-                            <Layers className="h-10 w-10 text-primary" />
+                        <div className="mb-4 inline-block rounded-full bg-zoru-surface p-4 shadow-sm">
+                            <Layers className="h-10 w-10 text-zoru-ink" />
                         </div>
                         <h2 className="text-2xl font-bold">Start building your Flow</h2>
                         <p className="mx-auto max-w-sm text-zoru-ink-muted">
@@ -259,7 +259,7 @@ export function MetaFlowBuilderLayout({
                     direction="horizontal"
                     cursor="col-resize"
                 >
-                    <div className="h-full overflow-hidden bg-background">
+                    <div className="h-full overflow-hidden bg-zoru-surface">
                         <MetaFlowNavigator
                             screens={flowData.screens || []}
                             selectedScreenId={selectedScreenId}
@@ -274,7 +274,7 @@ export function MetaFlowBuilderLayout({
                         />
                     </div>
 
-                    <div className="relative h-full overflow-hidden border-l border-r bg-background">
+                    <div className="relative h-full overflow-hidden border-l border-r bg-zoru-surface">
                         <MetaFlowCanvas
                             flowData={flowData}
                             setFlowData={setFlowData}
@@ -282,7 +282,7 @@ export function MetaFlowBuilderLayout({
                         />
                     </div>
 
-                    <div className="relative h-full overflow-hidden bg-background">
+                    <div className="relative h-full overflow-hidden bg-zoru-surface">
                         <MetaFlowProperties
                             selectedScreen={currentScreen}
                             onUpdateScreen={handleUpdateScreen}

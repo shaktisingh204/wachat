@@ -53,9 +53,9 @@ export function ItemPrintView({
         {Array.from({ length: LABELS_PER_SHEET }).map((_, idx) => (
           <div
             key={idx}
-            className="flex flex-col items-center justify-center rounded border border-zinc-300 bg-white p-2 text-center text-zinc-900 print:break-inside-avoid"
+            className="flex flex-col items-center justify-center rounded border border-zoru-line bg-white p-2 text-center text-zoru-ink print:break-inside-avoid"
           >
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink">
               {productName}
             </div>
             {variant === 'qr' ? (
@@ -69,7 +69,7 @@ export function ItemPrintView({
               <BarcodeSvg code={code} />
             )}
             <div className="text-[11px] font-mono">{code}</div>
-            <div className="text-[10.5px] text-zinc-600">
+            <div className="text-[10.5px] text-zoru-ink">
               {fmtINR(sellingPrice, currency)}
             </div>
           </div>

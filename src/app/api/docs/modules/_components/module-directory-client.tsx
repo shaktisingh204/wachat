@@ -20,13 +20,13 @@ export type ModuleCount = {
 
 function MethodBadge({ method }: { method: string }) {
   const colors: Record<string, string> = {
-    GET: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
-    POST: 'bg-green-500/20 text-green-300 border-green-500/40',
-    PATCH: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40',
-    PUT: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40',
-    DELETE: 'bg-red-500/20 text-red-300 border-red-500/40',
+    GET: 'bg-zoru-ink/20 text-zoru-ink-muted border-zoru-line/40',
+    POST: 'bg-zoru-ink/20 text-zoru-ink-muted border-zoru-line/40',
+    PATCH: 'bg-zoru-ink/20 text-zoru-ink-muted border-zoru-line/40',
+    PUT: 'bg-zoru-ink/20 text-zoru-ink-muted border-zoru-line/40',
+    DELETE: 'bg-zoru-ink/20 text-zoru-ink-muted border-zoru-line/40',
   };
-  const cls = colors[method] ?? 'bg-zinc-500/20 text-zinc-300 border-zinc-500/40';
+  const cls = colors[method] ?? 'bg-zoru-ink/20 text-zoru-ink-muted border-zoru-line/40';
   return (
     <span className={'inline-block text-[10px] font-bold px-1.5 py-0.5 rounded border w-14 text-center ' + cls}>
       {method}

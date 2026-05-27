@@ -114,7 +114,7 @@ import type {
 //  Constants
 // ---------------------------------------------------------------------------
 
-const ACCENT = '#229ED9';
+const ACCENT = 'var(--zoru-ink)';
 const PAGE_SIZE = 25;
 
 const STATUS_OPTIONS: { value: 'all' | BroadcastStatus; label: string }[] = [
@@ -970,7 +970,7 @@ export default function TelegramBroadcastsPage() {
             <Card>
                 <ZoruCardContent className="p-0">
                     {error ? (
-                        <div className="flex items-center gap-2 p-6 text-sm text-red-500">
+                        <div className="flex items-center gap-2 p-6 text-sm text-zoru-ink">
                             <AlertCircle className="size-4" /> {error}
                         </div>
                     ) : null}
@@ -1031,7 +1031,7 @@ export default function TelegramBroadcastsPage() {
                                         return (
                                             <tr
                                                 key={row._id}
-                                                className="border-b hover:bg-zoru-bg-muted/40"
+                                                className="border-b hover:bg-zoru-bg-zoru-surface-2/40"
                                             >
                                                 <td className="px-3 py-2">
                                                     <Checkbox
@@ -1127,7 +1127,7 @@ export default function TelegramBroadcastsPage() {
                                                             onClick={() => setDeleteRow(row)}
                                                             aria-label="Delete"
                                                         >
-                                                            <Trash2 className="size-4 text-red-500" />
+                                                            <Trash2 className="size-4 text-zoru-ink" />
                                                         </Button>
                                                     </div>
                                                 </td>
@@ -1385,7 +1385,7 @@ function Composer(props: ComposerProps) {
 
                 <div className="flex flex-col gap-6 overflow-y-auto px-4 pb-4 md:px-6">
                     {error ? (
-                        <div className="flex items-center gap-2 rounded-md border border-red-500/40 bg-red-500/5 p-3 text-sm text-red-500">
+                        <div className="flex items-center gap-2 rounded-md border border-zoru-line/40 bg-zoru-ink/5 p-3 text-sm text-zoru-ink">
                             <AlertCircle className="size-4" /> {error}
                         </div>
                     ) : null}
@@ -1440,7 +1440,7 @@ function Composer(props: ComposerProps) {
                                     className={`rounded-md border px-3 py-2 text-left text-sm transition ${
                                         composer.audienceKind === k.value
                                             ? 'border-[color:var(--accent)] bg-[color:var(--accent)]/10'
-                                            : 'border-zoru-border hover:bg-zoru-bg-muted'
+                                            : 'border-zoru-border hover:bg-zoru-bg-zoru-surface-2'
                                     }`}
                                     style={{
                                         ['--accent' as any]: ACCENT,
@@ -1625,7 +1625,7 @@ function Composer(props: ComposerProps) {
                                                         onClick={() => onRemoveMedia(idx)}
                                                         aria-label="Remove"
                                                     >
-                                                        <X className="size-4 text-red-500" />
+                                                        <X className="size-4 text-zoru-ink" />
                                                     </Button>
                                                 </div>
                                             </div>
@@ -1680,7 +1680,7 @@ function Composer(props: ComposerProps) {
                                                     }
                                                     aria-label="Remove row"
                                                 >
-                                                    <Trash2 className="size-4 text-red-500" />
+                                                    <Trash2 className="size-4 text-zoru-ink" />
                                                 </Button>
                                             </div>
                                         </div>
@@ -1742,7 +1742,7 @@ function Composer(props: ComposerProps) {
                                                         }
                                                         aria-label="Remove button"
                                                     >
-                                                        <X className="size-4 text-red-500" />
+                                                        <X className="size-4 text-zoru-ink" />
                                                     </Button>
                                                 </li>
                                             ))}
@@ -1795,7 +1795,7 @@ function Composer(props: ComposerProps) {
 
                     {/* ── 5. Preview ───────────────────────────────── */}
                     <Section title="5 · Preview">
-                        <div className="rounded-lg border bg-zoru-bg-muted/30 p-4">
+                        <div className="rounded-lg border bg-zoru-bg-zoru-surface-2/30 p-4">
                             <div className="text-xs uppercase tracking-wide text-zoru-ink-muted">
                                 Preview · {composer.parseMode}
                             </div>
@@ -2008,7 +2008,7 @@ function DetailDrawer(props: DetailDrawerProps) {
                     </div>
 
                     {row.errorSummary ? (
-                        <div className="flex items-start gap-2 rounded-md border border-red-500/40 bg-red-500/5 p-3 text-sm text-red-500">
+                        <div className="flex items-start gap-2 rounded-md border border-zoru-line/40 bg-zoru-ink/5 p-3 text-sm text-zoru-ink">
                             <AlertCircle className="size-4 shrink-0" />
                             <div>
                                 <div className="font-medium">Error</div>

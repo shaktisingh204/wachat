@@ -81,8 +81,8 @@ export default function ServerLocationPage() {
       </div>
       
       {error && (
-        <Card className="border-red-500">
-          <ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent>
+        <Card className="border-zoru-line">
+          <ZoruCardContent className="p-4 text-zoru-ink text-sm">{error}</ZoruCardContent>
         </Card>
       )}
       
@@ -106,23 +106,23 @@ export default function ServerLocationPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {data.geoInfo.map((geo, idx) => (
                 <Card key={`${geo.ip}-${idx}`} className="overflow-hidden">
-                  <div className="bg-muted p-3 border-b font-mono text-sm font-semibold flex justify-between items-center">
+                  <div className="bg-zoru-surface-2 p-3 border-b font-mono text-sm font-semibold flex justify-between items-center">
                     <span>{geo.ip}</span>
-                    <span className="text-xs text-muted-foreground">{geo.country}</span>
+                    <span className="text-xs text-zoru-ink-muted">{geo.country}</span>
                   </div>
                   <ZoruCardContent className="p-0">
                     <div className="p-4 space-y-2 text-sm">
                       <div className="grid grid-cols-2 gap-2">
-                        <div className="text-muted-foreground">Location:</div>
+                        <div className="text-zoru-ink-muted">Location:</div>
                         <div className="font-medium">{geo.city}{geo.city && geo.region ? ', ' : ''}{geo.region}</div>
                         
-                        <div className="text-muted-foreground">Country:</div>
+                        <div className="text-zoru-ink-muted">Country:</div>
                         <div className="font-medium">{geo.country}</div>
                         
-                        <div className="text-muted-foreground">Organization:</div>
+                        <div className="text-zoru-ink-muted">Organization:</div>
                         <div className="font-medium truncate" title={geo.org || geo.isp}>{geo.org || geo.isp || 'N/A'}</div>
                         
-                        <div className="text-muted-foreground">Coordinates:</div>
+                        <div className="text-zoru-ink-muted">Coordinates:</div>
                         <div className="font-medium">{geo.latitude}, {geo.longitude}</div>
                       </div>
                     </div>
@@ -145,7 +145,7 @@ export default function ServerLocationPage() {
           
           {data.geoInfo.length === 0 && (
             <Card>
-              <ZoruCardContent className="p-4 text-sm text-muted-foreground">
+              <ZoruCardContent className="p-4 text-sm text-zoru-ink-muted">
                 Geolocation data could not be retrieved for the IP addresses found.
               </ZoruCardContent>
             </Card>

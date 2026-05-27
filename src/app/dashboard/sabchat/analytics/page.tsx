@@ -381,7 +381,7 @@ export default function SabChatAnalyticsPage() {
                     <ZoruTableCell className="text-right text-zoru-ink-muted">{agent.time}</ZoruTableCell>
                     <ZoruTableCell className="text-right">
                       <Badge variant="outline" className={cn(
-                        agent.csat > 90 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"
+                        agent.csat > 90 ? "bg-zoru-surface-2 text-zoru-ink border-zoru-line" : "bg-zoru-surface-2 text-zoru-ink border-zoru-line"
                       )}>
                         {agent.csat}%
                       </Badge>

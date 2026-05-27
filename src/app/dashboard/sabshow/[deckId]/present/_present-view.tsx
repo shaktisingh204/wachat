@@ -198,14 +198,14 @@ export function SlideCanvas({
                             </div>
                         ) : null}
                         {el.kind === 'image' ? (
-                            <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-xs text-zinc-500">
+                            <div className="flex h-full w-full items-center justify-center bg-zoru-surface-2 text-xs text-zoru-ink">
                                 {typeof cfg.fileId === 'string'
                                     ? `image: ${cfg.fileId as string}`
                                     : 'image'}
                             </div>
                         ) : null}
                         {el.kind === 'code' ? (
-                            <pre className="h-full w-full overflow-hidden bg-zinc-900 p-2 text-xs text-zinc-100">
+                            <pre className="h-full w-full overflow-hidden bg-zoru-ink p-2 text-xs text-white">
                                 {typeof cfg.value === 'string'
                                     ? (cfg.value as string)
                                     : ''}
@@ -214,7 +214,7 @@ export function SlideCanvas({
                     </div>
                 );
             })}
-            <span className="absolute right-2 top-1 text-[10px] text-zinc-400">
+            <span className="absolute right-2 top-1 text-[10px] text-zoru-ink-muted">
                 {slide.title ?? ''}
             </span>
         </div>

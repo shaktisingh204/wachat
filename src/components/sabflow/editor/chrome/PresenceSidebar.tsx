@@ -61,14 +61,14 @@ export type PresenceSidebarProps = {
 // ---------------------------------------------------------------------------
 
 const AVATAR_PALETTE = [
-  'bg-orange-500',
-  'bg-emerald-500',
-  'bg-violet-500',
-  'bg-rose-500',
-  'bg-amber-500',
-  'bg-sky-500',
-  'bg-indigo-500',
-  'bg-pink-500',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
 ];
 
 function colourFor(userId: string): string {
@@ -99,9 +99,9 @@ const STATUS_LABEL: Record<PresencePeerStatus, string> = {
 };
 
 const STATUS_DOT: Record<PresencePeerStatus, string> = {
-  active: 'bg-emerald-500',
-  idle: 'bg-amber-500',
-  away: 'bg-zinc-400',
+  active: 'bg-zoru-ink',
+  idle: 'bg-zoru-ink',
+  away: 'bg-zoru-surface-2',
 };
 
 function formatRelative(lastSeen: number, nowMs: number): string {

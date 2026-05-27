@@ -33,7 +33,7 @@ export function CrmAutomationBlockEditor({ settings, onUpdate, availableAutomati
                                     ))}
                                 </ZoruSelectContent>
                             </Select>
-                            <p className="text-xs text-muted-foreground">Select which automation campaign to start when this block is activated.</p>
+                            <p className="text-xs text-zoru-ink-muted">Select which automation campaign to start when this block is activated.</p>
                         </div>
                     </ZoruAccordionContent>
                 </ZoruAccordionItem>

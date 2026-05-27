@@ -63,13 +63,13 @@ const METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 
 const BODY_FORMATS: BodyFormat[] = ['json', 'form-data', 'form-urlencoded', 'raw', 'none'];
 
 const METHOD_COLORS: Record<HttpMethod, string> = {
-  GET:     'text-emerald-600 bg-emerald-50',
-  POST:    'text-blue-600 bg-blue-50',
-  PUT:     'text-amber-600 bg-amber-50',
-  PATCH:   'text-orange-600 bg-orange-50',
-  DELETE:  'text-red-600 bg-red-50',
-  HEAD:    'text-purple-600 bg-purple-50',
-  OPTIONS: 'text-gray-600 bg-gray-100',
+  GET:     'text-zoru-ink bg-zoru-surface-2',
+  POST:    'text-zoru-ink bg-zoru-surface-2',
+  PUT:     'text-zoru-ink bg-zoru-surface-2',
+  PATCH:   'text-zoru-ink bg-zoru-surface-2',
+  DELETE:  'text-zoru-ink bg-zoru-surface-2',
+  HEAD:    'text-zoru-ink bg-zoru-surface-2',
+  OPTIONS: 'text-zoru-ink bg-zoru-surface-2',
 };
 
 let _idCounter = 0;
@@ -94,7 +94,7 @@ export function HttpRequestNode({ config, onChange, className }: HttpRequestNode
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#ec4899]/10 text-[#ec4899]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink/10 text-zoru-ink">
           <LuGlobe className="h-4 w-4" strokeWidth={2} />
         </div>
         <div>
@@ -107,7 +107,7 @@ export function HttpRequestNode({ config, onChange, className }: HttpRequestNode
       <div className="flex gap-2">
         <select
           className={cn(
-            'rounded-lg border border-[var(--gray-5)] px-2.5 py-2 text-[12.5px] font-semibold outline-none focus:border-[#f76808] transition-colors shrink-0',
+            'rounded-lg border border-[var(--gray-5)] px-2.5 py-2 text-[12.5px] font-semibold outline-none focus:border-zoru-line transition-colors shrink-0',
             METHOD_COLORS[config.method],
           )}
           value={config.method}
@@ -233,7 +233,7 @@ function KvEditor({
             onClick={() => update(pair.id, 'enabled', !pair.enabled)}
             className={cn(
               'h-3.5 w-3.5 rounded border-2 flex shrink-0 items-center justify-center transition-colors',
-              pair.enabled ? 'border-[#f76808] bg-[#f76808]' : 'border-[var(--gray-5)]',
+              pair.enabled ? 'border-zoru-line bg-zoru-ink' : 'border-[var(--gray-5)]',
             )}
           >
             {pair.enabled && (
@@ -259,7 +259,7 @@ function KvEditor({
           <button
             type="button"
             onClick={() => remove(pair.id)}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:text-red-500 transition-colors"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:text-zoru-ink transition-colors"
           >
             <LuX className="h-3.5 w-3.5" strokeWidth={2} />
           </button>
@@ -268,7 +268,7 @@ function KvEditor({
       <button
         type="button"
         onClick={add}
-        className="flex items-center gap-1.5 text-[12px] font-medium text-[#f76808] hover:text-[#e25c00] transition-colors"
+        className="flex items-center gap-1.5 text-[12px] font-medium text-zoru-ink hover:text-zoru-ink transition-colors"
       >
         <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
         Add {label.split(' ')[0].toLowerCase()}
@@ -293,7 +293,7 @@ function BodyEditor({ config, onChange }: Pick<HttpRequestNodeProps, 'config' | 
               className={cn(
                 'rounded-md border px-2.5 py-1 text-[11.5px] font-medium transition-colors',
                 config.bodyFormat === f
-                  ? 'border-[#f76808]/40 bg-[#f76808]/10 text-[#f76808]'
+                  ? 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink'
                   : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:border-[var(--gray-6)]',
               )}
             >
@@ -491,7 +491,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       onClick={() => onChange(!checked)}
       className={cn(
         'relative h-5 w-9 rounded-full transition-colors focus-visible:outline-none',
-        checked ? 'bg-[#f76808]' : 'bg-[var(--gray-5)]',
+        checked ? 'bg-zoru-ink' : 'bg-[var(--gray-5)]',
       )}
     >
       <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform', checked ? 'translate-x-4' : 'translate-x-0.5')} />
@@ -519,4 +519,4 @@ function OutputSchema({ accent, fields }: { accent: string; fields: OutputField[
 }
 
 const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808] transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';

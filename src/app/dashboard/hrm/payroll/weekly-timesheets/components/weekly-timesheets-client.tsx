@@ -311,8 +311,8 @@ export function WeeklyTimesheetsClient({
           {isLive && (
             <div className="flex items-center gap-1.5 text-xs text-zoru-ink-muted mr-2" title="Collaborative connection active">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zoru-surface-2 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-zoru-ink"></span>
               </span>
               Live
             </div>
@@ -455,7 +455,7 @@ export function WeeklyTimesheetsClient({
                       {s.status === 'submitted' && (
                         <>
                           <Button variant="outline" size="sm" onClick={() => handleApprove(id)} title="Approve">
-                            <Check className="h-3.5 w-3.5 text-emerald-500" />
+                            <Check className="h-3.5 w-3.5 text-zoru-ink" />
                           </Button>
                           <Button variant="outline" size="sm" onClick={() => handleReject(id)} title="Reject">
                             <X className="h-3.5 w-3.5 text-zoru-danger-ink" />

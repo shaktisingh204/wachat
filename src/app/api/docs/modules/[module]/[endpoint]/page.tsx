@@ -58,13 +58,13 @@ export async function generateStaticParams() {
 
 function MethodBadge({ method }: { method: string }) {
   const colors: Record<string, string> = {
-    GET: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
-    POST: 'bg-green-500/20 text-green-300 border-green-500/40',
-    PATCH: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40',
-    PUT: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40',
-    DELETE: 'bg-red-500/20 text-red-300 border-red-500/40',
+    GET: 'bg-zoru-ink/20 text-zoru-ink-muted border-zoru-line/40',
+    POST: 'bg-zoru-ink/20 text-zoru-ink-muted border-zoru-line/40',
+    PATCH: 'bg-zoru-ink/20 text-zoru-ink-muted border-zoru-line/40',
+    PUT: 'bg-zoru-ink/20 text-zoru-ink-muted border-zoru-line/40',
+    DELETE: 'bg-zoru-ink/20 text-zoru-ink-muted border-zoru-line/40',
   };
-  const cls = colors[method] ?? 'bg-zinc-500/20 text-zinc-300 border-zinc-500/40';
+  const cls = colors[method] ?? 'bg-zoru-ink/20 text-zoru-ink-muted border-zoru-line/40';
   return (
     <span className={'inline-block text-xs font-bold px-2 py-0.5 rounded border ' + cls}>
       {method}
@@ -96,7 +96,7 @@ function ParamTable({
           <ZoruTableBody>
             {r.map((p) => (
               <ZoruTableRow key={p.name}>
-                <ZoruTableCell className="font-mono text-xs text-amber-400">{p.name}</ZoruTableCell>
+                <ZoruTableCell className="font-mono text-xs text-zoru-ink-muted">{p.name}</ZoruTableCell>
                 <ZoruTableCell className="font-mono text-xs text-zoru-ink-muted">{p.type}</ZoruTableCell>
                 <ZoruTableCell className="text-xs text-zoru-ink-muted">{p.required ? '✓' : ''}</ZoruTableCell>
                 <ZoruTableCell className="text-xs text-zoru-ink">{p.description}</ZoruTableCell>
@@ -172,7 +172,7 @@ export default async function Page({
 
           <div className="flex flex-wrap gap-2">
             <span className="text-xs px-2 py-0.5 rounded border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
-              Scope: <code className="font-mono text-amber-400">{e.scope}</code>
+              Scope: <code className="font-mono text-zoru-ink-muted">{e.scope}</code>
             </span>
             <span className="text-xs px-2 py-0.5 rounded border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
               Tier: {e.tier}
@@ -189,7 +189,7 @@ export default async function Page({
             ) : null}
             {e.emits.map((ev) => (
               <span key={ev} className="text-xs px-2 py-0.5 rounded border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
-                emits <code className="font-mono text-amber-400">{ev}</code>
+                emits <code className="font-mono text-zoru-ink-muted">{ev}</code>
               </span>
             ))}
           </div>

@@ -89,25 +89,25 @@ export default async function PaymentAccountDetailPage(props: {
             rightRail={
                 <div className="flex flex-col gap-4">
                     <Card className="p-4">
-                        <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        <p className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                             Account
                         </p>
                         <dl className="mt-2 space-y-1.5 text-[13px]">
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Type</dt>
+                                <dt className="text-zoru-ink-muted">Type</dt>
                                 <dd className="capitalize">{account.accountType}</dd>
                             </div>
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Currency</dt>
+                                <dt className="text-zoru-ink-muted">Currency</dt>
                                 <dd className="font-mono">{account.currency}</dd>
                             </div>
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Default</dt>
+                                <dt className="text-zoru-ink-muted">Default</dt>
                                 <dd>
                                     {account.isDefault ? (
                                         <StatusPill label="Default" tone="blue" />
                                     ) : (
-                                        <span className="text-[12px] text-muted-foreground">No</span>
+                                        <span className="text-[12px] text-zoru-ink-muted">No</span>
                                     )}
                                 </dd>
                             </div>
@@ -115,34 +115,34 @@ export default async function PaymentAccountDetailPage(props: {
                     </Card>
                     {account.bankDetails ? (
                         <Card className="p-4">
-                            <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            <p className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                                 Bank details
                             </p>
                             <dl className="mt-2 space-y-1.5 text-[13px]">
                                 <div className="flex justify-between gap-3">
-                                    <dt className="text-muted-foreground">Bank</dt>
+                                    <dt className="text-zoru-ink-muted">Bank</dt>
                                     <dd className="text-right">{account.bankDetails.bankName || '—'}</dd>
                                 </div>
                                 <div className="flex justify-between gap-3">
-                                    <dt className="text-muted-foreground">Holder</dt>
+                                    <dt className="text-zoru-ink-muted">Holder</dt>
                                     <dd className="text-right">{account.bankDetails.accountHolder || '—'}</dd>
                                 </div>
                                 <div className="flex justify-between gap-3">
-                                    <dt className="text-muted-foreground">Account no</dt>
+                                    <dt className="text-zoru-ink-muted">Account no</dt>
                                     <dd className="font-mono text-right">{mask(account.bankDetails.accountNumber)}</dd>
                                 </div>
                                 <div className="flex justify-between gap-3">
-                                    <dt className="text-muted-foreground">IFSC</dt>
+                                    <dt className="text-zoru-ink-muted">IFSC</dt>
                                     <dd className="font-mono text-right">{account.bankDetails.ifsc || '—'}</dd>
                                 </div>
                                 <div className="flex justify-between gap-3">
-                                    <dt className="text-muted-foreground">SWIFT</dt>
+                                    <dt className="text-zoru-ink-muted">SWIFT</dt>
                                     <dd className="font-mono text-right">
                                         {account.bankDetails.swiftCode || '—'}
                                     </dd>
                                 </div>
                                 <div className="flex justify-between gap-3">
-                                    <dt className="text-muted-foreground">IBAN</dt>
+                                    <dt className="text-zoru-ink-muted">IBAN</dt>
                                     <dd className="font-mono text-right">{account.bankDetails.ibanCode || '—'}</dd>
                                 </div>
                             </dl>
@@ -172,14 +172,14 @@ export default async function PaymentAccountDetailPage(props: {
                     </div>
                 </Card>
                 <Card>
-                    <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <p className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                         Linked ledger
                     </p>
-                    <p className="mt-1 text-[13px] text-muted-foreground">
+                    <p className="mt-1 text-[13px] text-zoru-ink-muted">
                         Posted vouchers using this payment account flow into the chart-of-account ledger.{' '}
                         <Link
                             href={`/dashboard/crm/accounting/day-book?accountId=${accountId}`}
-                            className="text-accent-foreground hover:underline inline-flex items-center gap-1"
+                            className="text-zoru-ink hover:underline inline-flex items-center gap-1"
                         >
                             <FileText className="h-3 w-3" /> View ledger
                         </Link>
@@ -194,12 +194,12 @@ function SummaryCell({ label, value, accent }: { label: string; value: string; a
     return (
         <div
             className={[
-                'rounded-lg border border-border p-3',
-                accent ? 'bg-zoru-surface-2' : 'bg-secondary',
+                'rounded-lg border border-zoru-line p-3',
+                accent ? 'bg-zoru-surface-2' : 'bg-zoru-surface-2',
             ].join(' ')}
         >
-            <p className="text-[11.5px] text-muted-foreground">{label}</p>
-            <p className="mt-1 text-[18px] font-semibold text-foreground">{value}</p>
+            <p className="text-[11.5px] text-zoru-ink-muted">{label}</p>
+            <p className="mt-1 text-[18px] font-semibold text-zoru-ink">{value}</p>
         </div>
     );
 }

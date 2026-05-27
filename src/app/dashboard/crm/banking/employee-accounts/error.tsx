@@ -17,7 +17,7 @@ export default function EmployeeAccountsError({
 
     return (
         <div className="flex h-[60vh] flex-col items-center justify-center gap-4 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-500">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink">
                 <AlertTriangle className="h-6 w-6" />
             </div>
             <div className="max-w-md">

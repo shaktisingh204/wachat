@@ -58,7 +58,7 @@ export default async function SabsmsContactsPage({ searchParams }: PageProps) {
         description="Sign in to see the contacts in your SabSMS workspace."
         breadcrumbs={[{ label: "Contacts" }]}
       >
-        <div className="text-sm text-slate-500">
+        <div className="text-sm text-zoru-ink">
           Please sign in to continue.
         </div>
       </SabsmsPageShell>
@@ -110,7 +110,7 @@ export default async function SabsmsContactsPage({ searchParams }: PageProps) {
           {total > 0 && (
             <>
               {" "}
-              <span className="text-slate-500">
+              <span className="text-zoru-ink">
                 · {total.toLocaleString()} on this view
               </span>
             </>

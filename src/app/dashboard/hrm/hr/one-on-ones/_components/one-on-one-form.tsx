@@ -408,7 +408,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                             onClick={() => removeAgenda(ag.id)}
                                             aria-label="Remove topic"
                                         >
-                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
                                         </Button>
                                     </div>
                                     <div className="mt-3 grid gap-3 sm:grid-cols-3">
@@ -505,7 +505,7 @@ export function OneOnOneForm({ initialData }: OneOnOneFormProps) {
                                             onClick={() => removeAction(ai.id)}
                                             aria-label="Remove action item"
                                         >
-                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
                                         </Button>
                                     </div>
                                     <div className="mt-3 grid gap-3 sm:grid-cols-3">

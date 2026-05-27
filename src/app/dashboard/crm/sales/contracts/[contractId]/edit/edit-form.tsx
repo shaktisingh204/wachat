@@ -172,7 +172,7 @@ export function EditContractForm({
                             id="autoRenew"
                             name="autoRenew"
                             type="checkbox"
-                            className="h-4 w-4 rounded border-gray-300"
+                            className="h-4 w-4 rounded border-zoru-line"
                             checked={autoRenew}
                             onChange={(e) => setAutoRenew(e.target.checked)}
                         />

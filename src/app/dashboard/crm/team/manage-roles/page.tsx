@@ -413,7 +413,7 @@ export default function ManageRolesPage() {
             {/* Bulk selection header for custom roles */}
             {customRoleIds.length > 0 && (
                 <div className="mb-3 flex items-center gap-3">
-                    <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                    <label className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink-muted">
                         <Checkbox
                             checked={allCustomChecked}
                             aria-checked={someCustomChecked && !allCustomChecked ? 'mixed' : allCustomChecked}
@@ -427,8 +427,8 @@ export default function ManageRolesPage() {
 
             {/* Bulk action bar */}
             {hasSelection && (
-                <div className="mb-3 flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-2.5 text-sm">
-                    <span className="font-medium text-foreground">
+                <div className="mb-3 flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface-2/40 px-4 py-2.5 text-sm">
+                    <span className="font-medium text-zoru-ink">
                         {selectedIds.length} selected
                     </span>
                     <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
@@ -507,22 +507,22 @@ export default function ManageRolesPage() {
                                     <input type="hidden" name="roleId" value={role.id} />
                                     <div className="flex flex-col gap-6">
                                         {permissionTree.map((category) => (
-                                            <div key={category.id} className="border border-zoru-line rounded-lg p-4 bg-muted/10">
-                                                <h4 className="font-semibold text-sm mb-4 text-muted-foreground uppercase tracking-wider">{category.name}</h4>
+                                            <div key={category.id} className="border border-zoru-line rounded-lg p-4 bg-zoru-surface-2/10">
+                                                <h4 className="font-semibold text-sm mb-4 text-zoru-ink-muted uppercase tracking-wider">{category.name}</h4>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                                     {category.children.map((module) => (
-                                                        <div key={module.id} className="flex flex-col gap-2 bg-background p-3 rounded-md border border-border shadow-sm">
-                                                            <span className="font-medium text-[13.5px] text-foreground border-b border-border pb-2 mb-1">{module.name}</span>
+                                                        <div key={module.id} className="flex flex-col gap-2 bg-zoru-surface p-3 rounded-md border border-zoru-line shadow-sm">
+                                                            <span className="font-medium text-[13.5px] text-zoru-ink border-b border-zoru-line pb-2 mb-1">{module.name}</span>
                                                             <div className="flex flex-col gap-2">
                                                                 {module.actions.map((action) => {
                                                                     const fieldName = `${role.id}_${module.id}_${action}`;
                                                                     const isChecked = crmPermissions[module.id]?.[action] ?? false;
                                                                     return (
-                                                                        <label key={action} className="flex items-center gap-2 text-[12.5px] text-muted-foreground hover:text-foreground cursor-pointer group">
+                                                                        <label key={action} className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink cursor-pointer group">
                                                                             <Checkbox
                                                                                 name={fieldName}
                                                                                 defaultChecked={isChecked}
-                                                                                className="transition-colors data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                                                                className="transition-colors data-[state=checked]:bg-zoru-ink data-[state=checked]:border-primary"
                                                                             />
                                                                             <span className="capitalize group-hover:underline decoration-muted-foreground/30 underline-offset-2">{action.replace('_', ' ')}</span>
                                                                         </label>

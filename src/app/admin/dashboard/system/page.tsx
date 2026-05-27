@@ -28,8 +28,8 @@ function SectionCard({
     return (
         <Card className="rounded-2xl border border-zoru-line bg-zoru-bg overflow-hidden p-0">
             <div className="px-6 py-4 border-b border-zoru-line flex items-start gap-3">
-                <div className={`mt-0.5 h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${warning ? 'bg-amber-100 border border-amber-200' : 'bg-zoru-surface border border-zoru-line'}`}>
-                    <Icon className={`h-4 w-4 ${warning ? 'text-amber-600' : 'text-zoru-ink'}`} />
+                <div className={`mt-0.5 h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${warning ? 'bg-zoru-surface-2 border border-zoru-line' : 'bg-zoru-surface border border-zoru-line'}`}>
+                    <Icon className={`h-4 w-4 ${warning ? 'text-zoru-ink' : 'text-zoru-ink'}`} />
                 </div>
                 <div>
                     <h2 className="font-semibold text-zoru-ink">{title}</h2>
@@ -53,11 +53,11 @@ export default function SystemHealthPage() {
             </div>
 
             {/* Warning banner */}
-            <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
-                <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 rounded-2xl border border-zoru-line bg-zoru-surface-2 px-5 py-4">
+                <AlertTriangle className="h-5 w-5 text-zoru-ink shrink-0 mt-0.5" />
                 <div>
-                    <p className="text-sm font-medium text-amber-300">Restricted Area</p>
-                    <p className="text-xs text-amber-600/70 mt-0.5">
+                    <p className="text-sm font-medium text-zoru-ink-muted">Restricted Area</p>
+                    <p className="text-xs text-zoru-ink/70 mt-0.5">
                         Actions here affect the entire platform. All operations are logged.
                     </p>
                 </div>

@@ -32,19 +32,19 @@ export function ConsentItem({
         checked={granted}
         onChange={(e) => onChange(e.target.checked)}
         disabled={disabled || purpose.is_required}
-        className="mt-1 h-4 w-4 rounded border-border accent-primary disabled:opacity-50"
+        className="mt-1 h-4 w-4 rounded border-zoru-line accent-primary disabled:opacity-50"
       />
       <div>
-        <p className="text-[13px] font-medium text-foreground">
+        <p className="text-[13px] font-medium text-zoru-ink">
           {purpose.title}
           {purpose.is_required ? (
-            <span className="ml-1 text-[11.5px] text-accent-foreground">
+            <span className="ml-1 text-[11.5px] text-zoru-ink">
               (required)
             </span>
           ) : null}
         </p>
         {purpose.description ? (
-          <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
             {purpose.description}
           </p>
         ) : null}
@@ -128,19 +128,19 @@ export function ConsentForm({
       {purposes.length > 0 && (
         <div className="mb-4 flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-2.5 top-2 h-4 w-4 text-zoru-ink-muted" />
             <input
               type="text"
               placeholder="Search purposes..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-8 w-full rounded-md border border-input bg-transparent pl-9 pr-3 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-[13px]"
+              className="h-8 w-full rounded-md border border-zoru-line bg-transparent pl-9 pr-3 text-sm shadow-sm transition-colors placeholder:text-zoru-ink-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-line disabled:cursor-not-allowed disabled:opacity-50 text-[13px]"
             />
           </div>
           <select
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value as any)}
-            className="h-8 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-[13px]"
+            className="h-8 rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-line disabled:cursor-not-allowed disabled:opacity-50 text-[13px]"
           >
             <option value="default">Default Order</option>
             <option value="name">Alphabetical</option>
@@ -150,15 +150,15 @@ export function ConsentForm({
       )}
 
       {purposes.length === 0 ? (
-        <p className="py-6 text-center text-[13px] text-muted-foreground">
+        <p className="py-6 text-center text-[13px] text-zoru-ink-muted">
           No consent purposes are currently defined.
         </p>
       ) : filteredAndSortedPurposes.length === 0 ? (
-        <p className="py-6 text-center text-[13px] text-muted-foreground">
+        <p className="py-6 text-center text-[13px] text-zoru-ink-muted">
           No matching purposes found.
         </p>
       ) : (
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-zoru-line">
           {filteredAndSortedPurposes.map((p) => (
             <ConsentItem
               key={p._id}
@@ -172,7 +172,7 @@ export function ConsentForm({
       )}
       
       {error ? (
-        <p className="mt-4 text-[12.5px] text-accent-foreground font-medium bg-accent/10 p-2 rounded">{error}</p>
+        <p className="mt-4 text-[12.5px] text-zoru-ink font-medium bg-zoru-surface-2/10 p-2 rounded">{error}</p>
       ) : null}
       
       <div className="mt-4 flex justify-end">

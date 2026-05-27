@@ -262,7 +262,7 @@ export function CatalogClient({
                         size="icon"
                         onClick={() => handleDelete(item._id)}
                       >
-                        <Trash2 className="h-4 w-4 text-red-500" />
+                        <Trash2 className="h-4 w-4 text-zoru-ink" />
                       </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>

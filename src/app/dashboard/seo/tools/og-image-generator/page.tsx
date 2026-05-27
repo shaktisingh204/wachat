@@ -247,7 +247,7 @@ export default function OgImageGeneratorPage() {
 
         <div className="space-y-4">
           <Label>Preview</Label>
-          <div className="border rounded bg-muted/20 p-2">
+          <div className="border rounded bg-zoru-surface-2/20 p-2">
             <canvas 
               ref={canvasRef} 
               className="max-w-full rounded shadow-sm bg-white" 

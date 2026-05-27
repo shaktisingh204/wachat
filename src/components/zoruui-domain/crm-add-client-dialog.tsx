@@ -166,8 +166,8 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
       <ZoruDialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={handleFormAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle className="text-foreground">Create a New Client</ZoruDialogTitle>
-            <ZoruDialogDescription className="text-muted-foreground">
+            <ZoruDialogTitle className="text-zoru-ink">Create a New Client</ZoruDialogTitle>
+            <ZoruDialogDescription className="text-zoru-ink-muted">
               Add a new client to your CRM. Required fields are marked with an asterisk.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
@@ -192,7 +192,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       </SabFilePickerButton>
                       {logoUrl && (
                         <>
-                          <span className="text-xs text-muted-foreground truncate max-w-[200px]">{logoFileName || logoUrl}</span>
+                          <span className="text-xs text-zoru-ink-muted truncate max-w-[200px]">{logoFileName || logoUrl}</span>
                           <Button
                             type="button"
                             variant="ghost"
@@ -340,8 +340,8 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       {attachmentUrls.length > 0 && (
                         <ul className="flex flex-col gap-1.5">
                           {attachmentUrls.map((a, idx) => (
-                            <li key={`${a.url}-${idx}`} className="flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1.5">
-                              <span className="text-xs text-foreground truncate">{a.name}</span>
+                            <li key={`${a.url}-${idx}`} className="flex items-center justify-between gap-2 rounded-md border border-zoru-line px-2 py-1.5">
+                              <span className="text-xs text-zoru-ink truncate">{a.name}</span>
                               <Button
                                 type="button"
                                 variant="ghost"
@@ -366,41 +366,41 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                 <ZoruAccordionContent className="space-y-4 pt-2">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="gstin" className="text-foreground">GSTIN</Label>
-                      <Input id="gstin" name="gstin" placeholder="08XXXXXXXX1Z5" maxLength={20} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                      <Label htmlFor="gstin" className="text-zoru-ink">GSTIN</Label>
+                      <Input id="gstin" name="gstin" placeholder="08XXXXXXXX1Z5" maxLength={20} className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="pan" className="text-foreground">PAN</Label>
-                      <Input id="pan" name="pan" placeholder="ABCDE1234F" maxLength={20} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                      <Label htmlFor="pan" className="text-zoru-ink">PAN</Label>
+                      <Input id="pan" name="pan" placeholder="ABCDE1234F" maxLength={20} className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="billingAddress" className="text-foreground">Billing Address</Label>
-                    <Textarea id="billingAddress" name="billingAddress" rows={3} className="rounded-lg border-border bg-card text-[13px]" />
+                    <Label htmlFor="billingAddress" className="text-zoru-ink">Billing Address</Label>
+                    <Textarea id="billingAddress" name="billingAddress" rows={3} className="rounded-lg border-zoru-line bg-zoru-surface text-[13px]" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="shippingAddress" className="text-foreground">Shipping Address</Label>
-                    <Textarea id="shippingAddress" name="shippingAddress" rows={3} className="rounded-lg border-border bg-card text-[13px]" />
+                    <Label htmlFor="shippingAddress" className="text-zoru-ink">Shipping Address</Label>
+                    <Textarea id="shippingAddress" name="shippingAddress" rows={3} className="rounded-lg border-zoru-line bg-zoru-surface text-[13px]" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="annualRevenue" className="text-foreground">Annual Revenue</Label>
-                      <Input id="annualRevenue" name="annualRevenue" type="number" min={0} placeholder="e.g. 1000000" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                      <Label htmlFor="annualRevenue" className="text-zoru-ink">Annual Revenue</Label>
+                      <Input id="annualRevenue" name="annualRevenue" type="number" min={0} placeholder="e.g. 1000000" className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="employeeCount" className="text-foreground">Employee Count</Label>
-                      <Input id="employeeCount" name="employeeCount" type="number" min={0} placeholder="e.g. 250" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                      <Label htmlFor="employeeCount" className="text-zoru-ink">Employee Count</Label>
+                      <Input id="employeeCount" name="employeeCount" type="number" min={0} placeholder="e.g. 250" className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" />
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="accountCurrency" className="text-foreground">Currency</Label>
+                      <Label htmlFor="accountCurrency" className="text-zoru-ink">Currency</Label>
                       <EntityFormField entity="currency" name="accountCurrency" initialId="INR" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="paymentTerms" className="text-foreground">Payment Terms</Label>
+                      <Label htmlFor="paymentTerms" className="text-zoru-ink">Payment Terms</Label>
                       <Select name="paymentTerms" defaultValue="Net 30">
-                        <ZoruSelectTrigger id="paymentTerms" className="h-10 rounded-lg border-border bg-card text-[13px]"><ZoruSelectValue /></ZoruSelectTrigger>
+                        <ZoruSelectTrigger id="paymentTerms" className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"><ZoruSelectValue /></ZoruSelectTrigger>
                         <ZoruSelectContent>
                           <ZoruSelectItem value="Immediate">Immediate</ZoruSelectItem>
                           <ZoruSelectItem value="Net 15">Net 15</ZoruSelectItem>
@@ -411,9 +411,9 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="category" className="text-foreground">Category</Label>
+                      <Label htmlFor="category" className="text-zoru-ink">Category</Label>
                       <Select name="category" defaultValue="regular">
-                        <ZoruSelectTrigger id="category" className="h-10 rounded-lg border-border bg-card text-[13px]"><ZoruSelectValue /></ZoruSelectTrigger>
+                        <ZoruSelectTrigger id="category" className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"><ZoruSelectValue /></ZoruSelectTrigger>
                         <ZoruSelectContent>
                           <ZoruSelectItem value="new">New</ZoruSelectItem>
                           <ZoruSelectItem value="strategic">Strategic</ZoruSelectItem>
@@ -427,7 +427,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
               </ZoruAccordionItem>
               <ZoruAccordionItem value="account-details">
                 <ZoruAccordionTrigger>Account Details (Optional)</ZoruAccordionTrigger>
-                <ZoruAccordionContent className="pt-2 text-center text-muted-foreground">
+                <ZoruAccordionContent className="pt-2 text-center text-zoru-ink-muted">
                   <p className="text-sm">Enable Advanced Accounting to create or link ledger.</p>
                   <Button variant="outline" size="sm" className="mt-2" disabled>Enable Now</Button>
                 </ZoruAccordionContent>

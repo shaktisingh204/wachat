@@ -113,7 +113,7 @@ export function EntityCrudPage<T extends { _id?: string }>({
                 <ZoruTableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="sm" onClick={() => { setEditingItem(row); setIsDialogOpen(true); }}>Edit</Button>
-                    <Button variant="ghost" size="sm" className="text-red-500" onClick={() => handleDelete(row._id!)}>Del</Button>
+                    <Button variant="ghost" size="sm" className="text-zoru-ink" onClick={() => handleDelete(row._id!)}>Del</Button>
                   </div>
                 </ZoruTableCell>
               </ZoruTableRow>

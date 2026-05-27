@@ -153,8 +153,8 @@ async function CompensationBandDetailPageContainer({ params }: PageProps) {
                 <h3 className="mb-4 text-sm font-semibold text-zoru-ink">Compensation Range Overview</h3>
                 <div className="relative pt-6 pb-2 w-full max-w-2xl">
                     <div className="h-4 rounded-full bg-zoru-surface-2 relative w-full overflow-hidden border border-zoru-line">
-                        <div className="absolute top-0 bottom-0 left-[20%] right-[20%] bg-blue-100 opacity-50" />
-                        <div className="absolute top-0 bottom-0 left-[49%] w-2 bg-blue-500 rounded" />
+                        <div className="absolute top-0 bottom-0 left-[20%] right-[20%] bg-zoru-surface-2 opacity-50" />
+                        <div className="absolute top-0 bottom-0 left-[49%] w-2 bg-zoru-ink rounded" />
                     </div>
                     <div className="mt-2 flex justify-between text-[13px] font-medium text-zoru-ink-muted">
                         <div>

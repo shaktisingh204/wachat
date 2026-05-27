@@ -131,7 +131,7 @@ export default function LeaveBalanceClient({
     >
       <div className="hidden md:block">
         <Card className="p-0 border-0 shadow-none bg-transparent">
-          <div className="overflow-x-auto rounded-lg border border-zoru-line bg-white dark:bg-zinc-950">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line bg-white dark:bg-zoru-ink">
             <table className="w-full text-left text-[13px] border-collapse relative min-w-max">
               <thead>
                 <tr className="border-b border-zoru-line">
@@ -141,7 +141,7 @@ export default function LeaveBalanceClient({
                   {types.map((t) => (
                     <th
                       key={String(t._id)}
-                      className="px-4 py-3 text-zoru-ink-muted whitespace-nowrap min-w-[150px] bg-white dark:bg-zinc-950"
+                      className="px-4 py-3 text-zoru-ink-muted whitespace-nowrap min-w-[150px] bg-white dark:bg-zoru-ink"
                     >
                       <span className="inline-flex items-center gap-1.5">
                         <span
@@ -201,7 +201,7 @@ export default function LeaveBalanceClient({
                             <td key={String(t._id)} className="px-4 py-3 group/cell relative hover:bg-zoru-surface">
                               <div className="flex flex-col gap-1.5 w-full min-w-[120px] max-w-[180px]">
                                 <div className="flex justify-between items-center text-[12px]">
-                                  <span className={low ? 'text-red-500 font-medium' : 'text-zoru-ink font-medium'}>
+                                  <span className={low ? 'text-zoru-ink font-medium' : 'text-zoru-ink font-medium'}>
                                     {row.remaining} left
                                   </span>
                                   <span className="text-zoru-ink-muted">
@@ -215,7 +215,7 @@ export default function LeaveBalanceClient({
                                   />
                                 </div>
                                 {row.topup ? (
-                                  <div className="text-[10px] text-green-600 dark:text-green-500 text-right h-4">
+                                  <div className="text-[10px] text-zoru-ink dark:text-zoru-ink text-right h-4">
                                     +{row.topup} top-up
                                   </div>
                                 ) : (
@@ -226,7 +226,7 @@ export default function LeaveBalanceClient({
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="h-6 text-[11px] px-2 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm"
+                                  className="h-6 text-[11px] px-2 bg-white/95 dark:bg-zoru-ink/95 backdrop-blur-sm"
                                   onClick={() => {
                                     setTopupForm({
                                       employeeId: r.employee_id,
@@ -287,7 +287,7 @@ export default function LeaveBalanceClient({
                             {t.type_name}
                           </span>
                           <div className="flex items-center gap-2">
-                            <span className={low ? 'text-red-500 font-medium text-xs' : 'text-zoru-ink font-medium text-xs'}>
+                            <span className={low ? 'text-zoru-ink font-medium text-xs' : 'text-zoru-ink font-medium text-xs'}>
                               {row.remaining} left
                             </span>
                             <Button
@@ -319,7 +319,7 @@ export default function LeaveBalanceClient({
                         <div className="flex justify-between text-[11px] text-zoru-ink-muted">
                           <span>Used: {row.used} / {row.allocated}</span>
                           {row.topup ? (
-                            <span className="text-green-600 dark:text-green-500">
+                            <span className="text-zoru-ink dark:text-zoru-ink">
                               +{row.topup} top-up
                             </span>
                           ) : null}

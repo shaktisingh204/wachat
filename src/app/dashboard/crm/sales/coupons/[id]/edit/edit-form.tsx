@@ -95,7 +95,7 @@ export function EditCouponForm({
 
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="code">
-                        Coupon Code <span className="text-red-500">*</span>
+                        Coupon Code <span className="text-zoru-ink">*</span>
                     </Label>
                     <Input
                         id="code"
@@ -223,7 +223,7 @@ export function EditCouponForm({
                 </div>
 
                 {state.error ? (
-                    <p className="text-[13px] text-red-500">{state.error}</p>
+                    <p className="text-[13px] text-zoru-ink">{state.error}</p>
                 ) : null}
 
                 <div className="flex items-center gap-3">

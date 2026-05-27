@@ -115,10 +115,10 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <ZoruPopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className={cn("relative h-10 w-10 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground", className)}>
+                <Button variant="ghost" size="icon" className={cn("relative h-10 w-10 rounded-xl text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink", className)}>
                     <Bell className="h-5 w-5" />
                     {unreadCount > 0 && (
-                        <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-600 ring-2 ring-background" />
+                        <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-zoru-ink ring-2 ring-background" />
                     )}
                 </Button>
             </ZoruPopoverTrigger>
@@ -134,11 +134,11 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
                 </div>
 
                 <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <div className="border-b bg-muted/30 relative flex items-center">
+                    <div className="border-b bg-zoru-surface-2/30 relative flex items-center">
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 absolute left-0 z-10 bg-background/80 backdrop-blur-sm rounded-none border-r shadow-sm"
+                            className="h-8 w-8 absolute left-0 z-10 bg-zoru-surface/80 backdrop-blur-sm rounded-none border-r shadow-sm"
                             onClick={(e) => { e.stopPropagation(); scroll('left'); }}
                         >
                             <ChevronLeft className="h-4 w-4" />
@@ -166,7 +166,7 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 absolute right-0 z-10 bg-background/80 backdrop-blur-sm rounded-none border-l shadow-sm"
+                            className="h-8 w-8 absolute right-0 z-10 bg-zoru-surface/80 backdrop-blur-sm rounded-none border-l shadow-sm"
                             onClick={(e) => { e.stopPropagation(); scroll('right'); }}
                         >
                             <ChevronRight className="h-4 w-4" />
@@ -176,7 +176,7 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
                     <ZoruTabsContent value={activeTab} className="m-0 focus-visible:ring-0 focus-visible:outline-none">
                         <ScrollArea className="h-[400px]">
                             {loading ? (
-                                <div className="flex flex-col items-center justify-center h-48 text-muted-foreground gap-2">
+                                <div className="flex flex-col items-center justify-center h-48 text-zoru-ink-muted gap-2">
                                     <Loader2 className="h-8 w-8 animate-spin" />
                                     <p className="text-sm">Loading updates...</p>
                                 </div>
@@ -186,8 +186,8 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
                                         <div
                                             key={notification._id.toString()}
                                             className={cn(
-                                                "p-4 hover:bg-muted/50 transition-colors cursor-pointer group relative",
-                                                !notification.isRead ? "bg-muted/30" : ""
+                                                "p-4 hover:bg-zoru-surface-2/50 transition-colors cursor-pointer group relative",
+                                                !notification.isRead ? "bg-zoru-surface-2/30" : ""
                                             )}
                                             onClick={() => {
                                                 if (!notification.isRead) handleMarkAsRead(notification._id.toString(), { stopPropagation: () => { } } as any);
@@ -200,13 +200,13 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
                                             <div className="flex gap-3">
                                                 <div className={cn(
                                                     "mt-1 h-2 w-2 rounded-full shrink-0",
-                                                    !notification.isRead ? "bg-blue-600" : "bg-transparent"
+                                                    !notification.isRead ? "bg-zoru-ink" : "bg-transparent"
                                                 )} />
                                                 <div className="space-y-1 flex-1">
                                                     <p className={cn("text-sm leading-snug", !notification.isRead && "font-medium")}>
                                                         {notification.message}
                                                     </p>
-                                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                    <div className="flex items-center gap-2 text-xs text-zoru-ink-muted">
                                                         <span>{new Date(notification.createdAt).toLocaleDateString()}</span>
                                                         <span>•</span>
                                                         <span className="capitalize">{notification.sourceApp || 'System'}</span>
@@ -229,19 +229,19 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center justify-center h-48 text-muted-foreground text-center p-4">
+                                <div className="flex flex-col items-center justify-center h-48 text-zoru-ink-muted text-center p-4">
                                     <Bell className="h-10 w-10 mb-2 opacity-20" />
                                     <p className="text-sm font-medium">No notifications</p>
-                                    <p className="text-xs text-muted-foreground/70 mt-1">
+                                    <p className="text-xs text-zoru-ink-muted/70 mt-1">
                                         You're all caught up!
                                     </p>
                                 </div>
                             )}
                         </ScrollArea>
-                        <div className="p-2 border-t bg-muted/10 text-center">
+                        <div className="p-2 border-t bg-zoru-surface-2/10 text-center">
                             <Link
                                 href="/dashboard/notifications"
-                                className="text-xs text-primary hover:underline"
+                                className="text-xs text-zoru-ink hover:underline"
                                 onClick={() => setOpen(false)}
                             >
                                 View full history

@@ -28,7 +28,7 @@ export default function AttendanceClient({
     return (
       <Card className="max-w-md mx-auto mt-10">
         <CardContent className="pt-6">
-          <div className="text-center text-red-500">
+          <div className="text-center text-zoru-ink">
             You do not have an employee profile linked to your account. Please contact your administrator.
           </div>
         </CardContent>
@@ -103,7 +103,7 @@ export default function AttendanceClient({
             {hasPunchedOut ? (
               <Badge variant="outline">Done</Badge>
             ) : hasPunchedIn ? (
-              <Badge variant="default" className="bg-green-500 hover:bg-green-600">Active</Badge>
+              <Badge variant="default" className="bg-zoru-ink hover:bg-zoru-ink">Active</Badge>
             ) : (
               <Badge variant="outline">Idle</Badge>
             )}
@@ -132,7 +132,7 @@ export default function AttendanceClient({
         </div>
 
         {todayAttendance && (
-           <div className="rounded-md bg-zoru-bg-muted p-4 text-sm mt-4">
+           <div className="rounded-md bg-zoru-bg-zoru-surface-2 p-4 text-sm mt-4">
              <div className="flex justify-between mb-2">
                <span className="text-zoru-text-soft">Clock In:</span>
                <span className="font-medium">

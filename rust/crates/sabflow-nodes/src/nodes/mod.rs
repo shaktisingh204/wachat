@@ -705,6 +705,7 @@ fn register_implemented(r: &mut NodeRegistry) {
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
+#[allow(dead_code)]
 fn register_stubs(r: &mut NodeRegistry) {
     let stubs: &[(&str, &str, NodeCategory, &str)] = &[
         // (name, displayName, category, description)

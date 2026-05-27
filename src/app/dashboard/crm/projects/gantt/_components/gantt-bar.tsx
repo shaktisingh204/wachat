@@ -35,17 +35,17 @@ export interface GanttBarProps {
 }
 
 const STATUS_BG: Record<string, string> = {
-  done: 'bg-emerald-500/80 border-emerald-600',
-  completed: 'bg-emerald-500/80 border-emerald-600',
-  'in-progress': 'bg-amber-500/80 border-amber-600',
-  review: 'bg-sky-500/80 border-sky-600',
-  todo: 'bg-zinc-400/70 border-zinc-500',
-  incomplete: 'bg-zinc-400/70 border-zinc-500',
+  done: 'bg-zoru-ink/80 border-zoru-line',
+  completed: 'bg-zoru-ink/80 border-zoru-line',
+  'in-progress': 'bg-zoru-ink/80 border-zoru-line',
+  review: 'bg-zoru-ink/80 border-zoru-line',
+  todo: 'bg-zoru-surface-2/70 border-zoru-line',
+  incomplete: 'bg-zoru-surface-2/70 border-zoru-line',
 };
 
 const PRIORITY_RING: Record<string, string> = {
-  urgent: 'ring-2 ring-rose-500/50',
-  high: 'ring-2 ring-amber-500/40',
+  urgent: 'ring-2 ring-zoru-line/50',
+  high: 'ring-2 ring-zoru-line/40',
 };
 
 export function GanttBar({
@@ -59,7 +59,7 @@ export function GanttBar({
   const barTop = top + (rowHeight - GANTT_BAR_HEIGHT) / 2;
   const statusClass = STATUS_BG[task.status ?? ''] ?? STATUS_BG.todo;
   const priorityRing = PRIORITY_RING[task.priority ?? ''] ?? '';
-  const criticalRing = task.isCritical ? 'ring-2 ring-red-500 ring-offset-1 ring-offset-zoru-bg shadow-md z-10' : '';
+  const criticalRing = task.isCritical ? 'ring-2 ring-zoru-line ring-offset-1 ring-offset-zoru-bg shadow-md z-10' : '';
 
   return (
     <div

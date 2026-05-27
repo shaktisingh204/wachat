@@ -86,7 +86,7 @@ export function Crm360Timeline({
     whatsapp: <Send className="h-3.5 w-3.5 text-zoru-success-ink" />,
     email: <Mail className="h-3.5 w-3.5 text-zoru-warning-ink" />,
     audit: <FileClock className="h-3.5 w-3.5 text-zoru-ink-muted" />,
-    task: <CheckSquare className="h-3.5 w-3.5 text-primary" />,
+    task: <CheckSquare className="h-3.5 w-3.5 text-zoru-ink" />,
   };
 
   const badgeVariants = {
@@ -196,7 +196,7 @@ export function Crm360Timeline({
                 <div className="flex items-center justify-between border-b border-zoru-line pb-2 mb-2.5">
                   <div className="flex items-center gap-2">
                     <Avatar className="h-6.5 w-6.5 border border-zoru-line">
-                      <ZoruAvatarFallback className="bg-accent text-[9px]">
+                      <ZoruAvatarFallback className="bg-zoru-surface-2 text-[9px]">
                         {item.actorName.charAt(0)}
                       </ZoruAvatarFallback>
                     </Avatar>

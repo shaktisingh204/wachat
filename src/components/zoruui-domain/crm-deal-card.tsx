@@ -35,7 +35,7 @@ export function CrmDealCard({ deal, contact, account, taskCount = 0, index }: Cr
                         <h3 className="text-sm font-semibold text-zoru-ink">{deal.name}</h3>
                     </div>
                     <div className="p-3 pt-0 text-sm space-y-2">
-                        <p className="font-bold text-primary">{new Intl.NumberFormat('en-US', { style: 'currency', currency: deal.currency || 'USD' }).format(deal.value)}</p>
+                        <p className="font-bold text-zoru-ink">{new Intl.NumberFormat('en-US', { style: 'currency', currency: deal.currency || 'USD' }).format(deal.value)}</p>
                         {account && <div className="flex items-center gap-2 text-xs text-zoru-ink-muted"><Building className="h-3 w-3" /><span>{account.name}</span></div>}
                         {contact && <div className="flex items-center gap-2 text-xs text-zoru-ink-muted"><User className="h-3 w-3" /><span>{contact.name}</span></div>}
                     </div>

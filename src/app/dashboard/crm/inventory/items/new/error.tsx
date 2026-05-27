@@ -17,9 +17,9 @@ export default function NewItemError({
 
     return (
         <div className="flex h-[50vh] items-center justify-center p-6">
-            <Card className="max-w-md w-full border-red-200">
+            <Card className="max-w-md w-full border-zoru-line">
                 <ZoruCardHeader>
-                    <div className="flex items-center gap-2 text-red-600">
+                    <div className="flex items-center gap-2 text-zoru-ink">
                         <AlertCircle className="h-5 w-5" />
                         <ZoruCardTitle>Failed to load</ZoruCardTitle>
                     </div>

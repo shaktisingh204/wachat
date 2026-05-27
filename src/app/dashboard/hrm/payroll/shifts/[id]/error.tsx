@@ -17,7 +17,7 @@ export default function ShiftDetailError({
 
   return (
     <div className="flex h-[50vh] flex-col items-center justify-center gap-4 p-6">
-      <AlertCircle className="h-10 w-10 text-destructive" />
+      <AlertCircle className="h-10 w-10 text-zoru-ink" />
       <h2 className="text-lg font-semibold text-zoru-ink">Something went wrong!</h2>
       <p className="text-sm text-zoru-ink-muted">
         {error.message || "Failed to load the shift details."}

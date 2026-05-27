@@ -30,8 +30,8 @@ export function CountdownRedirect({ redirectUrl = '/', countdownSeconds = 5 }: C
   }, [redirectUrl, router]);
 
   return (
-    <div className="mt-6 flex flex-col items-center gap-4 border-t border-border/40 pt-6">
-      <p className="text-[13px] text-muted-foreground">
+    <div className="mt-6 flex flex-col items-center gap-4 border-t border-zoru-line/40 pt-6">
+      <p className="text-[13px] text-zoru-ink-muted">
         Redirecting back in {countdown} seconds...
       </p>
       <Button 

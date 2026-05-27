@@ -97,11 +97,11 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
             <div className={cn("admin-dashboard flex h-screen w-full", isSparklesEnabled && 'diwali-theme')}>
                 {isSparklesEnabled && (
                     <div className="absolute inset-0 pointer-events-none z-0">
-                        <Sparkles className="absolute top-4 right-4 h-8 w-8 text-primary/50 animate-pulse" />
-                        <Sparkles className="absolute top-20 left-80 h-12 w-12 text-primary/30 animate-pulse" style={{ animationDelay: '0.5s' }} />
-                        <Sparkles className="absolute bottom-16 right-20 h-16 w-16 text-primary/40 animate-pulse" style={{ animationDelay: '1s' }} />
-                        <Sparkles className="absolute bottom-4 left-4 h-6 w-6 text-primary/50 animate-pulse" style={{ animationDelay: '1.5s' }} />
-                        <Sparkles className="absolute top-1/2 left-1/2 h-10 w-10 text-primary/30 animate-pulse" style={{ animationDelay: '2s' }} />
+                        <Sparkles className="absolute top-4 right-4 h-8 w-8 text-zoru-ink/50 animate-pulse" />
+                        <Sparkles className="absolute top-20 left-80 h-12 w-12 text-zoru-ink/30 animate-pulse" style={{ animationDelay: '0.5s' }} />
+                        <Sparkles className="absolute bottom-16 right-20 h-16 w-16 text-zoru-ink/40 animate-pulse" style={{ animationDelay: '1s' }} />
+                        <Sparkles className="absolute bottom-4 left-4 h-6 w-6 text-zoru-ink/50 animate-pulse" style={{ animationDelay: '1.5s' }} />
+                        <Sparkles className="absolute top-1/2 left-1/2 h-10 w-10 text-zoru-ink/30 animate-pulse" style={{ animationDelay: '2s' }} />
                     </div>
                 )}
                 <Sidebar>
@@ -139,14 +139,14 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
                     </SidebarFooter>
                 </Sidebar>
                 <div className="flex-1 flex flex-col relative">
-                    <header className="flex items-center justify-between p-3 border-b bg-background sticky top-0 z-10 shrink-0">
+                    <header className="flex items-center justify-between p-3 border-b bg-zoru-surface sticky top-0 z-10 shrink-0">
                         <div className="flex items-center gap-2">
                             <SidebarTrigger>
                                 <Button variant="ghost" size="icon">
                                     <PanelLeft />
                                 </Button>
                             </SidebarTrigger>
-                            <div className="text-sm font-semibold text-primary">Admin Panel</div>
+                            <div className="text-sm font-semibold text-zoru-ink">Admin Panel</div>
                         </div>
                         <div className="flex items-center gap-1">
                             <DropdownMenu>

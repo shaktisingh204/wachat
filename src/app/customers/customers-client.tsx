@@ -13,7 +13,7 @@ const STORIES = [
     {
         name: 'Sole Co.',
         industry: 'D2C footwear · ₹140Cr ARR',
-        accent: 'from-emerald-400 to-teal-500',
+        accent: 'from-zoru-surface-2 to-zoru-ink',
         kpi: [
             { v: '+184%', l: 'WhatsApp conv' },
             { v: '−68%', l: 'Support time' },
@@ -25,7 +25,7 @@ const STORIES = [
     {
         name: 'Stark Industries',
         industry: 'SaaS · Series B',
-        accent: 'from-violet-400 to-fuchsia-500',
+        accent: 'from-zoru-surface-2 to-zoru-ink',
         kpi: [
             { v: '−72%', l: 'CAC' },
             { v: '4.8/5', l: 'CSAT' },
@@ -37,7 +37,7 @@ const STORIES = [
     {
         name: 'Globex Corp.',
         industry: 'B2B · Manufacturing',
-        accent: 'from-sky-400 to-indigo-500',
+        accent: 'from-zoru-surface-2 to-zoru-ink',
         kpi: [
             { v: '12d', l: 'Time to launch' },
             { v: '₹3.2L', l: 'Saved / mo' },
@@ -64,7 +64,7 @@ export function CustomersClient({ session }: CustomerProps) {
         <MarketingShell session={session}>
             <PageHero
                 kicker="Customers · 12,000+ teams"
-                title={<>Teams that swapped their stack for <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 bg-clip-text text-transparent">one bill.</span></>}
+                title={<>Teams that swapped their stack for <span className="bg-gradient-to-r from-zoru-ink via-zoru-ink to-zoru-ink bg-clip-text text-transparent">one bill.</span></>}
                 subtitle="From D2C unicorns to series-A SaaS to legacy manufacturers — see how teams across India ship faster with SabNode."
             />
 
@@ -78,30 +78,30 @@ export function CustomersClient({ session }: CustomerProps) {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
-                            className="grid items-start gap-10 rounded-3xl border border-zinc-200 bg-white p-8 md:p-12 lg:grid-cols-[1fr_1.3fr]"
+                            className="grid items-start gap-10 rounded-3xl border border-zoru-line bg-white p-8 md:p-12 lg:grid-cols-[1fr_1.3fr]"
                         >
                             <div>
                                 <div className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${s.accent} text-xl font-black text-white shadow-md`}>
                                     {s.name[0]}
                                 </div>
-                                <h3 className="mt-5 text-3xl font-semibold tracking-tight text-zinc-950">{s.name}</h3>
-                                <p className="mt-1 text-[13px] text-zinc-500">{s.industry}</p>
+                                <h3 className="mt-5 text-3xl font-semibold tracking-tight text-zoru-ink">{s.name}</h3>
+                                <p className="mt-1 text-[13px] text-zoru-ink">{s.industry}</p>
                                 <div className="mt-6 grid grid-cols-3 gap-3">
                                     {s.kpi.map((k) => (
                                         <div key={k.l}>
-                                            <p className="text-2xl font-semibold text-zinc-950">{k.v}</p>
-                                            <p className="mt-1 text-[10px] uppercase tracking-wider text-zinc-500">{k.l}</p>
+                                            <p className="text-2xl font-semibold text-zoru-ink">{k.v}</p>
+                                            <p className="mt-1 text-[10px] uppercase tracking-wider text-zoru-ink">{k.l}</p>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                             <div>
-                                <Quote className="h-7 w-7 text-amber-500" />
-                                <p className="mt-5 text-pretty text-2xl font-medium leading-snug text-zinc-900">
+                                <Quote className="h-7 w-7 text-zoru-ink" />
+                                <p className="mt-5 text-pretty text-2xl font-medium leading-snug text-zoru-ink">
                                     &ldquo;{s.quote}&rdquo;
                                 </p>
-                                <p className="mt-5 text-sm font-semibold text-zinc-700">{s.who}</p>
-                                <Link href="/contact" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-amber-700">
+                                <p className="mt-5 text-sm font-semibold text-zoru-ink">{s.who}</p>
+                                <Link href="/contact" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-zoru-ink">
                                     Read the full story <ArrowUpRight className="h-3.5 w-3.5" />
                                 </Link>
                             </div>
@@ -112,8 +112,8 @@ export function CustomersClient({ session }: CustomerProps) {
 
             {/* ALL LOGOS GRID */}
             <SectionWrap bg="white">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">More teams</p>
-                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">More teams</p>
+                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                     Joining 12,000+ companies in 14 countries.
                 </h2>
                 <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -124,11 +124,11 @@ export function CustomersClient({ session }: CustomerProps) {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.03 }}
-                            className="rounded-2xl border border-zinc-200 bg-[#fafaf7] p-5"
+                            className="rounded-2xl border border-zoru-line bg-zoru-surface p-5"
                         >
-                            <p className="text-lg font-semibold text-zinc-950">{a.name}</p>
-                            <p className="text-[12px] text-zinc-500">{a.tag}</p>
-                            <p className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-amber-700">
+                            <p className="text-lg font-semibold text-zoru-ink">{a.name}</p>
+                            <p className="text-[12px] text-zoru-ink">{a.tag}</p>
+                            <p className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-zoru-ink">
                                 <TrendingUp className="h-3 w-3" /> {a.metric}
                             </p>
                         </m.div>
@@ -139,7 +139,7 @@ export function CustomersClient({ session }: CustomerProps) {
             {/* CTA */}
             <SectionWrap>
                 <m.div initial={{ opacity: 0, scale: 0.96 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-                    className="relative overflow-hidden rounded-3xl bg-zinc-950 px-8 py-16 text-white md:px-16">
+                    className="relative overflow-hidden rounded-3xl bg-zoru-ink px-8 py-16 text-white md:px-16">
                     <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl" style={{ background: 'rgba(251,146,60,0.45)' }} />
                     <h2 className="relative text-balance text-4xl font-semibold tracking-tight md:text-5xl">
                         Your story is next.
@@ -147,7 +147,7 @@ export function CustomersClient({ session }: CustomerProps) {
                     <p className="relative mt-4 max-w-2xl text-base text-white/70">
                         Talk to our team — we&apos;ll show you exactly how teams in your industry use SabNode.
                     </p>
-                    <Link href="/contact" className="relative mt-8 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg">
+                    <Link href="/contact" className="relative mt-8 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-zoru-surface-2 via-zoru-ink to-zoru-ink px-5 py-2.5 text-sm font-semibold text-white shadow-lg">
                         Book a call <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                 </m.div>

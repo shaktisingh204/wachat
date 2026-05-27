@@ -55,7 +55,7 @@ export function SabpublishReviewsTab({
                 <div className="font-medium">
                   {r.reviewerName ?? 'Anonymous'} · {r.rating}★
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-zoru-ink-muted">
                   {r.providerId} · {new Date(r.postedAt).toLocaleString()}
                 </div>
               </div>
@@ -65,8 +65,8 @@ export function SabpublishReviewsTab({
             </div>
             {r.body ? <p className="text-sm">{r.body}</p> : null}
             {r.replyBody ? (
-              <div className="rounded-md bg-muted p-3 text-sm">
-                <div className="text-xs font-medium uppercase text-muted-foreground">
+              <div className="rounded-md bg-zoru-surface-2 p-3 text-sm">
+                <div className="text-xs font-medium uppercase text-zoru-ink-muted">
                   Your reply
                 </div>
                 <div>{r.replyBody}</div>

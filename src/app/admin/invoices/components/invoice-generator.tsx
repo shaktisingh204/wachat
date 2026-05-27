@@ -346,40 +346,40 @@ export function InvoiceGenerator() {
             }}
           >
             {/* Header */}
-            <div className="flex justify-between items-start border-b border-gray-200 pb-8 mb-8">
+            <div className="flex justify-between items-start border-b border-zoru-line pb-8 mb-8">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">INVOICE</h1>
-                <p className="text-gray-500 font-medium">{invoiceData.invoiceNumber}</p>
+                <h1 className="text-4xl font-bold text-zoru-ink mb-2">INVOICE</h1>
+                <p className="text-zoru-ink font-medium">{invoiceData.invoiceNumber}</p>
               </div>
               <div className="text-right">
-                <h2 className="text-xl font-bold text-gray-800">{invoiceData.sender.name}</h2>
-                <p className="text-gray-500 whitespace-pre-line text-sm mt-1">{invoiceData.sender.address}</p>
-                <p className="text-gray-500 text-sm">{invoiceData.sender.email}</p>
+                <h2 className="text-xl font-bold text-zoru-ink">{invoiceData.sender.name}</h2>
+                <p className="text-zoru-ink whitespace-pre-line text-sm mt-1">{invoiceData.sender.address}</p>
+                <p className="text-zoru-ink text-sm">{invoiceData.sender.email}</p>
               </div>
             </div>
 
             {/* Meta Info */}
             <div className="grid grid-cols-2 gap-8 mb-8">
               <div>
-                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Billed To</h3>
+                <h3 className="text-xs font-bold text-zoru-ink-muted uppercase tracking-wider mb-2">Billed To</h3>
                 {invoiceData.receiver.name ? (
                   <>
-                    <p className="font-bold text-gray-800">{invoiceData.receiver.name}</p>
-                    <p className="text-gray-600 whitespace-pre-line text-sm mt-1">{invoiceData.receiver.address}</p>
-                    <p className="text-gray-600 text-sm">{invoiceData.receiver.email}</p>
+                    <p className="font-bold text-zoru-ink">{invoiceData.receiver.name}</p>
+                    <p className="text-zoru-ink whitespace-pre-line text-sm mt-1">{invoiceData.receiver.address}</p>
+                    <p className="text-zoru-ink text-sm">{invoiceData.receiver.email}</p>
                   </>
                 ) : (
-                  <p className="text-gray-400 italic text-sm">Client details not provided</p>
+                  <p className="text-zoru-ink-muted italic text-sm">Client details not provided</p>
                 )}
               </div>
               <div className="text-right">
                 <div className="mb-4">
-                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Invoice Date</h3>
-                  <p className="text-gray-800 font-medium">{invoiceData.date || "-"}</p>
+                  <h3 className="text-xs font-bold text-zoru-ink-muted uppercase tracking-wider mb-1">Invoice Date</h3>
+                  <p className="text-zoru-ink font-medium">{invoiceData.date || "-"}</p>
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Due Date</h3>
-                  <p className="text-gray-800 font-medium">{invoiceData.dueDate || "-"}</p>
+                  <h3 className="text-xs font-bold text-zoru-ink-muted uppercase tracking-wider mb-1">Due Date</h3>
+                  <p className="text-zoru-ink font-medium">{invoiceData.dueDate || "-"}</p>
                 </div>
               </div>
             </div>
@@ -387,20 +387,20 @@ export function InvoiceGenerator() {
             {/* Table */}
             <table className="w-full mb-8">
               <thead>
-                <tr className="border-b-2 border-gray-800 text-left">
-                  <th className="py-3 text-sm font-bold text-gray-800">Description</th>
-                  <th className="py-3 text-sm font-bold text-gray-800 text-center w-24">Qty</th>
-                  <th className="py-3 text-sm font-bold text-gray-800 text-right w-32">Rate</th>
-                  <th className="py-3 text-sm font-bold text-gray-800 text-right w-32">Amount</th>
+                <tr className="border-b-2 border-zoru-line text-left">
+                  <th className="py-3 text-sm font-bold text-zoru-ink">Description</th>
+                  <th className="py-3 text-sm font-bold text-zoru-ink text-center w-24">Qty</th>
+                  <th className="py-3 text-sm font-bold text-zoru-ink text-right w-32">Rate</th>
+                  <th className="py-3 text-sm font-bold text-zoru-ink text-right w-32">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, index) => (
-                  <tr key={index} className="border-b border-gray-200">
-                    <td className="py-4 text-sm text-gray-800">{item.description || "-"}</td>
-                    <td className="py-4 text-sm text-gray-800 text-center">{item.quantity}</td>
-                    <td className="py-4 text-sm text-gray-800 text-right">{formatCurrency(item.rate)}</td>
-                    <td className="py-4 text-sm text-gray-800 text-right font-medium">
+                  <tr key={index} className="border-b border-zoru-line">
+                    <td className="py-4 text-sm text-zoru-ink">{item.description || "-"}</td>
+                    <td className="py-4 text-sm text-zoru-ink text-center">{item.quantity}</td>
+                    <td className="py-4 text-sm text-zoru-ink text-right">{formatCurrency(item.rate)}</td>
+                    <td className="py-4 text-sm text-zoru-ink text-right font-medium">
                       {formatCurrency(item.quantity * item.rate)}
                     </td>
                   </tr>
@@ -411,23 +411,23 @@ export function InvoiceGenerator() {
             {/* Totals */}
             <div className="flex justify-end mb-12">
               <div className="w-72 space-y-3">
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-sm text-zoru-ink">
                   <span>Subtotal</span>
                   <span>{formatCurrency(subtotal)}</span>
                 </div>
                 {invoiceData.discountRate > 0 && (
-                  <div className="flex justify-between text-sm text-gray-600">
+                  <div className="flex justify-between text-sm text-zoru-ink">
                     <span>Discount ({invoiceData.discountRate}%)</span>
-                    <span className="text-red-500">-{formatCurrency(discount)}</span>
+                    <span className="text-zoru-ink">-{formatCurrency(discount)}</span>
                   </div>
                 )}
                 {invoiceData.taxRate > 0 && (
-                  <div className="flex justify-between text-sm text-gray-600">
+                  <div className="flex justify-between text-sm text-zoru-ink">
                     <span>Tax ({invoiceData.taxRate}%)</span>
                     <span>{formatCurrency(tax)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-lg font-bold text-gray-900 border-t border-gray-200 pt-3">
+                <div className="flex justify-between text-lg font-bold text-zoru-ink border-t border-zoru-line pt-3">
                   <span>Total</span>
                   <span>{formatCurrency(total)}</span>
                 </div>
@@ -436,9 +436,9 @@ export function InvoiceGenerator() {
 
             {/* Notes */}
             {invoiceData.notes && (
-              <div className="border-t border-gray-200 pt-8">
-                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Notes</h3>
-                <p className="text-sm text-gray-600 whitespace-pre-line">{invoiceData.notes}</p>
+              <div className="border-t border-zoru-line pt-8">
+                <h3 className="text-xs font-bold text-zoru-ink-muted uppercase tracking-wider mb-2">Notes</h3>
+                <p className="text-sm text-zoru-ink whitespace-pre-line">{invoiceData.notes}</p>
               </div>
             )}
           </div>

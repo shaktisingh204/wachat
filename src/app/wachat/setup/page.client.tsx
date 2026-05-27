@@ -140,7 +140,7 @@ function ConfigError() {
         <ZoruAlertTitle>Configuration Missing</ZoruAlertTitle>
         <ZoruAlertDescription className="space-y-2 mt-2">
           <p>Add these env variables to your <code>.env</code> file:</p>
-          <ul className="list-disc list-inside text-xs space-y-1 font-mono bg-destructive/10 rounded-lg p-3">
+          <ul className="list-disc list-inside text-xs space-y-1 font-mono bg-zoru-ink/10 rounded-lg p-3">
             <li>NEXT_PUBLIC_META_ONBOARDING_APP_ID</li>
             <li>NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID</li>
           </ul>
@@ -154,37 +154,37 @@ function HeroSection({ appId, configId, includeCatalog, setIncludeCatalog }: { a
   return (
     <div className="mb-14 text-center space-y-5">
       <div className="relative mx-auto w-fit">
-        <div className="absolute inset-0 rounded-3xl bg-emerald-200 opacity-40 blur-xl scale-110" />
-        <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-600 shadow-[0_8px_32px_rgba(5,150,105,0.28)]">
+        <div className="absolute inset-0 rounded-3xl bg-zoru-surface-2 opacity-40 blur-xl scale-110" />
+        <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-zoru-ink shadow-[0_8px_32px_rgba(5,150,105,0.28)]">
           <MessageCircle className="h-10 w-10 text-white" />
         </div>
-        <div className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-lime-400 shadow-lg shadow-lime-400/50" />
-        <div className="absolute -bottom-1 -left-1 h-3 w-3 rounded-full bg-teal-400 shadow-lg" />
+        <div className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-zoru-surface-2 shadow-lg shadow-zoru-line/50" />
+        <div className="absolute -bottom-1 -left-1 h-3 w-3 rounded-full bg-zoru-surface-2 shadow-lg" />
       </div>
 
-      <Badge className="rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 px-4 py-1 text-xs font-semibold hover:bg-emerald-100">
+      <Badge className="rounded-full bg-zoru-surface-2 text-zoru-ink border border-zoru-line px-4 py-1 text-xs font-semibold hover:bg-zoru-surface-2">
         <Sparkles className="mr-1.5 h-3 w-3" /> Official Meta Embedded Signup
       </Badge>
 
       <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-        Connect Your <span className="text-emerald-700">WhatsApp Account</span>
+        Connect Your <span className="text-zoru-ink">WhatsApp Account</span>
       </h1>
 
-      <p className="mx-auto max-w-xl text-lg text-muted-foreground leading-relaxed">
+      <p className="mx-auto max-w-xl text-lg text-zoru-ink-muted leading-relaxed">
         Securely link your WhatsApp Business Account to unlock messaging, automation, CRM and AI — all from one dashboard.
       </p>
 
       <Dialog>
         <ZoruDialogTrigger asChild>
-          <Button size="lg" className="rounded-full px-10 text-base shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-[1.03] transition-all mt-2">
+          <Button size="lg" className="rounded-full px-10 text-base shadow-xl shadow-zoru-line/30 hover:shadow-zoru-line/50 hover:scale-[1.03] transition-all mt-2">
             <MessageCircle className="mr-2 h-5 w-5" />
             Connect WhatsApp Account
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </ZoruDialogTrigger>
-        <ZoruDialogContent className="sm:max-w-md rounded-3xl border-emerald-200/40">
+        <ZoruDialogContent className="sm:max-w-md rounded-3xl border-zoru-line/40">
           <ZoruDialogHeader>
-            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-600">
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-zoru-ink">
               <MessageCircle className="h-5 w-5 text-white" />
             </div>
             <ZoruDialogTitle className="text-lg">Guided WhatsApp Setup</ZoruDialogTitle>
@@ -201,18 +201,18 @@ function HeroSection({ appId, configId, includeCatalog, setIncludeCatalog }: { a
               state="whatsapp"
             />
 
-            <div className="flex items-start gap-3 rounded-xl border border-emerald-200/60 bg-emerald-50/60 p-3">
+            <div className="flex items-start gap-3 rounded-xl border border-zoru-line/60 bg-zoru-surface-2/60 p-3">
               <Checkbox
                 id="include-catalog"
                 checked={includeCatalog}
                 onCheckedChange={(c) => setIncludeCatalog(Boolean(c))}
-                className="mt-0.5 border-emerald-400 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+                className="mt-0.5 border-zoru-line data-[state=checked]:bg-zoru-ink data-[state=checked]:border-zoru-line"
               />
               <div>
                 <Label htmlFor="include-catalog" className="text-sm font-medium cursor-pointer">
                   Include Catalog Management
                 </Label>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-xs text-zoru-ink-muted mt-0.5">
                   Grants permission to manage your WhatsApp product catalog
                 </p>
               </div>
@@ -220,8 +220,8 @@ function HeroSection({ appId, configId, includeCatalog, setIncludeCatalog }: { a
 
             <div className="space-y-2">
               {TRUST.slice(0, 2).map((t) => (
-                <div key={t.text} className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <t.icon className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                <div key={t.text} className="flex items-center gap-2 text-xs text-zoru-ink-muted">
+                  <t.icon className="h-3.5 w-3.5 shrink-0 text-zoru-ink" />
                   {t.text}
                 </div>
               ))}
@@ -235,38 +235,38 @@ function HeroSection({ appId, configId, includeCatalog, setIncludeCatalog }: { a
 
 function UnlocksSection() {
   return (
-    <div className="lg:col-span-2 rounded-3xl border border-emerald-200/40 bg-white/70 backdrop-blur-xl p-6 md:p-8 shadow-sm">
-      <p className="text-xs font-bold uppercase tracking-widest text-emerald-700 mb-6">What you unlock</p>
+    <div className="lg:col-span-2 rounded-3xl border border-zoru-line/40 bg-white/70 backdrop-blur-xl p-6 md:p-8 shadow-sm">
+      <p className="text-xs font-bold uppercase tracking-widest text-zoru-ink mb-6">What you unlock</p>
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
         {UNLOCKS.map((u) => (
-          <div key={u.label} className="group flex flex-col gap-2.5 rounded-2xl border border-emerald-100/60 bg-white p-4 transition hover:shadow-md hover:border-emerald-200">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+          <div key={u.label} className="group flex flex-col gap-2.5 rounded-2xl border border-zoru-line/60 bg-white p-4 transition hover:shadow-md hover:border-zoru-line">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink group-hover:bg-zoru-ink group-hover:text-white transition-colors">
               <u.icon className="h-[18px] w-[18px]" />
             </div>
             <div>
               <p className="font-semibold text-sm">{u.label}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{u.description}</p>
+              <p className="text-xs text-zoru-ink-muted mt-0.5">{u.description}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="mt-8 pt-6 border-t border-emerald-100/60">
-        <p className="text-xs font-bold uppercase tracking-widest text-emerald-700 mb-5">How it works</p>
+      <div className="mt-8 pt-6 border-t border-zoru-line/60">
+        <p className="text-xs font-bold uppercase tracking-widest text-zoru-ink mb-5">How it works</p>
         <div className="space-y-0">
           {STEPS.map((s, idx) => (
             <div key={s.n} className="flex gap-4">
               <div className="flex flex-col items-center">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white shadow-md shadow-emerald-500/25">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zoru-ink text-xs font-bold text-white shadow-md shadow-zoru-line/25">
                   {s.n}
                 </div>
                 {idx < STEPS.length - 1 && (
-                  <div className="mt-1 mb-1 w-px flex-1 bg-emerald-200" style={{ minHeight: 24 }} />
+                  <div className="mt-1 mb-1 w-px flex-1 bg-zoru-surface-2" style={{ minHeight: 24 }} />
                 )}
               </div>
               <div className="pb-5">
                 <p className="font-semibold text-sm">{s.title}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{s.sub}</p>
+                <p className="text-xs text-zoru-ink-muted mt-0.5">{s.sub}</p>
               </div>
             </div>
           ))}
@@ -279,51 +279,51 @@ function UnlocksSection() {
 function RightPanel({ appId, configId, includeCatalog, setIncludeCatalog }: { appId: string; configId: string; includeCatalog: boolean; setIncludeCatalog: (val: boolean) => void }) {
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-3xl border border-emerald-200/40 bg-white/70 backdrop-blur-xl p-6 shadow-sm">
-        <p className="text-xs font-bold uppercase tracking-widest text-emerald-700 mb-4">Security & Trust</p>
+      <div className="rounded-3xl border border-zoru-line/40 bg-white/70 backdrop-blur-xl p-6 shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-widest text-zoru-ink mb-4">Security & Trust</p>
         <div className="space-y-4">
           {TRUST.map((t) => (
             <div key={t.text} className="flex items-start gap-3">
-              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink">
                 <t.icon className="h-3.5 w-3.5" />
               </div>
-              <p className="text-sm text-muted-foreground leading-snug">{t.text}</p>
+              <p className="text-sm text-zoru-ink-muted leading-snug">{t.text}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="rounded-3xl border border-emerald-200/40 bg-white/70 backdrop-blur-xl p-6 shadow-sm">
-        <p className="text-xs font-bold uppercase tracking-widest text-emerald-700 mb-4">Before you start</p>
+      <div className="rounded-3xl border border-zoru-line/40 bg-white/70 backdrop-blur-xl p-6 shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-widest text-zoru-ink mb-4">Before you start</p>
         <ul className="space-y-3">
           {[
             'A Facebook account with admin access to your Business portfolio',
             'A verified Meta Business Account',
             'A phone number not already registered on WhatsApp personal',
           ].map((req) => (
-            <li key={req} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+            <li key={req} className="flex items-start gap-2.5 text-sm text-zoru-ink-muted">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-zoru-ink" />
               {req}
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="relative overflow-hidden rounded-3xl border border-emerald-700 bg-emerald-700 p-6 text-white shadow-xl shadow-emerald-500/25">
+      <div className="relative overflow-hidden rounded-3xl border border-zoru-line bg-zoru-ink p-6 text-white shadow-xl shadow-zoru-line/25">
         <div className="relative space-y-3">
-          <Zap className="h-7 w-7 text-lime-300" />
+          <Zap className="h-7 w-7 text-zoru-ink-muted" />
           <p className="font-bold text-lg leading-snug">Ready to start reaching customers?</p>
           <p className="text-sm text-white/90">Connect your account in under 2 minutes.</p>
           <Dialog>
             <ZoruDialogTrigger asChild>
-              <Button className="w-full rounded-xl bg-white text-emerald-700 hover:bg-white/90 font-semibold shadow-lg mt-1">
+              <Button className="w-full rounded-xl bg-white text-zoru-ink hover:bg-white/90 font-semibold shadow-lg mt-1">
                 <MessageCircle className="mr-2 h-4 w-4" />
                 Connect Now
               </Button>
             </ZoruDialogTrigger>
-            <ZoruDialogContent className="sm:max-w-md rounded-3xl border-emerald-200/40">
+            <ZoruDialogContent className="sm:max-w-md rounded-3xl border-zoru-line/40">
               <ZoruDialogHeader>
-                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-600">
+                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-zoru-ink">
                   <MessageCircle className="h-5 w-5 text-white" />
                 </div>
                 <ZoruDialogTitle className="text-lg">Guided WhatsApp Setup</ZoruDialogTitle>
@@ -338,18 +338,18 @@ function RightPanel({ appId, configId, includeCatalog, setIncludeCatalog }: { ap
                   includeCatalog={includeCatalog}
                   state="whatsapp"
                 />
-                <div className="flex items-start gap-3 rounded-xl border border-emerald-200/60 bg-emerald-50/60 p-3">
+                <div className="flex items-start gap-3 rounded-xl border border-zoru-line/60 bg-zoru-surface-2/60 p-3">
                   <Checkbox
                     id="include-catalog-2"
                     checked={includeCatalog}
                     onCheckedChange={(c) => setIncludeCatalog(Boolean(c))}
-                    className="mt-0.5 border-emerald-400 data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+                    className="mt-0.5 border-zoru-line data-[state=checked]:bg-zoru-ink data-[state=checked]:border-zoru-line"
                   />
                   <div>
                     <Label htmlFor="include-catalog-2" className="text-sm font-medium cursor-pointer">
                       Include Catalog Management
                     </Label>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-xs text-zoru-ink-muted mt-0.5">
                       Grants permission to manage your WhatsApp product catalog
                     </p>
                   </div>
@@ -420,11 +420,11 @@ function ConnectedAccounts() {
   };
 
   return (
-    <div className="mt-16 mb-8 rounded-3xl border border-border bg-card shadow-sm overflow-hidden">
-      <div className="p-6 border-b border-border bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="mt-16 mb-8 rounded-3xl border border-zoru-line bg-zoru-surface shadow-sm overflow-hidden">
+      <div className="p-6 border-b border-zoru-line bg-zoru-surface-2/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold tracking-tight">Connected Accounts</h2>
-          <p className="text-sm text-muted-foreground mt-1">Manage your linked WhatsApp Business accounts.</p>
+          <p className="text-sm text-zoru-ink-muted mt-1">Manage your linked WhatsApp Business accounts.</p>
         </div>
         <Button variant="outline" size="sm" onClick={refreshData} disabled={isLoading}>
           <RefreshCw className={cn("mr-2 h-4 w-4", isLoading && "animate-spin")} />
@@ -435,17 +435,17 @@ function ConnectedAccounts() {
       <div className="p-6">
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
             <Input
               placeholder="Search by name or number..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-background"
+              className="pl-9 bg-zoru-surface"
             />
           </div>
           <div className="flex gap-2">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[140px] bg-background">
+              <SelectTrigger className="w-[140px] bg-zoru-surface">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -456,7 +456,7 @@ function ConnectedAccounts() {
               </SelectContent>
             </Select>
             <Select value={sortBy} onValueChange={(val: 'name' | 'lastSynced') => setSortBy(val)}>
-              <SelectTrigger className="w-[140px] bg-background">
+              <SelectTrigger className="w-[140px] bg-zoru-surface">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -481,38 +481,38 @@ function ConnectedAccounts() {
             <Skeleton className="h-20 w-full rounded-xl" />
           </div>
         ) : filteredAndSortedAccounts.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground border-2 border-dashed border-border rounded-xl">
+          <div className="text-center py-12 text-zoru-ink-muted border-2 border-dashed border-zoru-line rounded-xl">
             <Phone className="mx-auto h-8 w-8 mb-3 opacity-50" />
             <p>No accounts found matching your criteria.</p>
           </div>
         ) : (
           <div className="space-y-3">
             {filteredAndSortedAccounts.map((account) => (
-              <div key={account.id} className="flex items-center justify-between p-4 rounded-xl border border-border bg-background hover:bg-muted/50 transition-colors">
+              <div key={account.id} className="flex items-center justify-between p-4 rounded-xl border border-zoru-line bg-zoru-surface hover:bg-zoru-surface-2/50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className={cn(
                     "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
-                    account.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
-                    account.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                    'bg-rose-100 text-rose-700'
+                    account.status === 'active' ? 'bg-zoru-surface-2 text-zoru-ink' :
+                    account.status === 'pending' ? 'bg-zoru-surface-2 text-zoru-ink' :
+                    'bg-zoru-surface-2 text-zoru-ink'
                   )}>
                     <MessageCircle className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="font-semibold">{account.name}</p>
-                    <p className="text-sm text-muted-foreground font-mono mt-0.5">{account.phoneNumber}</p>
+                    <p className="text-sm text-zoru-ink-muted font-mono mt-0.5">{account.phoneNumber}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="text-right hidden sm:block">
-                    <p className="text-xs font-medium uppercase text-muted-foreground">Last Synced</p>
+                    <p className="text-xs font-medium uppercase text-zoru-ink-muted">Last Synced</p>
                     <p className="text-sm">{new Date(account.lastSynced).toLocaleString()}</p>
                   </div>
                   <Badge variant="outline" className={cn(
                     "px-2.5 py-0.5 capitalize font-medium",
-                    account.status === 'active' ? 'border-emerald-200 text-emerald-700 bg-emerald-50' :
-                    account.status === 'pending' ? 'border-amber-200 text-amber-700 bg-amber-50' :
-                    'border-rose-200 text-rose-700 bg-rose-50'
+                    account.status === 'active' ? 'border-zoru-line text-zoru-ink bg-zoru-surface-2' :
+                    account.status === 'pending' ? 'border-zoru-line text-zoru-ink bg-zoru-surface-2' :
+                    'border-zoru-line text-zoru-ink bg-zoru-surface-2'
                   )}>
                     {account.status}
                   </Badge>

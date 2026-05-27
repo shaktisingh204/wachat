@@ -49,16 +49,16 @@ async function PublicGanttContainer({ hash }: { hash: string }) {
       <Card>
         <ZoruCardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            <p className="text-xs font-semibold uppercase tracking-wide text-zoru-ink">
               Project timeline
             </p>
             <ZoruCardTitle className="mt-1">{project.name}</ZoruCardTitle>
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-zoru-ink">
               {fmtDate(project.startDate)} &middot;{' '}
               {fmtDate(project.deadline)}
             </p>
             {project.description ? (
-              <p className="mt-2 max-w-2xl text-sm text-zinc-600">
+              <p className="mt-2 max-w-2xl text-sm text-zoru-ink">
                 {project.description}
               </p>
             ) : null}
@@ -69,7 +69,7 @@ async function PublicGanttContainer({ hash }: { hash: string }) {
             {project.status}
           </Badge>
         </ZoruCardHeader>
-        <ZoruCardContent className="grid gap-3 border-t border-zinc-200 pt-4 sm:grid-cols-3">
+        <ZoruCardContent className="grid gap-3 border-t border-zoru-line pt-4 sm:grid-cols-3">
           <Stat label="Tasks" value={tasks.length} />
           <Stat label="Milestones" value={milestones.length} />
           <Stat label="Dependencies" value={links.length} />
@@ -105,9 +105,9 @@ export default async function PublicGanttPage({ params }: { params: Params }) {
 
 function Stat({ label, value }: { label: string; value: number }): React.ReactElement {
   return (
-    <div className="rounded-md border border-zinc-200 bg-white p-3">
-      <p className="text-xs uppercase tracking-wide text-zinc-500">{label}</p>
-      <p className="mt-0.5 text-xl font-semibold text-zinc-900">{value}</p>
+    <div className="rounded-md border border-zoru-line bg-white p-3">
+      <p className="text-xs uppercase tracking-wide text-zoru-ink">{label}</p>
+      <p className="mt-0.5 text-xl font-semibold text-zoru-ink">{value}</p>
     </div>
   );
 }

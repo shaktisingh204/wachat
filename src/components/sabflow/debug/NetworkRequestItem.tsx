@@ -16,26 +16,26 @@ type NetTab = 'headers' | 'request' | 'response';
 function methodClass(method: string): string {
   switch (method.toUpperCase()) {
     case 'GET':
-      return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
+      return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
     case 'POST':
-      return 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
+      return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
     case 'PUT':
     case 'PATCH':
-      return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+      return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
     case 'DELETE':
-      return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
+      return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
     default:
       return 'bg-[var(--gray-3)] text-[var(--gray-11)]';
   }
 }
 
 function statusClass(status: number | undefined, error: string | undefined): string {
-  if (error) return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
+  if (error) return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
   if (status === undefined) return 'bg-[var(--gray-3)] text-[var(--gray-10)]';
-  if (status >= 500) return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
-  if (status >= 400) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+  if (status >= 500) return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
+  if (status >= 400) return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
   if (status >= 200 && status < 300)
-    return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
+    return 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted';
   return 'bg-[var(--gray-3)] text-[var(--gray-11)]';
 }
 
@@ -189,7 +189,7 @@ function Pane({
         className={
           'mb-1 text-[10px] font-semibold uppercase tracking-wide ' +
           (tone === 'error'
-            ? 'text-red-600 dark:text-red-400'
+            ? 'text-zoru-ink dark:text-zoru-ink-muted'
             : 'text-[var(--gray-9)]')
         }
       >
@@ -199,7 +199,7 @@ function Pane({
         className={
           'max-h-[220px] overflow-auto whitespace-pre-wrap break-all rounded bg-[var(--gray-1)] p-2 font-mono text-[11px] leading-snug ' +
           (tone === 'error'
-            ? 'text-red-700 dark:text-red-300'
+            ? 'text-zoru-ink dark:text-zoru-ink-muted'
             : 'text-[var(--gray-11)]')
         }
       >

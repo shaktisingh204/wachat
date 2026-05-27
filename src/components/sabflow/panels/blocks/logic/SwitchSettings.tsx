@@ -61,7 +61,7 @@ export function SwitchSettings({ block, onUpdate }: Props) {
           <button
             type="button"
             onClick={addCase}
-            className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-[#f76808] hover:bg-[#f76808]/10"
+            className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-zoru-ink hover:bg-zoru-ink/10"
           >
             <LuPlus className="h-3 w-3" />
             Add case
@@ -91,7 +91,7 @@ export function SwitchSettings({ block, onUpdate }: Props) {
               <button
                 type="button"
                 onClick={() => removeCase(c.id)}
-                className="rounded p-1 text-[var(--gray-9)] hover:bg-red-500/10 hover:text-red-500"
+                className="rounded p-1 text-[var(--gray-9)] hover:bg-zoru-ink/10 hover:text-zoru-ink"
               >
                 <LuTrash2 className="h-3.5 w-3.5" />
               </button>
@@ -139,4 +139,4 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808] transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';

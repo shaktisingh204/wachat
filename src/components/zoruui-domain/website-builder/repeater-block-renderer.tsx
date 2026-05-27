@@ -43,8 +43,8 @@ const RepeaterItemCard = ({ item }: { item: RepeaterItem }) => (
                     <Image src={item.imageUrl} alt={item.title} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="repeater item image" />
                 </div>
             ) : (
-                <div className="aspect-video bg-muted rounded-t-lg flex items-center justify-center">
-                    <ShoppingBag className="h-10 w-10 text-muted-foreground" />
+                <div className="aspect-video bg-zoru-surface-2 rounded-t-lg flex items-center justify-center">
+                    <ShoppingBag className="h-10 w-10 text-zoru-ink-muted" />
                 </div>
             )}
             <div className="p-4">
@@ -52,7 +52,7 @@ const RepeaterItemCard = ({ item }: { item: RepeaterItem }) => (
             </div>
         </ZoruCardHeader>
         <ZoruCardContent className="p-4 pt-0 flex-grow">
-            <p className="text-sm text-muted-foreground">{item.description}</p>
+            <p className="text-sm text-zoru-ink-muted">{item.description}</p>
         </ZoruCardContent>
         {item.buttonText && item.buttonLink && (
             <ZoruCardFooter className="p-4 pt-0">
@@ -83,7 +83,7 @@ export const RepeaterBlockRenderer: React.FC<RepeaterBlockRendererProps> = ({ se
 
     if (items.length === 0) {
         return (
-            <div className="p-4 text-center border-2 border-dashed rounded-lg text-muted-foreground">
+            <div className="p-4 text-center border-2 border-dashed rounded-lg text-zoru-ink-muted">
                 Repeater Block: No items added.
             </div>
         );

@@ -150,15 +150,15 @@ export default function UrlParserPage() {
       </div>
 
       {error && (
-        <Card className="border-red-500/50">
-          <ZoruCardContent className="p-4 text-sm text-red-500">
+        <Card className="border-zoru-line/50">
+          <ZoruCardContent className="p-4 text-sm text-zoru-ink">
             {error}
           </ZoruCardContent>
         </Card>
       )}
 
       {rebuiltUrl && parts && (
-        <Card className="bg-primary/5">
+        <Card className="bg-zoru-ink/5">
           <ZoruCardContent className="p-4 flex flex-col gap-2">
             <span className="text-sm font-semibold">Rebuilt URL</span>
             <span className="font-mono text-sm break-all">{rebuiltUrl}</span>
@@ -174,7 +174,7 @@ export default function UrlParserPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 {Object.entries(parts).map(([k, v]) => (
                   <div key={k} className="flex flex-col gap-1.5">
-                    <label className="font-semibold capitalize text-muted-foreground">
+                    <label className="font-semibold capitalize text-zoru-ink-muted">
                       {k}
                     </label>
                     <Input
@@ -198,13 +198,13 @@ export default function UrlParserPage() {
               </div>
 
               {queryParams.length === 0 ? (
-                <div className="text-sm text-muted-foreground italic border rounded p-4 text-center">
+                <div className="text-sm text-zoru-ink-muted italic border rounded p-4 text-center">
                   No query parameters.
                 </div>
               ) : (
                 <div className="border rounded overflow-hidden">
                   <table className="w-full text-sm">
-                    <thead className="bg-muted">
+                    <thead className="bg-zoru-surface-2">
                       <tr>
                         <th className="p-2 text-left font-semibold">Key</th>
                         <th className="p-2 text-left font-semibold">Value</th>
@@ -238,7 +238,7 @@ export default function UrlParserPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                              className="h-8 w-8 p-0 text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2"
                               onClick={() => removeQueryParam(param.id)}
                             >
                               <Trash2 className="w-4 h-4" />

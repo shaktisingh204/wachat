@@ -34,10 +34,10 @@ interface PlanPermissionsMatrixProps {
 }
 
 const ACTION_META: Record<string, { icon: React.ComponentType<{ className?: string }>; color: string }> = {
-    view: { icon: Eye, color: 'text-sky-500' },
-    create: { icon: PlusCircle, color: 'text-emerald-500' },
-    edit: { icon: Pencil, color: 'text-amber-500' },
-    delete: { icon: Trash2, color: 'text-rose-500' },
+    view: { icon: Eye, color: 'text-zoru-ink' },
+    create: { icon: PlusCircle, color: 'text-zoru-ink' },
+    edit: { icon: Pencil, color: 'text-zoru-ink' },
+    delete: { icon: Trash2, color: 'text-zoru-ink' },
 };
 
 function prettyModule(key: string) {
@@ -151,10 +151,10 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
     return (
         <div className="space-y-4">
             {/* Toolbar */}
-            <div className="sticky top-0 z-10 -mx-1 px-1 py-2 backdrop-blur-xl bg-background/70 border-b border-white/10">
+            <div className="sticky top-0 z-10 -mx-1 px-1 py-2 backdrop-blur-xl bg-zoru-surface/70 border-b border-white/10">
                 <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
                         <Input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -167,7 +167,7 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                             variant="outline"
                             className="rounded-full border-white/10 bg-white/5 font-normal"
                         >
-                            <ShieldCheck className="h-3 w-3 mr-1 text-primary" />
+                            <ShieldCheck className="h-3 w-3 mr-1 text-zoru-ink" />
                             {globalStats.enabled}/{globalStats.total}
                         </Badge>
                         <Button
@@ -229,9 +229,9 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                         className={cn(
                                             'rounded-full text-[10px] font-normal border-white/10',
                                             allEnabled
-                                                ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                                                ? 'bg-zoru-ink/15 text-zoru-ink-muted border-zoru-line/30'
                                                 : noneEnabled
-                                                  ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                                                  ? 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/20'
                                                   : 'bg-white/5',
                                         )}
                                     >
@@ -289,7 +289,7 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                                         <div className="text-sm font-medium truncate">
                                                             {prettyModule(moduleKey)}
                                                         </div>
-                                                        <div className="text-[10px] text-muted-foreground font-mono truncate">
+                                                        <div className="text-[10px] text-zoru-ink-muted font-mono truncate">
                                                             {moduleKey}
                                                         </div>
                                                     </div>
@@ -307,8 +307,8 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                                                 className={cn(
                                                                     'cursor-pointer select-none inline-flex items-center gap-1.5 px-3 h-8 rounded-lg border text-xs transition',
                                                                     checked
-                                                                        ? 'border-primary/40 bg-primary/15 text-foreground shadow-inner'
-                                                                        : 'border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10',
+                                                                        ? 'border-primary/40 bg-zoru-ink/15 text-zoru-ink shadow-inner'
+                                                                        : 'border-white/10 bg-white/5 text-zoru-ink-muted hover:bg-white/10',
                                                                 )}
                                                             >
                                                                 <input
@@ -350,13 +350,13 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                 })}
 
                 {Object.keys(filteredCategories).length === 0 && (
-                    <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center text-sm text-muted-foreground">
+                    <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center text-sm text-zoru-ink-muted">
                         No modules match &ldquo;{search}&rdquo;.
                     </div>
                 )}
             </div>
 
-            <p className="text-xs text-muted-foreground text-center pt-2">
+            <p className="text-xs text-zoru-ink-muted text-center pt-2">
                 Tip: disabling <span className="font-medium">View</span> on a module blocks access to
                 the entire page regardless of other actions.
             </p>

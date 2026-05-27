@@ -134,17 +134,17 @@ function KpiStrip({ kpis }: { kpis: Gstr2bKpis }) {
       <StatCard
         label="ITC available"
         value={fmtInr(kpis.itcAvailable)}
-        icon={<TrendingUp className="h-4 w-4 text-emerald-500" />}
+        icon={<TrendingUp className="h-4 w-4 text-zoru-ink" />}
       />
       <StatCard
         label="ITC ineligible"
         value={fmtInr(kpis.itcIneligible)}
-        icon={<TrendingDown className="h-4 w-4 text-red-500" />}
+        icon={<TrendingDown className="h-4 w-4 text-zoru-ink" />}
       />
       <StatCard
         label="Suppliers"
         value={kpis.supplierCount.toLocaleString()}
-        icon={<AlertCircle className="h-4 w-4 text-blue-500" />}
+        icon={<AlertCircle className="h-4 w-4 text-zoru-ink" />}
       />
     </div>
   );
@@ -320,7 +320,7 @@ export function Gstr2bClient() {
       <Card>
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            <label className="mb-1 block text-[12px] text-muted-foreground">
+            <label className="mb-1 block text-[12px] text-zoru-ink-muted">
               Month
             </label>
             <Select
@@ -342,7 +342,7 @@ export function Gstr2bClient() {
             </Select>
           </div>
           <div>
-            <label className="mb-1 block text-[12px] text-muted-foreground">
+            <label className="mb-1 block text-[12px] text-zoru-ink-muted">
               Year
             </label>
             <Input
@@ -363,14 +363,14 @@ export function Gstr2bClient() {
             <FileInput className="h-4 w-4" /> Upload GSTR-2B JSON
           </SabFilePickerButton>
           {loading ? (
-            <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" />
+            <LoaderCircle className="h-4 w-4 animate-spin text-zoru-ink-muted" />
           ) : null}
         </div>
       </Card>
 
       {!parsed && !loading ? (
         <Card>
-          <p className="text-[13px] text-muted-foreground">
+          <p className="text-[13px] text-zoru-ink-muted">
             No GSTR-2B import on file for this period. Download the JSON from
             the GST portal and upload it above.
           </p>
@@ -384,8 +384,8 @@ export function Gstr2bClient() {
 
           {/* Summary box */}
           <Card>
-            <h2 className="text-[15px] font-semibold text-foreground">Summary</h2>
-            <p className="mt-0.5 text-[12px] text-muted-foreground">
+            <h2 className="text-[15px] font-semibold text-zoru-ink">Summary</h2>
+            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
               GSTIN {parsed.gstin} — Period {parsed.period}
             </p>
             <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -416,12 +416,12 @@ export function Gstr2bClient() {
               ].map(({ label, value }) => (
                 <div
                   key={label}
-                  className="rounded-lg border border-border bg-secondary p-4"
+                  className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-4"
                 >
-                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                  <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                     {label}
                   </p>
-                  <p className="mt-1 font-mono text-[16px] text-foreground">
+                  <p className="mt-1 font-mono text-[16px] text-zoru-ink">
                     {value}
                   </p>
                 </div>
@@ -431,7 +431,7 @@ export function Gstr2bClient() {
 
           {/* Supplier table */}
           <Card className="overflow-hidden p-0">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line px-4 py-3">
               <div className="flex items-center gap-2">
                 <Input
                   type="search"
@@ -477,31 +477,31 @@ export function Gstr2bClient() {
             <div className="overflow-x-auto">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-border hover:bg-transparent">
-                    <ZoruTableHead className="w-10 text-muted-foreground">
+                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableHead className="w-10 text-zoru-ink-muted">
                       <Checkbox
                         checked={allChecked}
                         onCheckedChange={(c) => toggleAll(Boolean(c))}
                         aria-label="Select all suppliers"
                       />
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground">GSTIN</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground">
+                    <ZoruTableHead className="text-zoru-ink-muted">GSTIN</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">
                       Trade name
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-muted-foreground">
+                    <ZoruTableHead className="text-right text-zoru-ink-muted">
                       Invoices
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-muted-foreground">
+                    <ZoruTableHead className="text-right text-zoru-ink-muted">
                       Taxable
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-muted-foreground">
+                    <ZoruTableHead className="text-right text-zoru-ink-muted">
                       IGST
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-muted-foreground">
+                    <ZoruTableHead className="text-right text-zoru-ink-muted">
                       CGST
                     </ZoruTableHead>
-                    <ZoruTableHead className="text-right text-muted-foreground">
+                    <ZoruTableHead className="text-right text-zoru-ink-muted">
                       SGST
                     </ZoruTableHead>
                   </ZoruTableRow>
@@ -511,7 +511,7 @@ export function Gstr2bClient() {
                     <ZoruTableRow>
                       <ZoruTableCell
                         colSpan={8}
-                        className="h-20 text-center text-[13px] text-muted-foreground"
+                        className="h-20 text-center text-[13px] text-zoru-ink-muted"
                       >
                         {gstinSearch
                           ? 'No suppliers match that GSTIN / name.'
@@ -522,7 +522,7 @@ export function Gstr2bClient() {
                     filteredSuppliers.map((s) => (
                       <ZoruTableRow
                         key={s.gstin}
-                        className="border-border"
+                        className="border-zoru-line"
                         data-state={selected.has(s.gstin) ? 'selected' : undefined}
                       >
                         <ZoruTableCell>

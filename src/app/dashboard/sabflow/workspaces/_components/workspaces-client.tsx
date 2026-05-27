@@ -8,18 +8,18 @@ import { useT } from '@/lib/i18n/client';
 import { listSabFlowWorkspaces, type Workspace } from '../actions';
 
 const ROLE_STYLES: Record<string, string> = {
-  owner: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
-  admin: 'bg-violet-500/15 text-violet-300 border-violet-500/30',
-  editor: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
-  viewer: 'bg-zinc-700/40 text-zinc-300 border-zinc-600/60',
-  member: 'bg-zinc-700/40 text-zinc-300 border-zinc-600/60',
+  owner: 'bg-zoru-ink/15 text-zoru-ink-muted border-zoru-line/30',
+  admin: 'bg-zoru-ink/15 text-zoru-ink-muted border-zoru-line/30',
+  editor: 'bg-zoru-ink/15 text-zoru-ink-muted border-zoru-line/30',
+  viewer: 'bg-zoru-ink/40 text-zoru-ink-muted border-zoru-line/60',
+  member: 'bg-zoru-ink/40 text-zoru-ink-muted border-zoru-line/60',
 };
 
 const PLAN_STYLES: Record<string, string> = {
-  free: 'bg-zinc-800 text-zinc-300 border-zinc-700/60',
-  starter: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
-  pro: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-  enterprise: 'bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30',
+  free: 'bg-zoru-ink text-zoru-ink-muted border-zoru-line/60',
+  starter: 'bg-zoru-ink/15 text-zoru-ink-muted border-zoru-line/30',
+  pro: 'bg-zoru-ink/15 text-zoru-ink-muted border-zoru-line/30',
+  enterprise: 'bg-zoru-ink/15 text-zoru-ink-muted border-zoru-line/30',
 };
 
 export function WorkspacesClient({ initialData }: { initialData: any }) {
@@ -77,17 +77,17 @@ export function WorkspacesClient({ initialData }: { initialData: any }) {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <p className="text-xs font-medium uppercase tracking-widest text-zinc-500 mb-1">
+          <p className="text-xs font-medium uppercase tracking-widest text-zoru-ink mb-1">
             {t('module.sabflow')}
           </p>
-          <h1 className="text-2xl font-bold text-zinc-100">{t('sabflow.workspaces.title')}</h1>
-          <p className="text-sm text-zinc-400 mt-1">
+          <h1 className="text-2xl font-bold text-white">{t('sabflow.workspaces.title')}</h1>
+          <p className="text-sm text-zoru-ink-muted mt-1">
             {t('sabflow.workspaces.subtitle')}
           </p>
         </div>
         <Link
           href="/dashboard/sabflow/workspaces/new"
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-100 text-zinc-900 text-sm font-medium hover:bg-white transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zoru-surface-2 text-zoru-ink text-sm font-medium hover:bg-white transition-colors"
         >
           <LuPlus className="w-4 h-4" />
           {t('sabflow.workspaces.newWorkspace')}
@@ -96,16 +96,16 @@ export function WorkspacesClient({ initialData }: { initialData: any }) {
 
       {/* Search */}
       <div className="relative mb-5">
-        <LuSearch className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+        <LuSearch className="w-3.5 h-3.5 text-zoru-ink absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={query}
           onChange={handleSearchChange}
           placeholder={t('sabflow.workspaces.searchPlaceholder')}
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-600"
+          className="w-full bg-zoru-ink border border-zoru-line rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-zoru-ink focus:outline-none focus:border-zoru-line"
         />
         {isSearching && (
-          <LuLoader className="w-4 h-4 text-zinc-400 animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
+          <LuLoader className="w-4 h-4 text-zoru-ink-muted animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
         )}
       </div>
 
@@ -117,7 +117,7 @@ export function WorkspacesClient({ initialData }: { initialData: any }) {
         ))}
         {page === 1 && !isSearching && query !== '' && workspaces.length === 0 && (
           <div className="col-span-full">
-            <p className="mt-6 text-center text-sm text-zinc-500">
+            <p className="mt-6 text-center text-sm text-zoru-ink">
               {t('sabflow.workspaces.searchEmpty', { query })}
             </p>
           </div>
@@ -129,7 +129,7 @@ export function WorkspacesClient({ initialData }: { initialData: any }) {
           <button
             onClick={handleLoadMore}
             disabled={isLoading}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-zinc-800 bg-zinc-900 text-sm font-medium text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-zoru-line bg-zoru-ink text-sm font-medium text-zoru-ink-muted hover:bg-zoru-ink hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading && <LuLoader className="w-4 h-4 animate-spin" />}
             {isLoading ? 'Loading...' : 'Load More'}
@@ -142,17 +142,17 @@ export function WorkspacesClient({ initialData }: { initialData: any }) {
 
 function WorkspaceCard({ workspace, t }: { workspace: Workspace; t: any }) {
   return (
-    <article className="group rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 hover:bg-zinc-900/70 transition-colors flex flex-col">
+    <article className="group rounded-xl border border-zoru-line bg-zoru-ink/40 p-4 hover:bg-zoru-ink/70 transition-colors flex flex-col">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-800 text-zinc-300 shrink-0">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-zoru-ink text-zoru-ink-muted shrink-0">
             <LuLayers className="w-4 h-4" />
           </span>
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-zinc-100 truncate">
+            <h2 className="text-sm font-semibold text-white truncate">
               {workspace.name}
             </h2>
-            <p className="text-xs text-zinc-500">{t('sabflow.workspaces.idLabel')}: {workspace.id}</p>
+            <p className="text-xs text-zoru-ink">{t('sabflow.workspaces.idLabel')}: {workspace.id}</p>
           </div>
         </div>
         <span
@@ -174,7 +174,7 @@ function WorkspaceCard({ workspace, t }: { workspace: Workspace; t: any }) {
         >
           {workspace.plan}
         </span>
-        <span className="flex items-center gap-1 text-zinc-400">
+        <span className="flex items-center gap-1 text-zoru-ink-muted">
           <LuUsers className="w-3.5 h-3.5" />
           {workspace.memberCount} {workspace.memberCount === 1 ? t('sabflow.workspaces.member') : t('sabflow.workspaces.members')}
         </span>
@@ -182,7 +182,7 @@ function WorkspaceCard({ workspace, t }: { workspace: Workspace; t: any }) {
 
       <Link
         href={`/dashboard/sabflow/workspaces/${workspace.id}/settings`}
-        className="mt-4 flex items-center justify-center gap-1.5 w-full rounded-lg border border-zinc-800 bg-zinc-800/50 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 transition-colors"
+        className="mt-4 flex items-center justify-center gap-1.5 w-full rounded-lg border border-zoru-line bg-zoru-ink/50 py-2 text-sm font-medium text-white hover:bg-zoru-ink transition-colors"
       >
         {t('sabflow.workspaces.open')}
         <LuArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -195,13 +195,13 @@ function CreateWorkspaceCard({ t }: { t: any }) {
   return (
     <Link
       href="/dashboard/sabflow/workspaces/new"
-      className="rounded-xl border border-dashed border-zinc-700 bg-zinc-900/20 p-4 flex flex-col items-center justify-center text-center min-h-[176px] hover:bg-zinc-900/40 hover:border-zinc-600 transition-colors"
+      className="rounded-xl border border-dashed border-zoru-line bg-zoru-ink/20 p-4 flex flex-col items-center justify-center text-center min-h-[176px] hover:bg-zoru-ink/40 hover:border-zoru-line transition-colors"
     >
-      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 text-zinc-300 mb-3">
+      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-ink text-zoru-ink-muted mb-3">
         <LuPlus className="w-5 h-5" />
       </span>
-      <p className="text-sm font-medium text-zinc-200">{t('sabflow.workspaces.createWorkspace')}</p>
-      <p className="text-xs text-zinc-500 mt-1">
+      <p className="text-sm font-medium text-white">{t('sabflow.workspaces.createWorkspace')}</p>
+      <p className="text-xs text-zoru-ink mt-1">
         {t('sabflow.workspaces.createHint')}
       </p>
     </Link>

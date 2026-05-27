@@ -51,7 +51,7 @@ export function AiSuggestionsDialog({
       <ZoruAlertDialogContent className="sm:max-w-[500px]">
         <ZoruAlertDialogHeader>
           <ZoruAlertDialogTitle className="flex items-center gap-2">
-            <Wand2 className="h-5 w-5 text-purple-500" />
+            <Wand2 className="h-5 w-5 text-zoru-ink" />
             AI Rule Suggestions
           </ZoruAlertDialogTitle>
           <ZoruAlertDialogDescription>

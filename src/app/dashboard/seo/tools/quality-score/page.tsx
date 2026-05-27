@@ -104,11 +104,11 @@ export default function QualityScorePage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="flex items-center gap-2">
-                      <MousePointerClick className="w-4 h-4 text-blue-500" />
+                      <MousePointerClick className="w-4 h-4 text-zoru-ink" />
                       Expected CTR
                       <Tooltip>
                         <ZoruTooltipTrigger type="button" tabIndex={-1}>
-                          <Info className="w-4 h-4 text-muted-foreground cursor-pointer" />
+                          <Info className="w-4 h-4 text-zoru-ink-muted cursor-pointer" />
                         </ZoruTooltipTrigger>
                         <ZoruTooltipContent className="max-w-xs">
                           <p>How likely your ad is to be clicked when shown. Heavily weighted (40%). Improve by testing ad copy.</p>
@@ -121,7 +121,7 @@ export default function QualityScorePage() {
                     <input 
                       type="range" min={1} max={10} step={1} 
                       value={ctr} onChange={(e) => setCtr(e.target.value)}
-                      className="w-full accent-blue-600 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      className="w-full accent-zoru-ink h-2 bg-zoru-surface-2 rounded-lg appearance-none cursor-pointer"
                     />
                     <Input 
                       type="number" min={1} max={10} 
@@ -137,11 +137,11 @@ export default function QualityScorePage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="flex items-center gap-2">
-                      <Target className="w-4 h-4 text-purple-500" />
+                      <Target className="w-4 h-4 text-zoru-ink" />
                       Ad relevance
                       <Tooltip>
                         <ZoruTooltipTrigger type="button" tabIndex={-1}>
-                          <Info className="w-4 h-4 text-muted-foreground cursor-pointer" />
+                          <Info className="w-4 h-4 text-zoru-ink-muted cursor-pointer" />
                         </ZoruTooltipTrigger>
                         <ZoruTooltipContent className="max-w-xs">
                           <p>How closely your ad matches the intent behind a user's search (30%). Improve with tighter ad groups.</p>
@@ -154,7 +154,7 @@ export default function QualityScorePage() {
                     <input 
                       type="range" min={1} max={10} step={1} 
                       value={rel} onChange={(e) => setRel(e.target.value)}
-                      className="w-full accent-purple-600 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      className="w-full accent-zoru-ink h-2 bg-zoru-surface-2 rounded-lg appearance-none cursor-pointer"
                     />
                     <Input 
                       type="number" min={1} max={10} 
@@ -170,11 +170,11 @@ export default function QualityScorePage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="flex items-center gap-2">
-                      <LayoutDashboard className="w-4 h-4 text-emerald-500" />
+                      <LayoutDashboard className="w-4 h-4 text-zoru-ink" />
                       Landing page
                       <Tooltip>
                         <ZoruTooltipTrigger type="button" tabIndex={-1}>
-                          <Info className="w-4 h-4 text-muted-foreground cursor-pointer" />
+                          <Info className="w-4 h-4 text-zoru-ink-muted cursor-pointer" />
                         </ZoruTooltipTrigger>
                         <ZoruTooltipContent className="max-w-xs">
                           <p>How relevant and useful your website's landing page is (30%). Improve by optimizing page speed and relevance.</p>
@@ -187,7 +187,7 @@ export default function QualityScorePage() {
                     <input 
                       type="range" min={1} max={10} step={1} 
                       value={lp} onChange={(e) => setLp(e.target.value)}
-                      className="w-full accent-emerald-600 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      className="w-full accent-zoru-ink h-2 bg-zoru-surface-2 rounded-lg appearance-none cursor-pointer"
                     />
                     <Input 
                       type="number" min={1} max={10} 
@@ -224,18 +224,18 @@ export default function QualityScorePage() {
           <div className="space-y-6">
             <Card className="h-full flex flex-col justify-center">
               <ZoruCardContent className="p-8 text-center space-y-4">
-                <div className="text-muted-foreground font-medium uppercase tracking-widest text-sm">Estimated Quality Score</div>
+                <div className="text-zoru-ink-muted font-medium uppercase tracking-widest text-sm">Estimated Quality Score</div>
                 <div className={cn(
                   "text-8xl font-black",
-                  score >= 8 ? "text-emerald-500" : score >= 6 ? "text-amber-500" : "text-rose-500"
+                  score >= 8 ? "text-zoru-ink" : score >= 6 ? "text-zoru-ink" : "text-zoru-ink"
                 )}>
                   {score.toFixed(1)}
                 </div>
                 <div className={cn(
                   "inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold",
-                  score >= 8 ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400" : 
-                  score >= 6 ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400" : 
-                  "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400"
+                  score >= 8 ? "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted" : 
+                  score >= 6 ? "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted" : 
+                  "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted"
                 )}>
                   {label}
                 </div>
@@ -245,30 +245,30 @@ export default function QualityScorePage() {
             <Card>
               <ZoruCardHeader>
                 <ZoruCardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-indigo-500" /> 
+                  <TrendingUp className="w-5 h-5 text-zoru-ink" /> 
                   Improvement Suggestions
                 </ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent className="space-y-4 text-sm">
                 <div className="flex gap-3">
-                  <div className="w-1.5 rounded-full bg-blue-500 shrink-0" />
+                  <div className="w-1.5 rounded-full bg-zoru-ink shrink-0" />
                   <div>
                     <span className="font-semibold block mb-0.5">Expected CTR:</span>
-                    <span className="text-muted-foreground">{getCTRSuggestion(ctr)}</span>
+                    <span className="text-zoru-ink-muted">{getCTRSuggestion(ctr)}</span>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="w-1.5 rounded-full bg-purple-500 shrink-0" />
+                  <div className="w-1.5 rounded-full bg-zoru-ink shrink-0" />
                   <div>
                     <span className="font-semibold block mb-0.5">Ad Relevance:</span>
-                    <span className="text-muted-foreground">{getRelSuggestion(rel)}</span>
+                    <span className="text-zoru-ink-muted">{getRelSuggestion(rel)}</span>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <div className="w-1.5 rounded-full bg-zoru-ink shrink-0" />
                   <div>
                     <span className="font-semibold block mb-0.5">Landing Page:</span>
-                    <span className="text-muted-foreground">{getLPSuggestion(lp)}</span>
+                    <span className="text-zoru-ink-muted">{getLPSuggestion(lp)}</span>
                   </div>
                 </div>
               </ZoruCardContent>
@@ -301,11 +301,11 @@ export default function QualityScorePage() {
                     {history.map((h) => (
                       <TableRow key={h.id}>
                         <TableCell className="font-medium">{h.campaign}</TableCell>
-                        <TableCell className="text-muted-foreground">{h.date}</TableCell>
+                        <TableCell className="text-zoru-ink-muted">{h.date}</TableCell>
                         <TableCell className="text-right">{h.ctr}</TableCell>
                         <TableCell className="text-right">{h.rel}</TableCell>
                         <TableCell className="text-right">{h.lp}</TableCell>
-                        <TableCell className="text-right font-bold text-primary">{h.score.toFixed(1)}</TableCell>
+                        <TableCell className="text-right font-bold text-zoru-ink">{h.score.toFixed(1)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

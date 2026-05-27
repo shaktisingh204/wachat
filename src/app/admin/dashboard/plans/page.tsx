@@ -28,7 +28,7 @@ export default async function PlansManagementPage() {
                     <h1 className="text-2xl font-bold text-zoru-ink">Subscription Plans</h1>
                     <p className="text-sm text-zoru-ink-muted mt-1">Create and manage platform subscription tiers.</p>
                 </div>
-                <Button asChild className="bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-lg shadow-amber-500/25">
+                <Button asChild className="bg-zoru-ink hover:bg-zoru-surface-2 text-zoru-ink shadow-lg shadow-zoru-line/25">
                     <Link href="/admin/dashboard/plans/new">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Create Plan

@@ -167,12 +167,12 @@ export default function ImageToBase64Page() {
                 onChange={(e) => onFile(e.target.files?.[0] || null)} 
               />
             </div>
-            {err && <div className="text-sm text-destructive">{err}</div>}
+            {err && <div className="text-sm text-zoru-ink">{err}</div>}
             {b64 && (
               <div className="space-y-4 pt-4 border-t">
                 <div className="flex items-center justify-between">
                   <Label>Base64 Output</Label>
-                  <div className="text-xs text-muted-foreground font-mono">
+                  <div className="text-xs text-zoru-ink-muted font-mono">
                     {b64.length.toLocaleString()} characters
                   </div>
                 </div>
@@ -205,7 +205,7 @@ export default function ImageToBase64Page() {
                 <Label>Base64 String</Label>
                 <div className="flex items-center gap-3">
                   {b2iFull.length > 0 && (
-                    <div className="text-xs text-muted-foreground font-mono">
+                    <div className="text-xs text-zoru-ink-muted font-mono">
                       {b2iFull.length.toLocaleString()} characters
                     </div>
                   )}
@@ -235,7 +235,7 @@ export default function ImageToBase64Page() {
                 className="min-h-[200px] font-mono text-xs resize-y" 
               />
             </div>
-            {b2iErr && <div className="text-sm text-destructive">{b2iErr}</div>}
+            {b2iErr && <div className="text-sm text-zoru-ink">{b2iErr}</div>}
             
             <Button onClick={handleB2iConvert} disabled={isB2iConverting || b2iFull.length === 0}>
               {isB2iConverting ? 'Converting...' : 'Convert to Image'}

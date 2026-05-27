@@ -17,7 +17,7 @@ export default function Error({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center bg-zoru-bg rounded-[var(--zoru-radius-lg)] border border-zoru-line mt-4 shadow-[var(--zoru-shadow-sm)]">
-      <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
+      <AlertTriangle className="w-12 h-12 text-zoru-ink mb-4" />
       <h2 className="text-xl font-bold mb-2 text-zoru-ink">Something went wrong</h2>
       <p className="text-zoru-ink-muted mb-6 max-w-md">
         An error occurred while loading this page. Please try again or contact support if the issue persists.

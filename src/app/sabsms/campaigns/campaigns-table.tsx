@@ -572,7 +572,7 @@ export function CampaignsTable({
       />
 
       {compareError && (
-        <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+        <div className="rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm text-zoru-ink">
           {compareError}
         </div>
       )}

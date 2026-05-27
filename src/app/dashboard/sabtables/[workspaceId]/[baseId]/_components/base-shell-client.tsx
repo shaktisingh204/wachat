@@ -69,7 +69,7 @@ export function BaseShellClient({
       <div className="border-b px-4 py-2 flex items-center gap-3">
         <Link
           href={`/dashboard/sabtables/${workspaceId}`}
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+          className="inline-flex items-center text-sm text-zoru-ink-muted hover:text-zoru-ink"
         >
           <ChevronLeft className="w-4 h-4 mr-1" />
           {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
@@ -78,7 +78,7 @@ export function BaseShellClient({
         <div className="flex items-center gap-2 font-semibold">
           <div
             className="w-6 h-6 rounded flex items-center justify-center"
-            style={{ backgroundColor: base.color || '#0ea5e9', color: '#fff' }}
+            style={{ backgroundColor: base.color || 'var(--zoru-ink)', color: 'var(--zoru-surface)' }}
           >
             <Database className="w-3.5 h-3.5" />
           </div>
@@ -96,8 +96,8 @@ export function BaseShellClient({
               className={cn(
                 'px-3 py-2 text-sm border-b-2 -mb-px transition whitespace-nowrap',
                 active
-                  ? 'border-primary text-foreground font-medium'
-                  : 'border-transparent text-muted-foreground hover:text-foreground',
+                  ? 'border-primary text-zoru-ink font-medium'
+                  : 'border-transparent text-zoru-ink-muted hover:text-zoru-ink',
               )}
             >
               {t.name}

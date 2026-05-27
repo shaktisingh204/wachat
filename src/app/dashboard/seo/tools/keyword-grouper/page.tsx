@@ -231,9 +231,9 @@ export default function KeywordGrouperPage() {
             <Card key={key}>
               <ZoruCardContent className="p-4">
                 <div className="font-semibold capitalize mb-2 border-b pb-2">
-                  {key} <span className="text-xs text-muted-foreground ml-1">({items.length})</span>
+                  {key} <span className="text-xs text-zoru-ink-muted ml-1">({items.length})</span>
                 </div>
-                <ul className="text-sm space-y-1 text-muted-foreground h-48 overflow-y-auto">
+                <ul className="text-sm space-y-1 text-zoru-ink-muted h-48 overflow-y-auto">
                   {items.map((i) => (
                     <li key={i} className="line-clamp-1" title={i}>
                       {i}

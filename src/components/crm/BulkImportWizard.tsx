@@ -475,7 +475,7 @@ export function BulkImportWizard({
                         ))}
                     </div>
                     {!requiredOk ? (
-                        <p className="text-[12px] text-amber-600">
+                        <p className="text-[12px] text-zoru-ink">
                             Map all required fields (marked with *) before continuing.
                         </p>
                     ) : null}
@@ -621,7 +621,7 @@ export function BulkImportWizard({
                 <div className="flex flex-col gap-3">
                     {execResult ? (
                         <div className="flex flex-col gap-2">
-                            <p className="inline-flex items-center gap-2 text-sm text-emerald-600">
+                            <p className="inline-flex items-center gap-2 text-sm text-zoru-ink">
                                 <Check className="h-4 w-4" /> Import complete
                             </p>
                             <div className="flex flex-wrap items-center gap-2 text-[13px]">

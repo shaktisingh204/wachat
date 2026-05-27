@@ -162,9 +162,9 @@ export function WhatsappBotClient({ initialData }: { initialData: any[] }) {
       >
         
         {/* Global Campaign Dashboard */}
-        <div className="mb-6 rounded-xl border border-zoru-line bg-gradient-to-r from-blue-50/50 to-indigo-50/50 p-6">
+        <div className="mb-6 rounded-xl border border-zoru-line bg-gradient-to-r from-zoru-surface-2/50 to-zoru-surface-2/50 p-6">
           <div className="mb-6 flex items-center gap-3">
-            <div className="rounded-lg bg-blue-100 p-3 text-blue-600">
+            <div className="rounded-lg bg-zoru-surface-2 p-3 text-zoru-ink">
               <Megaphone className="h-6 w-6" />
             </div>
             <div>
@@ -208,7 +208,7 @@ export function WhatsappBotClient({ initialData }: { initialData: any[] }) {
 
 
         {filteredData.length === 0 ? (
-          <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
+          <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-zoru-ink-muted">
             No bots found.
           </div>
         ) : (
@@ -240,10 +240,10 @@ export function WhatsappBotClient({ initialData }: { initialData: any[] }) {
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right space-x-2">
                       <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
-                        <Edit2 className="h-4 w-4 text-blue-500" />
+                        <Edit2 className="h-4 w-4 text-zoru-ink" />
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => handleDelete(item._id)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
+                        <Trash2 className="h-4 w-4 text-zoru-ink" />
                       </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>

@@ -167,17 +167,17 @@ function StatusPill({ status }: { status: Status }) {
     running: {
       label: 'Running…',
       Icon: LuLoader,
-      className: 'border-[#f76808]/40 bg-[#f76808]/10 text-[#f76808]',
+      className: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink',
     },
     success: {
       label: 'Success',
       Icon: LuCircleCheck,
-      className: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+      className: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted',
     },
     error: {
       label: 'Error',
       Icon: LuCircleAlert,
-      className: 'border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400',
+      className: 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted',
     },
   };
   const { label, Icon, className } = map[status];
@@ -217,9 +217,9 @@ function LogList({ logs }: { logs: NodeTestLog[] }) {
           className={cn(
             'rounded border px-2 py-1',
             log.level === 'error'
-              ? 'border-red-500/40 bg-red-500/5 text-red-600 dark:text-red-400'
+              ? 'border-zoru-line/40 bg-zoru-ink/5 text-zoru-ink dark:text-zoru-ink-muted'
               : log.level === 'warn'
-                ? 'border-amber-500/40 bg-amber-500/5 text-amber-700 dark:text-amber-400'
+                ? 'border-zoru-line/40 bg-zoru-ink/5 text-zoru-ink dark:text-zoru-ink-muted'
                 : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-11)]',
           )}
         >
@@ -282,7 +282,7 @@ function ResultPanel({
       </div>
 
       {result?.error ? (
-        <div className="flex items-start gap-2 rounded-md border border-red-500/40 bg-red-500/5 p-2.5 text-[11.5px] text-red-700 dark:text-red-400">
+        <div className="flex items-start gap-2 rounded-md border border-zoru-line/40 bg-zoru-ink/5 p-2.5 text-[11.5px] text-zoru-ink dark:text-zoru-ink-muted">
           <LuCircleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={2} />
           <span className="break-all">{result.error}</span>
         </div>
@@ -379,10 +379,10 @@ function nodesToSteps(
 
 function LiveTraceStatusIcon({ status }: { status?: string }) {
   if (status === 'success') {
-    return <LuCircleCheck className="h-3 w-3 shrink-0 text-emerald-500" strokeWidth={2} />;
+    return <LuCircleCheck className="h-3 w-3 shrink-0 text-zoru-ink" strokeWidth={2} />;
   }
   if (status === 'error') {
-    return <LuCircleX className="h-3 w-3 shrink-0 text-red-500" strokeWidth={2} />;
+    return <LuCircleX className="h-3 w-3 shrink-0 text-zoru-ink" strokeWidth={2} />;
   }
   return (
     <LuLoader
@@ -660,14 +660,14 @@ function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) 
           className={cn(
             'w-full min-h-[140px] resize-y rounded-md border bg-[var(--gray-2)] p-2 font-mono text-[11.5px] leading-snug text-[var(--gray-12)] outline-none transition-colors',
             activeError
-              ? 'border-red-500/60 focus:border-red-500'
-              : 'border-[var(--gray-5)] focus:border-[#f76808]',
+              ? 'border-zoru-line/60 focus:border-zoru-line'
+              : 'border-[var(--gray-5)] focus:border-zoru-line',
           )}
           aria-invalid={Boolean(activeError)}
           aria-label={tab === 'input' ? 'Sample input JSON' : 'Variables JSON'}
         />
         {activeError ? (
-          <p className="mt-1 text-[10.5px] text-red-600 dark:text-red-400">
+          <p className="mt-1 text-[10.5px] text-zoru-ink dark:text-zoru-ink-muted">
             {activeError}
           </p>
         ) : null}
@@ -680,7 +680,7 @@ function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) 
         disabled={status === 'running' || Boolean(parseError)}
         className={cn(
           'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-semibold transition-colors',
-          'bg-[#f76808] text-white hover:bg-[#ef6c00]',
+          'bg-zoru-ink text-white hover:bg-zoru-ink',
           'disabled:cursor-not-allowed disabled:opacity-60',
         )}
       >
@@ -732,7 +732,7 @@ function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) 
             <span>Live trace</span>
             {status === 'running' ? (
               <LuLoader
-                className="h-3 w-3 animate-spin text-[#f76808]"
+                className="h-3 w-3 animate-spin text-zoru-ink"
                 strokeWidth={2}
               />
             ) : null}

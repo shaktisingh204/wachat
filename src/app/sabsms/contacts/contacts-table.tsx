@@ -387,7 +387,7 @@ export function ContactsTable({
             {r.phone}
           </Link>
           {r.name && (
-            <span className="text-xs text-slate-500">{r.name}</span>
+            <span className="text-xs text-zoru-ink">{r.name}</span>
           )}
         </div>
       ),
@@ -423,10 +423,10 @@ export function ContactsTable({
         <span
           className={
             r.engagementScore >= 60
-              ? "font-semibold text-emerald-600"
+              ? "font-semibold text-zoru-ink"
               : r.engagementScore >= 20
-                ? "text-slate-700"
-                : "text-slate-400"
+                ? "text-zoru-ink"
+                : "text-zoru-ink-muted"
           }
         >
           {r.engagementScore}
@@ -444,13 +444,13 @@ export function ContactsTable({
             </Badge>
           ))}
           {r.tags.length > 3 && (
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-zoru-ink-muted">
               +{r.tags.length - 3}
             </span>
           )}
           <button
             type="button"
-            className="text-[10px] text-slate-400 hover:text-slate-700"
+            className="text-[10px] text-zoru-ink-muted hover:text-zoru-ink"
             onClick={() => openTagEditor(r)}
             aria-label="Edit tags"
           >
@@ -464,7 +464,7 @@ export function ContactsTable({
       header: "Best hr",
       width: "80px",
       render: (r) => (
-        <span className="text-xs text-slate-600">
+        <span className="text-xs text-zoru-ink">
           {formatHour(r.bestSendHour)}
         </span>
       ),
@@ -493,7 +493,7 @@ export function ContactsTable({
       header: "Last activity",
       width: "120px",
       render: (r) => (
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-zoru-ink">
           {formatRelative(r.lastMessageAt)}
         </span>
       ),
@@ -557,8 +557,8 @@ export function ContactsTable({
         <div
           className={
             feedback.kind === "ok"
-              ? "rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
-              : "rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
+              ? "rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm text-zoru-ink"
+              : "rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm text-zoru-ink"
           }
           role="status"
         >
@@ -729,9 +729,9 @@ export function ContactsTable({
         description="Consent + opt-in/out events recorded for this contact."
       >
         {auditDrawer.loading ? (
-          <div className="text-sm text-slate-500">Loading…</div>
+          <div className="text-sm text-zoru-ink">Loading…</div>
         ) : auditDrawer.entries.length === 0 ? (
-          <div className="text-sm text-slate-500">
+          <div className="text-sm text-zoru-ink">
             No audit entries yet.
           </div>
         ) : (
@@ -739,15 +739,15 @@ export function ContactsTable({
             {auditDrawer.entries.map((e) => (
               <li
                 key={e.id}
-                className="rounded-md border border-slate-200 bg-white p-3"
+                className="rounded-md border border-zoru-line bg-white p-3"
               >
-                <div className="flex justify-between text-xs text-slate-500">
+                <div className="flex justify-between text-xs text-zoru-ink">
                   <span>{e.actor ?? "system"}</span>
                   <span>{new Date(e.at).toLocaleString()}</span>
                 </div>
                 <div className="mt-1 font-medium">{e.kind}</div>
                 {e.detail && (
-                  <div className="mt-1 text-sm text-slate-600">{e.detail}</div>
+                  <div className="mt-1 text-sm text-zoru-ink">{e.detail}</div>
                 )}
               </li>
             ))}

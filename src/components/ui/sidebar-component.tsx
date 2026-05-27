@@ -94,24 +94,24 @@ type ModuleHue = {
 };
 
 const MODULE_HUE: Record<string, ModuleHue> = {
-  whatsapp:        { name: "emerald",  gradient: "from-emerald-500 to-teal-500",   ink: "text-emerald-700",  inkMuted: "text-emerald-900/70",  soft: "bg-emerald-50",   softer: "bg-emerald-50/60",   hoverSoft: "hover:bg-emerald-50",  ring: "ring-emerald-200/70",  titleInk: "text-emerald-600/80" },
-  sabchat:         { name: "sky",      gradient: "from-sky-500 to-blue-600",       ink: "text-sky-700",      inkMuted: "text-sky-900/70",      soft: "bg-sky-50",       softer: "bg-sky-50/60",       hoverSoft: "hover:bg-sky-50",      ring: "ring-sky-200/70",      titleInk: "text-sky-600/80" },
-  facebook:        { name: "blue",     gradient: "from-blue-600 to-indigo-600",    ink: "text-blue-700",     inkMuted: "text-blue-900/70",     soft: "bg-blue-50",      softer: "bg-blue-50/60",      hoverSoft: "hover:bg-blue-50",     ring: "ring-blue-200/70",     titleInk: "text-blue-600/80" },
-  "ad-manager":    { name: "indigo",   gradient: "from-indigo-500 to-violet-500",  ink: "text-indigo-700",   inkMuted: "text-indigo-900/70",   soft: "bg-indigo-50",    softer: "bg-indigo-50/60",    hoverSoft: "hover:bg-indigo-50",   ring: "ring-indigo-200/70",   titleInk: "text-indigo-600/80" },
-  telegram:        { name: "cyan",     gradient: "from-cyan-500 to-sky-500",       ink: "text-cyan-700",     inkMuted: "text-cyan-900/70",     soft: "bg-cyan-50",      softer: "bg-cyan-50/60",      hoverSoft: "hover:bg-cyan-50",     ring: "ring-cyan-200/70",     titleInk: "text-cyan-600/80" },
-  instagram:       { name: "pink",     gradient: "from-fuchsia-500 to-pink-500",   ink: "text-pink-700",     inkMuted: "text-pink-900/70",     soft: "bg-pink-50",      softer: "bg-pink-50/60",      hoverSoft: "hover:bg-pink-50",     ring: "ring-pink-200/70",     titleInk: "text-pink-600/80" },
-  crm:             { name: "violet",   gradient: "from-violet-500 to-purple-500",  ink: "text-violet-700",   inkMuted: "text-violet-900/70",   soft: "bg-violet-50",    softer: "bg-violet-50/60",    hoverSoft: "hover:bg-violet-50",   ring: "ring-violet-200/70",   titleInk: "text-violet-600/80" },
-  hrm:             { name: "rose",     gradient: "from-rose-500 to-red-500",       ink: "text-rose-700",     inkMuted: "text-rose-900/70",     soft: "bg-rose-50",      softer: "bg-rose-50/60",      hoverSoft: "hover:bg-rose-50",     ring: "ring-rose-200/70",     titleInk: "text-rose-600/80" },
-  sabflow:         { name: "lime",     gradient: "from-lime-500 to-green-500",     ink: "text-green-700",    inkMuted: "text-green-900/70",    soft: "bg-lime-50",      softer: "bg-lime-50/60",      hoverSoft: "hover:bg-lime-50",     ring: "ring-lime-200/70",     titleInk: "text-green-600/80" },
-  team:            { name: "indigo",   gradient: "from-indigo-500 to-blue-500",    ink: "text-indigo-700",   inkMuted: "text-indigo-900/70",   soft: "bg-indigo-50",    softer: "bg-indigo-50/60",    hoverSoft: "hover:bg-indigo-50",   ring: "ring-indigo-200/70",   titleInk: "text-indigo-600/80" },
-  email:           { name: "sky",      gradient: "from-sky-500 to-cyan-500",       ink: "text-sky-700",      inkMuted: "text-sky-900/70",      soft: "bg-sky-50",       softer: "bg-sky-50/60",       hoverSoft: "hover:bg-sky-50",      ring: "ring-sky-200/70",      titleInk: "text-sky-600/80" },
-  sms:             { name: "green",    gradient: "from-green-500 to-emerald-500",  ink: "text-green-700",    inkMuted: "text-green-900/70",    soft: "bg-green-50",     softer: "bg-green-50/60",     hoverSoft: "hover:bg-green-50",    ring: "ring-green-200/70",    titleInk: "text-green-600/80" },
-  api:             { name: "slate",    gradient: "from-slate-700 to-zinc-800",     ink: "text-slate-700",    inkMuted: "text-slate-900/70",    soft: "bg-slate-100",    softer: "bg-slate-100/60",    hoverSoft: "hover:bg-slate-100",   ring: "ring-slate-300/70",    titleInk: "text-slate-600/80" },
-  "website-builder": { name: "teal",   gradient: "from-teal-500 to-cyan-500",      ink: "text-teal-700",     inkMuted: "text-teal-900/70",     soft: "bg-teal-50",      softer: "bg-teal-50/60",      hoverSoft: "hover:bg-teal-50",     ring: "ring-teal-200/70",     titleInk: "text-teal-600/80" },
-  "url-shortener": { name: "purple",   gradient: "from-purple-500 to-fuchsia-500", ink: "text-purple-700",   inkMuted: "text-purple-900/70",   soft: "bg-purple-50",    softer: "bg-purple-50/60",    hoverSoft: "hover:bg-purple-50",   ring: "ring-purple-200/70",   titleInk: "text-purple-600/80" },
-  "qr-code-maker": { name: "fuchsia",  gradient: "from-fuchsia-500 to-pink-500",   ink: "text-fuchsia-700",  inkMuted: "text-fuchsia-900/70",  soft: "bg-fuchsia-50",   softer: "bg-fuchsia-50/60",   hoverSoft: "hover:bg-fuchsia-50",  ring: "ring-fuchsia-200/70",  titleInk: "text-fuchsia-600/80" },
-  "seo-suite":     { name: "blue",     gradient: "from-blue-500 to-cyan-500",      ink: "text-blue-700",     inkMuted: "text-blue-900/70",     soft: "bg-blue-50",      softer: "bg-blue-50/60",      hoverSoft: "hover:bg-blue-50",     ring: "ring-blue-200/70",     titleInk: "text-blue-600/80" },
-  settings:        { name: "zinc",     gradient: "from-zinc-700 to-slate-800",     ink: "text-zinc-800",     inkMuted: "text-zinc-700",        soft: "bg-zinc-100",     softer: "bg-zinc-100/60",     hoverSoft: "hover:bg-zinc-100",    ring: "ring-zinc-300/70",     titleInk: "text-zinc-600/80" },
+  whatsapp:        { name: "emerald",  gradient: "from-zoru-ink to-zoru-ink",   ink: "text-zoru-ink",  inkMuted: "text-zoru-ink/70",  soft: "bg-zoru-surface-2",   softer: "bg-zoru-surface-2/60",   hoverSoft: "hover:bg-zoru-surface-2",  ring: "ring-zoru-line/70",  titleInk: "text-zoru-ink/80" },
+  sabchat:         { name: "sky",      gradient: "from-zoru-ink to-zoru-ink",       ink: "text-zoru-ink",      inkMuted: "text-zoru-ink/70",      soft: "bg-zoru-surface-2",       softer: "bg-zoru-surface-2/60",       hoverSoft: "hover:bg-zoru-surface-2",      ring: "ring-zoru-line/70",      titleInk: "text-zoru-ink/80" },
+  facebook:        { name: "blue",     gradient: "from-zoru-ink to-zoru-ink",    ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
+  "ad-manager":    { name: "indigo",   gradient: "from-zoru-ink to-zoru-ink",  ink: "text-zoru-ink",   inkMuted: "text-zoru-ink/70",   soft: "bg-zoru-surface-2",    softer: "bg-zoru-surface-2/60",    hoverSoft: "hover:bg-zoru-surface-2",   ring: "ring-zoru-line/70",   titleInk: "text-zoru-ink/80" },
+  telegram:        { name: "cyan",     gradient: "from-zoru-ink to-zoru-ink",       ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
+  instagram:       { name: "pink",     gradient: "from-zoru-ink to-zoru-ink",   ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
+  crm:             { name: "violet",   gradient: "from-zoru-ink to-zoru-ink",  ink: "text-zoru-ink",   inkMuted: "text-zoru-ink/70",   soft: "bg-zoru-surface-2",    softer: "bg-zoru-surface-2/60",    hoverSoft: "hover:bg-zoru-surface-2",   ring: "ring-zoru-line/70",   titleInk: "text-zoru-ink/80" },
+  hrm:             { name: "rose",     gradient: "from-zoru-ink to-zoru-ink",       ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
+  sabflow:         { name: "lime",     gradient: "from-zoru-ink to-zoru-ink",     ink: "text-zoru-ink",    inkMuted: "text-zoru-ink/70",    soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
+  team:            { name: "indigo",   gradient: "from-zoru-ink to-zoru-ink",    ink: "text-zoru-ink",   inkMuted: "text-zoru-ink/70",   soft: "bg-zoru-surface-2",    softer: "bg-zoru-surface-2/60",    hoverSoft: "hover:bg-zoru-surface-2",   ring: "ring-zoru-line/70",   titleInk: "text-zoru-ink/80" },
+  email:           { name: "sky",      gradient: "from-zoru-ink to-zoru-ink",       ink: "text-zoru-ink",      inkMuted: "text-zoru-ink/70",      soft: "bg-zoru-surface-2",       softer: "bg-zoru-surface-2/60",       hoverSoft: "hover:bg-zoru-surface-2",      ring: "ring-zoru-line/70",      titleInk: "text-zoru-ink/80" },
+  sms:             { name: "green",    gradient: "from-zoru-ink to-zoru-ink",  ink: "text-zoru-ink",    inkMuted: "text-zoru-ink/70",    soft: "bg-zoru-surface-2",     softer: "bg-zoru-surface-2/60",     hoverSoft: "hover:bg-zoru-surface-2",    ring: "ring-zoru-line/70",    titleInk: "text-zoru-ink/80" },
+  api:             { name: "slate",    gradient: "from-zoru-ink to-zoru-ink",     ink: "text-zoru-ink",    inkMuted: "text-zoru-ink/70",    soft: "bg-zoru-surface-2",    softer: "bg-zoru-surface-2/60",    hoverSoft: "hover:bg-zoru-surface-2",   ring: "ring-zoru-line/70",    titleInk: "text-zoru-ink/80" },
+  "website-builder": { name: "teal",   gradient: "from-zoru-ink to-zoru-ink",      ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
+  "url-shortener": { name: "purple",   gradient: "from-zoru-ink to-zoru-ink", ink: "text-zoru-ink",   inkMuted: "text-zoru-ink/70",   soft: "bg-zoru-surface-2",    softer: "bg-zoru-surface-2/60",    hoverSoft: "hover:bg-zoru-surface-2",   ring: "ring-zoru-line/70",   titleInk: "text-zoru-ink/80" },
+  "qr-code-maker": { name: "fuchsia",  gradient: "from-zoru-ink to-zoru-ink",   ink: "text-zoru-ink",  inkMuted: "text-zoru-ink/70",  soft: "bg-zoru-surface-2",   softer: "bg-zoru-surface-2/60",   hoverSoft: "hover:bg-zoru-surface-2",  ring: "ring-zoru-line/70",  titleInk: "text-zoru-ink/80" },
+  "seo-suite":     { name: "blue",     gradient: "from-zoru-ink to-zoru-ink",      ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
+  settings:        { name: "zinc",     gradient: "from-zoru-ink to-zoru-ink",     ink: "text-zoru-ink",     inkMuted: "text-zoru-ink",        soft: "bg-zoru-surface-2",     softer: "bg-zoru-surface-2/60",     hoverSoft: "hover:bg-zoru-surface-2",    ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
 };
 
 const FALLBACK_HUE: ModuleHue = MODULE_HUE.settings;
@@ -232,7 +232,7 @@ function SearchBar({
     <div className={cn("relative shrink-0 transition-all duration-300", collapsed ? "w-full flex justify-center" : "w-full")}>
       <div className={cn(
         "h-9 rounded-xl flex items-center transition-all duration-300",
-        "bg-white ring-1 ring-zinc-200/80 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_1px_2px_-1px_rgba(15,23,42,0.06)]",
+        "bg-white ring-1 ring-zoru-line/80 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_1px_2px_-1px_rgba(15,23,42,0.06)]",
         "focus-within:ring-2", hue.ring,
         collapsed ? "w-9 min-w-9 justify-center" : "w-full",
       )}>
@@ -247,7 +247,7 @@ function SearchBar({
             onChange={(e) => onChange(e.target.value)}
             tabIndex={collapsed ? -1 : 0}
             aria-label="Search menu"
-            className="w-full bg-transparent border-0 outline-none text-[12.5px] text-zinc-800 placeholder:text-zinc-400 py-1.5 px-2 focus:ring-0"
+            className="w-full bg-transparent border-0 outline-none text-[12.5px] text-zoru-ink placeholder:text-zoru-ink-muted py-1.5 px-2 focus:ring-0"
           />
         </div>
       </div>
@@ -261,14 +261,14 @@ function BrandBadge() {
   return (
     <Link
       href="/wachat"
-      className="block shrink-0 w-full rounded-xl hover:bg-zinc-50 transition-colors mb-1"
+      className="block shrink-0 w-full rounded-xl hover:bg-zoru-surface-2 transition-colors mb-1"
       aria-label="SabNode home"
     >
       <div className="flex items-center gap-2 h-9 px-1">
-        <div className="size-7 rounded-lg bg-gradient-to-br from-violet-500 via-fuchsia-500 to-rose-500 flex items-center justify-center shadow-sm ring-1 ring-white/40">
+        <div className="size-7 rounded-lg bg-gradient-to-br from-zoru-ink via-zoru-ink to-zoru-ink flex items-center justify-center shadow-sm ring-1 ring-white/40">
           <span className="text-white font-bold text-[12px] drop-shadow-sm">S</span>
         </div>
-        <span className="font-semibold text-[14px] tracking-tight bg-gradient-to-r from-zinc-900 to-zinc-700 bg-clip-text text-transparent">
+        <span className="font-semibold text-[14px] tracking-tight bg-gradient-to-r from-zoru-ink to-zoru-ink bg-clip-text text-transparent">
           SabNode
         </span>
       </div>
@@ -279,7 +279,7 @@ function BrandBadge() {
 function AvatarCircle({ size = 28 }: { size?: number }) {
   return (
     <div
-      className="rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-rose-500 flex items-center justify-center shrink-0 ring-2 ring-white shadow-md"
+      className="rounded-full bg-gradient-to-br from-zoru-ink via-zoru-ink to-zoru-ink flex items-center justify-center shrink-0 ring-2 ring-white shadow-md"
       style={{ width: size, height: size }}
     >
       <UserIcon size={Math.max(12, size - 14)} className="text-white" />
@@ -309,7 +309,7 @@ function IconNavButton({
     "flex items-center justify-center rounded-xl size-9 min-w-9 transition-all duration-150 relative",
     active
       ? cn("bg-gradient-to-br text-white shadow-md ring-1 ring-white/30", h.gradient)
-      : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800",
+      : "text-zoru-ink hover:bg-zoru-surface-2 hover:text-zoru-ink",
   );
   if (href) {
     return (
@@ -329,13 +329,13 @@ function IconRail({ active, compact = false }: { active: string; compact?: boole
   return (
     <aside
       className={cn(
-        "flex flex-col gap-1.5 items-center py-3 shrink-0 min-h-screen border-r border-zinc-200/70 bg-white",
+        "flex flex-col gap-1.5 items-center py-3 shrink-0 min-h-screen border-r border-zoru-line/70 bg-white",
         compact ? "w-12 px-1.5" : "w-14 px-2",
       )}
       aria-label="Module navigation"
     >
       <Link href="/wachat" aria-label="SabNode home" className="mb-1 size-9 flex items-center justify-center">
-        <div className="size-7 rounded-lg bg-gradient-to-br from-violet-500 via-fuchsia-500 to-rose-500 flex items-center justify-center shadow-sm ring-1 ring-white/40">
+        <div className="size-7 rounded-lg bg-gradient-to-br from-zoru-ink via-zoru-ink to-zoru-ink flex items-center justify-center shadow-sm ring-1 ring-white/40">
           <span className="text-white font-bold text-[12px] drop-shadow-sm">S</span>
         </div>
       </Link>
@@ -359,7 +359,7 @@ function IconRail({ active, compact = false }: { active: string; compact?: boole
         </nav>
       </ScrollArea>
 
-      <div className="flex flex-col gap-1.5 w-full items-center pt-2 border-t border-zinc-200/70">
+      <div className="flex flex-col gap-1.5 w-full items-center pt-2 border-t border-zoru-line/70">
         <IconNavButton
           active={active === "settings"}
           title="Settings"
@@ -431,10 +431,10 @@ function AppDock({ active }: { active: string }) {
         name="Profile"
         href="/dashboard/profile"
         accent={{
-          gradient: "from-violet-500 via-fuchsia-500 to-rose-500",
-          ink: "text-fuchsia-700",
-          soft: "bg-fuchsia-50",
-          ring: "ring-fuchsia-200/70",
+          gradient: "from-zoru-ink via-zoru-ink to-zoru-ink",
+          ink: "text-zoru-ink",
+          soft: "bg-zoru-surface-2",
+          ring: "ring-zoru-line/70",
         }}
         onActivate={
           tabs
@@ -444,11 +444,11 @@ function AppDock({ active }: { active: string }) {
                   title: "Profile",
                   href,
                   hue: {
-                    gradient: "from-violet-500 via-fuchsia-500 to-rose-500",
-                    ink: "text-fuchsia-700",
-                    soft: "bg-fuchsia-50",
-                    ring: "ring-fuchsia-200/70",
-                    hoverSoft: "hover:bg-fuchsia-50",
+                    gradient: "from-zoru-ink via-zoru-ink to-zoru-ink",
+                    ink: "text-zoru-ink",
+                    soft: "bg-zoru-surface-2",
+                    ring: "ring-zoru-line/70",
+                    hoverSoft: "hover:bg-zoru-surface-2",
                   },
                 })
             : undefined
@@ -553,7 +553,7 @@ function MenuRow({
               "text-white shadow-md ring-1 ring-white/20",
               "bg-gradient-to-r", hue.gradient,
             )
-          : cn("text-zinc-700 hover:text-zinc-900", hue.hoverSoft),
+          : cn("text-zoru-ink hover:text-zoru-ink", hue.hoverSoft),
         collapsed ? "w-9 min-w-9 h-9 justify-center p-0" : "w-full min-h-9 px-2.5 py-1",
       )}
       title={collapsed ? item.label : undefined}
@@ -583,7 +583,7 @@ function MenuRow({
             <span
               className={cn(
                 "rounded-full text-[9px] px-1.5 py-0.5 uppercase tracking-wide font-bold",
-                (isActive && !item.subItems) ? "bg-white/25 text-white" : "bg-zinc-200/80 text-zinc-700",
+                (isActive && !item.subItems) ? "bg-white/25 text-white" : "bg-zoru-surface-2/80 text-zoru-ink",
               )}
             >
               beta
@@ -595,7 +595,7 @@ function MenuRow({
                 "rounded-full text-[9px] px-1.5 py-0.5 uppercase tracking-wide font-bold",
                 (isActive && !item.subItems)
                   ? "bg-white/25 text-white"
-                  : "bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-sm",
+                  : "bg-gradient-to-r from-zoru-ink to-zoru-ink text-white shadow-sm",
               )}
             >
               new
@@ -604,7 +604,7 @@ function MenuRow({
         </span>
       </span>
       {item.subItems && !collapsed && (
-        <ChevronRight className={cn("w-3.5 h-3.5 ml-1 transition-transform", open ? "rotate-90" : "", (isActive && !item.subItems) ? "text-white" : "text-zinc-400")} />
+        <ChevronRight className={cn("w-3.5 h-3.5 ml-1 transition-transform", open ? "rotate-90" : "", (isActive && !item.subItems) ? "text-white" : "text-zoru-ink-muted")} />
       )}
     </div>
   );
@@ -736,7 +736,7 @@ function DetailPanel({
         // makes ONLY the menu list scroll while the brand/section/search
         // header and the account footer stay static.
         "relative sticky top-0 h-screen flex flex-col gap-2.5 items-stretch py-3 transition-all duration-300",
-        "bg-white border-r border-zinc-200/70",
+        "bg-white border-r border-zoru-line/70",
         // 60% of the original (`w-72 lg:w-80`) +15% — lands at w-52 / w-56
         // (208 / 224 px), close to 202 / 221 px exact.
         collapsed ? "w-12 min-w-12 px-1.5" : "w-52 lg:w-56 px-2.5",
@@ -772,7 +772,7 @@ function DetailPanel({
             />
           ))}
           {totalMatches === 0 && (
-            <div className="text-[12px] text-zinc-500 px-3 py-2">
+            <div className="text-[12px] text-zoru-ink px-3 py-2">
               No matches for &ldquo;{query}&rdquo;.
             </div>
           )}
@@ -781,7 +781,7 @@ function DetailPanel({
 
       {/* Static footer — pinned at the bottom of the rail. */}
       {!collapsed && (
-        <div className="shrink-0 w-full pt-2 border-t border-zinc-200/70">
+        <div className="shrink-0 w-full pt-2 border-t border-zoru-line/70">
           <Link
             href="/dashboard/profile"
             className={cn(
@@ -791,8 +791,8 @@ function DetailPanel({
           >
             <AvatarCircle size={28} />
             <div className="flex flex-col min-w-0">
-              <span className="text-[12px] font-semibold text-zinc-800 truncate">Account</span>
-              <span className="text-[10.5px] text-zinc-500 truncate">Profile &amp; preferences</span>
+              <span className="text-[12px] font-semibold text-zoru-ink truncate">Account</span>
+              <span className="text-[10.5px] text-zoru-ink truncate">Profile &amp; preferences</span>
             </div>
           </Link>
         </div>
@@ -848,14 +848,14 @@ export function SabNodeTwoLineSidebarMobile() {
           <button
             type="button"
             aria-label="Open navigation"
-            className="fixed top-3 left-3 z-40 inline-flex items-center justify-center rounded-xl bg-white size-9 shadow-md ring-1 ring-zinc-200/70 text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
+            className="fixed top-3 left-3 z-40 inline-flex items-center justify-center rounded-xl bg-white size-9 shadow-md ring-1 ring-zoru-line/70 text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2 transition-colors"
           >
             <MenuIcon size={18} />
           </button>
         </SheetTrigger>
         <SheetContent
           side="left"
-          className="p-0 w-[280px] border-r border-zinc-200/70 bg-white"
+          className="p-0 w-[280px] border-r border-zoru-line/70 bg-white"
         >
           <SheetTitle className="sr-only">SabNode navigation</SheetTitle>
           <div className="flex flex-row h-full">
@@ -881,12 +881,12 @@ export function SabNodeSidebar() {
 
 export function Frame760() {
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-zinc-50 via-white to-zinc-50">
+    <div className="min-h-screen flex bg-gradient-to-br from-zoru-surface-2 via-white to-zoru-surface-2">
       <SabNodeSidebar />
-      <main className="flex-1 p-6 text-zinc-800">
+      <main className="flex-1 p-6 text-zoru-ink">
         <div className="max-w-3xl">
           <h1 className="text-[22px] font-semibold mb-1.5">SabNode two-line sidebar</h1>
-          <p className="text-zinc-500 text-[13.5px] leading-relaxed">
+          <p className="text-zoru-ink text-[13.5px] leading-relaxed">
             Light clay palette · production-ready. Left rail = every module from
             <code className="font-mono mx-1">appIcons</code>. Right rail = the active module&rsquo;s
             menu, drawn live from

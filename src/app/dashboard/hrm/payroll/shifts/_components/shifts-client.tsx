@@ -373,7 +373,7 @@ export default function ShiftsClient({ initialShifts }: { initialShifts: CrmShif
                                                             <Edit className="h-4 w-4" />
                                                         </Button>
                                                         <Button variant="ghost" size="icon" onClick={() => setPendingDelete(s)} aria-label="Delete shift">
-                                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
                                                         </Button>
                                                     </ZoruTableCell>
                                                 </ZoruTableRow>

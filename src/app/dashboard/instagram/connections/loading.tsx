@@ -7,7 +7,7 @@ export default function Loading() {
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-4 w-96 mt-2" />
       </div>
-      <div className="flex justify-between items-center bg-card p-4 rounded-lg border">
+      <div className="flex justify-between items-center bg-zoru-surface p-4 rounded-lg border">
         <Skeleton className="h-10 w-96" />
         <Skeleton className="h-10 w-32" />
       </div>

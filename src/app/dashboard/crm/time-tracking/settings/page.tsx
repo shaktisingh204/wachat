@@ -116,9 +116,9 @@ export default function TimeTrackingSettingsPage() {
                 className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
               >
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent">
+                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
                     <Icon
-                      className="h-4.5 w-4.5 text-accent-foreground"
+                      className="h-4.5 w-4.5 text-zoru-ink"
                       strokeWidth={1.75}
                     />
                   </div>

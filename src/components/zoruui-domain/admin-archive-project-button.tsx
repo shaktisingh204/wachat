@@ -54,7 +54,7 @@ export function AdminArchiveProjectButton({
                 size="icon"
                 onClick={() => setOpen(true)}
                 aria-label={isArchived ? `Restore ${projectName}` : `Archive ${projectName}`}
-                className="text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2"
             >
                 {isArchived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
             </Button>

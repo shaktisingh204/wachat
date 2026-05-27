@@ -223,7 +223,7 @@ function SoLineItemRow({
                       currentWarehouseStock > 0
                         ? hasSufficientStock
                           ? 'text-zoru-success-ink font-medium'
-                          : 'text-amber-600 font-medium'
+                          : 'text-zoru-ink font-medium'
                         : 'text-zoru-danger-ink font-medium'
                     }
                   >

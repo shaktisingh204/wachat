@@ -184,7 +184,7 @@ export default async function AutomationDetailPage({
                                             <td className="py-3 pr-4">{fmtDate(run.completedAt)}</td>
                                             <td className="py-3 max-w-[200px] truncate" title={run.error || run.message || '—'}>
                                                 {run.error ? (
-                                                    <span className="text-red-500">{run.error}</span>
+                                                    <span className="text-zoru-ink">{run.error}</span>
                                                 ) : run.message ? (
                                                     <span className="text-zoru-ink-muted">{run.message}</span>
                                                 ) : (

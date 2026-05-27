@@ -66,18 +66,18 @@ export function LibraryGallery({ templates }: LibraryGalleryProps) {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-muted-foreground">
+              <div className="flex h-full items-center justify-center text-zoru-ink-muted">
                 <FileText className="h-8 w-8" />
               </div>
             )}
-            <Badge variant="outline" className="absolute right-2 top-2 gap-1 bg-card">
+            <Badge variant="outline" className="absolute right-2 top-2 gap-1 bg-zoru-surface">
               <Sparkles className="h-3 w-3" /> Library
             </Badge>
           </div>
           <ZoruCardHeader>
             <ZoruCardTitle className="line-clamp-1 text-sm">{t.name}</ZoruCardTitle>
           </ZoruCardHeader>
-          <ZoruCardContent className="flex-1 text-xs text-muted-foreground">
+          <ZoruCardContent className="flex-1 text-xs text-zoru-ink-muted">
             {t.category ?? 'General'}
           </ZoruCardContent>
           <ZoruCardFooter>

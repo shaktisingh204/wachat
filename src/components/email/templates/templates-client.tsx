@@ -169,7 +169,7 @@ function SegmentedButton<V extends string>({
     <div
       role="radiogroup"
       aria-label="Section"
-      className="inline-flex overflow-hidden rounded-md border border-zoru-line bg-card"
+      className="inline-flex overflow-hidden rounded-md border border-zoru-line bg-zoru-surface"
     >
       {options.map((opt) => {
         const Icon = opt.icon;
@@ -193,7 +193,7 @@ function SegmentedButton<V extends string>({
             {typeof opt.count === 'number' ? (
               <span className={cn(
                 'rounded-full px-1.5 py-0.5 text-xs',
-                active ? 'bg-white/20' : 'bg-zoru-surface-2 text-muted-foreground',
+                active ? 'bg-white/20' : 'bg-zoru-surface-2 text-zoru-ink-muted',
               )}>
                 {opt.count}
               </span>

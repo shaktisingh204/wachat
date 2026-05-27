@@ -346,8 +346,8 @@ export function PosTerminalManagerClient({ terminals }: Props) {
                                                     className={
                                                         'inline-block h-2 w-2 rounded-full ' +
                                                         (t.status === 'online'
-                                                            ? 'bg-emerald-500'
-                                                            : 'bg-zinc-400')
+                                                            ? 'bg-zoru-ink'
+                                                            : 'bg-zoru-surface-2')
                                                     }
                                                     aria-hidden="true"
                                                 />

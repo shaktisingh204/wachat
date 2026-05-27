@@ -101,8 +101,8 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                                 <Select value={task.status} onValueChange={(val) => handleStatusChange(task._id.toString(), val as any)}>
                                                     <ZoruSelectTrigger className={cn(
                                                         'h-8 text-xs w-32',
-                                                        task.status === 'Completed' && 'border-green-500 text-green-600',
-                                                        task.status === 'In Progress' && 'border-blue-500 text-blue-600'
+                                                        task.status === 'Completed' && 'border-zoru-line text-zoru-ink',
+                                                        task.status === 'In Progress' && 'border-zoru-line text-zoru-ink'
                                                     )}>
                                                         <ZoruSelectValue />
                                                     </ZoruSelectTrigger>

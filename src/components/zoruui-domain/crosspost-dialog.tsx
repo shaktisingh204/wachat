@@ -112,7 +112,7 @@ export function CrosspostDialog({ isOpen, onOpenChange, postId, projectId, onSuc
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-center text-muted-foreground p-4">No eligible pages found for crossposting.</p>
+                  <p className="text-sm text-center text-zoru-ink-muted p-4">No eligible pages found for crossposting.</p>
                 )}
               </div>
             </div>

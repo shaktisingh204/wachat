@@ -41,7 +41,7 @@ export default function AiLabPage() {
                 title="AI creative lab"
                 description="Machine-learning workflows Meta Ads Manager doesn't offer."
                 actions={
-                    <Badge className="bg-gradient-to-r from-[#1877F2] to-purple-600 text-white border-0">
+                    <Badge className="bg-gradient-to-r from-zoru-ink to-zoru-ink text-white border-0">
                         <Sparkles className="h-3.5 w-3.5 mr-1" />
                         Only on SabNode
                     </Badge>
@@ -53,15 +53,15 @@ export default function AiLabPage() {
                     {TOOLS.map((t) => {
                         const Icon = t.icon;
                         const card = (
-                            <Card className="cursor-pointer hover:border-[#1877F2]/50 transition-colors h-full">
+                            <Card className="cursor-pointer hover:border-zoru-line/50 transition-colors h-full">
                                 <ZoruCardHeader className="pb-2">
-                                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-[#1877F2]/10 to-purple-600/10 flex items-center justify-center text-[#1877F2]">
+                                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-zoru-ink/10 to-zoru-ink/10 flex items-center justify-center text-zoru-ink">
                                         <Icon className="h-5 w-5" />
                                     </div>
                                     <ZoruCardTitle className="text-base mt-2">{t.label}</ZoruCardTitle>
                                 </ZoruCardHeader>
                                 <ZoruCardContent>
-                                    <p className="text-xs text-muted-foreground">{t.desc}</p>
+                                    <p className="text-xs text-zoru-ink-muted">{t.desc}</p>
                                 </ZoruCardContent>
                             </Card>
                         );
@@ -91,7 +91,7 @@ export default function AiLabPage() {
                         </div>
                         <div className="flex justify-end">
                             <Button
-                                className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
+                                className="bg-zoru-ink hover:bg-zoru-ink/90 text-white"
                                 disabled={generating || !brief.trim()}
                                 onClick={async () => {
                                     if (!brief.trim()) return;
@@ -112,7 +112,7 @@ export default function AiLabPage() {
                             <div className="space-y-2 mt-4">
                                 <Label className="text-sm font-medium">Generated Variants</Label>
                                 {results.map((r, i) => (
-                                    <div key={i} className="flex items-center justify-between p-3 rounded-lg border bg-background">
+                                    <div key={i} className="flex items-center justify-between p-3 rounded-lg border bg-zoru-surface">
                                         <span className="text-sm">{r}</span>
                                         <Button size="sm" variant="ghost" onClick={() => navigator.clipboard.writeText(r)}>Copy</Button>
                                     </div>

@@ -253,9 +253,9 @@ export function ChatClient() {
                 onOpenChange={setIsNewChatDialogOpen}
                 onStartChat={handleNewChat}
             />
-            <div className="h-full w-full flex flex-col overflow-hidden bg-background">
+            <div className="h-full w-full flex flex-col overflow-hidden bg-zoru-surface">
                 <div className="flex flex-1 overflow-hidden">
-                    <div className={cn("w-full flex-col border-r bg-background/50 backdrop-blur-xl md:w-[380px] flex-shrink-0", selectedContact ? "hidden md:flex" : "flex")}>
+                    <div className={cn("w-full flex-col border-r bg-zoru-surface/50 backdrop-blur-xl md:w-[380px] flex-shrink-0", selectedContact ? "hidden md:flex" : "flex")}>
                         <ChatContactList
                             sessionUser={sessionUser}
                             project={activeProject}
@@ -286,9 +286,9 @@ export function ChatClient() {
                                 isInfoPanelOpen={isInfoPanelOpen}
                             />
                         ) : (
-                            <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center bg-chat-texture">
-                                <div className="h-20 w-20 bg-muted rounded-full flex items-center justify-center mb-2">
-                                    <MessageSquare className="h-10 w-10 text-muted-foreground/50" />
+                            <div className="hidden md:flex flex-col items-center justify-center h-full text-zoru-ink-muted gap-4 p-8 text-center bg-chat-texture">
+                                <div className="h-20 w-20 bg-zoru-surface-2 rounded-full flex items-center justify-center mb-2">
+                                    <MessageSquare className="h-10 w-10 text-zoru-ink-muted/50" />
                                 </div>
                                 <h2 className="text-xl font-semibold">Select a conversation</h2>
                                 <p className="max-w-xs text-sm">Choose a contact from the list or start a new chat to begin messaging.</p>
@@ -302,7 +302,7 @@ export function ChatClient() {
                         )}
                     </div>
                     {isInfoPanelOpen && selectedContact && activeProject && (
-                        <div className="w-[340px] border-l hidden lg:block flex-shrink-0 bg-background/50 backdrop-blur-xl">
+                        <div className="w-[340px] border-l hidden lg:block flex-shrink-0 bg-zoru-surface/50 backdrop-blur-xl">
                             <ContactInfoPanel
                                 project={activeProject}
                                 contact={selectedContact}

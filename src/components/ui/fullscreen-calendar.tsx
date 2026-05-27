@@ -88,19 +88,19 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
       <div className="flex flex-col space-y-4 p-4 md:flex-row md:items-center md:justify-between md:space-y-0 lg:flex-none">
         <div className="flex flex-auto">
           <div className="flex items-center gap-4">
-            <div className="hidden w-20 flex-col items-center justify-center rounded-lg bg-muted p-0.5 md:flex">
-              <h1 className="p-1 text-xs uppercase text-muted-foreground">
+            <div className="hidden w-20 flex-col items-center justify-center rounded-lg bg-zoru-surface-2 p-0.5 md:flex">
+              <h1 className="p-1 text-xs uppercase text-zoru-ink-muted">
                 {format(today, "MMM")}
               </h1>
-              <div className="flex w-full items-center justify-center rounded-lg bg-background p-0.5 text-lg font-bold shadow-sm">
+              <div className="flex w-full items-center justify-center rounded-lg bg-zoru-surface p-0.5 text-lg font-bold shadow-sm">
                 <span>{format(today, "d")}</span>
               </div>
             </div>
             <div className="flex flex-col">
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="text-lg font-semibold text-zoru-ink">
                 {format(firstDayCurrentMonth, "MMMM, yyyy")}
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-zoru-ink-muted">
                 {format(firstDayCurrentMonth, "MMM d, yyyy")} -{" "}
                 {format(endOfMonth(firstDayCurrentMonth), "MMM d, yyyy")}
               </p>
@@ -159,7 +159,7 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
       {/* Calendar Grid */}
       <div className="lg:flex lg:flex-auto lg:flex-col">
         {/* Week Days Header */}
-        <div className="grid grid-cols-7 text-center text-xs font-semibold leading-6 lg:flex-none bg-muted/40">
+        <div className="grid grid-cols-7 text-center text-xs font-semibold leading-6 lg:flex-none bg-zoru-surface-2/40">
           <div className="py-2.5">Sun</div>
           <div className="py-2.5">Mon</div>
           <div className="py-2.5">Tue</div>
@@ -179,18 +179,18 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                   key={dayIdx}
                   type="button"
                   className={cn(
-                    isEqual(day, selectedDay) && "text-primary-foreground",
+                    isEqual(day, selectedDay) && "text-white",
                     !isEqual(day, selectedDay) &&
                       !isToday(day) &&
                       isSameMonth(day, firstDayCurrentMonth) &&
-                      "text-foreground",
+                      "text-zoru-ink",
                     !isEqual(day, selectedDay) &&
                       !isToday(day) &&
                       !isSameMonth(day, firstDayCurrentMonth) &&
-                      "text-muted-foreground",
+                      "text-zoru-ink-muted",
                     (isEqual(day, selectedDay) || isToday(day)) &&
                       "font-semibold",
-                    "flex h-14 flex-col px-3 py-2 hover:bg-muted focus:z-10",
+                    "flex h-14 flex-col px-3 py-2 hover:bg-zoru-surface-2 focus:z-10",
                   )}
                 >
                   <time
@@ -199,10 +199,10 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                       "ml-auto flex size-6 items-center justify-center rounded-full",
                       isEqual(day, selectedDay) &&
                         isToday(day) &&
-                        "bg-primary text-primary-foreground",
+                        "bg-zoru-ink text-white",
                       isEqual(day, selectedDay) &&
                         !isToday(day) &&
-                        "bg-primary text-primary-foreground",
+                        "bg-zoru-ink text-white",
                     )}
                   >
                     {format(day, "d")}
@@ -220,7 +220,7 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                             {date.events.map((event) => (
                               <span
                                 key={event.id}
-                                className="mx-0.5 mt-1 h-1.5 w-1.5 rounded-full bg-muted-foreground"
+                                className="mx-0.5 mt-1 h-1.5 w-1.5 rounded-full bg-zoru-surface-2-foreground"
                               />
                             ))}
                           </div>
@@ -237,30 +237,30 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                     !isEqual(day, selectedDay) &&
                       !isToday(day) &&
                       !isSameMonth(day, firstDayCurrentMonth) &&
-                      "bg-accent/50 text-muted-foreground",
-                    "relative flex flex-col hover:bg-muted focus:z-10",
-                    !isEqual(day, selectedDay) && "hover:bg-accent/75",
+                      "bg-zoru-surface-2/50 text-zoru-ink-muted",
+                    "relative flex flex-col hover:bg-zoru-surface-2 focus:z-10",
+                    !isEqual(day, selectedDay) && "hover:bg-zoru-surface-2/75",
                   )}
                 >
                   <header className="flex items-center justify-between p-2.5">
                     <button
                       type="button"
                       className={cn(
-                        isEqual(day, selectedDay) && "text-primary-foreground",
+                        isEqual(day, selectedDay) && "text-white",
                         !isEqual(day, selectedDay) &&
                           !isToday(day) &&
                           isSameMonth(day, firstDayCurrentMonth) &&
-                          "text-foreground",
+                          "text-zoru-ink",
                         !isEqual(day, selectedDay) &&
                           !isToday(day) &&
                           !isSameMonth(day, firstDayCurrentMonth) &&
-                          "text-muted-foreground",
+                          "text-zoru-ink-muted",
                         isEqual(day, selectedDay) &&
                           isToday(day) &&
-                          "bg-primary",
+                          "bg-zoru-ink",
                         isEqual(day, selectedDay) &&
                           !isToday(day) &&
-                          "bg-foreground",
+                          "bg-zoru-ink",
                         (isEqual(day, selectedDay) || isToday(day)) &&
                           "font-semibold",
                         "flex h-7 w-7 items-center justify-center rounded-full text-xs",
@@ -279,18 +279,18 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                           {day.events.slice(0, 1).map((event) => (
                             <div
                               key={event.id}
-                              className="flex flex-col items-start gap-1 rounded-lg bg-muted/50 p-2 text-xs leading-tight shadow-sm"
+                              className="flex flex-col items-start gap-1 rounded-lg bg-zoru-surface-2/50 p-2 text-xs leading-tight shadow-sm"
                             >
                               <p className="font-medium leading-none">
                                 {event.name}
                               </p>
-                              <p className="leading-none text-muted-foreground">
+                              <p className="leading-none text-zoru-ink-muted">
                                 {event.time}
                               </p>
                             </div>
                           ))}
                           {day.events.length > 1 && (
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-xs text-zoru-ink-muted">
                               + {day.events.length - 1} more
                             </div>
                           )}
@@ -309,18 +309,18 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                 key={dayIdx}
                 type="button"
                 className={cn(
-                  isEqual(day, selectedDay) && "text-primary-foreground",
+                  isEqual(day, selectedDay) && "text-white",
                   !isEqual(day, selectedDay) &&
                     !isToday(day) &&
                     isSameMonth(day, firstDayCurrentMonth) &&
-                    "text-foreground",
+                    "text-zoru-ink",
                   !isEqual(day, selectedDay) &&
                     !isToday(day) &&
                     !isSameMonth(day, firstDayCurrentMonth) &&
-                    "text-muted-foreground",
+                    "text-zoru-ink-muted",
                   (isEqual(day, selectedDay) || isToday(day)) &&
                     "font-semibold",
-                  "flex h-14 flex-col px-3 py-2 hover:bg-muted focus:z-10",
+                  "flex h-14 flex-col px-3 py-2 hover:bg-zoru-surface-2 focus:z-10",
                 )}
               >
                 <time
@@ -329,10 +329,10 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                     "ml-auto flex size-6 items-center justify-center rounded-full",
                     isEqual(day, selectedDay) &&
                       isToday(day) &&
-                      "bg-primary text-primary-foreground",
+                      "bg-zoru-ink text-white",
                     isEqual(day, selectedDay) &&
                       !isToday(day) &&
-                      "bg-primary text-primary-foreground",
+                      "bg-zoru-ink text-white",
                   )}
                 >
                   {format(day, "d")}
@@ -349,7 +349,7 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                           {date.events.map((event) => (
                             <span
                               key={event.id}
-                              className="mx-0.5 mt-1 h-1.5 w-1.5 rounded-full bg-muted-foreground"
+                              className="mx-0.5 mt-1 h-1.5 w-1.5 rounded-full bg-zoru-surface-2-foreground"
                             />
                           ))}
                         </div>

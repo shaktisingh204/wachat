@@ -1,24 +1,15 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Award } from 'lucide-react';
-import { HrFormPage } from '../../_components/hr-form-page';
-import { saveCertification } from '@/app/actions/hr.actions';
-import { fields, sections } from '../_config';
+import React from 'react';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
+import { saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
 
 export default function NewCertificationPage() {
-  return (
-    <HrFormPage
-      title="New Certification"
-      subtitle="Record a credential or professional certification."
-      icon={Award}
-      backHref="/dashboard/hrm/hr/certifications"
-      singular="Certification"
-      fields={fields}
-      sections={sections}
-      saveAction={saveCertification}
-    />
-  );
+    return (
+        <LiveDocumentEditor
+            documentType="certification"
+            saveAction={saveLiveDocument}
+            backHref="/dashboard/hrm/hr/certifications"
+        />
+    );
 }

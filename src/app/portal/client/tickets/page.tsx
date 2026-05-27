@@ -85,7 +85,7 @@ async function ClientTicketsPageContent(props: { searchParams?: { status?: strin
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {tickets.map((t) => (
-                                    <ZoruTableRow key={t._id} className={t.awaitingClientResponse ? "bg-amber-50/30" : ""}>
+                                    <ZoruTableRow key={t._id} className={t.awaitingClientResponse ? "bg-zoru-surface-2/30" : ""}>
                                         <ZoruTableCell className="text-xs text-zoru-ink-muted">
                                             {t.number ?? t._id.slice(-6).toUpperCase()}
                                         </ZoruTableCell>
@@ -99,7 +99,7 @@ async function ClientTicketsPageContent(props: { searchParams?: { status?: strin
                                                         {t.subject}
                                                     </Link>
                                                     {t.awaitingClientResponse && (
-                                                        <span className="text-[10px] font-semibold tracking-wide uppercase px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                                                        <span className="text-[10px] font-semibold tracking-wide uppercase px-1.5 py-0.5 rounded-full bg-zoru-surface-2 text-zoru-ink">
                                                             Action Required
                                                         </span>
                                                     )}

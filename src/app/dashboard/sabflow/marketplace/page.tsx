@@ -93,18 +93,18 @@ export default async function SabFlowMarketplacePage() {
   const templates = await fetchPublishedTemplates();
 
   return (
-    <div className="flex min-h-full flex-col bg-zinc-950 text-zinc-100">
+    <div className="flex min-h-full flex-col bg-zoru-ink text-white">
       {/* ── Page header ──────────────────────────────────────────────────── */}
-      <header className="border-b border-zinc-800 bg-zinc-950 px-6 py-5">
+      <header className="border-b border-zoru-line bg-zoru-ink px-6 py-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900">
-            <LuStore className="h-4.5 w-4.5 text-zinc-300" strokeWidth={1.7} />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-zoru-line bg-zoru-ink">
+            <LuStore className="h-4.5 w-4.5 text-zoru-ink-muted" strokeWidth={1.7} />
           </div>
           <div>
-            <h1 className="text-[16px] font-semibold text-zinc-100 leading-tight">
+            <h1 className="text-[16px] font-semibold text-white leading-tight">
               Template Marketplace
             </h1>
-            <p className="text-[12px] text-zinc-500 mt-0.5">
+            <p className="text-[12px] text-zoru-ink mt-0.5">
               Browse ready-made workflow templates and install them into your workspace.
             </p>
           </div>
@@ -116,7 +116,7 @@ export default async function SabFlowMarketplacePage() {
         <Suspense
           fallback={
             <div className="flex h-64 items-center justify-center">
-              <LuLoader className="h-5 w-5 animate-spin text-zinc-500" />
+              <LuLoader className="h-5 w-5 animate-spin text-zoru-ink" />
             </div>
           }
         >

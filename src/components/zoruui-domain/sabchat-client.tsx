@@ -85,9 +85,9 @@ export function SabChatClient() {
     }
 
     return (
-        <Card className="h-full w-full flex flex-col overflow-hidden bg-muted/30 dark:bg-background">
+        <Card className="h-full w-full flex flex-col overflow-hidden bg-zoru-surface-2/30 dark:bg-zoru-surface">
             <div className="flex flex-1 overflow-hidden">
-                <div className="w-full flex-col border-r bg-background md:w-[320px] flex-shrink-0 flex">
+                <div className="w-full flex-col border-r bg-zoru-surface md:w-[320px] flex-shrink-0 flex">
                     <SabChatConversationList
                         conversations={conversations}
                         selectedConversationId={selectedConversation?._id.toString()}
@@ -105,7 +105,7 @@ export function SabChatClient() {
                             onMessageSent={onMessageSent}
                         />
                     ) : (
-                        <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center bg-chat-texture">
+                        <div className="hidden md:flex flex-col items-center justify-center h-full text-zoru-ink-muted gap-4 p-8 text-center bg-chat-texture">
                             <MessageSquare className="h-16 w-16" />
                             <h2 className="text-xl font-semibold">Select a conversation</h2>
                             <p>Choose a chat from the list to start messaging.</p>

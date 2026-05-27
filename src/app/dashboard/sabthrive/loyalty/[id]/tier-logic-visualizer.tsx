@@ -40,7 +40,7 @@ export function TierLogicVisualizer({
                             Earns <span className="font-medium text-zoru-ink">{tier.multiplier}x</span> points.
                         </p>
                         {expiryDays ? (
-                            <p className="text-[11px] text-amber-600 mt-1">
+                            <p className="text-[11px] text-zoru-ink mt-1">
                                 Points expire after {expiryDays} days, causing possible downgrade.
                             </p>
                         ) : null}

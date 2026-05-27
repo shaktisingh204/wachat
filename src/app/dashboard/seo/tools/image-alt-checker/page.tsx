@@ -103,7 +103,7 @@ export default function ImageAltCheckerPage() {
           <Button onClick={run} disabled={loading || (inputType === 'url' ? !url.trim() : !htmlContent.trim())}>
             {loading ? 'Checking…' : 'Check'}
           </Button>
-          {err && <div className="text-sm text-destructive">{err}</div>}
+          {err && <div className="text-sm text-zoru-ink">{err}</div>}
         </ZoruCardContent>
       </Card>
       
@@ -127,7 +127,7 @@ export default function ImageAltCheckerPage() {
                 const isLongAlt = !isBg && img.hasAlt && img.alt.trim().length > 125;
                 const isGood = !isBg && img.hasAlt && img.alt.trim().length > 0 && !isLongAlt;
                 
-                let borderColor = 'border-border';
+                let borderColor = 'border-zoru-line';
                 let bgColor = '';
                 let statusText = '';
                 let badgeVariant: any = 'default';
@@ -138,22 +138,22 @@ export default function ImageAltCheckerPage() {
                   badgeVariant = 'outline';
                 } else if (isMissingAlt) {
                   borderColor = 'border-destructive';
-                  bgColor = 'bg-destructive/10';
+                  bgColor = 'bg-zoru-ink/10';
                   statusText = 'Missing alt attribute';
                   badgeVariant = 'destructive';
                 } else if (isDecorative) {
-                  borderColor = 'border-yellow-500/50';
-                  bgColor = 'bg-yellow-500/10';
+                  borderColor = 'border-zoru-line/50';
+                  bgColor = 'bg-zoru-ink/10';
                   statusText = 'Decorative (empty alt)';
                   badgeVariant = 'secondary';
                 } else if (isLongAlt) {
-                  borderColor = 'border-orange-500/50';
-                  bgColor = 'bg-orange-500/10';
+                  borderColor = 'border-zoru-line/50';
+                  bgColor = 'bg-zoru-ink/10';
                   statusText = 'Excessively long alt';
                   badgeVariant = 'warning';
                 } else if (isGood) {
-                  borderColor = 'border-green-500/50';
-                  bgColor = 'bg-green-500/10';
+                  borderColor = 'border-zoru-line/50';
+                  bgColor = 'bg-zoru-ink/10';
                   statusText = 'Good alt text';
                   badgeVariant = 'success';
                 }
@@ -171,20 +171,20 @@ export default function ImageAltCheckerPage() {
                     </div>
                     
                     {!isBg && (
-                      <div className="text-xs text-muted-foreground font-mono mt-2">
+                      <div className="text-xs text-zoru-ink-muted font-mono mt-2">
                         alt="
                         {isLongAlt ? (
                           <>
                             <span>{img.alt.substring(0, 125)}</span>
-                            <span className="bg-destructive/20 text-destructive font-bold" title="Excessively long text (over 125 chars)">{img.alt.substring(125)}</span>
+                            <span className="bg-zoru-ink/20 text-zoru-ink font-bold" title="Excessively long text (over 125 chars)">{img.alt.substring(125)}</span>
                           </>
                         ) : (
                           <>{img.hasAlt ? img.alt : ''}</>
                         )}
                         "
-                        {!img.hasAlt && <span className="text-destructive font-semibold ml-2">(attribute missing)</span>}
-                        {isDecorative && <span className="text-yellow-600 dark:text-yellow-400 font-semibold ml-2">(decorative: alt=&quot;&quot;)</span>}
-                        {isLongAlt && <span className="text-orange-600 dark:text-orange-400 font-semibold ml-2">({img.alt.trim().length} chars, over 125 limit)</span>}
+                        {!img.hasAlt && <span className="text-zoru-ink font-semibold ml-2">(attribute missing)</span>}
+                        {isDecorative && <span className="text-zoru-ink dark:text-zoru-ink-muted font-semibold ml-2">(decorative: alt=&quot;&quot;)</span>}
+                        {isLongAlt && <span className="text-zoru-ink dark:text-zoru-ink-muted font-semibold ml-2">({img.alt.trim().length} chars, over 125 limit)</span>}
                       </div>
                     )}
                   </div>

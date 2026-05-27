@@ -423,8 +423,8 @@ export default function AccountGroupsPage() {
                 }
                 bulkBar={
                     selection.size > 0 ? (
-                        <div className="flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-[13px]">
-                            <span className="font-medium text-foreground">
+                        <div className="flex items-center gap-2 rounded-md bg-zoru-surface-2 px-3 py-2 text-[13px]">
+                            <span className="font-medium text-zoru-ink">
                                 {selection.size} selected
                             </span>
                             <ZoruButton
@@ -437,7 +437,7 @@ export default function AccountGroupsPage() {
                             <ZoruButton
                                 variant="outline"
                                 size="sm"
-                                className="text-destructive"
+                                className="text-zoru-ink"
                                 onClick={() => setConfirmBulkDelete(true)}
                                 disabled={bulkPending}
                             >
@@ -455,10 +455,10 @@ export default function AccountGroupsPage() {
                 }
                 loading={isLoading && groups.length === 0}
             >
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <ZoruTable>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
+                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead className="w-10">
                                     <ZoruCheckbox
                                         checked={allChecked || (someChecked ? 'indeterminate' : false)}
@@ -466,23 +466,23 @@ export default function AccountGroupsPage() {
                                         aria-label="Select all"
                                     />
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Nature</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Sub-nature</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Accounts</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Actions</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Nature</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Sub-nature</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-zoru-ink-muted">Accounts</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-border">
+                                <ZoruTableRow className="border-zoru-line">
                                     <ZoruTableCell colSpan={6} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ) : filtered.length === 0 ? (
-                                <ZoruTableRow className="border-border">
-                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                                <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-zoru-ink-muted">
                                         No account groups match this filter.
                                     </ZoruTableCell>
                                 </ZoruTableRow>
@@ -490,7 +490,7 @@ export default function AccountGroupsPage() {
                                 filtered.map((g) => {
                                     const id = g._id.toString();
                                     return (
-                                        <ZoruTableRow key={id} className="border-border">
+                                        <ZoruTableRow key={id} className="border-zoru-line">
                                             <ZoruTableCell>
                                                 <ZoruCheckbox
                                                     checked={selection.has(id)}
@@ -498,7 +498,7 @@ export default function AccountGroupsPage() {
                                                     aria-label={`Select ${g.name}`}
                                                 />
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="font-medium text-foreground">
+                                            <ZoruTableCell className="font-medium text-zoru-ink">
                                                 <EntityRowLink
                                                     href={`/dashboard/crm/accounting/groups/${id}`}
                                                     label={g.name}
@@ -508,10 +508,10 @@ export default function AccountGroupsPage() {
                                             <ZoruTableCell>
                                                 <StatusPill label={g.type} tone={NATURE_TONE[g.type]} />
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-foreground">
+                                            <ZoruTableCell className="text-zoru-ink">
                                                 {g.category.replace(/_/g, ' ')}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-foreground">
+                                            <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                                 {g.accountCount ?? 0}
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-right">
@@ -527,7 +527,7 @@ export default function AccountGroupsPage() {
                                                     size="icon"
                                                     onClick={() => setPendingDelete(g)}
                                                 >
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                    <Trash2 className="h-4 w-4 text-zoru-ink" />
                                                 </ZoruButton>
                                             </ZoruTableCell>
                                         </ZoruTableRow>

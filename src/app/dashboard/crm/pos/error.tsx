@@ -23,7 +23,7 @@ export default function PosError({
             back={{ href: '/dashboard/crm/pos', label: 'Back to POS Home' }}
         >
             <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zoru-line bg-zoru-surface p-8 text-center animate-in fade-in-50">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-ink/10 text-zoru-ink">
                     <AlertCircle className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">

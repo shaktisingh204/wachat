@@ -28,18 +28,18 @@ export function DashboardHeader() {
         .toUpperCase() || 'U';
 
     return (
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border/40 pb-6 mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-zoru-line/40 pb-6 mb-8">
             <div className="flex items-center gap-4">
                 <Avatar className="h-14 w-14 border-2 border-primary/20 ring-4 ring-primary/5">
                     <ZoruAvatarImage src={sessionUser.image || ''} />
-                    <ZoruAvatarFallback className="bg-primary/10 text-primary font-bold">{initials}</ZoruAvatarFallback>
+                    <ZoruAvatarFallback className="bg-zoru-ink/10 text-zoru-ink font-bold">{initials}</ZoruAvatarFallback>
                 </Avatar>
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-2">
-                        {greeting}, {sessionUser.name?.split(' ')[0]} <Sparkles className="h-5 w-5 text-yellow-500 fill-yellow-500 animate-pulse" />
+                        {greeting}, {sessionUser.name?.split(' ')[0]} <Sparkles className="h-5 w-5 text-zoru-ink fill-zoru-ink animate-pulse" />
                     </h1>
-                    <p className="text-muted-foreground mt-1">
-                        You have <span className="font-semibold text-foreground">{projects.length} active projects</span> in your workspace.
+                    <p className="text-zoru-ink-muted mt-1">
+                        You have <span className="font-semibold text-zoru-ink">{projects.length} active projects</span> in your workspace.
                     </p>
                 </div>
             </div>

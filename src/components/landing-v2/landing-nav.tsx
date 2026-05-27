@@ -39,11 +39,11 @@ export function LandingNav({ session }: { session?: { user?: unknown } | null })
                             initial={{ rotate: 0 }}
                             whileHover={{ rotate: 90, scale: 1.1 }}
                             transition={{ type: 'spring', stiffness: 200, damping: 12 }}
-                            className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 shadow-lg shadow-orange-500/30"
+                            className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-zoru-surface-2 via-zoru-ink to-zoru-ink shadow-lg shadow-zoru-line/30"
                         >
                             <span className="text-sm font-black text-white">S</span>
                         </m.div>
-                        <span className="text-lg font-semibold tracking-tight text-zinc-900">SabNode</span>
+                        <span className="text-lg font-semibold tracking-tight text-zoru-ink">SabNode</span>
                     </Link>
 
                     <div className="hidden items-center gap-1 md:flex">
@@ -53,7 +53,7 @@ export function LandingNav({ session }: { session?: { user?: unknown } | null })
                             onClick={() => setMegaOpen((v) => !v)}
                             aria-expanded={megaOpen}
                             aria-haspopup="true"
-                            className="relative inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-sm font-medium text-zinc-600 transition hover:text-zinc-900"
+                            className="relative inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-sm font-medium text-zoru-ink transition hover:text-zoru-ink"
                         >
                             <span>Products</span>
                             <ChevronDown
@@ -64,7 +64,7 @@ export function LandingNav({ session }: { session?: { user?: unknown } | null })
                             <Link
                                 key={l.href}
                                 href={l.href}
-                                className="relative rounded-full px-4 py-1.5 text-sm font-medium text-zinc-600 transition hover:text-zinc-900"
+                                className="relative rounded-full px-4 py-1.5 text-sm font-medium text-zoru-ink transition hover:text-zoru-ink"
                             >
                                 <span className="relative z-10">{l.label}</span>
                             </Link>
@@ -75,19 +75,19 @@ export function LandingNav({ session }: { session?: { user?: unknown } | null })
                         {session?.user ? (
                             <Link
                                 href="/dashboard"
-                                className="group inline-flex items-center gap-1.5 rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-zinc-900/10 transition hover:scale-[1.03]"
+                                className="group inline-flex items-center gap-1.5 rounded-full bg-zoru-ink px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-zoru-line/10 transition hover:scale-[1.03]"
                             >
                                 Open dashboard
                                 <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
                             </Link>
                         ) : (
                             <>
-                                <Link href="/login" className="rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition hover:text-zinc-900">
+                                <Link href="/login" className="rounded-full px-4 py-2 text-sm font-medium text-zoru-ink transition hover:text-zoru-ink">
                                     Log in
                                 </Link>
                                 <Link
                                     href="/login?signup=1"
-                                    className="group relative inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-orange-500/30 transition hover:scale-[1.03]"
+                                    className="group relative inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-gradient-to-r from-zoru-surface-2 via-zoru-ink to-zoru-ink px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-zoru-line/30 transition hover:scale-[1.03]"
                                 >
                                     <span className="relative z-10">Start free</span>
                                     <ArrowRight className="relative z-10 h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
@@ -100,7 +100,7 @@ export function LandingNav({ session }: { session?: { user?: unknown } | null })
                         type="button"
                         aria-label="Open menu"
                         onClick={() => setMobileOpen((v) => !v)}
-                        className="grid h-9 w-9 place-items-center rounded-full text-zinc-700 transition hover:bg-zinc-900/5 md:hidden"
+                        className="grid h-9 w-9 place-items-center rounded-full text-zoru-ink transition hover:bg-zoru-ink/5 md:hidden"
                     >
                         {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                     </button>
@@ -121,7 +121,7 @@ export function LandingNav({ session }: { session?: { user?: unknown } | null })
                     <Link
                         onClick={() => setMobileOpen(false)}
                         href="#modules"
-                        className="text-2xl font-semibold text-zinc-900"
+                        className="text-2xl font-semibold text-zoru-ink"
                     >
                         Products
                     </Link>
@@ -130,7 +130,7 @@ export function LandingNav({ session }: { session?: { user?: unknown } | null })
                             key={l.href}
                             onClick={() => setMobileOpen(false)}
                             href={l.href}
-                            className="text-2xl font-semibold text-zinc-900"
+                            className="text-2xl font-semibold text-zoru-ink"
                         >
                             {l.label}
                         </Link>
@@ -138,7 +138,7 @@ export function LandingNav({ session }: { session?: { user?: unknown } | null })
                     <Link
                         onClick={() => setMobileOpen(false)}
                         href={session?.user ? '/dashboard' : '/login?signup=1'}
-                        className="mt-6 rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-orange-500/30"
+                        className="mt-6 rounded-full bg-gradient-to-r from-zoru-surface-2 via-zoru-ink to-zoru-ink px-6 py-3 text-base font-semibold text-white shadow-lg shadow-zoru-line/30"
                     >
                         {session?.user ? 'Open dashboard' : 'Start free'}
                     </Link>

@@ -101,7 +101,7 @@ export default function WachatAdAccountProvisioningPage() {
           <div>
             <ZoruPageHeading>
               <div className="flex items-center gap-2">
-                <Megaphone className="w-6 h-6 text-foreground/70" />
+                <Megaphone className="w-6 h-6 text-zoru-ink/70" />
                 <ZoruPageTitle>Ad Account Provisioning</ZoruPageTitle>
               </div>
             </ZoruPageHeading>
@@ -176,7 +176,7 @@ export default function WachatAdAccountProvisioningPage() {
                     <h3 className="font-semibold text-lg line-clamp-1" title={account.name}>
                       {account.name}
                     </h3>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
+                    <p className="text-sm text-zoru-ink-muted flex items-center gap-1.5 mt-1">
                       <CreditCard className="w-3.5 h-3.5" />
                       ID: {account.account_id}
                     </p>
@@ -194,11 +194,11 @@ export default function WachatAdAccountProvisioningPage() {
                 
                 <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-muted-foreground text-xs uppercase tracking-wider font-medium mb-1">Currency</p>
+                    <p className="text-zoru-ink-muted text-xs uppercase tracking-wider font-medium mb-1">Currency</p>
                     <p className="font-medium">{account.currency || 'N/A'}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground text-xs uppercase tracking-wider font-medium mb-1">Created</p>
+                    <p className="text-zoru-ink-muted text-xs uppercase tracking-wider font-medium mb-1">Created</p>
                     <p className="font-medium">
                       {account.created_time 
                         ? new Date(account.created_time).toLocaleDateString()

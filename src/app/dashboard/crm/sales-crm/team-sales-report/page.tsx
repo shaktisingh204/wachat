@@ -193,11 +193,11 @@ export default function TeamSalesReportPage() {
             {/* Filters */}
             <Card>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
+                    <h2 className="text-[16px] font-semibold text-zoru-ink">Filters</h2>
                 </div>
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     <div className="space-y-1">
-                        <Label className="text-foreground">Lead created from</Label>
+                        <Label className="text-zoru-ink">Lead created from</Label>
                         <DatePicker
                             value={startDate}
                             onChange={(d) => setStartDate(d ?? undefined)}
@@ -205,7 +205,7 @@ export default function TeamSalesReportPage() {
                         />
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-foreground">Lead created to</Label>
+                        <Label className="text-zoru-ink">Lead created to</Label>
                         <DatePicker
                             value={endDate}
                             onChange={(d) => setEndDate(d ?? undefined)}
@@ -213,7 +213,7 @@ export default function TeamSalesReportPage() {
                         />
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-foreground">Pipeline</Label>
+                        <Label className="text-zoru-ink">Pipeline</Label>
                         <Select value={pipelineId} onValueChange={setPipelineId}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue placeholder="All pipelines" />
@@ -225,7 +225,7 @@ export default function TeamSalesReportPage() {
                         </Select>
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-foreground">Rep</Label>
+                        <Label className="text-zoru-ink">Rep</Label>
                         <Select value={assigneeId} onValueChange={setAssigneeId}>
                             <ZoruSelectTrigger>
                                 <ZoruSelectValue placeholder="All reps" />
@@ -259,8 +259,8 @@ export default function TeamSalesReportPage() {
             {chartData.length > 0 ? (
                 <Card>
                     <div className="mb-4">
-                        <h2 className="text-[16px] font-semibold text-foreground">Revenue by rep</h2>
-                        <p className="text-[12px] text-muted-foreground">
+                        <h2 className="text-[16px] font-semibold text-zoru-ink">Revenue by rep</h2>
+                        <p className="text-[12px] text-zoru-ink-muted">
                             Top {chartData.length} salesperson(s).
                         </p>
                     </div>
@@ -285,70 +285,70 @@ export default function TeamSalesReportPage() {
             {/* Data table */}
             <Card>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Salesperson performance</h2>
+                    <h2 className="text-[16px] font-semibold text-zoru-ink">Salesperson performance</h2>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">Salesperson</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Total Leads</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Open</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Closed</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Lost</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Conv. Rate</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Revenue</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Avg Deal</ZoruTableHead>
+                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                <ZoruTableHead className="text-zoru-ink-muted">Salesperson</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Total Leads</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Open</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Closed</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Lost</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Conv. Rate</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Revenue</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Avg Deal</ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-border">
+                                <ZoruTableRow className="border-zoru-line">
                                     <ZoruTableCell colSpan={8} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ) : reportData.length > 0 ? (
                                 reportData.map((row) => (
-                                    <ZoruTableRow key={row.salespersonId} className="border-border">
+                                    <ZoruTableRow key={row.salespersonId} className="border-zoru-line">
                                         <ZoruTableCell>
-                                            <div className="font-medium text-foreground">
+                                            <div className="font-medium text-zoru-ink">
                                                 {row.salespersonName}
                                             </div>
                                             {row.salespersonEmail ? (
-                                                <div className="text-[11.5px] text-muted-foreground">
+                                                <div className="text-[11.5px] text-zoru-ink-muted">
                                                     {row.salespersonEmail}
                                                 </div>
                                             ) : null}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">
+                                        <ZoruTableCell className="text-zoru-ink">
                                             {row.totalLeads}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">
+                                        <ZoruTableCell className="text-zoru-ink">
                                             {row.openLeads}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-semibold text-green-600">
+                                        <ZoruTableCell className="font-semibold text-zoru-ink">
                                             {row.closedLeads}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-semibold text-red-600">
+                                        <ZoruTableCell className="font-semibold text-zoru-ink">
                                             {row.lostLeads}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">
+                                        <ZoruTableCell className="text-zoru-ink">
                                             {row.conversionRate.toFixed(1)}%
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">
+                                        <ZoruTableCell className="text-zoru-ink">
                                             ₹{row.totalRevenue.toLocaleString()}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">
+                                        <ZoruTableCell className="text-zoru-ink">
                                             ₹{row.avgDealValue.toLocaleString()}
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))
                             ) : (
-                                <ZoruTableRow className="border-border">
+                                <ZoruTableRow className="border-zoru-line">
                                     <ZoruTableCell
                                         colSpan={8}
-                                        className="h-24 text-center text-[13px] text-muted-foreground"
+                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
                                     >
                                         No data for selected filters.
                                     </ZoruTableCell>

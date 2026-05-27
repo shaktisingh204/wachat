@@ -121,7 +121,7 @@ export function MistralSettings({ block, onBlockChange, variables = [] }: Props)
             step={0.1}
             value={temperature}
             onChange={(e) => update({ temperature: parseFloat(e.target.value) })}
-            className="flex-1 accent-[#f76808]"
+            className="flex-1 accent-zoru-ink"
           />
           <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0 text-right">1</span>
         </div>

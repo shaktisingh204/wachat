@@ -93,7 +93,7 @@ export default function FlowLogsPage() {
                             <input
                                 placeholder="Search by flow name or contact ID…"
                                 onChange={(e) => handleSearch(e.target.value)}
-                                className="w-full rounded-xl border border-zoru-line bg-zoru-surface py-2 pl-9 pr-4 text-sm text-zoru-ink placeholder:text-zoru-ink-muted focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition-all"
+                                className="w-full rounded-xl border border-zoru-line bg-zoru-surface py-2 pl-9 pr-4 text-sm text-zoru-ink placeholder:text-zoru-ink-muted focus:outline-none focus:border-zoru-line/50 focus:ring-1 focus:ring-zoru-line/20 transition-all"
                             />
                         </div>
                     </div>
@@ -177,7 +177,7 @@ export default function FlowLogsPage() {
 
             {/* Log detail modal */}
             {(selectedLog || loadingPayload) && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-sm">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zoru-ink/30 backdrop-blur-sm">
                     <div className="w-full max-w-3xl rounded-2xl border border-zoru-line bg-zoru-bg shadow-2xl overflow-hidden">
                         {/* Modal header */}
                         <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-zoru-line">
@@ -219,7 +219,7 @@ export default function FlowLogsPage() {
                                         {selectedLog.entries.map((entry, i) => (
                                             <div key={i} className="rounded-xl border border-zoru-line bg-zoru-surface p-3 text-xs font-mono">
                                                 <p>
-                                                    <span className="text-amber-600 font-semibold">
+                                                    <span className="text-zoru-ink font-semibold">
                                                         [{new Date(entry.timestamp).toLocaleTimeString('en-GB', { hour12: false, fractionalSecondDigits: 3 })}]
                                                     </span>
                                                     {' '}

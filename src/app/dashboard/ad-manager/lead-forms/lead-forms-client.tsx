@@ -280,7 +280,7 @@ export default function LeadFormsClient({
         title="Lead forms"
         description="Instant forms collected from your Lead Ads. Export to CSV or sync to CRM."
         actions={
-          <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setCreateOpen(true)}>
+          <Button className="bg-zoru-ink hover:bg-zoru-ink/90 text-white" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-1" /> New lead form
           </Button>
         }
@@ -295,8 +295,8 @@ export default function LeadFormsClient({
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground whitespace-nowrap">Facebook page:</span>
+          <FileText className="h-4 w-4 text-zoru-ink-muted" />
+          <span className="text-sm text-zoru-ink-muted whitespace-nowrap">Facebook page:</span>
           <Select value={selectedPage} onValueChange={setSelectedPage}>
             <ZoruSelectTrigger className="w-[280px]">
               <ZoruSelectValue placeholder="Select a page" />
@@ -322,7 +322,7 @@ export default function LeadFormsClient({
                 />
               )}
             />
-            <Label htmlFor="live-mode" className="text-sm text-muted-foreground cursor-pointer">Live Updates</Label>
+            <Label htmlFor="live-mode" className="text-sm text-zoru-ink-muted cursor-pointer">Live Updates</Label>
           </div>
         </div>
       </div>
@@ -331,11 +331,11 @@ export default function LeadFormsClient({
         {!loading && forms.length > 0 && (
           <Card>
             <ZoruCardContent className="p-4 flex items-center gap-4">
-              <div className="h-10 w-10 rounded-lg bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2]">
+              <div className="h-10 w-10 rounded-lg bg-zoru-ink/10 flex items-center justify-center text-zoru-ink">
                 <Users className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Total leads across all forms</p>
+                <p className="text-xs text-zoru-ink-muted">Total leads across all forms</p>
                 <p className="text-2xl font-bold tabular-nums">
                   {forms.reduce((sum: number, f: any) => sum + (f.leads_count || 0), 0)}
                 </p>
@@ -347,7 +347,7 @@ export default function LeadFormsClient({
         <Card className="md:col-span-2">
           <ZoruCardContent className="p-4 flex flex-col sm:flex-row items-center gap-3 h-full">
             <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
               <Controller
                 name="search"
                 control={control}
@@ -355,7 +355,7 @@ export default function LeadFormsClient({
                   <Input 
                     type="search"
                     placeholder="Search forms by name or ID..." 
-                    className="pl-9 bg-background w-full"
+                    className="pl-9 bg-zoru-surface w-full"
                     {...field}
                   />
                 )}
@@ -384,7 +384,7 @@ export default function LeadFormsClient({
       </div>
       
       {selectedForms.length > 0 && (
-        <div className="flex items-center justify-between p-3 bg-muted/50 border rounded-lg animate-in fade-in slide-in-from-top-2">
+        <div className="flex items-center justify-between p-3 bg-zoru-surface-2/50 border rounded-lg animate-in fade-in slide-in-from-top-2">
           <span className="text-sm font-medium">{selectedForms.length} form(s) selected</span>
           <Button size="sm" variant="outline" onClick={exportSelectedForms}>
             <Download className="h-4 w-4 mr-2" />
@@ -420,7 +420,7 @@ export default function LeadFormsClient({
               <ZoruTableBody>
                 {filteredForms.length === 0 ? (
                   <ZoruTableRow>
-                    <ZoruTableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                    <ZoruTableCell colSpan={6} className="h-24 text-center text-zoru-ink-muted">
                       No lead forms found.
                     </ZoruTableCell>
                   </ZoruTableRow>
@@ -442,7 +442,7 @@ export default function LeadFormsClient({
                         <ZoruTableCell className="font-medium">
                           <div className="flex flex-col gap-1">
                             <span className="truncate max-w-[200px] sm:max-w-[300px]">{f.name}</span>
-                            <span className="text-[10px] text-muted-foreground font-mono">{f.id}</span>
+                            <span className="text-[10px] text-zoru-ink-muted font-mono">{f.id}</span>
                             {isSynced && (
                               <Badge variant="success" className="text-[10px] w-fit mt-1">
                                 <CheckCircle2 className="mr-1 h-3 w-3" /> CRM synced
@@ -454,7 +454,7 @@ export default function LeadFormsClient({
                           <Badge variant="outline">{f.status}</Badge>
                         </ZoruTableCell>
                         <ZoruTableCell className="tabular-nums font-medium">{f.leads_count || 0}</ZoruTableCell>
-                        <ZoruTableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                        <ZoruTableCell className="text-xs text-zoru-ink-muted whitespace-nowrap">
                           {formatDate(f.created_time)}
                         </ZoruTableCell>
                         <ZoruTableCell>
@@ -502,14 +502,14 @@ export default function LeadFormsClient({
             <ZoruDialogDescription>Lead forms are created through Meta Ads Manager. Use the link below to create one.</ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">To create a new lead generation form:</p>
-            <ol className="text-sm space-y-2 list-decimal list-inside text-muted-foreground">
+            <p className="text-sm text-zoru-ink-muted">To create a new lead generation form:</p>
+            <ol className="text-sm space-y-2 list-decimal list-inside text-zoru-ink-muted">
               <li>Go to Meta Ads Manager</li>
               <li>Create a new campaign with Lead Generation objective</li>
               <li>Build your Instant Form in the ad creation step</li>
               <li>The form will appear here automatically</li>
             </ol>
-            <Button asChild className="w-full bg-[#1877F2] hover:bg-[#1877F2]/90 text-white">
+            <Button asChild className="w-full bg-zoru-ink hover:bg-zoru-ink/90 text-white">
               <a href="https://business.facebook.com/adsmanager" target="_blank" rel="noopener noreferrer">
                 Open Meta Ads Manager
               </a>
@@ -541,7 +541,7 @@ function CrmConnectionBanner({
 
   if (!status.configured) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-700 dark:text-amber-300">
+      <div className="flex items-center justify-between gap-3 rounded-lg border border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink dark:text-zoru-ink-muted">
         <div className="flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           <span>
@@ -559,7 +559,7 @@ function CrmConnectionBanner({
 
   if (forDifferentPage) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-700 dark:text-amber-300">
+      <div className="flex items-center justify-between gap-3 rounded-lg border border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink dark:text-zoru-ink-muted">
         <div className="flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           <span>
@@ -578,7 +578,7 @@ function CrmConnectionBanner({
 
   if (forSelectedPage && !status.isActive) {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-700 dark:text-amber-300">
+      <div className="flex items-center justify-between gap-3 rounded-lg border border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink dark:text-zoru-ink-muted">
         <div className="flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           <span>
@@ -595,7 +595,7 @@ function CrmConnectionBanner({
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2.5 text-[13px] text-emerald-700 dark:text-emerald-300">
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink dark:text-zoru-ink-muted">
       <div className="flex items-center gap-2">
         <CheckCircle2 className="h-4 w-4 shrink-0" />
         <span>

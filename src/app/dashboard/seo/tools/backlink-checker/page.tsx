@@ -122,8 +122,8 @@ export default function BacklinkCheckerPage() {
       </div>
 
       {error && (
-        <Card className="border-amber-500/50 bg-amber-500/10">
-          <ZoruCardContent className="p-4 flex items-center gap-3 text-sm text-amber-700 dark:text-amber-400">
+        <Card className="border-zoru-line/50 bg-zoru-ink/10">
+          <ZoruCardContent className="p-4 flex items-center gap-3 text-sm text-zoru-ink dark:text-zoru-ink-muted">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <div>{error}</div>
           </ZoruCardContent>
@@ -134,7 +134,7 @@ export default function BacklinkCheckerPage() {
         <Card>
           <ZoruCardContent className="p-4 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="text-sm font-medium text-muted-foreground">
+              <div className="text-sm font-medium text-zoru-ink-muted">
                 Found {rows.length} backlinks
                 {isMock && " (Mock Data)"}
               </div>
@@ -151,25 +151,25 @@ export default function BacklinkCheckerPage() {
             </div>
 
             <div className="space-y-2">
-              <div className="grid grid-cols-[2fr_1.5fr_80px] gap-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2">
+              <div className="grid grid-cols-[2fr_1.5fr_80px] gap-3 text-xs font-semibold text-zoru-ink-muted uppercase tracking-wide px-2">
                 <div>Source</div>
                 <div>Anchor</div>
                 <div className="text-right">DR</div>
               </div>
               <div className="divide-y rounded-md border">
                 {rows.map((r, i) => (
-                  <div key={i} className="grid grid-cols-[2fr_1.5fr_80px] gap-3 text-sm items-center p-3 hover:bg-muted/50 transition-colors">
+                  <div key={i} className="grid grid-cols-[2fr_1.5fr_80px] gap-3 text-sm items-center p-3 hover:bg-zoru-surface-2/50 transition-colors">
                     <div className="font-mono text-xs break-all truncate" title={r.source}>
-                      <a href={r.source} target="_blank" rel="noreferrer" className="hover:underline text-blue-600 dark:text-blue-400">
+                      <a href={r.source} target="_blank" rel="noreferrer" className="hover:underline text-zoru-ink dark:text-zoru-ink-muted">
                         {r.source}
                       </a>
                     </div>
                     <div className="truncate" title={r.anchor}>{r.anchor}</div>
                     <div className="text-right">
                       <Badge variant="secondary" className={
-                        r.dr > 60 ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" :
-                        r.dr > 30 ? "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300" :
-                        "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300"
+                        r.dr > 60 ? "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted" :
+                        r.dr > 30 ? "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted" :
+                        "bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted"
                       }>
                         {r.dr}
                       </Badge>

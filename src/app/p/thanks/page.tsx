@@ -58,11 +58,11 @@ async function ThanksPageContent({ searchParams }: PageProps) {
   return (
     <ClayCard>
       <div className="flex flex-col items-center gap-3 py-10 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent">
-          <CheckCircle2 className="h-6 w-6 text-accent-foreground" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2">
+          <CheckCircle2 className="h-6 w-6 text-zoru-ink" />
         </div>
-        <h1 className="text-[18px] font-semibold text-foreground">{m.title}</h1>
-        <p className="max-w-md text-[13px] text-muted-foreground">{m.body}</p>
+        <h1 className="text-[18px] font-semibold text-zoru-ink">{m.title}</h1>
+        <p className="max-w-md text-[13px] text-zoru-ink-muted">{m.body}</p>
         
         <CountdownRedirect redirectUrl={redirect || '/'} />
       </div>

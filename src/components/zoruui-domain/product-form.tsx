@@ -151,11 +151,11 @@ export function ProductForm({ product }: ProductFormProps) {
                 <ZoruAccordionItem value="variants">
                     <ZoruAccordionTrigger>Variants (e.g. Size, Color)</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="pt-4 space-y-4">
-                            <div className="space-y-2"><Label htmlFor="item_group_id">Item Group ID</Label><Input id="item_group_id" name="item_group_id" defaultValue={product?.item_group_id} /><p className="text-xs text-muted-foreground">All variants of the same product must have the same group ID.</p></div>
+                            <div className="space-y-2"><Label htmlFor="item_group_id">Item Group ID</Label><Input id="item_group_id" name="item_group_id" defaultValue={product?.item_group_id} /><p className="text-xs text-zoru-ink-muted">All variants of the same product must have the same group ID.</p></div>
                         <Separator />
                         <div className="space-y-2"><Label>Variant Attributes</Label>
                             <div className="space-y-3">
-                                {variants.map((variant, index) => (<div key={variant.id} className="grid grid-cols-[1fr,2fr,auto] items-center gap-2 p-2 border rounded-md"><Input placeholder="Name (e.g. Color)" value={variant.name} onChange={e => handleVariantChange(variant.id, 'name', e.target.value)} /><Input placeholder="Options (comma-separated)" value={variant.options} onChange={e => handleVariantChange(variant.id, 'options', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(variant.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></div>))}
+                                {variants.map((variant, index) => (<div key={variant.id} className="grid grid-cols-[1fr,2fr,auto] items-center gap-2 p-2 border rounded-md"><Input placeholder="Name (e.g. Color)" value={variant.name} onChange={e => handleVariantChange(variant.id, 'name', e.target.value)} /><Input placeholder="Options (comma-separated)" value={variant.options} onChange={e => handleVariantChange(variant.id, 'options', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(variant.id)}><Trash2 className="h-4 w-4 text-zoru-ink"/></Button></div>))}
                             </div>
                             <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={handleAddVariant}><Plus className="mr-2 h-4 w-4"/>Add Variant Attribute</Button>
                         </div>

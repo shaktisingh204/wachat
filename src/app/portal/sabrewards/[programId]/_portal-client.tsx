@@ -182,7 +182,7 @@ export function RewardsPortalClient({
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-amber-600">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
                 <Crown className="h-6 w-6" />
               </span>
               <div>

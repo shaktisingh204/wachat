@@ -97,16 +97,16 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
     if (!data) return notFound();
 
     return (
-        <div className="min-h-screen bg-slate-50 p-8 font-sans">
+        <div className="min-h-screen bg-zoru-surface-2 p-8 font-sans">
             <div className="max-w-4xl mx-auto space-y-8">
                 <header className="flex justify-between items-center border-b pb-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900">{data.projectName} SEO Status</h1>
-                        <p className="text-slate-500 text-sm">Last Updated: {data.lastAudit}</p>
+                        <h1 className="text-2xl font-bold text-zoru-ink">{data.projectName} SEO Status</h1>
+                        <p className="text-zoru-ink text-sm">Last Updated: {data.lastAudit}</p>
                     </div>
                     <div className="text-right">
-                        <div className="text-3xl font-black text-emerald-600">{data.healthScore}</div>
-                        <div className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Health Score</div>
+                        <div className="text-3xl font-black text-zoru-ink">{data.healthScore}</div>
+                        <div className="text-xs text-zoru-ink-muted uppercase tracking-wider font-semibold">Health Score</div>
                     </div>
                 </header>
 
@@ -117,12 +117,12 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
                         </ZoruCardHeader>
                         <ZoruCardContent className="flex gap-8">
                             <div>
-                                <div className="text-2xl font-bold text-green-600">+{data.keywordsUp}</div>
-                                <div className="text-sm text-muted-foreground">Improved</div>
+                                <div className="text-2xl font-bold text-zoru-ink">+{data.keywordsUp}</div>
+                                <div className="text-sm text-zoru-ink-muted">Improved</div>
                             </div>
                             <div>
-                                <div className="text-2xl font-bold text-red-600">-{data.keywordsDown}</div>
-                                <div className="text-sm text-muted-foreground">Declined</div>
+                                <div className="text-2xl font-bold text-zoru-ink">-{data.keywordsDown}</div>
+                                <div className="text-sm text-zoru-ink-muted">Declined</div>
                             </div>
                         </ZoruCardContent>
                     </Card>
@@ -138,8 +138,8 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
                                         <span className="font-medium">{k.term}</span>
                                         <div className="flex items-center gap-3">
                                             <Badge variant="outline">#{k.rank}</Badge>
-                                            {k.change > 0 && <span className="text-green-600 text-xs">▲ {k.change}</span>}
-                                            {k.change < 0 && <span className="text-red-600 text-xs">▼ {Math.abs(k.change)}</span>}
+                                            {k.change > 0 && <span className="text-zoru-ink text-xs">▲ {k.change}</span>}
+                                            {k.change < 0 && <span className="text-zoru-ink text-xs">▼ {Math.abs(k.change)}</span>}
                                         </div>
                                     </div>
                                 ))}
@@ -148,7 +148,7 @@ export default async function PublicStatusPage({ params }: { params: Promise<{ s
                     </Card>
                 </div>
 
-                <footer className="text-center text-xs text-slate-400 mt-12">
+                <footer className="text-center text-xs text-zoru-ink-muted mt-12">
                     Powered by Project Titan
                 </footer>
             </div>

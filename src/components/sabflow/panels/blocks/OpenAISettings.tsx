@@ -373,7 +373,7 @@ function AskAssistantSection({
           <button
             type="button"
             onClick={addMessage}
-            className="flex items-center gap-1.5 text-[11.5px] text-[#f76808] hover:text-[#e05500] transition-colors"
+            className="flex items-center gap-1.5 text-[11.5px] text-zoru-ink hover:text-zoru-ink transition-colors"
           >
             <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
             Add message
@@ -422,7 +422,7 @@ function AskAssistantSection({
                 step={0.1}
                 value={temperature}
                 onChange={(e) => update({ temperature: parseFloat(e.target.value) })}
-                className="flex-1 accent-[#f76808]"
+                className="flex-1 accent-zoru-ink"
               />
               <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0 text-right">2</span>
             </div>
@@ -456,7 +456,7 @@ function AskAssistantSection({
                 step={0.1}
                 value={frequencyPenalty}
                 onChange={(e) => update({ frequencyPenalty: parseFloat(e.target.value) })}
-                className="flex-1 accent-[#f76808]"
+                className="flex-1 accent-zoru-ink"
               />
               <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0 text-right">2</span>
             </div>
@@ -475,7 +475,7 @@ function AskAssistantSection({
                 step={0.1}
                 value={presencePenalty}
                 onChange={(e) => update({ presencePenalty: parseFloat(e.target.value) })}
-                className="flex-1 accent-[#f76808]"
+                className="flex-1 accent-zoru-ink"
               />
               <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0 text-right">2</span>
             </div>
@@ -516,7 +516,7 @@ function CustomMessageRow({ index, message, variables, onRemove, onPatch }: Cust
         <button
           type="button"
           onClick={onRemove}
-          className="h-6 w-6 flex items-center justify-center rounded text-[var(--gray-8)] hover:text-red-500 hover:bg-[var(--gray-3)] transition-colors shrink-0"
+          className="h-6 w-6 flex items-center justify-center rounded text-[var(--gray-8)] hover:text-zoru-ink hover:bg-[var(--gray-3)] transition-colors shrink-0"
           aria-label="Remove message"
         >
           <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -779,7 +779,7 @@ function VariableHint() {
     <p className="text-[10.5px] text-[var(--gray-8)] mt-1 flex items-center gap-1">
       <LuBraces className="h-3 w-3 shrink-0" strokeWidth={1.8} />
       Use{' '}
-      <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[#f76808]">
+      <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-zoru-ink">
         {'{{variable}}'}
       </code>{' '}
       to reference collected values.

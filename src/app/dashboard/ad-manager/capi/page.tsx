@@ -82,7 +82,7 @@ export default function CapiPage() {
                 title="Conversions API (CAPI)"
                 description="Send server-side events to Meta for privacy-safe conversion tracking. Bypasses iOS 14+ / ad-blocker signal loss."
                 actions={
-                    <Badge className="bg-green-600 text-white">
+                    <Badge className="bg-zoru-ink text-white">
                         <ShieldCheck className="h-3 w-3 mr-1" /> Server-side
                     </Badge>
                 }
@@ -103,7 +103,7 @@ export default function CapiPage() {
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-2">
                     {pixels.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">No pixels yet — create one from Pixels & datasets first.</p>
+                        <p className="text-sm text-zoru-ink-muted">No pixels yet — create one from Pixels & datasets first.</p>
                     ) : (
                         <div className="flex flex-wrap gap-2">
                             {pixels.map((p) => (
@@ -111,7 +111,7 @@ export default function CapiPage() {
                                     key={p.id}
                                     onClick={() => setSelectedPixelId(p.id)}
                                     className={`px-3 py-1.5 rounded-full text-xs border ${
-                                        p.id === selectedPixelId ? 'bg-[#1877F2] text-white border-[#1877F2]' : ''
+                                        p.id === selectedPixelId ? 'bg-zoru-ink text-white border-zoru-line' : ''
                                     }`}
                                 >
                                     {p.name}
@@ -127,7 +127,7 @@ export default function CapiPage() {
                     <ZoruCardTitle className="text-base">2. Endpoint</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <div className="flex items-center gap-2 bg-muted p-2.5 rounded font-mono text-xs">
+                    <div className="flex items-center gap-2 bg-zoru-surface-2 p-2.5 rounded font-mono text-xs">
                         <span className="flex-1 break-all">{endpoint}</span>
                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copy(endpoint)}>
                             <Copy className="h-3 w-3" />
@@ -141,7 +141,7 @@ export default function CapiPage() {
                     <ZoruCardTitle className="text-base">3. Sample event payload</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">{samplePayload}</pre>
+                    <pre className="bg-zoru-surface-2 p-3 rounded text-xs overflow-x-auto">{samplePayload}</pre>
                     <Button
                         variant="outline"
                         size="sm"
@@ -159,12 +159,12 @@ export default function CapiPage() {
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4 text-sm">
                     <p>
-                        SabNode provides a server action <code className="px-1 py-0.5 bg-muted rounded">sendConversionApiEvent</code> you can
+                        SabNode provides a server action <code className="px-1 py-0.5 bg-zoru-surface-2 rounded">sendConversionApiEvent</code> you can
                         call from your e-commerce checkout, CRM webhook, or backend.
                     </p>
                     <div className="flex items-end gap-3">
                         <div className="space-y-1.5">
-                            <p className="text-xs font-medium text-muted-foreground">Event name</p>
+                            <p className="text-xs font-medium text-zoru-ink-muted">Event name</p>
                             <Select value={testEventName} onValueChange={setTestEventName}>
                                 <ZoruSelectTrigger className="w-[180px]">
                                     <ZoruSelectValue />

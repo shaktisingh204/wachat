@@ -42,10 +42,10 @@ export default function MetaTagGeneratorPage() {
   }, [fields, enableOg, enableTwitter]);
 
   const getCounterColor = (current: number, optimal: number, max: number) => {
-    if (current === 0) return 'text-muted-foreground';
-    if (current <= optimal) return 'text-emerald-600 dark:text-emerald-400';
-    if (current <= max) return 'text-amber-600 dark:text-amber-400 font-medium';
-    return 'text-red-600 dark:text-red-400 font-bold';
+    if (current === 0) return 'text-zoru-ink-muted';
+    if (current <= optimal) return 'text-zoru-ink dark:text-zoru-ink-muted';
+    if (current <= max) return 'text-zoru-ink dark:text-zoru-ink-muted font-medium';
+    return 'text-zoru-ink dark:text-zoru-ink-muted font-bold';
   };
 
   const copyToClipboard = () => {
@@ -64,26 +64,26 @@ export default function MetaTagGeneratorPage() {
   return (
     <ToolShell title="Meta Tag Generator" description="Generate meta title, description and Open Graph tags with SEO length guidelines.">
       {/* Google SERP Preview */}
-      <div className="mb-8 border rounded-lg p-6 bg-white dark:bg-[#202124] shadow-sm flex flex-col gap-2">
-        <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">Google Search Preview</h3>
+      <div className="mb-8 border rounded-lg p-6 bg-white dark:bg-zoru-ink shadow-sm flex flex-col gap-2">
+        <h3 className="text-sm font-medium text-zoru-ink-muted mb-4 uppercase tracking-wider">Google Search Preview</h3>
         <div className="flex flex-col max-w-[600px] font-sans">
           <div className="flex items-center gap-3 mb-1">
-            <div className="w-7 h-7 bg-muted rounded-full flex items-center justify-center overflow-hidden shrink-0">
-               <svg className="w-4 h-4 text-muted-foreground" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            <div className="w-7 h-7 bg-zoru-surface-2 rounded-full flex items-center justify-center overflow-hidden shrink-0">
+               <svg className="w-4 h-4 text-zoru-ink-muted" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
             </div>
             <div className="flex flex-col overflow-hidden">
-              <span className="text-[14px] text-[#202124] dark:text-[#dadce0] leading-tight truncate">
+              <span className="text-[14px] text-zoru-ink dark:text-zoru-ink-muted leading-tight truncate">
                 {getHostname(fields.ogUrl)}
               </span>
-              <span className="text-[12px] text-[#4d5156] dark:text-[#bdc1c6] leading-tight truncate">
+              <span className="text-[12px] text-zoru-ink dark:text-zoru-ink-muted leading-tight truncate">
                 {fields.ogUrl || 'https://www.example.com'}
               </span>
             </div>
           </div>
-          <div className="text-[20px] text-[#1a0dab] dark:text-[#8ab4f8] hover:underline cursor-pointer truncate leading-normal pt-1 pb-1">
+          <div className="text-[20px] text-zoru-ink dark:text-zoru-ink-muted hover:underline cursor-pointer truncate leading-normal pt-1 pb-1">
             {fields.title || 'Standard SEO Title - Replace with your own'}
           </div>
-          <div className="text-[14px] text-[#4d5156] dark:text-[#bdc1c6] mt-[3px] line-clamp-2 leading-[1.58]">
+          <div className="text-[14px] text-zoru-ink dark:text-zoru-ink-muted mt-[3px] line-clamp-2 leading-[1.58]">
             {fields.description || 'A compelling description of your page for search results. This should summarize the content accurately and encourage clicks.'}
           </div>
         </div>
@@ -189,7 +189,7 @@ export default function MetaTagGeneratorPage() {
               id="twitter-card"
               value={fields.twitterCard}
               onChange={(e) => update('twitterCard', e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-sm ring-offset-zoru-surface file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zoru-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="summary">Summary</option>
               <option value="summary_large_image">Summary Large Image</option>
@@ -205,7 +205,7 @@ export default function MetaTagGeneratorPage() {
           <h3 className="text-lg font-medium">Generated Meta Tags</h3>
           <Button onClick={copyToClipboard} variant="secondary" size="sm">Copy Tags</Button>
         </div>
-        <Textarea readOnly value={output} className="min-h-[240px] font-mono text-xs p-4 bg-muted/30" />
+        <Textarea readOnly value={output} className="min-h-[240px] font-mono text-xs p-4 bg-zoru-surface-2/30" />
       </div>
     </ToolShell>
   );

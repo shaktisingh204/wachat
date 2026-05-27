@@ -152,7 +152,7 @@ export default async function ExitDetailPage({ params }: PageProps) {
             }
             audit={<EntityAuditTimeline entityKind="exit" entityId={id} />}
         >
-            <div className="mb-6 rounded-lg border border-zoru-line p-6 bg-card">
+            <div className="mb-6 rounded-lg border border-zoru-line p-6 bg-zoru-surface">
               <ExitStepper status={currentStep} />
             </div>
 

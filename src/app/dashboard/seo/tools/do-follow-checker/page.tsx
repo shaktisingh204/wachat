@@ -107,8 +107,8 @@ export default function DoFollowCheckerPage() {
       </div>
 
       {error && (
-        <Card className="border-red-500/50">
-          <ZoruCardContent className="p-4 text-sm text-red-500 flex items-center gap-2">
+        <Card className="border-zoru-line/50">
+          <ZoruCardContent className="p-4 text-sm text-zoru-ink flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" />
             {error}
           </ZoruCardContent>

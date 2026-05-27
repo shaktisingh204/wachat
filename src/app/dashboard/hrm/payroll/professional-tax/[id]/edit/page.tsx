@@ -39,7 +39,7 @@ export default async function EditProfessionalTaxPage({
                 title={`Edit · ${employeeName}`}
                 subtitle={month}
             >
-                <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-4 text-[13px] text-amber-900 dark:text-amber-300">
+                <div className="rounded-md border border-zoru-line/40 bg-zoru-ink/10 p-4 text-[13px] text-zoru-ink dark:text-zoru-ink-muted">
                     This Professional Tax record belongs to a closed/archived period and cannot be edited.
                 </div>
             </EntityListShell>

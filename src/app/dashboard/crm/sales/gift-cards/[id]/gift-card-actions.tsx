@@ -111,7 +111,7 @@ export function GiftCardActions({
                                         step="0.01"
                                     />
                                     {action === 'redeem' && (
-                                        <p className="text-xs text-muted-foreground">Max available: {balance}</p>
+                                        <p className="text-xs text-zoru-ink-muted">Max available: {balance}</p>
                                     )}
                                 </div>
                                 <div className="space-y-1.5">

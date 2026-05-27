@@ -106,13 +106,13 @@ export function AuditSection({ projectId }: { projectId: string }) {
                                         {r.field}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-xs">
-                                        <span className="font-mono text-red-500">
+                                        <span className="font-mono text-zoru-ink">
                                             {r.oldValue.length > 60
                                                 ? `${r.oldValue.slice(0, 60)}…`
                                                 : r.oldValue || '∅'}
                                         </span>
                                         <ChevronRight className="mx-1 inline h-3 w-3 align-middle" />
-                                        <span className="font-mono text-emerald-500">
+                                        <span className="font-mono text-zoru-ink">
                                             {r.newValue.length > 60
                                                 ? `${r.newValue.slice(0, 60)}…`
                                                 : r.newValue || '∅'}

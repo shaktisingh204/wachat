@@ -56,15 +56,15 @@ function VariableDiffItemImpl({ name, state, now }: Props) {
         <span className="relative flex h-2 w-2 shrink-0">
           {isFresh ? (
             <>
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-zoru-surface-2 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-zoru-ink" />
             </>
           ) : (
             <span className="inline-flex h-2 w-2 rounded-full bg-[var(--gray-5)]" />
           )}
         </span>
 
-        <code className="truncate font-mono text-[12px] font-medium text-violet-600 dark:text-violet-400">
+        <code className="truncate font-mono text-[12px] font-medium text-zoru-ink dark:text-zoru-ink-muted">
           {name}
         </code>
 

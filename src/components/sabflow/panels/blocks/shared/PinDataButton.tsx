@@ -78,7 +78,7 @@ export function PinDataButton({
       className={cn(
         'inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-medium transition-colors',
         isPinned
-          ? 'border-[#f76808]/40 bg-[#f76808]/10 text-[#f76808] hover:bg-[#f76808]/15'
+          ? 'border-zoru-line/40 bg-zoru-ink/10 text-zoru-ink hover:bg-zoru-ink/15'
           : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:text-[var(--gray-12)]',
         'disabled:cursor-not-allowed disabled:opacity-50',
         className,

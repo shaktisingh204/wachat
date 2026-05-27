@@ -96,7 +96,7 @@ export function MapBlockEditor({ settings, onUpdate }: { settings: any, onUpdate
                              <div className="space-y-2">
                                 <div className="flex justify-between items-center">
                                     <Label>Zoom Level</Label>
-                                    <span className="text-sm text-muted-foreground">{settings.zoom || 14}</span>
+                                    <span className="text-sm text-zoru-ink-muted">{settings.zoom || 14}</span>
                                 </div>
                                 <Slider
                                     value={[settings.zoom || 14]}
@@ -134,7 +134,7 @@ export function MapBlockEditor({ settings, onUpdate }: { settings: any, onUpdate
                      <ZoruAccordionItem value="marker" disabled>
                         <ZoruAccordionTrigger>Custom Marker (Pro Feature)</ZoruAccordionTrigger>
                         <ZoruAccordionContent className="pt-2">
-                            <p className="text-sm text-muted-foreground">Advanced marker customization is coming soon.</p>
+                            <p className="text-sm text-zoru-ink-muted">Advanced marker customization is coming soon.</p>
                         </ZoruAccordionContent>
                     </ZoruAccordionItem>
                 </Accordion>
@@ -196,7 +196,7 @@ export function MapBlockEditor({ settings, onUpdate }: { settings: any, onUpdate
                         <ZoruAccordionTrigger>Attributes</ZoruAccordionTrigger>
                          <ZoruAccordionContent className="space-y-4 pt-2">
                              {(settings.customAttributes || []).map((attr: any, index: number) => (
-                                 <div key={attr.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><Input placeholder="Key" value={attr.key} onChange={e => handleAttributeChange(index, 'key', e.target.value)} /><Input placeholder="Value" value={attr.value} onChange={e => handleAttributeChange(index, 'value', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => removeAttribute(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button></div>
+                                 <div key={attr.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><Input placeholder="Key" value={attr.key} onChange={e => handleAttributeChange(index, 'key', e.target.value)} /><Input placeholder="Value" value={attr.value} onChange={e => handleAttributeChange(index, 'value', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => removeAttribute(index)}><Trash2 className="h-4 w-4 text-zoru-ink"/></Button></div>
                              ))}
                              <Button type="button" variant="outline" className="w-full" onClick={addAttribute}><Plus className="mr-2 h-4 w-4"/>Add Attribute</Button>
                          </ZoruAccordionContent>

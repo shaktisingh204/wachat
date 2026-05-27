@@ -16,7 +16,7 @@ export function InputEditor({ node, onUpdate }: EditorProps) {
         <div className="space-y-2">
             <Label htmlFor="input-variable">Save Answer to Variable</Label>
             <Input id="input-variable" placeholder="e.g., user_name" value={node.data.variableToSave || ''} onChange={(e) => onUpdate({ variableToSave: e.target.value })} />
-            <p className="text-xs text-muted-foreground">Use {'{{user_name}}'} in later steps.</p>
+            <p className="text-xs text-zoru-ink-muted">Use {'{{user_name}}'} in later steps.</p>
         </div>
     </div>
   );

@@ -187,7 +187,7 @@ export function SetsGrid({ sets, onOpen }: { sets: SetRow[]; onOpen: (s: SetRow)
                                 <span>
                                     {s.stickerCount} {s.stickerCount === 1 ? 'sticker' : 'stickers'}
                                 </span>
-                                {s.archived && <span className="text-amber-600">Archived</span>}
+                                {s.archived && <span className="text-zoru-ink">Archived</span>}
                             </div>
                         </button>
                     ))}

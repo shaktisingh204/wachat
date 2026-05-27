@@ -136,7 +136,7 @@ export function EmailSegmentsClient() {
                 <Button variant="outline" size="sm" onClick={() => handleRecount(seg)}>
                   <RefreshCw className="h-3 w-3" /> Recount
                 </Button>
-                <Button variant="ghost" size="sm" className="text-destructive ml-auto" onClick={() => handleDelete(seg)}>
+                <Button variant="ghost" size="sm" className="text-zoru-ink ml-auto" onClick={() => handleDelete(seg)}>
                   <Trash2 className="h-3 w-3" /> Delete
                 </Button>
               </ZoruCardFooter>

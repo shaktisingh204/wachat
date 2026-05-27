@@ -34,9 +34,9 @@ const overflowClass: Record<
   NonNullable<ClayAvatarStackProps['overflowTone']>,
   string
 > = {
-  rose: 'bg-primary text-primary-foreground',
-  obsidian: 'bg-foreground text-background',
-  neutral: 'bg-muted text-muted-foreground',
+  rose: 'bg-zoru-ink text-white',
+  obsidian: 'bg-zoru-ink text-zoru-surface',
+  neutral: 'bg-zoru-surface-2 text-zoru-ink-muted',
 };
 
 /**

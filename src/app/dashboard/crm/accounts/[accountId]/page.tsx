@@ -173,7 +173,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         </ZoruCardHeader>
                         <ZoruCardContent className="space-y-3">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-xl font-bold text-primary">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-ink/10 text-xl font-bold text-zoru-ink">
                                     {scoreData.score}
                                 </div>
                                 <div className="flex flex-col text-[12px] text-zoru-ink-muted">
@@ -344,7 +344,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                         href={account.website}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-primary hover:underline"
+                                        className="text-zoru-ink hover:underline"
                                     >
                                         {account.website}
                                     </a>
@@ -491,7 +491,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         <div className="mt-3">
                             <Link
                                 href={`/dashboard/crm/sales-crm/contacts?accountId=${accountId}`}
-                                className="text-[12.5px] text-primary hover:underline"
+                                className="text-[12.5px] text-zoru-ink hover:underline"
                             >
                                 View all {counts.contacts} contacts →
                             </Link>
@@ -510,7 +510,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                         <div className="flex flex-wrap items-stretch gap-4 pt-2">
                             {orgChart.map((c: any) => (
                                 <div key={String(c._id)} className="flex min-w-[220px] flex-col items-center rounded-xl border border-zoru-line bg-zoru-surface p-4 text-center shadow-sm transition-all hover:shadow-md">
-                                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
+                                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-ink/10 text-lg font-bold text-zoru-ink">
                                         {c.name.charAt(0).toUpperCase()}
                                     </div>
                                     <span className="text-[14px] font-semibold text-zoru-ink">{c.name}</span>
@@ -552,7 +552,7 @@ export default async function AccountDetailPage({ params }: PageProps) {
                                         href={url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-primary hover:underline"
+                                        className="text-zoru-ink hover:underline"
                                     >
                                         {url.split('/').pop() ?? url}
                                     </a>

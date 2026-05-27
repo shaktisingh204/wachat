@@ -282,10 +282,10 @@ export function PseoClient({ projectId }: { projectId: string }) {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Database className="h-8 w-8 text-primary" />
+                        <Database className="h-8 w-8 text-zoru-ink" />
                         pSEO Clustering
                     </h1>
-                    <p className="text-muted-foreground mt-1">Group thousands of keywords by semantic intent.</p>
+                    <p className="text-zoru-ink-muted mt-1">Group thousands of keywords by semantic intent.</p>
                 </div>
                 {clusters && (
                     <Button variant="outline" onClick={handleExport}>
@@ -314,25 +314,25 @@ export function PseoClient({ projectId }: { projectId: string }) {
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
                                 onDrop={handleDrop}
-                                className={`flex cursor-pointer flex-col items-center justify-center rounded-[var(--zoru-radius)] border-2 border-dashed w-full h-full p-12 text-center transition-colors ${isDragging ? 'border-primary bg-primary/10' : 'border-border hover:bg-muted/50'}`}
+                                className={`flex cursor-pointer flex-col items-center justify-center rounded-[var(--zoru-radius)] border-2 border-dashed w-full h-full p-12 text-center transition-colors ${isDragging ? 'border-primary bg-zoru-ink/10' : 'border-zoru-line hover:bg-zoru-surface-2/50'}`}
                             >
-                                <Upload className={`mb-4 h-10 w-10 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+                                <Upload className={`mb-4 h-10 w-10 ${isDragging ? 'text-zoru-ink' : 'text-zoru-ink-muted'}`} />
                                 <h3 className="font-semibold mb-1">Click or drag CSV here</h3>
-                                <p className="text-xs text-muted-foreground">Up to 10,000 rows (first column used)</p>
+                                <p className="text-xs text-zoru-ink-muted">Up to 10,000 rows (first column used)</p>
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center w-full h-full border rounded-md bg-muted/20 p-6 relative">
+                            <div className="flex flex-col items-center justify-center w-full h-full border rounded-md bg-zoru-surface-2/20 p-6 relative">
                                 <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"
+                                    className="absolute top-2 right-2 text-zoru-ink-muted hover:text-zoru-ink"
                                     onClick={handleClear}
                                 >
                                     <Trash2 className="h-4 w-4" />
                                 </Button>
-                                <Database className="mb-4 h-12 w-12 text-primary opacity-80" />
+                                <Database className="mb-4 h-12 w-12 text-zoru-ink opacity-80" />
                                 <h3 className="font-medium text-lg mb-1 truncate max-w-[200px]">{file.name}</h3>
-                                <p className="text-sm text-muted-foreground mb-6">{keywords.length} keywords loaded</p>
+                                <p className="text-sm text-zoru-ink-muted mb-6">{keywords.length} keywords loaded</p>
                                 
                                 <Button onClick={handleCluster} disabled={loading} size="lg" className="w-full max-w-[200px]">
                                     {loading ? <Sparkles className="h-4 w-4 mr-2 animate-spin" /> : <Layers className="h-4 w-4 mr-2" />}
@@ -354,8 +354,8 @@ export function PseoClient({ projectId }: { projectId: string }) {
                     </ZoruCardHeader>
                     <ZoruCardContent className="flex-1 overflow-y-auto min-h-0">
                         {!clusters ? (
-                            <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground border-2 border-dashed border-transparent bg-muted/20 rounded-md p-6">
-                                <Lock className="mb-4 h-8 w-8 text-muted-foreground/50" />
+                            <div className="h-full flex flex-col items-center justify-center text-center text-zoru-ink-muted border-2 border-dashed border-transparent bg-zoru-surface-2/20 rounded-md p-6">
+                                <Lock className="mb-4 h-8 w-8 text-zoru-ink-muted/50" />
                                 <p className="text-sm">Vector processing required for clustering.</p>
                                 <p className="text-xs opacity-70 mt-1">Upload a CSV to begin.</p>
                             </div>
@@ -363,13 +363,13 @@ export function PseoClient({ projectId }: { projectId: string }) {
                             <div className="space-y-6 pb-4 pr-2">
                                 {Object.entries(clusters).map(([cluster, kws]) => (
                                     <div key={cluster} className="space-y-2">
-                                        <div className="flex items-center gap-2 sticky top-0 bg-background py-2 border-b z-10">
+                                        <div className="flex items-center gap-2 sticky top-0 bg-zoru-surface py-2 border-b z-10">
                                             <Badge variant="secondary">{kws.length}</Badge>
                                             <h3 className="font-semibold text-sm">{cluster}</h3>
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 pl-2">
                                             {kws.map((kw, i) => (
-                                                <div key={i} className="text-xs p-1.5 hover:bg-muted rounded text-muted-foreground border border-transparent hover:border-border transition-colors">
+                                                <div key={i} className="text-xs p-1.5 hover:bg-zoru-surface-2 rounded text-zoru-ink-muted border border-transparent hover:border-zoru-line transition-colors">
                                                     {kw}
                                                 </div>
                                             ))}

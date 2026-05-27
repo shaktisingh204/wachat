@@ -195,7 +195,7 @@ export function LobbyClient({ room }: LobbyClientProps) {
               ) : null}
             </div>
             {error ? (
-              <div className="rounded-md border border-red-500/40 bg-red-500/5 text-sm text-red-600 px-3 py-2">
+              <div className="rounded-md border border-zoru-line/40 bg-zoru-ink/5 text-sm text-zoru-ink px-3 py-2">
                 {error}
               </div>
             ) : null}

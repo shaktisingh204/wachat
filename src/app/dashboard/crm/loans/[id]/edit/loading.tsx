@@ -8,7 +8,7 @@ export default function EditLoanLoading() {
       title="Loading Loan..."
       back={{ href: '/dashboard/crm/loans', label: 'Back to loans' }}
     >
-      <div className="space-y-6 rounded-lg border border-zoru-line bg-card p-6">
+      <div className="space-y-6 rounded-lg border border-zoru-line bg-zoru-surface p-6">
         <div className="space-y-2">
           <Skeleton className="h-5 w-[150px]" />
           <Skeleton className="h-4 w-[250px]" />

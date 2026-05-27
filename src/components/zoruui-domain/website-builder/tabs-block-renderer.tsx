@@ -62,7 +62,7 @@ export const TabsBlockRenderer: React.FC<TabsBlockRendererProps> = ({ settings }
 
   if (tabs.length === 0) {
     return (
-      <div className="p-4 text-center border-2 border-dashed rounded-lg text-muted-foreground">
+      <div className="p-4 text-center border-2 border-dashed rounded-lg text-zoru-ink-muted">
         Tabs Block: No tabs configured.
       </div>
     );

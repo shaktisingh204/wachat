@@ -138,8 +138,8 @@ export function RankingsClient({
     if (error) {
         return (
             <div className="flex flex-col gap-6">
-                <Card className="border-red-200 bg-red-50">
-                    <ZoruCardContent className="pt-6 text-red-600">
+                <Card className="border-zoru-line bg-zoru-surface-2">
+                    <ZoruCardContent className="pt-6 text-zoru-ink">
                         <p>{error}</p>
                         <Button variant="outline" className="mt-4" onClick={handleRefresh}>Try Again</Button>
                     </ZoruCardContent>

@@ -224,8 +224,8 @@ function ViewSwitcher({
                     className={cn(
                         'h-8 rounded-full px-4 text-[12.5px] font-medium transition-colors',
                         view === v.key
-                            ? 'bg-foreground text-white shadow-sm'
-                            : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground',
+                            ? 'bg-zoru-ink text-white shadow-sm'
+                            : 'text-zoru-ink-muted hover:bg-zoru-surface-2/60 hover:text-zoru-ink',
                     )}
                     aria-pressed={view === v.key}
                 >
@@ -526,7 +526,7 @@ export default function TelegramPaymentsPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <ViewSwitcher view={view} onChange={setView} />
                 <div className="flex items-center gap-2">
-                    <Label className="text-xs text-muted-foreground">
+                    <Label className="text-xs text-zoru-ink-muted">
                         Display currency
                     </Label>
                     <Select
@@ -678,7 +678,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                 <div className="mb-3 flex items-center justify-between">
                     <div>
                         <div className="text-sm font-medium">Daily volume</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-zoru-ink-muted">
                             Revenue is summed across successful payments. Drag the
                             range above to focus.
                         </div>
@@ -715,7 +715,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                        <div className="flex h-full items-center justify-center text-xs text-zoru-ink-muted">
                             No payments in this range yet.
                         </div>
                     )}
@@ -827,7 +827,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                         {props.payments.length === 0 && (
                             <ZoruTableRow>
                                 <ZoruTableCell colSpan={6}>
-                                    <div className="py-10 text-center text-sm text-muted-foreground">
+                                    <div className="py-10 text-center text-sm text-zoru-ink-muted">
                                         No payments match these filters yet.
                                     </div>
                                 </ZoruTableCell>
@@ -837,7 +837,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             <ZoruTableRow key={p._id}>
                                 <ZoruTableCell>
                                     <div className="text-sm">{p.username ?? '—'}</div>
-                                    <div className="text-xs text-muted-foreground">
+                                    <div className="text-xs text-zoru-ink-muted">
                                         {p.chatId ?? p.userId ?? '—'}
                                     </div>
                                 </ZoruTableCell>
@@ -878,7 +878,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                     </ZoruTableBody>
                 </Table>
                 <div className="flex items-center justify-between border-t border-zoru-line px-3 py-2 text-xs">
-                    <div className="text-muted-foreground">
+                    <div className="text-zoru-ink-muted">
                         Page {props.page} of {totalPages} • {props.paymentsTotal} total
                     </div>
                     <div className="flex gap-2">
@@ -955,7 +955,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             {detail.orderInfo ? (
                                 <div>
                                     <Label className="text-xs">Order info</Label>
-                                    <pre className="max-h-40 overflow-auto rounded bg-secondary/40 p-2 text-[11px]">
+                                    <pre className="max-h-40 overflow-auto rounded bg-zoru-surface-2/40 p-2 text-[11px]">
                                         {JSON.stringify(detail.orderInfo, null, 2)}
                                     </pre>
                                 </div>
@@ -963,7 +963,7 @@ function PaymentsSection(props: PaymentsSectionProps) {
                             {detail.shippingAddress ? (
                                 <div>
                                     <Label className="text-xs">Shipping address</Label>
-                                    <pre className="max-h-40 overflow-auto rounded bg-secondary/40 p-2 text-[11px]">
+                                    <pre className="max-h-40 overflow-auto rounded bg-zoru-surface-2/40 p-2 text-[11px]">
                                         {JSON.stringify(detail.shippingAddress, null, 2)}
                                     </pre>
                                 </div>
@@ -1046,7 +1046,7 @@ function InvoicesSection({
                     {invoices.length === 0 && (
                         <ZoruTableRow>
                             <ZoruTableCell colSpan={6}>
-                                <div className="py-10 text-center text-sm text-muted-foreground">
+                                <div className="py-10 text-center text-sm text-zoru-ink-muted">
                                     No invoices sent or created yet.
                                 </div>
                             </ZoruTableCell>
@@ -1148,7 +1148,7 @@ function TemplatesSection({
                         {templates.length === 0 && (
                             <ZoruTableRow>
                                 <ZoruTableCell colSpan={5}>
-                                    <div className="py-10 text-center text-sm text-muted-foreground">
+                                    <div className="py-10 text-center text-sm text-zoru-ink-muted">
                                         No templates yet. Create one to send invoices.
                                     </div>
                                 </ZoruTableCell>
@@ -1645,8 +1645,8 @@ function SendInvoiceDialog({
                             className={cn(
                                 'h-7 flex-1 rounded-full text-xs',
                                 mode === m
-                                    ? 'bg-foreground text-white'
-                                    : 'text-muted-foreground',
+                                    ? 'bg-zoru-ink text-white'
+                                    : 'text-zoru-ink-muted',
                             )}
                         >
                             {m === 'send' ? (
@@ -1690,8 +1690,8 @@ function SendInvoiceDialog({
                         </Field>
                     ) : null}
                     {linkResult ? (
-                        <div className="rounded border border-zoru-line bg-secondary/40 p-2 text-xs">
-                            <div className="mb-1 text-muted-foreground">Invoice link:</div>
+                        <div className="rounded border border-zoru-line bg-zoru-surface-2/40 p-2 text-xs">
+                            <div className="mb-1 text-zoru-ink-muted">Invoice link:</div>
                             <a
                                 href={linkResult}
                                 target="_blank"
@@ -1780,7 +1780,7 @@ function ProvidersSection({
                 </Button>
             </div>
             {bots.length === 0 && (
-                <Card className="p-4 text-sm text-muted-foreground">
+                <Card className="p-4 text-sm text-zoru-ink-muted">
                     Connect a Telegram bot to this project first — provider tokens
                     are attached to a specific bot.
                 </Card>
@@ -1801,7 +1801,7 @@ function ProvidersSection({
                         {providers.length === 0 && (
                             <ZoruTableRow>
                                 <ZoruTableCell colSpan={6}>
-                                    <div className="py-10 text-center text-sm text-muted-foreground">
+                                    <div className="py-10 text-center text-sm text-zoru-ink-muted">
                                         No provider tokens saved yet.
                                     </div>
                                 </ZoruTableCell>

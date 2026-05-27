@@ -549,7 +549,7 @@ export function TimeLogsInnerClient({ rows, initialFilters }: TimeLogsInnerClien
           {/* Bulk selection header */}
           {filtered.length > 0 && (
             <div className="flex items-center gap-2">
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground select-none">
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink-muted select-none">
                 <Checkbox
                   checked={allChecked}
                   aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
@@ -563,8 +563,8 @@ export function TimeLogsInnerClient({ rows, initialFilters }: TimeLogsInnerClien
 
           {/* Bulk action bar */}
           {hasSelection && (
-            <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-2.5 text-sm">
-              <span className="font-medium text-foreground">
+            <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface-2/40 px-4 py-2.5 text-sm">
+              <span className="font-medium text-zoru-ink">
                 {selectedIds.length} selected
               </span>
               <Button

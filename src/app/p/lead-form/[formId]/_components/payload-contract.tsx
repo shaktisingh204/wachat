@@ -17,17 +17,17 @@ import type { LeadFormField } from '../types';
 export function PayloadContractCard({ fields }: { fields: LeadFormField[] }) {
   return (
     <Card>
-      <ZoruCardHeader className="border-b border-border py-3 bg-secondary/50">
+      <ZoruCardHeader className="border-b border-zoru-line py-3 bg-zoru-surface-2/50">
         <div className="flex items-center gap-2">
-          <Database className="h-4 w-4 text-muted-foreground" />
-          <ZoruCardTitle className="text-[12px] font-mono uppercase tracking-wider text-muted-foreground">
+          <Database className="h-4 w-4 text-zoru-ink-muted" />
+          <ZoruCardTitle className="text-[12px] font-mono uppercase tracking-wider text-zoru-ink-muted">
             Payload Contract Attributes
           </ZoruCardTitle>
         </div>
       </ZoruCardHeader>
       <ZoruCardContent className="p-0">
         <Table>
-          <ZoruTableHeader className="bg-secondary/20">
+          <ZoruTableHeader className="bg-zoru-surface-2/20">
             <ZoruTableRow>
               <ZoruTableHead className="font-mono text-[11.5px]">Parameter</ZoruTableHead>
               <ZoruTableHead className="font-mono text-[11.5px]">Type</ZoruTableHead>
@@ -37,35 +37,35 @@ export function PayloadContractCard({ fields }: { fields: LeadFormField[] }) {
           <ZoruTableBody>
             <ZoruTableRow>
               <ZoruTableCell className="font-mono text-[12.5px]">name</ZoruTableCell>
-              <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">string</ZoruTableCell>
+              <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">string</ZoruTableCell>
               <ZoruTableCell className="text-right">
                 <Badge variant="danger">REQUIRED</Badge>
               </ZoruTableCell>
             </ZoruTableRow>
             <ZoruTableRow>
               <ZoruTableCell className="font-mono text-[12.5px]">email</ZoruTableCell>
-              <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">string</ZoruTableCell>
+              <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">string</ZoruTableCell>
               <ZoruTableCell className="text-right">
                 <Badge variant="danger">REQUIRED</Badge>
               </ZoruTableCell>
             </ZoruTableRow>
             <ZoruTableRow>
               <ZoruTableCell className="font-mono text-[12.5px]">phone</ZoruTableCell>
-              <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">string</ZoruTableCell>
+              <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">string</ZoruTableCell>
               <ZoruTableCell className="text-right">
                 <Badge variant="outline">OPTIONAL</Badge>
               </ZoruTableCell>
             </ZoruTableRow>
             <ZoruTableRow>
               <ZoruTableCell className="font-mono text-[12.5px]">company</ZoruTableCell>
-              <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">string</ZoruTableCell>
+              <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">string</ZoruTableCell>
               <ZoruTableCell className="text-right">
                 <Badge variant="outline">OPTIONAL</Badge>
               </ZoruTableCell>
             </ZoruTableRow>
             <ZoruTableRow>
               <ZoruTableCell className="font-mono text-[12.5px]">message</ZoruTableCell>
-              <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">string</ZoruTableCell>
+              <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">string</ZoruTableCell>
               <ZoruTableCell className="text-right">
                 <Badge variant="outline">OPTIONAL</Badge>
               </ZoruTableCell>
@@ -73,7 +73,7 @@ export function PayloadContractCard({ fields }: { fields: LeadFormField[] }) {
             {fields.map((f) => (
               <ZoruTableRow key={f._id}>
                 <ZoruTableCell className="font-mono text-[12.5px]">{String(f.field_name || '')}</ZoruTableCell>
-                <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">{String(f.field_type || 'string')}</ZoruTableCell>
+                <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">{String(f.field_type || 'string')}</ZoruTableCell>
                 <ZoruTableCell className="text-right">
                   <Badge variant={f.is_required ? 'danger' : 'outline'}>
                     {f.is_required ? 'REQUIRED' : 'OPTIONAL'}

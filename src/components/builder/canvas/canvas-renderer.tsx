@@ -37,7 +37,7 @@ export const CanvasRenderer = () => {
             style={globalStyles}
             className={cn(
                 "w-full min-h-screen p-10 shadow-sm mx-auto max-w-6xl overflow-y-auto transition-colors font-sans",
-                isOver ? "bg-blue-50 ring-2 ring-blue-300" : ""
+                isOver ? "bg-zoru-surface-2 ring-2 ring-zoru-line" : ""
             )}
         >
             <SortableContext
@@ -45,7 +45,7 @@ export const CanvasRenderer = () => {
                 strategy={verticalListSortingStrategy}
             >
                 {state.page.elements.length === 0 ? (
-                    <div className="text-center py-20 text-gray-400 border-2 border-dashed border-gray-200 rounded-lg pointer-events-none">
+                    <div className="text-center py-20 text-zoru-ink-muted border-2 border-dashed border-zoru-line rounded-lg pointer-events-none">
                         Start by dragging a Section here
                     </div>
                 ) : (

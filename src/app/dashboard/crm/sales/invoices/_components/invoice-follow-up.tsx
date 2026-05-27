@@ -59,7 +59,7 @@ export function InvoiceFollowUp({ invoiceId }: { invoiceId: string }) {
                                 onClick={() => setChannel('email')}
                                 className={`flex flex-col items-center justify-center p-2 rounded-lg border text-xs gap-1 transition ${
                                     channel === 'email'
-                                        ? 'border-primary bg-primary/5 text-primary font-medium'
+                                        ? 'border-primary bg-zoru-ink/5 text-zoru-ink font-medium'
                                         : 'border-zoru-line hover:bg-zoru-surface-2 text-zoru-ink'
                                 }`}
                             >
@@ -71,7 +71,7 @@ export function InvoiceFollowUp({ invoiceId }: { invoiceId: string }) {
                                 onClick={() => setChannel('whatsapp')}
                                 className={`flex flex-col items-center justify-center p-2 rounded-lg border text-xs gap-1 transition ${
                                     channel === 'whatsapp'
-                                        ? 'border-primary bg-primary/5 text-primary font-medium'
+                                        ? 'border-primary bg-zoru-ink/5 text-zoru-ink font-medium'
                                         : 'border-zoru-line hover:bg-zoru-surface-2 text-zoru-ink'
                                 }`}
                             >
@@ -83,7 +83,7 @@ export function InvoiceFollowUp({ invoiceId }: { invoiceId: string }) {
                                 onClick={() => setChannel('both')}
                                 className={`flex flex-col items-center justify-center p-2 rounded-lg border text-xs gap-1 transition ${
                                     channel === 'both'
-                                        ? 'border-primary bg-primary/5 text-primary font-medium'
+                                        ? 'border-primary bg-zoru-ink/5 text-zoru-ink font-medium'
                                         : 'border-zoru-line hover:bg-zoru-surface-2 text-zoru-ink'
                                 }`}
                             >
@@ -130,7 +130,7 @@ export function InvoiceFollowUp({ invoiceId }: { invoiceId: string }) {
                 <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-zoru-surface-2 p-3 rounded-lg border border-zoru-line mt-1">
                     <div className="flex items-start gap-2.5">
                         {scheduled ? (
-                            <CheckCircle2 className="h-5 w-5 text-emerald-500 mt-0.5" />
+                            <CheckCircle2 className="h-5 w-5 text-zoru-ink mt-0.5" />
                         ) : (
                             <ShieldAlert className="h-5 w-5 text-zoru-ink-muted mt-0.5" />
                         )}
@@ -170,7 +170,7 @@ export function InvoiceFollowUp({ invoiceId }: { invoiceId: string }) {
 
                 {scheduled && (
                     <p className="text-[11px] text-zoru-ink-muted flex items-center gap-1.5 font-mono">
-                        <Clock className="h-3 w-3 text-primary animate-pulse" /> Next dunning trigger: 3 days before due date.
+                        <Clock className="h-3 w-3 text-zoru-ink animate-pulse" /> Next dunning trigger: 3 days before due date.
                     </p>
                 )}
             </ZoruCardContent>

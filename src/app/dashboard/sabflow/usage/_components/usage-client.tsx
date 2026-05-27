@@ -97,7 +97,7 @@ export function UsageClient() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-[var(--gray-4)] px-4 sm:px-6 py-3 sm:py-4 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400 shrink-0">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted shrink-0">
           <LuChartLine className="h-4 w-4" strokeWidth={2} />
         </div>
         <div className="flex flex-col leading-tight min-w-0">
@@ -145,7 +145,7 @@ export function UsageClient() {
             <span className="text-[12px]">{t('sabflow.usage.loading')}</span>
           </div>
         ) : error ? (
-          <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">
+          <div className="flex items-start gap-2 rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[12px] text-zoru-ink">
             <LuTriangleAlert className="h-4 w-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -176,7 +176,7 @@ function KpiCards({ data }: { data: UsageResponse }) {
         icon={<LuActivity className="h-3.5 w-3.5" />}
         label={t('sabflow.usage.kpi.totalRuns')}
         value={summary.total.toLocaleString(locale)}
-        accent="text-blue-600 dark:text-blue-400"
+        accent="text-zoru-ink dark:text-zoru-ink-muted"
         trend={summary.trends?.total}
         goodDirection="up"
       />
@@ -184,7 +184,7 @@ function KpiCards({ data }: { data: UsageResponse }) {
         icon={<LuAward className="h-3.5 w-3.5" />}
         label={t('sabflow.usage.kpi.successRate')}
         value={`${(summary.successRate * 100).toFixed(1)}%`}
-        accent="text-emerald-600 dark:text-emerald-400"
+        accent="text-zoru-ink dark:text-zoru-ink-muted"
         trend={summary.trends?.successRate}
         goodDirection="up"
       />
@@ -192,7 +192,7 @@ function KpiCards({ data }: { data: UsageResponse }) {
         icon={<LuTriangleAlert className="h-3.5 w-3.5" />}
         label={t('sabflow.usage.kpi.errors')}
         value={summary.errored.toLocaleString(locale)}
-        accent="text-red-600 dark:text-red-400"
+        accent="text-zoru-ink dark:text-zoru-ink-muted"
         trend={summary.trends?.errored}
         goodDirection="down"
       />
@@ -200,7 +200,7 @@ function KpiCards({ data }: { data: UsageResponse }) {
         icon={<LuTimer className="h-3.5 w-3.5" />}
         label={t('sabflow.usage.kpi.p95Duration')}
         value={formatDuration(summary.p95DurationMs)}
-        accent="text-amber-600 dark:text-amber-400"
+        accent="text-zoru-ink dark:text-zoru-ink-muted"
         trend={summary.trends?.p95DurationMs}
         goodDirection="down"
       />
@@ -208,7 +208,7 @@ function KpiCards({ data }: { data: UsageResponse }) {
         icon={<LuListTree className="h-3.5 w-3.5" />}
         label={t('sabflow.usage.kpi.steps', { defaultValue: 'Workspace Steps' })}
         value={(summary.steps ?? 0).toLocaleString(locale)}
-        accent="text-fuchsia-600 dark:text-fuchsia-400"
+        accent="text-zoru-ink dark:text-zoru-ink-muted"
         trend={summary.trends?.steps}
         goodDirection="up"
       />
@@ -216,7 +216,7 @@ function KpiCards({ data }: { data: UsageResponse }) {
         icon={<LuGlobe className="h-3.5 w-3.5" />}
         label={t('sabflow.usage.kpi.apiUsage', { defaultValue: 'Global API Calls' })}
         value={(summary.apiUsage ?? 0).toLocaleString(locale)}
-        accent="text-cyan-600 dark:text-cyan-400"
+        accent="text-zoru-ink dark:text-zoru-ink-muted"
         trend={summary.trends?.apiUsage}
         goodDirection="up"
       />
@@ -243,8 +243,8 @@ function Kpi({
   const trendColor = trend === 0 || trend === undefined
     ? 'text-[var(--gray-9)]' 
     : isGood 
-      ? 'text-emerald-600 dark:text-emerald-400' 
-      : 'text-red-600 dark:text-red-400';
+      ? 'text-zoru-ink dark:text-zoru-ink-muted' 
+      : 'text-zoru-ink dark:text-zoru-ink-muted';
 
   return (
     <div className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 sm:px-4 py-2.5 sm:py-3">
@@ -332,14 +332,14 @@ function DailyChart({ data }: { data: UsageResponse }) {
                   className={cn(
                     "w-full rounded-t transition-colors",
                     mode === 'runs' 
-                      ? "bg-blue-500/30 group-hover:bg-blue-500/60" 
-                      : "bg-fuchsia-500/30 group-hover:bg-fuchsia-500/60"
+                      ? "bg-zoru-ink/30 group-hover:bg-zoru-ink/60" 
+                      : "bg-zoru-ink/30 group-hover:bg-zoru-ink/60"
                   )}
                   style={{ height: `${heightPct}%` }}
                 />
                 {mode === 'runs' && errHeightPct > 0 && (
                   <div
-                    className="absolute bottom-0 w-full rounded-t bg-red-500/60"
+                    className="absolute bottom-0 w-full rounded-t bg-zoru-ink/60"
                     style={{ height: `${errHeightPct}%` }}
                   />
                 )}
@@ -375,7 +375,7 @@ function TopFlowsCard({ data }: { data: UsageResponse }) {
               </span>
               <Link
                 href={`/dashboard/sabflow/flow-builder/${f.flowId}`}
-                className="flex-1 truncate text-[12px] font-medium text-[var(--gray-12)] hover:text-[#f76808]"
+                className="flex-1 truncate text-[12px] font-medium text-[var(--gray-12)] hover:text-zoru-ink"
               >
                 {f.name}
               </Link>
@@ -394,7 +394,7 @@ function TopFailingCard({ data }: { data: UsageResponse }) {
   const { t } = useT();
   return (
     <div className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] p-4">
-      <div className="flex items-center gap-1.5 text-[11px] font-medium text-red-600 dark:text-red-400 uppercase tracking-wide mb-3">
+      <div className="flex items-center gap-1.5 text-[11px] font-medium text-zoru-ink dark:text-zoru-ink-muted uppercase tracking-wide mb-3">
         {t('sabflow.usage.topFailing.title')}
       </div>
       {data.topFailing.length === 0 ? (
@@ -408,13 +408,13 @@ function TopFailingCard({ data }: { data: UsageResponse }) {
               </span>
               <Link
                 href={`/dashboard/sabflow/flow-builder/${f.flowId}`}
-                className="flex-1 truncate text-[12px] font-medium text-[var(--gray-12)] hover:text-[#f76808]"
+                className="flex-1 truncate text-[12px] font-medium text-[var(--gray-12)] hover:text-zoru-ink"
               >
                 {f.name}
               </Link>
               <Link
                 href={`/dashboard/sabflow/executions?status=error`}
-                className="rounded-md bg-red-500/10 px-1.5 py-0.5 text-[10.5px] font-semibold tabular-nums text-red-700 dark:text-red-300 hover:bg-red-500/20"
+                className="rounded-md bg-zoru-ink/10 px-1.5 py-0.5 text-[10.5px] font-semibold tabular-nums text-zoru-ink dark:text-zoru-ink-muted hover:bg-zoru-ink/20"
               >
                 {f.errors}
               </Link>
@@ -502,7 +502,7 @@ function LimitAlertsCard() {
               type="checkbox"
               checked={enabled}
               onChange={(e) => setEnabled(e.target.checked)}
-              className="rounded border-[var(--gray-5)] text-violet-600 focus:ring-violet-600"
+              className="rounded border-[var(--gray-5)] text-zoru-ink focus:ring-zoru-line"
             />
             <span className="text-[13px] text-[var(--gray-12)]">
               {t('sabflow.usage.alerts.enable', { defaultValue: 'Enable usage alerts' })}
@@ -519,7 +519,7 @@ function LimitAlertsCard() {
                 disabled={!enabled}
                 value={runsThreshold}
                 onChange={(e) => setRunsThreshold(Number(e.target.value))}
-                className="w-full rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1.5 text-[12px] text-[var(--gray-12)] disabled:opacity-50 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="w-full rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1.5 text-[12px] text-[var(--gray-12)] disabled:opacity-50 outline-none focus:border-zoru-line focus:ring-1 focus:ring-zoru-line"
               />
             </div>
 
@@ -532,7 +532,7 @@ function LimitAlertsCard() {
                 disabled={!enabled}
                 value={errorsThreshold}
                 onChange={(e) => setErrorsThreshold(Number(e.target.value))}
-                className="w-full rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1.5 text-[12px] text-[var(--gray-12)] disabled:opacity-50 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="w-full rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1.5 text-[12px] text-[var(--gray-12)] disabled:opacity-50 outline-none focus:border-zoru-line focus:ring-1 focus:ring-zoru-line"
               />
             </div>
 
@@ -546,7 +546,7 @@ function LimitAlertsCard() {
                 value={emails}
                 onChange={(e) => setEmails(e.target.value)}
                 placeholder="admin@example.com"
-                className="w-full rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1.5 text-[12px] text-[var(--gray-12)] disabled:opacity-50 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="w-full rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1.5 text-[12px] text-[var(--gray-12)] disabled:opacity-50 outline-none focus:border-zoru-line focus:ring-1 focus:ring-zoru-line"
               />
             </div>
 
@@ -554,7 +554,7 @@ function LimitAlertsCard() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-[12px] font-medium text-white hover:bg-violet-700 disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-medium text-white hover:bg-zoru-ink disabled:opacity-50 transition-colors"
             >
               {saving ? (
                 <LuLoader className="h-3.5 w-3.5 animate-spin" />

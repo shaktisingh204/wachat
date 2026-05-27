@@ -32,7 +32,7 @@ export function BioQRCode({ link, onClose }: Props) {
           />
         </div>
         
-        <p className="mt-4 text-xs text-zinc-500 break-all w-full text-center px-4">
+        <p className="mt-4 text-xs text-zoru-ink break-all w-full text-center px-4">
           {url}
         </p>
       </DialogContent>

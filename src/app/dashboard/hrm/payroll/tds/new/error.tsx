@@ -23,8 +23,8 @@ export default function NewTdsError({
                 <AlertTitle>Something went wrong!</AlertTitle>
                 <AlertDescription className="mt-2 space-y-4">
                     <p>There was an error loading the new TDS form or processing data.</p>
-                    <p className="text-xs font-mono bg-destructive/10 p-2 rounded">{error.message || 'Unknown error'}</p>
-                    <Button onClick={() => reset()} variant="outline" className="w-full mt-4 bg-background">
+                    <p className="text-xs font-mono bg-zoru-ink/10 p-2 rounded">{error.message || 'Unknown error'}</p>
+                    <Button onClick={() => reset()} variant="outline" className="w-full mt-4 bg-zoru-surface">
                         Try again
                     </Button>
                 </AlertDescription>

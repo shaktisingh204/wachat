@@ -72,7 +72,7 @@ export function ShiftDetailView({ initialShift }: { initialShift: CrmShiftDoc })
         </div>
 
         {lastModifiedBy && (
-          <div className="flex items-center gap-2 rounded-md bg-blue-50 px-4 py-2 text-sm text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+          <div className="flex items-center gap-2 rounded-md bg-zoru-surface-2 px-4 py-2 text-sm text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink-muted">
             <BellRing className="h-4 w-4" />
             <span>Updates received from {lastModifiedBy} (Collaborative Editing)</span>
           </div>

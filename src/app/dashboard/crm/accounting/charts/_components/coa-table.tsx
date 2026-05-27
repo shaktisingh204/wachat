@@ -61,11 +61,11 @@ export function CoaTable({ rows, loading, selection, onToggle, onToggleAll, onDe
     const someSelected = !allSelected && rows.some((r) => selection.has(r._id));
 
     return (
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
             <Table>
                 <ZoruTableHeader>
-                    <ZoruTableRow className="border-border hover:bg-transparent">
-                        <ZoruTableHead className="w-10 text-muted-foreground">
+                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                        <ZoruTableHead className="w-10 text-zoru-ink-muted">
                             <Checkbox
                                 checked={allSelected}
                                 data-indeterminate={someSelected ? 'true' : undefined}
@@ -73,27 +73,27 @@ export function CoaTable({ rows, loading, selection, onToggle, onToggleAll, onDe
                                 aria-label="Select all rows"
                             />
                         </ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Code</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Nature</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Sub-nature</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Parent group</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground text-right">Opening</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground text-right">Balance</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Currency</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground text-right">Actions</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Code</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Nature</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Sub-nature</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Parent group</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted text-right">Opening</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted text-right">Balance</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Currency</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
                     </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody>
                     {loading ? (
-                        <ZoruTableRow className="border-border">
+                        <ZoruTableRow className="border-zoru-line">
                             <ZoruTableCell colSpan={10} className="h-24 text-center">
-                                <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
                             </ZoruTableCell>
                         </ZoruTableRow>
                     ) : rows.length === 0 ? (
-                        <ZoruTableRow className="border-border">
-                            <ZoruTableCell colSpan={10} className="h-24 text-center text-muted-foreground">
+                        <ZoruTableRow className="border-zoru-line">
+                            <ZoruTableCell colSpan={10} className="h-24 text-center text-zoru-ink-muted">
                                 No accounts match this filter.
                             </ZoruTableCell>
                         </ZoruTableRow>
@@ -104,7 +104,7 @@ export function CoaTable({ rows, loading, selection, onToggle, onToggleAll, onDe
                             return (
                                 <ZoruTableRow
                                     key={row._id}
-                                    className="border-border"
+                                    className="border-zoru-line"
                                     data-state={checked ? 'selected' : undefined}
                                 >
                                     <ZoruTableCell>
@@ -114,7 +114,7 @@ export function CoaTable({ rows, loading, selection, onToggle, onToggleAll, onDe
                                             aria-label={`Select ${row.name}`}
                                         />
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-[12px] text-muted-foreground">
+                                    <ZoruTableCell className="font-mono text-[12px] text-zoru-ink-muted">
                                         {row.code || '—'}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="font-medium">
@@ -131,21 +131,21 @@ export function CoaTable({ rows, loading, selection, onToggle, onToggleAll, onDe
                                             '—'
                                         )}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-foreground capitalize">
+                                    <ZoruTableCell className="text-zoru-ink capitalize">
                                         {row.accountGroupCategory?.replace(/_/g, ' ') || '—'}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-foreground">
+                                    <ZoruTableCell className="text-zoru-ink">
                                         {row.accountGroupName || '—'}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right font-mono text-foreground">
+                                    <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                         {fmtMoney(row.openingBalance, row.currency)} {row.balanceType}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="text-right font-mono text-foreground">
+                                    <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                         {row.currentBalance != null
                                             ? `${fmtMoney(row.currentBalance, row.currency)} ${row.currentBalanceType ?? 'Dr'}`
                                             : '—'}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-[12px] text-muted-foreground">
+                                    <ZoruTableCell className="font-mono text-[12px] text-zoru-ink-muted">
                                         {row.currency}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
@@ -178,7 +178,7 @@ export function CoaTable({ rows, loading, selection, onToggle, onToggleAll, onDe
                                                         </Link>
                                                     </ZoruDropdownMenuItem>
                                                     <ZoruDropdownMenuItem onSelect={() => onDelete(row)}>
-                                                        <Trash2 className="mr-2 h-3.5 w-3.5 text-destructive" />
+                                                        <Trash2 className="mr-2 h-3.5 w-3.5 text-zoru-ink" />
                                                         Delete
                                                     </ZoruDropdownMenuItem>
                                                 </ZoruDropdownMenuContent>

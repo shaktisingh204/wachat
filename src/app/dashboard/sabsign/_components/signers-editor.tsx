@@ -117,7 +117,7 @@ export function SignersEditor({
               <Button
                 size="sm"
                 variant="ghost"
-                className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-ink/10"
                 onClick={() => removeSigner(s.id)}
               >
                 <Trash2 className="h-4 w-4" />
@@ -240,7 +240,7 @@ function KbaEditor({ questions, onChange }: KbaEditorProps) {
             type="button"
             size="sm"
             variant="ghost"
-            className="text-red-500"
+            className="text-zoru-ink"
             onClick={() => removeQ(i)}
           >
             <Trash2 className="h-4 w-4" />

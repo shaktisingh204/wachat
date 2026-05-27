@@ -183,7 +183,7 @@ function DraggableField({ field, onChange, onRemove }: DraggableFieldProps) {
       <span>{field.label || field.fieldType}</span>
       <button
         type="button"
-        className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-red-500 text-white text-xs hidden group-hover:flex items-center justify-center"
+        className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-zoru-ink text-white text-xs hidden group-hover:flex items-center justify-center"
         onClick={(e) => {
           e.stopPropagation();
           onRemove();

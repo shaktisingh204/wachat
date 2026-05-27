@@ -16,22 +16,22 @@ export default function LeadFormsError({
   }, [error]);
 
   return (
-    <div className="flex min-h-[400px] w-full flex-col items-center justify-center gap-4 rounded-xl border border-destructive/20 bg-destructive/5 p-8 text-center animate-in fade-in zoom-in-95 duration-200">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/20 text-destructive">
+    <div className="flex min-h-[400px] w-full flex-col items-center justify-center gap-4 rounded-xl border border-destructive/20 bg-zoru-ink/5 p-8 text-center animate-in fade-in zoom-in-95 duration-200">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-ink/20 text-zoru-ink">
         <AlertTriangle className="h-6 w-6" />
       </div>
       <div className="space-y-2">
-        <h3 className="text-xl font-semibold tracking-tight text-foreground">
+        <h3 className="text-xl font-semibold tracking-tight text-zoru-ink">
           Failed to load lead forms
         </h3>
-        <p className="text-sm text-muted-foreground max-w-[400px]">
+        <p className="text-sm text-zoru-ink-muted max-w-[400px]">
           There was an error communicating with the Ad Manager or CRM services. Please check your page connection and try again.
         </p>
       </div>
       <Button
         variant="outline"
         onClick={() => reset()}
-        className="mt-4 gap-2 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+        className="mt-4 gap-2 hover:bg-zoru-ink hover:text-white transition-colors"
       >
         <RefreshCcw className="h-4 w-4" />
         Try again

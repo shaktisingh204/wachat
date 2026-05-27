@@ -26,7 +26,7 @@ export interface LateStackedDatum {
 export function LateStackedChart({ data }: { data: LateStackedDatum[] }) {
   if (!data.length) {
     return (
-      <div className="flex h-[200px] items-center justify-center text-[13px] text-muted-foreground">
+      <div className="flex h-[200px] items-center justify-center text-[13px] text-zoru-ink-muted">
         No data.
       </div>
     );
@@ -69,7 +69,7 @@ const RAG_COLORS: Record<string, string> = {
 export function RagBarChart({ data }: { data: RagDatum[] }) {
   if (!data.length || data.every((d) => d.count === 0)) {
     return (
-      <div className="flex h-[200px] items-center justify-center text-[13px] text-muted-foreground">
+      <div className="flex h-[200px] items-center justify-center text-[13px] text-zoru-ink-muted">
         No data.
       </div>
     );
@@ -113,7 +113,7 @@ export interface VelocityDatum {
 export function VelocityLineChart({ data }: { data: VelocityDatum[] }) {
   if (!data.length) {
     return (
-      <div className="flex h-[200px] items-center justify-center text-[13px] text-muted-foreground">
+      <div className="flex h-[200px] items-center justify-center text-[13px] text-zoru-ink-muted">
         No data.
       </div>
     );

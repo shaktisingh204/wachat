@@ -228,11 +228,11 @@ export default function FindAndReplacePage() {
         <div className="flex items-center justify-between">
           <Label className="flex items-center gap-2">
             Input Text
-            {isLargeFile && <span className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-2 py-0.5 rounded-full">Large File Mode</span>}
+            {isLargeFile && <span className="text-xs bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted px-2 py-0.5 rounded-full">Large File Mode</span>}
           </Label>
           <div className="flex items-center gap-2">
             {(isLargeFile || (textRef.current && textRef.current.value.length > 0)) && (
-              <Button variant="ghost" size="sm" onClick={clearText} className="text-muted-foreground hover:text-foreground">
+              <Button variant="ghost" size="sm" onClick={clearText} className="text-zoru-ink-muted hover:text-zoru-ink">
                 <X className="w-4 h-4 mr-1" />
                 Clear
               </Button>
@@ -255,29 +255,29 @@ export default function FindAndReplacePage() {
           onChange={handleTextChange} 
           onPaste={handlePaste}
           placeholder="Paste text or upload a file…" 
-          className={cn("min-h-[220px]", isLargeFile && "opacity-75 bg-muted cursor-not-allowed")}
+          className={cn("min-h-[220px]", isLargeFile && "opacity-75 bg-zoru-surface-2 cursor-not-allowed")}
           readOnly={isLargeFile}
         />
         {isLargeFile && (
-          <p className="text-xs text-muted-foreground">Editing is disabled for large files to prevent browser lag. You can clear and upload a new file.</p>
+          <p className="text-xs text-zoru-ink-muted">Editing is disabled for large files to prevent browser lag. You can clear and upload a new file.</p>
         )}
       </div>
 
       <div className="space-y-4 my-6">
         <Label>Rules</Label>
         {rules.map((rule, index) => (
-          <div key={rule.id} className="p-4 border rounded-lg bg-card space-y-4 relative group">
+          <div key={rule.id} className="p-4 border rounded-lg bg-zoru-surface space-y-4 relative group">
             {rules.length > 1 && (
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-500" 
+                className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-zoru-ink-muted hover:text-zoru-ink" 
                 onClick={() => removeRule(rule.id)}
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
             )}
-            <div className="font-medium text-sm text-muted-foreground">Rule {index + 1}</div>
+            <div className="font-medium text-sm text-zoru-ink-muted">Rule {index + 1}</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>Find</Label>
@@ -322,7 +322,7 @@ export default function FindAndReplacePage() {
       </div>
       
       {error && (
-        <div className="flex items-center gap-2 text-sm text-red-500 bg-red-50 dark:bg-red-950/50 p-3 rounded-md mb-6">
+        <div className="flex items-center gap-2 text-sm text-zoru-ink bg-zoru-surface-2 dark:bg-zoru-ink/50 p-3 rounded-md mb-6">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span className="font-mono">{error}</span>
         </div>
@@ -332,12 +332,12 @@ export default function FindAndReplacePage() {
         <div className="flex items-center gap-4">
           <Label className="text-base font-semibold">Output</Label>
           {isProcessing ? (
-            <div className="flex items-center text-xs text-muted-foreground">
+            <div className="flex items-center text-xs text-zoru-ink-muted">
               <Loader2 className="w-3 h-3 mr-1 animate-spin" />
               Processing…
             </div>
           ) : (
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-zoru-ink-muted">
               {count} match{count === 1 ? '' : 'es'}
             </div>
           )}

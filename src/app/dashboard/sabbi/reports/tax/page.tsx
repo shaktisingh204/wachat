@@ -152,7 +152,7 @@ export default async function TaxReportPage(props: {
 
         <button
           type="submit"
-          className="h-9 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground"
+          className="h-9 rounded-lg bg-zoru-ink px-4 text-[13px] font-medium text-white"
         >
           Apply
         </button>

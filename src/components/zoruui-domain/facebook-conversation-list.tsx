@@ -46,7 +46,7 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
     }
 
     return (
-        <div className="h-full flex flex-col overflow-hidden bg-card">
+        <div className="h-full flex flex-col overflow-hidden bg-zoru-surface">
             <div className="p-3 border-b flex-shrink-0 flex items-center justify-between">
                 {sessionUser ? (
                     <div className="flex items-center gap-3">
@@ -70,7 +70,7 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
 
             <div className="p-3 border-b flex-shrink-0 space-y-3">
                 <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
                     <Input placeholder="Search conversations..." className="pl-8" />
                 </div>
             </div>
@@ -88,8 +88,8 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
                                     key={convo.id}
                                     onClick={() => onSelectConversation(convo)}
                                     className={cn(
-                                        "flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-accent border-b",
-                                        selectedConversationId === convo.id && "bg-accent"
+                                        "flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-zoru-surface-2 border-b",
+                                        selectedConversationId === convo.id && "bg-zoru-surface-2"
                                     )}
                                 >
                                     <Avatar>
@@ -99,14 +99,14 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
                                     <div className="flex-1 overflow-hidden">
                                         <div className="flex items-center justify-between">
                                             <p className="font-semibold truncate">{participant?.name || 'Unknown User'}</p>
-                                            <p className="text-xs text-muted-foreground whitespace-nowrap">
+                                            <p className="text-xs text-zoru-ink-muted whitespace-nowrap">
                                                 {format(new Date(convo.updated_time), 'p')}
                                             </p>
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <p className="text-sm text-muted-foreground truncate">{convo.snippet}</p>
+                                            <p className="text-sm text-zoru-ink-muted truncate">{convo.snippet}</p>
                                             {convo.unread_count > 0 && (
-                                                <Badge className="h-5 w-5 flex items-center justify-center p-0 rounded-full bg-primary text-primary-foreground">{convo.unread_count}</Badge>
+                                                <Badge className="h-5 w-5 flex items-center justify-center p-0 rounded-full bg-zoru-ink text-white">{convo.unread_count}</Badge>
                                             )}
                                         </div>
                                     </div>
@@ -115,7 +115,7 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
                         })}
                     </>
                 ) : (
-                    <div className="p-8 text-center text-sm text-muted-foreground">
+                    <div className="p-8 text-center text-sm text-zoru-ink-muted">
                         No conversations found.
                     </div>
                 )}

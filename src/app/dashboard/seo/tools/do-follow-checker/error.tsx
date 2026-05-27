@@ -18,9 +18,9 @@ export default function ErrorBoundary({
 
   return (
     <div className="flex h-[50vh] w-full items-center justify-center p-4">
-      <Card className="max-w-md border-red-500/50">
+      <Card className="max-w-md border-zoru-line/50">
         <ZoruCardContent className="flex flex-col items-center gap-4 p-6 text-center">
-          <div className="rounded-full bg-red-100 p-3 text-red-500 dark:bg-red-500/20">
+          <div className="rounded-full bg-zoru-surface-2 p-3 text-zoru-ink dark:bg-zoru-ink/20">
             <AlertTriangle className="h-8 w-8" />
           </div>
           <div className="space-y-2">

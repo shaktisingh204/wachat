@@ -552,19 +552,19 @@ const KpiStrip = React.memo(function KpiStrip({
             label: 'Active',
             value: activeCount.toLocaleString(),
             icon: Activity,
-            accent: 'text-emerald-600 dark:text-emerald-400',
+            accent: 'text-zoru-ink dark:text-zoru-ink-muted',
         },
         {
             label: 'Top role',
             value: `${topRoleLabel} · ${topRoleCount}`,
             icon: Shield,
-            accent: 'text-blue-600 dark:text-blue-400',
+            accent: 'text-zoru-ink dark:text-zoru-ink-muted',
         },
         {
             label: 'Recent joins (14d)',
             value: recentJoinsCount.toLocaleString(),
             icon: UserPlus,
-            accent: 'text-amber-600 dark:text-amber-400',
+            accent: 'text-zoru-ink dark:text-zoru-ink-muted',
         },
     ];
     return (

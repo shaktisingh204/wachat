@@ -60,9 +60,9 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
     const getIcon = () => {
         switch (status) {
             case 'failed':
-                return <XCircle className="h-4 w-4 text-red-200" />;
+                return <XCircle className="h-4 w-4 text-white" />;
             case 'read':
-                return <CheckCheck className="h-4 w-4 text-blue-200" />;
+                return <CheckCheck className="h-4 w-4 text-white" />;
             case 'delivered':
                 return <CheckCheck className="h-4 w-4 text-white/70" />;
             case 'sent':
@@ -91,9 +91,9 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
                         {status === 'pending' && <p>Pending...</p>}
                         {status === 'failed' && (
                             <div>
-                                <p className="text-red-400 font-medium">Failed</p>
-                                {(message as OutgoingMessage).error && <p className="text-red-300">{(message as OutgoingMessage).error}</p>}
-                                {(message as OutgoingMessage).errorCode && <p className="text-red-300/70">Code: {(message as OutgoingMessage).errorCode}</p>}
+                                <p className="text-zoru-ink-muted font-medium">Failed</p>
+                                {(message as OutgoingMessage).error && <p className="text-zoru-ink-muted">{(message as OutgoingMessage).error}</p>}
+                                {(message as OutgoingMessage).errorCode && <p className="text-zoru-ink-muted/70">Code: {(message as OutgoingMessage).errorCode}</p>}
                             </div>
                         )}
                     </div>
@@ -107,12 +107,12 @@ function MediaContent({ message }: { message: AnyMessage }) {
     const type = message.type;
 
     if (type === 'unsupported') {
-        return <p className="whitespace-pre-wrap italic text-muted-foreground">This message type is not supported by the Cloud API.</p>;
+        return <p className="whitespace-pre-wrap italic text-zoru-ink-muted">This message type is not supported by the Cloud API.</p>;
     }
 
     const media = message.content[type as keyof typeof message.content] as any;
 
-    if (!media) return <div className="text-sm text-muted-foreground italic">[Unsupported message content]</div>;
+    if (!media) return <div className="text-sm text-zoru-ink-muted italic">[Unsupported message content]</div>;
 
     const url = media.url || media.link;
     const caption = media.caption || '';
@@ -122,14 +122,14 @@ function MediaContent({ message }: { message: AnyMessage }) {
         if (url) {
             return (
                 <div className="space-y-2">
-                    <a href={url} target="_blank" rel="noopener noreferrer" className="block relative aspect-video w-64 bg-muted rounded-lg overflow-hidden">
+                    <a href={url} target="_blank" rel="noopener noreferrer" className="block relative aspect-video w-64 bg-zoru-surface-2 rounded-lg overflow-hidden">
                         <Image src={url} alt={caption || 'Sent image'} layout="fill" objectFit="cover" data-ai-hint="chat image" />
                     </a>
                     {caption && <p className="text-sm">{caption}</p>}
                 </div>
             );
         }
-        return <div className="text-sm text-muted-foreground italic">[Image received - preview unavailable]</div>;
+        return <div className="text-sm text-zoru-ink-muted italic">[Image received - preview unavailable]</div>;
     }
 
     if (type === 'sticker') {
@@ -140,7 +140,7 @@ function MediaContent({ message }: { message: AnyMessage }) {
                 </div>
             )
         }
-        return <div className="text-sm text-muted-foreground italic">[Sticker received]</div>;
+        return <div className="text-sm text-zoru-ink-muted italic">[Sticker received]</div>;
     }
 
     if (type === 'video') {
@@ -152,23 +152,23 @@ function MediaContent({ message }: { message: AnyMessage }) {
                 </div>
             );
         }
-        return <div className="text-sm text-muted-foreground italic">[Video received]</div>;
+        return <div className="text-sm text-zoru-ink-muted italic">[Video received]</div>;
     }
 
     if (type === 'document') {
         if (url) {
             return (
-                <a href={url} target="_blank" rel="noopener noreferrer" download={fileName} className="flex items-center gap-3 p-3 rounded-lg bg-background/50 hover:bg-background transition-colors max-w-xs">
-                    <FileIcon className="h-8 w-8 text-primary flex-shrink-0" />
+                <a href={url} target="_blank" rel="noopener noreferrer" download={fileName} className="flex items-center gap-3 p-3 rounded-lg bg-zoru-surface/50 hover:bg-zoru-surface transition-colors max-w-xs">
+                    <FileIcon className="h-8 w-8 text-zoru-ink flex-shrink-0" />
                     <div className="flex-1 overflow-hidden">
                         <p className="font-semibold truncate">{fileName}</p>
-                        {caption && <p className="text-xs text-muted-foreground truncate">{caption}</p>}
+                        {caption && <p className="text-xs text-zoru-ink-muted truncate">{caption}</p>}
                     </div>
-                    <Download className="h-5 w-5 text-muted-foreground" />
+                    <Download className="h-5 w-5 text-zoru-ink-muted" />
                 </a>
             );
         }
-        return <div className="text-sm text-muted-foreground italic">[Document received: {fileName}]</div>;
+        return <div className="text-sm text-zoru-ink-muted italic">[Document received: {fileName}]</div>;
     }
 
     if (type === 'audio') {
@@ -179,24 +179,24 @@ function MediaContent({ message }: { message: AnyMessage }) {
                 </div>
             )
         }
-        return <div className="text-sm text-muted-foreground italic">[Audio message]</div>;
+        return <div className="text-sm text-zoru-ink-muted italic">[Audio message]</div>;
     }
 
     if (type === 'location') {
         const { latitude, longitude, name, address } = media;
         const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
         return (
-            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-background/50 hover:bg-background transition-colors max-w-xs">
-                <MapPin className="h-8 w-8 text-destructive flex-shrink-0" />
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-zoru-surface/50 hover:bg-zoru-surface transition-colors max-w-xs">
+                <MapPin className="h-8 w-8 text-zoru-ink flex-shrink-0" />
                 <div className="flex-1 overflow-hidden">
                     <p className="font-semibold truncate">{name || 'Location'}</p>
-                    <p className="text-xs text-muted-foreground truncate">{address || `${latitude}, ${longitude}`}</p>
+                    <p className="text-xs text-zoru-ink-muted truncate">{address || `${latitude}, ${longitude}`}</p>
                 </div>
             </a>
         );
     }
 
-    return <div className="text-sm text-muted-foreground italic">[{type} message]</div>;
+    return <div className="text-sm text-zoru-ink-muted italic">[{type} message]</div>;
 };
 
 const PaymentRequestContent = ({ message, phoneNumberId }: { message: OutgoingMessage, phoneNumberId?: string }) => {
@@ -230,7 +230,7 @@ const PaymentRequestContent = ({ message, phoneNumberId }: { message: OutgoingMe
         <div className="space-y-2 w-64">
             <p className="font-semibold">Payment Request</p>
             <p className="text-sm">Amount: ₹{message.content.payment_request.amount}</p>
-            <p className="text-xs text-muted-foreground">{message.content.payment_request.description}</p>
+            <p className="text-xs text-zoru-ink-muted">{message.content.payment_request.description}</p>
             <Button size="sm" className="w-full mt-2" onClick={checkStatus} disabled={isChecking}>
                 {isChecking ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 <span className="ml-2 capitalize">{statusToText(paymentStatus)}</span>
@@ -247,7 +247,7 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
             return (
                 <div className="mt-2 space-y-1">
                     {action.buttons.map(button => (
-                        <div key={button.reply.id} className="text-center text-primary font-medium bg-white/80 dark:bg-muted/50 py-1.5 rounded-md text-sm border">
+                        <div key={button.reply.id} className="text-center text-zoru-ink font-medium bg-white/80 dark:bg-zoru-surface-2/50 py-1.5 rounded-md text-sm border">
                             {button.reply.title}
                         </div>
                     ))}
@@ -256,7 +256,7 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
         }
         if (action.button) {
             return (
-                <div className="mt-2 text-center text-primary font-medium bg-white/80 dark:bg-muted/50 py-2.5 rounded-md text-sm border font-semibold">
+                <div className="mt-2 text-center text-zoru-ink font-medium bg-white/80 dark:bg-zoru-surface-2/50 py-2.5 rounded-md text-sm border font-semibold">
                     <List className="inline-block h-4 w-4 mr-2" />
                     {action.button}
                 </div>
@@ -272,7 +272,7 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
         <div className="space-y-2 w-64">
             {header && <p className="font-bold text-lg">{header.text}</p>}
             {body && <p className="whitespace-pre-wrap">{body.text}</p>}
-            {footer && <p className="text-xs text-muted-foreground pt-1">{footer.text}</p>}
+            {footer && <p className="text-xs text-zoru-ink-muted pt-1">{footer.text}</p>}
             {action && renderAction()}
         </div>
     )
@@ -286,8 +286,8 @@ const QuotedMessage = ({ message }: { message: AnyMessage }) => {
 
     return (
         <div className="bg-black/5 dark:bg-white/5 p-2 rounded-md border-l-2 border-primary mb-2 text-xs">
-            <p className="font-semibold text-primary">{senderName}</p>
-            <div className="text-muted-foreground line-clamp-2">
+            <p className="font-semibold text-zoru-ink">{senderName}</p>
+            <div className="text-zoru-ink-muted line-clamp-2">
                 <MessageBody message={message} isOutgoing={isOutgoing} conversation={[]} onReply={() => { }} isQuoted={true} />
             </div>
         </div>
@@ -314,10 +314,10 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
             const nfm = message.content.interactive.nfm_reply;
             return (
                 <div className="space-y-1">
-                    <p className="text-xs font-semibold text-primary flex items-center gap-1"><Bot className="h-3 w-3" /> Flow Response</p>
+                    <p className="text-xs font-semibold text-zoru-ink flex items-center gap-1"><Bot className="h-3 w-3" /> Flow Response</p>
                     {nfm.body && <p className="whitespace-pre-wrap text-sm">{nfm.body}</p>}
                     {nfm.response_json && (
-                        <pre className="text-xs bg-muted/50 p-2 rounded overflow-x-auto max-w-xs">{typeof nfm.response_json === 'string' ? nfm.response_json : JSON.stringify(nfm.response_json, null, 2)}</pre>
+                        <pre className="text-xs bg-zoru-surface-2/50 p-2 rounded overflow-x-auto max-w-xs">{typeof nfm.response_json === 'string' ? nfm.response_json : JSON.stringify(nfm.response_json, null, 2)}</pre>
                     )}
                 </div>
             );
@@ -358,7 +358,7 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
     // System message (number change, group update, etc.)
     if (message.type === 'system') {
         return (
-            <div className="text-xs italic text-muted-foreground flex items-center gap-1.5">
+            <div className="text-xs italic text-zoru-ink-muted flex items-center gap-1.5">
                 <Bot className="h-3 w-3" />
                 {message.content.system?.body || message.content.body || '[System message]'}
             </div>
@@ -370,10 +370,10 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
         const ref = message.content.referral || message.content;
         return (
             <div className="space-y-1 text-sm">
-                <p className="text-xs font-semibold text-primary">From Ad</p>
+                <p className="text-xs font-semibold text-zoru-ink">From Ad</p>
                 {ref.headline && <p className="font-medium">{ref.headline}</p>}
-                {ref.body && <p className="text-muted-foreground">{ref.body}</p>}
-                {ref.source_url && <a href={ref.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">{ref.source_url}</a>}
+                {ref.body && <p className="text-zoru-ink-muted">{ref.body}</p>}
+                {ref.source_url && <a href={ref.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-zoru-ink hover:underline">{ref.source_url}</a>}
                 {message.content.text?.body && <p className="whitespace-pre-wrap mt-1">{message.content.text.body}</p>}
             </div>
         );
@@ -381,7 +381,7 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
 
     // Conversation opened (request_welcome)
     if (message.type === 'request_welcome') {
-        return <p className="text-xs italic text-muted-foreground">Customer opened the conversation</p>;
+        return <p className="text-xs italic text-zoru-ink-muted">Customer opened the conversation</p>;
     }
 
     // Media and other types
@@ -442,7 +442,7 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
             <div className="absolute top-0 opacity-0 group-hover/message:opacity-100 transition-opacity"
                 style={isOutgoing ? { right: '100%', marginRight: '0.5rem' } : { left: '100%', marginLeft: '0.5rem' }}
             >
-                <div className="flex items-center bg-background border rounded-full shadow-sm p-0.5">
+                <div className="flex items-center bg-zoru-surface border rounded-full shadow-sm p-0.5">
                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onReply(message.wamid)}>
                         <CornerUpLeft className="h-3 w-3" />
                     </Button>
@@ -468,21 +468,21 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
                 {translatedText && (
                     <>
                         <Separator className="my-2 bg-black/10 dark:bg-white/10" />
-                        <p className="whitespace-pre-wrap italic text-muted-foreground">{translatedText}</p>
+                        <p className="whitespace-pre-wrap italic text-zoru-ink-muted">{translatedText}</p>
                     </>
                 )}
 
                 {isOutgoing && message.status === 'failed' && (
-                    <div className="text-xs mt-1 pt-1 border-t border-white/20 text-red-200 space-y-0.5">
+                    <div className="text-xs mt-1 pt-1 border-t border-white/20 text-white space-y-0.5">
                         <p className="font-medium">Failed{(message as OutgoingMessage).errorCode ? ` (${(message as OutgoingMessage).errorCode})` : ''}</p>
                         {((message as OutgoingMessage).error || (message as OutgoingMessage).errorDetails) && (
-                            <p className="text-red-200/80">{(message as OutgoingMessage).errorDetails || (message as OutgoingMessage).error}</p>
+                            <p className="text-white/80">{(message as OutgoingMessage).errorDetails || (message as OutgoingMessage).error}</p>
                         )}
                     </div>
                 )}
 
                 <div className="flex items-center gap-1.5 self-end mt-1">
-                    <p className={cn("text-xs", isOutgoing ? "text-white/70" : "text-muted-foreground/80")}>
+                    <p className={cn("text-xs", isOutgoing ? "text-white/70" : "text-zoru-ink-muted/80")}>
                         {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                     {isOutgoing && <StatusTicks message={message as OutgoingMessage} />}
@@ -490,7 +490,7 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
             </div>
             {message.reaction && (
                 <div className={cn(
-                    "absolute -bottom-3 bg-background border rounded-full text-lg px-1.5 py-0.5 shadow-sm",
+                    "absolute -bottom-3 bg-zoru-surface border rounded-full text-lg px-1.5 py-0.5 shadow-sm",
                     isOutgoing ? 'right-0' : 'left-8'
                 )}>
                     {message.reaction.emoji}

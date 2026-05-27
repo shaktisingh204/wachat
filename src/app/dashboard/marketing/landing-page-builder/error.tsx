@@ -17,20 +17,20 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex h-[400px] w-full flex-col items-center justify-center space-y-4 rounded-lg border border-dashed border-red-200 bg-red-50 p-8 text-center dark:border-red-900 dark:bg-red-950/10">
-      <AlertCircle className="h-10 w-10 text-red-500" />
+    <div className="flex h-[400px] w-full flex-col items-center justify-center space-y-4 rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-8 text-center dark:border-zoru-line dark:bg-zoru-ink/10">
+      <AlertCircle className="h-10 w-10 text-zoru-ink" />
       <div className="space-y-2">
-        <h2 className="text-lg font-semibold text-red-700 dark:text-red-400">
+        <h2 className="text-lg font-semibold text-zoru-ink dark:text-zoru-ink-muted">
           Something went wrong loading campaigns!
         </h2>
-        <p className="text-sm text-red-600 dark:text-red-500">
+        <p className="text-sm text-zoru-ink dark:text-zoru-ink">
           {error.message || 'An unexpected error occurred. Please try again.'}
         </p>
       </div>
       <Button 
         onClick={() => reset()}
         variant="outline"
-        className="mt-4 border-red-200 text-red-600 hover:bg-red-100 hover:text-red-700 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+        className="mt-4 border-zoru-line text-zoru-ink hover:bg-zoru-surface-2 hover:text-zoru-ink dark:border-zoru-line dark:text-zoru-ink-muted dark:hover:bg-zoru-ink/20"
       >
         Try again
       </Button>

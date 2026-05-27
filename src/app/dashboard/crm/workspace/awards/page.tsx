@@ -62,8 +62,8 @@ export default function AwardsPage() {
     return (
         <div className="flex w-full flex-col gap-6 p-4 md:p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="flex items-center gap-4 p-4 hover:border-blue-500 transition-colors cursor-pointer" role="button">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                <Card className="flex items-center gap-4 p-4 hover:border-zoru-line transition-colors cursor-pointer" role="button">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
                         <Trophy className="h-6 w-6" />
                     </div>
                     <div>
@@ -71,8 +71,8 @@ export default function AwardsPage() {
                         <p className="text-sm text-zoru-ink-muted">View this month's stars</p>
                     </div>
                 </Card>
-                <Card className="flex items-center gap-4 p-4 hover:border-green-500 transition-colors cursor-pointer" role="button">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300">
+                <Card className="flex items-center gap-4 p-4 hover:border-zoru-line transition-colors cursor-pointer" role="button">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
                         <Medal className="h-6 w-6" />
                     </div>
                     <div>
@@ -81,8 +81,8 @@ export default function AwardsPage() {
                     </div>
                 </Card>
                 <Link href="/dashboard/crm/workspace/awards/appreciations" className="block">
-                    <Card className="flex items-center gap-4 p-4 hover:border-purple-500 transition-colors h-full cursor-pointer">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300">
+                    <Card className="flex items-center gap-4 p-4 hover:border-zoru-line transition-colors h-full cursor-pointer">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted">
                             <Heart className="h-6 w-6" />
                         </div>
                         <div>

@@ -18,7 +18,7 @@ export default function ContractTemplateDetailError({
 
   return (
     <div className="flex h-[400px] flex-col items-center justify-center gap-4 text-center p-6">
-      <AlertCircle className="h-10 w-10 text-destructive" />
+      <AlertCircle className="h-10 w-10 text-zoru-ink" />
       <h2 className="text-xl font-semibold">Something went wrong!</h2>
       <p className="text-sm text-zoru-ink-muted">
         We couldn't load the contract template details.

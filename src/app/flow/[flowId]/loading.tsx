@@ -13,31 +13,31 @@ export default function Loading() {
         }}
       >
         {/* Header Skeleton */}
-        <div className="shrink-0 flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 bg-gray-50">
-          <div className="h-9 w-9 rounded-full bg-gray-200 animate-pulse" />
+        <div className="shrink-0 flex items-center gap-3 px-5 py-3.5 border-b border-zoru-line bg-zoru-surface-2">
+          <div className="h-9 w-9 rounded-full bg-zoru-surface-2 animate-pulse" />
           <div className="flex flex-col gap-1.5">
-            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-            <div className="h-3 w-32 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 w-24 bg-zoru-surface-2 rounded animate-pulse" />
+            <div className="h-3 w-32 bg-zoru-surface-2 rounded animate-pulse" />
           </div>
         </div>
 
         {/* Message Stream Skeleton */}
         <div className="flex-1 px-4 py-6 flex flex-col gap-4">
           <div className="flex justify-start">
-            <div className="h-10 w-48 bg-gray-200 rounded-2xl rounded-tl-sm animate-pulse" />
+            <div className="h-10 w-48 bg-zoru-surface-2 rounded-2xl rounded-tl-sm animate-pulse" />
           </div>
           <div className="flex justify-end">
-            <div className="h-10 w-40 bg-gray-200 rounded-2xl rounded-tr-sm animate-pulse" />
+            <div className="h-10 w-40 bg-zoru-surface-2 rounded-2xl rounded-tr-sm animate-pulse" />
           </div>
           <div className="flex justify-start">
-            <div className="h-16 w-64 bg-gray-200 rounded-2xl rounded-tl-sm animate-pulse" />
+            <div className="h-16 w-64 bg-zoru-surface-2 rounded-2xl rounded-tl-sm animate-pulse" />
           </div>
         </div>
 
         {/* Input Bar Skeleton */}
-        <div className="shrink-0 flex items-center gap-2.5 border-t px-3 py-2.5 bg-gray-50 border-gray-100">
-          <div className="flex-1 h-9 bg-gray-200 rounded-md animate-pulse" />
-          <div className="h-8 w-8 rounded-xl bg-gray-200 animate-pulse shrink-0" />
+        <div className="shrink-0 flex items-center gap-2.5 border-t px-3 py-2.5 bg-zoru-surface-2 border-zoru-line">
+          <div className="flex-1 h-9 bg-zoru-surface-2 rounded-md animate-pulse" />
+          <div className="h-8 w-8 rounded-xl bg-zoru-surface-2 animate-pulse shrink-0" />
         </div>
       </div>
     </div>

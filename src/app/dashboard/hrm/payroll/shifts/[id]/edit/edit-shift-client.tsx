@@ -110,7 +110,7 @@ export function EditShiftClient({ initial }: { initial: CrmShiftDoc }) {
                             )}
                         </div>
                         <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
-                            <span className="flex h-2 w-2 rounded-full bg-green-500" />
+                            <span className="flex h-2 w-2 rounded-full bg-zoru-ink" />
                             {collabStatus}
                         </div>
                     </div>

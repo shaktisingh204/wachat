@@ -135,7 +135,7 @@ export function WorkflowEdge({
           >
             <button
               type="button"
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] text-red-500 hover:bg-[var(--gray-3)] transition-colors"
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] text-zoru-ink hover:bg-[var(--gray-3)] transition-colors"
               onClick={() => {
                 onDelete?.(connection.id);
                 setContextMenu(null);

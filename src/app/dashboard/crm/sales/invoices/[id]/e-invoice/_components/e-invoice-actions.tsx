@@ -75,13 +75,13 @@ export function EInvoiceActions({ invoiceId, hasIrn, cancelled }: Props) {
                         Cancel IRN
                     </Button>
                 ) : (
-                    <p className="text-[12px] text-muted-foreground">
+                    <p className="text-[12px] text-zoru-ink-muted">
                         This IRN is cancelled. Generate a new invoice to obtain a fresh IRN.
                     </p>
                 )}
             </div>
             {error ? (
-                <p className="text-[12px] text-red-600">{error}</p>
+                <p className="text-[12px] text-zoru-ink">{error}</p>
             ) : null}
         </div>
     );

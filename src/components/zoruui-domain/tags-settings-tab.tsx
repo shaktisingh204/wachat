@@ -83,7 +83,7 @@ export function TagsSettingsTab({ user }: TagsSettingsTabProps) {
                     <ZoruCardDescription>Create and manage colored tags to organize your short links and QR codes.</ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
-                    <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 border-b font-medium text-sm text-muted-foreground">
+                    <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 border-b font-medium text-sm text-zoru-ink-muted">
                         <span>Tag Name</span>
                         <span className="text-center">Color</span>
                         <span className="w-10"></span>
@@ -103,7 +103,7 @@ export function TagsSettingsTab({ user }: TagsSettingsTabProps) {
                                     className="h-9 w-14 p-1"
                                 />
                                 <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveTag(tag._id)}>
-                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                    <Trash2 className="h-4 w-4 text-zoru-ink" />
                                 </Button>
                             </div>
                         ))}

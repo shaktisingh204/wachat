@@ -43,15 +43,15 @@ export function Faq() {
                     viewport={{ once: true }}
                     className="text-center"
                 >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zoru-ink">
                         Frequently asked
                     </p>
-                    <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl md:text-6xl">
+                    <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zoru-ink sm:text-5xl md:text-6xl">
                         Common questions, answered.
                     </h2>
                 </m.div>
 
-                <div className="mt-14 divide-y divide-zinc-200/70">
+                <div className="mt-14 divide-y divide-zoru-line/70">
                     {faqs.map((item, i) => {
                         const isOpen = open === i;
                         return (
@@ -61,11 +61,11 @@ export function Faq() {
                                     onClick={() => setOpen(isOpen ? null : i)}
                                     className="flex w-full items-center justify-between gap-4 py-5 text-left transition"
                                 >
-                                    <span className="text-lg font-medium text-zinc-900">{item.q}</span>
+                                    <span className="text-lg font-medium text-zoru-ink">{item.q}</span>
                                     <m.span
                                         animate={{ rotate: isOpen ? 45 : 0 }}
                                         transition={{ type: 'spring', bounce: 0.3 }}
-                                        className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full bg-zinc-900/5 text-zinc-700"
+                                        className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full bg-zoru-ink/5 text-zoru-ink"
                                     >
                                         <Plus className="h-4 w-4" />
                                     </m.span>
@@ -79,7 +79,7 @@ export function Faq() {
                                             transition={{ duration: 0.25 }}
                                             className="overflow-hidden"
                                         >
-                                            <p className="pb-6 pr-12 text-[15px] leading-relaxed text-zinc-600">{item.a}</p>
+                                            <p className="pb-6 pr-12 text-[15px] leading-relaxed text-zoru-ink">{item.a}</p>
                                         </m.div>
                                     )}
                                 </AnimatePresence>

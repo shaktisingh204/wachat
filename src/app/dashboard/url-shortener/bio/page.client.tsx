@@ -81,7 +81,7 @@ export default function BioBuilderPage() {
             <Skeleton className="h-80 w-full rounded-xl" />
           </div>
         ) : !state ? (
-          <div className="py-10 text-center text-zinc-500">
+          <div className="py-10 text-center text-zoru-ink">
             Failed to load bio data.
           </div>
         ) : (

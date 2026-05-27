@@ -114,7 +114,7 @@ function ExpertCard({ expert }: { expert: typeof MOCK_EXPERTS[0] }) {
                             <ZoruCardTitle className="flex items-center gap-1.5 text-lg">
                                 {expert.name}
                                 {expert.verified && (
-                                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                    <CheckCircle2 className="h-4 w-4 text-zoru-ink" />
                                 )}
                             </ZoruCardTitle>
                             <p className="text-sm text-zoru-ink-muted">{expert.title}</p>
@@ -126,7 +126,7 @@ function ExpertCard({ expert }: { expert: typeof MOCK_EXPERTS[0] }) {
                     
                     <div className="mt-2 flex items-center gap-3 text-sm text-zoru-ink-muted">
                         <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                            <Star className="h-4 w-4 fill-zoru-ink-muted text-zoru-ink-muted" />
                             <span className="font-medium text-zoru-ink">{expert.rating}</span>
                             <span>({expert.reviews})</span>
                         </div>

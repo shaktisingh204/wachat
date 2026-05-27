@@ -16,14 +16,14 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 px-4">
-      <div className="flex flex-col items-center gap-4 text-center max-w-md p-8 rounded-2xl bg-zinc-900/50 border border-red-500/20">
-        <div className="h-12 w-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zoru-ink px-4">
+      <div className="flex flex-col items-center gap-4 text-center max-w-md p-8 rounded-2xl bg-zoru-ink/50 border border-zoru-line/20">
+        <div className="h-12 w-12 rounded-full bg-zoru-ink/10 flex items-center justify-center text-zoru-ink">
           <AlertCircle className="w-6 h-6" />
         </div>
         <div>
           <h2 className="text-xl font-semibold text-white">Something went wrong!</h2>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="mt-2 text-sm text-zoru-ink-muted">
             We couldn't load this profile. Please try again later.
           </p>
         </div>

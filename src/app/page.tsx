@@ -11,7 +11,7 @@ async function HomePageContent() {
 
 export default function HomePage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#06040d]" />}>
+        <Suspense fallback={<div className="min-h-screen bg-zoru-ink" />}>
             <HomePageContent />
         </Suspense>
     );

@@ -283,7 +283,7 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                         </div>
                     </Card>
                     <Card className="flex items-center gap-3 p-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
                             <Clock className="h-5 w-5" />
                         </div>
                         <div>
@@ -292,7 +292,7 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                         </div>
                     </Card>
                     <Card className="flex items-center gap-3 p-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
                             <CheckCircle className="h-5 w-5" />
                         </div>
                         <div>
@@ -301,7 +301,7 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                         </div>
                     </Card>
                     <Card className="flex items-center gap-3 p-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 text-neutral-600">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
                             <XCircle className="h-5 w-5" />
                         </div>
                         <div>
@@ -394,10 +394,10 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                                                         {m.status === 'scheduled' && (
                                                             <>
                                                                 <Button variant="ghost" size="icon" onClick={() => updateStatus(m, 'completed')} title="Mark Completed">
-                                                                    <CheckCircle className="h-4 w-4 text-green-500" />
+                                                                    <CheckCircle className="h-4 w-4 text-zoru-ink" />
                                                                 </Button>
                                                                 <Button variant="ghost" size="icon" onClick={() => updateStatus(m, 'canceled')} title="Cancel Meeting">
-                                                                    <XCircle className="h-4 w-4 text-neutral-400" />
+                                                                    <XCircle className="h-4 w-4 text-zoru-ink-muted" />
                                                                 </Button>
                                                             </>
                                                         )}
@@ -405,7 +405,7 @@ export function MeetingsListClient({ initialMeetings }: MeetingsListClientProps)
                                                             <Edit2 className="h-4 w-4 text-zoru-ink" />
                                                         </Button>
                                                         <Button variant="ghost" size="icon" onClick={() => handleDelete(m._id)} disabled={isMutating}>
-                                                            <Trash2 className="h-4 w-4 text-red-500" />
+                                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
                                                         </Button>
                                                     </div>
                                                 </ZoruTableCell>

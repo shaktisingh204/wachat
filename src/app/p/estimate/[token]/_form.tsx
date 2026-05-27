@@ -52,18 +52,18 @@ export function EstimateAcceptForm({ token }: { token: string }) {
     <Card className="shadow-md border-foreground/10">
       <ZoruCardContent className="flex flex-col gap-4 p-5">
         <div className="flex items-center justify-between">
-          <h2 className="text-[13px] font-mono uppercase tracking-wider text-foreground flex items-center gap-1.5">
-            <Terminal className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-[13px] font-mono uppercase tracking-wider text-zoru-ink flex items-center gap-1.5">
+            <Terminal className="h-4 w-4 text-zoru-ink-muted" />
             Payload parameters
           </h2>
-          <span className="text-[10px] font-mono bg-secondary px-1.5 py-0.5 rounded text-muted-foreground">
+          <span className="text-[10px] font-mono bg-zoru-surface-2 px-1.5 py-0.5 rounded text-zoru-ink-muted">
             multipart/form-data
           </span>
         </div>
 
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="acceptee_name" className="text-[12px] font-mono uppercase tracking-tight text-muted-foreground">
+            <Label htmlFor="acceptee_name" className="text-[12px] font-mono uppercase tracking-tight text-zoru-ink-muted">
               acceptee_name <span className="text-danger">*</span>
             </Label>
             <Input
@@ -77,7 +77,7 @@ export function EstimateAcceptForm({ token }: { token: string }) {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="acceptee_email" className="text-[12px] font-mono uppercase tracking-tight text-muted-foreground">
+            <Label htmlFor="acceptee_email" className="text-[12px] font-mono uppercase tracking-tight text-zoru-ink-muted">
               acceptee_email <span className="text-danger">*</span>
             </Label>
             <Input
@@ -93,13 +93,13 @@ export function EstimateAcceptForm({ token }: { token: string }) {
         </div>
 
         <div className="flex flex-col gap-1.5 mt-2">
-          <Label className="text-[12px] font-mono uppercase tracking-tight text-muted-foreground">
+          <Label className="text-[12px] font-mono uppercase tracking-tight text-zoru-ink-muted">
             signature_pad <span className="text-danger">*</span>
           </Label>
-          <div className="rounded-lg border border-border bg-background p-1.5 shadow-inner">
+          <div className="rounded-lg border border-zoru-line bg-zoru-surface p-1.5 shadow-inner">
             <SignaturePad ref={padRef} />
           </div>
-          <p className="text-[11px] font-mono text-muted-foreground tracking-tight">
+          <p className="text-[11px] font-mono text-zoru-ink-muted tracking-tight">
             // Draw inside the zone to confirm acceptance
           </p>
         </div>
@@ -142,10 +142,10 @@ export function EstimateAcceptForm({ token }: { token: string }) {
         </div>
 
         {/* CODE BLOCK PREVIEW */}
-        <div className="mt-2 border-t border-border pt-4">
-          <div className="rounded-lg bg-secondary/40 border border-border p-3">
-            <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1.5">// Curl representation</p>
-            <pre className="text-[10.5px] font-mono text-foreground whitespace-pre-wrap leading-tight bg-secondary/80 p-2.5 rounded border border-border/50">
+        <div className="mt-2 border-t border-zoru-line pt-4">
+          <div className="rounded-lg bg-zoru-surface-2/40 border border-zoru-line p-3">
+            <p className="text-[10px] font-mono uppercase tracking-wider text-zoru-ink-muted mb-1.5">// Curl representation</p>
+            <pre className="text-[10.5px] font-mono text-zoru-ink whitespace-pre-wrap leading-tight bg-zoru-surface-2/80 p-2.5 rounded border border-zoru-line/50">
               {`curl -X POST https://api.sabnode.com/v1/estimates/${token.slice(0, 6)}/accept \\
   -H "Content-Type: application/json" \\
   -d '{"name": "${name || '...'}", "email": "${email || '...'}"}'`}

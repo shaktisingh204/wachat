@@ -22,7 +22,7 @@ export default function OnboardingLoading() {
                     <Skeleton className="h-8 w-64" />
                     <Skeleton className="h-4 w-96" />
                 </header>
-                <div className="rounded-2xl border bg-card p-6 shadow-sm sm:p-8">
+                <div className="rounded-2xl border bg-zoru-surface p-6 shadow-sm sm:p-8">
                     <div className="space-y-6">
                         {Array.from({ length: 4 }).map((_, i) => (
                             <div key={i} className="space-y-2">

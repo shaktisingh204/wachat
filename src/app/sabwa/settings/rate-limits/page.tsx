@@ -207,12 +207,12 @@ export default function RateLimitsPage() {
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
       <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-secondary p-3">
+        <div className="rounded-xl bg-zoru-surface-2 p-3">
           <Gauge className="h-6 w-6" />
         </div>
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Settings — Rate Limits</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-zoru-ink-muted mt-1">
             Pick a sending profile and let SabWa pace outbound traffic to keep your personal number safe.
           </p>
         </div>
@@ -288,7 +288,7 @@ export default function RateLimitsPage() {
                   htmlFor={`profile-${p.value}`}
                   className={cn(
                     'cursor-pointer rounded-lg border p-4 transition-colors space-y-2',
-                    active ? 'border-primary ring-2 ring-primary/30 bg-primary/5' : 'hover:border-foreground/30',
+                    active ? 'border-primary ring-2 ring-primary/30 bg-zoru-ink/5' : 'hover:border-foreground/30',
                   )}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -301,15 +301,15 @@ export default function RateLimitsPage() {
                   </div>
                   <div className="text-2xl font-semibold tabular-nums">
                     {p.perMin}
-                    <span className="ml-1 text-sm font-normal text-muted-foreground">msgs/min</span>
+                    <span className="ml-1 text-sm font-normal text-zoru-ink-muted">msgs/min</span>
                   </div>
-                  <div className="text-xs text-muted-foreground space-y-0.5">
+                  <div className="text-xs text-zoru-ink-muted space-y-0.5">
                     <div>Daily cap: {p.dailyCap.toLocaleString()}</div>
                     <div>Jitter: {p.jitter}</div>
                   </div>
                   <p className="text-xs">{p.description}</p>
                   {p.warning && (
-                    <div className="flex items-start gap-1.5 rounded-md bg-red-500/10 px-2 py-1.5 text-[11px] text-red-600 dark:text-red-400">
+                    <div className="flex items-start gap-1.5 rounded-md bg-zoru-ink/10 px-2 py-1.5 text-[11px] text-zoru-ink dark:text-zoru-ink-muted">
                       <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
                       <span>{p.warning}</span>
                     </div>
@@ -338,17 +338,17 @@ export default function RateLimitsPage() {
             <Label className="text-sm">Enable warmup ramp</Label>
           </div>
           {warmupEnabled && effectiveRate !== null && (
-            <div className="rounded-md border bg-muted/40 p-3 text-sm">
+            <div className="rounded-md border bg-zoru-surface-2/40 p-3 text-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-muted-foreground">
-                  Session age: <strong className="text-foreground">{sessionAgeDays} day(s)</strong>
+                <span className="text-zoru-ink-muted">
+                  Session age: <strong className="text-zoru-ink">{sessionAgeDays} day(s)</strong>
                 </span>
                 <span>
                   Current effective rate:{' '}
-                  <strong className="text-foreground tabular-nums">{effectiveRate}/min</strong>
+                  <strong className="text-zoru-ink tabular-nums">{effectiveRate}/min</strong>
                 </span>
               </div>
-              <p className="mt-1.5 text-xs text-muted-foreground">
+              <p className="mt-1.5 text-xs text-zoru-ink-muted">
                 Warmup overrides the profile cap until 7 days have elapsed. After that, your selected profile
                 takes over.
               </p>
@@ -377,7 +377,7 @@ export default function RateLimitsPage() {
               {ACTION_ROWS.map((row) => (
                 <ZoruTableRow key={row.key}>
                   <ZoruTableCell className="font-medium">{row.label}</ZoruTableCell>
-                  <ZoruTableCell className="text-sm text-muted-foreground tabular-nums">
+                  <ZoruTableCell className="text-sm text-zoru-ink-muted tabular-nums">
                     {row.defaultCap}/min
                   </ZoruTableCell>
                   <ZoruTableCell>

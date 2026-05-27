@@ -499,25 +499,25 @@ export default function PermissionsPage() {
                         >
                           <div className="space-y-3 text-sm">
                             <div>
-                              <div className="text-muted-foreground text-xs">
+                              <div className="text-zoru-ink-muted text-xs">
                                 Slug
                               </div>
                               <div className="font-mono">{p.name}</div>
                             </div>
                             <div>
-                              <div className="text-muted-foreground text-xs">
+                              <div className="text-zoru-ink-muted text-xs">
                                 Module
                               </div>
                               <div>{p.module_name}</div>
                             </div>
                             <div>
-                              <div className="text-muted-foreground text-xs">
+                              <div className="text-zoru-ink-muted text-xs">
                                 Description
                               </div>
                               <div>{p.description || '—'}</div>
                             </div>
                             <div>
-                              <div className="text-muted-foreground text-xs">
+                              <div className="text-zoru-ink-muted text-xs">
                                 Kind
                               </div>
                               <div>{p.is_custom ? 'Custom' : 'Built-in'}</div>

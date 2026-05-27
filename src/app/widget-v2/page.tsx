@@ -128,7 +128,7 @@ export default function SabChatWidgetPage() {
                 <Avatar className="h-8 w-8 border border-white/20">
                   <ZoruAvatarFallback className="bg-white/10 text-white">S</ZoruAvatarFallback>
                 </Avatar>
-                <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-zoru-brand bg-green-500"></div>
+                <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-zoru-brand bg-zoru-ink"></div>
               </div>
               <div>
                 <h3 className="text-sm font-semibold leading-none">SabChat Support</h3>
@@ -312,16 +312,16 @@ export default function SabChatWidgetPage() {
 
           {/* 4. CALLING UI (Voice & Video) */}
           {(view === 'voice-call' || view === 'video-call') && (
-            <div className="flex flex-col h-full bg-zinc-950 text-white animate-in zoom-in-95 duration-300">
+            <div className="flex flex-col h-full bg-zoru-ink text-white animate-in zoom-in-95 duration-300">
               <div className="flex-1 relative flex flex-col items-center justify-center p-6">
                 
                 {view === 'video-call' && (
-                  <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-0 bg-zoru-ink flex items-center justify-center overflow-hidden">
                     {/* Simulated Agent Video Stream */}
                     <div className="absolute inset-0 opacity-40 bg-[url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop')] bg-cover bg-center"></div>
                     
                     {/* Simulated Self Video Stream (Picture in Picture) */}
-                    <div className="absolute bottom-6 right-4 w-24 h-36 bg-zinc-800 rounded-lg border-2 border-zinc-700 shadow-xl overflow-hidden">
+                    <div className="absolute bottom-6 right-4 w-24 h-36 bg-zoru-ink rounded-lg border-2 border-zoru-line shadow-xl overflow-hidden">
                       <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=300&auto=format&fit=crop')] bg-cover bg-center"></div>
                     </div>
                   </div>
@@ -331,30 +331,30 @@ export default function SabChatWidgetPage() {
                   {view === 'voice-call' && (
                     <div className="relative mb-6">
                       <div className="absolute inset-0 bg-zoru-brand/20 rounded-full animate-ping"></div>
-                      <Avatar className="h-24 w-24 border-4 border-zinc-800 relative z-10">
-                        <ZoruAvatarFallback className="bg-zinc-800 text-3xl">S</ZoruAvatarFallback>
+                      <Avatar className="h-24 w-24 border-4 border-zoru-line relative z-10">
+                        <ZoruAvatarFallback className="bg-zoru-ink text-3xl">S</ZoruAvatarFallback>
                       </Avatar>
                     </div>
                   )}
                   
                   <h3 className="text-xl font-semibold mb-1 shadow-black drop-shadow-md">SabChat Agent</h3>
-                  <p className="text-sm text-zinc-400 font-mono shadow-black drop-shadow-md">
+                  <p className="text-sm text-zoru-ink-muted font-mono shadow-black drop-shadow-md">
                     {isCalling ? formatTime(callDuration) : 'Connecting...'}
                   </p>
                 </div>
 
               </div>
               
-              <div className="bg-zinc-900/90 backdrop-blur-md p-6 rounded-t-3xl border-t border-zinc-800 flex justify-center gap-6 relative z-10">
-                <button className="h-12 w-12 rounded-full bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center transition-colors">
+              <div className="bg-zoru-ink/90 backdrop-blur-md p-6 rounded-t-3xl border-t border-zoru-line flex justify-center gap-6 relative z-10">
+                <button className="h-12 w-12 rounded-full bg-zoru-ink hover:bg-zoru-ink flex items-center justify-center transition-colors">
                   <Mic className="h-5 w-5" />
                 </button>
-                <button className="h-12 w-12 rounded-full bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center transition-colors">
-                  {view === 'video-call' ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5 text-zinc-500" />}
+                <button className="h-12 w-12 rounded-full bg-zoru-ink hover:bg-zoru-ink flex items-center justify-center transition-colors">
+                  {view === 'video-call' ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5 text-zoru-ink" />}
                 </button>
                 <button 
                   onClick={handleEndCall}
-                  className="h-12 w-12 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors text-white shadow-lg shadow-red-500/20"
+                  className="h-12 w-12 rounded-full bg-zoru-ink hover:bg-zoru-ink flex items-center justify-center transition-colors text-white shadow-lg shadow-zoru-line/20"
                 >
                   <PhoneCall className="h-5 w-5 rotate-[135deg]" />
                 </button>
@@ -364,25 +364,25 @@ export default function SabChatWidgetPage() {
 
           {/* 5. CO-BROWSE UI */}
           {view === 'co-browse' && (
-            <div className="flex flex-col h-full bg-indigo-950 text-white animate-in zoom-in-95 duration-300">
+            <div className="flex flex-col h-full bg-zoru-ink text-white animate-in zoom-in-95 duration-300">
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
                 <div className="relative mb-8">
-                  <div className="absolute inset-0 bg-indigo-500/20 rounded-full animate-pulse blur-xl"></div>
-                  <div className="h-20 w-20 bg-indigo-600 rounded-2xl flex items-center justify-center relative z-10 shadow-2xl rotate-3 border border-indigo-400/30">
+                  <div className="absolute inset-0 bg-zoru-ink/20 rounded-full animate-pulse blur-xl"></div>
+                  <div className="h-20 w-20 bg-zoru-ink rounded-2xl flex items-center justify-center relative z-10 shadow-2xl rotate-3 border border-zoru-line/30">
                     <MousePointer2 className="h-10 w-10 text-white" />
                   </div>
                 </div>
                 
                 <h3 className="text-xl font-semibold mb-2">Co-browsing Active</h3>
-                <p className="text-sm text-indigo-200 mb-6 max-w-[250px]">
+                <p className="text-sm text-white mb-6 max-w-[250px]">
                   An agent is currently viewing your screen to help you navigate.
                 </p>
 
-                <div className="bg-indigo-900/50 border border-indigo-500/30 rounded-xl p-4 w-full flex items-center gap-3">
-                  <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse"></div>
+                <div className="bg-zoru-ink/50 border border-zoru-line/30 rounded-xl p-4 w-full flex items-center gap-3">
+                  <div className="h-2 w-2 rounded-full bg-zoru-surface-2 animate-pulse"></div>
                   <div className="text-xs text-left flex-1">
-                    <span className="font-semibold block text-indigo-100">Session ID: 948-234-112</span>
-                    <span className="text-indigo-300">{formatTime(callDuration)}</span>
+                    <span className="font-semibold block text-white">Session ID: 948-234-112</span>
+                    <span className="text-zoru-ink-muted">{formatTime(callDuration)}</span>
                   </div>
                 </div>
               </div>
@@ -390,7 +390,7 @@ export default function SabChatWidgetPage() {
               <div className="p-6">
                 <Button 
                   variant="destructive" 
-                  className="w-full h-12 text-md shadow-lg shadow-red-500/20"
+                  className="w-full h-12 text-md shadow-lg shadow-zoru-line/20"
                   onClick={handleEndCall}
                 >
                   Stop Screen Sharing

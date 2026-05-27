@@ -372,10 +372,10 @@ export function TimeLogsClient({
     >
       {/* ── Active Timer Banner ── */}
       {mounted && runningLog && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-50 bg-amber-50/30 px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-zoru-line bg-zoru-surface-2/30 px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50">
-              <Timer className="h-4 w-4 text-amber-500" strokeWidth={1.75} />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2">
+              <Timer className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
             </div>
             <div>
               <p className="text-[13px] text-zoru-ink">Timer running</p>
@@ -386,7 +386,7 @@ export function TimeLogsClient({
             </div>
           </div>
           <Button variant="outline" disabled={isPending} onClick={() => handleStopTimer(String(runningLog._id))}>
-            <Square className="h-3.5 w-3.5 fill-current text-amber-500" strokeWidth={1.75} />
+            <Square className="h-3.5 w-3.5 fill-current text-zoru-ink" strokeWidth={1.75} />
             Stop Timer
           </Button>
         </div>
@@ -429,11 +429,11 @@ export function TimeLogsClient({
 
         {/* Bulk Actions Banner */}
         {selectedIds.size > 0 && (
-          <div className="mb-4 flex items-center justify-between rounded-md bg-zoru-bg-muted p-2 px-3 border border-zoru-line">
+          <div className="mb-4 flex items-center justify-between rounded-md bg-zoru-bg-zoru-surface-2 p-2 px-3 border border-zoru-line">
             <span className="text-sm font-medium text-zoru-ink">{selectedIds.size} selected</span>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={handleBulkApprove} disabled={isPending}>
-                <Check className="h-3.5 w-3.5 mr-1 text-emerald-500" />
+                <Check className="h-3.5 w-3.5 mr-1 text-zoru-ink" />
                 Approve
               </Button>
               <Button variant="outline" size="sm" onClick={handleBulkDelete} disabled={isPending}>
@@ -490,7 +490,7 @@ export function TimeLogsClient({
                   return (
                     <ZoruTableRow
                       key={id}
-                      className={isRunning ? 'border-zoru-line bg-amber-50/10' : 'border-zoru-line'}
+                      className={isRunning ? 'border-zoru-line bg-zoru-surface-2/10' : 'border-zoru-line'}
                       style={{
                         position: 'absolute',
                         top: 0,
@@ -510,7 +510,7 @@ export function TimeLogsClient({
                         {mounted ? formatTs(log.start_time) : '—'}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-[13px] text-zoru-ink">
-                        {!mounted ? '—' : isRunning ? <span className="text-amber-500">Running…</span> : formatTs(log.end_time)}
+                        {!mounted ? '—' : isRunning ? <span className="text-zoru-ink">Running…</span> : formatTs(log.end_time)}
                       </ZoruTableCell>
                       <ZoruTableCell className="font-mono text-[13px] text-zoru-ink">
                         {duration}
@@ -525,13 +525,13 @@ export function TimeLogsClient({
                         <div className="flex justify-end gap-1">
                           {isRunning && (
                             <Button variant="outline" size="sm" title="Stop Timer" disabled={isPending} onClick={() => handleStopTimer(id)}>
-                              <Square className="h-3.5 w-3.5 fill-current text-amber-500" />
+                              <Square className="h-3.5 w-3.5 fill-current text-zoru-ink" />
                             </Button>
                           )}
                           {isPendingStatus && (
                             <>
                               <Button variant="outline" size="sm" title="Approve" disabled={isPending} onClick={() => handleApprove(id)}>
-                                <Check className="h-3.5 w-3.5 text-emerald-500" />
+                                <Check className="h-3.5 w-3.5 text-zoru-ink" />
                               </Button>
                               <Button variant="outline" size="sm" title="Reject" disabled={isPending} onClick={() => handleReject(id)}>
                                 <X className="h-3.5 w-3.5 text-zoru-danger-ink" />

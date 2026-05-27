@@ -69,7 +69,7 @@ export function InspectorPanel({ node, onChange }: InspectorPanelProps) {
 
   return (
     <Card className="p-4 space-y-4">
-      <div className="flex items-center gap-2 border-b border-border pb-3">
+      <div className="flex items-center gap-2 border-b border-zoru-line pb-3">
         {Icon ? <Icon className={`h-4 w-4 ${meta!.accent}`} /> : null}
         <p className="text-sm font-medium">{meta?.label ?? node.type}</p>
         <span className="ml-auto text-[10px] text-zoru-ink-muted">{node.id}</span>

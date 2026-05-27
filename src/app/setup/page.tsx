@@ -36,7 +36,7 @@ export default function SetupPage() {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4 py-12">
         <Card className="max-w-2xl w-full border-zoru-danger/20 shadow-lg">
-          <ZoruCardHeader className="bg-destructive/5 border-b border-destructive/10 pb-6">
+          <ZoruCardHeader className="bg-zoru-ink/5 border-b border-destructive/10 pb-6">
             <ZoruCardTitle className="flex items-center gap-2 text-zoru-danger text-xl">
               <AlertCircle className="h-6 w-6" />
               Meta Configuration Required
@@ -73,8 +73,8 @@ export default function SetupPage() {
             </div>
             
             <Alert variant="default" className="bg-zoru-surface/50 border-zoru-ink/20">
-              <AlertCircle className="h-4 w-4 text-primary" />
-              <ZoruAlertTitle className="text-primary font-semibold">Restart Required</ZoruAlertTitle>
+              <AlertCircle className="h-4 w-4 text-zoru-ink" />
+              <ZoruAlertTitle className="text-zoru-ink font-semibold">Restart Required</ZoruAlertTitle>
               <ZoruAlertDescription>
                 After updating your <code className="bg-zoru-bg px-1 py-0.5 rounded text-xs border">.env</code> file, remember to restart your Next.js development server to apply the changes.
               </ZoruAlertDescription>
@@ -180,7 +180,7 @@ export default function SetupPage() {
           </Card>
           
           <div className="mt-8 text-center text-sm text-zoru-ink-muted flex items-center justify-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-green-500" />
+            <CheckCircle2 className="h-4 w-4 text-zoru-ink" />
             End-to-end encrypted connection provided by Meta.
           </div>
         </div>

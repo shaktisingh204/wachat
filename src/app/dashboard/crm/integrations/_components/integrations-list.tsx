@@ -218,7 +218,7 @@ export function IntegrationsList({ items }: { items: CrmIntegrationDoc[] }) {
                                     size="sm"
                                     onClick={() => setPendingDelete(item)}
                                 >
-                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                    <Trash2 className="h-4 w-4 text-zoru-ink" />
                                 </Button>
                             </div>
                         </Card>

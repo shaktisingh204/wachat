@@ -172,7 +172,7 @@ function NodeEditor({
           <Button
             variant="ghost"
             size="icon-sm"
-            className="text-red-500"
+            className="text-zoru-ink"
             onClick={onDelete}
           >
             <Trash2 className="h-3 w-3" />
@@ -344,7 +344,7 @@ export default function VoiceIvrPage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-red-500"
+                  className="text-zoru-ink"
                   onClick={() => handleDelete(ivr._id)}
                 >
                   <Trash2 className="h-3 w-3 mr-1" /> Archive

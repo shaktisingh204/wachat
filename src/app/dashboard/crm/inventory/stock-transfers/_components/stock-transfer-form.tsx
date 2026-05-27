@@ -488,7 +488,7 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                                 disabled={lines.length === 1}
                                                 aria-label="Remove line"
                                             >
-                                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                                <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
                                             </Button>
                                         </td>
                                     </tr>

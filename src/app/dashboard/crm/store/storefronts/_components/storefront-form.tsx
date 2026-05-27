@@ -132,7 +132,7 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="name">
-                            Name <span className="text-red-500">*</span>
+                            Name <span className="text-zoru-ink">*</span>
                         </Label>
                         <Input
                             id="name"
@@ -145,7 +145,7 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="slug">
-                            Slug <span className="text-red-500">*</span>
+                            Slug <span className="text-zoru-ink">*</span>
                         </Label>
                         <Input
                             id="slug"
@@ -255,7 +255,7 @@ export function StorefrontForm({ initial, storefrontId }: StorefrontFormProps) {
                 </div>
 
                 {state.error ? (
-                    <p className="text-[13px] text-red-500">{state.error}</p>
+                    <p className="text-[13px] text-zoru-ink">{state.error}</p>
                 ) : null}
 
                 <div className="flex items-center gap-3">

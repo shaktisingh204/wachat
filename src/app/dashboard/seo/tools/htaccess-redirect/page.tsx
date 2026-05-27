@@ -229,11 +229,11 @@ export default function HtaccessRedirectPage() {
         <div className="space-y-6">
           <div>
             <h3 className="text-sm font-semibold mb-2">Predefined Snippets</h3>
-            <div className="space-y-4 text-sm bg-muted/20 p-4 border rounded-md">
+            <div className="space-y-4 text-sm bg-zoru-surface-2/20 p-4 border rounded-md">
               <div className="mb-2">
-                <div className="mb-2 text-[10px] uppercase text-muted-foreground font-semibold">Domain & Protocol Redirect</div>
+                <div className="mb-2 text-[10px] uppercase text-zoru-ink-muted font-semibold">Domain & Protocol Redirect</div>
                 <select 
-                  className="border rounded h-8 w-full px-2 bg-background text-sm"
+                  className="border rounded h-8 w-full px-2 bg-zoru-surface text-sm"
                   value={domainRedirect}
                   onChange={(e) => setDomainRedirect(e.target.value as any)}
                 >
@@ -247,7 +247,7 @@ export default function HtaccessRedirectPage() {
               </div>
 
               <div className="pt-3 border-t">
-                <div className="mb-2 text-[10px] uppercase text-muted-foreground font-semibold">Performance & Security</div>
+                <div className="mb-2 text-[10px] uppercase text-zoru-ink-muted font-semibold">Performance & Security</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={enableGzip} onChange={e => setEnableGzip(e.target.checked)} className="rounded" />
@@ -269,7 +269,7 @@ export default function HtaccessRedirectPage() {
               </div>
 
               <div className="pt-3 border-t">
-                <div className="mb-2 text-[10px] uppercase text-muted-foreground font-semibold">File & Directory Security</div>
+                <div className="mb-2 text-[10px] uppercase text-zoru-ink-muted font-semibold">File & Directory Security</div>
                 <label className="flex items-center gap-2 cursor-pointer mb-2">
                   <input type="checkbox" checked={redirectIndex} onChange={e => setRedirectIndex(e.target.checked)} className="rounded" />
                   Redirect index.php to Root (/)
@@ -285,15 +285,15 @@ export default function HtaccessRedirectPage() {
                   </label>
                   {preventHotlinking && (
                     <div className="pl-6 mt-1 mb-2">
-                      <div className="mb-1 text-[10px] uppercase text-muted-foreground font-semibold">Allowed Domains (comma separated)</div>
-                      <Input value={allowedDomains} onChange={e => setAllowedDomains(e.target.value)} placeholder="e.g. example.com, mydomain.com" className="h-8 text-sm bg-background" />
+                      <div className="mb-1 text-[10px] uppercase text-zoru-ink-muted font-semibold">Allowed Domains (comma separated)</div>
+                      <Input value={allowedDomains} onChange={e => setAllowedDomains(e.target.value)} placeholder="e.g. example.com, mydomain.com" className="h-8 text-sm bg-zoru-surface" />
                     </div>
                   )}
                 </div>
               </div>
 
               <div className="pt-3 border-t">
-                <div className="mb-2 text-[10px] uppercase text-muted-foreground font-semibold">Trailing Slash Handling</div>
+                <div className="mb-2 text-[10px] uppercase text-zoru-ink-muted font-semibold">Trailing Slash Handling</div>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="slash" checked={trailingSlash === 'none'} onChange={() => setTrailingSlash('none')} /> None
@@ -308,13 +308,13 @@ export default function HtaccessRedirectPage() {
               </div>
 
               <div className="pt-3 border-t">
-                <div className="mb-1 text-[10px] uppercase text-muted-foreground font-semibold">Custom 404 Error Document (Path)</div>
-                <Input value={errorDocument404} onChange={e => setErrorDocument404(e.target.value)} placeholder="e.g. /404.html" className="h-8 text-sm bg-background" />
+                <div className="mb-1 text-[10px] uppercase text-zoru-ink-muted font-semibold">Custom 404 Error Document (Path)</div>
+                <Input value={errorDocument404} onChange={e => setErrorDocument404(e.target.value)} placeholder="e.g. /404.html" className="h-8 text-sm bg-zoru-surface" />
               </div>
 
               <div className="pt-3 border-t">
-                <div className="mb-1 text-[10px] uppercase text-muted-foreground font-semibold">Block IP Addresses (comma separated)</div>
-                <Input value={blockedIps} onChange={e => setBlockedIps(e.target.value)} placeholder="e.g. 192.168.1.1, 10.0.0.1" className="h-8 text-sm bg-background" />
+                <div className="mb-1 text-[10px] uppercase text-zoru-ink-muted font-semibold">Block IP Addresses (comma separated)</div>
+                <Input value={blockedIps} onChange={e => setBlockedIps(e.target.value)} placeholder="e.g. 192.168.1.1, 10.0.0.1" className="h-8 text-sm bg-zoru-surface" />
               </div>
             </div>
           </div>
@@ -326,25 +326,25 @@ export default function HtaccessRedirectPage() {
             </div>
             <div className="space-y-4">
               {rows.map((r, i) => (
-                <div key={i} className="flex flex-col gap-3 p-3 border rounded-md relative bg-muted/10">
-                  <Button variant="ghost" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-background border shadow-sm text-muted-foreground hover:text-destructive" onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))}>×</Button>
+                <div key={i} className="flex flex-col gap-3 p-3 border rounded-md relative bg-zoru-surface-2/10">
+                  <Button variant="ghost" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-zoru-surface border shadow-sm text-zoru-ink-muted hover:text-zoru-ink" onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))}>×</Button>
                   
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-6">
-                      <label className="text-[10px] uppercase text-muted-foreground font-semibold">From Path</label>
-                      <Input value={r.from} onChange={(e) => updateRow(i, { from: e.target.value })} placeholder="/old-path" className="h-8 text-sm bg-background" />
+                      <label className="text-[10px] uppercase text-zoru-ink-muted font-semibold">From Path</label>
+                      <Input value={r.from} onChange={(e) => updateRow(i, { from: e.target.value })} placeholder="/old-path" className="h-8 text-sm bg-zoru-surface" />
                     </div>
                     <div className="col-span-3">
-                      <label className="text-[10px] uppercase text-muted-foreground font-semibold">Path Match</label>
-                      <select className="border rounded h-8 w-full px-2 bg-background text-sm" value={r.fromMatchType} onChange={(e) => updateRow(i, { fromMatchType: e.target.value as any })}>
+                      <label className="text-[10px] uppercase text-zoru-ink-muted font-semibold">Path Match</label>
+                      <select className="border rounded h-8 w-full px-2 bg-zoru-surface text-sm" value={r.fromMatchType} onChange={(e) => updateRow(i, { fromMatchType: e.target.value as any })}>
                         <option value="exact">Exact</option>
                         <option value="startsWith">Starts</option>
                         <option value="regex">Regex</option>
                       </select>
                     </div>
                     <div className="col-span-3">
-                      <label className="text-[10px] uppercase text-muted-foreground font-semibold">Redirect</label>
-                      <select className="border rounded h-8 w-full px-2 bg-background text-sm" value={r.type} onChange={(e) => updateRow(i, { type: e.target.value })}>
+                      <label className="text-[10px] uppercase text-zoru-ink-muted font-semibold">Redirect</label>
+                      <select className="border rounded h-8 w-full px-2 bg-zoru-surface text-sm" value={r.type} onChange={(e) => updateRow(i, { type: e.target.value })}>
                         <option value="301">301 (Perm)</option>
                         <option value="302">302 (Temp)</option>
                       </select>
@@ -353,20 +353,20 @@ export default function HtaccessRedirectPage() {
 
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-6">
-                      <label className="text-[10px] uppercase text-muted-foreground font-semibold">Query String (Optional)</label>
-                      <Input value={r.query} onChange={(e) => updateRow(i, { query: e.target.value })} placeholder="id=123" className="h-8 text-sm bg-background" />
+                      <label className="text-[10px] uppercase text-zoru-ink-muted font-semibold">Query String (Optional)</label>
+                      <Input value={r.query} onChange={(e) => updateRow(i, { query: e.target.value })} placeholder="id=123" className="h-8 text-sm bg-zoru-surface" />
                     </div>
                     <div className="col-span-3">
-                      <label className="text-[10px] uppercase text-muted-foreground font-semibold">Query Match</label>
-                      <select className="border rounded h-8 w-full px-2 bg-background text-sm" value={r.queryMatchType} onChange={(e) => updateRow(i, { queryMatchType: e.target.value as any })}>
+                      <label className="text-[10px] uppercase text-zoru-ink-muted font-semibold">Query Match</label>
+                      <select className="border rounded h-8 w-full px-2 bg-zoru-surface text-sm" value={r.queryMatchType} onChange={(e) => updateRow(i, { queryMatchType: e.target.value as any })}>
                         <option value="exact">Exact</option>
                         <option value="contains">Contains</option>
                         <option value="regex">Regex</option>
                       </select>
                     </div>
                     <div className="col-span-3">
-                      <label className="text-[10px] uppercase text-muted-foreground font-semibold">Query Action</label>
-                      <select className="border rounded h-8 w-full px-2 bg-background text-sm" value={r.queryHandling} onChange={(e) => updateRow(i, { queryHandling: e.target.value as any })}>
+                      <label className="text-[10px] uppercase text-zoru-ink-muted font-semibold">Query Action</label>
+                      <select className="border rounded h-8 w-full px-2 bg-zoru-surface text-sm" value={r.queryHandling} onChange={(e) => updateRow(i, { queryHandling: e.target.value as any })}>
                         <option value="ignore">Default</option>
                         <option value="append">Append (QSA)</option>
                         <option value="discard">Discard (QSD)</option>
@@ -376,8 +376,8 @@ export default function HtaccessRedirectPage() {
 
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-12">
-                      <label className="text-[10px] uppercase text-muted-foreground font-semibold">To Destination</label>
-                      <Input value={r.to} onChange={(e) => updateRow(i, { to: e.target.value })} placeholder="https://example.com/new-path" className="h-8 text-sm bg-background" />
+                      <label className="text-[10px] uppercase text-zoru-ink-muted font-semibold">To Destination</label>
+                      <Input value={r.to} onChange={(e) => updateRow(i, { to: e.target.value })} placeholder="https://example.com/new-path" className="h-8 text-sm bg-zoru-surface" />
                     </div>
                   </div>
                 </div>
@@ -388,7 +388,7 @@ export default function HtaccessRedirectPage() {
 
         <div>
           <h3 className="text-sm font-semibold mb-2">Generated .htaccess</h3>
-          <Textarea readOnly value={out} className="h-full min-h-[400px] font-mono text-xs whitespace-pre bg-muted/5" />
+          <Textarea readOnly value={out} className="h-full min-h-[400px] font-mono text-xs whitespace-pre bg-zoru-surface-2/5" />
         </div>
       </div>
 

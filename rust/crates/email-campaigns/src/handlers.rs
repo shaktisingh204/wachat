@@ -36,7 +36,7 @@ use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::bson_helpers::oid_from_str;
 use serde_json::{Value, json};
-use tracing::{instrument, warn};
+use tracing::instrument;
 use wachat_queue::JobOptions;
 
 use crate::dto::{

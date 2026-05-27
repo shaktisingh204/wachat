@@ -243,7 +243,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                 <div className="mb-3 flex items-center justify-between">
                     <div>
                         <div className="text-sm font-medium">Daily volume</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-zoru-ink-muted">
                             Revenue is summed across successful payments. Drag the
                             range above to focus.
                         </div>
@@ -280,7 +280,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                             </BarChart>
                         </ResponsiveContainer>
                     ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                        <div className="flex h-full items-center justify-center text-xs text-zoru-ink-muted">
                             No payments in this range yet.
                         </div>
                     )}
@@ -392,7 +392,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                         {props.payments.length === 0 && (
                             <ZoruTableRow>
                                 <ZoruTableCell colSpan={6}>
-                                    <div className="py-10 text-center text-sm text-muted-foreground">
+                                    <div className="py-10 text-center text-sm text-zoru-ink-muted">
                                         No payments match these filters yet.
                                     </div>
                                 </ZoruTableCell>
@@ -402,7 +402,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                             <ZoruTableRow key={p._id}>
                                 <ZoruTableCell>
                                     <div className="text-sm">{p.username ?? '—'}</div>
-                                    <div className="text-xs text-muted-foreground">
+                                    <div className="text-xs text-zoru-ink-muted">
                                         {p.chatId ?? p.userId ?? '—'}
                                     </div>
                                 </ZoruTableCell>
@@ -443,7 +443,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                     </ZoruTableBody>
                 </Table>
                 <div className="flex items-center justify-between border-t border-zoru-line px-3 py-2 text-xs">
-                    <div className="text-muted-foreground">
+                    <div className="text-zoru-ink-muted">
                         Page {props.page} of {totalPages} • {props.paymentsTotal} total
                     </div>
                     <div className="flex gap-2">
@@ -520,7 +520,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                             {detail.orderInfo ? (
                                 <div>
                                     <Label className="text-xs">Order info</Label>
-                                    <pre className="max-h-40 overflow-auto rounded bg-secondary/40 p-2 text-[11px]">
+                                    <pre className="max-h-40 overflow-auto rounded bg-zoru-surface-2/40 p-2 text-[11px]">
                                         {JSON.stringify(detail.orderInfo, null, 2)}
                                     </pre>
                                 </div>
@@ -528,7 +528,7 @@ export function PaymentsSection(props: PaymentsSectionProps) {
                             {detail.shippingAddress ? (
                                 <div>
                                     <Label className="text-xs">Shipping address</Label>
-                                    <pre className="max-h-40 overflow-auto rounded bg-secondary/40 p-2 text-[11px]">
+                                    <pre className="max-h-40 overflow-auto rounded bg-zoru-surface-2/40 p-2 text-[11px]">
                                         {JSON.stringify(detail.shippingAddress, null, 2)}
                                     </pre>
                                 </div>

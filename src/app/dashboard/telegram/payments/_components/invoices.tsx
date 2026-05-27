@@ -201,7 +201,7 @@ export function InvoicesSection({
                     {invoices.length === 0 && (
                         <ZoruTableRow>
                             <ZoruTableCell colSpan={6}>
-                                <div className="py-10 text-center text-sm text-muted-foreground">
+                                <div className="py-10 text-center text-sm text-zoru-ink-muted">
                                     No invoices sent or created yet.
                                 </div>
                             </ZoruTableCell>

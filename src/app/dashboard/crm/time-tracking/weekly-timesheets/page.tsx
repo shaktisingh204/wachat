@@ -283,7 +283,7 @@ export default function WeeklyTimesheetsPage() {
           {/* Bulk selection header */}
           {rows.length > 0 && (
             <div className="flex items-center gap-2">
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground select-none">
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-zoru-ink-muted select-none">
                 <Checkbox
                   checked={allChecked}
                   aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
@@ -297,8 +297,8 @@ export default function WeeklyTimesheetsPage() {
 
           {/* Bulk action bar */}
           {hasSelection && (
-            <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-2.5 text-sm">
-              <span className="font-medium text-foreground">{selectedIds.length} selected</span>
+            <div className="flex flex-wrap items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface-2/40 px-4 py-2.5 text-sm">
+              <span className="font-medium text-zoru-ink">{selectedIds.length} selected</span>
               <Button variant="outline" size="sm" disabled={bulkPending} onClick={handleBulkSubmit}>
                 {bulkPending ? <LoaderCircle className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Send className="mr-1.5 h-3.5 w-3.5" />}
                 Submit

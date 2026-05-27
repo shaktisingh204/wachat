@@ -11,7 +11,7 @@ type Props = {
  */
 export function VariableTag({ variableName }: Props) {
   return (
-    <span className="inline-flex items-center gap-0.5 bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400 rounded px-1 py-0.5 text-[10px] font-mono break-all leading-tight">
+    <span className="inline-flex items-center gap-0.5 bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted rounded px-1 py-0.5 text-[10px] font-mono break-all leading-tight">
       <LuBraces className="shrink-0 h-2.5 w-2.5" />
       {variableName}
     </span>

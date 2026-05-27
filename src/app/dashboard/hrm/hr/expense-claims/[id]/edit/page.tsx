@@ -1,62 +1,30 @@
-'use client';
+import { notFound, redirect } from 'next/navigation';
+import { getSession } from '@/app/actions/user.actions';
+import { loadLiveDocument, saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+export const dynamic = 'force-dynamic';
 
+const BASE = '/dashboard/hrm/hr/expense-claims';
 
-import * as React from 'react';
-import { useParams } from 'next/navigation';
-import { Wallet } from 'lucide-react';
-import { HrFormPage } from '../../../_components/hr-form-page';
-import {
-  getExpenseClaims,
-  saveExpenseClaim,
-} from '@/app/actions/hr.actions';
-import type { HrExpenseClaim } from '@/lib/hr-types';
-import { fields, sections } from '../../_config';
+export default async function EditExpenseClaimPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id } = await params;
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
 
-export default function EditExpenseClaimPage() {
-  const params = useParams<{ id: string }>();
-  const id = params?.id;
-  const [record, setRecord] = React.useState<
-    (HrExpenseClaim & { _id: string }) | null
-  >(null);
-  const [loading, setLoading] = React.useState(true);
+    const doc = await loadLiveDocument('expense_claim', id);
+    if (!doc) notFound();
 
-  React.useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const list = (await getExpenseClaims()) as (HrExpenseClaim & {
-          _id: string;
-        })[];
-        const found = Array.isArray(list)
-          ? list.find((r) => String(r._id) === String(id)) || null
-          : null;
-        if (active) setRecord(found);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [id]);
-
-  if (loading) {
-    return <div className="text-[13px] text-muted-foreground">Loading…</div>;
-  }
-
-  return (
-    <HrFormPage
-      title="Edit Expense Claim"
-      subtitle="Update claim details."
-      icon={Wallet}
-      backHref="/dashboard/hrm/hr/expense-claims"
-      singular="Claim"
-      fields={fields}
-      sections={sections}
-      saveAction={saveExpenseClaim}
-      initial={record as unknown as Record<string, unknown>}
-    />
-  );
+    return (
+        <LiveDocumentEditor
+            documentType="expense_claim"
+            initialData={doc as Record<string, unknown>}
+            saveAction={saveLiveDocument}
+            backHref={BASE}
+        />
+    );
 }

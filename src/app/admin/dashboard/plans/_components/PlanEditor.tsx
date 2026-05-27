@@ -86,34 +86,34 @@ function SectionCard({
 }) {
     const accentMap: Record<string, { tile: string; icon: string; glow: string }> = {
         primary: {
-            tile: 'bg-primary/10 border-primary/30',
-            icon: 'text-primary',
+            tile: 'bg-zoru-ink/10 border-primary/30',
+            icon: 'text-zoru-ink',
             glow: 'from-primary/10',
         },
         amber: {
-            tile: 'bg-amber-100 border-amber-200',
-            icon: 'text-amber-600',
-            glow: 'from-amber-500/10',
+            tile: 'bg-zoru-surface-2 border-zoru-line',
+            icon: 'text-zoru-ink',
+            glow: 'from-zoru-ink/10',
         },
         violet: {
-            tile: 'bg-violet-100 border-violet-200',
-            icon: 'text-violet-600',
-            glow: 'from-violet-500/10',
+            tile: 'bg-zoru-surface-2 border-zoru-line',
+            icon: 'text-zoru-ink',
+            glow: 'from-zoru-ink/10',
         },
         emerald: {
-            tile: 'bg-emerald-100 border-emerald-200',
-            icon: 'text-emerald-600',
-            glow: 'from-emerald-500/10',
+            tile: 'bg-zoru-surface-2 border-zoru-line',
+            icon: 'text-zoru-ink',
+            glow: 'from-zoru-ink/10',
         },
         sky: {
-            tile: 'bg-sky-100 border-sky-200',
-            icon: 'text-sky-600',
-            glow: 'from-sky-500/10',
+            tile: 'bg-zoru-surface-2 border-zoru-line',
+            icon: 'text-zoru-ink',
+            glow: 'from-zoru-ink/10',
         },
         rose: {
-            tile: 'bg-rose-100 border-rose-200',
-            icon: 'text-rose-600',
-            glow: 'from-rose-500/10',
+            tile: 'bg-zoru-surface-2 border-zoru-line',
+            icon: 'text-zoru-ink',
+            glow: 'from-zoru-ink/10',
         },
     };
     const styles = accentMap[accent || 'primary'];
@@ -121,7 +121,7 @@ function SectionCard({
         <Card
             className={cn(
                 'rounded-2xl border-zoru-line bg-zoru-bg backdrop-blur-xl shadow-sm overflow-hidden',
-                premium && 'ring-1 ring-amber-500/40 shadow-amber-500/10',
+                premium && 'ring-1 ring-zoru-line/40 shadow-zoru-line/10',
             )}
         >
             <ZoruCardHeader
@@ -145,7 +145,7 @@ function SectionCard({
                         <div className="flex items-center gap-2 flex-wrap">
                             <ZoruCardTitle className="text-base">{title}</ZoruCardTitle>
                             {premium && (
-                                <Badge className="rounded-full text-[9px] h-5 px-2 gap-1 bg-gradient-to-r from-amber-500/80 to-amber-400/80 text-zinc-950 border-0 font-bold uppercase tracking-wider">
+                                <Badge className="rounded-full text-[9px] h-5 px-2 gap-1 bg-gradient-to-r from-zoru-ink/80 to-zoru-surface-2/80 text-zoru-ink border-0 font-bold uppercase tracking-wider">
                                     <Crown className="h-2.5 w-2.5" />
                                     Premium
                                 </Badge>
@@ -261,9 +261,9 @@ export function PlanEditor({ planId }: { planId: string }) {
             <input type="hidden" name="planId" value={plan?._id?.toString() || 'new'} />
 
             {/* Header */}
-            <div className="relative overflow-hidden rounded-2xl border border-zoru-line bg-gradient-to-br from-primary/5 via-zoru-bg to-violet-50 p-6">
-                <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-violet-100 blur-3xl pointer-events-none" />
+            <div className="relative overflow-hidden rounded-2xl border border-zoru-line bg-gradient-to-br from-primary/5 via-zoru-bg to-zoru-surface-2 p-6">
+                <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-zoru-ink/20 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-zoru-surface-2 blur-3xl pointer-events-none" />
                 <div className="relative">
                     <Button
                         type="button"
@@ -277,7 +277,7 @@ export function PlanEditor({ planId }: { planId: string }) {
                             Back to Plans
                         </Link>
                     </Button>
-                    <div className="inline-flex items-center gap-2 text-xs font-medium text-primary mb-1">
+                    <div className="inline-flex items-center gap-2 text-xs font-medium text-zoru-ink mb-1">
                         <Sparkles className="h-3.5 w-3.5" />
                         {isNew ? 'New Plan' : 'Editing Plan'}
                     </div>
@@ -554,7 +554,7 @@ export function PlanEditor({ planId }: { planId: string }) {
                     <SectionCard title="Credit rates" description="Credits deducted per unit per channel.">
                         <div className="space-y-5">
                             <div>
-                                <div className="text-xs font-semibold text-emerald-600 mb-3 uppercase tracking-wide">
+                                <div className="text-xs font-semibold text-zoru-ink mb-3 uppercase tracking-wide">
                                     WhatsApp
                                 </div>
                                 <div className="grid gap-4 md:grid-cols-3">
@@ -594,7 +594,7 @@ export function PlanEditor({ planId }: { planId: string }) {
                                 </div>
                             </div>
                             <div className="pt-4 border-t border-zoru-line">
-                                <div className="text-xs font-semibold text-sky-600 mb-3 uppercase tracking-wide">
+                                <div className="text-xs font-semibold text-zoru-ink mb-3 uppercase tracking-wide">
                                     Other channels
                                 </div>
                                 <div className="grid gap-4 md:grid-cols-3">

@@ -312,8 +312,8 @@ export function LandingHeader({ active, session: sessionProp, loading: loadingPr
               const hasDropdown = !!item.dropdown;
               const className = `inline-flex h-8 items-center gap-1 rounded-full px-3 text-[13px] font-semibold transition-colors ${
                 isOpen || isActive
-                  ? 'border border-[#4F46E5]/30 bg-white text-[#4F46E5] shadow-sm'
-                  : 'text-[#121126] hover:text-[#4F46E5]'
+                  ? 'border border-zoru-line/30 bg-white text-zoru-ink shadow-sm'
+                  : 'text-zoru-ink hover:text-zoru-ink'
               }`;
               if (hasDropdown) {
                 return (
@@ -347,11 +347,11 @@ export function LandingHeader({ active, session: sessionProp, loading: loadingPr
           <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
             <button
               aria-label="Search"
-              className="hidden h-9 w-9 items-center justify-center rounded-full text-[#4A4A6B] hover:bg-black/5 hover:text-[#121126] sm:inline-flex"
+              className="hidden h-9 w-9 items-center justify-center rounded-full text-zoru-ink hover:bg-black/5 hover:text-zoru-ink sm:inline-flex"
             >
               <Search className="h-4 w-4" />
             </button>
-            <button className="hidden h-9 items-center gap-1.5 rounded-full px-2.5 text-[13px] font-medium text-[#4A4A6B] hover:bg-black/5 hover:text-[#121126] xl:inline-flex">
+            <button className="hidden h-9 items-center gap-1.5 rounded-full px-2.5 text-[13px] font-medium text-zoru-ink hover:bg-black/5 hover:text-zoru-ink xl:inline-flex">
               <Globe className="h-3.5 w-3.5" /> English
             </button>
             {loading ? (
@@ -369,7 +369,7 @@ export function LandingHeader({ active, session: sessionProp, loading: loadingPr
               <>
                 <Link
                   href="/login"
-                  className="hidden h-9 items-center px-3 text-[13.5px] font-semibold text-[#121126] transition-colors hover:text-[#4F46E5] sm:inline-flex"
+                  className="hidden h-9 items-center px-3 text-[13.5px] font-semibold text-zoru-ink transition-colors hover:text-zoru-ink sm:inline-flex"
                 >
                   Sign In
                 </Link>
@@ -385,7 +385,7 @@ export function LandingHeader({ active, session: sessionProp, loading: loadingPr
               onClick={() => setMobileOpen((v) => !v)}
               aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={mobileOpen}
-              className="ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md border border-black/10 text-[#121126] lg:hidden"
+              className="ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md border border-black/10 text-zoru-ink lg:hidden"
             >
               {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
@@ -409,7 +409,7 @@ export function LandingHeader({ active, session: sessionProp, loading: loadingPr
           aria-hidden
           onClick={close}
           onMouseEnter={scheduleClose}
-          className="fixed inset-0 z-40 animate-in fade-in bg-[#121126]/15 backdrop-blur-[1px] duration-150"
+          className="fixed inset-0 z-40 animate-in fade-in bg-zoru-ink/15 backdrop-blur-[1px] duration-150"
           style={{ top: '64px' }}
         />
       )}
@@ -441,7 +441,7 @@ function ProductsMegaMenu({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="absolute left-0 right-0 top-full border-t sn-hair bg-white shadow-[0_24px_60px_-20px_rgba(17,17,38,0.16)]">
-      <div className="border-b sn-hair bg-[#FAF9F4]">
+      <div className="border-b sn-hair bg-zoru-surface">
         <div className="container mx-auto flex h-12 items-center gap-6 px-4 md:px-6">
           {([
             ['apps', 'Apps'],
@@ -453,25 +453,25 @@ function ProductsMegaMenu({ onClose }: { onClose: () => void }) {
               key={k}
               onClick={() => setTab(k)}
               className={`relative inline-flex h-12 items-center text-[13.5px] font-semibold transition-colors ${
-                tab === k ? 'text-[#4F46E5]' : 'text-[#4A4A6B] hover:text-[#121126]'
+                tab === k ? 'text-zoru-ink' : 'text-zoru-ink hover:text-zoru-ink'
               }`}
             >
               {l}
-              {tab === k && <span className="absolute left-0 right-0 bottom-0 h-0.5 rounded-t bg-[#4F46E5]" />}
+              {tab === k && <span className="absolute left-0 right-0 bottom-0 h-0.5 rounded-t bg-zoru-ink" />}
             </button>
           ))}
           <span className="h-4 w-px bg-black/10" />
           <Link
             href="/products"
             onClick={onClose}
-            className="inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-[0.12em] text-[#4F46E5] hover:text-[#4338CA]"
+            className="inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-[0.12em] text-zoru-ink hover:text-zoru-ink"
           >
             Explore all products <ChevronRight className="h-3 w-3" />
           </Link>
           <button
             aria-label="Close"
             onClick={onClose}
-            className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-full text-[#4A4A6B] hover:bg-black/5 hover:text-[#121126]"
+            className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-full text-zoru-ink hover:bg-black/5 hover:text-zoru-ink"
           >
             <X className="h-4 w-4" />
           </button>
@@ -482,13 +482,13 @@ function ProductsMegaMenu({ onClose }: { onClose: () => void }) {
         <div className="grid grid-cols-12 gap-5">
           <aside className="col-span-12 md:col-span-3 lg:col-span-3">
             <div className="relative mb-3">
-              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#7878A1]" />
+              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink" />
               <input
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="I'm looking for…"
-                className="h-10 w-full rounded-md border sn-hair bg-white pl-9 pr-3 text-[13px] text-[#121126] placeholder:text-[#7878A1] focus:border-[#4F46E5]/50 focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/15"
+                className="h-10 w-full rounded-md border sn-hair bg-white pl-9 pr-3 text-[13px] text-zoru-ink placeholder:text-zoru-ink focus:border-zoru-line/50 focus:outline-none focus:ring-2 focus:ring-zoru-line/15"
               />
             </div>
 
@@ -501,14 +501,14 @@ function ProductsMegaMenu({ onClose }: { onClose: () => void }) {
                       onClick={() => setCat(c.id)}
                       onMouseEnter={() => setCat(c.id)}
                       className={`flex h-9 w-full items-center justify-between rounded-md px-3 text-left text-[13px] font-semibold transition-colors ${
-                        isActive ? 'bg-[#EEF2FF] text-[#4F46E5]' : 'text-[#4A4A6B] hover:bg-black/[0.03] hover:text-[#121126]'
+                        isActive ? 'bg-zoru-surface text-zoru-ink' : 'text-zoru-ink hover:bg-black/[0.03] hover:text-zoru-ink'
                       }`}
                     >
                       <span className="inline-flex items-center gap-2">
-                        {isActive && <span className="h-1.5 w-1.5 rounded-full bg-[#4F46E5]" />}
+                        {isActive && <span className="h-1.5 w-1.5 rounded-full bg-zoru-ink" />}
                         {c.label}
                       </span>
-                      <span className={`font-mono text-[10.5px] tabular-nums ${isActive ? 'text-[#4F46E5]/70' : 'text-[#7878A1]'}`}>
+                      <span className={`font-mono text-[10.5px] tabular-nums ${isActive ? 'text-zoru-ink/70' : 'text-zoru-ink'}`}>
                         {c.count}
                       </span>
                     </button>
@@ -528,14 +528,14 @@ function ProductsMegaMenu({ onClose }: { onClose: () => void }) {
 
           <div className="col-span-12 md:col-span-9 lg:col-span-9">
             <div className="mb-4 flex items-end justify-between gap-3">
-              <h3 className="font-display text-[22px] leading-none text-[#121126] md:text-[26px]">{activeCat.label}</h3>
-              <span className="font-mono text-[11px] tabular-nums text-[#7878A1]">
+              <h3 className="font-display text-[22px] leading-none text-zoru-ink md:text-[26px]">{activeCat.label}</h3>
+              <span className="font-mono text-[11px] tabular-nums text-zoru-ink">
                 {filtered.length} / {items.length}
               </span>
             </div>
 
             {filtered.length === 0 ? (
-              <div className="py-8 text-center text-[13px] text-[#7878A1]">
+              <div className="py-8 text-center text-[13px] text-zoru-ink">
                 No products match "{search}" in {activeCat.label.toLowerCase()}.
               </div>
             ) : (
@@ -555,7 +555,7 @@ function ProductsMegaMenu({ onClose }: { onClose: () => void }) {
 function MegaProductCard({ product, onClick }: { product: Product; onClick: () => void }) {
   const Icon = product.icon;
   return (
-    <article className="group rounded-xl border border-transparent bg-[#F7F9FC] p-4 transition-all hover:border-[#4F46E5]/10 hover:bg-white hover:shadow-[0_14px_30px_-14px_rgba(79,70,229,0.25)] hover:ring-1 hover:ring-[#4F46E5]/15">
+    <article className="group rounded-xl border border-transparent bg-zoru-surface p-4 transition-all hover:border-zoru-line/10 hover:bg-white hover:shadow-[0_14px_30px_-14px_rgba(79,70,229,0.25)] hover:ring-1 hover:ring-zoru-line/15">
       <div className="mb-2.5 flex items-center gap-2.5">
         <span
           className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-white"
@@ -568,20 +568,20 @@ function MegaProductCard({ product, onClick }: { product: Product; onClick: () =
         </span>
         <div className="min-w-0">
           {product.brand && (
-            <div className="text-[9.5px] font-bold uppercase leading-none tracking-[0.14em] text-[#7878A1]">
+            <div className="text-[9.5px] font-bold uppercase leading-none tracking-[0.14em] text-zoru-ink">
               SabNode · {product.brand}
             </div>
           )}
-          <div className={`truncate text-[14.5px] font-bold leading-tight text-[#121126] ${product.brand ? 'mt-0.5' : ''}`}>
+          <div className={`truncate text-[14.5px] font-bold leading-tight text-zoru-ink ${product.brand ? 'mt-0.5' : ''}`}>
             {product.name}
           </div>
         </div>
       </div>
-      <p className="mb-3 min-h-[3.5em] text-[12.5px] leading-snug text-[#4A4A6B]">{product.desc}</p>
+      <p className="mb-3 min-h-[3.5em] text-[12.5px] leading-snug text-zoru-ink">{product.desc}</p>
       <Link
         href={`/features/${featureSlugFor(product.name)}`}
         onClick={onClick}
-        className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#4F46E5] group-hover:text-[#4338CA]"
+        className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.14em] text-zoru-ink group-hover:text-zoru-ink"
       >
         Learn more <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
       </Link>
@@ -611,7 +611,7 @@ function SimpleDropdown({
                 key={it.label}
                 href={it.href}
                 onClick={onClose}
-                className="group flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-[#F7F9FC]"
+                className="group flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-zoru-surface"
               >
                 <span
                   className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-white"
@@ -620,11 +620,11 @@ function SimpleDropdown({
                   <Icon className="h-4 w-4" strokeWidth={2.2} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 text-[13.5px] font-bold text-[#121126]">
+                  <div className="flex items-center gap-1.5 text-[13.5px] font-bold text-zoru-ink">
                     {it.label}
                     <ArrowUpRight className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
                   </div>
-                  <div className="mt-0.5 text-[12px] text-[#4A4A6B]">{it.sub}</div>
+                  <div className="mt-0.5 text-[12px] text-zoru-ink">{it.sub}</div>
                 </div>
               </Link>
             );
@@ -679,7 +679,7 @@ function MobileNav({ onClose, session }: { onClose: () => void; session: any }) 
                     <Link
                       href={item.href}
                       onClick={onClose}
-                      className="flex-1 px-2 py-3 text-[15px] font-semibold text-[#121126] hover:text-[#4F46E5]"
+                      className="flex-1 px-2 py-3 text-[15px] font-semibold text-zoru-ink hover:text-zoru-ink"
                     >
                       {item.label}
                     </Link>
@@ -688,7 +688,7 @@ function MobileNav({ onClose, session }: { onClose: () => void; session: any }) 
                         onClick={() => setExpanded(isExpanded ? null : item.key)}
                         aria-label={isExpanded ? `Collapse ${item.label}` : `Expand ${item.label}`}
                         aria-expanded={isExpanded}
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-md text-[#4A4A6B] hover:bg-black/5 hover:text-[#121126]"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-md text-zoru-ink hover:bg-black/5 hover:text-zoru-ink"
                       >
                         <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                       </button>
@@ -728,7 +728,7 @@ function MobileNav({ onClose, session }: { onClose: () => void; session: any }) 
               <Link
                 href="/login"
                 onClick={onClose}
-                className="inline-flex h-11 items-center justify-center rounded-md border border-black/10 text-[13px] font-semibold text-[#121126] hover:bg-black/5"
+                className="inline-flex h-11 items-center justify-center rounded-md border border-black/10 text-[13px] font-semibold text-zoru-ink hover:bg-black/5"
               >
                 Sign In
               </Link>
@@ -758,7 +758,7 @@ function MobileProductsPanel({
 }) {
   const items = MEGA_PRODUCTS[cat] ?? [];
   return (
-    <div className="space-y-3 rounded-xl bg-[#FAF9F4] p-3">
+    <div className="space-y-3 rounded-xl bg-zoru-surface p-3">
       <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
         {MEGA_CATEGORIES.map((c) => {
           const isActive = cat === c.id;
@@ -768,8 +768,8 @@ function MobileProductsPanel({
               onClick={() => onCat(c.id)}
               className={`h-8 flex-shrink-0 rounded-full px-3 text-[12px] font-semibold transition-colors ${
                 isActive
-                  ? 'bg-[#121126] text-white'
-                  : 'border border-black/10 bg-white text-[#4A4A6B] hover:text-[#121126]'
+                  ? 'bg-zoru-ink text-white'
+                  : 'border border-black/10 bg-white text-zoru-ink hover:text-zoru-ink'
               }`}
             >
               {c.label}
@@ -798,8 +798,8 @@ function MobileProductsPanel({
                 <Icon className="h-4 w-4" strokeWidth={2.2} />
               </span>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13.5px] font-bold text-[#121126]">{p.name}</div>
-                <div className="mt-0.5 line-clamp-2 text-[11.5px] leading-snug text-[#4A4A6B]">{p.desc}</div>
+                <div className="truncate text-[13.5px] font-bold text-zoru-ink">{p.name}</div>
+                <div className="mt-0.5 line-clamp-2 text-[11.5px] leading-snug text-zoru-ink">{p.desc}</div>
               </div>
             </Link>
           );
@@ -825,7 +825,7 @@ function MobileSimplePanel({
   onClose: () => void;
 }) {
   return (
-    <div className="space-y-1.5 rounded-xl bg-[#FAF9F4] p-2">
+    <div className="space-y-1.5 rounded-xl bg-zoru-surface p-2">
       {items.map((it) => {
         const Icon = it.icon;
         return (
@@ -842,8 +842,8 @@ function MobileSimplePanel({
               <Icon className="h-4 w-4" strokeWidth={2.2} />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="text-[13.5px] font-bold text-[#121126]">{it.label}</div>
-              <div className="mt-0.5 text-[11.5px] leading-snug text-[#4A4A6B]">{it.sub}</div>
+              <div className="text-[13.5px] font-bold text-zoru-ink">{it.label}</div>
+              <div className="mt-0.5 text-[11.5px] leading-snug text-zoru-ink">{it.sub}</div>
             </div>
           </Link>
         );

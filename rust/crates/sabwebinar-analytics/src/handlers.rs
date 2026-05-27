@@ -9,7 +9,7 @@ use axum::{
     Json,
     extract::{Query, State},
 };
-use bson::{Document, doc, oid::ObjectId};
+use bson::{Document, doc};
 use crm_common::tenant::user_oid;
 use futures::TryStreamExt;
 use sabnode_auth::AuthUser;

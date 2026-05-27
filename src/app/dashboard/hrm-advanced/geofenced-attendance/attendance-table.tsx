@@ -44,13 +44,13 @@ export function AttendanceTable({ data, selectedIds, onSelectionChange, onEdit, 
     <div className="rounded-md border border-zoru-line bg-zoru-surface overflow-hidden">
       {/* Table Header Wrapper to keep it sticky or separate from the scrolling body */}
       <div className="overflow-x-auto border-b border-zoru-line bg-zoru-surface/50">
-        <div className="flex items-center px-4 py-3 font-medium text-sm text-muted-foreground">
+        <div className="flex items-center px-4 py-3 font-medium text-sm text-zoru-ink-muted">
           <div className="w-[50px] flex-shrink-0">
             <input
               type="checkbox"
               checked={data.length > 0 && selectedIds.size === data.length}
               onChange={toggleAll}
-              className="rounded border-gray-300"
+              className="rounded border-zoru-line"
             />
           </div>
           <div className="flex-1 px-2">Employee</div>
@@ -99,7 +99,7 @@ export function AttendanceTable({ data, selectedIds, onSelectionChange, onEdit, 
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => item._id && toggleSelection(item._id)}
-                    className="rounded border-gray-300"
+                    className="rounded border-zoru-line"
                   />
                 </div>
                 <div className="flex-1 truncate px-2">{item.employeeId}</div>
@@ -109,7 +109,7 @@ export function AttendanceTable({ data, selectedIds, onSelectionChange, onEdit, 
                 <div className="flex-1 truncate px-2">{item.isGeofenced ? 'Yes' : 'No'}</div>
                 <div className="flex-1 flex justify-end gap-2 px-2">
                   <Button variant="ghost" size="sm" onClick={() => onEdit(item)}>Edit</Button>
-                  <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600" onClick={() => item._id && onDelete(item._id)}>Del</Button>
+                  <Button variant="ghost" size="sm" className="text-zoru-ink hover:text-zoru-ink" onClick={() => item._id && onDelete(item._id)}>Del</Button>
                 </div>
               </div>
             );

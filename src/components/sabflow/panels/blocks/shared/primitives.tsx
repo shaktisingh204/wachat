@@ -18,17 +18,17 @@ export function Field({ label, children }: { label: string; children: ReactNode 
 
 /** Shared input class */
 export const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808] transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';
 
 /** Shared select class */
 export const selectClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] outline-none focus:border-[#f76808] transition-colors appearance-none cursor-pointer';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] outline-none focus:border-zoru-line transition-colors appearance-none cursor-pointer';
 
 /** Toggle button class based on checked state */
 export function toggleClass(checked: boolean): string {
   return cn(
     'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors',
-    checked ? 'bg-[#f76808]' : 'bg-[var(--gray-5)]',
+    checked ? 'bg-zoru-ink' : 'bg-[var(--gray-5)]',
   );
 }
 
@@ -47,7 +47,7 @@ export function PanelHeader({
 }) {
   return (
     <div className="flex items-center gap-2 pb-1 border-b border-[var(--gray-4)]">
-      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#f7680822] text-[#f76808]">
+      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zoru-ink text-zoru-ink">
         <Icon className="h-4 w-4" strokeWidth={1.8} />
       </div>
       <span className="text-[12px] font-semibold text-[var(--gray-11)] uppercase tracking-wide">

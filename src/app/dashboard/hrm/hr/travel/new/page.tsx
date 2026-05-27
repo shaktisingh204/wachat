@@ -1,24 +1,15 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+import React from 'react';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
+import { saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
 
-import { Plane } from 'lucide-react';
-import { HrFormPage } from '../../_components/hr-form-page';
-import { fields, sections } from '../_config';
-import { saveTravelRequest } from '@/app/actions/hr.actions';
-
-export default function NewTravelRequestPage() {
-  return (
-    <HrFormPage
-      title="New Travel Request"
-      subtitle="Request a business trip."
-      icon={Plane}
-      backHref="/dashboard/hrm/hr/travel"
-      singular="Travel Request"
-      fields={fields}
-      sections={sections}
-      saveAction={saveTravelRequest}
-    />
-  );
+export default function NewTravelPage() {
+    return (
+        <LiveDocumentEditor
+            documentType="travel_request"
+            saveAction={saveLiveDocument}
+            backHref="/dashboard/hrm/hr/travel"
+        />
+    );
 }

@@ -19,7 +19,6 @@ use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::bson_helpers::oid_from_str;
-use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{PublicTouchBody, PublicTouchResponse, UtmParams};

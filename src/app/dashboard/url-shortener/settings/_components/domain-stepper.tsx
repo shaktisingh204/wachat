@@ -57,7 +57,7 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 }) {
                 className={cn(
                   'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all',
                   done && 'bg-zoru-success text-white',
-                  active && 'bg-amber-500 text-white ring-4 ring-amber-500/20',
+                  active && 'bg-zoru-ink text-white ring-4 ring-zoru-line/20',
                   !done && !active && 'bg-zoru-surface-2 text-zoru-ink-muted border border-zoru-line',
                 )}
               >
@@ -66,7 +66,7 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 }) {
               <span
                 className={cn(
                   'text-xs whitespace-nowrap',
-                  active && 'text-amber-400 font-medium',
+                  active && 'text-zoru-ink-muted font-medium',
                   done && 'text-zoru-success-ink',
                   !done && !active && 'text-zoru-ink-muted',
                 )}
@@ -269,7 +269,7 @@ export function DomainStepper({
             />
             <div className="space-y-1 pt-1">
               <p className="text-xs text-zoru-ink-muted flex items-center gap-1.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400" />
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-zoru-surface-2" />
                 Subdomain (CNAME): links.yourbrand.com — easier to set up
               </p>
               <p className="text-xs text-zoru-ink-muted flex items-center gap-1.5">
@@ -334,10 +334,10 @@ export function DomainStepper({
             )}
           </div>
 
-          <Alert className="border-blue-500/30 bg-blue-500/10">
-            <AlertTriangle className="h-4 w-4 text-blue-400" />
-            <ZoruAlertTitle className="text-blue-300">DNS Propagation</ZoruAlertTitle>
-            <ZoruAlertDescription className="text-blue-300/80">
+          <Alert className="border-zoru-line/30 bg-zoru-ink/10">
+            <AlertTriangle className="h-4 w-4 text-zoru-ink-muted" />
+            <ZoruAlertTitle className="text-zoru-ink-muted">DNS Propagation</ZoruAlertTitle>
+            <ZoruAlertDescription className="text-zoru-ink-muted/80">
               DNS changes typically propagate within 5–30 minutes. You can verify once the records are live.
             </ZoruAlertDescription>
           </Alert>

@@ -8,25 +8,25 @@ const features = [
         name: 'Smart drafts',
         desc: 'AI writes the next reply in your tone — pulls customer history, past tickets, plan tier, order status.',
         icon: Wand2,
-        accent: 'from-amber-400 to-orange-500',
+        accent: 'from-zoru-surface-2 to-zoru-ink',
     },
     {
         name: 'Live translate',
         desc: 'Speak any language. Inbound + outbound auto-translate to 60+ languages in real time.',
         icon: Languages,
-        accent: 'from-sky-400 to-indigo-500',
+        accent: 'from-zoru-surface-2 to-zoru-ink',
     },
     {
         name: 'Sentiment radar',
         desc: 'Detect angry, churn-risk, or upsell moments the second they appear. Auto-escalate VIPs.',
         icon: HeartPulse,
-        accent: 'from-rose-400 to-pink-500',
+        accent: 'from-zoru-surface-2 to-zoru-ink',
     },
     {
         name: 'Resolve bot',
         desc: 'Auto-answers tier-1 questions from your help center. Confidence-gated. Always hands off cleanly.',
         icon: Bot,
-        accent: 'from-violet-400 to-fuchsia-500',
+        accent: 'from-zoru-surface-2 to-zoru-ink',
     },
 ];
 
@@ -40,13 +40,13 @@ export function AiFeatures() {
                     viewport={{ once: true }}
                     className="mx-auto max-w-3xl text-center"
                 >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-700">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zoru-ink">
                         Smart Assist
                     </p>
-                    <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl md:text-6xl">
+                    <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zoru-ink sm:text-5xl md:text-6xl">
                         AI that actually closes tickets.
                     </h2>
-                    <p className="mt-5 text-pretty text-lg text-zinc-600">
+                    <p className="mt-5 text-pretty text-lg text-zoru-ink">
                         Not a chat widget bolted onto a database. SabNode reads every channel, every CRM
                         record, every order — then helps your team reply faster, smarter, and in any language.
                     </p>
@@ -67,8 +67,8 @@ export function AiFeatures() {
                                 <div className={`grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br ${f.accent} shadow-md`}>
                                     <Icon className="h-5 w-5 text-white" />
                                 </div>
-                                <h3 className="mt-5 text-xl font-semibold tracking-tight text-zinc-950">{f.name}</h3>
-                                <p className="mt-2 text-[15px] leading-relaxed text-zinc-600">{f.desc}</p>
+                                <h3 className="mt-5 text-xl font-semibold tracking-tight text-zoru-ink">{f.name}</h3>
+                                <p className="mt-2 text-[15px] leading-relaxed text-zoru-ink">{f.desc}</p>
                             </m.div>
                         );
                     })}

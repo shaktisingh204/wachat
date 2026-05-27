@@ -27,7 +27,7 @@ export function PortalLinkCopy({ vendorId }: { vendorId: string }) {
                 {portalLink}
             </span>
             <Button variant="outline" size="sm" onClick={handleCopy} className="shrink-0 h-7 text-xs">
-                {copied ? <Check className="h-3.5 w-3.5 mr-1 text-green-600" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
+                {copied ? <Check className="h-3.5 w-3.5 mr-1 text-zoru-ink" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
                 {copied ? 'Copied' : 'Copy link'}
             </Button>
         </div>

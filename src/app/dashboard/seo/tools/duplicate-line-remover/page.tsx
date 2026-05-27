@@ -112,7 +112,7 @@ export default function DuplicateLineRemoverPage() {
             onChange={(e) => setUrl(e.target.value)}
             className="pl-9"
           />
-          <Link className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Link className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zoru-ink-muted" />
         </div>
         <Button onClick={handleFetchUrl} disabled={fetching || !url}>
           {fetching ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
@@ -121,7 +121,7 @@ export default function DuplicateLineRemoverPage() {
       </div>
 
       {error && (
-        <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md mb-6 flex items-start gap-2">
+        <div className="bg-zoru-ink/10 text-zoru-ink text-sm p-3 rounded-md mb-6 flex items-start gap-2">
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
           <div>{error}</div>
         </div>
@@ -144,7 +144,7 @@ export default function DuplicateLineRemoverPage() {
             <div className="space-y-2 mt-6">
               <div className="flex items-center justify-between">
                 <div className="text-sm font-medium">
-                  Results <span className="text-muted-foreground font-normal ml-2">({result.split(/\r?\n/).length} lines, removed {removed})</span>
+                  Results <span className="text-zoru-ink-muted font-normal ml-2">({result.split(/\r?\n/).length} lines, removed {removed})</span>
                 </div>
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={handleCopy} className="gap-2">
@@ -163,7 +163,7 @@ export default function DuplicateLineRemoverPage() {
         </div>
 
         <div className="space-y-6">
-          <Card className="p-4 space-y-4 bg-muted/50">
+          <Card className="p-4 space-y-4 bg-zoru-surface-2/50">
             <h3 className="font-semibold text-sm">Options</h3>
             
             <div className="space-y-3">

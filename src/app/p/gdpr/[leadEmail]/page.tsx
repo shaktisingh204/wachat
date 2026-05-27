@@ -20,17 +20,17 @@ export default async function PublicGdprPage({ params }: PageProps) {
   return (
     <div className="flex flex-col gap-5">
       <ClayCard>
-        <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
+        <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
           Privacy preferences
         </p>
-        <h1 className="mt-1 text-[18px] font-semibold text-foreground">
+        <h1 className="mt-1 text-[18px] font-semibold text-zoru-ink">
           Manage your consent
         </h1>
-        <p className="mt-1 text-[12.5px] text-muted-foreground">
+        <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
           Review the purposes below and choose what you&apos;re comfortable with.
           Your preferences will be recorded against {ctx.lead.email}.
         </p>
-        <p className="mt-2 text-[12.5px] text-muted-foreground/80">
+        <p className="mt-2 text-[12.5px] text-zoru-ink-muted/80">
           Note: You can continue to view your invoices, estimates, and other shared documents through the secure links provided in your emails.
         </p>
       </ClayCard>

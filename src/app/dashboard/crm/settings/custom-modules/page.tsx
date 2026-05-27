@@ -542,13 +542,13 @@ export default function CustomModulesPage() {
                         >
                           <div className="space-y-3 text-sm">
                             <div>
-                              <div className="text-muted-foreground text-xs">
+                              <div className="text-zoru-ink-muted text-xs">
                                 Slug
                               </div>
                               <div className="font-mono">{row.name}</div>
                             </div>
                             <div>
-                              <div className="text-muted-foreground text-xs">
+                              <div className="text-zoru-ink-muted text-xs">
                                 Table
                               </div>
                               <div className="font-mono">
@@ -556,19 +556,19 @@ export default function CustomModulesPage() {
                               </div>
                             </div>
                             <div>
-                              <div className="text-muted-foreground text-xs">
+                              <div className="text-zoru-ink-muted text-xs">
                                 Entity kind
                               </div>
                               <div>{entityKindOf(row)}</div>
                             </div>
                             <div>
-                              <div className="text-muted-foreground text-xs">
+                              <div className="text-zoru-ink-muted text-xs">
                                 Icon
                               </div>
                               <div>{row.icon || '—'}</div>
                             </div>
                             <div>
-                              <div className="text-muted-foreground text-xs">
+                              <div className="text-zoru-ink-muted text-xs">
                                 Description
                               </div>
                               <div>{row.description || '—'}</div>

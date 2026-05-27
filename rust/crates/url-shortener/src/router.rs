@@ -5,7 +5,7 @@ use std::sync::Arc;
 use axum::{
     Json, Router,
     extract::{FromRef, Multipart, Path, Query, State},
-    routing::{delete as axum_delete, get, patch, post},
+    routing::{delete as axum_delete, get, post},
 };
 use sabnode_auth::{AuthConfig, AuthUser};
 use sabnode_common::Result;

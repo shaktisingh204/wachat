@@ -147,7 +147,7 @@ export default function NewVendorPage() {
                                         </SabFilePickerButton>
                                         {logoUrl && (
                                             <>
-                                                <span className="text-[12.5px] text-muted-foreground truncate max-w-[240px]">{logoFileName || logoUrl}</span>
+                                                <span className="text-[12.5px] text-zoru-ink-muted truncate max-w-[240px]">{logoFileName || logoUrl}</span>
                                                 <Button
                                                     type="button"
                                                     variant="ghost"
@@ -166,7 +166,7 @@ export default function NewVendorPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="name">Vendor&apos;s Business Name *</Label>
-                                    <Input id="name" name="name" required maxLength={100} defaultValue={vendor?.name ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                    <Input id="name" name="name" required maxLength={100} defaultValue={vendor?.name ?? ''} className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="clientIndustry">Vendor Industry</Label>
@@ -214,10 +214,10 @@ export default function NewVendorPage() {
                             <ZoruAccordionTrigger>Tax Information (Optional)</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="space-y-4 pt-2">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2"><Label>Business GSTIN</Label><Input name="gstin" maxLength={15} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
-                                    <div className="space-y-2"><Label>Business PAN</Label><Input name="pan" maxLength={10} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                                    <div className="space-y-2"><Label>Business GSTIN</Label><Input name="gstin" maxLength={15} className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" /></div>
+                                    <div className="space-y-2"><Label>Business PAN</Label><Input name="pan" maxLength={10} className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" /></div>
                                 </div>
-                                <div className="space-y-2"><Label>Name as Per PAN</Label><Input name="panName" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                                <div className="space-y-2"><Label>Name as Per PAN</Label><Input name="panName" maxLength={100} className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" /></div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2"><Label>Vendor Type</Label><RadioGroup name="vendorType" defaultValue="individual" className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="individual" id="type-individual" /><Label htmlFor="type-individual" className="font-normal">Individual</Label></div><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="company" id="type-company" /><Label htmlFor="type-company" className="font-normal">Company</Label></div></RadioGroup></div>
                                     <div className="space-y-2"><Label>Tax Treatment</Label><EnumFormField enumName="taxTreatment" name="taxTreatment" placeholder="Select..." /></div>
@@ -259,14 +259,14 @@ export default function NewVendorPage() {
                                         <input type="hidden" name="addressCity" value={addressCityId} />
                                     </div>
                                 </div>
-                                <div className="space-y-2"><Label>Postal Code / Zip Code</Label><Input name="pincode" maxLength={20} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
-                                <div className="space-y-2"><Label>Street Address</Label><Input name="street" maxLength={200} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                                <div className="space-y-2"><Label>Postal Code / Zip Code</Label><Input name="pincode" maxLength={20} className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" /></div>
+                                <div className="space-y-2"><Label>Street Address</Label><Input name="street" maxLength={200} className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" /></div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
                         <ZoruAccordionItem value="msme">
                             <ZoruAccordionTrigger>MSME / Compliance (Optional)</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="space-y-4 pt-2">
-                                <p className="text-[12.5px] text-muted-foreground">
+                                <p className="text-[12.5px] text-zoru-ink-muted">
                                     India MSMED Act 2006 + IT §43B(h): bills owed to MSME-registered vendors
                                     must be cleared within 45 days (or 15 days if no written agreement). Late
                                     payment triggers interest u/s 16 + IT deduction disallowance.
@@ -294,11 +294,11 @@ export default function NewVendorPage() {
                                             maxLength={32}
                                             value={udyamRegistrationNumber}
                                             onChange={(e) => setUdyamRegistrationNumber(e.target.value)}
-                                            className="h-10 rounded-lg border-border bg-card text-[13px]"
+                                            className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
                                             disabled={!isMsme}
                                         />
                                         {udyamWarning ? (
-                                            <p className="text-[11.5px] text-amber-600">{udyamWarning}</p>
+                                            <p className="text-[11.5px] text-zoru-ink">{udyamWarning}</p>
                                         ) : null}
                                     </div>
                                     <div className="space-y-2">
@@ -328,10 +328,10 @@ export default function NewVendorPage() {
                                                 ? String((vendor as any).msmePaymentTermsDays)
                                                 : ''
                                         }
-                                        className="h-10 rounded-lg border-border bg-card text-[13px]"
+                                        className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]"
                                         disabled={!isMsme}
                                     />
-                                    <p className="text-[11.5px] text-muted-foreground">
+                                    <p className="text-[11.5px] text-zoru-ink-muted">
                                         Override only when a written agreement specifies a shorter window.
                                     </p>
                                 </div>
@@ -340,20 +340,20 @@ export default function NewVendorPage() {
                         <ZoruAccordionItem value="additional">
                             <ZoruAccordionTrigger>Additional Details (Optional)</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="space-y-4 pt-2">
-                                <div className="space-y-2"><Label htmlFor="displayName">Display Name</Label><Input id="displayName" name="displayName" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                                <div className="space-y-2"><Label htmlFor="displayName">Display Name</Label><Input id="displayName" name="displayName" maxLength={100} className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" /></div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="email">Email</Label>
-                                        <Input id="email" name="email" type="email" maxLength={100} defaultValue={vendor?.email ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                        <Input id="email" name="email" type="email" maxLength={100} defaultValue={vendor?.email ?? ''} className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" />
                                         <div className="flex items-center space-x-2"><Checkbox id="show-email" /><Label htmlFor="show-email" className="font-normal text-xs">Show in Invoice</Label></div>
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="phone">Phone No.</Label>
-                                        <Input id="phone" name="phone" maxLength={30} defaultValue={vendor?.phone ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                        <Input id="phone" name="phone" maxLength={30} defaultValue={vendor?.phone ?? ''} className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" />
                                         <div className="flex items-center space-x-2"><Checkbox id="show-phone" /><Label htmlFor="show-phone" className="font-normal text-xs">Show in Invoice</Label></div>
                                     </div>
                                 </div>
-                                <div className="space-y-2"><Label htmlFor="subject">Subject</Label><Input id="subject" name="subject" placeholder="Brief 4-5 words on what they&rsquo;re looking for" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                                <div className="space-y-2"><Label htmlFor="subject">Subject</Label><Input id="subject" name="subject" placeholder="Brief 4-5 words on what they&rsquo;re looking for" maxLength={100} className="h-10 rounded-lg border-zoru-line bg-zoru-surface text-[13px]" /></div>
                                 <div className="space-y-2">
                                     <Label>Attachments</Label>
                                     <div className="flex flex-col gap-2">
@@ -369,8 +369,8 @@ export default function NewVendorPage() {
                                         {attachmentUrls.length > 0 && (
                                             <ul className="flex flex-col gap-1.5">
                                                 {attachmentUrls.map((a, idx) => (
-                                                    <li key={`${a.url}-${idx}`} className="flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1.5">
-                                                        <span className="text-[12.5px] text-foreground truncate">{a.name}</span>
+                                                    <li key={`${a.url}-${idx}`} className="flex items-center justify-between gap-2 rounded-md border border-zoru-line px-2 py-1.5">
+                                                        <span className="text-[12.5px] text-zoru-ink truncate">{a.name}</span>
                                                         <Button
                                                             type="button"
                                                             variant="ghost"
@@ -393,12 +393,12 @@ export default function NewVendorPage() {
                         <ZoruAccordionItem value="bank">
                             <ZoruAccordionTrigger>Bank Account Details (Optional)</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="space-y-4 pt-2">
-                                <p className="text-[12.5px] text-muted-foreground">Record all payments made to your Vendor&apos;s Bank Accounts against this and future Purchases.</p>
+                                <p className="text-[12.5px] text-zoru-ink-muted">Record all payments made to your Vendor&apos;s Bank Accounts against this and future Purchases.</p>
                                 {bankDetails.accountNumber ? (
-                                    <div className="p-3 rounded-lg border border-border">
-                                        <p className="font-medium text-foreground">{bankDetails.accountHolder}</p>
-                                        <p className="text-[12.5px] text-muted-foreground">Account: {bankDetails.accountNumber}</p>
-                                        <p className="text-[12.5px] text-muted-foreground">IFSC: {bankDetails.ifsc}</p>
+                                    <div className="p-3 rounded-lg border border-zoru-line">
+                                        <p className="font-medium text-zoru-ink">{bankDetails.accountHolder}</p>
+                                        <p className="text-[12.5px] text-zoru-ink-muted">Account: {bankDetails.accountNumber}</p>
+                                        <p className="text-[12.5px] text-zoru-ink-muted">IFSC: {bankDetails.ifsc}</p>
                                         <Button variant="link" size="sm" className="p-0 h-auto mt-2" onClick={() => setIsBankDialogOpen(true)}>Edit Details</Button>
                                     </div>
                                 ) : (
@@ -410,7 +410,7 @@ export default function NewVendorPage() {
                         </ZoruAccordionItem>
                         <ZoruAccordionItem value="account-details">
                             <ZoruAccordionTrigger>Account Details (Optional)</ZoruAccordionTrigger>
-                            <ZoruAccordionContent className="pt-2 text-center text-muted-foreground">
+                            <ZoruAccordionContent className="pt-2 text-center text-zoru-ink-muted">
                                 <p className="text-[13px]">Enable Advanced Accounting to create or link ledger.</p>
                                 <Button variant="outline" size="sm" className="mt-2" disabled>Enable Now</Button>
                             </ZoruAccordionContent>

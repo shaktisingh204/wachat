@@ -311,7 +311,7 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                                         disabled={sections.length === 1}
                                         title="Remove section"
                                     >
-                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
                                     </Button>
                                 </div>
                                 <Textarea

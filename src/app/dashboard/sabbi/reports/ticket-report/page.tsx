@@ -60,13 +60,13 @@ export default async function TicketReportPage(props: {
                     extra={
                         <>
                             <label className="flex flex-col gap-1">
-                                <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                                <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                                     Priority
                                 </span>
                                 <select
                                     name="priority"
                                     defaultValue={sp.priority ?? ''}
-                                    className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+                                    className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
                                 >
                                     <option value="">All</option>
                                     <option value="low">Low</option>
@@ -76,13 +76,13 @@ export default async function TicketReportPage(props: {
                                 </select>
                             </label>
                             <label className="flex flex-col gap-1">
-                                <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                                <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                                     Channel
                                 </span>
                                 <select
                                     name="channel"
                                     defaultValue={sp.channel ?? ''}
-                                    className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+                                    className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
                                 >
                                     <option value="">All</option>
                                     <option value="email">Email</option>
@@ -94,13 +94,13 @@ export default async function TicketReportPage(props: {
                                 </select>
                             </label>
                             <label className="flex flex-col gap-1">
-                                <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                                <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                                     Status
                                 </span>
                                 <select
                                     name="status"
                                     defaultValue={sp.status ?? ''}
-                                    className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+                                    className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
                                 >
                                     <option value="">All</option>
                                     <option value="open">Open</option>

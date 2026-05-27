@@ -53,7 +53,7 @@ export function PublicFormClient({ view, table }: Props) {
       <div className="zoruui min-h-screen flex items-center justify-center p-6">
         <Card className="p-8 max-w-md text-center">
           <h1 className="text-xl font-semibold mb-2">Thanks!</h1>
-          <p className="text-muted-foreground">Your response has been recorded.</p>
+          <p className="text-zoru-ink-muted">Your response has been recorded.</p>
         </Card>
       </div>
     );
@@ -63,13 +63,13 @@ export function PublicFormClient({ view, table }: Props) {
     <div className="zoruui min-h-screen flex items-center justify-center p-6">
       <Card className="p-8 w-full max-w-xl">
         <h1 className="text-2xl font-semibold">{view.name || table.name}</h1>
-        <p className="text-sm text-muted-foreground mb-6">{table.description}</p>
+        <p className="text-sm text-zoru-ink-muted mb-6">{table.description}</p>
         <form onSubmit={handleSubmit} className="space-y-4">
           {table.fields.map((f) => (
             <div key={f.id}>
               <Label htmlFor={`fld-${f.id}`}>
                 {f.name}
-                {f.isRequired ? <span className="text-destructive ml-1">*</span> : null}
+                {f.isRequired ? <span className="text-zoru-ink ml-1">*</span> : null}
               </Label>
               {f.fieldType === 'long_text' ? (
                 <Textarea
@@ -119,7 +119,7 @@ export function PublicFormClient({ view, table }: Props) {
             </div>
           ))}
           {error ? (
-            <div className="text-sm text-destructive">{error}</div>
+            <div className="text-sm text-zoru-ink">{error}</div>
           ) : null}
           <Button type="submit" disabled={submitting}>
             {submitting ? 'Submitting…' : 'Submit'}

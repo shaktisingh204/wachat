@@ -222,7 +222,7 @@ export function TemplatesSection({
                         {templates.length === 0 && (
                             <ZoruTableRow>
                                 <ZoruTableCell colSpan={5}>
-                                    <div className="py-10 text-center text-sm text-muted-foreground">
+                                    <div className="py-10 text-center text-sm text-zoru-ink-muted">
                                         No templates yet. Create one to send invoices.
                                     </div>
                                 </ZoruTableCell>
@@ -691,8 +691,8 @@ export function SendInvoiceDialog({
                             className={cn(
                                 'h-7 flex-1 rounded-full text-xs',
                                 mode === m
-                                    ? 'bg-foreground text-white'
-                                    : 'text-muted-foreground',
+                                    ? 'bg-zoru-ink text-white'
+                                    : 'text-zoru-ink-muted',
                             )}
                         >
                             {m === 'send' ? (
@@ -736,8 +736,8 @@ export function SendInvoiceDialog({
                         </Field>
                     ) : null}
                     {linkResult ? (
-                        <div className="rounded border border-zoru-line bg-secondary/40 p-2 text-xs">
-                            <div className="mb-1 text-muted-foreground">Invoice link:</div>
+                        <div className="rounded border border-zoru-line bg-zoru-surface-2/40 p-2 text-xs">
+                            <div className="mb-1 text-zoru-ink-muted">Invoice link:</div>
                             <a
                                 href={linkResult}
                                 target="_blank"

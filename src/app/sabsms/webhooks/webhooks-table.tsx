@@ -248,7 +248,7 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
 
       <div className="grid grid-cols-1 gap-4">
         {initialRows.length === 0 ? (
-          <div className="py-12 text-center text-slate-500 border border-dashed rounded-lg">
+          <div className="py-12 text-center text-zoru-ink border border-dashed rounded-lg">
             No webhooks configured. Add an endpoint to start receiving real-time delivery and inbound messages.
           </div>
         ) : (
@@ -260,29 +260,29 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
                     <Badge variant={row.isActive ? "default" : "secondary"}>
                       {row.isActive ? "Active" : "Disabled"}
                     </Badge>
-                    <span className="font-semibold text-slate-900 text-lg truncate">
+                    <span className="font-semibold text-zoru-ink text-lg truncate">
                       {row.url}
                     </span>
                     {row.urlAlias && (
-                      <Badge variant="outline" className="text-slate-500">
+                      <Badge variant="outline" className="text-zoru-ink">
                         {row.urlAlias}
                       </Badge>
                     )}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-medium text-slate-500">Events:</span>
+                    <span className="text-sm font-medium text-zoru-ink">Events:</span>
                     {row.events.map((e) => (
                       <Badge key={e} variant="secondary" className="text-xs font-mono">
                         {e}
                       </Badge>
                     ))}
                   </div>
-                  <div className="text-xs text-slate-500 font-mono">
+                  <div className="text-xs text-zoru-ink font-mono">
                     HMAC: {row.hmacAlgorithm} • Updated: {row.updatedAt ? fmtDate(row.updatedAt) : "—"}
                   </div>
                 </div>
 
-                <div className="flex flex-wrap md:flex-nowrap gap-4 items-center bg-slate-50 p-4 rounded-xl border">
+                <div className="flex flex-wrap md:flex-nowrap gap-4 items-center bg-zoru-surface-2 p-4 rounded-xl border">
                   <StatCard
                     label="Success Rate"
                     value={row.lastDeliveryStatus === "failed" ? "82.4%" : "99.9%"}
@@ -359,7 +359,7 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
                   <select
                     value={formData.hmacAlgorithm || "sha256"}
                     onChange={(e) => setFormData({ ...formData, hmacAlgorithm: e.target.value })}
-                    className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-10 w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <option value="sha256">HMAC-SHA256</option>
                     <option value="sha512">HMAC-SHA512</option>
@@ -376,7 +376,7 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
                         type="checkbox"
                         checked={(formData.events || []).includes(opt.value)}
                         onChange={() => handleEventToggle(opt.value)}
-                        className="rounded border-gray-300 text-slate-900 focus:ring-slate-900"
+                        className="rounded border-zoru-line text-zoru-ink focus:ring-zoru-line"
                       />
                       <span className="text-sm">{opt.label}</span>
                     </label>
@@ -408,7 +408,7 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
                         ...formData,
                         retryConfig: { ...formData.retryConfig, backoffStrategy: e.target.value }
                       })}
-                      className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2"
+                      className="flex h-10 w-full rounded-md border border-zoru-line bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2"
                     >
                       <option value="exponential">Exponential</option>
                       <option value="linear">Linear</option>
@@ -423,7 +423,7 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
                     onChange={(e) => setFormData({ ...formData, dlqUrl: e.target.value })}
                     placeholder="https://api.example.com/webhooks/dlq"
                   />
-                  <p className="text-xs text-slate-500">Failed events after max retries will be pushed here.</p>
+                  <p className="text-xs text-zoru-ink">Failed events after max retries will be pushed here.</p>
                 </div>
               </div>
 
@@ -433,11 +433,11 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
                     type="checkbox"
                     checked={formData.skipValidation || false}
                     onChange={(e) => setFormData({ ...formData, skipValidation: e.target.checked })}
-                    className="rounded border-gray-300 text-slate-900 focus:ring-slate-900"
+                    className="rounded border-zoru-line text-zoru-ink focus:ring-zoru-line"
                   />
                   <span className="text-sm font-medium">Skip endpoint validation</span>
                 </label>
-                <p className="text-xs text-slate-500 ml-6">
+                <p className="text-xs text-zoru-ink ml-6">
                   Check this if your server is slow to respond or not fully deployed yet.
                 </p>
               </div>

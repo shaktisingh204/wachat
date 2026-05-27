@@ -206,7 +206,7 @@ export default function DesignationsPage() {
                                                         disabled={deleteTransition}
                                                         aria-label="Delete"
                                                     >
-                                                        <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                                                        <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
                                                     </Button>
                                                 </div>
                                             </td>
@@ -245,7 +245,7 @@ export default function DesignationsPage() {
 
                         <div>
                             <Label htmlFor="desig-name" className="text-[13px] text-zoru-ink">
-                                Designation Name <span className="text-red-500">*</span>
+                                Designation Name <span className="text-zoru-ink">*</span>
                             </Label>
                             <Input
                                 id="desig-name"

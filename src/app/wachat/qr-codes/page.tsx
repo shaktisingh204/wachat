@@ -417,7 +417,7 @@ export default function QrCodesPage() {
                 
                 <div className="mt-3 flex items-center gap-3 text-xs text-zoru-ink-muted">
                   <div className="flex items-center gap-1.5" title="Total scans">
-                    <BarChart3 className="h-3.5 w-3.5 text-blue-500" />
+                    <BarChart3 className="h-3.5 w-3.5 text-zoru-ink" />
                     <span className="font-medium text-zoru-ink">{getMockScans(qr.code)}</span> scans
                   </div>
                 </div>
@@ -444,7 +444,7 @@ export default function QrCodesPage() {
                     href={getTrackingUrl(qr)} 
                     target="_blank" 
                     rel="noreferrer"
-                    className="text-[11px] text-blue-500 hover:underline truncate max-w-[120px]"
+                    className="text-[11px] text-zoru-ink hover:underline truncate max-w-[120px]"
                   >
                     {getTrackingUrl(qr).replace('https://', '')}
                   </a>

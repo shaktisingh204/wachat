@@ -36,22 +36,22 @@ function Calendar({
         month_grid: "w-full border-collapse",
         weekdays: "flex w-full",
         weekday:
-          "text-muted-foreground rounded-md w-9 h-9 font-normal text-[0.8rem] flex items-center justify-center",
+          "text-zoru-ink-muted rounded-md w-9 h-9 font-normal text-[0.8rem] flex items-center justify-center",
         week: "flex w-full mt-2",
-        day: "relative h-9 w-9 p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
+        day: "relative h-9 w-9 p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-zoru-surface-2 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
         day_button: cn(
           buttonVariants({ variant: "ghost" }),
           "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
         ),
         range_end: "day-range-end",
         selected:
-          "[&>button]:bg-primary [&>button]:text-primary-foreground [&>button:hover]:bg-primary [&>button:hover]:text-primary-foreground [&>button:focus]:bg-primary [&>button:focus]:text-primary-foreground",
-        today: "[&>button]:bg-accent [&>button]:text-accent-foreground",
+          "[&>button]:bg-zoru-ink [&>button]:text-white [&>button:hover]:bg-zoru-ink [&>button:hover]:text-white [&>button:focus]:bg-zoru-ink [&>button:focus]:text-white",
+        today: "[&>button]:bg-zoru-surface-2 [&>button]:text-zoru-ink",
         outside:
-          "day-outside text-muted-foreground aria-selected:bg-accent/50 aria-selected:text-muted-foreground",
-        disabled: "text-muted-foreground opacity-50",
+          "day-outside text-zoru-ink-muted aria-selected:bg-zoru-surface-2/50 aria-selected:text-zoru-ink-muted",
+        disabled: "text-zoru-ink-muted opacity-50",
         range_middle:
-          "aria-selected:bg-accent aria-selected:text-accent-foreground",
+          "aria-selected:bg-zoru-surface-2 aria-selected:text-zoru-ink",
         hidden: "invisible",
         ...classNames,
       }}

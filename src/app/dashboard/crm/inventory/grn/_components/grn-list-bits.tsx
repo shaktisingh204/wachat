@@ -74,11 +74,11 @@ interface KpiCardProps {
 function KpiCard({ label, value, active, onClick, tone }: KpiCardProps) {
     const ring =
         tone === 'amber'
-            ? 'border-amber-500/40'
+            ? 'border-zoru-line/40'
             : tone === 'green'
-                ? 'border-emerald-500/40'
+                ? 'border-zoru-line/40'
                 : tone === 'red'
-                    ? 'border-rose-500/40'
+                    ? 'border-zoru-line/40'
                     : 'border-zoru-line';
     return (
         <button
@@ -107,11 +107,11 @@ function KpiCard({ label, value, active, onClick, tone }: KpiCardProps) {
 function KpiStatic({ label, value, tone }: { label: string; value: string; tone: 'amber' | 'green' | 'neutral' | 'red' }) {
     const ring =
         tone === 'amber'
-            ? 'border-amber-500/40'
+            ? 'border-zoru-line/40'
             : tone === 'green'
-                ? 'border-emerald-500/40'
+                ? 'border-zoru-line/40'
                 : tone === 'red'
-                    ? 'border-rose-500/40'
+                    ? 'border-zoru-line/40'
                     : 'border-zoru-line';
     return (
         <div

@@ -194,7 +194,7 @@ export function OnboardingPageClient({ initialTasks }: { initialTasks: Onboardin
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Employee Onboarding</h1>
-          <p className="text-muted-foreground">Manage and track onboarding tasks.</p>
+          <p className="text-zoru-ink-muted">Manage and track onboarding tasks.</p>
         </div>
         
         <div className="flex items-center gap-2">
@@ -216,7 +216,7 @@ export function OnboardingPageClient({ initialTasks }: { initialTasks: Onboardin
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-card p-4 rounded-lg border">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-zoru-surface p-4 rounded-lg border">
         <div className="flex flex-1 gap-4 items-center">
           <Input 
             placeholder="Search tasks or employee IDs..." 
@@ -225,7 +225,7 @@ export function OnboardingPageClient({ initialTasks }: { initialTasks: Onboardin
             className="max-w-xs"
           />
           <select 
-            className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 max-w-[150px]"
+            className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-zoru-line bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-zoru-surface placeholder:text-zoru-ink-muted focus:outline-none focus:ring-1 focus:ring-zoru-line disabled:cursor-not-allowed disabled:opacity-50 max-w-[150px]"
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value as any)}
           >
@@ -237,7 +237,7 @@ export function OnboardingPageClient({ initialTasks }: { initialTasks: Onboardin
 
         {selectedIds.size > 0 && (
           <div className="flex gap-2 items-center">
-            <span className="text-sm text-muted-foreground">{selectedIds.size} selected</span>
+            <span className="text-sm text-zoru-ink-muted">{selectedIds.size} selected</span>
             <Button variant="outline" size="sm" onClick={handleBulkComplete}>
               <CheckCircle className="mr-2 h-4 w-4" /> Complete
             </Button>
@@ -249,7 +249,7 @@ export function OnboardingPageClient({ initialTasks }: { initialTasks: Onboardin
       </div>
 
       <div className="border rounded-md">
-        <div className="grid grid-cols-12 gap-4 p-4 border-b font-medium bg-muted/50 items-center">
+        <div className="grid grid-cols-12 gap-4 p-4 border-b font-medium bg-zoru-surface-2/50 items-center">
           <div className="col-span-1 flex justify-center">
             <Checkbox 
               checked={selectedIds.size > 0 && selectedIds.size === filteredTasks.length}
@@ -292,7 +292,7 @@ export function OnboardingPageClient({ initialTasks }: { initialTasks: Onboardin
                     height: `${virtualRow.size}px`,
                     transform: `translateY(${virtualRow.start}px)`,
                   }}
-                  className="grid grid-cols-12 gap-4 p-4 border-b hover:bg-muted/30 items-center transition-colors"
+                  className="grid grid-cols-12 gap-4 p-4 border-b hover:bg-zoru-surface-2/30 items-center transition-colors"
                 >
                   <div className="col-span-1 flex justify-center">
                     <Checkbox 
@@ -302,14 +302,14 @@ export function OnboardingPageClient({ initialTasks }: { initialTasks: Onboardin
                   </div>
                   <div className="col-span-4 font-medium truncate" title={task.taskName}>{task.taskName}</div>
                   <div className="col-span-3 text-sm truncate" title={task.employeeId}>{task.employeeId}</div>
-                  <div className="col-span-2 text-sm text-muted-foreground">{safeDate}</div>
+                  <div className="col-span-2 text-sm text-zoru-ink-muted">{safeDate}</div>
                   <div className="col-span-1 flex justify-center">
                     {task.isCompleted ? (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-white">
                         Done
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-white">
                         Pending
                       </span>
                     )}
@@ -328,7 +328,7 @@ export function OnboardingPageClient({ initialTasks }: { initialTasks: Onboardin
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="text-destructive hover:text-destructive"
+                      className="text-zoru-ink hover:text-zoru-ink"
                       onClick={() => task._id && handleDelete(task._id)}
                     >
                       Delete
@@ -339,7 +339,7 @@ export function OnboardingPageClient({ initialTasks }: { initialTasks: Onboardin
             })}
             
             {filteredTasks.length === 0 && (
-              <div className="flex flex-col items-center justify-center p-8 text-muted-foreground h-[200px] w-full absolute">
+              <div className="flex flex-col items-center justify-center p-8 text-zoru-ink-muted h-[200px] w-full absolute">
                 <p>No onboarding tasks found.</p>
                 {(search || statusFilter !== 'all') && (
                   <Button variant="link" onClick={() => { setSearch(''); setStatusFilter('all'); }}>

@@ -68,9 +68,9 @@ function formatMoney(value: number | undefined, currency: string | undefined): s
 function StatCard({ title, value, accent }: { title: string; value: number; accent?: string }) {
     return (
         <Card>
-            <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
-            <p className="mt-1 text-[28px] font-semibold text-foreground">{value.toLocaleString()}</p>
-            {accent ? <p className="mt-1 text-[11.5px] text-muted-foreground">{accent}</p> : null}
+            <p className="text-[13px] font-medium text-zoru-ink-muted">{title}</p>
+            <p className="mt-1 text-[28px] font-semibold text-zoru-ink">{value.toLocaleString()}</p>
+            {accent ? <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{accent}</p> : null}
         </Card>
     );
 }
@@ -117,25 +117,25 @@ function MergePanel({ group, onMerged }: MergePanelProps) {
     };
 
     return (
-        <div className="space-y-3 border-t border-border p-3">
-            <p className="text-[12px] font-medium text-foreground">Pick the survivor</p>
+        <div className="space-y-3 border-t border-zoru-line p-3">
+            <p className="text-[12px] font-medium text-zoru-ink">Pick the survivor</p>
             <RadioGroup value={survivor} onValueChange={setSurvivor} className="space-y-2">
                 {group.leads.map((lead) => (
                     <label
                         key={lead._id}
                         htmlFor={`survivor-${group.signature}-${lead._id}`}
-                        className="flex cursor-pointer items-start gap-3 rounded-md border border-border bg-secondary/40 p-2.5 hover:border-primary"
+                        className="flex cursor-pointer items-start gap-3 rounded-md border border-zoru-line bg-zoru-surface-2/40 p-2.5 hover:border-primary"
                     >
                         <ZoruRadioGroupItem id={`survivor-${group.signature}-${lead._id}`} value={lead._id} />
                         <div className="min-w-0 flex-1">
-                            <p className="text-[13px] font-medium text-foreground">
+                            <p className="text-[13px] font-medium text-zoru-ink">
                                 {lead.title || lead.contactName || 'Untitled'}
                             </p>
-                            <p className="truncate text-[11.5px] text-muted-foreground">
+                            <p className="truncate text-[11.5px] text-zoru-ink-muted">
                                 {lead.contactName ?? ''}
                                 {lead.company ? ` · ${lead.company}` : ''}
                             </p>
-                            <p className="mt-1 font-mono text-[11.5px] text-muted-foreground">
+                            <p className="mt-1 font-mono text-[11.5px] text-zoru-ink-muted">
                                 {formatMoney(lead.value, lead.currency)}
                             </p>
                         </div>
@@ -291,7 +291,7 @@ export default function LeadDuplicatesPage() {
             <Card>
                 <div className="flex flex-wrap items-end gap-3">
                     <div className="min-w-[200px]">
-                        <p className="mb-1 text-[12px] font-medium text-foreground">Status</p>
+                        <p className="mb-1 text-[12px] font-medium text-zoru-ink">Status</p>
                         <Select
                             value={statusFilter}
                             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
@@ -307,7 +307,7 @@ export default function LeadDuplicatesPage() {
                             </ZoruSelectContent>
                         </Select>
                     </div>
-                    <p className="text-[12px] text-muted-foreground">
+                    <p className="text-[12px] text-zoru-ink-muted">
                         Showing {visibleGroups.length} of {annotated.length}
                     </p>
                 </div>
@@ -319,12 +319,12 @@ export default function LeadDuplicatesPage() {
                     const isIgnored = group.status === 'ignored';
                     return (
                         <Card key={group.signature} className="overflow-hidden p-0">
-                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zoru-line p-3">
                                 <span className="inline-flex items-center gap-2 text-[14px]">
                                     {group.key === 'email' ? (
-                                        <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                                        <Mail className="h-3.5 w-3.5 text-zoru-ink-muted" />
                                     ) : (
-                                        <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                                        <Phone className="h-3.5 w-3.5 text-zoru-ink-muted" />
                                     )}
                                     <span className="truncate font-mono">{group.value}</span>
                                 </span>
@@ -364,27 +364,27 @@ export default function LeadDuplicatesPage() {
                                                 isSurvivor
                                                     ? 'border-zoru-success/40 bg-zoru-success/5'
                                                     : wasMerged
-                                                      ? 'border-border bg-secondary/40 opacity-60'
-                                                      : 'border-border bg-zoru-bg'
+                                                      ? 'border-zoru-line bg-zoru-surface-2/40 opacity-60'
+                                                      : 'border-zoru-line bg-zoru-bg'
                                             }`}
                                         >
                                             <div className="flex items-start justify-between gap-2">
                                                 <Link
                                                     href={`/dashboard/crm/sales-crm/all-leads/${lead._id}`}
-                                                    className="text-[13px] font-medium text-foreground hover:underline"
+                                                    className="text-[13px] font-medium text-zoru-ink hover:underline"
                                                 >
                                                     {lead.title || lead.contactName || 'Untitled'}
                                                 </Link>
                                                 <StatusPill label={status} tone={statusToTone(status)} />
                                             </div>
-                                            <p className="truncate text-[11.5px] text-muted-foreground">
+                                            <p className="truncate text-[11.5px] text-zoru-ink-muted">
                                                 {lead.contactName}
                                                 {lead.company ? ` · ${lead.company}` : ''}
                                             </p>
-                                            <p className="truncate font-mono text-[11.5px] text-muted-foreground">
+                                            <p className="truncate font-mono text-[11.5px] text-zoru-ink-muted">
                                                 {lead.email ?? '—'} · {lead.phone ?? '—'}
                                             </p>
-                                            <p className="text-[11.5px] text-muted-foreground">
+                                            <p className="text-[11.5px] text-zoru-ink-muted">
                                                 Value: {formatMoney(lead.value, lead.currency)}
                                             </p>
                                             {isSurvivor ? (

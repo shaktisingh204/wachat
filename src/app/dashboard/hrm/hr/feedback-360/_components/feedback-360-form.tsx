@@ -350,7 +350,7 @@ export function Feedback360Form({ initialData }: Feedback360FormProps) {
                                             onClick={() => removeReviewer(idx)}
                                             aria-label="Remove reviewer"
                                         >
-                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
                                         </Button>
                                     </div>
                                     <div className="grid gap-2 sm:grid-cols-5">

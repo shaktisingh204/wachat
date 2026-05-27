@@ -112,9 +112,9 @@ export function PageManagerPanel({ pages, activePageId, shopId, onSelectPage, on
             )}
             <div className="space-y-1">
                 {pages.map(page => (
-                    <div key={page._id.toString()} className={cn("flex items-center group rounded-md transaction-all duration-200", activePageId === page._id.toString() ? 'bg-primary/10 text-primary' : 'hover:bg-muted/50')}>
+                    <div key={page._id.toString()} className={cn("flex items-center group rounded-md transaction-all duration-200", activePageId === page._id.toString() ? 'bg-zoru-ink/10 text-zoru-ink' : 'hover:bg-zoru-surface-2/50')}>
                         <Button variant="ghost" className="flex-1 justify-start font-normal" onClick={() => onSelectPage(page._id.toString())}>
-                            {page.isHomepage && <Home className="mr-2 h-4 w-4 text-primary" />}
+                            {page.isHomepage && <Home className="mr-2 h-4 w-4 text-zoru-ink" />}
                             <span className="truncate">{page.name}</span>
                         </Button>
                         <DropdownMenu>
@@ -129,7 +129,7 @@ export function PageManagerPanel({ pages, activePageId, shopId, onSelectPage, on
                                 <ZoruDropdownMenuSeparator />
                                 <ZoruAlertDialog>
                                     <ZoruAlertDialogTrigger asChild>
-                                        <ZoruDropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10">Delete</ZoruDropdownMenuItem>
+                                        <ZoruDropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-zoru-ink focus:bg-zoru-ink/10">Delete</ZoruDropdownMenuItem>
                                     </ZoruAlertDialogTrigger>
                                     <ZoruAlertDialogContent>
                                         <ZoruAlertDialogHeader><ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle><ZoruAlertDialogDescription>This will permanently delete the page "{page.name}". This action cannot be undone.</ZoruAlertDialogDescription></ZoruAlertDialogHeader>

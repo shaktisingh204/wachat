@@ -35,7 +35,7 @@ export default async function EditAnnouncementPage({
                 <div className="flex flex-col gap-4">
                     <AnnouncementPresence entityId={id} />
                     <AnnouncementAnalytics entityId={id} />
-                    <Suspense fallback={<div className="h-40 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />}>
+                    <Suspense fallback={<div className="h-40 animate-pulse rounded-lg bg-zoru-surface-2 dark:bg-zoru-ink" />}>
                         <EntityAuditTimeline
                             entityKind="announcement"
                             entityId={String(id)}
@@ -46,7 +46,7 @@ export default async function EditAnnouncementPage({
                 </div>
             }
         >
-            <Suspense fallback={<div className="h-[400px] animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />}>
+            <Suspense fallback={<div className="h-[400px] animate-pulse rounded-lg bg-zoru-surface-2 dark:bg-zoru-ink" />}>
                 <EditAnnouncementFormLoader id={id} />
             </Suspense>
         </EntityDetailShell>

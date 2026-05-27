@@ -219,7 +219,7 @@ export function OKRClient({ initialData }: OKRClientProps) {
           </select>
           {quarterFilter || search ? (
             <Button variant="ghost" size="icon" onClick={() => { setSearch(''); setQuarterFilter(''); }} title="Clear Filters">
-              <Filter className="h-4 w-4 text-red-500" />
+              <Filter className="h-4 w-4 text-zoru-ink" />
             </Button>
           ) : null}
         </div>
@@ -302,7 +302,7 @@ export function OKRClient({ initialData }: OKRClientProps) {
                     <div className="flex-1 pr-4 min-w-[150px]">
                       <div className="flex items-center gap-2">
                         <div className="w-full bg-zoru-muted rounded-full h-2.5 dark:bg-zoru-line">
-                          <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${okr.progress}%` }}></div>
+                          <div className="bg-zoru-ink h-2.5 rounded-full" style={{ width: `${okr.progress}%` }}></div>
                         </div>
                         <span className="text-sm text-zoru-text-muted w-8">{okr.progress}%</span>
                       </div>
@@ -311,7 +311,7 @@ export function OKRClient({ initialData }: OKRClientProps) {
                     <div className="flex-1 truncate pr-4 min-w-[100px]">{okr.quarter}</div>
                     <div className="w-[120px] text-right flex justify-end gap-2 shrink-0">
                       <Button variant="ghost" size="sm" onClick={() => { setEditingItem(okr); setIsFormOpen(true); }}>Edit</Button>
-                      <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600" onClick={() => okr._id && handleDelete(okr._id)}>Del</Button>
+                      <Button variant="ghost" size="sm" className="text-zoru-ink hover:text-zoru-ink" onClick={() => okr._id && handleDelete(okr._id)}>Del</Button>
                     </div>
                   </div>
                 );

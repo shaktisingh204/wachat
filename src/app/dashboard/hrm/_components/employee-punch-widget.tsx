@@ -110,7 +110,7 @@ export function EmployeePunchWidget({ employeeId, initialAttendance }: EmployeeP
           ) : (
             <Button
               size="lg"
-              className="w-full md:w-auto px-8 py-6 rounded-xl font-bold bg-zoru-success-ink hover:bg-emerald-600 text-white shadow-md hover:shadow-lg transition-all"
+              className="w-full md:w-auto px-8 py-6 rounded-xl font-bold bg-zoru-success-ink hover:bg-zoru-ink text-white shadow-md hover:shadow-lg transition-all"
               onClick={handlePunchIn}
               disabled={isPending}
             >

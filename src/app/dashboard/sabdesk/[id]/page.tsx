@@ -136,7 +136,7 @@ export default async function TicketDetailPage({
         >
 
             <TicketDetailClient ticket={ticket}>
-                <Suspense fallback={<div className="p-3 text-center text-muted-foreground">Loading conversation thread...</div>}>
+                <Suspense fallback={<div className="p-3 text-center text-zoru-ink-muted">Loading conversation thread...</div>}>
                     <TicketConversationThread ticketId={id} />
                 </Suspense>
             </TicketDetailClient>

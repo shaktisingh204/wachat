@@ -49,7 +49,7 @@ export function TextEditor({ component, updateField }: TextEditorProps) {
                     maxLength={maxLen}
                     className="min-h-[90px]"
                 />
-                <p className="text-[10.5px] text-muted-foreground">
+                <p className="text-[10.5px] text-zoru-ink-muted">
                     {isRich
                         ? 'RichText supports markdown: headings, bold, italic, strikethrough, lists, links, tables, inline base64 images.'
                         : `${(component.text?.length ?? 0)} / ${maxLen} characters.`}

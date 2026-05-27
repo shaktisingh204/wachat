@@ -149,22 +149,22 @@ export function MarketplaceBrowseClient({ templates }: Props) {
 
       {/* ── Toolbar: count + sort ─────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[12px] text-zinc-500">
+        <p className="text-[12px] text-zoru-ink">
           {sorted.length === 0
             ? 'No templates found'
             : `${sorted.length} template${sorted.length === 1 ? '' : 's'}`}
         </p>
 
         <div className="flex items-center gap-2">
-          <LuArrowUpDown className="h-3.5 w-3.5 text-zinc-500 flex-shrink-0" />
+          <LuArrowUpDown className="h-3.5 w-3.5 text-zoru-ink flex-shrink-0" />
           <select
             aria-label="Sort templates"
             value={sort}
             onChange={(e) => handleSortChange(e.target.value as SortOption)}
             className={cn(
-              'rounded-lg border border-zinc-700 bg-zinc-900 py-1.5 pl-2.5 pr-7',
-              'text-[12px] text-zinc-200 outline-none',
-              'focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500/30',
+              'rounded-lg border border-zoru-line bg-zoru-ink py-1.5 pl-2.5 pr-7',
+              'text-[12px] text-white outline-none',
+              'focus:border-zoru-line focus:ring-2 focus:ring-zoru-line/30',
               'transition-colors cursor-pointer',
             )}
           >
@@ -179,10 +179,10 @@ export function MarketplaceBrowseClient({ templates }: Props) {
 
       {/* ── Grid ─────────────────────────────────────────────────────────── */}
       {isEmpty ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-zinc-700 py-16 text-center">
-          <LuShoppingBag className="h-8 w-8 text-zinc-600" strokeWidth={1.2} />
-          <p className="text-[13px] font-medium text-zinc-400">No templates match your filters</p>
-          <p className="text-[12px] text-zinc-600">
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-zoru-line py-16 text-center">
+          <LuShoppingBag className="h-8 w-8 text-zoru-ink" strokeWidth={1.2} />
+          <p className="text-[13px] font-medium text-zoru-ink-muted">No templates match your filters</p>
+          <p className="text-[12px] text-zoru-ink">
             Try adjusting or resetting the filters above.
           </p>
         </div>
@@ -253,10 +253,10 @@ function PaginationButton({
       disabled={disabled}
       className={cn(
         'inline-flex h-8 min-w-[2rem] items-center justify-center rounded-lg border text-[12px] font-medium px-2',
-        'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500',
+        'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line',
         active
-          ? 'border-zinc-400 bg-zinc-700 text-zinc-100'
-          : 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200',
+          ? 'border-zoru-line bg-zoru-ink text-white'
+          : 'border-zoru-line bg-zoru-ink text-zoru-ink-muted hover:border-zoru-line hover:text-white',
         disabled && 'pointer-events-none opacity-40',
       )}
       {...rest}

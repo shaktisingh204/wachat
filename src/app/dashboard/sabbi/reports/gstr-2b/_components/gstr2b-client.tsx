@@ -219,16 +219,16 @@ export function Gstr2bClient({
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <Card className="lg:col-span-2">
                     <div className="mb-3">
-                        <h2 className="text-[16px] font-semibold text-foreground">
+                        <h2 className="text-[16px] font-semibold text-zoru-ink">
                             Inward supplies by vendor
                         </h2>
-                        <p className="text-[12.5px] text-muted-foreground">
+                        <p className="text-[12.5px] text-zoru-ink-muted">
                             Top suppliers ranked by taxable inward value.
                         </p>
                     </div>
                     <div className="h-[280px] w-full">
                         {vendorChart.length === 0 ? (
-                            <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
+                            <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
                                 No vendor data for this period.
                             </div>
                         ) : (
@@ -265,13 +265,13 @@ export function Gstr2bClient({
 
                 <Card>
                     <div className="mb-3">
-                        <h2 className="text-[16px] font-semibold text-foreground">
+                        <h2 className="text-[16px] font-semibold text-zoru-ink">
                             Monthly ITC trend
                         </h2>
                     </div>
                     <div className="h-[280px] w-full">
                         {trend.length === 0 ? (
-                            <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
+                            <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
                                 No ITC history.
                             </div>
                         ) : (
@@ -313,43 +313,43 @@ export function Gstr2bClient({
 
             <Card>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">
+                    <h2 className="text-[16px] font-semibold text-zoru-ink">
                         Purchase Documents
                     </h2>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
                         Eligible ITC from recorded purchase orders / bills.
                     </p>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">
+                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     Date
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     Order
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     Vendor
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">
+                                <ZoruTableHead className="text-right text-zoru-ink-muted">
                                     Total
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     Status
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">
+                                <ZoruTableHead className="text-zoru-ink-muted">
                                     ITC
                                 </ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {rows.length === 0 ? (
-                                <ZoruTableRow className="border-border">
+                                <ZoruTableRow className="border-zoru-line">
                                     <ZoruTableCell
                                         colSpan={6}
-                                        className="h-24 text-center text-[13px] text-muted-foreground"
+                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
                                     >
                                         No documents found.
                                     </ZoruTableCell>
@@ -358,27 +358,27 @@ export function Gstr2bClient({
                                 rows.map((r) => (
                                     <ZoruTableRow
                                         key={r.id}
-                                        className="border-border"
+                                        className="border-zoru-line"
                                     >
-                                        <ZoruTableCell className="text-[13px] text-foreground">
+                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                                             {format(new Date(r.orderDate), 'PP')}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-medium text-foreground">
+                                        <ZoruTableCell className="font-medium text-zoru-ink">
                                             <EntityRowLink
                                                 href={`/dashboard/crm/purchase-orders/${r.id}`}
                                                 label={r.orderNumber}
                                             />
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">
+                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                                             {r.vendorName}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-foreground">
+                                        <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                                             {r.currency} {r.total.toFixed(2)}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">
+                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                                             {r.status}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">
+                                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                                             {r.itcEligible}
                                         </ZoruTableCell>
                                     </ZoruTableRow>

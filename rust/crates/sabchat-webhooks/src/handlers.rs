@@ -100,6 +100,7 @@ fn validate_url(raw: &str) -> Result<String> {
 /// `X-SabChat-Signature` value. Exposed `pub(crate)` so the future
 /// outbound worker can reuse the exact same primitive without a second
 /// implementation.
+#[allow(dead_code)]
 pub(crate) fn sign_payload(secret: &str, body: &[u8]) -> String {
     let mut mac = <Hmac<Sha256> as Mac>::new_from_slice(secret.as_bytes())
         .expect("HMAC-SHA256 accepts keys of any length");

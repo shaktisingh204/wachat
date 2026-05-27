@@ -73,7 +73,7 @@ export function TargetEndpoint({ blockId, groupId, className }: Props) {
         <span
           className={cn(
             'absolute inset-0 rounded-full',
-            'bg-[#f76808] opacity-30',
+            'bg-zoru-ink opacity-30',
             'animate-ping',
           )}
         />
@@ -82,7 +82,7 @@ export function TargetEndpoint({ blockId, groupId, className }: Props) {
         className={cn(
           'absolute inset-0 rounded-full transition-all duration-150',
           isActiveTarget
-            ? 'bg-[#f76808] scale-100 opacity-100'
+            ? 'bg-zoru-ink scale-100 opacity-100'
             : 'bg-transparent scale-75 opacity-0',
         )}
       />

@@ -273,11 +273,11 @@ export default function GlobalSettingsPage() {
                     <p className="text-[11.5px] text-zoru-ink-muted mt-0.5">See how dates will look across the workspace based on your settings.</p>
                   </div>
                   <div className="flex gap-4">
-                    <div className="rounded bg-background px-3 py-1.5 border border-zoru-line font-mono text-[13px] text-zoru-ink">
+                    <div className="rounded bg-zoru-surface px-3 py-1.5 border border-zoru-line font-mono text-[13px] text-zoru-ink">
                       <span className="text-[10px] block text-zoru-ink-muted font-sans font-normal mb-0.5">Date-picker Preview</span>
                       {preview.picker}
                     </div>
-                    <div className="rounded bg-background px-3 py-1.5 border border-zoru-line font-mono text-[13px] text-zoru-ink">
+                    <div className="rounded bg-zoru-surface px-3 py-1.5 border border-zoru-line font-mono text-[13px] text-zoru-ink">
                       <span className="text-[10px] block text-zoru-ink-muted font-sans font-normal mb-0.5">Moment.js Preview</span>
                       {preview.moment}
                     </div>

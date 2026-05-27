@@ -603,7 +603,7 @@ export default function ContractRenewalsPage() {
                 <TableRow className="border-zoru-line">
                   <TableCell
                     colSpan={8}
-                    className="h-24 text-center text-[13px] text-red-500"
+                    className="h-24 text-center text-[13px] text-zoru-ink"
                   >
                     {loadError}
                   </TableCell>

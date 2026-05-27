@@ -310,7 +310,7 @@ export function InboxLayout({
       }
       toolbar={filterBar}
     >
-      <div className="h-[calc(100vh-280px)] min-h-[520px] overflow-hidden rounded-md border border-slate-200 bg-white">
+      <div className="h-[calc(100vh-280px)] min-h-[520px] overflow-hidden rounded-md border border-zoru-line bg-white">
         <ZoruResizablePanelGroup direction="horizontal">
           <ZoruResizablePanel defaultSize={32} minSize={22} maxSize={45}>
             <ConversationList
@@ -340,7 +340,7 @@ export function InboxLayout({
           </ZoruResizablePanel>
         </ZoruResizablePanelGroup>
       </div>
-      <p className="px-1 text-xs text-slate-500">
+      <p className="px-1 text-xs text-zoru-ink">
         Inbound messages route through{" "}
         <Link
           className="underline"
@@ -370,7 +370,7 @@ function ScopeRail({ current, onChange, counts }: ScopeRailProps) {
     { key: "closed", label: "Closed" },
   ];
   return (
-    <div className="flex flex-wrap gap-1.5 rounded-md border border-slate-200 bg-white p-1.5 text-xs">
+    <div className="flex flex-wrap gap-1.5 rounded-md border border-zoru-line bg-white p-1.5 text-xs">
       {items.map((i) => (
         <button
           key={i.key}
@@ -379,8 +379,8 @@ function ScopeRail({ current, onChange, counts }: ScopeRailProps) {
           className={
             "rounded-md px-2.5 py-1 transition-colors " +
             (current === i.key
-              ? "bg-slate-900 text-white"
-              : "text-slate-700 hover:bg-slate-100")
+              ? "bg-zoru-ink text-white"
+              : "text-zoru-ink hover:bg-zoru-surface-2")
           }
         >
           {i.label}

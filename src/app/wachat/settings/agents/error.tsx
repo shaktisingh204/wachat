@@ -18,7 +18,7 @@ export default function ErrorBoundary({
   return (
     <div className="flex h-full min-h-[400px] w-full items-center justify-center">
       <EmptyState
-        icon={<CircleAlert className="h-10 w-10 text-destructive" />}
+        icon={<CircleAlert className="h-10 w-10 text-zoru-ink" />}
         title="Something went wrong!"
         description={error.message || "An unexpected error occurred while loading agent settings."}
         action={

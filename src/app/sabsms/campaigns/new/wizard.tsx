@@ -274,8 +274,8 @@ export function CampaignWizard({
         <div
           className={`rounded border p-3 text-sm ${
             banner.kind === "ok"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-              : "border-rose-200 bg-rose-50 text-rose-800"
+              ? "border-zoru-line bg-zoru-surface-2 text-zoru-ink"
+              : "border-zoru-line bg-zoru-surface-2 text-zoru-ink"
           }`}
         >
           <div>{banner.message}</div>
@@ -389,7 +389,7 @@ export function CampaignWizard({
           >
             Next
           </Button>
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-zoru-ink">
             <ZoruKbd>⌘</ZoruKbd>
             <ZoruKbd>←</ZoruKbd> /
             <ZoruKbd>⌘</ZoruKbd>
@@ -473,14 +473,14 @@ function SortableStep({
         }}
         className={`flex items-center gap-2 rounded border px-3 py-1.5 text-sm transition ${
           active
-            ? "border-slate-900 bg-slate-900 text-white"
-            : "border-slate-200 bg-white text-slate-600 hover:border-slate-400"
+            ? "border-zoru-line bg-zoru-ink text-white"
+            : "border-zoru-line bg-white text-zoru-ink hover:border-zoru-line"
         } cursor-grab active:cursor-grabbing`}
         aria-current={active ? "step" : undefined}
       >
         <span
           className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs ${
-            active ? "bg-white text-slate-900" : "bg-slate-100 text-slate-600"
+            active ? "bg-white text-zoru-ink" : "bg-zoru-surface-2 text-zoru-ink"
           }`}
         >
           {s.index}
@@ -532,7 +532,7 @@ function Stepper({ stepId, steps, setSteps, onJump }: StepperProps) {
               return (
                 <React.Fragment key={s.id}>
                   {i > 0 && (
-                    <span aria-hidden className="h-px w-6 bg-slate-300" />
+                    <span aria-hidden className="h-px w-6 bg-zoru-surface-2" />
                   )}
                   <SortableStep s={s} active={isActive} onJump={onJump} />
                 </React.Fragment>

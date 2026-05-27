@@ -390,10 +390,10 @@ export function UpstreamDataPicker({
                   onClick={() => insertVar(variable)}
                   className={cn(
                     'group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5',
-                    focusedKey === key ? 'bg-[#f76808]/10' : 'hover:bg-[var(--gray-3)]',
+                    focusedKey === key ? 'bg-zoru-ink/10' : 'hover:bg-[var(--gray-3)]',
                   )}
                 >
-                  <span className="shrink-0 rounded bg-violet-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-600 dark:bg-violet-950/40 dark:text-violet-400">
+                  <span className="shrink-0 rounded bg-zoru-surface-2 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
                     Var
                   </span>
                   <div className="flex flex-1 flex-col min-w-0 leading-tight">
@@ -435,11 +435,11 @@ export function UpstreamDataPicker({
                   className={cn(
                     'group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5',
                     focusedKey === key
-                      ? 'bg-[#f76808]/10'
+                      ? 'bg-zoru-ink/10'
                       : 'hover:bg-[var(--gray-3)]',
                   )}
                 >
-                  <span className="shrink-0 rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-600 dark:bg-sky-950/40 dark:text-sky-400">
+                  <span className="shrink-0 rounded bg-zoru-surface-2 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted">
                     Glb
                   </span>
                   <div className="flex flex-1 flex-col min-w-0 leading-tight">

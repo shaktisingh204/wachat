@@ -197,7 +197,7 @@ export function Edge({ edge, fromGroupId, onDelete, onInsertNode }: Props) {
                 type="button"
                 aria-label="Insert node"
                 title="Insert node"
-                className="flex h-6 w-6 items-center justify-center rounded-l-md text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[#f76808] transition-colors"
+                className="flex h-6 w-6 items-center justify-center rounded-l-md text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-zoru-ink transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   onInsertNode?.(edge.id, midPoint);
@@ -212,7 +212,7 @@ export function Edge({ edge, fromGroupId, onDelete, onInsertNode }: Props) {
                   type="button"
                   aria-label="Delete edge"
                   title="Delete edge"
-                  className="flex h-6 w-6 items-center justify-center rounded-r-md text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[#ef4444] transition-colors"
+                  className="flex h-6 w-6 items-center justify-center rounded-r-md text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-zoru-ink transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDelete(edge.id);
@@ -236,7 +236,7 @@ export function Edge({ edge, fromGroupId, onDelete, onInsertNode }: Props) {
           >
             <button
               type="button"
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] text-red-500 hover:bg-[var(--gray-3)]"
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] text-zoru-ink hover:bg-[var(--gray-3)]"
               onClick={() => {
                 onDelete?.(edge.id);
                 setContextMenu(null);

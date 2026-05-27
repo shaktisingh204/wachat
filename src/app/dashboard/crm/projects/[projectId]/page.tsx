@@ -509,7 +509,7 @@ export default function ProjectDetailPage(props: {
           </div>
           <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-zoru-surface-2">
             <div
-              className="h-full bg-primary transition-all"
+              className="h-full bg-zoru-ink transition-all"
               style={{
                 width: `${Math.max(0, Math.min(100, computedProgress))}%`,
               }}
@@ -867,7 +867,7 @@ export default function ProjectDetailPage(props: {
                           href={f.url || f.externalLink}
                           target="_blank"
                           rel="noreferrer noopener"
-                          className="mt-0.5 inline-block text-[11.5px] text-sky-500 hover:underline"
+                          className="mt-0.5 inline-block text-[11.5px] text-zoru-ink hover:underline"
                         >
                           Open link
                         </a>
@@ -1292,8 +1292,8 @@ function SummaryTile({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
-        <Icon className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
+        <Icon className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
       </div>
       <div>
         <p className="text-[11.5px] text-zoru-ink-muted">{label}</p>

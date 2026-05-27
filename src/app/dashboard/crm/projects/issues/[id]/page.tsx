@@ -42,31 +42,31 @@ function IssueDetailSkeleton() {
         <div className="grid gap-4 md:grid-cols-2">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="space-y-2">
-              <div className="h-3 w-16 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
-              <div className="h-5 w-32 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
+              <div className="h-3 w-16 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
+              <div className="h-5 w-32 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
             </div>
           ))}
         </div>
         <div className="mt-6 space-y-2 border-t border-zoru-line pt-4">
-          <div className="h-3 w-20 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
-          <div className="h-4 w-full bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
-          <div className="h-4 w-3/4 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
+          <div className="h-3 w-20 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
+          <div className="h-4 w-full bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
+          <div className="h-4 w-3/4 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
         </div>
       </Card>
 
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <div className="h-4 w-36 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
-          <div className="h-7 w-20 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
+          <div className="h-4 w-36 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
+          <div className="h-7 w-20 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
         </div>
-        <div className="h-20 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
+        <div className="h-20 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
       </Card>
 
       <Card className="p-6">
-        <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse mb-4" />
+        <div className="h-4 w-24 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse mb-4" />
         <div className="space-y-3">
-          <div className="h-10 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
-          <div className="h-10 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
+          <div className="h-10 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
+          <div className="h-10 bg-zoru-surface-2 dark:bg-zoru-ink rounded animate-pulse" />
         </div>
       </Card>
     </div>

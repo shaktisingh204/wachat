@@ -49,9 +49,9 @@ export default function TextCaseConverterPage() {
           {actions.map((a) => {
             const converted = text ? a.fn(text) : '';
             return (
-              <div key={a.id} className="rounded-md border bg-card p-4 flex flex-col gap-2">
+              <div key={a.id} className="rounded-md border bg-zoru-surface p-4 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-muted-foreground">{a.label}</h3>
+                  <h3 className="text-sm font-medium text-zoru-ink-muted">{a.label}</h3>
                   <Button
                     variant="ghost"
                     size="icon-sm"
@@ -59,11 +59,11 @@ export default function TextCaseConverterPage() {
                     disabled={!text}
                     title="Copy to clipboard"
                   >
-                    {copiedId === a.id ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                    {copiedId === a.id ? <Check className="h-4 w-4 text-zoru-ink" /> : <Copy className="h-4 w-4" />}
                   </Button>
                 </div>
-                <div className="min-h-[80px] rounded-md bg-muted/50 p-3 text-sm break-all whitespace-pre-wrap">
-                  {converted || <span className="text-muted-foreground opacity-50">Preview will appear here...</span>}
+                <div className="min-h-[80px] rounded-md bg-zoru-surface-2/50 p-3 text-sm break-all whitespace-pre-wrap">
+                  {converted || <span className="text-zoru-ink-muted opacity-50">Preview will appear here...</span>}
                 </div>
               </div>
             );

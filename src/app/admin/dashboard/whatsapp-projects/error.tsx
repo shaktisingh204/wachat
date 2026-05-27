@@ -17,8 +17,8 @@ export default function ErrorBoundary({
 
     return (
         <div className="flex h-[400px] w-full flex-col items-center justify-center space-y-4 rounded-xl border border-zoru-line bg-zoru-surface px-4 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                <AlertCircle className="h-6 w-6 text-red-600" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2">
+                <AlertCircle className="h-6 w-6 text-zoru-ink" />
             </div>
             <div className="space-y-1">
                 <h2 className="text-lg font-semibold text-zoru-ink">Something went wrong!</h2>

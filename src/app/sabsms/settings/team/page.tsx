@@ -16,7 +16,7 @@ async function TeamDataLoader() {
   const workspaceId = String(user?._id ?? "");
 
   if (!workspaceId) {
-    return <div className="text-sm text-slate-500">Please sign in to continue.</div>;
+    return <div className="text-sm text-zoru-ink">Please sign in to continue.</div>;
   }
 
   const { rows, total } = await loadTeamMembers(workspaceId);
@@ -56,10 +56,10 @@ async function TeamDataLoader() {
         />
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-zoru-line">
         <div className="mb-6">
-          <h3 className="text-xl font-semibold tracking-tight text-slate-900">Workspace Members</h3>
-          <p className="text-sm text-slate-500 mt-1">View and manage the people who have access to this workspace.</p>
+          <h3 className="text-xl font-semibold tracking-tight text-zoru-ink">Workspace Members</h3>
+          <p className="text-sm text-zoru-ink mt-1">View and manage the people who have access to this workspace.</p>
         </div>
         <TeamTable initialRows={rows} total={total} />
       </div>
@@ -92,7 +92,7 @@ export default function TeamSettingsPage() {
         { label: "Billing", onSelectHref: "/sabsms/settings/billing" },
       ]}
     >
-      <Suspense fallback={<div className="h-64 w-full bg-slate-100 animate-pulse rounded-xl" />}>
+      <Suspense fallback={<div className="h-64 w-full bg-zoru-surface-2 animate-pulse rounded-xl" />}>
         <TeamDataLoader />
       </Suspense>
     </SabsmsPageShell>

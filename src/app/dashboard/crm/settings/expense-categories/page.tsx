@@ -238,7 +238,7 @@ function ExpenseCategoryDialog({
                                 onChange={(id) => setDefaultAccountId(id ?? '')}
                                 placeholder="Pick a GL account…"
                             />
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-zoru-ink-muted">
                                 Posts to this account when an expense in this category is
                                 booked.
                             </p>
@@ -283,7 +283,7 @@ function ExpenseCategoryDialog({
                                 placeholder="0.00"
                                 defaultValue={initialData?.requiresReceiptAbove}
                             />
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-zoru-ink-muted">
                                 Submissions over this amount need a receipt attachment.
                             </p>
                         </div>
@@ -298,10 +298,10 @@ function ExpenseCategoryDialog({
                             <ZoruIconPicker value={icon} onChange={setIcon} color={color} />
                         </div>
 
-                        <div className="flex items-center justify-between rounded-md border border-border p-3">
+                        <div className="flex items-center justify-between rounded-md border border-zoru-line p-3">
                             <div>
                                 <Label htmlFor="isBillable">Billable</Label>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-zoru-ink-muted">
                                     Pass-through to customers.
                                 </p>
                             </div>
@@ -312,10 +312,10 @@ function ExpenseCategoryDialog({
                             />
                         </div>
 
-                        <div className="flex items-center justify-between rounded-md border border-border p-3">
+                        <div className="flex items-center justify-between rounded-md border border-zoru-line p-3">
                             <div>
                                 <Label htmlFor="isReimbursable">Reimbursable</Label>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-zoru-ink-muted">
                                     Refundable to employees.
                                 </p>
                             </div>
@@ -326,10 +326,10 @@ function ExpenseCategoryDialog({
                             />
                         </div>
 
-                        <div className="flex items-center justify-between rounded-md border border-border p-3 sm:col-span-2">
+                        <div className="flex items-center justify-between rounded-md border border-zoru-line p-3 sm:col-span-2">
                             <div>
                                 <Label htmlFor="isActive">Active</Label>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-zoru-ink-muted">
                                     Inactive categories are hidden from expense forms.
                                 </p>
                             </div>
@@ -655,8 +655,8 @@ export default function ExpenseCategoriesPage() {
 
                 {/* Bulk bar */}
                 {hasSelection && (
-                    <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-2.5 text-sm mb-3">
-                        <span className="font-medium text-foreground">
+                    <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface-2/40 px-4 py-2.5 text-sm mb-3">
+                        <span className="font-medium text-zoru-ink">
                             {selectedIds.length} selected
                         </span>
                         <Button
@@ -720,10 +720,10 @@ export default function ExpenseCategoriesPage() {
                     </div>
                 )}
 
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <Table>
                         <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
+                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                 <ZoruTableHead className="w-10">
                                     <Checkbox
                                         checked={allChecked}
@@ -733,42 +733,42 @@ export default function ExpenseCategoriesPage() {
                                         disabled={filtered.length === 0}
                                     />
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Code</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Parent</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">
+                                <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Code</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Parent</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted text-right">
                                     Tax %
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Reimbursable</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Billable</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">
+                                <ZoruTableHead className="text-zoru-ink-muted">Reimbursable</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Billable</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted text-right">
                                     Max Amount
                                 </ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">
+                                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted text-right">
                                     Actions
                                 </ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-border">
+                                <ZoruTableRow className="border-zoru-line">
                                     <ZoruTableCell colSpan={10} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ) : filtered.length === 0 ? (
-                                <ZoruTableRow className="border-border">
+                                <ZoruTableRow className="border-zoru-line">
                                     <ZoruTableCell
                                         colSpan={10}
-                                        className="h-24 text-center text-muted-foreground"
+                                        className="h-24 text-center text-zoru-ink-muted"
                                     >
                                         No expense categories match this filter.
                                     </ZoruTableCell>
                                 </ZoruTableRow>
                             ) : (
                                 filtered.map((c) => (
-                                    <ZoruTableRow key={c._id} className="border-border">
+                                    <ZoruTableRow key={c._id} className="border-zoru-line">
                                         <ZoruTableCell>
                                             <Checkbox
                                                 checked={selected.has(c._id)}
@@ -776,7 +776,7 @@ export default function ExpenseCategoriesPage() {
                                                 aria-label={`Select ${c.name}`}
                                             />
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-medium text-foreground">
+                                        <ZoruTableCell className="font-medium text-zoru-ink">
                                             <RowDrawer
                                                 label={
                                                     <span className="inline-flex items-center gap-2">
@@ -797,16 +797,16 @@ export default function ExpenseCategoriesPage() {
                                                 <div className="space-y-3 text-sm">
                                                     {c.description ? (
                                                         <div>
-                                                            <div className="text-muted-foreground text-xs">Description</div>
+                                                            <div className="text-zoru-ink-muted text-xs">Description</div>
                                                             <div>{c.description}</div>
                                                         </div>
                                                     ) : null}
                                                     <div>
-                                                        <div className="text-muted-foreground text-xs">Code</div>
+                                                        <div className="text-zoru-ink-muted text-xs">Code</div>
                                                         <div className="font-mono">{c.code ?? '—'}</div>
                                                     </div>
                                                     <div>
-                                                        <div className="text-muted-foreground text-xs">Parent</div>
+                                                        <div className="text-zoru-ink-muted text-xs">Parent</div>
                                                         <div>
                                                             {c.parentId
                                                                 ? parentNameById.get(c.parentId) ?? '—'
@@ -814,7 +814,7 @@ export default function ExpenseCategoriesPage() {
                                                         </div>
                                                     </div>
                                                     <div>
-                                                        <div className="text-muted-foreground text-xs">Tax rate</div>
+                                                        <div className="text-zoru-ink-muted text-xs">Tax rate</div>
                                                         <div className="font-mono">
                                                             {typeof c.taxRate === 'number'
                                                                 ? `${c.taxRate.toFixed(2)}%`
@@ -822,33 +822,33 @@ export default function ExpenseCategoriesPage() {
                                                         </div>
                                                     </div>
                                                     <div>
-                                                        <div className="text-muted-foreground text-xs">Max amount</div>
+                                                        <div className="text-zoru-ink-muted text-xs">Max amount</div>
                                                         <div className="font-mono">{formatMoney(c.maxAmount)}</div>
                                                     </div>
                                                     <div>
-                                                        <div className="text-muted-foreground text-xs">Billable</div>
+                                                        <div className="text-zoru-ink-muted text-xs">Billable</div>
                                                         <div>{c.isBillable ? 'Yes' : 'No'}</div>
                                                     </div>
                                                     <div>
-                                                        <div className="text-muted-foreground text-xs">Reimbursable</div>
+                                                        <div className="text-zoru-ink-muted text-xs">Reimbursable</div>
                                                         <div>{c.isReimbursable ? 'Yes' : 'No'}</div>
                                                     </div>
                                                     <div>
-                                                        <div className="text-muted-foreground text-xs">Status</div>
+                                                        <div className="text-zoru-ink-muted text-xs">Status</div>
                                                         <div>{c.status === 'active' ? 'Active' : 'Archived'}</div>
                                                     </div>
                                                 </div>
                                             </RowDrawer>
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="font-mono text-foreground">
+                                        <ZoruTableCell className="font-mono text-zoru-ink">
                                             {c.code ?? '—'}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">
+                                        <ZoruTableCell className="text-zoru-ink">
                                             {c.parentId
                                                 ? parentNameById.get(c.parentId) ?? '—'
                                                 : '—'}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-foreground">
+                                        <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                             {typeof c.taxRate === 'number'
                                                 ? `${c.taxRate.toFixed(2)}%`
                                                 : '—'}
@@ -865,7 +865,7 @@ export default function ExpenseCategoriesPage() {
                                                 tone={c.isBillable ? 'blue' : 'neutral'}
                                             />
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-foreground">
+                                        <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                             {formatMoney(c.maxAmount)}
                                         </ZoruTableCell>
                                         <ZoruTableCell>
@@ -889,7 +889,7 @@ export default function ExpenseCategoriesPage() {
                                                 onClick={() => setPendingDelete(c)}
                                                 aria-label={`Delete ${c.name}`}
                                             >
-                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                                <Trash2 className="h-4 w-4 text-zoru-ink" />
                                             </Button>
                                         </ZoruTableCell>
                                     </ZoruTableRow>

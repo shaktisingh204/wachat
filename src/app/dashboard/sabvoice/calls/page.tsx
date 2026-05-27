@@ -160,9 +160,9 @@ export default function VoiceCallsLogPage() {
               <tr key={c._id} className="border-b border-zoru-line/50">
                 <td className="px-3 py-2">
                   {c.direction === 'inbound' ? (
-                    <PhoneIncoming className="h-4 w-4 text-green-500" />
+                    <PhoneIncoming className="h-4 w-4 text-zoru-ink" />
                   ) : (
-                    <PhoneOutgoing className="h-4 w-4 text-blue-500" />
+                    <PhoneOutgoing className="h-4 w-4 text-zoru-ink" />
                   )}
                 </td>
                 <td className="px-3 py-2 font-mono">{c.fromNumber}</td>

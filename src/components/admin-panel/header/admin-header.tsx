@@ -49,14 +49,14 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
 
     return (
         <header
-            className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between gap-3 px-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50 bg-background/85 transition-colors duration-500"
+            className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between gap-3 px-3 backdrop-blur-xl supports-[backdrop-filter]:bg-zoru-surface/50 bg-zoru-surface/85 transition-colors duration-500"
             style={{ borderBottom: '1px solid var(--app-border)' }}
         >
             {/* ── Left ── */}
             <div className="flex items-center gap-2 min-w-0">
                 <SidebarTrigger>
                     <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
-                        <PanelLeft className="h-4 w-4 text-muted-foreground" />
+                        <PanelLeft className="h-4 w-4 text-zoru-ink-muted" />
                     </Button>
                 </SidebarTrigger>
 
@@ -77,7 +77,7 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
                 {/* Active project breadcrumb */}
                 {activeProject?.name && (
                     <div className="hidden md:flex items-center gap-1 min-w-0">
-                        <span className="text-muted-foreground/40 text-sm">/</span>
+                        <span className="text-zoru-ink-muted/40 text-sm">/</span>
                         <span
                             className="text-sm font-medium truncate max-w-[140px]"
                             style={{ color: 'var(--app-text)' }}
@@ -95,7 +95,7 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
 
                 {/* User pill */}
                 <div
-                    className="flex items-center gap-2 rounded-full px-2 py-1 bg-card/80 hover:bg-card transition-colors cursor-pointer"
+                    className="flex items-center gap-2 rounded-full px-2 py-1 bg-zoru-surface/80 hover:bg-zoru-surface transition-colors cursor-pointer"
                     style={{ border: '1px solid var(--app-border)' }}
                 >
                     <Avatar className="h-7 w-7 shrink-0">

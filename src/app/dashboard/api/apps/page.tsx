@@ -52,9 +52,9 @@ export default async function OAuthAppsPage(): Promise<JSX.Element> {
 function AppsSkeleton() {
     return (
         <div className="space-y-4 animate-pulse">
-            <div className="h-64 bg-zinc-800/50 rounded-lg"></div>
-            <div className="h-32 bg-zinc-800/50 rounded-lg"></div>
-            <div className="h-32 bg-zinc-800/50 rounded-lg"></div>
+            <div className="h-64 bg-zoru-ink/50 rounded-lg"></div>
+            <div className="h-32 bg-zoru-ink/50 rounded-lg"></div>
+            <div className="h-32 bg-zoru-ink/50 rounded-lg"></div>
         </div>
     );
 }

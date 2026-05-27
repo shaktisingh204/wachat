@@ -60,7 +60,7 @@ export function BioProfileForm({ state, update }: Props) {
               className="h-10 w-10 rounded-full object-cover border border-zoru-line"
             />
           ) : (
-            <div className="h-10 w-10 rounded-full bg-zinc-800 border border-zoru-line" />
+            <div className="h-10 w-10 rounded-full bg-zoru-ink border border-zoru-line" />
           )}
           <SabFilePickerButton onPick={handleAvatarPick} variant="outline">
             Choose Avatar

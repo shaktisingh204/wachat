@@ -189,17 +189,17 @@ export function StepReview({
   return (
     <div className="space-y-5">
       {issues.length > 0 && (
-        <Card className="border-rose-300 bg-rose-50">
+        <Card className="border-zoru-line bg-zoru-surface-2">
           <ZoruCardHeader>
-            <ZoruCardTitle className="text-base text-rose-700">
+            <ZoruCardTitle className="text-base text-zoru-ink">
               {issues.length} issue{issues.length === 1 ? "" : "s"} blocking launch
             </ZoruCardTitle>
-            <ZoruCardDescription className="text-rose-700">
+            <ZoruCardDescription className="text-zoru-ink">
               Fix these before you can launch or schedule.
             </ZoruCardDescription>
           </ZoruCardHeader>
           <ZoruCardContent>
-            <ul className="space-y-1 text-sm text-rose-800">
+            <ul className="space-y-1 text-sm text-zoru-ink">
               {issues.map((i, idx) => (
                 <li key={idx} className="flex items-center justify-between">
                   <span>
@@ -232,7 +232,7 @@ export function StepReview({
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <ul className="divide-y divide-slate-200">
+          <ul className="divide-y divide-zoru-line">
             {items.map((it) => (
               <li
                 key={it.index}
@@ -240,12 +240,12 @@ export function StepReview({
               >
                 <div className="flex items-center gap-3">
                   <Badge variant="outline">{it.index}</Badge>
-                  <span className="font-medium text-slate-700">
+                  <span className="font-medium text-zoru-ink">
                     {it.label}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="max-w-xs truncate text-right text-xs text-slate-500">
+                  <span className="max-w-xs truncate text-right text-xs text-zoru-ink">
                     {it.value}
                   </span>
                   <Button

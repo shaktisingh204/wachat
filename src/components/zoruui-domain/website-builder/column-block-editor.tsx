@@ -115,7 +115,7 @@ export function ColumnBlockEditor({ settings, onUpdate }: { settings: any, onUpd
                              <div className="space-y-2">
                                 <Label>Column Order</Label>
                                 <Input type="number" placeholder="e.g. 1" value={settings.order || ''} onChange={e => handleUpdate('order', e.target.value)} />
-                                <p className="text-xs text-muted-foreground">A custom order for flex/grid layouts. Lower numbers appear first.</p>
+                                <p className="text-xs text-zoru-ink-muted">A custom order for flex/grid layouts. Lower numbers appear first.</p>
                             </div>
                         </ZoruAccordionContent>
                     </ZoruAccordionItem>
@@ -228,7 +228,7 @@ export function ColumnBlockEditor({ settings, onUpdate }: { settings: any, onUpd
                         <ZoruAccordionTrigger>Attributes</ZoruAccordionTrigger>
                          <ZoruAccordionContent className="space-y-4 pt-2">
                              {(settings.customAttributes || []).map((attr: any, index: number) => (
-                                 <div key={attr.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><Input placeholder="Key" value={attr.key} onChange={e => handleAttributeChange(index, 'key', e.target.value)} /><Input placeholder="Value" value={attr.value} onChange={e => handleAttributeChange(index, 'value', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => removeAttribute(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button></div>
+                                 <div key={attr.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><Input placeholder="Key" value={attr.key} onChange={e => handleAttributeChange(index, 'key', e.target.value)} /><Input placeholder="Value" value={attr.value} onChange={e => handleAttributeChange(index, 'value', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => removeAttribute(index)}><Trash2 className="h-4 w-4 text-zoru-ink"/></Button></div>
                              ))}
                              <Button type="button" variant="outline" className="w-full" onClick={addAttribute}><Plus className="mr-2 h-4 w-4"/>Add Attribute</Button>
                          </ZoruAccordionContent>

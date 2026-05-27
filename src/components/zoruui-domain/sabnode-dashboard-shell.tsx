@@ -154,16 +154,16 @@ function ShellSkeleton() {
   return (
     <div
       className="flex min-h-screen w-full"
-      style={{ backgroundColor: 'hsl(36 15% 97%)' }}
+      style={{ backgroundColor: 'var(--zoru-surface)' }}
     >
       <div
         className="hidden lg:block w-14 shrink-0 border-r border-black/5"
-        style={{ backgroundColor: 'hsl(36 18% 96%)' }}
+        style={{ backgroundColor: 'var(--zoru-surface-2)' }}
         aria-hidden
       />
       <div
         className="hidden lg:block w-72 lg:w-80 shrink-0 border-r border-black/5"
-        style={{ backgroundColor: 'hsl(36 15% 97%)' }}
+        style={{ backgroundColor: 'var(--zoru-surface)' }}
         aria-hidden
       />
       <div className="flex-1" aria-hidden />
@@ -252,7 +252,7 @@ function ShellLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="flex min-h-screen w-full"
-      style={{ backgroundColor: 'hsl(36 15% 97%)' }}
+      style={{ backgroundColor: 'var(--zoru-surface)' }}
     >
       <SabNodeSidebar />
       <div className="flex-1 min-w-0 flex flex-col">

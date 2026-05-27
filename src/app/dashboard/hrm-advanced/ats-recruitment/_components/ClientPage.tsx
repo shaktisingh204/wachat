@@ -229,7 +229,7 @@ export default function ClientPage({ initialData }: { initialData: ATSApplicatio
           <CardTitle className="text-lg flex items-center">
             <Users className="w-5 h-5 mr-2" />
             Candidates Directory
-            {isClient && <span className="ml-auto text-sm font-normal text-muted-foreground">{filteredApplications.length} found</span>}
+            {isClient && <span className="ml-auto text-sm font-normal text-zoru-ink-muted">{filteredApplications.length} found</span>}
           </CardTitle>
         </CardHeader>
         <CardContent>

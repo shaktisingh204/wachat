@@ -91,7 +91,7 @@ export function ContractSignPanel({ hash, signed, signatures }: Props) {
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-6 text-sm">
             {signatures.map((sig, i) => (
-              <div key={i} className="space-y-2 border-b border-zinc-100 pb-4 last:border-0 last:pb-0">
+              <div key={i} className="space-y-2 border-b border-zoru-line pb-4 last:border-0 last:pb-0">
                 <p>
                   Signed by <span className="font-medium">{sig.fullName}</span>
                   {sig.email ? ` (${sig.email})` : ''} from {sig.place} on{' '}
@@ -102,7 +102,7 @@ export function ContractSignPanel({ hash, signed, signatures }: Props) {
                   <img
                     src={sig.signatureDataUrl}
                     alt={`Signature of ${sig.fullName}`}
-                    className="h-20 rounded-md border border-zinc-200 bg-white"
+                    className="h-20 rounded-md border border-zoru-line bg-white"
                   />
                 ) : null}
               </div>

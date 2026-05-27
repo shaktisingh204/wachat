@@ -168,9 +168,9 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
                                     key={b._id}
                                     className={
                                         flag.expired
-                                            ? 'border-zoru-line bg-red-50 dark:bg-red-950/30'
+                                            ? 'border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/30'
                                             : flag.soon
-                                              ? 'border-zoru-line bg-amber-50/50 dark:bg-amber-950/20'
+                                              ? 'border-zoru-line bg-zoru-surface-2/50 dark:bg-zoru-ink/20'
                                               : 'border-zoru-line'
                                     }
                                 >
@@ -191,7 +191,7 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
                                     <ZoruTableCell
                                         className={
                                             danger
-                                                ? 'font-medium text-red-700 dark:text-red-300'
+                                                ? 'font-medium text-zoru-ink dark:text-zoru-ink-muted'
                                                 : 'text-zoru-ink'
                                         }
                                     >
@@ -218,7 +218,7 @@ export function BatchExpiryTable({ batches }: { batches: CrmItemBatchDoc[] }) {
                                             size="icon"
                                             onClick={() => setPendingDelete(b)}
                                         >
-                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
                                         </Button>
                                     </ZoruTableCell>
                                 </ZoruTableRow>

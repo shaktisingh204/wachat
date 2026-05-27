@@ -124,12 +124,12 @@ export default function GlobalWachatDashboardPage() {
         </Breadcrumb>
 
         <ZoruEmptyState
-          icon={<MessageCircle className="h-10 w-10 text-emerald-600" />}
+          icon={<MessageCircle className="h-10 w-10 text-zoru-ink" />}
           title="Welcome to WhatsApp Chat"
           description="You haven't connected any WhatsApp Business Accounts yet. Connect your first account to unlock messaging, automation, and live chat."
           action={
             <Link href="/wachat/setup">
-              <Button size="md" className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Button size="md" className="bg-zoru-ink hover:bg-zoru-ink text-white">
                 <Plus className="mr-2" />
                 Connect WhatsApp Account
               </Button>
@@ -220,7 +220,7 @@ export default function GlobalWachatDashboardPage() {
             const sent = s?.totalSent || 0;
             const deliv = s?.totalDelivered || 0;
             return (
-              <Card key={p._id.toString()} className="p-5 flex flex-col gap-4 transition hover:border-emerald-200">
+              <Card key={p._id.toString()} className="p-5 flex flex-col gap-4 transition hover:border-zoru-line">
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-semibold text-zoru-ink">{p.name || 'Untitled project'}</h3>
@@ -236,7 +236,7 @@ export default function GlobalWachatDashboardPage() {
                       router.push('/wachat/overview');
                     }}
                   >
-                    <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
+                    <TrendingUp className="h-3.5 w-3.5 text-zoru-ink" />
                   </Button>
                 </div>
                 
@@ -284,7 +284,7 @@ function Kpi({
   return (
     <Card className="p-4 transition-shadow hover:shadow-[var(--zoru-shadow-sm)]">
       <div className="flex items-start justify-between">
-        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-emerald-50 text-emerald-600">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
           {icon}
         </span>
       </div>

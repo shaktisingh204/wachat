@@ -16,8 +16,8 @@ export interface ClayListRowProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * ClayListRow — composed from shadcn-friendly tokens (`bg-card`,
- * `bg-secondary`, etc.) without depending on a single primitive.
+ * ClayListRow — composed from shadcn-friendly tokens (`bg-zoru-surface`,
+ * `bg-zoru-surface-2`, etc.) without depending on a single primitive.
  * The structure mirrors the original: numbered circle + title/meta +
  * trailing slot + optional expanded children area.
  */
@@ -34,7 +34,7 @@ export function ClayListRow({
   return (
     <div
       className={cn(
-        'flex flex-col rounded-xl bg-secondary',
+        'flex flex-col rounded-xl bg-zoru-surface-2',
         className,
       )}
       {...props}
@@ -43,17 +43,17 @@ export function ClayListRow({
         <div
           className={cn(
             'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold',
-            'bg-muted text-muted-foreground',
+            'bg-zoru-surface-2 text-zoru-ink-muted',
           )}
         >
           {index}
         </div>
         <div className="min-w-0 flex-1 pt-[3px]">
-          <div className="text-sm font-medium text-foreground leading-tight">
+          <div className="text-sm font-medium text-zoru-ink leading-tight">
             {title}
           </div>
           {meta ? (
-            <div className="mt-1 text-xs text-muted-foreground leading-tight">
+            <div className="mt-1 text-xs text-zoru-ink-muted leading-tight">
               {meta}
             </div>
           ) : null}
@@ -65,7 +65,7 @@ export function ClayListRow({
         ) : null}
       </div>
       {expanded && children ? (
-        <div className="px-4 py-4 border-t border-border/50">{children}</div>
+        <div className="px-4 py-4 border-t border-zoru-line/50">{children}</div>
       ) : null}
     </div>
   );

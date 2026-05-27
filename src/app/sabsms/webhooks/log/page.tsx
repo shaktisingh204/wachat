@@ -5,7 +5,7 @@ import WebhookLogClient from './client';
 
 export default function WebhookLogPage() {
   return (
-    <Suspense fallback={<div className="h-screen w-full bg-slate-50 animate-pulse" />}>
+    <Suspense fallback={<div className="h-screen w-full bg-zoru-surface-2 animate-pulse" />}>
       <WebhookLogClient />
     </Suspense>
   );

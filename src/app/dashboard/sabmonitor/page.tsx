@@ -24,9 +24,9 @@ export default async function SabmonitorOverviewPage(): Promise<React.JSX.Elemen
     }
 
     const stats: Array<{ label: string; value: number; tone: string }> = [
-        { label: 'Up', value: counts.up, tone: 'text-emerald-600' },
-        { label: 'Warning', value: counts.warning, tone: 'text-amber-700' },
-        { label: 'Down', value: counts.down, tone: 'text-rose-700' },
+        { label: 'Up', value: counts.up, tone: 'text-zoru-ink' },
+        { label: 'Warning', value: counts.warning, tone: 'text-zoru-ink' },
+        { label: 'Down', value: counts.down, tone: 'text-zoru-ink' },
         { label: 'Unknown', value: counts.unknown, tone: 'text-zoru-ink-muted' },
     ];
 

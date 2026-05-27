@@ -66,20 +66,20 @@ function DiffTable({ diff }: { diff: NonNullable<AuditEntry['diff']> }) {
     });
     if (entries.length === 0) return null;
     return (
-        <div className="mt-2 overflow-hidden rounded border border-zinc-200 dark:border-zinc-800">
+        <div className="mt-2 overflow-hidden rounded border border-zoru-line dark:border-zoru-line">
             <table className="w-full text-xs">
-                <thead className="bg-zinc-50 dark:bg-zinc-900/50">
+                <thead className="bg-zoru-surface-2 dark:bg-zoru-ink/50">
                     <tr>
-                        <th className="px-2 py-1 text-left font-medium text-zinc-500">Field</th>
-                        <th className="px-2 py-1 text-left font-medium text-zinc-500">Before</th>
-                        <th className="px-2 py-1 text-left font-medium text-zinc-500">After</th>
+                        <th className="px-2 py-1 text-left font-medium text-zoru-ink">Field</th>
+                        <th className="px-2 py-1 text-left font-medium text-zoru-ink">Before</th>
+                        <th className="px-2 py-1 text-left font-medium text-zoru-ink">After</th>
                     </tr>
                 </thead>
                 <tbody>
                     {entries.map(([field, change]) => (
-                        <tr key={field} className="border-t border-zinc-200 dark:border-zinc-800">
+                        <tr key={field} className="border-t border-zoru-line dark:border-zoru-line">
                             <td className="px-2 py-1 align-top font-medium">{field}</td>
-                            <td className="px-2 py-1 align-top text-zinc-500">
+                            <td className="px-2 py-1 align-top text-zoru-ink">
                                 {stringifyFragment(change.before)}
                             </td>
                             <td className="px-2 py-1 align-top">
@@ -167,12 +167,12 @@ export function LoanActivityClient({ entries, loanId, currentUserId }: Props) {
                     </Select>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <div className="mb-6 space-y-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+                    <div className="mb-6 space-y-3 rounded-lg border border-zoru-line bg-zoru-surface-2 p-4 dark:border-zoru-line dark:bg-zoru-ink/50">
                         <Textarea
                             placeholder="Add a comment or manual log entry..."
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
-                            className="min-h-[80px] bg-white dark:bg-zinc-950"
+                            className="min-h-[80px] bg-white dark:bg-zoru-ink"
                         />
                         <div className="flex justify-end">
                             <Button 
@@ -186,16 +186,16 @@ export function LoanActivityClient({ entries, loanId, currentUserId }: Props) {
                     </div>
 
                     {filteredEntries.length === 0 ? (
-                        <p className="text-sm text-zinc-500 py-4 text-center">No activity found.</p>
+                        <p className="text-sm text-zoru-ink py-4 text-center">No activity found.</p>
                     ) : (
-                        <ol className="relative space-y-4 border-l border-zinc-200 pl-4 dark:border-zinc-800 mt-6">
+                        <ol className="relative space-y-4 border-l border-zoru-line pl-4 dark:border-zoru-line mt-6">
                             {filteredEntries.map((entry) => {
                                 const tone = toneFor(entry.action);
                                 const id = typeof entry._id === 'string' ? entry._id : String(entry._id);
                                 return (
                                     <li key={id} className="relative">
                                         <span
-                                            className="absolute -left-[21px] top-1.5 inline-block size-2.5 rounded-full border border-white bg-zinc-400 dark:border-zinc-950"
+                                            className="absolute -left-[21px] top-1.5 inline-block size-2.5 rounded-full border border-white bg-zoru-surface-2 dark:border-zoru-line"
                                             aria-hidden
                                         />
                                         <div className="flex flex-wrap items-baseline gap-2 text-sm">
@@ -205,16 +205,16 @@ export function LoanActivityClient({ entries, loanId, currentUserId }: Props) {
                                             <Badge variant={tone as any}>
                                                 {actionLabel(entry.action)}
                                             </Badge>
-                                            <span className="text-zinc-500">{entry.entityKind}</span>
+                                            <span className="text-zoru-ink">{entry.entityKind}</span>
                                             <time
-                                                className="ml-auto text-xs text-zinc-500"
+                                                className="ml-auto text-xs text-zoru-ink"
                                                 title={isMounted ? absoluteTime(entry.createdAt) : undefined}
                                             >
                                                 {isMounted ? relativeTime(entry.createdAt) : entry.createdAt.slice(0, 10)}
                                             </time>
                                         </div>
                                         {entry.reason ? (
-                                            <p className="mt-1 text-xs text-zinc-500">{entry.reason}</p>
+                                            <p className="mt-1 text-xs text-zoru-ink">{entry.reason}</p>
                                         ) : null}
                                         {entry.diff ? <DiffTable diff={entry.diff} /> : null}
                                     </li>

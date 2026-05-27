@@ -151,7 +151,7 @@ export default function VoicemailInboxPage() {
               <Button
                 size="sm"
                 variant="outline"
-                className="text-red-500"
+                className="text-zoru-ink"
                 onClick={() => handleArchive(v._id)}
               >
                 <Archive className="h-3 w-3 mr-1" /> Archive

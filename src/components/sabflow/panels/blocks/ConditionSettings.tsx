@@ -226,7 +226,7 @@ function ConditionRow({
           <button
             type="button"
             onClick={onRemove}
-            className="flex items-center gap-1 text-[11px] text-[var(--gray-8)] hover:text-red-500 transition-colors"
+            className="flex items-center gap-1 text-[11px] text-[var(--gray-8)] hover:text-zoru-ink transition-colors"
           >
             <LuTrash2 className="h-3 w-3" strokeWidth={1.8} />
             Remove

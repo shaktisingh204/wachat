@@ -51,7 +51,7 @@ export default async function FacebookCallbackPage({
           <Card className="max-w-sm text-center">
             <ZoruCardHeader>
               <div className="flex justify-center mb-4">
-                <AlertCircle className="h-10 w-10 text-destructive" />
+                <AlertCircle className="h-10 w-10 text-zoru-ink" />
               </div>
               <ZoruCardTitle>Connection Failed</ZoruCardTitle>
               <ZoruCardDescription>

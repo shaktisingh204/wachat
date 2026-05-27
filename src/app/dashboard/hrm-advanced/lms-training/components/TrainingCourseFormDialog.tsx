@@ -120,7 +120,7 @@ export function TrainingCourseFormDialog({ open, onOpenChange, course, onSaveOpt
               onChange={handleChange} 
               disabled={isPending}
             />
-            {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
+            {errors.title && <p className="text-sm text-zoru-ink">{errors.title}</p>}
           </div>
 
           <div className="space-y-2">
@@ -133,7 +133,7 @@ export function TrainingCourseFormDialog({ open, onOpenChange, course, onSaveOpt
               rows={3}
               disabled={isPending}
             />
-            {errors.description && <p className="text-sm text-destructive">{errors.description}</p>}
+            {errors.description && <p className="text-sm text-zoru-ink">{errors.description}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -148,7 +148,7 @@ export function TrainingCourseFormDialog({ open, onOpenChange, course, onSaveOpt
                 onChange={handleChange} 
                 disabled={isPending}
               />
-              {errors.enrolledCount && <p className="text-sm text-destructive">{errors.enrolledCount}</p>}
+              {errors.enrolledCount && <p className="text-sm text-zoru-ink">{errors.enrolledCount}</p>}
             </div>
 
             <div className="space-y-2">
@@ -163,7 +163,7 @@ export function TrainingCourseFormDialog({ open, onOpenChange, course, onSaveOpt
                 onChange={handleChange} 
                 disabled={isPending}
               />
-              {errors.durationHours && <p className="text-sm text-destructive">{errors.durationHours}</p>}
+              {errors.durationHours && <p className="text-sm text-zoru-ink">{errors.durationHours}</p>}
             </div>
           </div>
 

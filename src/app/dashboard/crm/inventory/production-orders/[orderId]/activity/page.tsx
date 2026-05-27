@@ -38,7 +38,7 @@ export default async function ProductionOrderActivityPage({ params }: PageProps)
     >
       <Suspense
         fallback={
-          <div className="space-y-4 rounded-lg border border-border bg-card p-6">
+          <div className="space-y-4 rounded-lg border border-zoru-line bg-zoru-surface p-6">
             <Skeleton className="h-16 w-full rounded-md" />
             <Skeleton className="h-16 w-full rounded-md" />
             <Skeleton className="h-16 w-full rounded-md" />

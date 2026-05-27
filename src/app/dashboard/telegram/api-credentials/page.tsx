@@ -587,8 +587,8 @@ export default function TelegramApiCredentialsPage() {
                     background: '#FEF6D7',
                 }}
             >
-                <AlertTriangle className="mt-0.5 h-4 w-4 text-amber-700" />
-                <div className="text-[12.5px] leading-relaxed text-amber-900">
+                <AlertTriangle className="mt-0.5 h-4 w-4 text-zoru-ink" />
+                <div className="text-[12.5px] leading-relaxed text-zoru-ink">
                     <strong>MTProto login flow is in preview.</strong> Credentials are stored
                     securely; live MTProto sessions are not yet running. Use Bot API on the
                     Bots page for standard automation.
@@ -1120,7 +1120,7 @@ export default function TelegramApiCredentialsPage() {
                     ) : null}
                     {loginStep === 'done' ? (
                         <div className="flex flex-col items-center gap-2 py-2">
-                            <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+                            <CheckCircle2 className="h-8 w-8 text-zoru-ink" />
                             <p className="text-[13px] text-zoru-ink">
                                 Placeholder login complete.
                             </p>
@@ -1264,11 +1264,11 @@ function KpiCard({
 }) {
     const color =
         accent === 'success'
-            ? 'text-emerald-600'
+            ? 'text-zoru-ink'
             : accent === 'info'
-              ? 'text-sky-600'
+              ? 'text-zoru-ink'
               : accent === 'danger'
-                ? 'text-rose-600'
+                ? 'text-zoru-ink'
                 : 'text-zoru-ink';
     return (
         <Card className="p-4">

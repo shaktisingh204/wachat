@@ -31,7 +31,7 @@ export function WaitSettings({ block, onUpdate, variables = [] }: Props) {
               className={cn(
                 'rounded-md border px-2.5 py-1 text-[11.5px] font-medium transition-colors',
                 seconds === s
-                  ? 'border-[#f76808]/50 bg-[#f76808]/10 text-[#f76808]'
+                  ? 'border-zoru-line/50 bg-zoru-ink/10 text-zoru-ink'
                   : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
               )}
             >
@@ -48,7 +48,7 @@ export function WaitSettings({ block, onUpdate, variables = [] }: Props) {
             step={1}
             value={seconds}
             onChange={(e) => update({ seconds: Number(e.target.value) })}
-            className="flex-1 accent-[#f76808]"
+            className="flex-1 accent-zoru-ink"
           />
           <div className="flex items-center gap-1">
             <input
@@ -58,7 +58,7 @@ export function WaitSettings({ block, onUpdate, variables = [] }: Props) {
               step={1}
               value={seconds}
               onChange={(e) => update({ seconds: Number(e.target.value) })}
-              className="w-[70px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1.5 text-[13px] text-center text-[var(--gray-12)] outline-none focus:border-[#f76808] transition-colors"
+              className="w-[70px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1.5 text-[13px] text-center text-[var(--gray-12)] outline-none focus:border-zoru-line transition-colors"
             />
             <span className="text-[12px] text-[var(--gray-9)]">sec</span>
           </div>

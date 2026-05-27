@@ -50,7 +50,7 @@ export default function WordCounterPage() {
           <Card key={b.label}>
             <ZoruCardContent className="p-4">
               <div className="text-2xl font-bold">{b.value}</div>
-              <div className="text-xs text-muted-foreground">{b.label}</div>
+              <div className="text-xs text-zoru-ink-muted">{b.label}</div>
             </ZoruCardContent>
           </Card>
         ))}

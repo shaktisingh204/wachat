@@ -341,7 +341,7 @@ export function SavedSearchesClient(): React.JSX.Element {
                             aria-label={`Select ${row.search_term}`}
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-foreground">
+                        <ZoruTableCell className="font-medium text-zoru-ink">
                           <RowDrawer
                             label={row.search_term || '—'}
                             title={`Saved Search · ${row.search_term}`}
@@ -349,23 +349,23 @@ export function SavedSearchesClient(): React.JSX.Element {
                           >
                             <div className="space-y-3 text-sm">
                               <div>
-                                <div className="text-xs text-muted-foreground">Search Term</div>
+                                <div className="text-xs text-zoru-ink-muted">Search Term</div>
                                 <div>{row.search_term}</div>
                               </div>
                               <div>
-                                <div className="text-xs text-muted-foreground">Module</div>
+                                <div className="text-xs text-zoru-ink-muted">Module</div>
                                 <div>{row.module ?? '—'}</div>
                               </div>
                               <div>
-                                <div className="text-xs text-muted-foreground">Result Count</div>
+                                <div className="text-xs text-zoru-ink-muted">Result Count</div>
                                 <div>{row.result_count ?? '—'}</div>
                               </div>
                               <div>
-                                <div className="text-xs text-muted-foreground">Last Used</div>
+                                <div className="text-xs text-zoru-ink-muted">Last Used</div>
                                 <div>{fmt(row.last_used_at)}</div>
                               </div>
                               <div>
-                                <div className="text-xs text-muted-foreground">Created</div>
+                                <div className="text-xs text-zoru-ink-muted">Created</div>
                                 <div>{fmt(row.createdAt)}</div>
                               </div>
                             </div>

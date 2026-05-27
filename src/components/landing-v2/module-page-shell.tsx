@@ -63,7 +63,7 @@ export function ModulePageShell({ slug, session, heroVisual }: ModulePageShellPr
     const bespokeNode = renderBespoke(recipe.bespoke, mod);
 
     return (
-        <div className="relative min-h-screen overflow-x-clip bg-[#fafaf7] text-zinc-900 antialiased">
+        <div className="relative min-h-screen overflow-x-clip bg-zoru-surface text-zoru-ink antialiased">
             {/* category-themed backdrop */}
             <CategoryBackdrop mod={mod} />
             <div
@@ -183,7 +183,7 @@ function Hero({
             <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
                 <m.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                     <div
-                        className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-zinc-600 backdrop-blur"
+                        className="inline-flex items-center gap-2 rounded-full border border-zoru-line bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-zoru-ink backdrop-blur"
                     >
                         <span
                             className={`grid h-5 w-5 place-items-center rounded-full bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo}`}
@@ -192,7 +192,7 @@ function Hero({
                         </span>
                         {mod.tag}
                     </div>
-                    <h1 className="mt-6 text-balance text-5xl font-semibold tracking-tight text-zinc-950 md:text-6xl lg:text-7xl">
+                    <h1 className="mt-6 text-balance text-5xl font-semibold tracking-tight text-zoru-ink md:text-6xl lg:text-7xl">
                         {mod.name}.
                     </h1>
                     <h2
@@ -202,7 +202,7 @@ function Hero({
                         {mod.short}
                     </h2>
                     <div className={`mt-5 h-1 w-16 rounded-full bg-gradient-to-r ${mod.accentFrom} ${mod.accentTo}`} />
-                    <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-zinc-700">
+                    <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-zoru-ink">
                         {mod.desc}
                     </p>
                     <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -216,7 +216,7 @@ function Hero({
                         </Link>
                         <Link
                             href="#how-flow"
-                            className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-900 transition hover:border-zinc-900"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-white px-5 py-2.5 text-sm font-semibold text-zoru-ink transition hover:border-zoru-line"
                         >
                             <PlayCircle className="h-4 w-4" /> See how it works
                         </Link>
@@ -229,8 +229,8 @@ function Hero({
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 + i * 0.06 }}
                             >
-                                <div className="text-2xl font-semibold text-zinc-950">{s.value}</div>
-                                <div className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                                <div className="text-2xl font-semibold text-zoru-ink">{s.value}</div>
+                                <div className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-zoru-ink">
                                     {s.label}
                                 </div>
                             </m.div>
@@ -254,10 +254,10 @@ function Hero({
 function TrustBar({ mod }: { mod: (typeof MODULES)[number] }) {
     const logos = ['Sole Co.', 'Acme', 'Globex', 'Initech', 'Soylent', 'Wayne Co.', 'Daily Planet', 'Stark'];
     return (
-        <section className="relative border-y border-zinc-200 bg-white/60 py-8 backdrop-blur">
+        <section className="relative border-y border-zoru-line bg-white/60 py-8 backdrop-blur">
             <div className="mx-auto max-w-7xl px-6">
-                <p className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
-                    Teams use <span className="text-zinc-900">{mod.name}</span> across India + 14 countries
+                <p className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
+                    Teams use <span className="text-zoru-ink">{mod.name}</span> across India + 14 countries
                 </p>
                 <div className="mt-5 grid grid-cols-4 gap-6 opacity-70 md:grid-cols-8">
                     {logos.map((l, i) => (
@@ -267,7 +267,7 @@ function TrustBar({ mod }: { mod: (typeof MODULES)[number] }) {
                             whileInView={{ opacity: 0.85, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
-                            className="text-center text-sm font-semibold tracking-tight text-zinc-700"
+                            className="text-center text-sm font-semibold tracking-tight text-zoru-ink"
                         >
                             {l}
                         </m.span>
@@ -293,7 +293,7 @@ function ProblemSection({ mod }: { mod: (typeof MODULES)[number] }) {
                     initial={{ opacity: 0, y: 8 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500"
+                    className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink"
                 >
                     The status quo
                 </m.p>
@@ -302,11 +302,11 @@ function ProblemSection({ mod }: { mod: (typeof MODULES)[number] }) {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.05 }}
-                    className="mt-4 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl"
+                    className="mt-4 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl"
                 >
                     The old way of doing {mod.tag.toLowerCase()} is full of duct tape.
                 </m.h2>
-                <p className="mt-5 max-w-2xl text-lg text-zinc-600">
+                <p className="mt-5 max-w-2xl text-lg text-zoru-ink">
                     Most teams cobble together a Frankenstein stack — and pay for it twice. Once in seat
                     licences, and again in the hours nobody talks about.
                 </p>
@@ -318,10 +318,10 @@ function ProblemSection({ mod }: { mod: (typeof MODULES)[number] }) {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
-                            className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-white p-4"
+                            className="flex items-start gap-3 rounded-xl border border-zoru-line bg-white p-4"
                         >
-                            <span className="mt-1 inline-block h-2 w-2 rounded-full bg-rose-500" />
-                            <p className="text-[15px] text-zinc-700">{p}</p>
+                            <span className="mt-1 inline-block h-2 w-2 rounded-full bg-zoru-ink" />
+                            <p className="text-[15px] text-zoru-ink">{p}</p>
                         </m.div>
                     ))}
                 </div>
@@ -346,10 +346,10 @@ function FlowSection({ mod }: { mod: (typeof MODULES)[number] }) {
     return (
         <section id="how-flow" className="relative px-6 py-20">
             <div className="mx-auto max-w-6xl">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                     How {mod.name} flows
                 </p>
-                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                     Five steps. Nothing you have to learn.
                 </h2>
                 <div className="relative mt-10 grid grid-cols-1 gap-4 md:grid-cols-5">
@@ -360,7 +360,7 @@ function FlowSection({ mod }: { mod: (typeof MODULES)[number] }) {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.06 }}
-                            className="relative rounded-2xl border border-zinc-200 bg-white p-5"
+                            className="relative rounded-2xl border border-zoru-line bg-white p-5"
                         >
                             <span
                                 className="text-[11px] font-semibold uppercase tracking-wider"
@@ -368,12 +368,12 @@ function FlowSection({ mod }: { mod: (typeof MODULES)[number] }) {
                             >
                                 Step 0{i + 1}
                             </span>
-                            <p className="mt-2 text-lg font-semibold text-zinc-950">{step}</p>
-                            <p className="mt-1 text-[13px] text-zinc-600">
+                            <p className="mt-2 text-lg font-semibold text-zoru-ink">{step}</p>
+                            <p className="mt-1 text-[13px] text-zoru-ink">
                                 {flowBlurb(i)}
                             </p>
                             {i < mod.flow.length - 1 && (
-                                <ArrowRight className="absolute -right-3 top-1/2 hidden h-5 w-5 -translate-y-1/2 rounded-full bg-zinc-50 p-1 text-zinc-400 md:block" />
+                                <ArrowRight className="absolute -right-3 top-1/2 hidden h-5 w-5 -translate-y-1/2 rounded-full bg-zoru-surface-2 p-1 text-zoru-ink-muted md:block" />
                             )}
                         </m.div>
                     ))}
@@ -402,7 +402,7 @@ function StatsBanner({ mod }: { mod: (typeof MODULES)[number] }) {
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="relative overflow-hidden rounded-3xl border border-zinc-200 bg-white p-10"
+                    className="relative overflow-hidden rounded-3xl border border-zoru-line bg-white p-10"
                 >
                     <div
                         aria-hidden
@@ -415,7 +415,7 @@ function StatsBanner({ mod }: { mod: (typeof MODULES)[number] }) {
                     >
                         By the numbers
                     </p>
-                    <h2 className="relative mt-3 max-w-3xl text-balance text-3xl font-semibold tracking-tight text-zinc-950 md:text-4xl">
+                    <h2 className="relative mt-3 max-w-3xl text-balance text-3xl font-semibold tracking-tight text-zoru-ink md:text-4xl">
                         {mod.name} doesn&apos;t do demos — it does math.
                     </h2>
                     <div className="relative mt-10 grid grid-cols-2 gap-8 md:grid-cols-4">
@@ -435,10 +435,10 @@ function StatsBanner({ mod }: { mod: (typeof MODULES)[number] }) {
                                     viewport={{ once: true }}
                                     transition={{ delay: i * 0.04 }}
                                 >
-                                    <div className="text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                                    <div className="text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                                         {s.value}
                                     </div>
-                                    <div className="mt-2 text-[12px] font-semibold uppercase tracking-wider text-zinc-500">
+                                    <div className="mt-2 text-[12px] font-semibold uppercase tracking-wider text-zoru-ink">
                                         {s.label}
                                     </div>
                                 </m.div>
@@ -461,13 +461,13 @@ function FeaturesGrid({ mod }: { mod: (typeof MODULES)[number] }) {
                     viewport={{ once: true }}
                     className="max-w-3xl"
                 >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                         Features
                     </p>
-                    <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                    <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                         Everything {mod.name} ships with — out of the box.
                     </h2>
-                    <p className="mt-4 text-lg text-zinc-600">
+                    <p className="mt-4 text-lg text-zoru-ink">
                         Not a slide deck of promises. These are the surfaces your team will touch on day one.
                     </p>
                 </m.div>
@@ -482,7 +482,7 @@ function FeaturesGrid({ mod }: { mod: (typeof MODULES)[number] }) {
                                 viewport={{ once: true, margin: '-10%' }}
                                 transition={{ delay: i * 0.04 }}
                                 whileHover={{ y: -4 }}
-                                className="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 transition hover:border-zinc-900"
+                                className="group relative overflow-hidden rounded-2xl border border-zoru-line bg-white p-6 transition hover:border-zoru-line"
                             >
                                 <div
                                     aria-hidden
@@ -494,10 +494,10 @@ function FeaturesGrid({ mod }: { mod: (typeof MODULES)[number] }) {
                                 >
                                     <FIcon className="h-5 w-5 text-white" />
                                 </div>
-                                <h3 className="relative mt-5 text-xl font-semibold tracking-tight text-zinc-950">
+                                <h3 className="relative mt-5 text-xl font-semibold tracking-tight text-zoru-ink">
                                     {f.title}
                                 </h3>
-                                <p className="relative mt-2 text-[15px] leading-relaxed text-zinc-600">
+                                <p className="relative mt-2 text-[15px] leading-relaxed text-zoru-ink">
                                     {f.desc}
                                 </p>
                                 <div className="relative mt-4 flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: mod.accentDeep }}>
@@ -535,19 +535,19 @@ function FeatureSpotlights({ mod }: { mod: (typeof MODULES)[number] }) {
                         >
                             <div>
                                 <span
-                                    className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.15em]"
+                                    className="inline-flex items-center gap-2 rounded-full border border-zoru-line bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.15em]"
                                     style={{ color: mod.accentDeep }}
                                 >
                                     <span className={`h-1.5 w-1.5 rounded-full bg-gradient-to-r ${mod.accentFrom} ${mod.accentTo}`} />
                                     Spotlight 0{i + 1}
                                 </span>
-                                <h3 className="mt-5 text-balance text-3xl font-semibold tracking-tight text-zinc-950 md:text-4xl">
+                                <h3 className="mt-5 text-balance text-3xl font-semibold tracking-tight text-zoru-ink md:text-4xl">
                                     {f.title}
                                 </h3>
-                                <p className="mt-4 text-lg leading-relaxed text-zinc-700">{f.desc}</p>
+                                <p className="mt-4 text-lg leading-relaxed text-zoru-ink">{f.desc}</p>
                                 <ul className="mt-6 space-y-2">
                                     {spotlightBullets(i).map((b) => (
-                                        <li key={b} className="flex items-start gap-2 text-[15px] text-zinc-700">
+                                        <li key={b} className="flex items-start gap-2 text-[15px] text-zoru-ink">
                                             <Check className="mt-1 h-4 w-4 shrink-0" style={{ color: mod.accentDeep }} />
                                             {b}
                                         </li>
@@ -589,10 +589,10 @@ function UseCases({ mod }: { mod: (typeof MODULES)[number] }) {
     return (
         <section className="relative bg-white px-6 py-24">
             <div className="mx-auto max-w-7xl">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                     Who it&apos;s for
                 </p>
-                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                     Built for teams that ship every day.
                 </h2>
                 <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -605,15 +605,15 @@ function UseCases({ mod }: { mod: (typeof MODULES)[number] }) {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.05 }}
-                                className="group rounded-2xl border border-zinc-200 bg-[#fafaf7] p-6 transition hover:-translate-y-1 hover:border-zinc-900"
+                                className="group rounded-2xl border border-zoru-line bg-zoru-surface p-6 transition hover:-translate-y-1 hover:border-zoru-line"
                             >
                                 <div
                                     className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo} shadow-md`}
                                 >
                                     <PIcon className="h-5 w-5 text-white" />
                                 </div>
-                                <h3 className="mt-4 text-lg font-semibold text-zinc-950">{p.label}</h3>
-                                <p className="mt-2 text-[14px] leading-relaxed text-zinc-600">{p.desc}</p>
+                                <h3 className="mt-4 text-lg font-semibold text-zoru-ink">{p.label}</h3>
+                                <p className="mt-2 text-[14px] leading-relaxed text-zoru-ink">{p.desc}</p>
                             </m.div>
                         );
                     })}
@@ -637,15 +637,15 @@ function AiCapabilities({ mod }: { mod: (typeof MODULES)[number] }) {
                 <div className="grid items-start gap-12 lg:grid-cols-[1fr_2fr] lg:gap-16">
                     <div>
                         <span
-                            className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.15em]"
+                            className="inline-flex items-center gap-2 rounded-full border border-zoru-line bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.15em]"
                             style={{ color: mod.accentDeep }}
                         >
                             <Sparkles className="h-3 w-3" /> AI inside
                         </span>
-                        <h2 className="mt-5 text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                        <h2 className="mt-5 text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                             AI that earns its keep — not just a sparkle button.
                         </h2>
-                        <p className="mt-4 text-lg text-zinc-600">
+                        <p className="mt-4 text-lg text-zoru-ink">
                             Every feature in {mod.name} ships with a real-job AI helper. Bring your own key
                             (OpenAI, Anthropic, Gemini, local Ollama) or use ours.
                         </p>
@@ -660,11 +660,11 @@ function AiCapabilities({ mod }: { mod: (typeof MODULES)[number] }) {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: i * 0.05 }}
-                                    className="rounded-2xl border border-zinc-200 bg-white p-5"
+                                    className="rounded-2xl border border-zoru-line bg-white p-5"
                                 >
                                     <HIcon className="h-5 w-5" style={{ color: mod.accentDeep }} />
-                                    <h4 className="mt-3 text-base font-semibold text-zinc-950">{h.title}</h4>
-                                    <p className="mt-1.5 text-[14px] leading-relaxed text-zinc-600">{h.desc}</p>
+                                    <h4 className="mt-3 text-base font-semibold text-zoru-ink">{h.title}</h4>
+                                    <p className="mt-1.5 text-[14px] leading-relaxed text-zoru-ink">{h.desc}</p>
                                 </m.div>
                             );
                         })}
@@ -686,14 +686,14 @@ function IntegrationsStrip({ mod }: { mod: (typeof MODULES)[number] }) {
             <div className="mx-auto max-w-7xl">
                 <div className="flex flex-wrap items-end justify-between gap-4">
                     <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                             Integrations
                         </p>
-                        <h2 className="mt-3 max-w-2xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                        <h2 className="mt-3 max-w-2xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                             Talks to everything your stack already runs on.
                         </h2>
                     </div>
-                    <Link href="/#integrations" className="text-sm font-semibold text-zinc-900 underline-offset-4 hover:underline">
+                    <Link href="/#integrations" className="text-sm font-semibold text-zoru-ink underline-offset-4 hover:underline">
                         See all 900+ →
                     </Link>
                 </div>
@@ -705,13 +705,13 @@ function IntegrationsStrip({ mod }: { mod: (typeof MODULES)[number] }) {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.03 }}
-                            className="flex aspect-square items-center justify-center rounded-2xl border border-zinc-200 bg-[#fafaf7] text-center text-[13px] font-semibold text-zinc-700 transition hover:-translate-y-0.5 hover:border-zinc-900 hover:text-zinc-950"
+                            className="flex aspect-square items-center justify-center rounded-2xl border border-zoru-line bg-zoru-surface text-center text-[13px] font-semibold text-zoru-ink transition hover:-translate-y-0.5 hover:border-zoru-line hover:text-zoru-ink"
                         >
                             {name}
                         </m.div>
                     ))}
                 </div>
-                <p className="mt-6 text-sm text-zinc-500">
+                <p className="mt-6 text-sm text-zoru-ink">
                     Plus a clean REST + Webhook API, signed events, and SDKs for Node, Python, Go.
                 </p>
             </div>
@@ -725,10 +725,10 @@ function WorkflowShowcase({ mod }: { mod: (typeof MODULES)[number] }) {
     return (
         <section className="relative px-6 py-24">
             <div className="mx-auto max-w-7xl">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                     Inside the workflow
                 </p>
-                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                     Visual logic. No black boxes.
                 </h2>
                 <div
@@ -751,15 +751,15 @@ function WorkflowShowcase({ mod }: { mod: (typeof MODULES)[number] }) {
                                 whileInView={{ opacity: 1, scale: 1 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.06 }}
-                                className="relative rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
+                                className="relative rounded-2xl border border-zoru-line bg-white p-5 shadow-sm"
                             >
                                 <div
                                     className={`grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo}`}
                                 >
                                     <span className="text-[12px] font-bold text-white">{i + 1}</span>
                                 </div>
-                                <p className="mt-3 text-base font-semibold text-zinc-950">{n}</p>
-                                <p className="mt-1.5 text-[12px] text-zinc-500">Runs in &lt;200ms · Idempotent · Logged</p>
+                                <p className="mt-3 text-base font-semibold text-zoru-ink">{n}</p>
+                                <p className="mt-1.5 text-[12px] text-zoru-ink">Runs in &lt;200ms · Idempotent · Logged</p>
                             </m.div>
                         ))}
                     </div>
@@ -778,11 +778,11 @@ function WorkflowShowcase({ mod }: { mod: (typeof MODULES)[number] }) {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.05 }}
-                                className="rounded-2xl border border-zinc-200 bg-white p-5"
+                                className="rounded-2xl border border-zoru-line bg-white p-5"
                             >
                                 <CIcon className="h-5 w-5" style={{ color: mod.accentDeep }} />
-                                <h4 className="mt-3 text-base font-semibold text-zinc-950">{c.title}</h4>
-                                <p className="mt-1.5 text-[13px] text-zinc-600">{c.desc}</p>
+                                <h4 className="mt-3 text-base font-semibold text-zoru-ink">{c.title}</h4>
+                                <p className="mt-1.5 text-[13px] text-zoru-ink">{c.desc}</p>
                             </m.div>
                         );
                     })}
@@ -806,16 +806,16 @@ function ComparisonSection({ mod }: { mod: (typeof MODULES)[number] }) {
     return (
         <section className="relative bg-white px-6 py-24">
             <div className="mx-auto max-w-6xl">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                     Honest comparison
                 </p>
-                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                     {mod.name} vs the tool you&apos;re paying for right now.
                 </h2>
-                <div className="mt-10 overflow-hidden rounded-3xl border border-zinc-200">
-                    <div className="grid grid-cols-3 border-b border-zinc-200 bg-zinc-50 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                <div className="mt-10 overflow-hidden rounded-3xl border border-zoru-line">
+                    <div className="grid grid-cols-3 border-b border-zoru-line bg-zoru-surface-2 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-zoru-ink">
                         <div></div>
-                        <div className="text-zinc-900">SabNode · {mod.name}</div>
+                        <div className="text-zoru-ink">SabNode · {mod.name}</div>
                         <div>The legacy tool</div>
                     </div>
                     {rows.map((r, i) => (
@@ -825,14 +825,14 @@ function ComparisonSection({ mod }: { mod: (typeof MODULES)[number] }) {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.03 }}
-                            className="grid grid-cols-3 items-center border-b border-zinc-100 px-5 py-4 text-[14px] last:border-0"
+                            className="grid grid-cols-3 items-center border-b border-zoru-line px-5 py-4 text-[14px] last:border-0"
                         >
-                            <div className="font-semibold text-zinc-900">{r.label}</div>
-                            <div className="flex items-center gap-2 text-zinc-700">
+                            <div className="font-semibold text-zoru-ink">{r.label}</div>
+                            <div className="flex items-center gap-2 text-zoru-ink">
                                 <Check className="h-4 w-4" style={{ color: mod.accentDeep }} />
                                 {r.us}
                             </div>
-                            <div className="text-zinc-500">{r.them}</div>
+                            <div className="text-zoru-ink">{r.them}</div>
                         </m.div>
                     ))}
                 </div>
@@ -854,10 +854,10 @@ function SecurityBar({ mod }: { mod: (typeof MODULES)[number] }) {
     return (
         <section className="relative px-6 py-24">
             <div className="mx-auto max-w-7xl">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                     Security &amp; trust
                 </p>
-                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                     Enterprise-ready from day one.
                 </h2>
                 <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -870,7 +870,7 @@ function SecurityBar({ mod }: { mod: (typeof MODULES)[number] }) {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.04 }}
-                                className="flex items-start gap-3 rounded-2xl border border-zinc-200 bg-white p-5"
+                                className="flex items-start gap-3 rounded-2xl border border-zoru-line bg-white p-5"
                             >
                                 <div
                                     className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo}`}
@@ -878,8 +878,8 @@ function SecurityBar({ mod }: { mod: (typeof MODULES)[number] }) {
                                     <SIcon className="h-5 w-5 text-white" />
                                 </div>
                                 <div>
-                                    <h4 className="text-base font-semibold text-zinc-950">{s.title}</h4>
-                                    <p className="mt-1 text-[13px] leading-relaxed text-zinc-600">{s.desc}</p>
+                                    <h4 className="text-base font-semibold text-zoru-ink">{s.title}</h4>
+                                    <p className="mt-1 text-[13px] leading-relaxed text-zoru-ink">{s.desc}</p>
                                 </div>
                             </m.div>
                         );
@@ -900,10 +900,10 @@ function PricingHint({ mod, session }: { mod: (typeof MODULES)[number]; session?
     return (
         <section id="pricing" className="relative bg-white px-6 py-24">
             <div className="mx-auto max-w-6xl">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                     Plans
                 </p>
-                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                     Honest pricing. No surprises.
                 </h2>
                 <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
@@ -915,7 +915,7 @@ function PricingHint({ mod, session }: { mod: (typeof MODULES)[number]; session?
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
                             className={`relative flex flex-col rounded-3xl border bg-white p-6 ${
-                                t.popular ? 'border-zinc-900 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.3)]' : 'border-zinc-200'
+                                t.popular ? 'border-zoru-line shadow-[0_24px_60px_-30px_rgba(0,0,0,0.3)]' : 'border-zoru-line'
                             }`}
                         >
                             {t.popular && (
@@ -925,11 +925,11 @@ function PricingHint({ mod, session }: { mod: (typeof MODULES)[number]; session?
                                     Most popular
                                 </span>
                             )}
-                            <h3 className="text-lg font-semibold text-zinc-950">{t.name}</h3>
-                            <p className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950">{t.price}</p>
+                            <h3 className="text-lg font-semibold text-zoru-ink">{t.name}</h3>
+                            <p className="mt-2 text-3xl font-semibold tracking-tight text-zoru-ink">{t.price}</p>
                             <ul className="mt-6 space-y-2">
                                 {t.features.map((f) => (
-                                    <li key={f} className="flex items-start gap-2 text-[14px] text-zinc-700">
+                                    <li key={f} className="flex items-start gap-2 text-[14px] text-zoru-ink">
                                         <Check className="mt-1 h-4 w-4 shrink-0" style={{ color: mod.accentDeep }} />
                                         {f}
                                     </li>
@@ -939,8 +939,8 @@ function PricingHint({ mod, session }: { mod: (typeof MODULES)[number]; session?
                                 href={session?.user ? mod.productHref : '/login?signup=1'}
                                 className={`mt-8 inline-flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold transition ${
                                     t.popular
-                                        ? 'bg-zinc-900 text-white hover:bg-zinc-800'
-                                        : 'border border-zinc-200 text-zinc-900 hover:border-zinc-900'
+                                        ? 'bg-zoru-ink text-white hover:bg-zoru-ink'
+                                        : 'border border-zoru-line text-zoru-ink hover:border-zoru-line'
                                 }`}
                             >
                                 {t.cta} <ArrowRight className="h-3.5 w-3.5" />
@@ -948,7 +948,7 @@ function PricingHint({ mod, session }: { mod: (typeof MODULES)[number]; session?
                         </m.div>
                     ))}
                 </div>
-                <p className="mt-6 text-center text-sm text-zinc-500">
+                <p className="mt-6 text-center text-sm text-zoru-ink">
                     All plans include the full {mod.name} feature set. You only pay for scale, not features.
                 </p>
             </div>
@@ -965,7 +965,7 @@ function Testimonial({ mod }: { mod: (typeof MODULES)[number] }) {
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="relative overflow-hidden rounded-3xl border border-zinc-200 bg-white p-10 md:p-14"
+                    className="relative overflow-hidden rounded-3xl border border-zoru-line bg-white p-10 md:p-14"
                 >
                     <div
                         aria-hidden
@@ -973,7 +973,7 @@ function Testimonial({ mod }: { mod: (typeof MODULES)[number] }) {
                         style={{ background: mod.glow, opacity: 0.6 }}
                     />
                     <Quote className="relative h-8 w-8" style={{ color: mod.accentDeep }} />
-                    <p className="relative mt-5 text-balance text-2xl font-medium leading-relaxed text-zinc-900 md:text-3xl">
+                    <p className="relative mt-5 text-balance text-2xl font-medium leading-relaxed text-zoru-ink md:text-3xl">
                         “We swapped out three vendors for {mod.name}. The first week we shipped two campaigns
                         without writing a JIRA. By month two our team stopped asking for new tools.”
                     </p>
@@ -982,8 +982,8 @@ function Testimonial({ mod }: { mod: (typeof MODULES)[number] }) {
                             A
                         </div>
                         <div>
-                            <p className="text-sm font-semibold text-zinc-950">Aanya Mehra</p>
-                            <p className="text-[13px] text-zinc-500">Head of Growth · D2C unicorn</p>
+                            <p className="text-sm font-semibold text-zoru-ink">Aanya Mehra</p>
+                            <p className="text-[13px] text-zoru-ink">Head of Growth · D2C unicorn</p>
                         </div>
                     </div>
                 </m.div>
@@ -1006,13 +1006,13 @@ function FaqSection({ mod }: { mod: (typeof MODULES)[number] }) {
     return (
         <section className="relative bg-white px-6 py-24">
             <div className="mx-auto max-w-4xl">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                     Frequently asked
                 </p>
-                <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                     Questions you&apos;d want answered.
                 </h2>
-                <div className="mt-10 divide-y divide-zinc-200 border-y border-zinc-200">
+                <div className="mt-10 divide-y divide-zoru-line border-y border-zoru-line">
                     {items.map((it, i) => {
                         const isOpen = open === i;
                         return (
@@ -1021,9 +1021,9 @@ function FaqSection({ mod }: { mod: (typeof MODULES)[number] }) {
                                     onClick={() => setOpen(isOpen ? null : i)}
                                     className="flex w-full items-center justify-between gap-4 py-5 text-left"
                                 >
-                                    <span className="text-lg font-semibold text-zinc-950">{it.q}</span>
+                                    <span className="text-lg font-semibold text-zoru-ink">{it.q}</span>
                                     <ChevronDown
-                                        className={`h-5 w-5 shrink-0 text-zinc-400 transition ${isOpen ? 'rotate-180' : ''}`}
+                                        className={`h-5 w-5 shrink-0 text-zoru-ink-muted transition ${isOpen ? 'rotate-180' : ''}`}
                                     />
                                 </button>
                                 <m.div
@@ -1032,7 +1032,7 @@ function FaqSection({ mod }: { mod: (typeof MODULES)[number] }) {
                                     transition={{ duration: 0.2 }}
                                     className="overflow-hidden"
                                 >
-                                    <p className="pb-5 text-[15px] leading-relaxed text-zinc-600">{it.a}</p>
+                                    <p className="pb-5 text-[15px] leading-relaxed text-zoru-ink">{it.a}</p>
                                 </m.div>
                             </div>
                         );
@@ -1048,10 +1048,10 @@ function RelatedModules({ others }: { others: (typeof MODULES)[number][] }) {
     return (
         <section className="relative px-6 py-24">
             <div className="mx-auto max-w-7xl">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                     Better together
                 </p>
-                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                     Pair with the rest of SabNode.
                 </h2>
                 <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -1067,7 +1067,7 @@ function RelatedModules({ others }: { others: (typeof MODULES)[number][] }) {
                             >
                                 <Link
                                     href={o.href}
-                                    className="group block rounded-2xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-zinc-900"
+                                    className="group block rounded-2xl border border-zoru-line bg-white p-5 transition hover:-translate-y-1 hover:border-zoru-line"
                                 >
                                     <div
                                         className={`grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br ${o.accentFrom} ${o.accentTo} shadow-md`}
@@ -1075,10 +1075,10 @@ function RelatedModules({ others }: { others: (typeof MODULES)[number][] }) {
                                         <OIcon className="h-4 w-4 text-white" />
                                     </div>
                                     <div className="mt-4 flex items-center gap-1.5">
-                                        <h4 className="text-base font-semibold text-zinc-950">{o.name}</h4>
-                                        <ArrowUpRight className="h-3.5 w-3.5 text-zinc-300 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zinc-900" />
+                                        <h4 className="text-base font-semibold text-zoru-ink">{o.name}</h4>
+                                        <ArrowUpRight className="h-3.5 w-3.5 text-zoru-ink-muted transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
                                     </div>
-                                    <p className="mt-1 text-[12px] text-zinc-500">{o.tag}</p>
+                                    <p className="mt-1 text-[12px] text-zoru-ink">{o.tag}</p>
                                 </Link>
                             </m.div>
                         );
@@ -1107,11 +1107,11 @@ function FinalCta({ mod, session }: { mod: (typeof MODULES)[number]; session?: {
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mt-7 text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-6xl"
+                    className="mt-7 text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-6xl"
                 >
                     Ready to flip {mod.name} on?
                 </m.h2>
-                <p className="mt-5 text-lg text-zinc-600">
+                <p className="mt-5 text-lg text-zoru-ink">
                     14 days free. No card. Migration help included.
                 </p>
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -1125,12 +1125,12 @@ function FinalCta({ mod, session }: { mod: (typeof MODULES)[number]; session?: {
                     </Link>
                     <Link
                         href="/contact"
-                        className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-6 py-3 text-base font-semibold text-zinc-900 hover:border-zinc-900"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-white px-6 py-3 text-base font-semibold text-zoru-ink hover:border-zoru-line"
                     >
                         Talk to sales
                     </Link>
                 </div>
-                <p className="mt-6 text-sm text-zinc-500">
+                <p className="mt-6 text-sm text-zoru-ink">
                     Or join 12,000+ teams already shipping faster with SabNode.
                 </p>
             </div>

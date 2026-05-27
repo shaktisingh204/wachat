@@ -63,7 +63,7 @@ function AccountSwitcher() {
             >
                 <div className="flex items-center gap-2 truncate">
                     <Avatar className="h-6 w-6 border">
-                        <ZoruAvatarFallback className="text-[10px] bg-[#1877F2] text-white">
+                        <ZoruAvatarFallback className="text-[10px] bg-zoru-ink text-white">
                             {(activeAccount?.name || 'AD').slice(0, 2).toUpperCase()}
                         </ZoruAvatarFallback>
                     </Avatar>
@@ -116,8 +116,8 @@ function DateRangeBar({
                                     type="button"
                                     onClick={() => setPreset(p.id)}
                                     className={cn(
-                                        'text-left text-sm px-2 py-1.5 rounded hover:bg-muted',
-                                        preset === p.id && 'bg-[#1877F2]/10 text-[#1877F2] font-medium',
+                                        'text-left text-sm px-2 py-1.5 rounded hover:bg-zoru-surface-2',
+                                        preset === p.id && 'bg-zoru-ink/10 text-zoru-ink font-medium',
                                     )}
                                 >
                                     {p.label}
@@ -173,11 +173,11 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
         <AdManagerShellContext.Provider value={state}>
             <div className="flex flex-col gap-4">
                 {/* In-page Meta toolbar — two rows on narrow, one on wide */}
-                <div className="rounded-xl border bg-background shadow-sm p-2 space-y-2 md:space-y-0">
+                <div className="rounded-xl border bg-zoru-surface shadow-sm p-2 space-y-2 md:space-y-0">
                     {/* Row 1: logo + account + search (always on top on narrow) */}
                     <div className="flex items-center gap-2 md:flex-1 md:min-w-0">
-                        <div className="flex items-center gap-2 font-semibold text-[#1877F2] pr-2 border-r mr-1 shrink-0">
-                            <div className="h-7 w-7 rounded-md bg-[#1877F2] text-white flex items-center justify-center">
+                        <div className="flex items-center gap-2 font-semibold text-zoru-ink pr-2 border-r mr-1 shrink-0">
+                            <div className="h-7 w-7 rounded-md bg-zoru-ink text-white flex items-center justify-center">
                                 <Facebook className="h-4 w-4" />
                             </div>
                             <span className="hidden md:inline text-sm tracking-tight">Ads Manager</span>
@@ -191,7 +191,7 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search by name, ID or metric"
-                                className="h-10 pl-9 rounded-lg bg-muted/60 border-0 focus-visible:ring-2 focus-visible:ring-[#1877F2]/40"
+                                className="h-10 pl-9 rounded-lg bg-zoru-surface-2/60 border-0 focus-visible:ring-2 focus-visible:ring-zoru-line/40"
                             />
                         </div>
 
@@ -200,7 +200,7 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
                             <DateRangeBar date={date} setDate={setDate} preset={preset} setPreset={setPreset} />
                             <Button
                                 size="sm"
-                                className="h-10 bg-[#1877F2] hover:bg-[#1877F2]/90 text-white rounded-lg"
+                                className="h-10 bg-zoru-ink hover:bg-zoru-ink/90 text-white rounded-lg"
                                 onClick={() => router.push('/dashboard/ad-manager/create')}
                             >
                                 <Plus className="h-4 w-4 mr-1" /> Create
@@ -239,7 +239,7 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
                         </div>
                         <Button
                             size="sm"
-                            className="h-10 bg-[#1877F2] hover:bg-[#1877F2]/90 text-white rounded-lg"
+                            className="h-10 bg-zoru-ink hover:bg-zoru-ink/90 text-white rounded-lg"
                             onClick={() => router.push('/dashboard/ad-manager/create')}
                         >
                             <Plus className="h-4 w-4 mr-1" /> Create

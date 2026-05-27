@@ -65,7 +65,7 @@ export function RuleTableRow({
         <ZoruTableRow
             ref={setNodeRef}
             style={style}
-            className={cn(isDragging && 'bg-muted/40')}
+            className={cn(isDragging && 'bg-zoru-surface-2/40')}
             data-rule-id={rule._id}
         >
             <ZoruTableCell className="w-8 pr-0">
@@ -74,7 +74,7 @@ export function RuleTableRow({
                     {...attributes}
                     {...listeners}
                     aria-label="Drag to reorder"
-                    className="cursor-grab text-muted-foreground hover:text-foreground"
+                    className="cursor-grab text-zoru-ink-muted hover:text-zoru-ink"
                 >
                     <GripVertical className="h-4 w-4" />
                 </button>
@@ -87,19 +87,19 @@ export function RuleTableRow({
                 >
                     {rule.name}
                 </button>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-zoru-ink-muted">
                     priority {rule.priority}
                 </div>
             </ZoruTableCell>
             <ZoruTableCell className="max-w-[260px] truncate">
-                <span className="text-sm text-foreground">
+                <span className="text-sm text-zoru-ink">
                     {triggerSummary(rule.trigger)}
                 </span>
             </ZoruTableCell>
             <ZoruTableCell>
                 <div className="flex flex-wrap gap-1">
                     {rule.actions.length === 0 && (
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-zoru-ink-muted">
                             (no actions)
                         </span>
                     )}
@@ -116,7 +116,7 @@ export function RuleTableRow({
                 </div>
             </ZoruTableCell>
             <ZoruTableCell className="text-sm">
-                {botName ?? <span className="text-muted-foreground">All bots</span>}
+                {botName ?? <span className="text-zoru-ink-muted">All bots</span>}
             </ZoruTableCell>
             <ZoruTableCell>
                 <Switch
@@ -128,7 +128,7 @@ export function RuleTableRow({
             <ZoruTableCell className="text-sm tabular-nums">
                 {rule.fired7d.toLocaleString()}
             </ZoruTableCell>
-            <ZoruTableCell className="text-sm text-muted-foreground">
+            <ZoruTableCell className="text-sm text-zoru-ink-muted">
                 {rule.lastRunAt
                     ? new Date(rule.lastRunAt).toLocaleString()
                     : 'Never'}

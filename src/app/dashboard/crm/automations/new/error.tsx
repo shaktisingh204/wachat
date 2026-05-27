@@ -13,7 +13,7 @@ export default function NewAutomationError({
   return (
     <div className="flex h-full min-h-[400px] w-full items-center justify-center p-6">
       <Card className="flex max-w-md flex-col items-center p-8 text-center shadow-sm">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400">
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/50 dark:text-zoru-ink-muted">
           <AlertCircle className="h-6 w-6" />
         </div>
         <h2 className="mb-2 text-lg font-semibold text-zoru-ink">

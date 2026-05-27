@@ -238,7 +238,6 @@ pub fn build(state: AppState) -> Router {
     let sabwriter_templates_r = sabwriter_templates::router::<AppState>();
     let sabwriter_versions_r = sabwriter_versions::router::<AppState>();
 
-    Router::new().nest("/admin", wachat_webhook_config::router::<AppState>());
     let wachat_templates = wachat_templates_router::router::<AppState>();
     let wachat_templates_actions = wachat_templates_actions::router::<AppState>();
     let wachat_send = wachat_send_router::router::<AppState>();

@@ -93,7 +93,7 @@ class LocalErrorBoundary extends Component<{ children: ReactNode }, { hasError: 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-4 border border-destructive/50 rounded bg-destructive/10 text-destructive flex flex-col gap-3">
+        <div className="p-4 border border-destructive/50 rounded bg-zoru-ink/10 text-zoru-ink flex flex-col gap-3">
           <div className="flex items-center gap-2 font-semibold">
             <AlertCircle className="w-5 h-5" />
             <p>Something went wrong rendering the tool.</p>
@@ -330,13 +330,13 @@ function FaviconGeneratorContent() {
           <div>
             <Label>Source image</Label>
             <Input type="file" accept="image/*" onChange={onSelectFile} />
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-zoru-ink-muted mt-1">
               Max file size: 20MB. We recommend starting with a high-resolution image.
             </p>
           </div>
           
           {err && (
-            <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+            <div className="flex items-center gap-2 text-sm text-zoru-ink bg-zoru-ink/10 p-3 rounded-md">
               <AlertCircle className="w-4 h-4" />
               {err}
             </div>
@@ -353,7 +353,7 @@ function FaviconGeneratorContent() {
                 <Label htmlFor="circular-crop" className="cursor-pointer">Circular Preview</Label>
               </div>
 
-              <div className="flex justify-center border p-2 bg-muted/20 overflow-auto max-h-[60vh] rounded-md relative">
+              <div className="flex justify-center border p-2 bg-zoru-surface-2/20 overflow-auto max-h-[60vh] rounded-md relative">
                 <ReactCrop
                   crop={crop}
                   onChange={(_, percentCrop) => setCrop(percentCrop)}
@@ -393,7 +393,7 @@ function FaviconGeneratorContent() {
             {outputs.map((o) => (
               <Card key={o.id}>
                 <ZoruCardContent className="p-4 text-center space-y-3 flex flex-col items-center justify-between h-full">
-                  <div className="text-sm font-medium text-muted-foreground">
+                  <div className="text-sm font-medium text-zoru-ink-muted">
                     {o.desc}
                   </div>
                   <div className="flex-1 flex items-center justify-center p-2">
@@ -401,7 +401,7 @@ function FaviconGeneratorContent() {
                     <img 
                       src={o.url} 
                       alt={o.name} 
-                      className={`mx-auto border bg-background shadow-sm ${isCircular && o.type !== 'apple' ? 'rounded-full' : 'rounded'}`} 
+                      className={`mx-auto border bg-zoru-surface shadow-sm ${isCircular && o.type !== 'apple' ? 'rounded-full' : 'rounded'}`} 
                       style={{ 
                         width: Math.min(o.size, 64), 
                         height: Math.min(o.size, 64) 
@@ -414,7 +414,7 @@ function FaviconGeneratorContent() {
                   <a 
                     href={o.url} 
                     download={o.name} 
-                    className="w-full text-center px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-md text-sm transition-colors"
+                    className="w-full text-center px-3 py-1.5 bg-zoru-ink/10 hover:bg-zoru-ink/20 text-zoru-ink rounded-md text-sm transition-colors"
                   >
                     Download
                   </a>

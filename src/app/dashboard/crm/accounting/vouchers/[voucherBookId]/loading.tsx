@@ -42,15 +42,15 @@ export default function VoucherBookLoading() {
             <div className="flex flex-col gap-4">
                 <Card>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                        <div className="rounded-lg border border-border bg-secondary p-3">
+                        <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                             <Skeleton className="h-4 w-24 mb-2" />
                             <Skeleton className="h-6 w-16" />
                         </div>
-                        <div className="rounded-lg border border-border bg-secondary p-3">
+                        <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                             <Skeleton className="h-4 w-24 mb-2" />
                             <Skeleton className="h-6 w-16" />
                         </div>
-                        <div className="rounded-lg border border-border bg-secondary p-3">
+                        <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                             <Skeleton className="h-4 w-24 mb-2" />
                             <Skeleton className="h-6 w-16" />
                         </div>
@@ -61,7 +61,7 @@ export default function VoucherBookLoading() {
                         <Skeleton className="h-5 w-32 mb-1" />
                         <Skeleton className="h-4 w-64" />
                     </div>
-                    <div className="overflow-x-auto border-t border-border p-4">
+                    <div className="overflow-x-auto border-t border-zoru-line p-4">
                         <div className="space-y-4">
                             <Skeleton className="h-10 w-full" />
                             <Skeleton className="h-10 w-full" />

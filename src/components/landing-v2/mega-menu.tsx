@@ -64,7 +64,7 @@ export function MegaMenu({ open, onClose }: MegaMenuProps) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.25 }}
-                        className="absolute inset-0 bg-zinc-900/10 backdrop-blur-sm"
+                        className="absolute inset-0 bg-zoru-ink/10 backdrop-blur-sm"
                         onClick={onClose}
                     />
 
@@ -73,7 +73,7 @@ export function MegaMenu({ open, onClose }: MegaMenuProps) {
                         animate={{ y: 0 }}
                         exit={{ y: '-100%' }}
                         transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-                        className="relative h-full w-full overflow-y-auto bg-[#fafaf7] text-zinc-900"
+                        className="relative h-full w-full overflow-y-auto bg-zoru-surface text-zoru-ink"
                         style={{
                             backgroundImage:
                                 'radial-gradient(ellipse 60% 40% at 12% 8%, rgba(168,85,247,0.08), transparent 60%), radial-gradient(ellipse 60% 40% at 92% 92%, rgba(244,63,94,0.06), transparent 60%)',
@@ -92,28 +92,28 @@ export function MegaMenu({ open, onClose }: MegaMenuProps) {
                         />
 
                         {/* top bar */}
-                        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 bg-[#fafaf7]/90 px-6 py-4 backdrop-blur-md">
+                        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line bg-zoru-surface/90 px-6 py-4 backdrop-blur-md">
                             <Link href="/" onClick={onClose} className="flex items-center gap-2">
-                                <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 shadow-lg shadow-orange-500/30">
+                                <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-zoru-surface-2 via-zoru-ink to-zoru-ink shadow-lg shadow-zoru-line/30">
                                     <span className="text-sm font-black text-white">S</span>
                                 </div>
-                                <span className="text-lg font-semibold tracking-tight text-zinc-950">SabNode</span>
-                                <span className="ml-2 hidden rounded-full border border-zinc-200 bg-white px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-zinc-600 md:inline">
+                                <span className="text-lg font-semibold tracking-tight text-zoru-ink">SabNode</span>
+                                <span className="ml-2 hidden rounded-full border border-zoru-line bg-white px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-zoru-ink md:inline">
                                     {MODULES.length} products
                                 </span>
                             </Link>
 
-                            <label className="order-3 flex w-full items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm md:order-2 md:w-80">
-                                <Search className="h-3.5 w-3.5 text-zinc-400" />
+                            <label className="order-3 flex w-full items-center gap-2 rounded-full border border-zoru-line bg-white px-3 py-1.5 text-sm md:order-2 md:w-80">
+                                <Search className="h-3.5 w-3.5 text-zoru-ink-muted" />
                                 <input
                                     autoFocus
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
                                     placeholder="Search modules…"
-                                    className="w-full bg-transparent text-[13px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
+                                    className="w-full bg-transparent text-[13px] text-zoru-ink placeholder:text-zoru-ink-muted focus:outline-none"
                                 />
                                 {query && (
-                                    <button onClick={() => setQuery('')} className="text-zinc-400 hover:text-zinc-900">
+                                    <button onClick={() => setQuery('')} className="text-zoru-ink-muted hover:text-zoru-ink">
                                         <X className="h-3.5 w-3.5" />
                                     </button>
                                 )}
@@ -122,7 +122,7 @@ export function MegaMenu({ open, onClose }: MegaMenuProps) {
                             <button
                                 onClick={onClose}
                                 aria-label="Close menu"
-                                className="order-2 grid h-9 w-9 place-items-center rounded-full text-zinc-600 transition hover:bg-zinc-900/5 hover:text-zinc-900 md:order-3"
+                                className="order-2 grid h-9 w-9 place-items-center rounded-full text-zoru-ink transition hover:bg-zoru-ink/5 hover:text-zoru-ink md:order-3"
                             >
                                 <X className="h-5 w-5" />
                             </button>
@@ -148,11 +148,11 @@ export function MegaMenu({ open, onClose }: MegaMenuProps) {
                                                     animate={{ opacity: 1, y: 0 }}
                                                     transition={{ delay: 0.05 + ci * 0.03 }}
                                                 >
-                                                    <div className="mb-3 flex items-baseline justify-between border-b border-zinc-200 pb-2">
-                                                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                                                    <div className="mb-3 flex items-baseline justify-between border-b border-zoru-line pb-2">
+                                                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                                                             {cat}
                                                         </h3>
-                                                        <span className="text-[10px] text-zinc-400">{items.length}</span>
+                                                        <span className="text-[10px] text-zoru-ink-muted">{items.length}</span>
                                                     </div>
                                                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                                                         {items.map((mo) => (
@@ -175,7 +175,7 @@ export function MegaMenu({ open, onClose }: MegaMenuProps) {
                                 <ModulePreview mod={activeMod} onClose={onClose} />
 
                                 <div>
-                                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zoru-ink">
                                         Platform
                                     </p>
                                     <ul className="mt-3 grid grid-cols-2 gap-1">
@@ -184,14 +184,14 @@ export function MegaMenu({ open, onClose }: MegaMenuProps) {
                                                 <Link
                                                     href={l.href}
                                                     onClick={onClose}
-                                                    className="block rounded-lg px-2 py-1.5 text-[13px] text-zinc-700 transition hover:bg-zinc-900/5 hover:text-zinc-950"
+                                                    className="block rounded-lg px-2 py-1.5 text-[13px] text-zoru-ink transition hover:bg-zoru-ink/5 hover:text-zoru-ink"
                                                 >
                                                     {l.label}
                                                 </Link>
                                             </li>
                                         ))}
                                     </ul>
-                                    <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                                    <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-zoru-ink">
                                         Resources
                                     </p>
                                     <ul className="mt-3 grid grid-cols-2 gap-1">
@@ -200,7 +200,7 @@ export function MegaMenu({ open, onClose }: MegaMenuProps) {
                                                 <Link
                                                     href={l.href}
                                                     onClick={onClose}
-                                                    className="block rounded-lg px-2 py-1.5 text-[13px] text-zinc-700 transition hover:bg-zinc-900/5 hover:text-zinc-950"
+                                                    className="block rounded-lg px-2 py-1.5 text-[13px] text-zoru-ink transition hover:bg-zoru-ink/5 hover:text-zoru-ink"
                                                 >
                                                     {l.label}
                                                 </Link>
@@ -213,17 +213,17 @@ export function MegaMenu({ open, onClose }: MegaMenuProps) {
                                     initial={{ opacity: 0, y: 8 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.35 }}
-                                    className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 p-4"
+                                    className="rounded-2xl border border-zoru-line bg-gradient-to-br from-zoru-surface-2 via-zoru-surface-2 to-zoru-surface-2 p-4"
                                 >
-                                    <Sparkles className="h-4 w-4 text-amber-600" />
-                                    <p className="mt-2 text-sm font-semibold text-zinc-950">Switch from your old stack</p>
-                                    <p className="mt-1 text-[12px] text-zinc-700">
+                                    <Sparkles className="h-4 w-4 text-zoru-ink" />
+                                    <p className="mt-2 text-sm font-semibold text-zoru-ink">Switch from your old stack</p>
+                                    <p className="mt-1 text-[12px] text-zoru-ink">
                                         We migrate your data, contacts and templates for free.
                                     </p>
                                     <Link
                                         href="/contact"
                                         onClick={onClose}
-                                        className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-amber-700"
+                                        className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-zoru-ink"
                                     >
                                         Book migration <ArrowUpRight className="h-3 w-3" />
                                     </Link>
@@ -245,7 +245,7 @@ function ModuleCard({ mod, onHover, onPick }: { mod: ModuleDef; onHover?: () => 
             onClick={onPick}
             onMouseEnter={onHover}
             onFocus={onHover}
-            className="group relative flex items-start gap-3 rounded-xl border border-zinc-200 bg-white px-3 py-3 transition hover:-translate-y-0.5 hover:border-zinc-900 hover:shadow-[0_18px_40px_-20px_rgba(24,24,27,0.18)]"
+            className="group relative flex items-start gap-3 rounded-xl border border-zoru-line bg-white px-3 py-3 transition hover:-translate-y-0.5 hover:border-zoru-line hover:shadow-[0_18px_40px_-20px_rgba(24,24,27,0.18)]"
         >
             <div
                 className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo} shadow-md`}
@@ -254,15 +254,15 @@ function ModuleCard({ mod, onHover, onPick }: { mod: ModuleDef; onHover?: () => 
             </div>
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                    <span className="truncate text-[13px] font-semibold text-zinc-950">{mod.name}</span>
+                    <span className="truncate text-[13px] font-semibold text-zoru-ink">{mod.name}</span>
                     {mod.flagship && (
-                        <span className="rounded-full bg-amber-100 px-1.5 py-px text-[9px] font-semibold uppercase tracking-wider text-amber-700">
+                        <span className="rounded-full bg-zoru-surface-2 px-1.5 py-px text-[9px] font-semibold uppercase tracking-wider text-zoru-ink">
                             Flagship
                         </span>
                     )}
-                    <ArrowUpRight className="ml-auto h-3 w-3 text-zinc-300 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zinc-900" />
+                    <ArrowUpRight className="ml-auto h-3 w-3 text-zoru-ink-muted transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
                 </div>
-                <p className="mt-0.5 truncate text-[11px] text-zinc-500">{mod.tag}</p>
+                <p className="mt-0.5 truncate text-[11px] text-zoru-ink">{mod.tag}</p>
             </div>
         </Link>
     );
@@ -278,7 +278,7 @@ function ModulePreview({ mod, onClose }: { mod: ModuleDef; onClose: () => void }
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.2 }}
-                className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5"
+                className="relative overflow-hidden rounded-2xl border border-zoru-line bg-white p-5"
             >
                 <div
                     aria-hidden
@@ -291,17 +291,17 @@ function ModulePreview({ mod, onClose }: { mod: ModuleDef; onClose: () => void }
                     >
                         <Icon className="h-5 w-5 text-white" />
                     </div>
-                    <h4 className="mt-3 text-lg font-semibold tracking-tight text-zinc-950">{mod.name}</h4>
-                    <p className="mt-1 text-[13px] leading-relaxed text-zinc-600">{mod.short}</p>
+                    <h4 className="mt-3 text-lg font-semibold tracking-tight text-zoru-ink">{mod.name}</h4>
+                    <p className="mt-1 text-[13px] leading-relaxed text-zoru-ink">{mod.short}</p>
                     <ul className="mt-4 space-y-1.5">
                         {mod.features.slice(0, 3).map((f) => (
-                            <li key={f.title} className="flex items-start gap-2 text-[12px] text-zinc-600">
+                            <li key={f.title} className="flex items-start gap-2 text-[12px] text-zoru-ink">
                                 <span
                                     className="mt-1 h-1 w-1 shrink-0 rounded-full"
                                     style={{ background: mod.accentDeep }}
                                 />
                                 <span>
-                                    <span className="font-semibold text-zinc-900">{f.title}</span> · {f.desc}
+                                    <span className="font-semibold text-zoru-ink">{f.title}</span> · {f.desc}
                                 </span>
                             </li>
                         ))}
@@ -332,14 +332,14 @@ function SearchResults({
 }) {
     if (modules.length === 0) {
         return (
-            <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-600">
+            <div className="rounded-xl border border-zoru-line bg-white p-8 text-center text-sm text-zoru-ink">
                 No modules match.
             </div>
         );
     }
     return (
         <>
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                 {modules.length} result{modules.length === 1 ? '' : 's'}
             </p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">

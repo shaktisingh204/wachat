@@ -69,7 +69,7 @@ export function SetDataNode({ config, onChange, className }: SetDataNodeProps) {
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#fb923c]/10 text-[#fb923c]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink/10 text-zoru-ink-muted">
           <LuVariable className="h-4 w-4" strokeWidth={2} />
         </div>
         <div>
@@ -129,7 +129,7 @@ export function SetDataNode({ config, onChange, className }: SetDataNodeProps) {
         <button
           type="button"
           onClick={addEntry}
-          className="flex items-center gap-1.5 text-[12px] font-medium text-[#f76808] hover:text-[#e25c00] transition-colors"
+          className="flex items-center gap-1.5 text-[12px] font-medium text-zoru-ink hover:text-zoru-ink transition-colors"
         >
           <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
           Add entry
@@ -186,7 +186,7 @@ function EntryRow({
         </div>
         {/* Type badge */}
         <select
-          className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-3)] px-2 py-1 text-[11px] text-[var(--gray-10)] outline-none focus:border-[#f76808] shrink-0"
+          className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-3)] px-2 py-1 text-[11px] text-[var(--gray-10)] outline-none focus:border-zoru-line shrink-0"
           value={entry.valueType}
           onChange={(e) => onChange(entry.id, 'valueType', e.target.value)}
         >
@@ -197,7 +197,7 @@ function EntryRow({
         <button
           type="button"
           onClick={() => onRemove(entry.id)}
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:text-red-500 transition-colors"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:text-zoru-ink transition-colors"
         >
           <LuX className="h-3.5 w-3.5" strokeWidth={2} />
         </button>
@@ -215,8 +215,8 @@ function EntryRow({
                 'flex-1 rounded-md border py-1.5 text-[12px] font-semibold transition-colors',
                 entry.value === b
                   ? b === 'true'
-                    ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
-                    : 'border-red-300 bg-red-50 text-red-700'
+                    ? 'border-zoru-line bg-zoru-surface-2 text-zoru-ink'
+                    : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink'
                   : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:border-[var(--gray-6)]',
               )}
             >
@@ -302,4 +302,4 @@ function OutputSchema({ accent, fields }: { accent: string; fields: OutputField[
 }
 
 const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808] transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';

@@ -346,7 +346,7 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
         className={cn(
           'select-none rounded-[6px] border-[1.5px]',
           'will-change-transform',
-          isFocused && 'ring-2 ring-[#f76808] ring-offset-1 ring-offset-transparent',
+          isFocused && 'ring-2 ring-zoru-line ring-offset-1 ring-offset-transparent',
           isEditing ? 'cursor-text' : 'cursor-grab',
           dragState.current.mode === 'drag' && 'cursor-grabbing',
         )}

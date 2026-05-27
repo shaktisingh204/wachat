@@ -72,7 +72,7 @@ export function AttendanceForm({ isOpen, onClose, onSave, initialData }: Attenda
               id="isGeofenced"
               checked={Boolean(formData.isGeofenced)}
               onChange={(e) => setFormData({ ...formData, isGeofenced: e.target.checked })}
-              className="rounded border-gray-300"
+              className="rounded border-zoru-line"
             />
             <label htmlFor="isGeofenced" className="text-sm font-medium">Geofenced Location</label>
           </div>

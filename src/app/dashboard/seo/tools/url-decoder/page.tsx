@@ -132,8 +132,8 @@ export default function UrlDecoderPage() {
       </div>
 
       {error && (
-        <Card className="border-red-500/50 mt-4">
-          <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
+        <Card className="border-zoru-line/50 mt-4">
+          <ZoruCardContent className="p-4 text-sm text-zoru-ink">{error}</ZoruCardContent>
         </Card>
       )}
 

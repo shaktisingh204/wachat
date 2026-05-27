@@ -163,7 +163,7 @@ export default function SiteExplorerPage() {
                     </Button>
                 </div>
                 {error && (
-                    <div className="flex items-center gap-2 text-red-500 bg-red-500/10 p-4 rounded-[var(--zoru-radius)]">
+                    <div className="flex items-center gap-2 text-zoru-ink bg-zoru-ink/10 p-4 rounded-[var(--zoru-radius)]">
                         <AlertCircle className="h-5 w-5" />
                         <p>{error}</p>
                     </div>
@@ -211,7 +211,7 @@ export default function SiteExplorerPage() {
                 </Button>
             </div>
             {error && (
-                <div className="flex items-center gap-2 text-red-500 bg-red-500/10 p-4 rounded-[var(--zoru-radius)]">
+                <div className="flex items-center gap-2 text-zoru-ink bg-zoru-ink/10 p-4 rounded-[var(--zoru-radius)]">
                     <AlertCircle className="h-5 w-5" />
                     <p>{error}</p>
                 </div>

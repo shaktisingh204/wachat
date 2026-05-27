@@ -52,7 +52,7 @@ function MetricsSkeleton() {
     return (
         <div className="mb-6 grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+                <div key={i} className="rounded-xl border border-zoru-line bg-white p-6 shadow-sm dark:border-zoru-line dark:bg-zoru-ink">
                     <div className="flex items-center justify-between">
                         <Skeleton className="h-4 w-20" />
                         <Skeleton className="h-8 w-8 rounded-md" />

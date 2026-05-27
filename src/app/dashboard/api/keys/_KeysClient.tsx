@@ -258,7 +258,7 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
           <ZoruTableBody>
             {logsData.length === 0 ? (
               <ZoruTableRow>
-                <ZoruTableCell colSpan={6} className="text-center text-zinc-500 py-8">
+                <ZoruTableCell colSpan={6} className="text-center text-zoru-ink py-8">
                   No logs available.
                 </ZoruTableCell>
               </ZoruTableRow>
@@ -273,7 +273,7 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
                   {log.path}
                 </ZoruTableCell>
                 <ZoruTableCell>
-                  <span className={log.status >= 400 ? 'text-red-500' : 'text-green-500'}>
+                  <span className={log.status >= 400 ? 'text-zoru-ink' : 'text-zoru-ink'}>
                     {log.status}
                   </span>
                 </ZoruTableCell>

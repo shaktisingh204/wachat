@@ -71,7 +71,7 @@ export function LinkHistoryDrawer({ linkId, currentUrl }: Props) {
                     {/* Current */}
                     <div className="space-y-1 py-1">
                         <p className="text-[11px] font-medium uppercase tracking-wider text-zoru-ink-muted/60">Current Destination</p>
-                        <div className="flex items-start gap-2 p-2.5 rounded-md bg-zinc-900 border border-zoru-border">
+                        <div className="flex items-start gap-2 p-2.5 rounded-md bg-zoru-ink border border-zoru-border">
                             <div className="h-1.5 w-1.5 rounded-full bg-zoru-success mt-1.5 flex-shrink-0" />
                             <span className="text-[12.5px] text-zoru-ink break-all">{currentUrl}</span>
                             <Badge variant="success" className="text-[10px] flex-shrink-0 ml-auto">Current</Badge>
@@ -95,9 +95,9 @@ export function LinkHistoryDrawer({ linkId, currentUrl }: Props) {
                                 {[...history].reverse().map((entry, i) => (
                                     <div
                                         key={i}
-                                        className="flex items-start gap-2 p-2.5 rounded-md border border-zoru-border hover:bg-zinc-900 transition-colors group"
+                                        className="flex items-start gap-2 p-2.5 rounded-md border border-zoru-border hover:bg-zoru-ink transition-colors group"
                                     >
-                                        <div className="h-1.5 w-1.5 rounded-full bg-zinc-600 mt-1.5 flex-shrink-0" />
+                                        <div className="h-1.5 w-1.5 rounded-full bg-zoru-ink mt-1.5 flex-shrink-0" />
                                         <div className="flex-1 min-w-0">
                                             <p className="text-[12.5px] text-zoru-ink break-all">{entry.url}</p>
                                             <p className="text-[11px] text-zoru-ink-muted mt-0.5">{formatDate(entry.changedAt)}</p>

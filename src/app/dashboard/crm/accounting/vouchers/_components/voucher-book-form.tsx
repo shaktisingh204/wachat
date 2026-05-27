@@ -151,7 +151,7 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                                     max="10"
                                     defaultValue={init?.padding ?? 4}
                                 />
-                                <p className="text-[11.5px] text-muted-foreground">
+                                <p className="text-[11.5px] text-zoru-ink-muted">
                                     Pads numbers with leading zeros to this width.
                                 </p>
                             </div>
@@ -172,19 +172,19 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                     description: 'Mark this as default for the module and require approval before posting.',
                     children: (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                            <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
+                            <label className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                                 <div>
-                                    <p className="text-[13px] font-medium text-foreground">Default for type</p>
-                                    <p className="text-[11.5px] text-muted-foreground">
+                                    <p className="text-[13px] font-medium text-zoru-ink">Default for type</p>
+                                    <p className="text-[11.5px] text-zoru-ink-muted">
                                         Auto-selected on new voucher entry.
                                     </p>
                                 </div>
                                 <Switch name="isDefault" defaultChecked={init?.isDefault ?? false} />
                             </label>
-                            <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
+                            <label className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                                 <div>
-                                    <p className="text-[13px] font-medium text-foreground">Approval required</p>
-                                    <p className="text-[11.5px] text-muted-foreground">
+                                    <p className="text-[13px] font-medium text-zoru-ink">Approval required</p>
+                                    <p className="text-[11.5px] text-zoru-ink-muted">
                                         Block posting until an approver signs off.
                                     </p>
                                 </div>
@@ -193,10 +193,10 @@ export function VoucherBookForm({ initial }: VoucherBookFormProps): React.JSX.El
                                     defaultChecked={init?.approvalRequired ?? false}
                                 />
                             </label>
-                            <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
+                            <label className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                                 <div>
-                                    <p className="text-[13px] font-medium text-foreground">Active</p>
-                                    <p className="text-[11.5px] text-muted-foreground">
+                                    <p className="text-[13px] font-medium text-zoru-ink">Active</p>
+                                    <p className="text-[11.5px] text-zoru-ink-muted">
                                         Inactive books stay in history but hide from new-entry pickers.
                                     </p>
                                 </div>

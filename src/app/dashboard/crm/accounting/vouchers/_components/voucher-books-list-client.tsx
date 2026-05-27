@@ -272,12 +272,12 @@ export function VoucherBooksListClient({ initialRows, totalCount, searchParams, 
         <>
             <div className="flex w-full flex-col gap-6">
                 {pendingVouchers.length > 0 && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-md p-4 flex items-center justify-between">
+                    <div className="bg-zoru-surface-2 border border-zoru-line rounded-md p-4 flex items-center justify-between">
                         <div>
-                            <h3 className="text-amber-800 font-medium">Pending Vouchers</h3>
-                            <p className="text-amber-700 text-sm">{pendingVouchers.length} voucher(s) require your approval.</p>
+                            <h3 className="text-zoru-ink font-medium">Pending Vouchers</h3>
+                            <p className="text-zoru-ink text-sm">{pendingVouchers.length} voucher(s) require your approval.</p>
                         </div>
-                        <Button onClick={handleApprovePending} disabled={isPending} variant="outline" className="bg-amber-100 text-amber-900 hover:bg-amber-200 border-amber-300">
+                        <Button onClick={handleApprovePending} disabled={isPending} variant="outline" className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 border-zoru-line">
                             Approve All
                         </Button>
                     </div>
@@ -326,7 +326,7 @@ export function VoucherBooksListClient({ initialRows, totalCount, searchParams, 
                         onDelete={setPendingRow}
                     />
                     {totalCount > filtered.length && (
-                        <div className="py-4 text-center text-sm text-muted-foreground border-t">
+                        <div className="py-4 text-center text-sm text-zoru-ink-muted border-t">
                             Showing {filtered.length} of {totalCount} books.
                             <div className="mt-2 space-x-2">
                                 <Button

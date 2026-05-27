@@ -96,7 +96,7 @@ function StepTimelineItemImpl({ step, defaultOpen = false }: Props) {
     <div
       className={
         'rounded-lg border border-[var(--gray-4)] bg-[var(--gray-1)] overflow-hidden ' +
-        (isError ? 'border-red-300 dark:border-red-700/60 ' : '')
+        (isError ? 'border-zoru-line dark:border-zoru-line/60 ' : '')
       }
     >
       <button
@@ -120,8 +120,8 @@ function StepTimelineItemImpl({ step, defaultOpen = false }: Props) {
           className={
             'flex h-5 w-5 items-center justify-center rounded-md shrink-0 ' +
             (isError
-              ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
-              : 'bg-[#fff4ee] text-[#f76808]')
+              ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
+              : 'bg-zoru-surface text-zoru-ink')
           }
         >
           {iconFor(step.blockType)}
@@ -152,10 +152,10 @@ function StepTimelineItemImpl({ step, defaultOpen = false }: Props) {
         <div className="border-t border-[var(--gray-4)] bg-[var(--gray-2)] px-2.5 py-2 space-y-2">
           {step.error ? (
             <div>
-              <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-red-600 dark:text-red-400">
+              <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-zoru-ink dark:text-zoru-ink-muted">
                 Error
               </div>
-              <pre className="whitespace-pre-wrap break-all font-mono text-[11px] text-red-700 dark:text-red-300">
+              <pre className="whitespace-pre-wrap break-all font-mono text-[11px] text-zoru-ink dark:text-zoru-ink-muted">
                 {step.error}
               </pre>
             </div>

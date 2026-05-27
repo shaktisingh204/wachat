@@ -124,7 +124,7 @@ export function HuddleDrawer({
                                 >
                                     <span
                                         className="h-2 w-2 rounded-full"
-                                        style={{ background: '#22c55e' }}
+                                        style={{ background: 'var(--zoru-ink)' }}
                                     />
                                     {participantNames[id] || id.slice(-6)}
                                 </span>

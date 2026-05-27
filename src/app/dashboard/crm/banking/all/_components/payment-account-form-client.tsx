@@ -270,7 +270,7 @@ export function PaymentAccountFormClient({
                             </div>
                             <div className="space-y-2">
                                 <Label>As of *</Label>
-                                {mounted ? <DatePicker value={openingBalanceDate} onChange={setOpeningBalanceDate} /> : <div className="h-10 w-full animate-pulse rounded-md bg-secondary" />}
+                                {mounted ? <DatePicker value={openingBalanceDate} onChange={setOpeningBalanceDate} /> : <div className="h-10 w-full animate-pulse rounded-md bg-zoru-surface-2" />}
                             </div>
                         </div>
                     ),
@@ -281,19 +281,19 @@ export function PaymentAccountFormClient({
                     description: 'Defaults + activation.',
                     children: (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
+                            <label className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                                 <div>
-                                    <p className="text-[13px] font-medium text-foreground">Default account</p>
-                                    <p className="text-[11.5px] text-muted-foreground">
+                                    <p className="text-[13px] font-medium text-zoru-ink">Default account</p>
+                                    <p className="text-[11.5px] text-zoru-ink-muted">
                                         Selected by default on new payments / receipts.
                                     </p>
                                 </div>
                                 <Switch name="isDefault" defaultChecked={initial?.isDefault ?? false} />
                             </label>
-                            <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
+                            <label className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                                 <div>
-                                    <p className="text-[13px] font-medium text-foreground">Active</p>
-                                    <p className="text-[11.5px] text-muted-foreground">
+                                    <p className="text-[13px] font-medium text-zoru-ink">Active</p>
+                                    <p className="text-[11.5px] text-zoru-ink-muted">
                                         Inactive accounts stay in history but hide from pickers.
                                     </p>
                                 </div>

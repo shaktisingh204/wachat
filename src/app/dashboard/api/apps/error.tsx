@@ -17,8 +17,8 @@ export default function AppsError({
 
   return (
     <div className="flex flex-col items-center justify-center p-12 text-center rounded-lg border border-zoru-line border-dashed bg-zoru-surface/50">
-      <div className="h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
-        <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
+      <div className="h-12 w-12 rounded-full bg-zoru-surface-2 dark:bg-zoru-ink/30 flex items-center justify-center mb-4">
+        <AlertCircle className="h-6 w-6 text-zoru-ink dark:text-zoru-ink-muted" />
       </div>
       <h2 className="text-lg font-semibold text-zoru-ink mb-2">Failed to load OAuth Apps</h2>
       <p className="text-sm text-zoru-ink-subtle mb-6 max-w-md">

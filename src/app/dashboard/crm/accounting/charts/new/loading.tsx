@@ -8,7 +8,7 @@ export default function NewChartOfAccountLoading() {
       title="New Chart of Account"
       back={{ href: '/dashboard/crm/accounting/charts', label: 'Chart of Accounts' }}
     >
-      <div className="space-y-6 rounded-lg border border-border bg-card p-6">
+      <div className="space-y-6 rounded-lg border border-zoru-line bg-zoru-surface p-6">
         <div className="space-y-2">
           <Skeleton className="h-5 w-[150px]" />
           <Skeleton className="h-4 w-[250px]" />
@@ -27,7 +27,7 @@ export default function NewChartOfAccountLoading() {
             <Skeleton className="h-10 w-full" />
           </div>
         </div>
-        <div className="flex justify-end gap-2 pt-4 border-t border-border">
+        <div className="flex justify-end gap-2 pt-4 border-t border-zoru-line">
           <Skeleton className="h-10 w-24" />
           <Skeleton className="h-10 w-32" />
         </div>

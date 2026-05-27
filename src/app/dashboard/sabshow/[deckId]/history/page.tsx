@@ -34,7 +34,7 @@ export default async function HistoryPage({ params }: HistoryPageProps) {
             <header className="flex items-center justify-between">
                 <div>
                     <h1 className="text-xl font-semibold">{deck.title}</h1>
-                    <p className="text-sm text-muted-foreground">Version history</p>
+                    <p className="text-sm text-zoru-ink-muted">Version history</p>
                 </div>
                 <Button variant="outline" asChild>
                     <Link href={`/dashboard/sabshow/${deckId}`}>Back to editor</Link>
@@ -56,7 +56,7 @@ export default async function HistoryPage({ params }: HistoryPageProps) {
                                         v{v.version}
                                         {v.comment ? ` — ${v.comment}` : ''}
                                     </div>
-                                    <div className="text-xs text-muted-foreground">
+                                    <div className="text-xs text-zoru-ink-muted">
                                         {new Date(v.savedAt).toLocaleString()}
                                     </div>
                                 </div>

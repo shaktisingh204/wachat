@@ -202,7 +202,7 @@ export function BugForm({ bug, projectOptions, versions }: BugFormProps) {
                 <button
                   type="button"
                   aria-label="Remove attachment"
-                  className="text-[var(--zoru-ink-muted)] hover:text-red-500"
+                  className="text-[var(--zoru-ink-muted)] hover:text-zoru-ink"
                   onClick={() => removeAttachment(id)}
                 >
                   ×

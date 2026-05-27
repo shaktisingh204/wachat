@@ -173,7 +173,7 @@ export default function IncomeStatementPage(): React.JSX.Element {
     if (!mounted || (isLoading && !data)) {
         return (
             <div className="flex h-full items-center justify-center py-16">
-                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
             </div>
         );
     }
@@ -256,15 +256,15 @@ export default function IncomeStatementPage(): React.JSX.Element {
 
     const chart = (
         <div>
-            <h2 className="text-[15px] font-semibold text-foreground">
+            <h2 className="text-[15px] font-semibold text-zoru-ink">
                 Monthly revenue vs expense
             </h2>
-            <p className="mt-0.5 text-[12px] text-muted-foreground">
+            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
                 Trend line across the selected fiscal range.
             </p>
             <div className="mt-4 h-64 w-full">
                 {series.length === 0 ? (
-                    <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
+                    <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
                         No data in this range.
                     </div>
                 ) : (
@@ -313,18 +313,18 @@ export default function IncomeStatementPage(): React.JSX.Element {
         const isTotal = r.kind === 'total';
         const isSubtotal = r.kind === 'subtotal';
         const cls = isTotal
-            ? 'border-border bg-accent font-semibold'
+            ? 'border-zoru-line bg-zoru-surface-2 font-semibold'
             : isSection
-                ? 'border-border bg-secondary font-semibold'
+                ? 'border-zoru-line bg-zoru-surface-2 font-semibold'
                 : isSubtotal
-                    ? 'border-border font-semibold'
-                    : 'border-border';
+                    ? 'border-zoru-line font-semibold'
+                    : 'border-zoru-line';
         return (
             <ZoruTableRow key={`${r.label}-${idx}`} className={cls}>
-                <ZoruTableCell className="text-foreground" style={{ paddingLeft: indent }}>
+                <ZoruTableCell className="text-zoru-ink" style={{ paddingLeft: indent }}>
                     {r.label}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-foreground">
+                <ZoruTableCell className="text-right font-mono text-zoru-ink">
                     {r.value !== undefined ? fmtMoney(r.value) : ''}
                 </ZoruTableCell>
             </ZoruTableRow>
@@ -334,15 +334,15 @@ export default function IncomeStatementPage(): React.JSX.Element {
     const table = (
         <Table>
             <ZoruTableHeader>
-                <ZoruTableRow className="border-border hover:bg-transparent">
-                    <ZoruTableHead className="text-muted-foreground">Account</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground text-right">Balance</ZoruTableHead>
+                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableHead className="text-zoru-ink-muted">Account</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted text-right">Balance</ZoruTableHead>
                 </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
                 {pageRows.length === 0 ? (
-                    <ZoruTableRow className="border-border">
-                        <ZoruTableCell colSpan={2} className="h-24 text-center text-muted-foreground">
+                    <ZoruTableRow className="border-zoru-line">
+                        <ZoruTableCell colSpan={2} className="h-24 text-center text-zoru-ink-muted">
                             No accounts in this range.
                         </ZoruTableCell>
                     </ZoruTableRow>

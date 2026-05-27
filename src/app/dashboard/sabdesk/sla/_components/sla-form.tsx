@@ -180,10 +180,10 @@ export function SlaForm({ initialData }: SlaFormProps) {
               defaultValue={initialData?.resolutionMinutes ?? ''}
             />
           </div>
-          <div className="flex items-center justify-between rounded-md border border-border px-3 py-2 sm:col-span-2">
+          <div className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-2 sm:col-span-2">
             <div className="flex flex-col">
               <Label htmlFor="bh-toggle">Business hours only</Label>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-zoru-ink-muted">
                 Pause the SLA clock outside of configured business hours.
               </span>
             </div>

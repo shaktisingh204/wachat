@@ -78,10 +78,10 @@ export default function TableWithDialog() {
   const [, setSelectedUser] = useState<UserRow | null>(null);
 
   return (
-    <div className="bg-card rounded-lg shadow-md">
+    <div className="bg-zoru-surface rounded-lg shadow-md">
       <div className="max-h-[400px] overflow-y-auto">
         <Table>
-          <TableHeader className="sticky top-0 bg-background z-10 shadow-sm">
+          <TableHeader className="sticky top-0 bg-zoru-surface z-10 shadow-sm">
             <TableRow className="hover:bg-transparent">
               <TableHead>
                 <Checkbox />
@@ -97,7 +97,7 @@ export default function TableWithDialog() {
 
           <TableBody>
             {users.map((user) => (
-              <TableRow key={user.id} className="hover:bg-muted/50 transition-colors">
+              <TableRow key={user.id} className="hover:bg-zoru-surface-2/50 transition-colors">
                 <TableCell>
                   <Checkbox />
                 </TableCell>
@@ -170,7 +170,7 @@ export default function TableWithDialog() {
             ))}
           </TableBody>
 
-          <TableFooter className="sticky bottom-0 bg-background z-10 shadow-inner">
+          <TableFooter className="sticky bottom-0 bg-zoru-surface z-10 shadow-inner">
             <TableRow className="hover:bg-transparent">
               <TableCell colSpan={5} className="font-medium">
                 Total Users: {users.length}

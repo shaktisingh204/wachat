@@ -63,7 +63,7 @@ export function AppLogoForm() {
                             <span className="w-full border-t" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-card px-2 text-muted-foreground">Or</span>
+                            <span className="bg-zoru-surface px-2 text-zoru-ink-muted">Or</span>
                         </div>
                     </div>
                     <div className="space-y-2">

@@ -21,7 +21,7 @@ export class LocalErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="flex h-[400px] flex-col items-center justify-center gap-4 text-center rounded-lg border border-zoru-danger-ink/20 bg-zoru-surface p-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-500">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/20 dark:text-zoru-ink">
             <AlertTriangle className="h-6 w-6" />
           </div>
           <div className="max-w-md">

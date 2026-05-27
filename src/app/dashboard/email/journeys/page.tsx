@@ -27,7 +27,7 @@ function JourneysSkeleton() {
 
       <section className="space-y-4">
         <h2 className="text-sm font-medium uppercase tracking-wide text-zoru-ink-muted">Your journeys</h2>
-        <Card className="divide-y divide-border">
+        <Card className="divide-y divide-zoru-line">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex items-center justify-between p-4">
               <div className="space-y-2">

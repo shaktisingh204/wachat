@@ -124,11 +124,11 @@ export default function GenerativeAIDrafterClientPage({
               <div className="flex items-center space-x-2 mb-3">
                 <Bot className="w-5 h-5 text-zoru-accent" />
                 <span className="font-semibold text-zoru-ink uppercase text-sm tracking-wider">{item.entityType}</span>
-                <span className={`px-2 py-0.5 text-xs rounded-full ${item.status === 'approved' ? 'bg-green-100 text-green-700' : item.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-800'}`}>
+                <span className={`px-2 py-0.5 text-xs rounded-full ${item.status === 'approved' ? 'bg-zoru-surface-2 text-zoru-ink' : item.status === 'rejected' ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>
                   {item.status}
                 </span>
                 {item.aiModel && (
-                  <span className="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 ml-2 inline-flex items-center gap-1">
+                  <span className="px-2 py-0.5 text-xs rounded-full bg-zoru-surface-2 text-zoru-ink ml-2 inline-flex items-center gap-1">
                     <Cpu className="w-3 h-3" />
                     {item.aiModel === 'gpt-4' ? 'GPT-4' : 'Claude'}
                   </span>
@@ -142,15 +142,15 @@ export default function GenerativeAIDrafterClientPage({
             <div className="flex flex-row md:flex-col items-center justify-end gap-2 md:w-32 border-t md:border-t-0 md:border-l border-zoru-line pt-4 md:pt-0 md:pl-4">
               {item.status === 'draft' && (
                 <>
-                  <Button variant="outline" className="w-full justify-start text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleStatus(item.id, 'approved')}>
+                  <Button variant="outline" className="w-full justify-start text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2" onClick={() => handleStatus(item.id, 'approved')}>
                     <CheckCircle className="w-4 h-4 mr-2" /> Approve
                   </Button>
-                  <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleStatus(item.id, 'rejected')}>
+                  <Button variant="outline" className="w-full justify-start text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2" onClick={() => handleStatus(item.id, 'rejected')}>
                     <XCircle className="w-4 h-4 mr-2" /> Reject
                   </Button>
                 </>
               )}
-              <Button variant="ghost" className="w-full justify-start text-zoru-ink-light hover:text-red-500" onClick={() => handleDelete(item.id)}>
+              <Button variant="ghost" className="w-full justify-start text-zoru-ink-light hover:text-zoru-ink" onClick={() => handleDelete(item.id)}>
                 <Trash2 className="w-4 h-4 mr-2" /> Delete
               </Button>
             </div>

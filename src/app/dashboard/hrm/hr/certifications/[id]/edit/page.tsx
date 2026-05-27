@@ -1,67 +1,30 @@
-'use client';
+import { notFound, redirect } from 'next/navigation';
+import { getSession } from '@/app/actions/user.actions';
+import { loadLiveDocument, saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
 
-import { Skeleton } from '@/components/zoruui';
+export const dynamic = 'force-dynamic';
 
-import {
-  use,
-  useEffect,
-  useState } from 'react';
-import { Award } from 'lucide-react';
-import { HrFormPage } from '../../../_components/hr-form-page';
-import { getCertifications,
-  saveCertification } from '@/app/actions/hr.actions';
-import type { HrCertification } from '@/lib/hr-types';
-import { fields,
-  sections } from '../../_config';
+const BASE = '/dashboard/hrm/hr/certifications';
 
-export default function EditCertificationPage({
-  params,
+export default async function EditCertificationPage({
+    params,
 }: {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const [initial, setInitial] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+    const { id } = await params;
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const list = (await getCertifications()) as (HrCertification & { _id: string })[];
-        if (!mounted) return;
-        const found = Array.isArray(list)
-          ? list.find((r) => String(r._id) === id) || null
-          : null;
-        setInitial(found as Record<string, unknown> | null);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [id]);
+    const doc = await loadLiveDocument('certification', id);
+    if (!doc) notFound();
 
-  if (loading) {
     return (
-      <div className="flex w-full flex-col gap-4">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+        <LiveDocumentEditor
+            documentType="certification"
+            initialData={doc as Record<string, unknown>}
+            saveAction={saveLiveDocument}
+            backHref={BASE}
+        />
     );
-  }
-
-  return (
-    <HrFormPage
-      title="Edit Certification"
-      subtitle="Update credential details."
-      icon={Award}
-      backHref="/dashboard/hrm/hr/certifications"
-      singular="Certification"
-      fields={fields}
-      sections={sections}
-      saveAction={saveCertification}
-      initial={initial}
-    />
-  );
 }

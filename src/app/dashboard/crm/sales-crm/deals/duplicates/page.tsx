@@ -71,9 +71,9 @@ function fmtDate(v?: string | null): string {
 function StatCard({ title, value, accent }: { title: string; value: number; accent?: string }) {
     return (
         <Card>
-            <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
-            <p className="mt-1 text-[28px] font-semibold text-foreground">{value.toLocaleString()}</p>
-            {accent ? <p className="mt-1 text-[11.5px] text-muted-foreground">{accent}</p> : null}
+            <p className="text-[13px] font-medium text-zoru-ink-muted">{title}</p>
+            <p className="mt-1 text-[28px] font-semibold text-zoru-ink">{value.toLocaleString()}</p>
+            {accent ? <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{accent}</p> : null}
         </Card>
     );
 }
@@ -120,22 +120,22 @@ function MergePanel({ group, onMerged }: MergePanelProps) {
     };
 
     return (
-        <div className="space-y-3 border-t border-border p-3">
-            <p className="text-[12px] font-medium text-foreground">Pick the survivor</p>
+        <div className="space-y-3 border-t border-zoru-line p-3">
+            <p className="text-[12px] font-medium text-zoru-ink">Pick the survivor</p>
             <RadioGroup value={survivor} onValueChange={setSurvivor} className="space-y-2">
                 {group.members.map((m) => (
                     <label
                         key={m._id}
                         htmlFor={`survivor-${group.signature}-${m._id}`}
-                        className="flex cursor-pointer items-start gap-3 rounded-md border border-border bg-secondary/40 p-2.5 hover:border-primary"
+                        className="flex cursor-pointer items-start gap-3 rounded-md border border-zoru-line bg-zoru-surface-2/40 p-2.5 hover:border-primary"
                     >
                         <ZoruRadioGroupItem id={`survivor-${group.signature}-${m._id}`} value={m._id} />
                         <div className="min-w-0 flex-1">
-                            <p className="text-[13px] font-medium text-foreground">{m.name}</p>
-                            <p className="truncate text-[11.5px] text-muted-foreground">
+                            <p className="text-[13px] font-medium text-zoru-ink">{m.name}</p>
+                            <p className="truncate text-[11.5px] text-zoru-ink-muted">
                                 {m.stage ?? '—'} · close {fmtDate(m.expectedClose)}
                             </p>
-                            <p className="mt-1 font-mono text-[11.5px] text-muted-foreground">
+                            <p className="mt-1 font-mono text-[11.5px] text-zoru-ink-muted">
                                 {fmtMoney(m.value, m.currency ?? 'INR')}
                             </p>
                         </div>
@@ -289,7 +289,7 @@ export default function DealDuplicatesPage() {
             <Card>
                 <div className="flex flex-wrap items-end gap-3">
                     <div className="min-w-[200px]">
-                        <p className="mb-1 text-[12px] font-medium text-foreground">Status</p>
+                        <p className="mb-1 text-[12px] font-medium text-zoru-ink">Status</p>
                         <Select
                             value={statusFilter}
                             onValueChange={(v) => setStatusFilter(v as StatusFilter)}
@@ -305,7 +305,7 @@ export default function DealDuplicatesPage() {
                             </ZoruSelectContent>
                         </Select>
                     </div>
-                    <p className="text-[12px] text-muted-foreground">
+                    <p className="text-[12px] text-zoru-ink-muted">
                         Showing {visibleGroups.length} of {annotated.length}
                     </p>
                 </div>
@@ -317,8 +317,8 @@ export default function DealDuplicatesPage() {
                     const isIgnored = group.status === 'ignored';
                     return (
                         <Card key={group.signature} className="overflow-hidden p-0">
-                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border p-3">
-                                <h3 className="text-[13px] font-medium text-foreground">
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zoru-line p-3">
+                                <h3 className="text-[13px] font-medium text-zoru-ink">
                                     {group.members[0]?.clientLabel || 'Cluster'}
                                 </h3>
                                 <div className="flex items-center gap-2">
@@ -354,26 +354,26 @@ export default function DealDuplicatesPage() {
                                                 isSurvivor
                                                     ? 'border-zoru-success/40 bg-zoru-success/5'
                                                     : wasMerged
-                                                      ? 'border-border bg-secondary/40 opacity-60'
-                                                      : 'border-border bg-zoru-bg'
+                                                      ? 'border-zoru-line bg-zoru-surface-2/40 opacity-60'
+                                                      : 'border-zoru-line bg-zoru-bg'
                                             }`}
                                         >
                                             <Link
                                                 href={`/dashboard/crm/sales-crm/deals/${m._id}`}
-                                                className="text-[13px] font-medium text-foreground hover:underline"
+                                                className="text-[13px] font-medium text-zoru-ink hover:underline"
                                             >
                                                 {m.name}
                                             </Link>
-                                            <p className="font-mono text-[11.5px] text-muted-foreground">
+                                            <p className="font-mono text-[11.5px] text-zoru-ink-muted">
                                                 {fmtMoney(m.value, m.currency ?? 'INR')}
                                             </p>
-                                            <p className="text-[11.5px] text-muted-foreground">
+                                            <p className="text-[11.5px] text-zoru-ink-muted">
                                                 Stage: {m.stage ?? '—'}
                                             </p>
-                                            <p className="text-[11.5px] text-muted-foreground">
+                                            <p className="text-[11.5px] text-zoru-ink-muted">
                                                 Close: {fmtDate(m.expectedClose)}
                                             </p>
-                                            <p className="text-[11.5px] text-muted-foreground">
+                                            <p className="text-[11.5px] text-zoru-ink-muted">
                                                 Created: {fmtDate(m.createdAt)}
                                             </p>
                                             {isSurvivor ? (

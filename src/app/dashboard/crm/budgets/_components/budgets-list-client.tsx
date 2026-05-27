@@ -408,8 +408,8 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
                     variance === undefined
                       ? ''
                       : variance < 0
-                        ? 'text-red-600'
-                        : 'text-green-600';
+                        ? 'text-zoru-ink'
+                        : 'text-zoru-ink';
                   return (
                     <ZoruTableRow key={r._id}>
                       <ZoruTableCell>

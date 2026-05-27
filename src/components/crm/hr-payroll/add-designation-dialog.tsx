@@ -69,18 +69,18 @@ export function AddDesignationDialog({ open, onOpenChange, onDesignationAdded, d
         <Dialog open={open} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-[425px]">
                 <ZoruDialogHeader>
-                    <ZoruDialogTitle className="text-foreground">Add New Designation</ZoruDialogTitle>
-                    <ZoruDialogDescription className="text-muted-foreground">
+                    <ZoruDialogTitle className="text-zoru-ink">Add New Designation</ZoruDialogTitle>
+                    <ZoruDialogDescription className="text-zoru-ink-muted">
                         Create a new designation for your organization.
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-foreground">Designation Name</Label>
+                        <Label htmlFor="name" className="text-zoru-ink">Designation Name</Label>
                         <Input id="name" name="name" defaultValue={defaultName} required />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="description" className="text-foreground">Description</Label>
+                        <Label htmlFor="description" className="text-zoru-ink">Description</Label>
                         <Input id="description" name="description" />
                     </div>
                     <ZoruDialogFooter>

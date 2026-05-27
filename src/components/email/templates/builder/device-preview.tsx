@@ -88,7 +88,7 @@ export function DevicePreview({
         </ZoruDrawerHeader>
 
         {warnings.length > 0 ? (
-          <div className="mx-4 mb-2 rounded border border-amber-400/50 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+          <div className="mx-4 mb-2 rounded border border-zoru-line/50 bg-zoru-surface-2 px-3 py-2 text-xs text-zoru-ink dark:bg-zoru-ink/40 dark:text-white">
             <strong>Renderer warnings:</strong>
             <ul className="ml-4 list-disc">
               {warnings.map((w, i) => (
@@ -104,7 +104,7 @@ export function DevicePreview({
             sandbox=""
             title="Email preview"
             srcDoc={srcDoc}
-            style={{ width, maxWidth: '100%', height: '100%', border: '1px solid var(--zoru-line)', borderRadius: 8, background: '#fff' }}
+            style={{ width, maxWidth: '100%', height: '100%', border: '1px solid var(--zoru-line)', borderRadius: 8, background: 'var(--zoru-surface)' }}
           />
         </div>
       </ZoruDrawerContent>
@@ -128,7 +128,7 @@ function ToggleGroup<V extends string>({
   options: ToggleOption<V>[];
 }) {
   return (
-    <div className="inline-flex overflow-hidden rounded-md border border-border">
+    <div className="inline-flex overflow-hidden rounded-md border border-zoru-line">
       {options.map((opt) => {
         const Icon = opt.icon;
         const active = opt.value === value;
@@ -139,7 +139,7 @@ function ToggleGroup<V extends string>({
             variant={active ? 'default' : 'ghost'}
             size="sm"
             onClick={() => onChange(opt.value)}
-            className={cn('rounded-none gap-1.5', active ? '' : 'text-muted-foreground')}
+            className={cn('rounded-none gap-1.5', active ? '' : 'text-zoru-ink-muted')}
             aria-pressed={active}
           >
             <Icon className="h-3.5 w-3.5" />

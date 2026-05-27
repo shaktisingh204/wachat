@@ -184,7 +184,7 @@ export function ShippingZoneForm({
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
                         <Label>
-                            Storefront <span className="text-red-500">*</span>
+                            Storefront <span className="text-zoru-ink">*</span>
                         </Label>
                         <Input
                             value={storefrontId}
@@ -195,7 +195,7 @@ export function ShippingZoneForm({
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <Label htmlFor="name">
-                            Name <span className="text-red-500">*</span>
+                            Name <span className="text-zoru-ink">*</span>
                         </Label>
                         <Input
                             id="name"
@@ -345,7 +345,7 @@ export function ShippingZoneForm({
                 </div>
 
                 {state.error ? (
-                    <p className="text-[13px] text-red-500">{state.error}</p>
+                    <p className="text-[13px] text-zoru-ink">{state.error}</p>
                 ) : null}
 
                 <div className="flex items-center gap-3">

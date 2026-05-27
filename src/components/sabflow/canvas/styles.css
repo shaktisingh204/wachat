@@ -258,7 +258,7 @@
   border-radius: 8px;
   background: var(--gray-1);
   border: 1px solid var(--gray-5);
-  box-shadow: 0 6px 18px -4px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 18px -4px var(--zoru-line);
   opacity: 0;
   pointer-events: none;
   transition: opacity 120ms ease;
@@ -467,7 +467,7 @@
   background: var(--gray-1);
   border: 1px solid var(--gray-5);
   border-radius: 8px;
-  box-shadow: 0 4px 14px -4px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 4px 14px -4px var(--zoru-line);
   pointer-events: all;
 }
 .sabflow-edge-toolbar__btn {
@@ -501,7 +501,7 @@
   background: var(--gray-1);
   border: 1px solid var(--gray-5);
   border-radius: 10px;
-  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 12px 28px -6px var(--zoru-line);
   font-size: 12.5px;
   color: var(--gray-12);
 }
@@ -552,7 +552,7 @@
   background: var(--gray-1);
   border: 1px solid var(--gray-5);
   border-radius: 12px;
-  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 20px 40px -8px var(--zoru-line);
   overflow: hidden;
   z-index: 30;
 }
@@ -635,7 +635,7 @@
   background: var(--gray-1);
   border: 1px solid var(--gray-5);
   border-radius: 12px;
-  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.32);
+  box-shadow: 0 24px 48px -12px var(--zoru-line);
   overflow: hidden;
   z-index: 30;
 }
@@ -771,7 +771,7 @@
 .sabflow-canvas .react-flow__controls {
   bottom: 16px;
   left: 16px;
-  box-shadow: 0 4px 14px -4px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 4px 14px -4px var(--zoru-line);
   border-radius: 8px;
   overflow: hidden;
   background: var(--gray-1);
@@ -797,5 +797,5 @@
   background: var(--gray-1);
   border: 1px solid var(--gray-5);
   border-radius: 8px;
-  box-shadow: 0 4px 14px -4px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 14px -4px var(--zoru-line);
 }

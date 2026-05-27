@@ -57,13 +57,13 @@ function getNodeMeta(type: N8NNodeType): NodeMeta {
 /* ── Shared field components ─────────────────────────────── */
 
 const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808] transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';
 
 const SELECT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] outline-none focus:border-[#f76808] transition-colors appearance-none';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] outline-none focus:border-zoru-line transition-colors appearance-none';
 
 const TEXTAREA_CLS =
-  'w-full min-h-[96px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808] resize-y transition-colors';
+  'w-full min-h-[96px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line resize-y transition-colors';
 
 function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
   return (
@@ -87,8 +87,8 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={cn(
-          'relative h-5 w-9 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f76808]',
-          checked ? 'bg-[#f76808]' : 'bg-[var(--gray-5)]',
+          'relative h-5 w-9 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line',
+          checked ? 'bg-zoru-ink' : 'bg-[var(--gray-5)]',
         )}
       >
         <span
@@ -619,7 +619,7 @@ export function NodePropertiesPanel({ node, onUpdate, onClose }: Props) {
             className={cn(
               'px-3 py-1.5 text-[12px] font-medium rounded-t-md transition-colors border-b-2 -mb-px',
               activeTab === tab.id
-                ? 'border-[#f76808] text-[#f76808]'
+                ? 'border-zoru-line text-zoru-ink'
                 : 'border-transparent text-[var(--gray-9)] hover:text-[var(--gray-12)]',
             )}
           >

@@ -116,10 +116,10 @@ function categoryAccept(c: SabfilesCategory): string | undefined {
 }
 
 function iconFor(mime?: string): React.ReactElement {
-    if (mime?.startsWith('image/')) return <FileImage className="text-violet-500" />;
-    if (mime?.startsWith('video/')) return <FileVideo className="text-rose-500" />;
-    if (mime?.startsWith('audio/')) return <FileAudio className="text-emerald-500" />;
-    if (mime?.includes('pdf') || mime?.includes('text')) return <FileText className="text-sky-500" />;
+    if (mime?.startsWith('image/')) return <FileImage className="text-zoru-ink" />;
+    if (mime?.startsWith('video/')) return <FileVideo className="text-zoru-ink" />;
+    if (mime?.startsWith('audio/')) return <FileAudio className="text-zoru-ink" />;
+    if (mime?.includes('pdf') || mime?.includes('text')) return <FileText className="text-zoru-ink" />;
     return <FileIcon className="text-zoru-ink-muted" />;
 }
 
@@ -494,7 +494,7 @@ export function SabFilePicker({
                                         your library…
                                     </div>
                                 ) : libraryError ? (
-                                    <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-red-500">
+                                    <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-zoru-ink">
                                         <AlertCircle className="h-6 w-6" />
                                         <div className="font-medium">Couldn’t load your library</div>
                                         <div className="max-w-md text-xs text-zoru-ink-muted">
@@ -671,7 +671,7 @@ export function SabFilePicker({
                                                             className={cn(
                                                                 'text-[11px] font-medium',
                                                                 selectedId === t.node.id
-                                                                    ? 'text-emerald-600'
+                                                                    ? 'text-zoru-ink'
                                                                     : 'text-zoru-ink-muted hover:text-zoru-ink hover:underline',
                                                             )}
                                                             onClick={() =>
@@ -684,7 +684,7 @@ export function SabFilePicker({
                                                         </button>
                                                     )}
                                                     {t.status === 'error' && (
-                                                        <span className="text-[11px] font-medium text-red-500">
+                                                        <span className="text-[11px] font-medium text-zoru-ink">
                                                             Failed
                                                         </span>
                                                     )}
@@ -696,7 +696,7 @@ export function SabFilePicker({
                                                     )}
                                                 </div>
                                                 {t.status === 'error' ? (
-                                                    <span className="text-[11px] text-red-500">
+                                                    <span className="text-[11px] text-zoru-ink">
                                                         {t.error}
                                                     </span>
                                                 ) : (

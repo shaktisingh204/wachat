@@ -270,7 +270,7 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                                                         checked={adSet.status === 'ACTIVE'}
                                                         onCheckedChange={() => handleStatusToggle(adSet.id, adSet.status)}
                                                     />
-                                                    <span className="text-xs text-muted-foreground">{adSet.status}</span>
+                                                    <span className="text-xs text-zoru-ink-muted">{adSet.status}</span>
                                                 </div>
                                             </ZoruTableCell>
                                             <ZoruTableCell className="font-medium">
@@ -281,7 +281,7 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                                             <ZoruTableCell>
                                                 {editingBudgetId === adSet.id ? (
                                                     <div className="flex items-center gap-1">
-                                                        <span className="text-sm text-muted-foreground">₹</span>
+                                                        <span className="text-sm text-zoru-ink-muted">₹</span>
                                                         <Input
                                                             value={editBudgetAmount}
                                                             onChange={(e) => setEditBudgetAmount(e.target.value)}
@@ -298,7 +298,7 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                                                         <Button 
                                                             variant="ghost" 
                                                             size="icon" 
-                                                            className="h-8 w-8 text-green-600"
+                                                            className="h-8 w-8 text-zoru-ink"
                                                             onClick={() => handleSaveBudget(adSet.id)}
                                                             disabled={isSavingBudget}
                                                         >
@@ -307,7 +307,7 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                                                         <Button 
                                                             variant="ghost" 
                                                             size="icon" 
-                                                            className="h-8 w-8 text-red-600"
+                                                            className="h-8 w-8 text-zoru-ink"
                                                             onClick={() => setEditingBudgetId(null)}
                                                             disabled={isSavingBudget}
                                                         >
@@ -320,7 +320,7 @@ export default function AdSetsPage({ params }: { params: Promise<{ id: string }>
                                                         setEditBudgetAmount((Number(adSet.daily_budget || 0) / 100).toString());
                                                     }}>
                                                         <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(Number(adSet.daily_budget) / 100)} Daily</span>
-                                                        <Edit2 className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        <Edit2 className="h-3 w-3 text-zoru-ink-muted opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     </div>
                                                 )}
                                             </ZoruTableCell>

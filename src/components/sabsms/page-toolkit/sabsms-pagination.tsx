@@ -36,7 +36,7 @@ export function SabsmsPagination({
   const canNext = page + 1 < totalPages;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
+    <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-zoru-ink">
       <span>
         {total === 0
           ? "No results"
@@ -44,7 +44,7 @@ export function SabsmsPagination({
       </span>
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-slate-500">Rows</span>
+          <span className="text-xs text-zoru-ink">Rows</span>
           <Select
             value={String(pageSize)}
             onValueChange={(v) => onPageSizeChange?.(parseInt(v, 10))}

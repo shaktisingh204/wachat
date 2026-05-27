@@ -40,10 +40,7 @@ use wachat_meta_client::MetaClient;
 use wachat_meta_dto::{SendMessage, SendResponse, TemplateBody, TemplateLanguage};
 use wachat_phone::normalize_e164;
 use wachat_templates_engine::{TemplateButton, TemplateSpec, build_components};
-use wachat_types::{
-    project::Project,
-    template::{Template, TemplateStatus},
-};
+use wachat_types::{project::Project, template::Template};
 
 use crate::OUTGOING_MESSAGES_COLL;
 use crate::dto::{SendOutcome, SendTemplateRequest};

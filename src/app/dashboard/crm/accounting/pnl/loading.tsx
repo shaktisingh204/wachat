@@ -9,7 +9,7 @@ export default function PnlLoading() {
             primaryAction={<Skeleton className="h-9 w-24" />}
         >
             <div className="flex w-full flex-col gap-6">
-                <div className="rounded-xl border border-border bg-card text-card-foreground shadow">
+                <div className="rounded-xl border border-zoru-line bg-zoru-surface text-zoru-ink shadow">
                     <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
                         <Skeleton className="h-5 w-24" />
                         <Skeleton className="h-4 w-48" />
@@ -17,7 +17,7 @@ export default function PnlLoading() {
                     <div className="p-6 pt-0">
                         <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
                             {[1, 2, 3, 4].map(i => (
-                                <div key={i} className="bg-secondary border border-border p-4 rounded-lg flex flex-col items-center gap-2">
+                                <div key={i} className="bg-zoru-surface-2 border border-zoru-line p-4 rounded-lg flex flex-col items-center gap-2">
                                     <Skeleton className="h-4 w-20" />
                                     <Skeleton className="h-6 w-32" />
                                     <Skeleton className="h-3 w-24" />
@@ -27,7 +27,7 @@ export default function PnlLoading() {
                     </div>
                 </div>
 
-                <div className="rounded-xl border border-border bg-card text-card-foreground shadow">
+                <div className="rounded-xl border border-zoru-line bg-zoru-surface text-zoru-ink shadow">
                     <div className="p-6 flex justify-end">
                         <Skeleton className="h-9 w-32" />
                     </div>

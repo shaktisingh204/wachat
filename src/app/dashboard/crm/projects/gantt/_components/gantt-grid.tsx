@@ -144,7 +144,7 @@ export function GanttGrid({
               const left = offsetDays * dayWidth + dayWidth / 2;
               return (
                 <div
-                  className="pointer-events-none absolute top-0 z-10 w-px bg-rose-500/80"
+                  className="pointer-events-none absolute top-0 z-10 w-px bg-zoru-ink/80"
                   style={{ left, height: totalHeight }}
                   title="Today"
                 />

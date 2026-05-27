@@ -18,26 +18,26 @@ function ForbiddenPage() {
             {/* Glassmorphism card */}
             <div className="relative max-w-md w-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl shadow-black/20 p-10 overflow-hidden">
                 {/* Subtle glow blob */}
-                <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
+                <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-zoru-ink/20 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-zoru-ink/10 blur-3xl pointer-events-none" />
 
                 {/* Icon */}
                 <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/10 shadow-inner">
-                    <ShieldOff className="h-8 w-8 text-muted-foreground" />
+                    <ShieldOff className="h-8 w-8 text-zoru-ink-muted" />
                 </div>
 
                 {/* Text */}
                 <h1 className="relative text-2xl font-semibold tracking-tight mb-2">
                     Access Restricted
                 </h1>
-                <p className="relative text-sm text-muted-foreground leading-relaxed mb-8">
+                <p className="relative text-sm text-zoru-ink-muted leading-relaxed mb-8">
                     You don&apos;t have permission to view this page.
                     If you think this is wrong, reach out to your admin.
                 </p>
 
                 {/* Actions */}
                 <div className="relative flex gap-3 justify-center">
-                    <Button asChild size="sm" className="gap-2 rounded-xl bg-primary/90 hover:bg-primary shadow-md">
+                    <Button asChild size="sm" className="gap-2 rounded-xl bg-zoru-ink/90 hover:bg-zoru-ink shadow-md">
                         <Link href="/wachat">
                             <Home className="h-4 w-4" />
                             Go Home

@@ -69,7 +69,7 @@ export function ResultsDashboard({ stats, dailyCounts, sessions }: Props) {
       accessorKey: 'createdAt',
       header: 'Started At',
       cell: (info) => (
-        <span className="text-zinc-500 whitespace-nowrap">
+        <span className="text-zoru-ink whitespace-nowrap">
           {format(new Date(info.getValue<string>()), 'MMM dd, HH:mm')}
         </span>
       ),
@@ -91,7 +91,7 @@ export function ResultsDashboard({ stats, dailyCounts, sessions }: Props) {
       id: 'status',
       header: 'Status',
       cell: () => (
-        <Badge variant="destructive" className="bg-red-500/10 text-red-500 hover:bg-red-500/20 border-0">
+        <Badge variant="destructive" className="bg-zoru-ink/10 text-zoru-ink hover:bg-zoru-ink/20 border-0">
           <XCircle className="mr-1 h-3 w-3" />
           Failed/Abandoned
         </Badge>

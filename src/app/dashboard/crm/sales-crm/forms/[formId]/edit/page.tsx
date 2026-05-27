@@ -126,7 +126,7 @@ function EditFormPageContent() {
 
     return (
          <div className="h-full flex flex-col">
-            <header className="flex-shrink-0 flex items-center justify-between p-3 border-b bg-card">
+            <header className="flex-shrink-0 flex items-center justify-between p-3 border-b bg-zoru-surface">
                 <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon" asChild>
                         <Link href="/dashboard/crm/sales-crm/forms">

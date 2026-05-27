@@ -263,51 +263,51 @@ export default function NoticesListPage() {
                     }
                     loading={isLoading && items.length === 0}
                 >
-                    <div className="overflow-x-auto rounded-lg border border-border">
+                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-border hover:bg-transparent">
-                                    <ZoruTableHead className="text-muted-foreground">
+                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableHead className="text-zoru-ink-muted">
                                         Notice No.
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">
+                                    <ZoruTableHead className="text-zoru-ink-muted">
                                         Title
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">
+                                    <ZoruTableHead className="text-zoru-ink-muted">
                                         Category
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">
+                                    <ZoruTableHead className="text-zoru-ink-muted">
                                         Severity
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">
+                                    <ZoruTableHead className="text-zoru-ink-muted">
                                         Issued To
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">
+                                    <ZoruTableHead className="text-zoru-ink-muted">
                                         Issued At
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">
+                                    <ZoruTableHead className="text-zoru-ink-muted">
                                         Status
                                     </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground text-right">
+                                    <ZoruTableHead className="text-zoru-ink-muted text-right">
                                         Actions
                                     </ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {isLoading ? (
-                                    <ZoruTableRow className="border-border">
+                                    <ZoruTableRow className="border-zoru-line">
                                         <ZoruTableCell
                                             colSpan={8}
                                             className="h-24 text-center"
                                         >
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : items.length === 0 ? (
-                                    <ZoruTableRow className="border-border">
+                                    <ZoruTableRow className="border-zoru-line">
                                         <ZoruTableCell
                                             colSpan={8}
-                                            className="h-24 text-center text-muted-foreground"
+                                            className="h-24 text-center text-zoru-ink-muted"
                                         >
                                             No notices match these filters.
                                         </ZoruTableCell>
@@ -323,9 +323,9 @@ export default function NoticesListPage() {
                                         return (
                                             <ZoruTableRow
                                                 key={n._id}
-                                                className="border-border"
+                                                className="border-zoru-line"
                                             >
-                                                <ZoruTableCell className="font-mono text-[12px] text-foreground">
+                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
                                                     <Link
                                                         href={`/dashboard/hrm/hr/notices/${n._id}`}
                                                         className="hover:underline"
@@ -333,7 +333,7 @@ export default function NoticesListPage() {
                                                         {n.noticeNumber || n._id.slice(-8)}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-medium text-foreground">
+                                                <ZoruTableCell className="font-medium text-zoru-ink">
                                                     <Link
                                                         href={`/dashboard/hrm/hr/notices/${n._id}`}
                                                         className="hover:underline"
@@ -341,7 +341,7 @@ export default function NoticesListPage() {
                                                         {n.title}
                                                     </Link>
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-foreground">
+                                                <ZoruTableCell className="text-zoru-ink">
                                                     {titleCase(n.category as string)}
                                                 </ZoruTableCell>
                                                 <ZoruTableCell>
@@ -353,10 +353,10 @@ export default function NoticesListPage() {
                                                         }
                                                     />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-foreground">
+                                                <ZoruTableCell className="text-zoru-ink">
                                                     {titleCase(n.issuedTo as string)}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-foreground">
+                                                <ZoruTableCell className="text-zoru-ink">
                                                     {fmtDate(
                                                         n.issuedAt ?? n.createdAt,
                                                     )}
@@ -401,7 +401,7 @@ export default function NoticesListPage() {
                                                             setPendingDelete(n)
                                                         }
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

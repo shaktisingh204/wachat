@@ -17,7 +17,7 @@ export default function ErrorBoundary({
 
     return (
         <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center">
-            <AlertCircle className="mb-4 h-10 w-10 text-destructive" />
+            <AlertCircle className="mb-4 h-10 w-10 text-zoru-ink" />
             <h2 className="mb-2 text-lg font-semibold text-zoru-ink">Something went wrong</h2>
             <p className="mb-6 text-sm text-zoru-ink-muted">
                 {error.message || 'Failed to load shifts data.'}

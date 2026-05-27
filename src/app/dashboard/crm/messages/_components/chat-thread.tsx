@@ -258,7 +258,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
 
       <form
         onSubmit={handleSend}
-        className="space-y-2 border-t border-border px-5 py-3"
+        className="space-y-2 border-t border-zoru-line px-5 py-3"
       >
         {pending.length > 0 ? (
           <ul className="flex flex-wrap gap-2">

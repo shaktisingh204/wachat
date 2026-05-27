@@ -15,13 +15,13 @@ export default function AccountingLayout({ children }: { children: React.ReactNo
         <div className="w-full relative min-h-screen flex flex-col">
             <FeatureLockOverlay isAllowed={isAllowed} featureName="CRM Accounting" />
             <FeatureLock isAllowed={isAllowed}>
-                <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-6 py-2 flex items-center justify-between shadow-sm">
+                <div className="sticky top-0 z-10 bg-zoru-surface/80 backdrop-blur-md border-b border-zoru-line px-6 py-2 flex items-center justify-between shadow-sm">
                     <div className="flex items-center gap-2 text-sm font-medium">
                         Accounting Preferences
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">Standard:</span>
+                            <span className="text-xs text-zoru-ink-muted">Standard:</span>
                             <Select value={standard} onValueChange={(v: any) => setStandard(v)}>
                                 <ZoruSelectTrigger className="h-8 w-[100px] text-xs">
                                     <ZoruSelectValue />
@@ -33,7 +33,7 @@ export default function AccountingLayout({ children }: { children: React.ReactNo
                             </Select>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">Fiscal Year:</span>
+                            <span className="text-xs text-zoru-ink-muted">Fiscal Year:</span>
                             <Select value={fiscalYear} onValueChange={(v: any) => setFiscalYear(v)}>
                                 <ZoruSelectTrigger className="h-8 w-[140px] text-xs">
                                     <ZoruSelectValue />

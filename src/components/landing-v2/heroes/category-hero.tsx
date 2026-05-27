@@ -50,7 +50,7 @@ export function CategoryHero({ slug }: CategoryHeroProps) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1, y: [0, 4, 0] }}
                     transition={{ opacity: { delay: 0.4 }, y: { duration: 4, delay: 0.4, repeat: Infinity, ease: 'easeInOut' } }}
-                    className="absolute -bottom-2 right-2 hidden items-center gap-2 rounded-full border bg-white px-3 py-1.5 text-[11px] font-semibold text-zinc-900 shadow-lg md:flex"
+                    className="absolute -bottom-2 right-2 hidden items-center gap-2 rounded-full border bg-white px-3 py-1.5 text-[11px] font-semibold text-zoru-ink shadow-lg md:flex"
                     style={{ borderColor: `${mod.accentDeep}30`, boxShadow: `0 12px 30px -10px ${mod.glow}` }}
                 >
                     <span

@@ -89,7 +89,7 @@ async function ReconciliationDetail({ id }: { id: string }) {
                     {recon.status === 'in_progress' && (
                         <Button variant="outline" size="sm" asChild>
                             <Link href={`${BASE}/${id}/auto-match`}>
-                                <Sparkles className="mr-2 h-4 w-4 text-amber-500" />
+                                <Sparkles className="mr-2 h-4 w-4 text-zoru-ink" />
                                 AI Auto-Match
                             </Link>
                         </Button>
@@ -124,9 +124,9 @@ async function ReconciliationDetail({ id }: { id: string }) {
                                 <div className="flex justify-between items-center">
                                     <span className="text-zoru-ink-muted">Auto-categorization</span>
                                     {isCompleted ? (
-                                        <span className="flex items-center text-green-600 font-medium"><CheckCircle2 className="h-3 w-3 mr-1" /> Applied</span>
+                                        <span className="flex items-center text-zoru-ink font-medium"><CheckCircle2 className="h-3 w-3 mr-1" /> Applied</span>
                                     ) : (
-                                        <span className="text-amber-600 font-medium">Pending run</span>
+                                        <span className="text-zoru-ink font-medium">Pending run</span>
                                     )}
                                 </div>
                             </div>
@@ -145,7 +145,7 @@ async function ReconciliationDetail({ id }: { id: string }) {
                         </div>
                         <div className="p-5">
                             <p className="text-[12.5px] font-medium text-zoru-ink-muted mb-1">Unmatched Entries</p>
-                            <p className={`text-3xl font-semibold tracking-tight ${unmatchedCount > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+                            <p className={`text-3xl font-semibold tracking-tight ${unmatchedCount > 0 ? 'text-zoru-ink' : 'text-zoru-ink'}`}>
                                 {unmatchedCount.toString()}
                             </p>
                         </div>
@@ -161,13 +161,13 @@ async function ReconciliationDetail({ id }: { id: string }) {
                     {/* Simulated FX / Multi-currency summary since it's a chunk 3 feature */}
                     <div className="bg-zoru-surface border-t border-zoru-line px-5 py-3 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-400 dark:ring-blue-400/20">
+                            <span className="inline-flex items-center rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] font-medium text-zoru-ink ring-1 ring-inset ring-zoru-line/10 dark:bg-zoru-ink/30 dark:text-zoru-ink-muted dark:ring-zoru-line/20">
                                 INR Base
                             </span>
                             <span className="text-[12px] text-zoru-ink-muted">Multi-currency adjustments applied</span>
                         </div>
                         <div className="text-[12px] font-medium text-zoru-ink">
-                            Est. FX Gain/Loss: <span className="text-green-600 ml-1">₹0.00</span>
+                            Est. FX Gain/Loss: <span className="text-zoru-ink ml-1">₹0.00</span>
                         </div>
                     </div>
                 </Card>
@@ -184,7 +184,7 @@ async function ReconciliationDetail({ id }: { id: string }) {
                                     href={statementUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="max-w-md truncate text-[12px] text-blue-600 hover:underline"
+                                    className="max-w-md truncate text-[12px] text-zoru-ink hover:underline"
                                 >
                                     {statementUrl.split('/').pop() || statementUrl}
                                 </a>

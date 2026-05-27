@@ -86,48 +86,48 @@ export default async function VoucherBookDetailPage(props: {
             rightRail={
                 <div className="flex flex-col gap-4">
                     <Card className="p-4">
-                        <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        <p className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                             Numbering
                         </p>
                         <dl className="mt-2 space-y-1.5 text-[13px]">
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Prefix</dt>
+                                <dt className="text-zoru-ink-muted">Prefix</dt>
                                 <dd className="font-mono text-right">{meta.prefix || '—'}</dd>
                             </div>
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Suffix</dt>
+                                <dt className="text-zoru-ink-muted">Suffix</dt>
                                 <dd className="font-mono text-right">{meta.suffix || '—'}</dd>
                             </div>
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Starting #</dt>
+                                <dt className="text-zoru-ink-muted">Starting #</dt>
                                 <dd className="font-mono text-right">{meta.startingNumber ?? 1}</dd>
                             </div>
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Padding</dt>
+                                <dt className="text-zoru-ink-muted">Padding</dt>
                                 <dd className="font-mono text-right">{meta.padding ?? 0}</dd>
                             </div>
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Reset</dt>
+                                <dt className="text-zoru-ink-muted">Reset</dt>
                                 <dd className="text-right capitalize">{meta.resetFrequency ?? 'none'}</dd>
                             </div>
                         </dl>
                     </Card>
                     <Card className="p-4">
-                        <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        <p className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                             Flags
                         </p>
                         <dl className="mt-2 space-y-1.5 text-[13px]">
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Default for type</dt>
-                                <dd>{book.isDefault ? <StatusPill label="Default" tone="blue" /> : <span className="text-[12px] text-muted-foreground">No</span>}</dd>
+                                <dt className="text-zoru-ink-muted">Default for type</dt>
+                                <dd>{book.isDefault ? <StatusPill label="Default" tone="blue" /> : <span className="text-[12px] text-zoru-ink-muted">No</span>}</dd>
                             </div>
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Approval required</dt>
+                                <dt className="text-zoru-ink-muted">Approval required</dt>
                                 <dd>
                                     {meta.approvalRequired ? (
                                         <StatusPill label="Required" tone="amber" />
                                     ) : (
-                                        <span className="text-[12px] text-muted-foreground">No</span>
+                                        <span className="text-[12px] text-zoru-ink-muted">No</span>
                                     )}
                                 </dd>
                             </div>
@@ -151,50 +151,50 @@ export default async function VoucherBookDetailPage(props: {
                 <Card className="p-0">
                     <div className="flex items-start justify-between px-4 py-3">
                         <div>
-                            <p className="text-[13px] font-semibold text-foreground">Recent entries</p>
-                            <p className="text-[11.5px] text-muted-foreground">
+                            <p className="text-[13px] font-semibold text-zoru-ink">Recent entries</p>
+                            <p className="text-[11.5px] text-zoru-ink-muted">
                                 Last 50 voucher entries posted under this book.
                             </p>
                         </div>
                         <ExportCsvButton data={entries} filename={`voucher-entries-${voucherBookId}`} />
                     </div>
-                    <div className="overflow-x-auto border-t border-border">
+                    <div className="overflow-x-auto border-t border-zoru-line">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-border hover:bg-transparent">
-                                    <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">Voucher #</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">Note</ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-muted-foreground">Total Debit</ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-muted-foreground">Total Credit</ZoruTableHead>
+                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Voucher #</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Note</ZoruTableHead>
+                                    <ZoruTableHead className="text-right text-zoru-ink-muted">Total Debit</ZoruTableHead>
+                                    <ZoruTableHead className="text-right text-zoru-ink-muted">Total Credit</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {entries.length === 0 ? (
-                                    <ZoruTableRow className="border-border">
-                                        <ZoruTableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                    <ZoruTableRow className="border-zoru-line">
+                                        <ZoruTableCell colSpan={5} className="h-24 text-center text-zoru-ink-muted">
                                             No entries posted yet.
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : (
                                     entries.map((entry) => (
-                                        <ZoruTableRow key={entry._id.toString()} className="border-border">
-                                            <ZoruTableCell className="text-foreground">
+                                        <ZoruTableRow key={entry._id.toString()} className="border-zoru-line">
+                                            <ZoruTableCell className="text-zoru-ink">
                                                 {format(new Date(entry.date), 'dd MMM yyyy')}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="font-mono text-[12px] text-foreground">
+                                            <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
                                                 {entry.voucherNumber}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-[12px] text-muted-foreground">
+                                            <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
                                                 {entry.note}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-foreground">
+                                            <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                                 {entry.totalDebit?.toLocaleString('en-IN', {
                                                     style: 'currency',
                                                     currency: 'INR',
                                                 })}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-foreground">
+                                            <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                                 {entry.totalCredit?.toLocaleString('en-IN', {
                                                     style: 'currency',
                                                     currency: 'INR',
@@ -214,9 +214,9 @@ export default async function VoucherBookDetailPage(props: {
 
 function SummaryCell({ label, value }: { label: string; value: string }) {
     return (
-        <div className="rounded-lg border border-border bg-secondary p-3">
-            <p className="text-[11.5px] text-muted-foreground">{label}</p>
-            <p className="mt-1 text-[18px] font-semibold text-foreground">{value}</p>
+        <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
+            <p className="text-[11.5px] text-zoru-ink-muted">{label}</p>
+            <p className="mt-1 text-[18px] font-semibold text-zoru-ink">{value}</p>
         </div>
     );
 }

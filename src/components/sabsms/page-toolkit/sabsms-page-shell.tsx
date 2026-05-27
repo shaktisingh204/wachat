@@ -119,14 +119,14 @@ export function SabsmsPageShell({
                     className="h-7 w-7"
                     aria-label="Help"
                   >
-                    <HelpCircle className="h-4 w-4 text-slate-500" />
+                    <HelpCircle className="h-4 w-4 text-zoru-ink" />
                   </Button>
                 </ZoruPopoverTrigger>
                 <ZoruPopoverContent className="w-80 text-sm">
                   {helpTitle && (
                     <div className="mb-2 font-medium">{helpTitle}</div>
                   )}
-                  <div className="text-slate-600">{helpBody}</div>
+                  <div className="text-zoru-ink">{helpBody}</div>
                 </ZoruPopoverContent>
               </Popover>
             )}

@@ -83,7 +83,7 @@ export default function LsiKeywordsPage() {
     return (
       <div className="flex flex-wrap gap-2 mt-4">
         {words.map((r) => (
-          <Badge key={r.word} variant="outline" className="text-sm font-medium hover:bg-secondary/50 transition-colors">
+          <Badge key={r.word} variant="outline" className="text-sm font-medium hover:bg-zoru-surface-2/50 transition-colors">
             {r.word}
           </Badge>
         ))}
@@ -121,17 +121,17 @@ export default function LsiKeywordsPage() {
       )}
       
       {(related.length > 0 || triggers.length > 0) && !loading && !error && (
-        <Card className="mt-8 border-border shadow-sm overflow-hidden">
+        <Card className="mt-8 border-zoru-line shadow-sm overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b bg-muted/20 px-4 py-3 gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b bg-zoru-surface-2/20 px-4 py-3 gap-3">
               <ZoruTabsList className="bg-transparent h-auto p-0 gap-2">
-                <ZoruTabsTrigger value="all" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
+                <ZoruTabsTrigger value="all" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
                   All LSI ({allKeywords.length})
                 </ZoruTabsTrigger>
-                <ZoruTabsTrigger value="triggers" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
+                <ZoruTabsTrigger value="triggers" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
                   Co-occurring ({triggers.length})
                 </ZoruTabsTrigger>
-                <ZoruTabsTrigger value="related" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
+                <ZoruTabsTrigger value="related" className="data-[state=active]:bg-zoru-surface data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
                   Semantics ({related.length})
                 </ZoruTabsTrigger>
               </ZoruTabsList>

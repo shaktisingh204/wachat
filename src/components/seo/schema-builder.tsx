@@ -202,7 +202,7 @@ export default function SchemaBuilder() {
                 </ZoruCardHeader>
                 <ZoruCardContent>
                     <div className="relative">
-                        <pre className="bg-slate-950 text-slate-50 p-4 rounded-[var(--zoru-radius-lg)] overflow-auto text-xs min-h-[300px]">
+                        <pre className="bg-zoru-ink text-white p-4 rounded-[var(--zoru-radius-lg)] overflow-auto text-xs min-h-[300px]">
                             {jsonLd}
                         </pre>
                         <Button

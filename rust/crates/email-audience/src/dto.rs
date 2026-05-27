@@ -3,7 +3,7 @@
 use bson::oid::ObjectId;
 use chrono::{DateTime, Utc};
 use email_types::{
-    EmailFilterTree, EmailList, EmailSegment, EmailSubscriber, EmailSubscriberStatus,
+    EmailFilterTree, EmailSubscriber, EmailSubscriberStatus,
 };
 use serde::{Deserialize, Serialize};
 

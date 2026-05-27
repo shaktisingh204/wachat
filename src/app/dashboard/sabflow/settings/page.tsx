@@ -356,10 +356,10 @@ function DefaultsSection({
                                 executionTimeout: safeNumber(e.target.value, value.executionTimeout),
                             })
                         }
-                        className={getError(['executionTimeout']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                        className={getError(['executionTimeout']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
                     />
                     {getError(['executionTimeout']) && (
-                        <p className="text-[11.5px] text-red-500">{getError(['executionTimeout'])}</p>
+                        <p className="text-[11.5px] text-zoru-ink">{getError(['executionTimeout'])}</p>
                     )}
                 </div>
             </div>
@@ -408,10 +408,10 @@ function RetentionSection({
                                 ),
                             })
                         }
-                        className={getError(['keepRunHistoryDays']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                        className={getError(['keepRunHistoryDays']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
                     />
                     {getError(['keepRunHistoryDays']) && (
-                        <p className="text-[11.5px] text-red-500">{getError(['keepRunHistoryDays'])}</p>
+                        <p className="text-[11.5px] text-zoru-ink">{getError(['keepRunHistoryDays'])}</p>
                     )}
                 </div>
                 <div className="flex items-start justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
@@ -477,10 +477,10 @@ function RunLimitsSection({
                                 ),
                             })
                         }
-                        className={getError(['maxConcurrentRuns']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                        className={getError(['maxConcurrentRuns']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
                     />
                     {getError(['maxConcurrentRuns']) && (
-                        <p className="text-[11.5px] text-red-500">{getError(['maxConcurrentRuns'])}</p>
+                        <p className="text-[11.5px] text-zoru-ink">{getError(['maxConcurrentRuns'])}</p>
                     )}
                 </div>
                 <div className="grid gap-1.5">
@@ -496,10 +496,10 @@ function RunLimitsSection({
                                 maxStepsPerRun: safeNumber(e.target.value, value.maxStepsPerRun),
                             })
                         }
-                        className={getError(['maxStepsPerRun']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                        className={getError(['maxStepsPerRun']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
                     />
                     {getError(['maxStepsPerRun']) && (
-                        <p className="text-[11.5px] text-red-500">{getError(['maxStepsPerRun'])}</p>
+                        <p className="text-[11.5px] text-zoru-ink">{getError(['maxStepsPerRun'])}</p>
                     )}
                 </div>
             </div>
@@ -564,10 +564,10 @@ function WebhooksSection({
                         placeholder="https://example.com/webhooks/sabflow"
                         value={value.url}
                         onChange={(e) => onChange({ ...value, url: e.target.value })}
-                        className={getError(['url']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                        className={getError(['url']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
                     />
                     {getError(['url']) && (
-                        <p className="text-[11.5px] text-red-500">{getError(['url'])}</p>
+                        <p className="text-[11.5px] text-zoru-ink">{getError(['url'])}</p>
                     )}
                 </div>
                 <div className="grid gap-1.5">
@@ -584,10 +584,10 @@ function WebhooksSection({
                                 retryAttempts: safeNumber(e.target.value, value.retryAttempts),
                             })
                         }
-                        className={getError(['retryAttempts']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                        className={getError(['retryAttempts']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
                     />
                     {getError(['retryAttempts']) && (
-                        <p className="text-[11.5px] text-red-500">{getError(['retryAttempts'])}</p>
+                        <p className="text-[11.5px] text-zoru-ink">{getError(['retryAttempts'])}</p>
                     )}
                 </div>
                 <div className="grid gap-1.5 sm:col-span-3">
@@ -670,10 +670,10 @@ function VariablesSection({
                                     placeholder="API_BASE_URL"
                                     value={row.key}
                                     onChange={(e) => updateRow(idx, { key: e.target.value })}
-                                    className={getError([idx, 'key']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                                    className={getError([idx, 'key']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
                                 />
                                 {getError([idx, 'key']) && (
-                                    <p className="text-[11.5px] text-red-500">{getError([idx, 'key'])}</p>
+                                    <p className="text-[11.5px] text-zoru-ink">{getError([idx, 'key'])}</p>
                                 )}
                             </div>
                             <div className="grid gap-1.5">
@@ -688,10 +688,10 @@ function VariablesSection({
                                     placeholder="https://api.example.com"
                                     value={row.value}
                                     onChange={(e) => updateRow(idx, { value: e.target.value })}
-                                    className={getError([idx, 'value']) ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                                    className={getError([idx, 'value']) ? 'border-zoru-line focus-visible:ring-zoru-line' : ''}
                                 />
                                 {getError([idx, 'value']) && (
-                                    <p className="text-[11.5px] text-red-500">{getError([idx, 'value'])}</p>
+                                    <p className="text-[11.5px] text-zoru-ink">{getError([idx, 'value'])}</p>
                                 )}
                             </div>
                             <Button

@@ -116,7 +116,7 @@ function GeneralCannedSettings() {
         <div className="flex items-center justify-between space-x-4">
           <div className="flex flex-col space-y-1">
             <Label htmlFor="sync-projects" className="text-base cursor-pointer">Sync across sub-projects</Label>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-zoru-ink-muted">
               Automatically share canned messages with all other active sub-projects in your account.
             </span>
           </div>
@@ -131,7 +131,7 @@ function GeneralCannedSettings() {
         <div className="flex flex-col space-y-3">
           <div className="flex flex-col space-y-1">
             <Label htmlFor="trigger-shortcut" className="text-base">Keyboard Trigger Shortcut</Label>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-zoru-ink-muted">
               Focus the input below and press the key combination you want to use for opening the canned messages menu. Use Backspace to clear.
             </span>
           </div>

@@ -553,7 +553,7 @@ export function StockTransfersListClient() {
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                  className="text-destructive focus:text-destructive"
+                                  className="text-zoru-ink focus:text-zoru-ink"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setDeleteTargetId(id);

@@ -10,7 +10,7 @@ use axum::{
     Json,
     extract::{Path, Query, State},
 };
-use bson::{DateTime as BsonDateTime, doc, oid::ObjectId};
+use bson::{DateTime as BsonDateTime, doc};
 use chrono::{Duration, Utc};
 use crm_common::tenant::user_oid;
 use futures::TryStreamExt;

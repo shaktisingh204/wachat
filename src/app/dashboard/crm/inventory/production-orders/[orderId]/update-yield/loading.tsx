@@ -16,7 +16,7 @@ export default function Loading() {
       back={{ href: `/dashboard/crm/inventory/production-orders/${orderId}`, label: 'Back to order' }}
     >
       <Card className="flex h-64 items-center justify-center p-6">
-        <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+        <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
       </Card>
     </EntityDetailShell>
   );

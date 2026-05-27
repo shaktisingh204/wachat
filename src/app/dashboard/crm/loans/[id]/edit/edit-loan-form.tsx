@@ -229,7 +229,7 @@ export function EditLoanForm({ loan, loanId }: Props) {
                         </div>
 
                         {/* Schedule Preview */}
-                        <div className="rounded-lg border border-zoru-line bg-zoru-bg-muted p-4 mt-4">
+                        <div className="rounded-lg border border-zoru-line bg-zoru-bg-zoru-surface-2 p-4 mt-4">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h4 className="text-[13px] font-medium text-zoru-ink">Estimated Monthly Repayment</h4>

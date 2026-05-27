@@ -212,7 +212,7 @@ export default function SystemLogsPage() {
       <div className="mx-auto max-w-7xl">
         <PageHeader className="mb-8">
           <ZoruPageHeading>
-            <ZoruPageEyebrow className="flex items-center gap-1.5 text-blue-500">
+            <ZoruPageEyebrow className="flex items-center gap-1.5 text-zoru-ink">
               <LuActivity className="w-3.5 h-3.5" />
               Observability
             </ZoruPageEyebrow>

@@ -207,7 +207,7 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
                 
                 <Separator className="my-3" />
                 
-                <div className="bg-zinc-50/50 rounded-lg p-3">
+                <div className="bg-zoru-surface-2/50 rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-3 text-sm font-medium text-zoru-ink">
                     <BarChart2 className="h-4 w-4 text-zoru-brand" />
                     Usage & Rate Limit
@@ -238,7 +238,7 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
                       </div>
                       <div>
                         <p className="text-zoru-ink-subtle mb-1">Errors (30d)</p>
-                        <p className={`font-medium ${(usageData.find((u) => u.keyId === a.clientId)?.errorCount || 0) > 0 ? 'text-red-600' : 'text-zoru-ink'}`}>
+                        <p className={`font-medium ${(usageData.find((u) => u.keyId === a.clientId)?.errorCount || 0) > 0 ? 'text-zoru-ink' : 'text-zoru-ink'}`}>
                           {usageData.find((u) => u.keyId === a.clientId)?.errorCount || 0}
                         </p>
                       </div>

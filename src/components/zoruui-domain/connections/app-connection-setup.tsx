@@ -44,13 +44,13 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
         if (app.appId === 'google_sheets') {
             return <GoogleSheetsConnection flowId={flowId} />;
         }
-        return <p className="text-sm text-muted-foreground">Webhook setup instructions for this app are not yet configured.</p>;
+        return <p className="text-sm text-zoru-ink-muted">Webhook setup instructions for this app are not yet configured.</p>;
     }
     
     if (app.connectionType === 'oauth') {
         return (
             <div className="text-center space-y-4">
-                <p className="text-sm text-muted-foreground">To connect {app.name}, you'll be redirected to their authorization page.</p>
+                <p className="text-sm text-zoru-ink-muted">To connect {app.name}, you'll be redirected to their authorization page.</p>
                 <Button type="button" disabled>Connect via {app.name}</Button>
             </div>
         );
@@ -62,7 +62,7 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
                 <input type="hidden" name="appId" value={app.appId} />
                 <input type="hidden" name="appName" value={app.name} />
                 <input type="hidden" name="credentialKeys" value={(app.credentials || []).map((c: any) => c.name).join(',')} />
-                <p className="text-sm text-muted-foreground">{app.description}</p>
+                <p className="text-sm text-zoru-ink-muted">{app.description}</p>
                 <div className="space-y-2">
                     <Label htmlFor="connectionName">Connection Name</Label>
                     <Input id="connectionName" name="connectionName" defaultValue={`${app.name} Account`} required />
@@ -85,6 +85,6 @@ export function AppConnectionSetup({ app, onConnectionSaved, flowId }: { app: an
     }
 
     return (
-        <p className="text-sm text-muted-foreground">This app does not require any special connection setup.</p>
+        <p className="text-sm text-zoru-ink-muted">This app does not require any special connection setup.</p>
     );
 }

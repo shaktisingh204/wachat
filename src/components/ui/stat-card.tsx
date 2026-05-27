@@ -71,10 +71,10 @@ export function StatCard({
     const direction = delta == null ? 'flat' : delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat';
     const deltaColor =
         direction === 'up'
-            ? 'text-[hsl(var(--prism-emerald))] bg-[hsl(var(--prism-emerald)/0.1)]'
+            ? 'text-zoru-ink bg-zoru-ink'
             : direction === 'down'
-                ? 'text-[hsl(var(--prism-rose))] bg-[hsl(var(--prism-rose)/0.1)]'
-                : 'text-muted-foreground bg-muted';
+                ? 'text-zoru-ink bg-zoru-ink'
+                : 'text-zoru-ink-muted bg-zoru-surface-2';
     const DeltaIcon = direction === 'up' ? ArrowUpRight : direction === 'down' ? ArrowDownRight : Minus;
 
     return (
@@ -84,18 +84,18 @@ export function StatCard({
             animate="visible"
             whileHover={hoverLift}
             className={cn(
-                'group relative overflow-hidden rounded-xl border bg-card p-5 shadow-sm transition-all',
+                'group relative overflow-hidden rounded-xl border bg-zoru-surface p-5 shadow-sm transition-all',
                 'hover:shadow-[0_0_24px_-4px_hsl(var(--prism-indigo)/0.18),0_8px_20px_-6px_hsl(var(--prism-indigo)/0.12)]',
-                'hover:border-[hsl(var(--prism-indigo)/0.3)]',
+                'hover:border-zoru-line',
                 className
             )}
         >
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    <p className="text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
                         {label}
                     </p>
-                    <div className="mt-2 text-3xl font-bold tracking-tight tabular-nums text-foreground">
+                    <div className="mt-2 text-3xl font-bold tracking-tight tabular-nums text-zoru-ink">
                         {typeof value === 'number' ? <CountUp value={value} /> : value}
                     </div>
                 </div>
@@ -124,7 +124,7 @@ export function StatCard({
                         </span>
                     )}
                     {deltaLabel && (
-                        <span className="text-xs text-muted-foreground">{deltaLabel}</span>
+                        <span className="text-xs text-zoru-ink-muted">{deltaLabel}</span>
                     )}
                 </div>
             )}

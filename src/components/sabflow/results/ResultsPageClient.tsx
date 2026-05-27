@@ -25,13 +25,13 @@ function StatCard({
   value: string | number;
 }) {
   return (
-    <div className="flex items-center gap-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-5 py-4">
-      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-500">
+    <div className="flex items-center gap-4 bg-white dark:bg-zoru-ink border border-zoru-line dark:border-zoru-line rounded-xl px-5 py-4">
+      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-zoru-surface-2 dark:bg-zoru-ink/20 flex items-center justify-center text-zoru-ink">
         {icon}
       </div>
       <div>
-        <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium uppercase tracking-wide">{label}</p>
-        <p className="text-xl font-bold text-zinc-800 dark:text-zinc-100 mt-0.5">{value}</p>
+        <p className="text-xs text-zoru-ink-muted dark:text-zoru-ink font-medium uppercase tracking-wide">{label}</p>
+        <p className="text-xl font-bold text-zoru-ink dark:text-white mt-0.5">{value}</p>
       </div>
     </div>
   );
@@ -125,10 +125,10 @@ export function ResultsPageClient({
 
       {/* Table */}
       {total === 0 && !isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-center">
-          <LuActivity className="w-10 h-10 text-zinc-300 dark:text-zinc-600 mb-3" />
-          <p className="text-base font-semibold text-zinc-600 dark:text-zinc-400">No results yet</p>
-          <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-1 max-w-xs">
+        <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-zoru-ink border border-zoru-line dark:border-zoru-line rounded-xl text-center">
+          <LuActivity className="w-10 h-10 text-zoru-ink-muted dark:text-zoru-ink mb-3" />
+          <p className="text-base font-semibold text-zoru-ink dark:text-zoru-ink-muted">No results yet</p>
+          <p className="text-sm text-zoru-ink-muted dark:text-zoru-ink mt-1 max-w-xs">
             Results will appear here once users start interacting with your published flow.
           </p>
         </div>

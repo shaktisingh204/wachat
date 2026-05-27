@@ -651,7 +651,7 @@ export default function ChannelDetailPage() {
 
             {/* Permission warning */}
             {!channel.permissions.canPostMessages ? (
-                <Card className="flex items-center gap-2 border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-700">
+                <Card className="flex items-center gap-2 border-zoru-line/30 bg-zoru-ink/5 p-3 text-xs text-zoru-ink">
                     <AlertCircle className="h-4 w-4" /> The bot lacks the{' '}
                     <code>can_post_messages</code> permission on this channel. Update its
                     admin rights in Telegram to enable posting.

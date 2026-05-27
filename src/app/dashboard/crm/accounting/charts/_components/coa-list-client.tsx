@@ -230,7 +230,7 @@ export function CoaListClient(): React.JSX.Element {
     /* ── Render ──────────────────────────────────────────────────────── */
 
     const viewSwitcher = (
-        <div className="inline-flex rounded-md border border-border">
+        <div className="inline-flex rounded-md border border-zoru-line">
             <button
                 type="button"
                 aria-label="Table view"
@@ -238,7 +238,7 @@ export function CoaListClient(): React.JSX.Element {
                 onClick={() => setView('table')}
                 className={[
                     'px-2.5 py-1.5 text-[12px]',
-                    view === 'table' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground',
+                    view === 'table' ? 'bg-zoru-surface-2 text-zoru-ink' : 'text-zoru-ink-muted hover:text-zoru-ink',
                 ].join(' ')}
             >
                 <LayoutGrid className="h-3.5 w-3.5" />
@@ -249,8 +249,8 @@ export function CoaListClient(): React.JSX.Element {
                 aria-pressed={view === 'tree'}
                 onClick={() => setView('tree')}
                 className={[
-                    'border-l border-border px-2.5 py-1.5 text-[12px]',
-                    view === 'tree' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground',
+                    'border-l border-zoru-line px-2.5 py-1.5 text-[12px]',
+                    view === 'tree' ? 'bg-zoru-surface-2 text-zoru-ink' : 'text-zoru-ink-muted hover:text-zoru-ink',
                 ].join(' ')}
             >
                 <TreePine className="h-3.5 w-3.5" />

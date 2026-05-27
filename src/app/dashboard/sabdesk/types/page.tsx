@@ -374,11 +374,11 @@ export default function TicketTypesPage() {
                         >
                           <div className="space-y-3 text-sm">
                             <div>
-                              <div className="text-muted-foreground text-xs">Type name</div>
+                              <div className="text-zoru-ink-muted text-xs">Type name</div>
                               <div>{row.type}</div>
                             </div>
                             <div>
-                              <div className="text-muted-foreground text-xs">Colour</div>
+                              <div className="text-zoru-ink-muted text-xs">Colour</div>
                               {row.color ? (
                                 <div className="flex items-center gap-2">
                                   <span

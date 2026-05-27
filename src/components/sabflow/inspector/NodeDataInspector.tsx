@@ -101,7 +101,7 @@ function TabButton({ label, active, accent = 'default', onClick }: TabButtonProp
         'relative px-3 py-2 text-[12px] font-medium transition-colors',
         active
           ? accent === 'red'
-            ? 'text-red-600 dark:text-red-400'
+            ? 'text-zoru-ink dark:text-zoru-ink-muted'
             : 'text-[var(--gray-12)]'
           : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
       )}
@@ -112,8 +112,8 @@ function TabButton({ label, active, accent = 'default', onClick }: TabButtonProp
           'absolute left-0 right-0 -bottom-px h-0.5 rounded-full',
           active
             ? accent === 'red'
-              ? 'bg-red-500'
-              : 'bg-[#f76808]'
+              ? 'bg-zoru-ink'
+              : 'bg-zoru-ink'
             : 'bg-transparent',
         )}
       />
@@ -198,13 +198,13 @@ function NodeDataInspectorImpl({ nodeId, onClose, block, group }: Props) {
       className={cn(
         'shrink-0 flex flex-col w-[380px] bg-[var(--gray-1)] z-20 overflow-hidden',
         'border-l border-[var(--gray-5)]',
-        isPinned && 'ring-2 ring-inset ring-amber-400/60',
+        isPinned && 'ring-2 ring-inset ring-zoru-line/60',
       )}
       aria-label="Node data inspector"
     >
       {/* ── Header ────────────────────────────────────────────── */}
       <div className="flex items-center gap-2 border-b border-[var(--gray-4)] px-3 py-2.5 shrink-0">
-        <LuBraces className="h-4 w-4 text-[#f76808]" strokeWidth={2} />
+        <LuBraces className="h-4 w-4 text-zoru-ink" strokeWidth={2} />
         <div className="flex flex-col min-w-0 flex-1">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="text-[13px] font-semibold text-[var(--gray-12)] truncate">
@@ -272,7 +272,7 @@ function NodeDataInspectorImpl({ nodeId, onClose, block, group }: Props) {
             className={cn(
               'flex h-7 items-center gap-1 rounded-md px-2 text-[11.5px] font-medium transition-colors',
               isPinned
-                ? 'bg-amber-100 text-amber-700 border border-amber-400/50 dark:bg-amber-950/40 dark:text-amber-300'
+                ? 'bg-zoru-surface-2 text-zoru-ink border border-zoru-line/50 dark:bg-zoru-ink/40 dark:text-zoru-ink-muted'
                 : 'text-[var(--gray-10)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] border border-transparent',
             )}
           >
@@ -324,12 +324,12 @@ function NodeDataInspectorImpl({ nodeId, onClose, block, group }: Props) {
       <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2">
         {tab === 'error' ? (
           errorMessage ? (
-            <div className="rounded-md border border-red-500/30 bg-red-50 dark:bg-red-950/30 p-3">
-              <div className="flex items-center gap-1.5 text-[12px] font-semibold text-red-700 dark:text-red-300 mb-2">
+            <div className="rounded-md border border-zoru-line/30 bg-zoru-surface-2 dark:bg-zoru-ink/30 p-3">
+              <div className="flex items-center gap-1.5 text-[12px] font-semibold text-zoru-ink dark:text-zoru-ink-muted mb-2">
                 <LuCircleAlert className="h-3.5 w-3.5" strokeWidth={2} />
                 Execution error
               </div>
-              <pre className="text-[11.5px] font-mono leading-relaxed whitespace-pre-wrap break-words text-red-700 dark:text-red-300">
+              <pre className="text-[11.5px] font-mono leading-relaxed whitespace-pre-wrap break-words text-zoru-ink dark:text-zoru-ink-muted">
                 {errorMessage}
               </pre>
             </div>

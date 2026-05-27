@@ -21,8 +21,8 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   render() {
     if (this.state.hasError) {
       return (
-        <Card className="border-red-500 m-4">
-          <ZoruCardContent className="p-4 text-red-600 text-sm">
+        <Card className="border-zoru-line m-4">
+          <ZoruCardContent className="p-4 text-zoru-ink text-sm">
             Something went wrong: {this.state.error?.message}
           </ZoruCardContent>
         </Card>
@@ -97,11 +97,11 @@ function AltTextCheckerContent() {
         />
         <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</Button>
       </div>
-      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
+      {error && <Card className="border-zoru-line"><ZoruCardContent className="p-4 text-zoru-ink text-sm">{error}</ZoruCardContent></Card>}
       {images.length > 0 && (
         <>
           <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">{images.length} images · <span className="text-red-600 font-semibold">{missing} missing alt</span></div>
+            <div className="text-sm text-zoru-ink-muted">{images.length} images · <span className="text-zoru-ink font-semibold">{missing} missing alt</span></div>
             {missing > 0 && (
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={copyMissingToClipboard}>
@@ -118,14 +118,14 @@ function AltTextCheckerContent() {
           <Card><ZoruCardContent className="p-0">
             <div className="max-h-[600px] overflow-auto">
               <table className="w-full text-xs">
-                <thead className="sticky top-0 bg-background"><tr className="border-b"><th className="text-left p-2">Image</th><th className="text-left p-2">Alt</th></tr></thead>
+                <thead className="sticky top-0 bg-zoru-surface"><tr className="border-b"><th className="text-left p-2">Image</th><th className="text-left p-2">Alt</th></tr></thead>
                 <tbody>
                   {images.map((img, i) => {
                     const isMissing = !img.hasAlt || !img.alt;
                     return (
-                      <tr key={i} className={`border-b ${isMissing ? 'bg-red-50 dark:bg-red-950/20' : ''}`}>
+                      <tr key={i} className={`border-b ${isMissing ? 'bg-zoru-surface-2 dark:bg-zoru-ink/20' : ''}`}>
                         <td className="p-2 font-mono truncate max-w-xs">{img.src}</td>
-                        <td className="p-2">{!isMissing ? img.alt : <span className="text-red-600">(missing)</span>}</td>
+                        <td className="p-2">{!isMissing ? img.alt : <span className="text-zoru-ink">(missing)</span>}</td>
                       </tr>
                     );
                   })}

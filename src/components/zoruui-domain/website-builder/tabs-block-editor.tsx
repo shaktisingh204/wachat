@@ -82,9 +82,9 @@ export function TabsBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         <ZoruAccordionTrigger>Tabs</ZoruAccordionTrigger>
                         <ZoruAccordionContent className="space-y-4 pt-2">
                             {tabs.map((tab: Tab, index: number) => (
-                                <div key={tab.id} className="p-3 border rounded-md space-y-2 relative bg-background">
+                                <div key={tab.id} className="p-3 border rounded-md space-y-2 relative bg-zoru-surface">
                                     <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeTab(index)}>
-                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
                                     </Button>
                                     <Label>Tab {index + 1}</Label>
                                     <Input placeholder="Tab Label" value={tab.label || ''} onChange={(e) => handleTabChange(index, 'label', e.target.value)} />

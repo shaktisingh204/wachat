@@ -43,11 +43,11 @@ export function LogTimeline({ logs }: { logs: LogRow[] }) {
   }
 
   return (
-    <ol className="relative space-y-6 border-l border-zinc-200 pl-6 dark:border-zinc-800">
+    <ol className="relative space-y-6 border-l border-zoru-line pl-6 dark:border-zoru-line">
       {logs.map((r) => (
         <li key={r._id} className="relative">
           <span
-            className="absolute -left-[29px] top-1.5 inline-block size-3 rounded-full border border-white dark:border-zinc-950 bg-zinc-300 dark:bg-zinc-700"
+            className="absolute -left-[29px] top-1.5 inline-block size-3 rounded-full border border-white dark:border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink"
             aria-hidden
           />
           <div className="flex flex-wrap items-baseline gap-2 text-sm mb-1">
@@ -58,12 +58,12 @@ export function LogTimeline({ logs }: { logs: LogRow[] }) {
             <span
               className={
                 r.status >= 500
-                  ? 'text-zoru-danger text-xs font-semibold px-1.5 py-0.5 rounded bg-red-500/10'
+                  ? 'text-zoru-danger text-xs font-semibold px-1.5 py-0.5 rounded bg-zoru-ink/10'
                   : r.status >= 400
-                  ? 'text-zoru-warning text-xs font-semibold px-1.5 py-0.5 rounded bg-amber-500/10'
+                  ? 'text-zoru-warning text-xs font-semibold px-1.5 py-0.5 rounded bg-zoru-ink/10'
                   : r.status >= 300
-                  ? 'text-blue-500 text-xs font-semibold px-1.5 py-0.5 rounded bg-blue-500/10'
-                  : 'text-zoru-success text-xs font-semibold px-1.5 py-0.5 rounded bg-green-500/10'
+                  ? 'text-zoru-ink text-xs font-semibold px-1.5 py-0.5 rounded bg-zoru-ink/10'
+                  : 'text-zoru-success text-xs font-semibold px-1.5 py-0.5 rounded bg-zoru-ink/10'
               }
             >
               {r.status}

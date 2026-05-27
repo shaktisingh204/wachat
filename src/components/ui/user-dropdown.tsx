@@ -60,8 +60,8 @@ const MENU_ITEMS: {
       icon: "solar:star-bold",
       label: "Upgrade to Pro",
       action: "upgrade",
-      iconClass: "text-amber-600",
-      badge: { text: "20% off", className: "bg-amber-600 text-white text-[11px]" },
+      iconClass: "text-zoru-ink",
+      badge: { text: "20% off", className: "bg-zoru-ink text-white text-[11px]" },
     },
     { icon: "solar:gift-line-duotone", label: "Referrals", action: "referrals" },
   ],
@@ -130,7 +130,7 @@ export const UserDropdown = ({
       <span className="flex items-center gap-1.5 font-medium">
         <Icon
           icon={item.icon}
-          className={`size-5 ${item.iconClass || "text-muted-foreground"}`}
+          className={`size-5 ${item.iconClass || "text-zoru-ink-muted"}`}
         />
         {item.label}
       </span>
@@ -138,7 +138,7 @@ export const UserDropdown = ({
         <Badge className={item.badge.className}>{promoDiscount || item.badge.text}</Badge>
       )}
       {item.rightIcon && (
-        <Icon icon={item.rightIcon} className="size-4 text-muted-foreground" />
+        <Icon icon={item.rightIcon} className="size-4 text-zoru-ink-muted" />
       )}
       {item.showAvatar && (
         <Avatar className="cursor-pointer size-6 shadow">
@@ -151,9 +151,9 @@ export const UserDropdown = ({
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      online: "text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30",
-      offline: "text-muted-foreground bg-muted",
-      busy: "text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30",
+      online: "text-zoru-ink bg-zoru-surface-2 dark:text-zoru-ink-muted dark:bg-zoru-ink/30",
+      offline: "text-zoru-ink-muted bg-zoru-surface-2",
+      busy: "text-zoru-ink bg-zoru-surface-2 dark:text-zoru-ink-muted dark:bg-zoru-ink/30",
     };
     return colors[status.toLowerCase()] || colors.online;
   };
@@ -168,10 +168,10 @@ export const UserDropdown = ({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="no-scrollbar w-[310px] rounded-2xl bg-card p-0 shadow-md"
+        className="no-scrollbar w-[310px] rounded-2xl bg-zoru-surface p-0 shadow-md"
         align="end"
       >
-        <section className="bg-background backdrop-blur-lg rounded-2xl p-1 shadow-sm">
+        <section className="bg-zoru-surface backdrop-blur-lg rounded-2xl p-1 shadow-sm">
           <div className="flex items-center p-2">
             <div className="flex-1 flex items-center gap-2">
               <Avatar className="cursor-pointer size-10">
@@ -179,8 +179,8 @@ export const UserDropdown = ({
                 <AvatarFallback>{user.initials}</AvatarFallback>
               </Avatar>
               <div>
-                <h3 className="font-semibold text-sm text-foreground">{user.name}</h3>
-                <p className="text-muted-foreground text-xs">{user.username}</p>
+                <h3 className="font-semibold text-sm text-zoru-ink">{user.name}</h3>
+                <p className="text-zoru-ink-muted text-xs">{user.username}</p>
               </div>
             </div>
             <Badge
@@ -193,20 +193,20 @@ export const UserDropdown = ({
           <DropdownMenuGroup>
             <DropdownMenuSub>
               <DropdownMenuSubTrigger className="cursor-pointer p-2 rounded-lg">
-                <span className="flex items-center gap-1.5 font-medium text-muted-foreground">
+                <span className="flex items-center gap-1.5 font-medium text-zoru-ink-muted">
                   <Icon
                     icon="solar:smile-circle-line-duotone"
-                    className="size-5 text-muted-foreground"
+                    className="size-5 text-zoru-ink-muted"
                   />
                   Update status
                 </span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent className="bg-popover backdrop-blur-lg">
+                <DropdownMenuSubContent className="bg-zoru-surface backdrop-blur-lg">
                   <DropdownMenuRadioGroup value={selectedStatus} onValueChange={onStatusChange}>
                     {MENU_ITEMS.status.map((status, index) => (
                       <DropdownMenuRadioItem className="gap-2" key={index} value={status.value}>
-                        <Icon icon={status.icon} className="size-5 text-muted-foreground" />
+                        <Icon icon={status.icon} className="size-5 text-zoru-ink-muted" />
                         {status.label}
                       </DropdownMenuRadioItem>
                     ))}

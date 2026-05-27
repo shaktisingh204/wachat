@@ -30,7 +30,7 @@ export function CopySnippet({ text, label }: CopySnippetProps) {
                     {text}
                 </code>
                 <Button variant="outline" size="icon" onClick={handleCopy} className="shrink-0" aria-label="Copy to clipboard">
-                    {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                    {copied ? <Check className="h-4 w-4 text-zoru-ink" /> : <Copy className="h-4 w-4" />}
                 </Button>
             </div>
         </div>

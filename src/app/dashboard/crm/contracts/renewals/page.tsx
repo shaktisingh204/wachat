@@ -76,7 +76,7 @@ function daysUntil(dateStr: string | Date | undefined): number | null {
 
 function DaysRemaining({ toDate }: { toDate: Date | undefined }) {
   const days = daysUntil(toDate);
-  if (days === null) return <span className="text-muted-foreground">—</span>;
+  if (days === null) return <span className="text-zoru-ink-muted">—</span>;
   if (days < 0)
     return <Badge variant="destructive">Expired {Math.abs(days)}d ago</Badge>;
   if (days <= 30) return <Badge variant="warning">{days}d left</Badge>;
@@ -99,9 +99,9 @@ function KpiCard({
 }) {
   const bg =
     highlight === 'danger'
-      ? 'border-destructive/30 bg-destructive/5'
+      ? 'border-destructive/30 bg-zoru-ink/5'
       : highlight === 'warn'
-        ? 'border-amber-400/40 bg-amber-50/40 dark:bg-amber-900/10'
+        ? 'border-zoru-line/40 bg-zoru-surface-2/40 dark:bg-zoru-ink/10'
         : 'border-zoru-line bg-zoru-surface';
   return (
     <div className={`kpi-card flex flex-col gap-1 rounded-lg border p-3 ${bg}`}>
@@ -484,7 +484,7 @@ export default function ContractRenewalsPage() {
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={7}
-                      className="h-24 text-center text-[13px] text-muted-foreground"
+                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
                     >
                       {filtersActive
                         ? 'No renewals match the current filters.'
@@ -542,7 +542,7 @@ export default function ContractRenewalsPage() {
                             onClick={() => setDeletingId(r._id)}
                             aria-label="Delete renewal"
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                            <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
                           </Button>
                         </div>
                       </ZoruTableCell>

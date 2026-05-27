@@ -90,14 +90,14 @@ export function WorkspacesListClient({ initialItems }: Props) {
                 <div className="flex items-start gap-3">
                   <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: w.color || '#7c3aed', color: '#fff' }}
+                    style={{ backgroundColor: w.color || 'var(--zoru-ink)', color: 'var(--zoru-surface)' }}
                   >
                     <Layers className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
                     <div className="font-semibold truncate">{w.name}</div>
                     {w.description ? (
-                      <div className="text-sm text-muted-foreground line-clamp-2">
+                      <div className="text-sm text-zoru-ink-muted line-clamp-2">
                         {w.description}
                       </div>
                     ) : null}

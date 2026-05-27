@@ -88,7 +88,7 @@ export function AnalyticsSection({
         <ZoruCardContent className="p-4">
           <h3 className="mb-2 text-sm font-medium">By event type</h3>
           {analytics.byEventType.length === 0 ? (
-            <p className="text-xs text-muted-foreground">No data yet.</p>
+            <p className="text-xs text-zoru-ink-muted">No data yet.</p>
           ) : (
             <ZoruChartContainer config={{}} className="h-64 w-full">
               <PieChart>
@@ -115,7 +115,7 @@ export function AnalyticsSection({
         <ZoruCardContent className="p-4">
           <h3 className="mb-2 text-sm font-medium">Top event types</h3>
           {analytics.byEventType.length === 0 ? (
-            <p className="text-xs text-muted-foreground">No data yet.</p>
+            <p className="text-xs text-zoru-ink-muted">No data yet.</p>
           ) : (
             <ZoruChartContainer config={{}} className="h-56 w-full">
               <BarChart data={analytics.byEventType.slice(0, 10)}>

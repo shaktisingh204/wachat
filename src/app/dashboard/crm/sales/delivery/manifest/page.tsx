@@ -31,7 +31,7 @@ export default async function DispatchManifestPage({
 
       <table className="w-full text-sm border-collapse">
         <thead>
-          <tr className="bg-gray-100">
+          <tr className="bg-zoru-surface-2">
             <th className="border border-black p-2 text-left font-semibold">S.No</th>
             <th className="border border-black p-2 text-left font-semibold">Challan #</th>
             <th className="border border-black p-2 text-left font-semibold">Date</th>

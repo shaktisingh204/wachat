@@ -16,7 +16,7 @@ export default function ErrorBoundary({
 
   return (
     <div className="flex h-[400px] w-full flex-col items-center justify-center space-y-4 rounded-xl border border-zoru-line border-dashed bg-zoru-surface p-8 text-center animate-in fade-in-50 duration-500">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"

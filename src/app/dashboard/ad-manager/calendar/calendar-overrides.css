@@ -14,5 +14,5 @@
   border-radius: var(--zoru-radius);
 }
 .rbc-today {
-  background-color: var(--zoru-primary-light, #f0f9ff); /* light blue for ads */
+  background-color: var(--zoru-surface-2);
 }

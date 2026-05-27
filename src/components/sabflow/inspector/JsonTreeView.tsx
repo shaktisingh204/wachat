@@ -126,20 +126,20 @@ function PrimitiveView({ value }: { value: Primitive }) {
   }
   if (typeof value === 'string') {
     return (
-      <span className="text-emerald-600 dark:text-emerald-400 break-all">
+      <span className="text-zoru-ink dark:text-zoru-ink-muted break-all">
         &quot;{value}&quot;
       </span>
     );
   }
   if (typeof value === 'number') {
     return (
-      <span className="text-sky-600 dark:text-sky-400 tabular-nums">
+      <span className="text-zoru-ink dark:text-zoru-ink-muted tabular-nums">
         {Number.isFinite(value) ? value : String(value)}
       </span>
     );
   }
   if (typeof value === 'boolean') {
-    return <span className="text-[#f76808]">{String(value)}</span>;
+    return <span className="text-zoru-ink">{String(value)}</span>;
   }
   return <span>{String(value)}</span>;
 }

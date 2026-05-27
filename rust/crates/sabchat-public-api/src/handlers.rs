@@ -2,14 +2,13 @@ use axum::{
     Json,
     extract::{Path, Query, State},
 };
-use bson::{Bson, Document, doc, oid::ObjectId};
+use bson::{Document, doc, oid::ObjectId};
 use chrono::Utc;
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabchat_types::SabChatContact;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, document_to_clean_json};
-use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{
@@ -326,7 +325,7 @@ pub async fn append_message(
     let conversation_oid = oid_from_str(&id)?;
 
     let conv_coll = state.mongo.collection::<Document>(CONVERSATIONS_COLL);
-    let conv_doc = conv_coll
+    let _conv_doc = conv_coll
         .find_one(doc! { "_id": conversation_oid, "tenantId": tenant })
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?

@@ -17,7 +17,7 @@ export default function Error({
   return (
     <div className="flex h-full flex-col items-center justify-center space-y-4 p-8">
       <h2 className="text-xl font-semibold">Something went wrong!</h2>
-      <p className="text-muted-foreground">{error.message}</p>
+      <p className="text-zoru-ink-muted">{error.message}</p>
       <Button onClick={() => reset()} variant="outline">
         Try again
       </Button>

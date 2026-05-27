@@ -17,12 +17,12 @@ import { Loader2 } from 'lucide-react';
 
 const CustomNode = ({ data, id }: NodeProps) => {
   return (
-    <div className={`p-3 rounded-md border bg-white shadow-sm min-w-[150px] ${data.error ? 'border-red-500' : data.success ? 'border-green-500' : 'border-gray-200'}`}>
+    <div className={`p-3 rounded-md border bg-white shadow-sm min-w-[150px] ${data.error ? 'border-zoru-line' : data.success ? 'border-zoru-line' : 'border-zoru-line'}`}>
       <Handle type="target" position={Position.Top} className="w-2 h-2" />
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-bold text-gray-500">{data.typeLabel || 'Node'}</span>
+        <span className="text-xs font-bold text-zoru-ink">{data.typeLabel || 'Node'}</span>
         <span className="text-sm font-semibold">{data.label}</span>
-        {data.error && <span className="text-xs text-red-500 mt-1">{data.error}</span>}
+        {data.error && <span className="text-xs text-zoru-ink mt-1">{data.error}</span>}
       </div>
       <Handle type="source" position={Position.Bottom} className="w-2 h-2" />
     </div>
@@ -50,7 +50,7 @@ export function AutomationFlowEditor({ nodes, edges, setNodes, setEdges, testing
   );
 
   return (
-    <div className="h-[500px] w-full border rounded-md bg-gray-50 relative overflow-hidden">
+    <div className="h-[500px] w-full border rounded-md bg-zoru-surface-2 relative overflow-hidden">
       <ReactFlow
         nodes={nodes}
         edges={edges}

@@ -578,7 +578,7 @@ export default function MiniAppsPage() {
                         type="button"
                         aria-label="Copy URL"
                         onClick={() => copy(r.webAppUrl, 'URL copied')}
-                        className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-bg-muted hover:text-zoru-ink"
+                        className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-bg-zoru-surface-2 hover:text-zoru-ink"
                       >
                         <Copy className="h-3 w-3" />
                       </button>

@@ -319,7 +319,7 @@ export default function ProjectIssuesPage() {
         }
         bulkBar={
           selection.size > 0 ? (
-            <div className="flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-[13px]">
+            <div className="flex items-center gap-2 rounded-md bg-zoru-surface-2 px-3 py-2 text-[13px]">
               <span className="font-medium text-zoru-ink">{selection.size} selected</span>
               <Button variant="outline" size="sm" onClick={() => setConfirmBulk('close')} disabled={bulkPending}>
                 <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Close

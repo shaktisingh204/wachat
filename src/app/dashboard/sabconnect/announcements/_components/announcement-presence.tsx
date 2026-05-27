@@ -5,7 +5,7 @@ import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/componen
 
 export function AnnouncementPresence({ entityId }: { entityId: string }) {
     const [viewers, setViewers] = useState<{ id: string; name: string; color: string }[]>([
-        { id: '1', name: 'You', color: 'bg-zinc-200 text-zinc-800' }
+        { id: '1', name: 'You', color: 'bg-zoru-surface-2 text-zoru-ink' }
     ]);
     const [isConnected, setIsConnected] = useState(false);
 
@@ -30,7 +30,7 @@ export function AnnouncementPresence({ entityId }: { entityId: string }) {
                         setViewers(prev => [...prev, { 
                             id: '2', 
                             name: 'Alice S.', 
-                            color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300' 
+                            color: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted' 
                         }]);
                     }
                 }, 3000);
@@ -40,7 +40,7 @@ export function AnnouncementPresence({ entityId }: { entityId: string }) {
                         setViewers(prev => [...prev, { 
                             id: '3', 
                             name: 'Bob J.', 
-                            color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' 
+                            color: 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted' 
                         }]);
                     }
                 }, 8000);
@@ -85,10 +85,10 @@ export function AnnouncementPresence({ entityId }: { entityId: string }) {
                 <ZoruCardTitle className="text-sm font-medium">Active Viewers</ZoruCardTitle>
                 <div className="flex items-center gap-2">
                     <span className="relative flex h-2 w-2">
-                      <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${isConnected ? 'bg-green-400' : 'bg-zinc-400'}`}></span>
-                      <span className={`relative inline-flex h-2 w-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-zinc-500'}`}></span>
+                      <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${isConnected ? 'bg-zoru-surface-2' : 'bg-zoru-surface-2'}`}></span>
+                      <span className={`relative inline-flex h-2 w-2 rounded-full ${isConnected ? 'bg-zoru-ink' : 'bg-zoru-ink'}`}></span>
                     </span>
-                    <span className="text-xs text-zinc-500">{isConnected ? 'Live' : 'Offline'}</span>
+                    <span className="text-xs text-zoru-ink">{isConnected ? 'Live' : 'Offline'}</span>
                 </div>
             </ZoruCardHeader>
             <ZoruCardContent className="pb-4 pt-0">
@@ -96,19 +96,19 @@ export function AnnouncementPresence({ entityId }: { entityId: string }) {
                     {viewers.map((viewer, i) => (
                         <div 
                             key={viewer.id} 
-                            className={`inline-flex h-8 w-8 items-center justify-center rounded-full ring-2 ring-white text-xs font-medium dark:ring-zinc-950 ${viewer.color} ${i > 0 ? 'animate-in fade-in zoom-in duration-300' : ''}`}
+                            className={`inline-flex h-8 w-8 items-center justify-center rounded-full ring-2 ring-white text-xs font-medium dark:ring-zoru-line ${viewer.color} ${i > 0 ? 'animate-in fade-in zoom-in duration-300' : ''}`}
                             title={viewer.name}
                         >
                             {viewer.name.charAt(0)}
                         </div>
                     ))}
                     {viewers.length > 3 && (
-                        <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-zinc-100 ring-2 ring-white text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:ring-zinc-950">
+                        <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 ring-2 ring-white text-xs font-medium text-zoru-ink dark:bg-zoru-ink dark:text-zoru-ink-muted dark:ring-zoru-line">
                             +{viewers.length - 3}
                         </div>
                     )}
                 </div>
-                <p className="mt-2 text-xs text-zinc-500">
+                <p className="mt-2 text-xs text-zoru-ink">
                     {viewers.length} person{viewers.length === 1 ? '' : 's'} viewing this announcement.
                 </p>
             </ZoruCardContent>

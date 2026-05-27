@@ -45,12 +45,12 @@ export type WebhookTriggerProps = {
 const METHODS: WebhookTriggerMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'ANY'];
 
 const METHOD_COLORS: Record<WebhookTriggerMethod, string> = {
-  GET:    'text-emerald-600 bg-emerald-50 border-emerald-200',
-  POST:   'text-blue-600 bg-blue-50 border-blue-200',
-  PUT:    'text-amber-600 bg-amber-50 border-amber-200',
-  PATCH:  'text-orange-600 bg-orange-50 border-orange-200',
-  DELETE: 'text-red-600 bg-red-50 border-red-200',
-  ANY:    'text-purple-600 bg-purple-50 border-purple-200',
+  GET:    'text-zoru-ink bg-zoru-surface-2 border-zoru-line',
+  POST:   'text-zoru-ink bg-zoru-surface-2 border-zoru-line',
+  PUT:    'text-zoru-ink bg-zoru-surface-2 border-zoru-line',
+  PATCH:  'text-zoru-ink bg-zoru-surface-2 border-zoru-line',
+  DELETE: 'text-zoru-ink bg-zoru-surface-2 border-zoru-line',
+  ANY:    'text-zoru-ink bg-zoru-surface-2 border-zoru-line',
 };
 
 /* ── Component ───────────────────────────────────────────── */
@@ -75,7 +75,7 @@ export function WebhookTrigger({ config, baseUrl = '', onChange, className }: We
     <div className={cn('space-y-4', className)}>
       {/* Node header chip */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#6366f1]/10 text-[#6366f1]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-ink/10 text-zoru-ink">
           <LuWebhook className="h-4 w-4" strokeWidth={2} />
         </div>
         <div>
@@ -98,7 +98,7 @@ export function WebhookTrigger({ config, baseUrl = '', onChange, className }: We
             title="Copy URL"
           >
             {copied
-              ? <LuCheck className="h-3.5 w-3.5 text-emerald-500" strokeWidth={2} />
+              ? <LuCheck className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={2} />
               : <LuCopy className="h-3.5 w-3.5" strokeWidth={2} />
             }
           </button>
@@ -294,8 +294,8 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className={cn(
-        'relative h-5 w-9 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f76808]',
-        checked ? 'bg-[#f76808]' : 'bg-[var(--gray-5)]',
+        'relative h-5 w-9 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line',
+        checked ? 'bg-zoru-ink' : 'bg-[var(--gray-5)]',
       )}
     >
       <span
@@ -317,7 +317,7 @@ function OutputSchema({ fields }: { fields: OutputField[] }) {
       <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)]">
         {fields.map((f) => (
           <div key={f.key} className="flex items-center gap-2 px-3 py-1.5">
-            <code className="min-w-[80px] text-[11.5px] font-mono font-medium text-[#6366f1]">{f.key}</code>
+            <code className="min-w-[80px] text-[11.5px] font-mono font-medium text-zoru-ink">{f.key}</code>
             <span className="rounded bg-[var(--gray-4)] px-1 py-0.5 text-[10px] font-mono text-[var(--gray-9)]">{f.type}</span>
             <span className="flex-1 text-[11px] text-[var(--gray-9)] truncate">{f.description}</span>
           </div>
@@ -330,4 +330,4 @@ function OutputSchema({ fields }: { fields: OutputField[] }) {
 /* ── Shared class strings ────────────────────────────────── */
 
 const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[#f76808] transition-colors';
+  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-zoru-line transition-colors';

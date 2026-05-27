@@ -44,7 +44,7 @@ const PLANS = [
         ],
         cta: 'Start free',
         popular: false,
-        gradient: 'from-zinc-700 to-zinc-900',
+        gradient: 'from-zoru-ink to-zoru-ink',
     },
     {
         id: 'growth',
@@ -63,7 +63,7 @@ const PLANS = [
         ],
         cta: 'Start 14-day trial',
         popular: true,
-        gradient: 'from-amber-400 via-orange-500 to-rose-500',
+        gradient: 'from-zoru-surface-2 via-zoru-ink to-zoru-ink',
     },
     {
         id: 'scale',
@@ -83,7 +83,7 @@ const PLANS = [
         ],
         cta: 'Talk to sales',
         popular: false,
-        gradient: 'from-violet-500 via-fuchsia-500 to-rose-500',
+        gradient: 'from-zoru-ink via-zoru-ink to-zoru-ink',
     },
     {
         id: 'enterprise',
@@ -103,7 +103,7 @@ const PLANS = [
         ],
         cta: 'Contact sales',
         popular: false,
-        gradient: 'from-slate-600 to-slate-900',
+        gradient: 'from-zoru-ink to-zoru-ink',
     },
 ];
 
@@ -194,7 +194,7 @@ export function PricingPage({ session }: PricingPageProps) {
     const [billing, setBilling] = useState<Billing>('yearly');
 
     return (
-        <div className="relative min-h-screen overflow-x-clip bg-[#fafaf7] text-zinc-900 antialiased">
+        <div className="relative min-h-screen overflow-x-clip bg-zoru-surface text-zoru-ink antialiased">
             <div
                 aria-hidden
                 className="pointer-events-none fixed inset-0 z-0"
@@ -233,20 +233,20 @@ function Hero({ billing, setBilling }: { billing: Billing; setBilling: (b: Billi
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-zinc-600 backdrop-blur"
+                    className="inline-flex items-center gap-2 rounded-full border border-zoru-line bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-zoru-ink backdrop-blur"
                 >
-                    <Sparkles className="h-3 w-3 text-amber-500" />
+                    <Sparkles className="h-3 w-3 text-zoru-ink" />
                     47 products. One bill.
                 </m.div>
                 <m.h1
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.05 }}
-                    className="mt-6 text-balance text-5xl font-semibold tracking-tight text-zinc-950 md:text-7xl"
+                    className="mt-6 text-balance text-5xl font-semibold tracking-tight text-zoru-ink md:text-7xl"
                 >
                     Honest pricing.
                     <br />
-                    <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 bg-clip-text text-transparent">
+                    <span className="bg-gradient-to-r from-zoru-ink via-zoru-ink to-zoru-ink bg-clip-text text-transparent">
                         Built to scale with you.
                     </span>
                 </m.h1>
@@ -254,7 +254,7 @@ function Hero({ billing, setBilling }: { billing: Billing; setBilling: (b: Billi
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-zinc-600"
+                    className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-zoru-ink"
                 >
                     Usage-based, not per-seat. Start free, scale to enterprise — keep the same data, the
                     same dashboards, the same team. No upsell surprises.
@@ -265,7 +265,7 @@ function Hero({ billing, setBilling }: { billing: Billing; setBilling: (b: Billi
                     transition={{ duration: 0.4, delay: 0.2 }}
                     className="mt-10 flex justify-center"
                 >
-                    <div className="relative inline-flex rounded-full border border-zinc-200 bg-white p-1 shadow-sm">
+                    <div className="relative inline-flex rounded-full border border-zoru-line bg-white p-1 shadow-sm">
                         {(['monthly', 'yearly'] as Billing[]).map((b) => (
                             <button
                                 key={b}
@@ -275,16 +275,16 @@ function Hero({ billing, setBilling }: { billing: Billing; setBilling: (b: Billi
                                 {billing === b && (
                                     <m.span
                                         layoutId="billing-pill"
-                                        className="absolute inset-0 rounded-full bg-zinc-900"
+                                        className="absolute inset-0 rounded-full bg-zoru-ink"
                                         transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                                     />
                                 )}
-                                <span className={`relative ${billing === b ? 'text-white' : 'text-zinc-700'}`}>
+                                <span className={`relative ${billing === b ? 'text-white' : 'text-zoru-ink'}`}>
                                     {b === 'monthly' ? 'Monthly' : 'Yearly'}
                                     {b === 'yearly' && (
                                         <span
                                             className={`ml-2 rounded-full px-1.5 text-[10px] font-bold ${
-                                                billing === b ? 'bg-amber-400/20 text-amber-300' : 'bg-amber-100 text-amber-700'
+                                                billing === b ? 'bg-zoru-surface-2/20 text-zoru-ink-muted' : 'bg-zoru-surface-2 text-zoru-ink'
                                             }`}
                                         >
                                             −20%
@@ -316,41 +316,41 @@ function PlanGrid({ billing, session }: { billing: Billing; session?: { user?: u
                             transition={{ delay: i * 0.05 }}
                             className={`relative flex flex-col rounded-3xl border p-6 ${
                                 p.popular
-                                    ? 'border-zinc-900 bg-white shadow-[0_24px_70px_-30px_rgba(0,0,0,0.3)]'
-                                    : 'border-zinc-200 bg-white'
+                                    ? 'border-zoru-line bg-white shadow-[0_24px_70px_-30px_rgba(0,0,0,0.3)]'
+                                    : 'border-zoru-line bg-white'
                             }`}
                         >
                             {p.popular && (
-                                <span className="absolute -top-3 left-6 rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white shadow-md">
+                                <span className="absolute -top-3 left-6 rounded-full bg-gradient-to-r from-zoru-surface-2 via-zoru-ink to-zoru-ink px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white shadow-md">
                                     Most popular
                                 </span>
                             )}
                             <div className={`grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br ${p.gradient} shadow-md`}>
                                 <span className="text-sm font-black text-white">{p.name[0]}</span>
                             </div>
-                            <h3 className="mt-4 text-xl font-semibold tracking-tight text-zinc-950">{p.name}</h3>
-                            <p className="mt-1 text-[13px] text-zinc-600">{p.tagline}</p>
+                            <h3 className="mt-4 text-xl font-semibold tracking-tight text-zoru-ink">{p.name}</h3>
+                            <p className="mt-1 text-[13px] text-zoru-ink">{p.tagline}</p>
                             <div className="mt-5 flex items-baseline gap-1.5">
                                 {monthlyPrice === null ? (
-                                    <span className="text-3xl font-semibold text-zinc-950">Custom</span>
+                                    <span className="text-3xl font-semibold text-zoru-ink">Custom</span>
                                 ) : monthlyPrice === 0 ? (
-                                    <span className="text-3xl font-semibold text-zinc-950">Free</span>
+                                    <span className="text-3xl font-semibold text-zoru-ink">Free</span>
                                 ) : (
                                     <>
-                                        <span className="text-3xl font-semibold tracking-tight text-zinc-950">
+                                        <span className="text-3xl font-semibold tracking-tight text-zoru-ink">
                                             ₹{Math.round(monthlyPrice / (billing === 'yearly' ? 12 : 1)).toLocaleString('en-IN')}
                                         </span>
-                                        <span className="text-[13px] text-zinc-500">
-                                            / mo {billing === 'yearly' && <span className="text-amber-700">billed yearly</span>}
+                                        <span className="text-[13px] text-zoru-ink">
+                                            / mo {billing === 'yearly' && <span className="text-zoru-ink">billed yearly</span>}
                                         </span>
                                     </>
                                 )}
                             </div>
-                            <p className="mt-1 text-[11px] text-zinc-500">{p.sub}</p>
+                            <p className="mt-1 text-[11px] text-zoru-ink">{p.sub}</p>
                             <ul className="mt-6 flex-1 space-y-2">
                                 {p.features.map((f) => (
-                                    <li key={f} className="flex items-start gap-2 text-[14px] text-zinc-700">
-                                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                                    <li key={f} className="flex items-start gap-2 text-[14px] text-zoru-ink">
+                                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-zoru-ink" />
                                         {f}
                                     </li>
                                 ))}
@@ -365,10 +365,10 @@ function PlanGrid({ billing, session }: { billing: Billing; session?: { user?: u
                                 }
                                 className={`mt-8 inline-flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold transition ${
                                     p.popular
-                                        ? 'bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 text-white shadow-lg hover:scale-[1.03]'
+                                        ? 'bg-gradient-to-r from-zoru-surface-2 via-zoru-ink to-zoru-ink text-white shadow-lg hover:scale-[1.03]'
                                         : p.id === 'enterprise'
-                                          ? 'bg-zinc-900 text-white hover:bg-zinc-800'
-                                          : 'border border-zinc-200 text-zinc-900 hover:border-zinc-900'
+                                          ? 'bg-zoru-ink text-white hover:bg-zoru-ink'
+                                          : 'border border-zoru-line text-zoru-ink hover:border-zoru-line'
                                 }`}
                             >
                                 {p.cta} <ArrowRight className="h-3.5 w-3.5" />
@@ -377,7 +377,7 @@ function PlanGrid({ billing, session }: { billing: Billing; session?: { user?: u
                     );
                 })}
             </div>
-            <p className="mt-10 text-center text-sm text-zinc-500">
+            <p className="mt-10 text-center text-sm text-zoru-ink">
                 All plans include the full 47-product feature set · No setup fees · 14-day free trial on Growth and Scale
             </p>
         </section>
@@ -405,11 +405,11 @@ function ValuePillars() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.05 }}
-                                className="rounded-2xl border border-zinc-200 bg-white p-5"
+                                className="rounded-2xl border border-zoru-line bg-white p-5"
                             >
-                                <Icon className="h-5 w-5 text-amber-600" />
-                                <p className="mt-3 text-base font-semibold text-zinc-950">{it.t}</p>
-                                <p className="mt-1 text-[13px] leading-relaxed text-zinc-600">{it.d}</p>
+                                <Icon className="h-5 w-5 text-zoru-ink" />
+                                <p className="mt-3 text-base font-semibold text-zoru-ink">{it.t}</p>
+                                <p className="mt-1 text-[13px] leading-relaxed text-zoru-ink">{it.d}</p>
                             </m.div>
                         );
                     })}
@@ -422,9 +422,9 @@ function ValuePillars() {
 // ───────── COMPARE TABLE ─────────
 function CompareTable({ billing, session }: { billing: Billing; session?: { user?: unknown } | null }) {
     const cell = (v: unknown) => {
-        if (v === true) return <Check className="mx-auto h-4 w-4 text-emerald-600" />;
-        if (v === false) return <Minus className="mx-auto h-4 w-4 text-zinc-300" />;
-        return <span className="text-zinc-700">{String(v)}</span>;
+        if (v === true) return <Check className="mx-auto h-4 w-4 text-zoru-ink" />;
+        if (v === false) return <Minus className="mx-auto h-4 w-4 text-zoru-ink-muted" />;
+        return <span className="text-zoru-ink">{String(v)}</span>;
     };
     return (
         <section id="compare" className="relative px-6 py-24">
@@ -433,7 +433,7 @@ function CompareTable({ billing, session }: { billing: Billing; session?: { user
                     initial={{ opacity: 0, y: 6 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500"
+                    className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink"
                 >
                     Compare plans
                 </m.p>
@@ -442,21 +442,21 @@ function CompareTable({ billing, session }: { billing: Billing; session?: { user
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.05 }}
-                    className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl"
+                    className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl"
                 >
                     Every limit, every feature, every plan.
                 </m.h2>
-                <p className="mt-4 max-w-2xl text-zinc-600">
+                <p className="mt-4 max-w-2xl text-zoru-ink">
                     We don&apos;t hide the boring details. Here&apos;s exactly what you get at every level.
                 </p>
 
-                <div className="mt-10 overflow-hidden rounded-3xl border border-zinc-200 bg-white">
-                    <div className="sticky top-16 z-10 grid grid-cols-5 border-b border-zinc-200 bg-white/95 px-5 py-4 backdrop-blur">
-                        <div className="text-sm font-semibold text-zinc-900">Feature</div>
+                <div className="mt-10 overflow-hidden rounded-3xl border border-zoru-line bg-white">
+                    <div className="sticky top-16 z-10 grid grid-cols-5 border-b border-zoru-line bg-white/95 px-5 py-4 backdrop-blur">
+                        <div className="text-sm font-semibold text-zoru-ink">Feature</div>
                         {PLANS.map((p) => (
                             <div key={p.id} className="text-center">
-                                <p className="text-sm font-semibold text-zinc-900">{p.name}</p>
-                                <p className="mt-0.5 text-[11px] text-zinc-500">
+                                <p className="text-sm font-semibold text-zoru-ink">{p.name}</p>
+                                <p className="mt-0.5 text-[11px] text-zoru-ink">
                                     {p.price[billing] === null
                                         ? 'Custom'
                                         : p.price[billing] === 0
@@ -469,8 +469,8 @@ function CompareTable({ billing, session }: { billing: Billing; session?: { user
 
                     {COMPARE_GROUPS.map((g) => (
                         <div key={g.title}>
-                            <div className="grid grid-cols-5 border-b border-zinc-200 bg-zinc-50 px-5 py-2.5">
-                                <div className="col-span-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                            <div className="grid grid-cols-5 border-b border-zoru-line bg-zoru-surface-2 px-5 py-2.5">
+                                <div className="col-span-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-zoru-ink">
                                     {g.title}
                                 </div>
                             </div>
@@ -481,9 +481,9 @@ function CompareTable({ billing, session }: { billing: Billing; session?: { user
                                     whileInView={{ opacity: 1 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: i * 0.02 }}
-                                    className="grid grid-cols-5 items-center border-b border-zinc-100 px-5 py-3 text-[13px] last:border-0"
+                                    className="grid grid-cols-5 items-center border-b border-zoru-line px-5 py-3 text-[13px] last:border-0"
                                 >
-                                    <div className="text-zinc-800">{r.name}</div>
+                                    <div className="text-zoru-ink">{r.name}</div>
                                     <div className="text-center">{cell(r.s)}</div>
                                     <div className="text-center">{cell(r.g)}</div>
                                     <div className="text-center">{cell(r.sc)}</div>
@@ -494,7 +494,7 @@ function CompareTable({ billing, session }: { billing: Billing; session?: { user
                     ))}
 
                     {/* CTA row inside table */}
-                    <div className="grid grid-cols-5 border-t border-zinc-200 bg-zinc-50 px-5 py-5">
+                    <div className="grid grid-cols-5 border-t border-zoru-line bg-zoru-surface-2 px-5 py-5">
                         <div className="hidden md:block" />
                         {PLANS.map((p) => (
                             <div key={p.id} className="text-center">
@@ -508,8 +508,8 @@ function CompareTable({ billing, session }: { billing: Billing; session?: { user
                                     }
                                     className={`inline-flex items-center justify-center gap-1 rounded-full px-3 py-1.5 text-[12px] font-semibold transition ${
                                         p.popular
-                                            ? 'bg-zinc-900 text-white hover:bg-zinc-800'
-                                            : 'border border-zinc-300 text-zinc-900 hover:border-zinc-900'
+                                            ? 'bg-zoru-ink text-white hover:bg-zoru-ink'
+                                            : 'border border-zoru-line text-zoru-ink hover:border-zoru-line'
                                     }`}
                                 >
                                     {p.cta}
@@ -533,7 +533,7 @@ function ModulePricing() {
                     initial={{ opacity: 0, y: 6 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500"
+                    className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink"
                 >
                     All 47 modules · included
                 </m.p>
@@ -542,11 +542,11 @@ function ModulePricing() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.05 }}
-                    className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl"
+                    className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl"
                 >
                     Every module. On every paid plan.
                 </m.h2>
-                <p className="mt-4 max-w-2xl text-zinc-600">
+                <p className="mt-4 max-w-2xl text-zoru-ink">
                     You don&apos;t pick a SKU and lose features. You pick a scale tier and get the whole stack.
                 </p>
 
@@ -562,11 +562,11 @@ function ModulePricing() {
                                 viewport={{ once: true }}
                                 transition={{ delay: ci * 0.03 }}
                             >
-                                <div className="mb-4 flex items-baseline justify-between border-b border-zinc-200 pb-3">
-                                    <h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                                <div className="mb-4 flex items-baseline justify-between border-b border-zoru-line pb-3">
+                                    <h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                                         {cat}
                                     </h3>
-                                    <span className="text-[11px] text-zinc-400">{items.length}</span>
+                                    <span className="text-[11px] text-zoru-ink-muted">{items.length}</span>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
                                     {items.map((mod) => {
@@ -575,7 +575,7 @@ function ModulePricing() {
                                             <Link
                                                 key={mod.slug}
                                                 href={mod.href}
-                                                className="group flex items-center gap-3 rounded-2xl border border-zinc-200 bg-[#fafaf7] p-3 transition hover:-translate-y-0.5 hover:border-zinc-900"
+                                                className="group flex items-center gap-3 rounded-2xl border border-zoru-line bg-zoru-surface p-3 transition hover:-translate-y-0.5 hover:border-zoru-line"
                                             >
                                                 <div
                                                     className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo} shadow-md`}
@@ -583,12 +583,12 @@ function ModulePricing() {
                                                     <Icon className="h-4 w-4 text-white" />
                                                 </div>
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="truncate text-[13px] font-semibold text-zinc-900">
+                                                    <p className="truncate text-[13px] font-semibold text-zoru-ink">
                                                         {mod.name}
                                                     </p>
-                                                    <p className="truncate text-[11px] text-zinc-500">{mod.tag}</p>
+                                                    <p className="truncate text-[11px] text-zoru-ink">{mod.tag}</p>
                                                 </div>
-                                                <Check className="h-4 w-4 shrink-0 text-emerald-600" />
+                                                <Check className="h-4 w-4 shrink-0 text-zoru-ink" />
                                             </Link>
                                         );
                                     })}
@@ -630,7 +630,7 @@ function UsageCalculator() {
                     initial={{ opacity: 0, y: 6 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500"
+                    className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink"
                 >
                     Estimate your bill
                 </m.p>
@@ -639,13 +639,13 @@ function UsageCalculator() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.05 }}
-                    className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl"
+                    className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl"
                 >
                     See your number in 10 seconds.
                 </m.h2>
 
                 <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_1fr]">
-                    <div className="rounded-3xl border border-zinc-200 bg-white p-6">
+                    <div className="rounded-3xl border border-zoru-line bg-white p-6">
                         <Slider
                             label="Contacts in your CRM"
                             value={contacts}
@@ -679,14 +679,14 @@ function UsageCalculator() {
                         initial={{ opacity: 0, x: 8 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        className="relative overflow-hidden rounded-3xl bg-zinc-950 p-8 text-white"
+                        className="relative overflow-hidden rounded-3xl bg-zoru-ink p-8 text-white"
                     >
                         <div
                             aria-hidden
                             className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full blur-3xl"
                             style={{ background: 'rgba(251,146,60,0.4)' }}
                         />
-                        <p className="relative text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-300">
+                        <p className="relative text-[11px] font-semibold uppercase tracking-[0.2em] text-zoru-ink-muted">
                             Recommended plan
                         </p>
                         <p className="relative mt-2 text-3xl font-semibold">{plan}</p>
@@ -701,13 +701,13 @@ function UsageCalculator() {
                         </div>
                         <Link
                             href="/contact"
-                            className="relative mt-8 inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-zinc-900 hover:bg-zinc-100"
+                            className="relative mt-8 inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-zoru-ink hover:bg-zoru-surface-2"
                         >
                             Get a written quote <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
                     </m.div>
                 </div>
-                <p className="mt-6 text-sm text-zinc-500">
+                <p className="mt-6 text-sm text-zoru-ink">
                     Estimates only. Custom contracts available for volumes above 1M messages or 500k
                     contacts.
                 </p>
@@ -736,8 +736,8 @@ function Slider({
     return (
         <div className="mb-6 last:mb-0">
             <div className="flex items-baseline justify-between">
-                <label className="text-sm font-semibold text-zinc-800">{label}</label>
-                <span className="text-base font-semibold text-zinc-950">{fmt(value)}</span>
+                <label className="text-sm font-semibold text-zoru-ink">{label}</label>
+                <span className="text-base font-semibold text-zoru-ink">{fmt(value)}</span>
             </div>
             <input
                 type="range"
@@ -746,9 +746,9 @@ function Slider({
                 step={step}
                 value={value}
                 onChange={(e) => onChange(Number(e.target.value))}
-                className="mt-3 w-full accent-orange-500"
+                className="mt-3 w-full accent-zoru-ink"
             />
-            <div className="mt-1 flex justify-between text-[10px] uppercase tracking-wider text-zinc-400">
+            <div className="mt-1 flex justify-between text-[10px] uppercase tracking-wider text-zoru-ink-muted">
                 <span>{fmt(min)}</span>
                 <span>{fmt(max)}</span>
             </div>
@@ -762,7 +762,7 @@ function CustomerLogos() {
     return (
         <section className="relative bg-white px-6 py-16">
             <div className="mx-auto max-w-7xl">
-                <p className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                <p className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                     Trusted by 12,000+ teams across India + 14 countries
                 </p>
                 <div className="mt-6 grid grid-cols-4 gap-6 md:grid-cols-8">
@@ -773,7 +773,7 @@ function CustomerLogos() {
                             whileInView={{ opacity: 0.85 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.04 }}
-                            className="text-center text-sm font-semibold tracking-tight text-zinc-700"
+                            className="text-center text-sm font-semibold tracking-tight text-zoru-ink"
                         >
                             {l}
                         </m.span>
@@ -817,17 +817,17 @@ function TestimonialStrip() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.06 }}
-                            className="relative overflow-hidden rounded-3xl border border-zinc-200 bg-white p-7"
+                            className="relative overflow-hidden rounded-3xl border border-zoru-line bg-white p-7"
                         >
-                            <Quote className="h-6 w-6 text-amber-500" />
-                            <p className="mt-4 text-[15px] leading-relaxed text-zinc-800">{t.quote}</p>
+                            <Quote className="h-6 w-6 text-zoru-ink" />
+                            <p className="mt-4 text-[15px] leading-relaxed text-zoru-ink">{t.quote}</p>
                             <div className="mt-6 flex items-center gap-3">
-                                <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 text-sm font-semibold text-white">
+                                <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-zoru-surface-2 via-zoru-ink to-zoru-ink text-sm font-semibold text-white">
                                     {t.who[0]}
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold text-zinc-950">{t.who}</p>
-                                    <p className="text-[12px] text-zinc-500">{t.role}</p>
+                                    <p className="text-sm font-semibold text-zoru-ink">{t.who}</p>
+                                    <p className="text-[12px] text-zoru-ink">{t.role}</p>
                                 </div>
                             </div>
                         </m.div>
@@ -886,11 +886,11 @@ function Faq() {
     return (
         <section className="relative bg-white px-6 py-24">
             <div className="mx-auto max-w-4xl">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">FAQ</p>
-                <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">FAQ</p>
+                <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
                     Pricing answers — for the parts you usually have to email about.
                 </h2>
-                <div className="mt-10 divide-y divide-zinc-200 border-y border-zinc-200">
+                <div className="mt-10 divide-y divide-zoru-line border-y border-zoru-line">
                     {items.map((it, i) => {
                         const isOpen = open === i;
                         return (
@@ -899,9 +899,9 @@ function Faq() {
                                     onClick={() => setOpen(isOpen ? null : i)}
                                     className="flex w-full items-center justify-between gap-4 py-5 text-left"
                                 >
-                                    <span className="text-lg font-semibold text-zinc-950">{it.q}</span>
+                                    <span className="text-lg font-semibold text-zoru-ink">{it.q}</span>
                                     <ChevronDown
-                                        className={`h-5 w-5 shrink-0 text-zinc-400 transition ${isOpen ? 'rotate-180' : ''}`}
+                                        className={`h-5 w-5 shrink-0 text-zoru-ink-muted transition ${isOpen ? 'rotate-180' : ''}`}
                                     />
                                 </button>
                                 <AnimatePresence initial={false}>
@@ -913,7 +913,7 @@ function Faq() {
                                             transition={{ duration: 0.2 }}
                                             className="overflow-hidden"
                                         >
-                                            <p className="pb-5 text-[15px] leading-relaxed text-zinc-700">{it.a}</p>
+                                            <p className="pb-5 text-[15px] leading-relaxed text-zoru-ink">{it.a}</p>
                                         </m.div>
                                     )}
                                 </AnimatePresence>
@@ -935,7 +935,7 @@ function FinalCta({ session }: { session?: { user?: unknown } | null }) {
                     initial={{ opacity: 0, scale: 0.96 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="relative overflow-hidden rounded-[2.5rem] bg-zinc-950 px-8 py-16 text-white md:px-16 md:py-24"
+                    className="relative overflow-hidden rounded-[2.5rem] bg-zoru-ink px-8 py-16 text-white md:px-16 md:py-24"
                 >
                     <div
                         aria-hidden
@@ -949,7 +949,7 @@ function FinalCta({ session }: { session?: { user?: unknown } | null }) {
                     />
                     <div className="relative grid items-center gap-10 md:grid-cols-2">
                         <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-300">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink-muted">
                                 Ready when you are
                             </p>
                             <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight md:text-5xl">
@@ -961,7 +961,7 @@ function FinalCta({ session }: { session?: { user?: unknown } | null }) {
                             <div className="mt-8 flex flex-wrap gap-3">
                                 <Link
                                     href={session?.user ? '/dashboard' : '/login?signup=1'}
-                                    className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg hover:scale-[1.03]"
+                                    className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-zoru-surface-2 via-zoru-ink to-zoru-ink px-5 py-2.5 text-sm font-semibold text-white shadow-lg hover:scale-[1.03]"
                                 >
                                     Start free <ArrowRight className="h-3.5 w-3.5" />
                                 </Link>
@@ -983,7 +983,7 @@ function FinalCta({ session }: { session?: { user?: unknown } | null }) {
                                 const Icon = p.icon;
                                 return (
                                     <div key={p.t} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3.5">
-                                        <Icon className="h-4 w-4 text-amber-300" />
+                                        <Icon className="h-4 w-4 text-zoru-ink-muted" />
                                         <span className="text-sm text-white/90">{p.t}</span>
                                     </div>
                                 );

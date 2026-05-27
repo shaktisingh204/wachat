@@ -147,7 +147,7 @@ export function TicketListClient({
       </div>
 
       {error ? (
-        <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
+        <div className="flex items-center gap-2 border-b border-zoru-line/40 bg-zoru-ink/10 px-4 py-2.5 text-[13px] text-zoru-ink">
           <AlertCircle className="h-4 w-4 shrink-0" />
           {error}
         </div>

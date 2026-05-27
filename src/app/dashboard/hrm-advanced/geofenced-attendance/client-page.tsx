@@ -180,7 +180,7 @@ export function GeofencedAttendanceClient({ initialData }: { initialData: Attend
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">Geofenced Attendance</h1>
-          <p className="text-muted-foreground text-sm">Track employee check-ins and check-outs</p>
+          <p className="text-zoru-ink-muted text-sm">Track employee check-ins and check-outs</p>
         </div>
         <div className="flex items-center gap-2">
           {selectedIds.size > 0 && (

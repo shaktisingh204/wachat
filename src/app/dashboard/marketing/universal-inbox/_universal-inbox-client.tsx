@@ -68,7 +68,7 @@ export function UniversalInboxClient({
               >
                 <div className="flex items-center gap-3">
                   <ZoruAvatar>
-                    <div className="bg-blue-100 text-blue-600 w-full h-full flex items-center justify-center font-bold">
+                    <div className="bg-zoru-surface-2 text-zoru-ink w-full h-full flex items-center justify-center font-bold">
                       {msg.senderId.charAt(0).toUpperCase()}
                     </div>
                   </ZoruAvatar>
@@ -79,7 +79,7 @@ export function UniversalInboxClient({
                     </div>
                     <p className="text-xs text-zoru-ink-muted truncate">{msg.content}</p>
                   </div>
-                  {!msg.isRead && <div className="w-2 h-2 rounded-full bg-blue-500"></div>}
+                  {!msg.isRead && <div className="w-2 h-2 rounded-full bg-zoru-ink"></div>}
                 </div>
               </div>
             ))
@@ -94,7 +94,7 @@ export function UniversalInboxClient({
             <div className="p-4 border-b border-zoru-line flex items-center justify-between bg-zoru-bg">
               <div className="flex items-center gap-3">
                 <ZoruAvatar>
-                  <div className="bg-blue-100 text-blue-600 w-full h-full flex items-center justify-center font-bold">
+                  <div className="bg-zoru-surface-2 text-zoru-ink w-full h-full flex items-center justify-center font-bold">
                     {selectedMessage.senderId.charAt(0).toUpperCase()}
                   </div>
                 </ZoruAvatar>
@@ -138,10 +138,10 @@ export function UniversalInboxClient({
         ) : (
           <div className="flex-1 flex flex-col bg-zoru-bg overflow-y-auto">
             {/* Global Campaign Dashboard Header */}
-            <div className="p-8 pb-4 border-b border-zoru-line bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
+            <div className="p-8 pb-4 border-b border-zoru-line bg-gradient-to-r from-zoru-surface-2/50 to-zoru-surface-2/50">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-lg bg-blue-100 text-blue-600">
+                  <div className="p-3 rounded-lg bg-zoru-surface-2 text-zoru-ink">
                     <Megaphone className="h-6 w-6" />
                   </div>
                   <div>
@@ -149,15 +149,15 @@ export function UniversalInboxClient({
                     <p className="text-sm text-zoru-ink-muted">Monitor and manage cross-channel ROI</p>
                   </div>
                 </div>
-                <Badge className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 py-1.5 px-3">
+                <Badge className="bg-zoru-ink hover:bg-zoru-ink text-white flex items-center gap-2 py-1.5 px-3">
                   <TrendingUp className="h-4 w-4" />
                   ROI +12.4%
                 </Badge>
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                <Card className="p-4 shadow-sm border-zoru-line flex items-center gap-4 hover:border-blue-300 transition-colors cursor-pointer">
-                  <div className="p-3 rounded-full bg-green-100 text-green-600">
+                <Card className="p-4 shadow-sm border-zoru-line flex items-center gap-4 hover:border-zoru-line transition-colors cursor-pointer">
+                  <div className="p-3 rounded-full bg-zoru-surface-2 text-zoru-ink">
                     <Activity className="h-5 w-5" />
                   </div>
                   <div>
@@ -165,8 +165,8 @@ export function UniversalInboxClient({
                     <p className="text-xl font-bold text-zoru-ink">{campaigns.filter(c => c.status === 'active').length}</p>
                   </div>
                 </Card>
-                <Card className="p-4 shadow-sm border-zoru-line flex items-center gap-4 hover:border-blue-300 transition-colors cursor-pointer">
-                  <div className="p-3 rounded-full bg-purple-100 text-purple-600">
+                <Card className="p-4 shadow-sm border-zoru-line flex items-center gap-4 hover:border-zoru-line transition-colors cursor-pointer">
+                  <div className="p-3 rounded-full bg-zoru-surface-2 text-zoru-ink">
                     <Share2 className="h-5 w-5" />
                   </div>
                   <div>
@@ -174,8 +174,8 @@ export function UniversalInboxClient({
                     <p className="text-xl font-bold text-zoru-ink">{socialPosts.length}</p>
                   </div>
                 </Card>
-                <Card className="p-4 shadow-sm border-zoru-line flex items-center gap-4 hover:border-blue-300 transition-colors cursor-pointer">
-                  <div className="p-3 rounded-full bg-orange-100 text-orange-600">
+                <Card className="p-4 shadow-sm border-zoru-line flex items-center gap-4 hover:border-zoru-line transition-colors cursor-pointer">
+                  <div className="p-3 rounded-full bg-zoru-surface-2 text-zoru-ink">
                     <LinkIcon className="h-5 w-5" />
                   </div>
                   <div>
@@ -183,8 +183,8 @@ export function UniversalInboxClient({
                     <p className="text-xl font-bold text-zoru-ink">{utmLinks.length}</p>
                   </div>
                 </Card>
-                <Card className="p-4 shadow-sm border-zoru-line flex items-center gap-4 hover:border-blue-300 transition-colors cursor-pointer">
-                  <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+                <Card className="p-4 shadow-sm border-zoru-line flex items-center gap-4 hover:border-zoru-line transition-colors cursor-pointer">
+                  <div className="p-3 rounded-full bg-zoru-surface-2 text-zoru-ink">
                     <MessageCircle className="h-5 w-5" />
                   </div>
                   <div>
@@ -204,7 +204,7 @@ export function UniversalInboxClient({
                     Drip Campaigns
                   </h3>
                   <Link href="/dashboard/sabcampaigns">
-                    <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">View All</Button>
+                    <Button variant="ghost" size="sm" className="text-zoru-ink hover:bg-zoru-surface-2">View All</Button>
                   </Link>
                 </div>
                 
@@ -215,10 +215,10 @@ export function UniversalInboxClient({
                     </div>
                   ) : (
                     campaigns.slice(0, 4).map(campaign => (
-                      <Card key={campaign._id} className="p-4 border-zoru-line shadow-sm hover:border-blue-200 transition-colors">
+                      <Card key={campaign._id} className="p-4 border-zoru-line shadow-sm hover:border-zoru-line transition-colors">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className={`w-2 h-2 rounded-full ${campaign.status === 'active' ? 'bg-green-500' : 'bg-gray-300'}`} />
+                            <div className={`w-2 h-2 rounded-full ${campaign.status === 'active' ? 'bg-zoru-ink' : 'bg-zoru-surface-2'}`} />
                             <div>
                               <p className="text-sm font-medium text-zoru-ink">{campaign.name}</p>
                               <div className="flex items-center gap-2 mt-1">
@@ -246,7 +246,7 @@ export function UniversalInboxClient({
                     Top Performing Links
                   </h3>
                   <Link href="/dashboard/sabsense/utm-tracking">
-                    <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">View All</Button>
+                    <Button variant="ghost" size="sm" className="text-zoru-ink hover:bg-zoru-surface-2">View All</Button>
                   </Link>
                 </div>
                 
@@ -257,10 +257,10 @@ export function UniversalInboxClient({
                     </div>
                   ) : (
                     utmLinks.slice(0, 4).sort((a, b) => (b.clicks || 0) - (a.clicks || 0)).map(link => (
-                      <Card key={link._id} className="p-4 border-zoru-line shadow-sm hover:border-blue-200 transition-colors">
+                      <Card key={link._id} className="p-4 border-zoru-line shadow-sm hover:border-zoru-line transition-colors">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className="p-2 bg-blue-50 text-blue-600 rounded-md">
+                            <div className="p-2 bg-zoru-surface-2 text-zoru-ink rounded-md">
                               <Target className="h-4 w-4" />
                             </div>
                             <div className="min-w-0 flex-1 truncate">
@@ -269,7 +269,7 @@ export function UniversalInboxClient({
                             </div>
                           </div>
                           <div className="text-right flex-shrink-0 ml-4">
-                             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-50 text-green-700 rounded-md">
+                             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-zoru-surface-2 text-zoru-ink rounded-md">
                                <BarChart className="h-3 w-3" />
                                <span className="text-xs font-semibold">{link.clicks || 0} clicks</span>
                              </div>
@@ -289,7 +289,7 @@ export function UniversalInboxClient({
                     Scheduled Social Media
                   </h3>
                   <Link href="/dashboard/marketing/social-media-scheduler">
-                    <Button variant="ghost" size="sm" className="text-blue-600 hover:bg-blue-50">View All</Button>
+                    <Button variant="ghost" size="sm" className="text-zoru-ink hover:bg-zoru-surface-2">View All</Button>
                   </Link>
                 </div>
                 
@@ -300,7 +300,7 @@ export function UniversalInboxClient({
                     </div>
                   ) : (
                     socialPosts.slice(0, 3).map(post => (
-                      <Card key={post._id} className="p-4 border-zoru-line shadow-sm hover:border-blue-200 transition-colors flex flex-col">
+                      <Card key={post._id} className="p-4 border-zoru-line shadow-sm hover:border-zoru-line transition-colors flex flex-col">
                         <div className="flex justify-between items-start mb-2">
                           <Badge variant={post.platform === 'facebook' ? 'default' : post.platform === 'twitter' ? 'secondary' : 'outline'} className="capitalize">
                             {post.platform}

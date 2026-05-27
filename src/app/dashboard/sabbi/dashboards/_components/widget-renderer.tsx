@@ -22,7 +22,7 @@ const CHART_COLORS = ['#5b8def', '#f0a26b', '#7ec77d', '#d97cc4', '#f0d36b', '#6
 
 const WidgetLoader = () => (
     <div className="flex h-full w-full items-center justify-center">
-        <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
+        <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
     </div>
 );
 

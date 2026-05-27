@@ -57,11 +57,11 @@ export function VoucherBooksTable({
     const someSelected = !allSelected && rows.some((r) => selection.has(r._id));
 
     return (
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
             <Table>
                 <ZoruTableHeader>
-                    <ZoruTableRow className="border-border hover:bg-transparent">
-                        <ZoruTableHead className="w-10 text-muted-foreground">
+                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                        <ZoruTableHead className="w-10 text-zoru-ink-muted">
                             <Checkbox
                                 checked={allSelected}
                                 data-indeterminate={someSelected ? 'true' : undefined}
@@ -69,27 +69,27 @@ export function VoucherBooksTable({
                                 aria-label="Select all rows"
                             />
                         </ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Type</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Prefix</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Last #</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Reset</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Default</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Active</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground">Approval</ZoruTableHead>
-                        <ZoruTableHead className="text-muted-foreground text-right">Actions</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Type</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Prefix</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Last #</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Reset</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Default</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Active</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted">Approval</ZoruTableHead>
+                        <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
                     </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody className={loading ? 'opacity-50 pointer-events-none' : ''}>
                     {loading && rows.length === 0 ? (
-                        <ZoruTableRow className="border-border">
+                        <ZoruTableRow className="border-zoru-line">
                             <ZoruTableCell colSpan={10} className="h-24 text-center">
-                                <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
                             </ZoruTableCell>
                         </ZoruTableRow>
                     ) : rows.length === 0 ? (
-                        <ZoruTableRow className="border-border">
-                            <ZoruTableCell colSpan={10} className="h-24 text-center text-muted-foreground">
+                        <ZoruTableRow className="border-zoru-line">
+                            <ZoruTableCell colSpan={10} className="h-24 text-center text-zoru-ink-muted">
                                 No voucher books match this filter.
                             </ZoruTableCell>
                         </ZoruTableRow>
@@ -99,7 +99,7 @@ export function VoucherBooksTable({
                             return (
                                 <ZoruTableRow
                                     key={row._id}
-                                    className="border-border"
+                                    className="border-zoru-line"
                                     data-state={checked ? 'selected' : undefined}
                                 >
                                     <ZoruTableCell>
@@ -119,20 +119,20 @@ export function VoucherBooksTable({
                                     <ZoruTableCell>
                                         <StatusPill label={row.type} tone="neutral" />
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-[12px] text-muted-foreground">
+                                    <ZoruTableCell className="font-mono text-[12px] text-zoru-ink-muted">
                                         {row.prefix || '—'}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="font-mono text-[12px] text-foreground">
+                                    <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
                                         {lastNumberDisplay(row)}
                                     </ZoruTableCell>
-                                    <ZoruTableCell className="capitalize text-[12px] text-foreground">
+                                    <ZoruTableCell className="capitalize text-[12px] text-zoru-ink">
                                         {row.resetFrequency ?? 'none'}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         {row.isDefault ? (
-                                            <CheckCircle className="h-4 w-4 text-emerald-500" />
+                                            <CheckCircle className="h-4 w-4 text-zoru-ink" />
                                         ) : (
-                                            <XCircle className="h-4 w-4 text-muted-foreground" />
+                                            <XCircle className="h-4 w-4 text-zoru-ink-muted" />
                                         )}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
@@ -146,7 +146,7 @@ export function VoucherBooksTable({
                                         {row.approvalRequired ? (
                                             <StatusPill label="Required" tone="amber" />
                                         ) : (
-                                            <span className="text-[12px] text-muted-foreground">No</span>
+                                            <span className="text-[12px] text-zoru-ink-muted">No</span>
                                         )}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-right">
@@ -181,7 +181,7 @@ export function VoucherBooksTable({
                                                         </Link>
                                                     </ZoruDropdownMenuItem>
                                                     <ZoruDropdownMenuItem onSelect={() => onDelete(row)}>
-                                                        <Trash2 className="mr-2 h-3.5 w-3.5 text-destructive" />
+                                                        <Trash2 className="mr-2 h-3.5 w-3.5 text-zoru-ink" />
                                                         Delete
                                                     </ZoruDropdownMenuItem>
                                                 </ZoruDropdownMenuContent>

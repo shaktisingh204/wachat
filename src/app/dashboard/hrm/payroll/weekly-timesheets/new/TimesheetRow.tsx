@@ -99,8 +99,8 @@ export const TimesheetRow = memo(({
 
       <div className="w-[15%] flex justify-end items-center gap-2">
         {entry.status === 'saving' && <LoaderCircle className="h-4 w-4 animate-spin text-zoru-ink-muted" />}
-        {entry.status === 'saved' && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-        {entry.status === 'error' && <AlertCircle className="h-4 w-4 text-red-500" />}
+        {entry.status === 'saved' && <CheckCircle2 className="h-4 w-4 text-zoru-ink" />}
+        {entry.status === 'error' && <AlertCircle className="h-4 w-4 text-zoru-ink" />}
         <Button
           type="button"
           variant="ghost"

@@ -196,7 +196,7 @@ export default function InsightsPage() {
                         className={cn("h-8 w-40 text-xs", form.formState.errors.since && "border-destructive")}
                     />
                     {form.formState.errors.since && (
-                        <p className="text-[10px] text-destructive">{form.formState.errors.since.message}</p>
+                        <p className="text-[10px] text-zoru-ink">{form.formState.errors.since.message}</p>
                     )}
                 </div>
                 <div className="space-y-1">
@@ -207,7 +207,7 @@ export default function InsightsPage() {
                         className={cn("h-8 w-40 text-xs", form.formState.errors.until && "border-destructive")}
                     />
                     {form.formState.errors.until && (
-                        <p className="text-[10px] text-destructive">{form.formState.errors.until.message}</p>
+                        <p className="text-[10px] text-zoru-ink">{form.formState.errors.until.message}</p>
                     )}
                 </div>
                 <div className="pt-5">
@@ -237,7 +237,7 @@ export default function InsightsPage() {
             </div>
 
             {/* Segmented buttons replace Tabs */}
-            <div className="flex flex-wrap gap-1 rounded-lg border bg-muted/40 p-1 w-fit">
+            <div className="flex flex-wrap gap-1 rounded-lg border bg-zoru-surface-2/40 p-1 w-fit">
                 {TABS.map((t) => (
                     <Button
                         key={t.value}
@@ -365,7 +365,7 @@ function BreakdownTable({
                                     <button 
                                         type="button"
                                         onClick={() => handleSort(c)}
-                                        className="flex items-center gap-1 hover:text-foreground font-medium"
+                                        className="flex items-center gap-1 hover:text-zoru-ink font-medium"
                                     >
                                         {c.replace(/_/g, ' ')}
                                         <ArrowUpDown className="h-3 w-3" />

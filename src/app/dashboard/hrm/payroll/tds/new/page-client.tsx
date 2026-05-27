@@ -39,7 +39,7 @@ export function NewTdsClient() {
                         Record TDS for an employee or upload in bulk. {currentDate && `Today is ${currentDate}.`}
                     </p>
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-zoru-ink-muted bg-muted/50 px-3 py-1.5 rounded-full border">
+                <div className="flex items-center space-x-2 text-sm text-zoru-ink-muted bg-zoru-surface-2/50 px-3 py-1.5 rounded-full border">
                     <span className="flex h-2 w-2 rounded-full bg-zoru-success animate-pulse" />
                     <span>{activeUsers} user(s) currently viewing</span>
                     <Users className="h-4 w-4 ml-1" />

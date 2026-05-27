@@ -97,7 +97,7 @@ export default function AdminTemplateLibraryPage() {
                     <h1 className="text-2xl font-bold text-zoru-ink">Template Library</h1>
                     <p className="text-sm text-zoru-ink-muted mt-1">Manage global templates available to all users.</p>
                 </div>
-                <Button asChild className="bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-lg shadow-amber-500/25">
+                <Button asChild className="bg-zoru-ink hover:bg-zoru-surface-2 text-zoru-ink shadow-lg shadow-zoru-line/25">
                     <Link href="/admin/dashboard/template-library/create">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Add Template
@@ -115,7 +115,7 @@ export default function AdminTemplateLibraryPage() {
                 {/* Custom templates */}
                 <div className="rounded-2xl border border-zoru-line bg-zoru-bg p-5 flex flex-col min-w-0">
                     <div className="flex items-center gap-2 mb-4">
-                        <BookCopy className="h-4 w-4 text-amber-600" />
+                        <BookCopy className="h-4 w-4 text-zoru-ink" />
                         <h2 className="font-semibold text-zoru-ink text-sm">Custom Templates</h2>
                         <span className="ml-auto text-xs text-zoru-ink-muted">{customTemplates.length} total</span>
                     </div>

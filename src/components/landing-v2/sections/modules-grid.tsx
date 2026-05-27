@@ -27,13 +27,13 @@ export function ModulesGrid() {
                     transition={{ duration: 0.5 }}
                     className="mx-auto max-w-3xl text-center"
                 >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zoru-ink">
                         {MODULES.length} products. One bill.
                     </p>
-                    <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl md:text-6xl">
+                    <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zoru-ink sm:text-5xl md:text-6xl">
                         Everything your team uses, finally in one place.
                     </h2>
-                    <p className="mt-5 text-pretty text-lg text-zinc-600">
+                    <p className="mt-5 text-pretty text-lg text-zoru-ink">
                         Stop paying for ten tools that don&apos;t talk to each other. SabNode ships a full
                         operating stack — shared customers, shared inbox, shared reports.
                     </p>
@@ -60,13 +60,13 @@ export function ModulesGrid() {
                                 {isActive && (
                                     <m.span
                                         layoutId="modules-tab-active"
-                                        className="absolute inset-0 rounded-full bg-zinc-900"
+                                        className="absolute inset-0 rounded-full bg-zoru-ink"
                                         transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                                     />
                                 )}
-                                <span className={`relative z-10 ${isActive ? 'text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>
+                                <span className={`relative z-10 ${isActive ? 'text-white' : 'text-zoru-ink hover:text-zoru-ink'}`}>
                                     {tab}
-                                    <span className={`ml-1.5 text-[10px] ${isActive ? 'text-white/60' : 'text-zinc-400'}`}>
+                                    <span className={`ml-1.5 text-[10px] ${isActive ? 'text-white/60' : 'text-zoru-ink-muted'}`}>
                                         {count}
                                     </span>
                                 </span>
@@ -82,11 +82,11 @@ export function ModulesGrid() {
                             if (!items.length) return null;
                             return (
                                 <div key={cat}>
-                                    <div className="flex items-baseline justify-between border-b border-zinc-200 pb-3">
-                                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                                    <div className="flex items-baseline justify-between border-b border-zoru-line pb-3">
+                                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">
                                             {cat}
                                         </h3>
-                                        <span className="text-[11px] text-zinc-400">
+                                        <span className="text-[11px] text-zoru-ink-muted">
                                             {items.length} module{items.length === 1 ? '' : 's'}
                                         </span>
                                     </div>
@@ -128,7 +128,7 @@ function ModuleCard({ mod, idx }: { mod: (typeof MODULES)[number]; idx: number }
         >
             <Link
                 href={mod.href}
-                className="group block h-full rounded-2xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-1 hover:border-zinc-900 hover:shadow-[0_24px_60px_-20px_rgba(24,24,27,0.18)]"
+                className="group block h-full rounded-2xl border border-zoru-line bg-white p-5 transition hover:-translate-y-1 hover:border-zoru-line hover:shadow-[0_24px_60px_-20px_rgba(24,24,27,0.18)]"
             >
                 <div className="flex items-start justify-between">
                     <div className="relative inline-flex">
@@ -141,19 +141,19 @@ function ModuleCard({ mod, idx }: { mod: (typeof MODULES)[number]; idx: number }
                         </div>
                     </div>
                     {mod.flagship && (
-                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-amber-700">
+                        <span className="rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-zoru-ink">
                             Flagship
                         </span>
                     )}
                 </div>
                 <div className="mt-4 flex items-center gap-1.5">
-                    <h4 className="text-base font-semibold tracking-tight text-zinc-950">{mod.name}</h4>
-                    <ArrowUpRight className="h-3.5 w-3.5 text-zinc-300 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zinc-900" />
+                    <h4 className="text-base font-semibold tracking-tight text-zoru-ink">{mod.name}</h4>
+                    <ArrowUpRight className="h-3.5 w-3.5 text-zoru-ink-muted transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
                 </div>
-                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-zoru-ink">
                     {mod.tag}
                 </p>
-                <p className="mt-3 text-[13px] leading-relaxed text-zinc-600">{mod.short}</p>
+                <p className="mt-3 text-[13px] leading-relaxed text-zoru-ink">{mod.short}</p>
             </Link>
         </m.div>
     );

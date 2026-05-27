@@ -49,7 +49,7 @@ function SortablePlanCard({ plan }: { plan: any }) {
         <div
             ref={setNodeRef}
             style={style}
-            className={`rounded-2xl border ${isDragging ? 'border-amber-500 shadow-xl' : 'border-zoru-line'} bg-zoru-bg p-5 flex flex-col gap-4 hover:border-zoru-line transition-colors relative group`}
+            className={`rounded-2xl border ${isDragging ? 'border-zoru-line shadow-xl' : 'border-zoru-line'} bg-zoru-bg p-5 flex flex-col gap-4 hover:border-zoru-line transition-colors relative group`}
         >
             {/* Drag Handle */}
             <div
@@ -73,12 +73,12 @@ function SortablePlanCard({ plan }: { plan: any }) {
                 </div>
                 <div className="flex gap-1.5 shrink-0 flex-wrap justify-end">
                     {plan.isDefault && (
-                        <span className="rounded-full bg-amber-100 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-600 uppercase tracking-wider">
+                        <span className="rounded-full bg-zoru-surface-2 border border-zoru-line px-2 py-0.5 text-[10px] font-bold text-zoru-ink uppercase tracking-wider">
                             Default
                         </span>
                     )}
                     {plan.isPublic && (
-                        <span className="rounded-full bg-emerald-100 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
+                        <span className="rounded-full bg-zoru-surface-2 border border-zoru-line px-2 py-0.5 text-[10px] font-bold text-zoru-ink uppercase tracking-wider">
                             Public
                         </span>
                     )}
@@ -147,10 +147,10 @@ export function SortablePlansGrid({ initialPlans, fetchFailed }: { initialPlans:
 
     if (fetchFailed) {
         return (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-16 text-center">
-                <CreditCard className="mx-auto h-10 w-10 text-red-400 mb-4" />
-                <h3 className="text-red-700 font-medium">Failed to load plans</h3>
-                <p className="text-red-500 text-sm mt-1">There was an error fetching the subscription plans.</p>
+            <div className="rounded-2xl border border-zoru-line bg-zoru-surface-2 p-16 text-center">
+                <CreditCard className="mx-auto h-10 w-10 text-zoru-ink-muted mb-4" />
+                <h3 className="text-zoru-ink font-medium">Failed to load plans</h3>
+                <p className="text-zoru-ink text-sm mt-1">There was an error fetching the subscription plans.</p>
             </div>
         );
     }
@@ -161,7 +161,7 @@ export function SortablePlansGrid({ initialPlans, fetchFailed }: { initialPlans:
                 <CreditCard className="mx-auto h-10 w-10 text-zoru-ink-muted mb-4" />
                 <h3 className="text-zoru-ink font-medium">No plans yet</h3>
                 <p className="text-zoru-ink-muted text-sm mt-1">Create your first subscription plan to get started.</p>
-                <Button asChild className="mt-4 bg-amber-500 hover:bg-amber-400 text-zinc-950">
+                <Button asChild className="mt-4 bg-zoru-ink hover:bg-zoru-surface-2 text-zoru-ink">
                     <Link href="/admin/dashboard/plans/new">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Create Plan

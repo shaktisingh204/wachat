@@ -97,7 +97,7 @@ export const ImageCarouselRenderer: React.FC<ImageCarouselRendererProps> = ({ se
     const { prevBtnDisabled, nextBtnDisabled, onPrevButtonClick, onNextButtonClick } = usePrevNextButtons(emblaApi);
 
     if (images.length === 0) {
-        return <div className="p-4 text-center border-2 border-dashed rounded-lg text-muted-foreground">Image Carousel: No images added.</div>;
+        return <div className="p-4 text-center border-2 border-dashed rounded-lg text-zoru-ink-muted">Image Carousel: No images added.</div>;
     }
     
     const hoverClass = settings.hoverAnimation && settings.hoverAnimation !== 'none' ? `group-hover:${settings.hoverAnimation}` : '';

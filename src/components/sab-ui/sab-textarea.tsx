@@ -103,7 +103,7 @@ export const SabTextarea = React.forwardRef<HTMLTextAreaElement, SabTextareaProp
           value={value}
           defaultValue={defaultValue}
           className={cn(
-            'w-full resize-none bg-transparent text-[13.5px] leading-relaxed outline-none placeholder:text-[hsl(var(--sab-fg-subtle))] disabled:cursor-not-allowed',
+            'w-full resize-none bg-transparent text-[13.5px] leading-relaxed outline-none placeholder:text-zoru-ink disabled:cursor-not-allowed',
             className,
           )}
           style={{

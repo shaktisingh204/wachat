@@ -30,7 +30,7 @@ function LoadingSkeleton() {
 
 function ErrorFallback() {
   return (
-    <div className="p-6 border border-red-200 bg-red-50 text-red-700 rounded-xl text-center">
+    <div className="p-6 border border-zoru-line bg-zoru-surface-2 text-zoru-ink rounded-xl text-center">
       <h3 className="font-semibold mb-2">Failed to load settings</h3>
       <p className="text-sm">Please refresh the page or try again later.</p>
     </div>

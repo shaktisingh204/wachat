@@ -46,18 +46,18 @@ export function SabflowDemo() {
             <div className="mx-auto max-w-7xl px-6">
                 <div className="grid items-center gap-14 lg:grid-cols-5">
                     <div className="order-2 lg:order-1 lg:col-span-2">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-700">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zoru-ink">
                             SabFlow · visual automation
                         </p>
-                        <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl">
+                        <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zoru-ink sm:text-5xl">
                             Drag-drop the work your team keeps repeating.
                         </h2>
-                        <p className="mt-5 text-pretty text-lg leading-relaxed text-zinc-600">
+                        <p className="mt-5 text-pretty text-lg leading-relaxed text-zoru-ink">
                             900+ integrations. Real branching. Per-item iteration. Retries, schedules, error
                             paths. The Zapier and n8n features you wish you had — without the per-task billing.
                         </p>
 
-                        <ul className="mt-8 space-y-3 text-[15px] text-zinc-700">
+                        <ul className="mt-8 space-y-3 text-[15px] text-zoru-ink">
                             {[
                                 'Webhook + cron + manual triggers',
                                 'IF / SWITCH / LOOP / WAIT nodes',
@@ -73,7 +73,7 @@ export function SabflowDemo() {
                                     transition={{ delay: i * 0.06 }}
                                     className="flex items-center gap-2.5"
                                 >
-                                    <span className="grid h-5 w-5 place-items-center rounded-full bg-violet-100 text-violet-700">
+                                    <span className="grid h-5 w-5 place-items-center rounded-full bg-zoru-surface-2 text-zoru-ink">
                                         <svg viewBox="0 0 12 12" className="h-3 w-3">
                                             <path d="M3 6l2 2 4-4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
@@ -91,34 +91,34 @@ export function SabflowDemo() {
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
-                            className="relative overflow-hidden rounded-2xl border border-zinc-900/10 bg-white shadow-2xl shadow-zinc-900/10 ring-1 ring-zinc-900/5"
+                            className="relative overflow-hidden rounded-2xl border border-zoru-line/10 bg-white shadow-2xl shadow-zoru-line/10 ring-1 ring-zoru-line/5"
                         >
                             {/* titlebar */}
-                            <div className="flex items-center justify-between border-b border-zinc-200/70 bg-zinc-50/80 px-4 py-2.5">
+                            <div className="flex items-center justify-between border-b border-zoru-line/70 bg-zoru-surface-2/80 px-4 py-2.5">
                                 <div className="flex items-center gap-3">
                                     <div className="flex gap-1.5">
-                                        <span className="h-3 w-3 rounded-full bg-rose-400 ring-1 ring-rose-600/20" />
-                                        <span className="h-3 w-3 rounded-full bg-amber-400 ring-1 ring-amber-600/20" />
-                                        <span className="h-3 w-3 rounded-full bg-emerald-400 ring-1 ring-emerald-600/20" />
+                                        <span className="h-3 w-3 rounded-full bg-zoru-surface-2 ring-1 ring-zoru-line/20" />
+                                        <span className="h-3 w-3 rounded-full bg-zoru-surface-2 ring-1 ring-zoru-line/20" />
+                                        <span className="h-3 w-3 rounded-full bg-zoru-surface-2 ring-1 ring-zoru-line/20" />
                                     </div>
-                                    <span className="text-[11px] font-medium text-zinc-700">New customer welcome</span>
-                                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700">Active</span>
+                                    <span className="text-[11px] font-medium text-zoru-ink">New customer welcome</span>
+                                    <span className="rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[10px] font-medium text-zoru-ink">Active</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
-                                    <button className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-[10px] font-medium text-white shadow-sm">
+                                    <button className="inline-flex items-center gap-1 rounded-md bg-zoru-ink px-2.5 py-1 text-[10px] font-medium text-white shadow-sm">
                                         <Play className="h-3 w-3 fill-white" /> Run
                                     </button>
-                                    <button className="grid h-7 w-7 place-items-center rounded-md text-zinc-500 hover:bg-zinc-900/5">
+                                    <button className="grid h-7 w-7 place-items-center rounded-md text-zoru-ink hover:bg-zoru-ink/5">
                                         <Plus className="h-3.5 w-3.5" />
                                     </button>
-                                    <button className="grid h-7 w-7 place-items-center rounded-md text-zinc-500 hover:bg-zinc-900/5">
+                                    <button className="grid h-7 w-7 place-items-center rounded-md text-zoru-ink hover:bg-zoru-ink/5">
                                         <Maximize2 className="h-3.5 w-3.5" />
                                     </button>
                                 </div>
                             </div>
 
                             {/* canvas */}
-                            <div className="relative h-[440px] bg-[#fafafa]">
+                            <div className="relative h-[440px] bg-zoru-surface">
                                 <svg viewBox="0 0 700 440" className="absolute inset-0 h-full w-full">
                                     <defs>
                                         <pattern id="flowdot" width="22" height="22" patternUnits="userSpaceOnUse">
@@ -166,16 +166,16 @@ export function SabflowDemo() {
                                         >
                                             <div className="relative">
                                                 {/* port-in */}
-                                                <span className="absolute -left-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-white shadow ring-1 ring-zinc-300" />
+                                                <span className="absolute -left-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-white shadow ring-1 ring-zoru-line" />
                                                 {/* port-out */}
-                                                <span className="absolute -right-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-white shadow ring-1 ring-zinc-300" />
-                                                <div className="flex w-44 items-center gap-2.5 rounded-xl border border-zinc-200/80 bg-white p-2.5 shadow-md">
+                                                <span className="absolute -right-1 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-white shadow ring-1 ring-zoru-line" />
+                                                <div className="flex w-44 items-center gap-2.5 rounded-xl border border-zoru-line/80 bg-white p-2.5 shadow-md">
                                                     <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-lg text-white" style={{ background: n.color }}>
                                                         <Icon className="h-4 w-4" />
                                                     </span>
                                                     <div className="overflow-hidden">
-                                                        <div className="truncate text-[12px] font-semibold text-zinc-900">{n.label}</div>
-                                                        <div className="truncate text-[10px] text-zinc-500">{n.sub}</div>
+                                                        <div className="truncate text-[12px] font-semibold text-zoru-ink">{n.label}</div>
+                                                        <div className="truncate text-[10px] text-zoru-ink">{n.sub}</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -184,7 +184,7 @@ export function SabflowDemo() {
                                 })}
 
                                 {/* minimap */}
-                                <div className="absolute bottom-3 right-3 h-16 w-24 overflow-hidden rounded-md border border-zinc-200 bg-white/90 backdrop-blur">
+                                <div className="absolute bottom-3 right-3 h-16 w-24 overflow-hidden rounded-md border border-zoru-line bg-white/90 backdrop-blur">
                                     <svg viewBox="0 0 700 440" className="h-full w-full">
                                         <rect width="700" height="440" fill="#fafafa" />
                                         {edges.map((e) => {
@@ -199,17 +199,17 @@ export function SabflowDemo() {
                                 </div>
 
                                 {/* zoom controls */}
-                                <div className="absolute bottom-3 left-3 flex items-center gap-0.5 rounded-md border border-zinc-200 bg-white/90 p-0.5 text-[10px] font-medium text-zinc-600 backdrop-blur">
-                                    <button className="px-2 py-1 hover:bg-zinc-100">−</button>
-                                    <span className="px-1.5 py-1 text-zinc-700">100%</span>
-                                    <button className="px-2 py-1 hover:bg-zinc-100">+</button>
+                                <div className="absolute bottom-3 left-3 flex items-center gap-0.5 rounded-md border border-zoru-line bg-white/90 p-0.5 text-[10px] font-medium text-zoru-ink backdrop-blur">
+                                    <button className="px-2 py-1 hover:bg-zoru-surface-2">−</button>
+                                    <span className="px-1.5 py-1 text-zoru-ink">100%</span>
+                                    <button className="px-2 py-1 hover:bg-zoru-surface-2">+</button>
                                 </div>
                             </div>
 
                             {/* status bar */}
-                            <div className="flex items-center justify-between border-t border-zinc-200/70 bg-zinc-50/80 px-4 py-2 text-[10px] text-zinc-500">
+                            <div className="flex items-center justify-between border-t border-zoru-line/70 bg-zoru-surface-2/80 px-4 py-2 text-[10px] text-zoru-ink">
                                 <span className="flex items-center gap-1.5">
-                                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" /> Listening for events
+                                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-zoru-ink" /> Listening for events
                                 </span>
                                 <span>5 nodes · 4 edges · 0 errors</span>
                             </div>

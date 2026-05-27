@@ -247,7 +247,7 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
       </div>
 
       {filteredData.length === 0 ? (
-        <div className="flex h-[300px] flex-col items-center justify-center rounded-md border border-dashed border-zoru-line text-sm text-muted-foreground space-y-4">
+        <div className="flex h-[300px] flex-col items-center justify-center rounded-md border border-dashed border-zoru-line text-sm text-zoru-ink-muted space-y-4">
           <Target className="h-10 w-10 text-zoru-ink-muted opacity-50" />
           <p>No campaigns found.</p>
           {data.length === 0 && (
@@ -296,10 +296,10 @@ export function DripCampaignClient({ initialData }: { initialData: any[] }) {
                   
                   <ZoruTableCell className="text-right space-x-2">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
-                      <Edit2 className="h-4 w-4 text-blue-500" />
+                      <Edit2 className="h-4 w-4 text-zoru-ink" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleDelete(item._id)}>
-                      <Trash2 className="h-4 w-4 text-red-500" />
+                      <Trash2 className="h-4 w-4 text-zoru-ink" />
                     </Button>
                   </ZoruTableCell>
                 </ZoruTableRow>

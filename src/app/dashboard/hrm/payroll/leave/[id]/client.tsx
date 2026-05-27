@@ -276,7 +276,7 @@ export default function LeaveDetailClient({
             </div>
 
             {leave.reject_reason ? (
-              <div className="mt-4 rounded-lg border border-rose-50 bg-rose-50 p-3">
+              <div className="mt-4 rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                 <div className="text-[12px] uppercase text-zoru-danger-ink">
                   Rejection reason
                 </div>
@@ -375,7 +375,7 @@ export default function LeaveDetailClient({
                           onClick={() => setFileToDelete(String(f._id))}
                           title="Delete attachment"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                          <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
                           Delete
                         </Button>
                       </ZoruAlertDialogTrigger>
@@ -435,7 +435,7 @@ export default function LeaveDetailClient({
 
               {leave.comments?.map((comment) => (
                 <div key={comment.id} className="relative pl-6">
-                  <div className="absolute left-[-5px] top-1.5 h-2.5 w-2.5 rounded-full bg-blue-500 border-2 border-zoru-bg" />
+                  <div className="absolute left-[-5px] top-1.5 h-2.5 w-2.5 rounded-full bg-zoru-ink border-2 border-zoru-bg" />
                   <div className="rounded-lg bg-zoru-surface-2 p-3 text-[13px]">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-medium text-zoru-ink">{comment.userName}</span>
@@ -450,7 +450,7 @@ export default function LeaveDetailClient({
 
               {leave.status !== 'pending' && leave.approved_at ? (
                 <div className="relative pl-6">
-                  <div className={`absolute left-[-5px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-zoru-bg ${leave.status === 'approved' ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <div className={`absolute left-[-5px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-zoru-bg ${leave.status === 'approved' ? 'bg-zoru-ink' : 'bg-zoru-ink'}`} />
                   <p className="text-[13px] text-zoru-ink">
                     Leave {leave.status}
                   </p>

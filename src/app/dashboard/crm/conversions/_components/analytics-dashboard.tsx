@@ -111,7 +111,7 @@ export function AnalyticsDashboard() {
                                             <td className="px-4 py-3">{row.conversionRate}%</td>
                                             <td className="px-4 py-3">
                                                 {row.lift > 0 ? (
-                                                    <span className="text-green-500 font-medium">+{row.lift}%</span>
+                                                    <span className="text-zoru-ink font-medium">+{row.lift}%</span>
                                                 ) : (
                                                     <span className="text-zoru-ink-muted">Baseline</span>
                                                 )}

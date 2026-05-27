@@ -96,22 +96,22 @@ export function StepNode({
     <Card
       className={
         hasError
-          ? "border-rose-300 bg-rose-50/50 transition"
-          : "border-slate-200 transition hover:border-slate-300"
+          ? "border-zoru-line bg-zoru-surface-2/50 transition"
+          : "border-zoru-line transition hover:border-zoru-line"
       }
     >
-      <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
+      <div className="flex items-center justify-between border-b border-zoru-line px-4 py-2.5">
         <div className="flex items-center gap-2">
           <span
             className={
               hasError
-                ? "rounded-md bg-rose-100 p-1.5 text-rose-700"
-                : "rounded-md bg-slate-100 p-1.5 text-slate-700"
+                ? "rounded-md bg-zoru-surface-2 p-1.5 text-zoru-ink"
+                : "rounded-md bg-zoru-surface-2 p-1.5 text-zoru-ink"
             }
           >
             <Icon className="h-3.5 w-3.5" />
           </span>
-          <span className="text-sm font-medium text-slate-800">
+          <span className="text-sm font-medium text-zoru-ink">
             {KIND_LABEL[node.kind]}
           </span>
           <Badge variant="secondary" className="text-[10px]">
@@ -140,7 +140,7 @@ export function StepNode({
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 text-rose-600 hover:text-rose-700"
+              className="h-7 w-7 text-zoru-ink hover:text-zoru-ink"
               onClick={onDelete}
               aria-label="Delete step"
               title="Delete"
@@ -154,7 +154,7 @@ export function StepNode({
       <ZoruCardContent className="space-y-3 p-4">
         {node.kind === "message" && (
           <div className="space-y-2">
-            <Label htmlFor={`tpl-${node.id}`} className="text-xs font-medium text-slate-700">
+            <Label htmlFor={`tpl-${node.id}`} className="text-xs font-medium text-zoru-ink">
               Template
             </Label>
             <Select
@@ -168,7 +168,7 @@ export function StepNode({
                 {templates.map((t) => (
                   <ZoruSelectItem key={t.id} value={t.id}>
                     {t.name}{" "}
-                    <span className="ml-1 text-[10px] text-slate-500">({t.category})</span>
+                    <span className="ml-1 text-[10px] text-zoru-ink">({t.category})</span>
                   </ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
@@ -215,7 +215,7 @@ export function StepNode({
                     onChange({ ...node, waitSeconds: Number.parseInt(e.target.value, 10) || 0 })
                   }
                 />
-                <p className="text-[11px] text-slate-500">
+                <p className="text-[11px] text-zoru-ink">
                   e.g. 86400 = 24h, 604800 = 7 days.
                 </p>
               </div>
@@ -253,7 +253,7 @@ export function StepNode({
                 })
               }
             />
-            <div className="flex items-center gap-2 pt-1 text-[11px] text-slate-500">
+            <div className="flex items-center gap-2 pt-1 text-[11px] text-zoru-ink">
               <ArrowRight className="h-3 w-3" />
               True → first outgoing edge · False → second.
             </div>
@@ -264,7 +264,7 @@ export function StepNode({
           <>
             <Separator />
             <details className="group">
-              <summary className="flex cursor-pointer items-center gap-1.5 text-[11px] font-medium text-slate-600 hover:text-slate-800">
+              <summary className="flex cursor-pointer items-center gap-1.5 text-[11px] font-medium text-zoru-ink hover:text-zoru-ink">
                 <Settings2 className="h-3 w-3" /> Advanced
               </summary>
               <div className="mt-3 space-y-3">
@@ -337,7 +337,7 @@ export function StepNode({
                   </div>
                 </div>
                 <label className="flex items-center justify-between text-xs">
-                  <span className="text-slate-700">Skip on weekends</span>
+                  <span className="text-zoru-ink">Skip on weekends</span>
                   <Switch
                     checked={!!node.skipOnWeekend}
                     onCheckedChange={(v) => onChange({ ...node, skipOnWeekend: !!v })}
@@ -373,8 +373,8 @@ export function StepNode({
                   />
                 </div>
                 {node.kind === "message" && (
-                  <div className="space-y-1.5 rounded-md border border-slate-100 bg-slate-50 p-2">
-                    <div className="text-[11px] font-medium text-slate-700">A/B split</div>
+                  <div className="space-y-1.5 rounded-md border border-zoru-line bg-zoru-surface-2 p-2">
+                    <div className="text-[11px] font-medium text-zoru-ink">A/B split</div>
                     <Input
                       placeholder="Variant B templateId"
                       value={node.abSplit?.variantBTemplateId ?? ""}
@@ -412,7 +412,7 @@ export function StepNode({
         )}
 
         {hasError && (
-          <div className="flex items-start gap-1.5 rounded-md border border-rose-200 bg-rose-50 px-2 py-1.5 text-[11px] text-rose-800">
+          <div className="flex items-start gap-1.5 rounded-md border border-zoru-line bg-zoru-surface-2 px-2 py-1.5 text-[11px] text-zoru-ink">
             <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
             <div className="space-y-0.5">
               {errors.map((e, i) => (

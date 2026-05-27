@@ -278,7 +278,7 @@ export function CategoriesClient({ rows: initialRows, kpi }: Props) {
                     <span
                       className={
                         row.is_default
-                          ? 'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-amber-100 text-amber-800'
+                          ? 'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium bg-zoru-surface-2 text-zoru-ink'
                           : 'text-[12px] text-zoru-ink-muted'
                       }
                     >

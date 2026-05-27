@@ -120,20 +120,20 @@ function DiffTable({ diff }: { diff: NonNullable<AuditEntry['diff']> }) {
     });
     if (entries.length === 0) return null;
     return (
-        <div className="mt-2 overflow-hidden rounded border border-zinc-200 dark:border-zinc-800">
+        <div className="mt-2 overflow-hidden rounded border border-zoru-line dark:border-zoru-line">
             <table className="w-full text-xs">
-                <thead className="bg-zinc-50 dark:bg-zinc-900/50">
+                <thead className="bg-zoru-surface-2 dark:bg-zoru-ink/50">
                     <tr>
-                        <th className="px-2 py-1 text-left font-medium text-zinc-500">Field</th>
-                        <th className="px-2 py-1 text-left font-medium text-zinc-500">Before</th>
-                        <th className="px-2 py-1 text-left font-medium text-zinc-500">After</th>
+                        <th className="px-2 py-1 text-left font-medium text-zoru-ink">Field</th>
+                        <th className="px-2 py-1 text-left font-medium text-zoru-ink">Before</th>
+                        <th className="px-2 py-1 text-left font-medium text-zoru-ink">After</th>
                     </tr>
                 </thead>
                 <tbody>
                     {entries.map(([field, change]) => (
-                        <tr key={field} className="border-t border-zinc-200 dark:border-zinc-800">
+                        <tr key={field} className="border-t border-zoru-line dark:border-zoru-line">
                             <td className="px-2 py-1 align-top font-medium">{field}</td>
-                            <td className="px-2 py-1 align-top text-zinc-500">
+                            <td className="px-2 py-1 align-top text-zoru-ink">
                                 {stringifyFragment(change.before)}
                             </td>
                             <td className="px-2 py-1 align-top">
@@ -163,7 +163,7 @@ export async function EntityAuditTimeline({
                     <ZoruCardTitle>{title}</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <p className="text-sm text-zinc-500">Login required to view activity.</p>
+                    <p className="text-sm text-zoru-ink">Login required to view activity.</p>
                 </ZoruCardContent>
             </Card>
         );
@@ -198,7 +198,7 @@ export async function EntityAuditTimeline({
                     <ZoruCardTitle>{title}</ZoruCardTitle>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <p className="text-sm text-zinc-500">No activity yet.</p>
+                    <p className="text-sm text-zoru-ink">No activity yet.</p>
                 </ZoruCardContent>
             </Card>
         );
@@ -210,14 +210,14 @@ export async function EntityAuditTimeline({
                 <ZoruCardTitle>{title}</ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent>
-                <ol className="relative space-y-4 border-l border-zinc-200 pl-4 dark:border-zinc-800">
+                <ol className="relative space-y-4 border-l border-zoru-line pl-4 dark:border-zoru-line">
                     {entries.map((entry) => {
                         const tone = toneFor(entry.action);
                         const id = typeof entry._id === 'string' ? entry._id : String(entry._id);
                         return (
                             <li key={id} className="relative">
                                 <span
-                                    className="absolute -left-[21px] top-1.5 inline-block size-2.5 rounded-full border border-white bg-zinc-400 dark:border-zinc-950"
+                                    className="absolute -left-[21px] top-1.5 inline-block size-2.5 rounded-full border border-white bg-zoru-surface-2 dark:border-zoru-line"
                                     aria-hidden
                                 />
                                 <div className="flex flex-wrap items-baseline gap-2 text-sm">
@@ -227,16 +227,16 @@ export async function EntityAuditTimeline({
                                     <Badge variant={tone as any}>
                                         {actionLabel(entry.action)}
                                     </Badge>
-                                    <span className="text-zinc-500">{entry.entityKind}</span>
+                                    <span className="text-zoru-ink">{entry.entityKind}</span>
                                     <span
-                                        className="ml-auto text-xs text-zinc-500"
+                                        className="ml-auto text-xs text-zoru-ink"
                                         title={absoluteTime(entry.createdAt)}
                                     >
                                         {relativeTime(entry.createdAt)}
                                     </span>
                                 </div>
                                 {entry.reason ? (
-                                    <p className="mt-1 text-xs text-zinc-500">{entry.reason}</p>
+                                    <p className="mt-1 text-xs text-zoru-ink">{entry.reason}</p>
                                 ) : null}
                                 {entry.diff ? <DiffTable diff={entry.diff} /> : null}
                             </li>

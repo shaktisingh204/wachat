@@ -41,7 +41,7 @@ export function SabchatFeature() {
                             initial={{ opacity: 0, y: 8 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700"
+                            className="inline-flex items-center gap-2 rounded-full border border-zoru-line bg-zoru-surface-2 px-3 py-1 text-xs font-medium text-zoru-ink"
                         >
                             <MessageCircle className="h-3.5 w-3.5" />
                             SabChat — the moat
@@ -51,7 +51,7 @@ export function SabchatFeature() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: 0.1 }}
-                            className="mt-5 text-balance text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl"
+                            className="mt-5 text-balance text-4xl font-semibold tracking-tight text-zoru-ink sm:text-5xl"
                         >
                             One inbox for every channel your customers use.
                         </m.h2>
@@ -60,7 +60,7 @@ export function SabchatFeature() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: 0.18 }}
-                            className="mt-5 text-pretty text-base leading-relaxed text-zinc-600"
+                            className="mt-5 text-pretty text-base leading-relaxed text-zoru-ink"
                         >
                             Tawk for the widget. Chatwoot for the inbox. Intercom for the AI. SabChat does all
                             three — plus the channels they don&apos;t touch — and ties every conversation to the
@@ -79,10 +79,10 @@ export function SabchatFeature() {
                                         transition={{ delay: 0.25 + i * 0.06 }}
                                         className="flex items-start gap-3"
                                     >
-                                        <span className="mt-0.5 grid h-7 w-7 flex-shrink-0 place-items-center rounded-lg bg-amber-50 ring-1 ring-amber-200">
-                                            <Icon className="h-3.5 w-3.5 text-amber-700" />
+                                        <span className="mt-0.5 grid h-7 w-7 flex-shrink-0 place-items-center rounded-lg bg-zoru-surface-2 ring-1 ring-zoru-line">
+                                            <Icon className="h-3.5 w-3.5 text-zoru-ink" />
                                         </span>
-                                        <span className="text-sm text-zinc-700">{b.text}</span>
+                                        <span className="text-sm text-zoru-ink">{b.text}</span>
                                     </m.li>
                                 );
                             })}
@@ -98,7 +98,7 @@ export function SabchatFeature() {
                             className="relative aspect-square w-full max-w-md"
                         >
                             <m.div
-                                className="absolute inset-0 rounded-full border border-zinc-200"
+                                className="absolute inset-0 rounded-full border border-zoru-line"
                                 animate={{ rotate: 360 }}
                                 transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
                             >
@@ -111,7 +111,7 @@ export function SabchatFeature() {
                                     return (
                                         <m.div
                                             key={c.label}
-                                            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-zinc-200/80 bg-white px-3 py-1.5 text-[11px] font-medium text-zinc-900 shadow-lg"
+                                            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-zoru-line/80 bg-white px-3 py-1.5 text-[11px] font-medium text-zoru-ink shadow-lg"
                                             style={{ left: `${x}%`, top: `${y}%` }}
                                             animate={{ rotate: -360 }}
                                             transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
@@ -133,7 +133,7 @@ export function SabchatFeature() {
                                             'radial-gradient(circle, rgba(251,191,36,0.55), transparent 70%)',
                                     }}
                                 />
-                                <div className="relative grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 shadow-2xl shadow-orange-500/40">
+                                <div className="relative grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-zoru-surface-2 via-zoru-ink to-zoru-ink shadow-2xl shadow-zoru-line/40">
                                     <Inbox className="h-9 w-9 text-white" />
                                 </div>
                             </div>

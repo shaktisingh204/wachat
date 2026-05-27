@@ -338,7 +338,7 @@ export default function EmployeeEmergencyContactsSubPage() {
                                         size="sm"
                                         onClick={() => setPendingDelete(c)}
                                     >
-                                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                        <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
                                     </Button>
                                 </div>
                             </Card>

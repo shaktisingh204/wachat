@@ -291,7 +291,7 @@ export default function CrmContactDetailPage() {
               <div className="flex flex-col items-center text-center">
                 <Avatar className="mb-3 h-24 w-24 border border-zoru-line">
                   <ZoruAvatarImage src={contact.avatarUrl || ''} data-ai-hint="person avatar" />
-                  <ZoruAvatarFallback className="bg-accent text-[26px] text-accent-foreground">
+                  <ZoruAvatarFallback className="bg-zoru-surface-2 text-[26px] text-zoru-ink">
                     {contact.name.charAt(0)}
                   </ZoruAvatarFallback>
                 </Avatar>
@@ -333,7 +333,7 @@ export default function CrmContactDetailPage() {
                   <Mail className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
                   <a
                     href={`mailto:${contact.email}`}
-                    className="text-primary hover:underline"
+                    className="text-zoru-ink hover:underline"
                   >
                     {contact.email}
                   </a>
@@ -347,7 +347,7 @@ export default function CrmContactDetailPage() {
                     <Briefcase className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
                     <Link
                       href={`/dashboard/crm/accounts/${account._id.toString()}`}
-                      className="text-primary hover:underline"
+                      className="text-zoru-ink hover:underline"
                     >
                       {account.name}
                     </Link>
@@ -359,7 +359,7 @@ export default function CrmContactDetailPage() {
                     {contact.linkedinUrl && (
                       <div className="flex items-center gap-3">
                         <Linkedin className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
-                        <a href={contact.linkedinUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">
+                        <a href={contact.linkedinUrl} target="_blank" rel="noreferrer" className="text-zoru-ink hover:underline truncate">
                           LinkedIn Profile
                         </a>
                       </div>
@@ -367,7 +367,7 @@ export default function CrmContactDetailPage() {
                     {contact.twitterHandle && (
                       <div className="flex items-center gap-3">
                         <Twitter className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
-                        <a href={`https://twitter.com/${contact.twitterHandle.replace('@', '')}`} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">
+                        <a href={`https://twitter.com/${contact.twitterHandle.replace('@', '')}`} target="_blank" rel="noreferrer" className="text-zoru-ink hover:underline truncate">
                           {contact.twitterHandle}
                         </a>
                       </div>
@@ -420,7 +420,7 @@ export default function CrmContactDetailPage() {
                       <Badge key={tag} variant="secondary" className="flex items-center gap-1 px-1.5 py-0">
                         {tag}
                         <X 
-                          className="h-3 w-3 cursor-pointer hover:text-red-500" 
+                          className="h-3 w-3 cursor-pointer hover:text-zoru-ink" 
                           onClick={() => handleRemoveTag(tag)} 
                         />
                       </Badge>

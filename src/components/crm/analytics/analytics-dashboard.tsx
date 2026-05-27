@@ -61,9 +61,9 @@ function SortableWidget({ id, children, isEditMode }: { id: string; children: Re
                 <div 
                     {...attributes} 
                     {...listeners}
-                    className="absolute top-2 right-2 z-10 p-2 cursor-grab active:cursor-grabbing bg-background/80 rounded-md backdrop-blur-sm border border-border opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-2 right-2 z-10 p-2 cursor-grab active:cursor-grabbing bg-zoru-surface/80 rounded-md backdrop-blur-sm border border-zoru-line opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                    <GripVertical className="h-4 w-4 text-muted-foreground" />
+                    <GripVertical className="h-4 w-4 text-zoru-ink-muted" />
                 </div>
             )}
             {children}
@@ -154,13 +154,13 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
 
     if (!hasData) {
         return (
-            <div className="flex h-[400px] flex-col items-center justify-center space-y-4 rounded-lg border border-dashed border-border bg-zoru-surface p-8 text-center">
+            <div className="flex h-[400px] flex-col items-center justify-center space-y-4 rounded-lg border border-dashed border-zoru-line bg-zoru-surface p-8 text-center">
                 <div className="rounded-full bg-zoru-surface-2 p-4">
                     <LayoutDashboard className="h-8 w-8 text-zoru-ink-muted" />
                 </div>
                 <div>
-                    <h3 className="text-xl font-semibold text-foreground">No Analytics Data</h3>
-                    <p className="text-sm text-muted-foreground mt-2 max-w-sm mx-auto">
+                    <h3 className="text-xl font-semibold text-zoru-ink">No Analytics Data</h3>
+                    <p className="text-sm text-zoru-ink-muted mt-2 max-w-sm mx-auto">
                         Your workspace is looking a little empty. Start adding leads, deals, or logging expenses to see your metrics come to life.
                     </p>
                 </div>
@@ -171,8 +171,8 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
     const widgets: Record<string, React.ReactNode> = {
         'financial': (
             <Card className="col-span-1 h-full p-0">
-                <div className="p-5 border-b border-border flex justify-between items-center">
-                    <h3 className="text-foreground font-semibold">Financial Performance</h3>
+                <div className="p-5 border-b border-zoru-line flex justify-between items-center">
+                    <h3 className="text-zoru-ink font-semibold">Financial Performance</h3>
                 </div>
                 <div className="p-5 h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
@@ -191,8 +191,8 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
         ),
         'funnel': (
             <Card className="col-span-1 h-full p-0">
-                <div className="p-5 border-b border-border flex justify-between items-center">
-                    <h3 className="text-foreground font-semibold">Lead Funnel</h3>
+                <div className="p-5 border-b border-zoru-line flex justify-between items-center">
+                    <h3 className="text-zoru-ink font-semibold">Lead Funnel</h3>
                 </div>
                 <div className="p-5 h-[300px] flex justify-center">
                     {funnel.length > 0 ? (
@@ -216,7 +216,7 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
                             </PieChart>
                         </ResponsiveContainer>
                     ) : (
-                        <div className="flex h-full items-center justify-center text-muted-foreground">
+                        <div className="flex h-full items-center justify-center text-zoru-ink-muted">
                             No lead data available
                         </div>
                     )}
@@ -239,7 +239,7 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
                     {isEditMode ? 'Finish Editing' : 'Customize Dashboard'}
                 </Button>
                 <ScheduleReportDialog />
-                <div className="flex items-center bg-muted rounded-md p-1">
+                <div className="flex items-center bg-zoru-surface-2 rounded-md p-1">
                     <Button 
                         variant="ghost" 
                         size="sm" 
@@ -268,36 +268,36 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <h3 className="text-sm font-medium text-muted-foreground">Total Revenue</h3>
+                            <h3 className="text-sm font-medium text-zoru-ink-muted">Total Revenue</h3>
                         </div>
                         <div>
-                            <div className="text-2xl font-bold text-foreground">₹{kpis.totalRevenue.toLocaleString()}</div>
+                            <div className="text-2xl font-bold text-zoru-ink">₹{kpis.totalRevenue.toLocaleString()}</div>
                         </div>
                     </Card>
                     <Card>
                         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <h3 className="text-sm font-medium text-muted-foreground">Total Expenses</h3>
+                            <h3 className="text-sm font-medium text-zoru-ink-muted">Total Expenses</h3>
                         </div>
                         <div>
-                            <div className="text-2xl font-bold text-foreground">₹{kpis.totalExpense.toLocaleString()}</div>
+                            <div className="text-2xl font-bold text-zoru-ink">₹{kpis.totalExpense.toLocaleString()}</div>
                         </div>
                     </Card>
                     <Card>
                         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <h3 className="text-sm font-medium text-muted-foreground">Net Profit</h3>
+                            <h3 className="text-sm font-medium text-zoru-ink-muted">Net Profit</h3>
                         </div>
                         <div>
-                            <div className={`text-2xl font-bold ${kpis.netProfit >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
+                            <div className={`text-2xl font-bold ${kpis.netProfit >= 0 ? 'text-zoru-ink' : 'text-zoru-ink'}`}>
                                 ₹{kpis.netProfit.toLocaleString()}
                             </div>
                         </div>
                     </Card>
                     <Card>
                         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <h3 className="text-sm font-medium text-muted-foreground">Total Leads</h3>
+                            <h3 className="text-sm font-medium text-zoru-ink-muted">Total Leads</h3>
                         </div>
                         <div>
-                            <div className="text-2xl font-bold text-foreground">{kpis.totalLeads}</div>
+                            <div className="text-2xl font-bold text-zoru-ink">{kpis.totalLeads}</div>
                         </div>
                     </Card>
                 </div>

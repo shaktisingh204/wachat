@@ -1,34 +1,30 @@
-/**
- * Edit payout — `/dashboard/crm/purchases/payouts/[id]/edit`.
- *
- * Hydrates the existing payout and passes it to the shared <PayoutForm>
- * (re-used from the Create flow). The form submits a PATCH because
- * `_id` is rendered as a hidden input.
- */
-
-import { notFound } from 'next/navigation';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { PayoutForm } from '../../_components/payout-form';
-import { getPayout } from '@/app/actions/crm/payouts.actions';
+import { notFound, redirect } from 'next/navigation';
+import { getSession } from '@/app/actions/user.actions';
+import { loadLiveDocument, saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
 
 export const dynamic = 'force-dynamic';
 
+const BASE = '/dashboard/crm/purchases/payouts';
+
 export default async function EditPayoutPage({
-  params,
+    params,
 }: {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const { payout } = await getPayout(id);
+    const { id } = await params;
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
 
-  if (!payout) notFound();
+    const doc = await loadLiveDocument('payout', id);
+    if (!doc) notFound();
 
-  const title = payout.paymentNo || String(payout._id);
-
-  return (
-    <EntityListShell title={`Edit ${title}`} subtitle="Update payout details.">
-      <PayoutForm initial={payout} />
-    </EntityListShell>
-  );
+    return (
+        <LiveDocumentEditor
+            documentType="payout"
+            initialData={doc as Record<string, unknown>}
+            saveAction={saveLiveDocument}
+            backHref={BASE}
+        />
+    );
 }

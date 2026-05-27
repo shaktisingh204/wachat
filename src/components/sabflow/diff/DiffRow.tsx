@@ -58,30 +58,30 @@ const KIND_STYLES: Record<DiffKind, {
   chipLabel: string;
 }> = {
   added: {
-    rowBorder: 'border-green-200 dark:border-green-900/60',
-    rowBg: 'bg-green-50/60 dark:bg-green-950/20',
-    iconBg: 'bg-green-100 dark:bg-green-900/40',
-    iconColor: 'text-green-600 dark:text-green-400',
-    chipBg: 'bg-green-100 dark:bg-green-900/40',
-    chipText: 'text-green-700 dark:text-green-300',
+    rowBorder: 'border-zoru-line dark:border-zoru-line/60',
+    rowBg: 'bg-zoru-surface-2/60 dark:bg-zoru-ink/20',
+    iconBg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',
+    iconColor: 'text-zoru-ink dark:text-zoru-ink-muted',
+    chipBg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',
+    chipText: 'text-zoru-ink dark:text-zoru-ink-muted',
     chipLabel: 'Added',
   },
   removed: {
-    rowBorder: 'border-red-200 dark:border-red-900/60',
-    rowBg: 'bg-red-50/60 dark:bg-red-950/20',
-    iconBg: 'bg-red-100 dark:bg-red-900/40',
-    iconColor: 'text-red-600 dark:text-red-400',
-    chipBg: 'bg-red-100 dark:bg-red-900/40',
-    chipText: 'text-red-700 dark:text-red-300',
+    rowBorder: 'border-zoru-line dark:border-zoru-line/60',
+    rowBg: 'bg-zoru-surface-2/60 dark:bg-zoru-ink/20',
+    iconBg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',
+    iconColor: 'text-zoru-ink dark:text-zoru-ink-muted',
+    chipBg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',
+    chipText: 'text-zoru-ink dark:text-zoru-ink-muted',
     chipLabel: 'Removed',
   },
   modified: {
-    rowBorder: 'border-amber-200 dark:border-amber-900/60',
-    rowBg: 'bg-amber-50/60 dark:bg-amber-950/20',
-    iconBg: 'bg-amber-100 dark:bg-amber-900/40',
-    iconColor: 'text-amber-600 dark:text-amber-400',
-    chipBg: 'bg-amber-100 dark:bg-amber-900/40',
-    chipText: 'text-amber-700 dark:text-amber-300',
+    rowBorder: 'border-zoru-line dark:border-zoru-line/60',
+    rowBg: 'bg-zoru-surface-2/60 dark:bg-zoru-ink/20',
+    iconBg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',
+    iconColor: 'text-zoru-ink dark:text-zoru-ink-muted',
+    chipBg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',
+    chipText: 'text-zoru-ink dark:text-zoru-ink-muted',
     chipLabel: 'Modified',
   },
 };
@@ -181,7 +181,7 @@ export function DiffRow({
               key={`${d}-${i}`}
               className="flex items-start gap-1.5 text-[11.5px] text-[var(--gray-11)] leading-snug"
             >
-              <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-amber-500" aria-hidden="true" />
+              <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-zoru-ink" aria-hidden="true" />
               <span className="min-w-0 flex-1">{d}</span>
             </li>
           ))}

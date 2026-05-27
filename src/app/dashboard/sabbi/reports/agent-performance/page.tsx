@@ -133,10 +133,10 @@ async function AgentPerformanceContainer({
 
       <Card className="p-6">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[16px] font-semibold text-foreground">
+          <h2 className="text-[16px] font-semibold text-zoru-ink">
             Top agents — leads vs deals won
           </h2>
-          <span className="text-[12px] text-muted-foreground">
+          <span className="text-[12px] text-zoru-ink-muted">
             Showing top {chartData.length}
           </span>
         </div>
@@ -150,54 +150,54 @@ async function AgentPerformanceContainer({
       </Card>
 
       <Card className="p-0">
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-border hover:bg-transparent">
-                <ZoruTableHead className="text-muted-foreground">Agent</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Department</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Leads</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Won</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Lost</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Revenue</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Avg deal</ZoruTableHead>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Agent</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Department</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Leads</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Won</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Lost</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Revenue</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Avg deal</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-border">
+                <ZoruTableRow className="border-zoru-line">
                   <ZoruTableCell
                     colSpan={7}
-                    className="h-20 text-center text-[13px] text-muted-foreground"
+                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No agents in this range.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
                 pageRows.map((r) => (
-                  <ZoruTableRow key={r.employeeId} className="border-border">
+                  <ZoruTableRow key={r.employeeId} className="border-zoru-line">
                     <ZoruTableCell>
                       <EntityRowLink
                         href={`/dashboard/crm/hr-payroll/employees/${r.employeeId}`}
                         label={r.employeeName}
                       />
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-foreground">
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">
                       <Badge variant="outline">{r.department}</Badge>
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-foreground">
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                       {fmtNumber(r.leadsHandled)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-emerald-500">
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                       {fmtNumber(r.dealsWon)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-destructive">
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                       {fmtNumber(r.dealsLost)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-foreground">
+                    <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
                       {fmtMoney(r.revenueClosed)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-foreground">
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                       {fmtMoney(r.avgDealSize)}
                     </ZoruTableCell>
                   </ZoruTableRow>

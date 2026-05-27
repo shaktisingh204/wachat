@@ -64,7 +64,7 @@ function TabsToggle({
     const [tab, setTab] = React.useState<'awaiting' | 'mine'>('awaiting');
     return (
         <>
-            <div className="mb-4 inline-flex gap-1 rounded-md border border-border p-1">
+            <div className="mb-4 inline-flex gap-1 rounded-md border border-zoru-line p-1">
                 <Button
                     variant={tab === 'awaiting' ? 'default' : 'ghost'}
                     onClick={() => setTab('awaiting')}
@@ -96,7 +96,7 @@ function RequestList({
 }) {
     if (rows.length === 0) {
         return (
-            <Card className="p-8 text-center text-sm text-muted-foreground">
+            <Card className="p-8 text-center text-sm text-zoru-ink-muted">
                 No requests yet.
             </Card>
         );
@@ -109,7 +109,7 @@ function RequestList({
                     href={`/dashboard/requests/${r._id}`}
                     className="block"
                 >
-                    <Card className="flex items-center justify-between gap-4 p-4 transition hover:bg-muted/40">
+                    <Card className="flex items-center justify-between gap-4 p-4 transition hover:bg-zoru-surface-2/40">
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-2">
                                 <span className="font-medium">
@@ -122,7 +122,7 @@ function RequestList({
                                     <Badge variant="destructive">SLA breached</Badge>
                                 ) : null}
                             </div>
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-xs text-zoru-ink-muted">
                                 {r.blueprintName ?? 'Blueprint'} · stage{' '}
                                 {(r.currentStageIdx ?? 0) + 1}
                                 {r.currentStage?.name
@@ -133,7 +133,7 @@ function RequestList({
                                     : null}
                             </div>
                         </div>
-                        <div className="text-right text-xs text-muted-foreground">
+                        <div className="text-right text-xs text-zoru-ink-muted">
                             {r.slaDeadlineAt ? (
                                 <div>
                                     SLA:{' '}

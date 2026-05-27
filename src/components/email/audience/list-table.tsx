@@ -90,7 +90,7 @@ export function EmailListTable({ lists, onEdit, onArchive }: EmailListTableProps
                     </ZoruDropdownMenuItem>
                     <ZoruDropdownMenuItem
                       onSelect={() => onArchive(list)}
-                      className="text-destructive"
+                      className="text-zoru-ink"
                     >
                       <Archive className="h-4 w-4" /> Archive
                     </ZoruDropdownMenuItem>

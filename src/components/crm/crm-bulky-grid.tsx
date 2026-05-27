@@ -148,7 +148,7 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
               <ZoruTableHead className="w-10 px-4 text-center">
                 <input
                   type="checkbox"
-                  className="rounded border-zoru-line text-primary focus:ring-primary h-3.5 w-3.5 cursor-pointer"
+                  className="rounded border-zoru-line text-zoru-ink focus:ring-primary h-3.5 w-3.5 cursor-pointer"
                   checked={
                     data.length > 0 &&
                     data.every((r) => selectedIds.has(r._id.toString()))
@@ -203,7 +203,7 @@ export function CrmBulkyGrid<T extends { _id: string | any }>({
                     <ZoruTableCell className="px-4 text-center">
                       <input
                         type="checkbox"
-                        className="rounded border-zoru-line text-primary focus:ring-primary h-3.5 w-3.5 cursor-pointer"
+                        className="rounded border-zoru-line text-zoru-ink focus:ring-primary h-3.5 w-3.5 cursor-pointer"
                         checked={selectedIds.has(id)}
                         onChange={() => onSelectOne(id)}
                         disabled={isEditing}

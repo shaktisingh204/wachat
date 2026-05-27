@@ -153,39 +153,39 @@ export default async function SabFlowCoveragePage() {
     const data = await loadCoverageData();
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-zinc-100">
+        <div className="min-h-screen bg-zoru-ink text-white">
             <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8 lg:p-10">
                 <header className="space-y-3">
-                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-amber-400/80">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-zoru-ink-muted/80">
                         <ShieldCheck className="h-3.5 w-3.5" />
                         Internal · Track C
                     </div>
-                    <h1 className="text-3xl font-semibold text-amber-200">
+                    <h1 className="text-3xl font-semibold text-white">
                         SabFlow coverage
                     </h1>
-                    <p className="max-w-3xl text-sm text-zinc-400">
+                    <p className="max-w-3xl text-sm text-zoru-ink-muted">
                         Live snapshot of the five Track C gaps — Rust stubs,
                         missing n8n integrations, collab GA, execution
                         playback, and the marketplace content library.
                         Inventories are produced by Phase C.1 sub-tasks
                         (#1 → #7) and read from{' '}
-                        <code className="text-amber-300">
+                        <code className="text-zoru-ink-muted">
                             docs/inventory/
                         </code>{' '}
                         at request time.
                     </p>
-                    <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-100">
-                        <div className="font-semibold text-amber-200">
+                    <div className="rounded-xl border border-zoru-line/30 bg-zoru-ink/10 p-4 text-xs text-white">
+                        <div className="font-semibold text-white">
                             RBAC reservation note
                         </div>
-                        <p className="mt-1 leading-relaxed text-amber-100/80">
+                        <p className="mt-1 leading-relaxed text-white/80">
                             Page is gated by the admin session cookie today.
                             The dedicated{' '}
-                            <code className="text-amber-200">
+                            <code className="text-white">
                                 sabflow.coverage.view
                             </code>{' '}
                             RBAC key is reserved by the umbrella ADR{' '}
-                            <code className="text-amber-200">
+                            <code className="text-white">
                                 docs/adr/sabflow-coverage.md
                             </code>{' '}
                             (Phase C.1 sub-task #10) and will be registered

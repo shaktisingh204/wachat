@@ -60,7 +60,7 @@ export function ImageEditor({ component, updateField, updateAction }: ImageEdito
         />
         <div className="relative flex items-center">
           <div className="flex-grow border-t border-muted"></div>
-          <span className="flex-shrink mx-2 text-xs text-muted-foreground">OR</span>
+          <span className="flex-shrink mx-2 text-xs text-zoru-ink-muted">OR</span>
           <div className="flex-grow border-t border-muted"></div>
         </div>
         <Button asChild variant="outline" size="sm" className="w-full">

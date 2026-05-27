@@ -112,7 +112,7 @@ export default function CatalogsPage() {
                         <Button variant="outline" size="icon" onClick={fetchCatalogs} disabled={loading}>
                             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                         </Button>
-                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setDialogOpen(true)}>
+                        <Button className="bg-zoru-ink hover:bg-zoru-ink/90 text-white" onClick={() => setDialogOpen(true)}>
                             <Plus className="h-4 w-4 mr-1" /> New catalog
                         </Button>
                     </div>
@@ -155,14 +155,14 @@ export default function CatalogsPage() {
                                 </ZoruCardHeader>
                                 <ZoruCardContent className="space-y-2">
                                     <div className="flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">Products</span>
+                                        <span className="text-zoru-ink-muted">Products</span>
                                         <span className="font-medium tabular-nums">{c.product_count ?? 0}</span>
                                     </div>
                                     <div className="flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground">Vertical</span>
+                                        <span className="text-zoru-ink-muted">Vertical</span>
                                         <Badge variant="outline">{c.vertical || 'COMMERCE'}</Badge>
                                     </div>
-                                    <div className="text-xs text-muted-foreground">ID: {c.id}</div>
+                                    <div className="text-xs text-zoru-ink-muted">ID: {c.id}</div>
                                 </ZoruCardContent>
                             </Card>
                         ))}
@@ -192,7 +192,7 @@ export default function CatalogsPage() {
                     </div>
                     <ZoruDialogFooter>
                         <Button variant="outline" onClick={() => { setDialogOpen(false); setName(''); }}>Cancel</Button>
-                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleCreate} disabled={submitting || !name.trim()}>
+                        <Button className="bg-zoru-ink hover:bg-zoru-ink/90 text-white" onClick={handleCreate} disabled={submitting || !name.trim()}>
                             {submitting ? 'Creating…' : 'Create'}
                         </Button>
                     </ZoruDialogFooter>

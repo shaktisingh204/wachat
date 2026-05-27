@@ -61,7 +61,7 @@ export function N8NNodesList() {
                 placeholder="Search…"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-[130px] pl-8 pr-3 py-1.5 text-[12px] bg-[var(--gray-3)] border border-[var(--gray-5)] rounded-lg outline-none focus:border-[#f76808]"
+                className="w-[130px] pl-8 pr-3 py-1.5 text-[12px] bg-[var(--gray-3)] border border-[var(--gray-5)] rounded-lg outline-none focus:border-zoru-line"
               />
             </div>
             <button

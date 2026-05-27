@@ -114,7 +114,7 @@ export function JourneyList({ journeys, onChanged }: JourneyListProps) {
                   <ZoruDropdownMenuItem onSelect={() => handleClone(j)}>
                     <Copy className="h-4 w-4" /> Clone
                   </ZoruDropdownMenuItem>
-                  <ZoruDropdownMenuItem onSelect={() => handleDelete(j)} className="text-destructive">
+                  <ZoruDropdownMenuItem onSelect={() => handleDelete(j)} className="text-zoru-ink">
                     <Trash2 className="h-4 w-4" /> Delete
                   </ZoruDropdownMenuItem>
                 </ZoruDropdownMenuContent>
@@ -140,7 +140,7 @@ export function JourneyList({ journeys, onChanged }: JourneyListProps) {
 
 function KpiCell({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-md border border-border bg-zoru-surface-2 p-2">
+    <div className="flex flex-col gap-0.5 rounded-md border border-zoru-line bg-zoru-surface-2 p-2">
       <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-zoru-ink-muted">
         {icon} {label}
       </span>

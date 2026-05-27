@@ -38,6 +38,7 @@ use super::slack_signature::{SignatureMeta, verify_slack_signature};
 
 pub struct SlackEventsApiTriggerNode;
 
+#[allow(dead_code)]
 fn opt(name: &str, value: &str) -> NodePropertyOption {
     NodePropertyOption {
         name: name.to_string(),

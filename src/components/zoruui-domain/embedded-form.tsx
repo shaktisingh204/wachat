@@ -86,7 +86,7 @@ function StarRating({ value, max, onChange, disabled }: {
                         className="p-0.5"
                     >
                         <Star
-                            className={cn('h-6 w-6 transition-colors', filled ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground')}
+                            className={cn('h-6 w-6 transition-colors', filled ? 'fill-zoru-ink-muted text-zoru-ink-muted' : 'text-zoru-ink-muted')}
                         />
                     </button>
                 );
@@ -298,7 +298,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
 
     if (successMessage) {
         return (
-            <div ref={containerRef} className="p-8 text-center border-2 border-dashed rounded-lg text-green-600 border-green-200 bg-green-50">
+            <div ref={containerRef} className="p-8 text-center border-2 border-dashed rounded-lg text-zoru-ink border-zoru-line bg-zoru-surface-2">
                 <CheckCircle className="mx-auto h-12 w-12" />
                 <h3 className="mt-4 text-lg font-semibold">{successMessage}</h3>
             </div>
@@ -464,8 +464,8 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                             }
                         }}
                     />
-                    {field.description && <p className="text-xs pt-1 text-muted-foreground">{field.description}</p>}
-                    {errors[fieldName] && <p className="text-sm font-medium text-destructive">{errors[fieldName]?.message as string}</p>}
+                    {field.description && <p className="text-xs pt-1 text-zoru-ink-muted">{field.description}</p>}
+                    {errors[fieldName] && <p className="text-sm font-medium text-zoru-ink">{errors[fieldName]?.message as string}</p>}
                 </div>
             </div>
         );
@@ -483,7 +483,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                     <div className="text-center my-6 px-6">
                         {logoSrc && <Image src={logoSrc} alt="Logo" width={80} height={80} className="object-contain mx-auto" />}
                         <h1 className="text-2xl font-bold mt-4">{(settings.title as string) || 'Form Title'}</h1>
-                        <p className="text-muted-foreground">{(settings.description as string) || ''}</p>
+                        <p className="text-zoru-ink-muted">{(settings.description as string) || ''}</p>
                     </div>
 
                     {isMultiStep && (
@@ -493,7 +493,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                                     <span
                                         className={cn(
                                             'text-xs px-2 py-1 rounded-full',
-                                            i === currentPageIdx ? 'text-white' : 'bg-muted text-muted-foreground',
+                                            i === currentPageIdx ? 'text-white' : 'bg-zoru-surface-2 text-zoru-ink-muted',
                                         )}
                                         style={i === currentPageIdx && theme.primaryColor ? { backgroundColor: theme.primaryColor } : undefined}
                                     >
@@ -510,7 +510,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                     <div className="p-6 pt-0 grid grid-cols-12" style={{ gap: `${(settings.fieldSpacing as number) || 24}px` }}>
                         {currentPage.fields.filter(f => f.type !== 'hidden').map(renderField)}
                         {submissionStatus === 'error' && (
-                            <div className="col-span-12 p-4 bg-destructive/10 text-destructive text-sm rounded-md flex items-center gap-2">
+                            <div className="col-span-12 p-4 bg-zoru-ink/10 text-zoru-ink text-sm rounded-md flex items-center gap-2">
                                 <AlertCircle className="h-4 w-4" />
                                 <p>{errorMessage}</p>
                             </div>
@@ -539,7 +539,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                     </div>
                     {(settings.footerText as string) && (
                         <div className="px-6 pb-4">
-                            <p className="text-xs text-muted-foreground text-center" dangerouslySetInnerHTML={{ __html: settings.footerText as string }} />
+                            <p className="text-xs text-zoru-ink-muted text-center" dangerouslySetInnerHTML={{ __html: settings.footerText as string }} />
                         </div>
                     )}
                 </form>

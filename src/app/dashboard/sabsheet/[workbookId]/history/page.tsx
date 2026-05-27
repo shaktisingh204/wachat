@@ -26,7 +26,7 @@ export default async function SabsheetHistoryPage({ params }: PageProps) {
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">{workbook.title} — history</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-zoru-ink-muted">
             Saved snapshots of this workbook. Restore replays a version into the live
             workbook.
           </p>
@@ -37,7 +37,7 @@ export default async function SabsheetHistoryPage({ params }: PageProps) {
       </header>
 
       {versions.length === 0 ? (
-        <Card className="p-6 text-sm text-muted-foreground">
+        <Card className="p-6 text-sm text-zoru-ink-muted">
           No versions yet. Use “Save version” in the editor to create one.
         </Card>
       ) : (
@@ -47,7 +47,7 @@ export default async function SabsheetHistoryPage({ params }: PageProps) {
               <Card className="flex items-center justify-between gap-4 p-3 text-sm">
                 <div>
                   <div className="font-medium">v{v.version}</div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-zoru-ink-muted">
                     {new Date(v.savedAt).toLocaleString()}
                     {v.comment ? ` — ${v.comment}` : ''}
                   </div>

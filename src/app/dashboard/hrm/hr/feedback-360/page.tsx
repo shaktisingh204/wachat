@@ -56,7 +56,7 @@ function StarBar({ value }: { value: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`h-3 w-3 ${i <= n ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-zoru-line'}`}
+          className={`h-3 w-3 ${i <= n ? 'fill-zoru-ink-muted text-zoru-ink-muted' : 'fill-transparent text-zoru-line'}`}
         />
       ))}
       <span className="ml-1 text-[12px] tabular-nums text-zoru-ink-muted">

@@ -253,7 +253,7 @@ function CopyLink({ url }: { url: string }): React.ReactElement {
         aria-label="Copy link"
       >
         {copied ? (
-          <Check className="h-3.5 w-3.5 text-emerald-500" />
+          <Check className="h-3.5 w-3.5 text-zoru-ink" />
         ) : (
           <Copy className="h-3.5 w-3.5" />
         )}

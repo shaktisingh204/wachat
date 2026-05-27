@@ -93,7 +93,7 @@ export default function Base64ToImagePage() {
             />
           </div>
           <Button onClick={render}>Render</Button>
-          {err && <div className="text-sm text-destructive">{err}</div>}
+          {err && <div className="text-sm text-zoru-ink">{err}</div>}
         </ZoruCardContent>
       </Card>
       

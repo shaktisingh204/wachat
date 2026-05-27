@@ -48,7 +48,7 @@ export default function OmnibarPage() {
         aiResponse = (
           <div className="space-y-2">
             <p>Your software expenses for the last quarter were <strong>₹45,200</strong>.</p>
-            <div className="h-32 w-full bg-muted flex items-center justify-center rounded-md border text-xs text-muted-foreground">
+            <div className="h-32 w-full bg-zoru-surface-2 flex items-center justify-center rounded-md border text-xs text-zoru-ink-muted">
               [ Bar Chart: WebGL Visualization of Expenses ]
             </div>
           </div>
@@ -70,10 +70,10 @@ export default function OmnibarPage() {
     <div className="p-6 space-y-6 h-[calc(100vh-64px)] flex flex-col" ref={containerRef}>
       <div>
         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <TerminalSquare className="w-8 h-8 text-primary" />
+          <TerminalSquare className="w-8 h-8 text-zoru-ink" />
           The Omnibar
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-zoru-ink-muted mt-1">
           Natural language querying and AI-assisted ledger actions.
         </p>
       </div>
@@ -90,23 +90,23 @@ export default function OmnibarPage() {
                 className={`animate-message flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.role === 'ai' && (
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-4 h-4 text-primary" />
+                  <div className="w-8 h-8 rounded-full bg-zoru-ink/20 flex items-center justify-center flex-shrink-0">
+                    <Bot className="w-4 h-4 text-zoru-ink" />
                   </div>
                 )}
                 
                 <div 
                   className={`px-4 py-3 rounded-2xl max-w-[80%] ${
                     msg.role === 'user' 
-                      ? 'bg-primary text-primary-foreground rounded-tr-sm' 
-                      : 'bg-muted rounded-tl-sm shadow-sm'
+                      ? 'bg-zoru-ink text-white rounded-tr-sm' 
+                      : 'bg-zoru-surface-2 rounded-tl-sm shadow-sm'
                   }`}
                 >
                   {msg.content}
                 </div>
 
                 {msg.role === 'user' && (
-                  <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-zoru-surface-2 flex items-center justify-center flex-shrink-0">
                     <User className="w-4 h-4" />
                   </div>
                 )}
@@ -116,11 +116,11 @@ export default function OmnibarPage() {
           </div>
         </ScrollArea>
 
-        <div className="p-4 bg-background border-t">
+        <div className="p-4 bg-zoru-surface border-t">
           <form onSubmit={handleQuery} className="max-w-4xl mx-auto flex gap-2 relative">
-            <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zoru-ink-muted" />
             <Input 
-              className="flex-1 pl-10 pr-4 h-12 text-base rounded-full bg-muted/50 border-transparent focus-visible:ring-primary focus-visible:bg-background transition-all"
+              className="flex-1 pl-10 pr-4 h-12 text-base rounded-full bg-zoru-surface-2/50 border-transparent focus-visible:ring-primary focus-visible:bg-zoru-surface transition-all"
               placeholder="Ask SabFinance AI (e.g., 'What were my software expenses last quarter?')..."
               value={query}
               onChange={e => setQuery(e.target.value)}

@@ -238,7 +238,7 @@ export function FlowEditorShell({ flowId }: Props) {
 
   if (isLoading && !flow) {
     return (
-      <div className="flex h-screen items-center justify-center text-sm text-muted-foreground">
+      <div className="flex h-screen items-center justify-center text-sm text-zoru-ink-muted">
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Loading flow…
       </div>
     );
@@ -247,7 +247,7 @@ export function FlowEditorShell({ flowId }: Props) {
   if (loadError) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-3 p-6 text-center">
-        <Workflow className="h-8 w-8 text-muted-foreground" />
+        <Workflow className="h-8 w-8 text-zoru-ink-muted" />
         <p className="text-sm font-medium">{loadError}</p>
         <Button variant="secondary" onClick={() => router.push('/dashboard/telegram/flows')}>
           <ArrowLeft className="h-4 w-4" /> Back to flows
@@ -261,7 +261,7 @@ export function FlowEditorShell({ flowId }: Props) {
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
       {/* Top bar */}
-      <header className="flex flex-wrap items-center gap-3 border-b bg-background px-4 py-3">
+      <header className="flex flex-wrap items-center gap-3 border-b bg-zoru-surface px-4 py-3">
         <Button
           variant="ghost"
           size="icon"
@@ -273,13 +273,13 @@ export function FlowEditorShell({ flowId }: Props) {
         <Workflow className="h-5 w-5" style={{ color: ACCENT }} />
         <input
           aria-label="Flow name"
-          className="rounded border border-transparent bg-transparent px-2 py-1 text-base font-semibold outline-none hover:border-border focus:border-primary"
+          className="rounded border border-transparent bg-transparent px-2 py-1 text-base font-semibold outline-none hover:border-zoru-line focus:border-primary"
           value={flow.name}
           onChange={(e) => patchFlow({ name: e.target.value })}
           disabled={readOnly}
         />
         <Badge variant={readOnly ? 'default' : 'secondary'}>{flow.status}</Badge>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-zoru-ink-muted">
           v{flow.version}
           {flow.latestPublishedVersion > 0 ? ` · published v${flow.latestPublishedVersion}` : ''}
         </span>
@@ -302,7 +302,7 @@ export function FlowEditorShell({ flowId }: Props) {
 
       {/* Validation banner */}
       {validationErrors.length > 0 ? (
-        <div className="border-b bg-destructive/10 px-4 py-2 text-xs text-destructive">
+        <div className="border-b bg-zoru-ink/10 px-4 py-2 text-xs text-zoru-ink">
           <p className="font-semibold">Cannot publish — fix the following:</p>
           <ul className="ml-4 list-disc">
             {validationErrors.map((e, i) => (
@@ -315,14 +315,14 @@ export function FlowEditorShell({ flowId }: Props) {
       ) : null}
 
       {/* Description */}
-      <div className="border-b bg-muted/30 px-4 py-2">
+      <div className="border-b bg-zoru-surface-2/30 px-4 py-2">
         <Input
           aria-label="Flow description"
           placeholder="Description (optional)"
           value={flow.description}
           onChange={(e) => patchFlow({ description: e.target.value })}
           disabled={readOnly}
-          className="border-transparent bg-transparent text-xs focus:border-border"
+          className="border-transparent bg-transparent text-xs focus:border-zoru-line"
         />
       </div>
 
@@ -340,7 +340,7 @@ export function FlowEditorShell({ flowId }: Props) {
             disabled={readOnly}
           />
         </div>
-        <aside className="overflow-y-auto border-l bg-background">
+        <aside className="overflow-y-auto border-l bg-zoru-surface">
           <FlowInspectorPanel
             selectedNode={selectedNode}
             trigger={flow.trigger}
@@ -377,27 +377,27 @@ export function FlowEditorShell({ flowId }: Props) {
 function SaveIndicator({ state, readOnly }: { state: SaveState; readOnly?: boolean }) {
   if (readOnly) {
     return (
-      <span className="ml-2 inline-flex items-center gap-1 text-xs text-muted-foreground">
+      <span className="ml-2 inline-flex items-center gap-1 text-xs text-zoru-ink-muted">
         <CloudOff className="h-3 w-3" /> Read-only
       </span>
     );
   }
   if (state === 'saving') {
     return (
-      <span className="ml-2 inline-flex items-center gap-1 text-xs text-muted-foreground">
+      <span className="ml-2 inline-flex items-center gap-1 text-xs text-zoru-ink-muted">
         <LoaderCircle className="h-3 w-3 animate-spin" /> Saving…
       </span>
     );
   }
   if (state === 'unsaved') {
     return (
-      <span className="ml-2 inline-flex items-center gap-1 text-xs text-amber-600">
+      <span className="ml-2 inline-flex items-center gap-1 text-xs text-zoru-ink">
         <CloudOff className="h-3 w-3" /> Unsaved
       </span>
     );
   }
   return (
-    <span className={cn('ml-2 inline-flex items-center gap-1 text-xs text-emerald-600')}>
+    <span className={cn('ml-2 inline-flex items-center gap-1 text-xs text-zoru-ink')}>
       <Cloud className="h-3 w-3" /> Saved
       <CheckCircle2 className="h-3 w-3" />
     </span>

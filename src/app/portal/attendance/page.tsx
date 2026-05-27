@@ -62,7 +62,7 @@ export default async function AttendancePortalPage() {
              todayAttendance={todayAttendance}
            />
            {error && (
-             <div className="text-red-500 text-center mt-4 text-sm">{error}</div>
+             <div className="text-zoru-ink text-center mt-4 text-sm">{error}</div>
            )}
         </div>
       </main>

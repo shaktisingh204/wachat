@@ -109,7 +109,7 @@ export default function BrandKitPage() {
       </div>
 
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{kits.length} / {MAX_KITS} kits saved</p>
+        <p className="text-sm text-zoru-ink-muted">{kits.length} / {MAX_KITS} kits saved</p>
         {!showForm && kits.length < MAX_KITS && (
           <Button onClick={() => { setShowForm(true); setFormError(''); }} size="sm">
             <Plus className="h-4 w-4 mr-2" />
@@ -119,16 +119,16 @@ export default function BrandKitPage() {
       </div>
 
       {showForm && (
-        <Card className="border-purple-200 ring-1 ring-purple-100">
+        <Card className="border-zoru-line ring-1 ring-zoru-line">
           <ZoruCardHeader>
             <ZoruCardTitle className="flex items-center gap-2 text-base">
-              <Palette className="h-4 w-4 text-purple-600" />
+              <Palette className="h-4 w-4 text-zoru-ink" />
               New Brand Kit
             </ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Kit Name <span className="text-red-500">*</span></Label>
+              <Label>Kit Name <span className="text-zoru-ink">*</span></Label>
               <Input
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
@@ -176,7 +176,7 @@ export default function BrandKitPage() {
               <Label>Logo</Label>
               <div className="flex items-center gap-3">
                 {form.logoUrl && (
-                  <div className="w-12 h-12 border rounded-lg overflow-hidden flex items-center justify-center bg-slate-50">
+                  <div className="w-12 h-12 border rounded-lg overflow-hidden flex items-center justify-center bg-zoru-surface-2">
                     <img src={form.logoUrl} className="max-w-full max-h-full object-contain" alt="Kit logo" />
                   </div>
                 )}
@@ -194,7 +194,7 @@ export default function BrandKitPage() {
               </div>
             </div>
             {formError && (
-              <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-2">{formError}</p>
+              <p className="text-sm text-zoru-ink bg-zoru-surface-2 border border-zoru-line rounded-md px-3 py-2">{formError}</p>
             )}
             <div className="flex gap-2 pt-2">
               <Button onClick={handleAdd}>Save Kit</Button>
@@ -205,10 +205,10 @@ export default function BrandKitPage() {
       )}
 
       {kits.length === 0 && !showForm && (
-        <div className="text-center py-16 border-2 border-dashed border-slate-200 rounded-xl">
-          <Palette className="h-10 w-10 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-500 font-medium">No brand kits yet</p>
-          <p className="text-sm text-slate-400 mt-1">Add your first kit to reuse colors and logos across QR codes.</p>
+        <div className="text-center py-16 border-2 border-dashed border-zoru-line rounded-xl">
+          <Palette className="h-10 w-10 text-zoru-ink-muted mx-auto mb-3" />
+          <p className="text-zoru-ink font-medium">No brand kits yet</p>
+          <p className="text-sm text-zoru-ink-muted mt-1">Add your first kit to reuse colors and logos across QR codes.</p>
         </div>
       )}
 
@@ -229,20 +229,20 @@ export default function BrandKitPage() {
                 />
               </div>
               {kit.logoUrl && (
-                <div className="w-10 h-10 border rounded-lg overflow-hidden flex items-center justify-center bg-slate-50 shrink-0">
+                <div className="w-10 h-10 border rounded-lg overflow-hidden flex items-center justify-center bg-zoru-surface-2 shrink-0">
                   <img src={kit.logoUrl} className="max-w-full max-h-full object-contain" alt={`${kit.name} logo`} />
                 </div>
               )}
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{kit.name}</p>
-                <p className="text-xs text-muted-foreground font-mono">{kit.primaryColor} · {kit.bgColor}</p>
+                <p className="text-xs text-zoru-ink-muted font-mono">{kit.primaryColor} · {kit.bgColor}</p>
               </div>
               <div className="flex gap-2 shrink-0">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handleApply(kit)}
-                  className={cn(copied === kit.id && "border-green-500 text-green-700")}
+                  className={cn(copied === kit.id && "border-zoru-line text-zoru-ink")}
                 >
                   {copied === kit.id ? 'Copied!' : 'Apply'}
                 </Button>
@@ -250,7 +250,7 @@ export default function BrandKitPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDelete(kit.id)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                  className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2"
                   aria-label={`Delete ${kit.name}`}
                 >
                   <Trash2 className="h-4 w-4" />

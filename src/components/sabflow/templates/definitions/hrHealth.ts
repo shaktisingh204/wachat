@@ -29,9 +29,9 @@ export const jobApplicationTemplate: TemplateDefinition = {
   name: 'Job Application',
   description: 'Collect candidate info including name, email, and resume.',
   emoji: '💼',
-  color: 'text-slate-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-slate-50 dark:bg-slate-950/30 border-slate-200 dark:border-slate-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuBriefcase,
   category: 'HR',
   build: () => {
@@ -129,9 +129,9 @@ export const eventRsvpTemplate: TemplateDefinition = {
   name: 'Event RSVP',
   description: 'Event confirmation with attendance count and dietary needs.',
   emoji: '📅',
-  color: 'text-fuchsia-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-fuchsia-50 dark:bg-fuchsia-950/30 border-fuchsia-200 dark:border-fuchsia-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuCalendarCheck,
   category: 'Marketing',
   build: () => {
@@ -225,9 +225,9 @@ export const bookingAppointmentTemplate: TemplateDefinition = {
   name: 'Booking / Appointment',
   description: 'Collects date, time, and service selection for an appointment.',
   emoji: '🗓️',
-  color: 'text-teal-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-teal-50 dark:bg-teal-950/30 border-teal-200 dark:border-teal-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuCalendarClock,
   category: 'Sales',
   build: () => {
@@ -318,9 +318,9 @@ export const fitnessCoachTemplate: TemplateDefinition = {
   name: 'Fitness Coach Intake',
   description: 'Collects fitness goals, current level, and training schedule.',
   emoji: '💪',
-  color: 'text-lime-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-lime-50 dark:bg-lime-950/30 border-lime-200 dark:border-lime-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuDumbbell,
   category: 'Health',
   build: () => {
@@ -418,9 +418,9 @@ export const legalIntakeTemplate: TemplateDefinition = {
   name: 'Legal Intake',
   description: 'Gathers case details for a law firm consultation.',
   emoji: '⚖️',
-  color: 'text-zinc-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-zinc-50 dark:bg-zinc-950/30 border-zinc-200 dark:border-zinc-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuScale,
   category: 'Support',
   build: () => {
@@ -525,9 +525,9 @@ export const mentalHealthCheckinTemplate: TemplateDefinition = {
   name: 'Mental Health Check-in',
   description: 'Daily mood tracker with rating input and supportive messaging.',
   emoji: '🧘',
-  color: 'text-purple-500',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuHeartPulse,
   category: 'Health',
   build: () => {

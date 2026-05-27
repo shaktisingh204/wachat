@@ -140,7 +140,7 @@ export default function EnvelopeDetailPage() {
     return <div className="p-6 text-sm text-zoru-ink-muted">Loading…</div>;
   }
   if (!env) {
-    return <div className="p-6 text-sm text-red-500">Envelope not found.</div>;
+    return <div className="p-6 text-sm text-zoru-ink">Envelope not found.</div>;
   }
 
   return (
@@ -204,7 +204,7 @@ export default function EnvelopeDetailPage() {
       </Card>
 
       {kioskInfo && (
-        <Card className="p-4 border border-zoru-line bg-amber-50/20">
+        <Card className="p-4 border border-zoru-line bg-zoru-surface-2/20">
           <h3 className="text-sm font-medium text-zoru-ink mb-2">Kiosk link ready</h3>
           <div className="text-sm">
             <div>URL: <code className="text-xs">{kioskInfo.url}</code></div>

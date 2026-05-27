@@ -20,7 +20,7 @@ export function CommissionCalculator() {
   const annualCommission = monthlyCommission * 12;
 
   return (
-    <div className="bg-[#050505] border border-white/10 rounded-lg p-6 space-y-8 mt-12">
+    <div className="bg-zoru-ink border border-white/10 rounded-lg p-6 space-y-8 mt-12">
       <div className="flex items-center gap-3 mb-6">
         <Calculator className="w-5 h-5 text-white/70" />
         <h3 className="font-bold text-lg">Live Commission Calculator</h3>
@@ -69,7 +69,7 @@ export function CommissionCalculator() {
         </div>
         <div>
           <p className="text-xs text-white/50 uppercase tracking-widest mb-1">Annual Earn</p>
-          <p className="text-3xl font-bold text-green-400">${annualCommission.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+          <p className="text-3xl font-bold text-zoru-ink-muted">${annualCommission.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
         </div>
       </div>
     </div>

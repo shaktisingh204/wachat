@@ -454,11 +454,11 @@ interface TemplateCardProps {
 }
 
 const statusColorMap: Record<string, string> = {
-  APPROVED: 'bg-emerald-500/10 text-emerald-600 border-emerald-200',
-  REJECTED: 'bg-rose-500/10 text-rose-600 border-rose-200',
-  PENDING: 'bg-amber-500/10 text-amber-600 border-amber-200',
-  PAUSED: 'bg-gray-500/10 text-gray-600 border-gray-200',
-  UNMAPPED: 'bg-blue-500/10 text-blue-600 border-blue-200',
+  APPROVED: 'bg-zoru-ink/10 text-zoru-ink border-zoru-line',
+  REJECTED: 'bg-zoru-ink/10 text-zoru-ink border-zoru-line',
+  PENDING: 'bg-zoru-ink/10 text-zoru-ink border-zoru-line',
+  PAUSED: 'bg-zoru-ink/10 text-zoru-ink border-zoru-line',
+  UNMAPPED: 'bg-zoru-ink/10 text-zoru-ink border-zoru-line',
 };
 
 function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {

@@ -251,15 +251,15 @@ export function WorkbookEditor(props: Props) {
           />
 
           {/* Sheet tabs */}
-          <div className="flex items-center gap-1 border-t bg-muted/40 px-2 py-1">
+          <div className="flex items-center gap-1 border-t bg-zoru-surface-2/40 px-2 py-1">
             {props.sheets.map((s) => (
               <Link
                 key={s._id}
                 href={`/dashboard/sabsheet/${props.workbook._id}/sheets/${s._id}`}
                 className={`rounded px-3 py-1 text-xs ${
                   s._id === activeSheetId
-                    ? 'bg-background font-medium shadow-sm'
-                    : 'text-muted-foreground hover:bg-background/60'
+                    ? 'bg-zoru-surface font-medium shadow-sm'
+                    : 'text-zoru-ink-muted hover:bg-zoru-surface/60'
                 }`}
               >
                 {s.name}
@@ -268,7 +268,7 @@ export function WorkbookEditor(props: Props) {
             <button
               type="button"
               onClick={onAddSheet}
-              className="rounded px-2 py-1 text-xs text-muted-foreground hover:bg-background/60"
+              className="rounded px-2 py-1 text-xs text-zoru-ink-muted hover:bg-zoru-surface/60"
             >
               + Add sheet
             </button>
@@ -307,11 +307,11 @@ function Toolbar({
   onSaveVersion: () => void;
 }) {
   return (
-    <div className="flex items-center gap-2 border-b bg-background px-3 py-2">
-      <Link href="/dashboard/sabsheet" className="text-sm text-muted-foreground hover:underline">
+    <div className="flex items-center gap-2 border-b bg-zoru-surface px-3 py-2">
+      <Link href="/dashboard/sabsheet" className="text-sm text-zoru-ink-muted hover:underline">
         SabSheet
       </Link>
-      <span className="text-sm text-muted-foreground">/</span>
+      <span className="text-sm text-zoru-ink-muted">/</span>
       <span className="text-sm font-medium">{workbookTitle}</span>
       <div className="ml-auto flex items-center gap-1">
         {/* TODO: implement number-format, font, bg/color, borders, freeze in a follow-up. */}
@@ -358,11 +358,11 @@ function FormulaBar({
   onEvaluate: () => void;
 }) {
   return (
-    <div className="flex items-center gap-2 border-b bg-background px-3 py-1">
-      <div className="w-16 rounded border bg-muted/40 px-2 py-1 text-center font-mono text-xs">
+    <div className="flex items-center gap-2 border-b bg-zoru-surface px-3 py-1">
+      <div className="w-16 rounded border bg-zoru-surface-2/40 px-2 py-1 text-center font-mono text-xs">
         {addr}
       </div>
-      <span className="font-mono text-sm text-muted-foreground">fx</span>
+      <span className="font-mono text-sm text-zoru-ink-muted">fx</span>
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -403,13 +403,13 @@ function GridSurface({
   return (
     <div className="min-h-0 flex-1 overflow-auto">
       <table className="w-full border-collapse text-sm">
-        <thead className="sticky top-0 z-10 bg-muted/60">
+        <thead className="sticky top-0 z-10 bg-zoru-surface-2/60">
           <tr>
-            <th className="w-10 border bg-muted/80 px-1 text-xs text-muted-foreground" />
+            <th className="w-10 border bg-zoru-surface-2/80 px-1 text-xs text-zoru-ink-muted" />
             {Array.from({ length: VIEW_COLS }).map((_, c) => (
               <th
                 key={c}
-                className="min-w-[88px] border bg-muted/80 px-2 py-1 text-xs font-medium text-muted-foreground"
+                className="min-w-[88px] border bg-zoru-surface-2/80 px-2 py-1 text-xs font-medium text-zoru-ink-muted"
               >
                 {colLabel(c)}
               </th>
@@ -421,7 +421,7 @@ function GridSurface({
             <tr key={row}>
               <th
                 scope="row"
-                className="border bg-muted/60 px-1 text-center text-xs text-muted-foreground"
+                className="border bg-zoru-surface-2/60 px-1 text-center text-xs text-zoru-ink-muted"
               >
                 {row + 1}
               </th>
@@ -456,7 +456,7 @@ function GridSurface({
                             onCancelEdit();
                           }
                         }}
-                        className="w-full bg-background outline-none"
+                        className="w-full bg-zoru-surface outline-none"
                       />
                     ) : (
                       <span>{displayValue(c)}</span>
@@ -503,7 +503,7 @@ function SidePanels({
   const [rangeName, setRangeName] = useState('');
 
   return (
-    <aside className="w-72 shrink-0 border-l bg-muted/20">
+    <aside className="w-72 shrink-0 border-l bg-zoru-surface-2/20">
       <Tabs defaultValue="comments" className="flex h-full flex-col">
         <ZoruTabsList className="m-2">
           <ZoruTabsTrigger value="comments">Comments</ZoruTabsTrigger>
@@ -512,15 +512,15 @@ function SidePanels({
         </ZoruTabsList>
 
         <ZoruTabsContent value="comments" className="min-h-0 flex-1 space-y-3 overflow-auto p-3">
-          <div className="space-y-2 rounded-md border bg-background p-2 text-xs">
-            <div className="text-muted-foreground">
+          <div className="space-y-2 rounded-md border bg-zoru-surface p-2 text-xs">
+            <div className="text-zoru-ink-muted">
               On {a1(selection.row, selection.col)}
             </div>
             <textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Add a comment…"
-              className="w-full rounded border bg-background p-2 text-xs"
+              className="w-full rounded border bg-zoru-surface p-2 text-xs"
               rows={2}
             />
             <Button
@@ -561,8 +561,8 @@ function SidePanels({
           </div>
           <ul className="space-y-2">
             {comments.map((c) => (
-              <li key={c._id} className="rounded-md border bg-background p-2 text-xs">
-                <div className="font-mono text-[10px] text-muted-foreground">
+              <li key={c._id} className="rounded-md border bg-zoru-surface p-2 text-xs">
+                <div className="font-mono text-[10px] text-zoru-ink-muted">
                   {a1(c.row, c.col)} · {c.resolved ? 'resolved' : 'open'}
                 </div>
                 <div className="mt-1">{c.body}</div>
@@ -589,7 +589,7 @@ function SidePanels({
         </ZoruTabsContent>
 
         <ZoruTabsContent value="named" className="min-h-0 flex-1 space-y-2 overflow-auto p-3">
-          <div className="space-y-2 rounded-md border bg-background p-2 text-xs">
+          <div className="space-y-2 rounded-md border bg-zoru-surface p-2 text-xs">
             <Input
               value={rangeName}
               onChange={(e) => setRangeName(e.target.value)}
@@ -633,10 +633,10 @@ function SidePanels({
             {namedRanges.map((r) => (
               <li
                 key={r._id}
-                className="rounded-md border bg-background px-2 py-1 text-xs"
+                className="rounded-md border bg-zoru-surface px-2 py-1 text-xs"
               >
                 <div className="font-medium">{r.name}</div>
-                <div className="text-[10px] text-muted-foreground">
+                <div className="text-[10px] text-zoru-ink-muted">
                   {a1(r.startRow, r.startCol)}:{a1(r.endRow, r.endCol)}
                 </div>
               </li>
@@ -649,17 +649,17 @@ function SidePanels({
               JSON; rendering / aggregation is a follow-up. */}
           <ul className="space-y-1">
             {pivots.length === 0 ? (
-              <li className="rounded-md border bg-background p-3 text-xs text-muted-foreground">
+              <li className="rounded-md border bg-zoru-surface p-3 text-xs text-zoru-ink-muted">
                 No pivots yet. Builder UI is a follow-up.
               </li>
             ) : (
               pivots.map((p) => (
                 <li
                   key={p._id}
-                  className="rounded-md border bg-background px-2 py-1 text-xs"
+                  className="rounded-md border bg-zoru-surface px-2 py-1 text-xs"
                 >
                   <div className="font-medium">{p.name}</div>
-                  <div className="text-[10px] text-muted-foreground">{p.sourceRange}</div>
+                  <div className="text-[10px] text-zoru-ink-muted">{p.sourceRange}</div>
                 </li>
               ))
             )}

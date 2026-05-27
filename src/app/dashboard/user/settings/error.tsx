@@ -19,7 +19,7 @@ export default function SettingsError({
         <div className="flex h-[50vh] items-center justify-center">
             <Card className="max-w-md w-full border-destructive/50">
                 <ZoruCardHeader>
-                    <div className="flex items-center gap-2 text-destructive mb-2">
+                    <div className="flex items-center gap-2 text-zoru-ink mb-2">
                         <AlertTriangle className="h-5 w-5" />
                         <ZoruCardTitle>Something went wrong!</ZoruCardTitle>
                     </div>
@@ -28,7 +28,7 @@ export default function SettingsError({
                     </ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent className="space-y-4">
-                    <div className="p-3 bg-muted rounded-md text-sm font-mono text-muted-foreground break-all">
+                    <div className="p-3 bg-zoru-surface-2 rounded-md text-sm font-mono text-zoru-ink-muted break-all">
                         {error.message || 'Unknown error'}
                     </div>
                     <Button onClick={() => reset()} className="w-full">

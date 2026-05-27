@@ -152,7 +152,7 @@ export default function NewPortalUserPage() {
             {/* Full Name */}
             <div className="flex flex-col gap-1.5">
                 <Label htmlFor="name">
-                Full Name <span className="text-red-500">*</span>
+                Full Name <span className="text-zoru-ink">*</span>
                 </Label>
                 <Input
                 id="name"
@@ -167,7 +167,7 @@ export default function NewPortalUserPage() {
             {/* Email Address */}
             <div className="flex flex-col gap-1.5">
                 <Label htmlFor="email">
-                Email Address <span className="text-red-500">*</span>
+                Email Address <span className="text-zoru-ink">*</span>
                 </Label>
                 <Input
                 id="email"
@@ -285,10 +285,10 @@ export default function NewPortalUserPage() {
         </Card>
 
         {clientError && (
-            <p className="text-[13px] text-red-500">{clientError}</p>
+            <p className="text-[13px] text-zoru-ink">{clientError}</p>
         )}
         {state.error && (
-            <p className="text-[13px] text-red-500">{state.error}</p>
+            <p className="text-[13px] text-zoru-ink">{state.error}</p>
         )}
 
         <div className="flex items-center gap-3">

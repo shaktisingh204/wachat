@@ -78,7 +78,7 @@ function RevokeButton({ apiKey, onKeyRevoked }: { apiKey: Omit<ApiKey, 'key'>, o
 
 export function ApiKeyList({ keys, onKeyRevoked }: ApiKeyListProps) {
     if (keys.length === 0) {
-        return <p className="text-muted-foreground text-center py-8">No API keys created yet.</p>;
+        return <p className="text-zoru-ink-muted text-center py-8">No API keys created yet.</p>;
     }
     
     return (

@@ -27,9 +27,9 @@ export const orderTrackingTemplate: TemplateDefinition = {
   name: 'Order Tracking',
   description: 'Asks for an order ID and fetches live status via webhook.',
   emoji: '📦',
-  color: 'text-amber-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuPackage,
   category: 'E-commerce',
   build: () => {
@@ -100,9 +100,9 @@ export const restaurantMenuTemplate: TemplateDefinition = {
   name: 'Restaurant Menu',
   description: 'Interactive menu with categories and picture choices.',
   emoji: '🍽️',
-  color: 'text-red-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuUtensils,
   category: 'E-commerce',
   build: () => {
@@ -186,9 +186,9 @@ export const productReturnsTemplate: TemplateDefinition = {
   name: 'Product Returns',
   description: 'Handles return requests with reason, order ID, and photos.',
   emoji: '🔁',
-  color: 'text-rose-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuRotateCw,
   category: 'E-commerce',
   build: () => {
@@ -275,9 +275,9 @@ export const faqBotTemplate: TemplateDefinition = {
   name: 'FAQ Bot',
   description: 'Answers common questions using condition branches.',
   emoji: '❓',
-  color: 'text-violet-600',
+  color: 'text-zoru-ink',
   bgColor:
-    'bg-violet-50 dark:bg-violet-950/30 border-violet-200 dark:border-violet-800',
+    'bg-zoru-surface-2 dark:bg-zoru-ink/30 border-zoru-line dark:border-zoru-line',
   icon: LuCircleHelp,
   category: 'Support',
   build: () => {

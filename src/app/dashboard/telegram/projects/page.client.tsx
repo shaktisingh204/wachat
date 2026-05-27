@@ -75,14 +75,13 @@ function ProjectCard({
                         <div
                             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
                             style={{
-                                background:
-                                    'linear-gradient(135deg, #E0F4FF 0%, #B9E4FA 100%)',
+                                background: 'var(--zoru-surface-2)',
                             }}
                         >
                             <Plug
                                 className="h-4 w-4"
                                 strokeWidth={1.75}
-                                style={{ color: '#007DBB' }}
+                                style={{ color: 'var(--zoru-ink)' }}
                             />
                         </div>
                         <div className="min-w-0">

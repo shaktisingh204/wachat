@@ -245,7 +245,7 @@ export default function LeadDetailPage() {
             <Card className="p-6 border border-zoru-line bg-zoru-surface">
               <div className="flex flex-col items-center text-center">
                 <Avatar className="mb-3 h-20 w-20 border border-zoru-line">
-                  <ZoruAvatarFallback className="bg-accent text-[24px] text-accent-foreground font-semibold">
+                  <ZoruAvatarFallback className="bg-zoru-surface-2 text-[24px] text-zoru-ink font-semibold">
                     {fullName.charAt(0)}
                   </ZoruAvatarFallback>
                 </Avatar>
@@ -285,7 +285,7 @@ export default function LeadDetailPage() {
               <div className="space-y-3 text-[13px] text-zoru-ink font-medium">
                 <div className="flex items-center gap-3">
                   <Mail className="h-4 w-4 text-zoru-ink-muted" strokeWidth={2} />
-                  <a href={`mailto:${lead.email}`} className="text-primary hover:underline truncate">
+                  <a href={`mailto:${lead.email}`} className="text-zoru-ink hover:underline truncate">
                     {lead.email || 'No email registered'}
                   </a>
                 </div>
@@ -361,7 +361,7 @@ export default function LeadDetailPage() {
             {/* Identity & Basic Profile card */}
             <Card className="p-6 border border-zoru-line bg-zoru-surface">
               <h3 className="mb-4 text-[12px] font-extrabold uppercase tracking-widest text-zoru-ink-muted flex items-center gap-1.5">
-                <Layers className="h-4 w-4 text-primary" /> Profile Identity & CRM Attributes
+                <Layers className="h-4 w-4 text-zoru-ink" /> Profile Identity & CRM Attributes
               </h3>
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Full name">{fullName}</Field>
@@ -373,7 +373,7 @@ export default function LeadDetailPage() {
               </div>
 
               <h3 className="mb-4 mt-8 text-[12px] font-extrabold uppercase tracking-widest text-zoru-ink-muted flex items-center gap-1.5">
-                <Activity className="h-4 w-4 text-primary" /> Attribution & Workflows
+                <Activity className="h-4 w-4 text-zoru-ink" /> Attribution & Workflows
               </h3>
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Lead Source">{lead.attribution?.source || lead.source || '—'}</Field>
@@ -402,7 +402,7 @@ export default function LeadDetailPage() {
             {/* Financial Details */}
             <Card className="p-6 border border-zoru-line bg-zoru-surface">
               <h3 className="mb-4 text-[12px] font-extrabold uppercase tracking-widest text-zoru-ink-muted flex items-center gap-1.5">
-                <Receipt className="h-4 w-4 text-primary" /> Estimated Values & Forecaster
+                <Receipt className="h-4 w-4 text-zoru-ink" /> Estimated Values & Forecaster
               </h3>
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Estimated value">{fmtMoney(lead.estimatedValue || lead.value, lead.currency)}</Field>
@@ -418,7 +418,7 @@ export default function LeadDetailPage() {
             {customFields.length > 0 && (
               <Card className="p-6 border border-zoru-line bg-zoru-surface">
                 <h3 className="mb-4 text-[12px] font-extrabold uppercase tracking-widest text-zoru-ink-muted flex items-center gap-1.5">
-                  <Layers className="h-4 w-4 text-primary" /> Tenant custom fields
+                  <Layers className="h-4 w-4 text-zoru-ink" /> Tenant custom fields
                 </h3>
                 <div className="grid gap-5 sm:grid-cols-2">
                   {customFields.map((f) => (

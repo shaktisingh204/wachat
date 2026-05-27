@@ -47,13 +47,13 @@ async function ClientEstimatesPageContent() {
                 </div>
                 
                 {Object.keys(pendingTotalsByCurrency).length > 0 && (
-                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm flex items-center gap-3 shadow-sm">
-                        <div className="bg-blue-100 p-2 rounded-full">
-                            <Info className="h-4 w-4 text-blue-600" />
+                    <div className="bg-zoru-surface-2 border border-zoru-line rounded-lg p-3 text-sm flex items-center gap-3 shadow-sm">
+                        <div className="bg-zoru-surface-2 p-2 rounded-full">
+                            <Info className="h-4 w-4 text-zoru-ink" />
                         </div>
                         <div>
-                            <div className="text-blue-900 font-medium">Pending Estimates</div>
-                            <div className="text-blue-700 flex gap-2">
+                            <div className="text-zoru-ink font-medium">Pending Estimates</div>
+                            <div className="text-zoru-ink flex gap-2">
                                 {Object.entries(pendingTotalsByCurrency).map(([ccy, total]) => (
                                     <span key={ccy} className="font-semibold">{fmtINR(total as number, ccy)}</span>
                                 ))}

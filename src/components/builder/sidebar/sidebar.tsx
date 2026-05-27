@@ -106,11 +106,11 @@ export const BuilderSidebar = () => {
                 </TabsList>
                 <TabsContent value="add" className="p-4 space-y-4">
                     <div className="space-y-2">
-                        <h3 className="text-sm font-medium text-gray-500">Layout</h3>
+                        <h3 className="text-sm font-medium text-zoru-ink">Layout</h3>
                         <DraggableSidebarItem type="SECTION" label="Section" />
                     </div>
                     <div className="space-y-2">
-                        <h3 className="text-sm font-medium text-gray-500">Basic Widgets</h3>
+                        <h3 className="text-sm font-medium text-zoru-ink">Basic Widgets</h3>
                         {Object.keys(WIDGET_REGISTRY).map(type => (
                             <DraggableSidebarItem key={type} type={type} label={type} />
                         ))}
@@ -162,7 +162,7 @@ export const BuilderSidebar = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="text-center text-gray-500 py-10">Select an element to edit</div>
+                        <div className="text-center text-zoru-ink py-10">Select an element to edit</div>
                     )}
                 </TabsContent>
                 <TabsContent value="global" className="h-[calc(100vh-100px)] overflow-hidden">

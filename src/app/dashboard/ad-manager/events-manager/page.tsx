@@ -171,7 +171,7 @@ export default function EventsManagerPage() {
                             <RefreshCw className={`h-4 w-4 ${(loading || statsLoading) ? 'animate-spin' : ''}`} />
                         </Button>
                         <Button
-                            className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
+                            className="bg-zoru-ink hover:bg-zoru-ink/90 text-white"
                             onClick={() => setTestDialogOpen(true)}
                             disabled={!selectedPixel || loading}
                         >
@@ -189,9 +189,9 @@ export default function EventsManagerPage() {
             ) : pixels.length === 0 ? (
                 <Card className="border-dashed">
                     <ZoruCardContent className="py-16 text-center">
-                        <Activity className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <Activity className="h-12 w-12 mx-auto text-zoru-ink-muted mb-4" />
                         <p className="font-semibold text-lg">No pixels found</p>
-                        <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
+                        <p className="text-sm text-zoru-ink-muted mt-1 max-w-md mx-auto">
                             Create a pixel in your Meta Business Settings first. Pixels are used to track user actions on your website.
                         </p>
                     </ZoruCardContent>
@@ -205,7 +205,7 @@ export default function EventsManagerPage() {
                                 variant={selectedPixel === p.id ? 'default' : 'outline'}
                                 size="sm"
                                 onClick={() => setSelectedPixel(p.id)}
-                                className={selectedPixel === p.id ? 'bg-[#1877F2] hover:bg-[#1877F2]/90 text-white' : ''}
+                                className={selectedPixel === p.id ? 'bg-zoru-ink hover:bg-zoru-ink/90 text-white' : ''}
                             >
                                 <Radio className="h-4 w-4 mr-2" />
                                 {p.name}
@@ -231,8 +231,8 @@ export default function EventsManagerPage() {
                                     {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
                                 </div>
                             ) : eventStats.length === 0 ? (
-                                <div className="py-16 text-center text-muted-foreground">
-                                    <ChartBar className="h-10 w-10 mx-auto text-muted-foreground/50 mb-3" />
+                                <div className="py-16 text-center text-zoru-ink-muted">
+                                    <ChartBar className="h-10 w-10 mx-auto text-zoru-ink-muted/50 mb-3" />
                                     <p className="font-medium text-base">No events recorded yet</p>
                                     <p className="text-sm mt-1 max-w-sm mx-auto">Use the "Send Test Event" button above to fire a test conversion event to Meta and verify your connection.</p>
                                 </div>
@@ -249,12 +249,12 @@ export default function EventsManagerPage() {
                                         {eventStats.map((s, i) => (
                                             <ZoruTableRow key={i}>
                                                 <ZoruTableCell>
-                                                    <Badge variant="outline" className="font-mono bg-background">{s.event || s.event_name || s.key || 'Unknown'}</Badge>
+                                                    <Badge variant="outline" className="font-mono bg-zoru-surface">{s.event || s.event_name || s.key || 'Unknown'}</Badge>
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="tabular-nums font-medium">
                                                     {s.count ?? s.value ?? 0}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-xs text-muted-foreground">
+                                                <ZoruTableCell className="text-xs text-zoru-ink-muted">
                                                     {s.last_fired_time
                                                         ? new Date(s.last_fired_time).toLocaleString(undefined, {
                                                             dateStyle: 'medium',
@@ -278,7 +278,7 @@ export default function EventsManagerPage() {
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>Send test event</ZoruDialogTitle>
                         <ZoruDialogDescription>
-                            Simulate a conversion event being sent to pixel <span className="font-mono bg-muted px-1 rounded text-xs">{selectedPixel}</span>.
+                            Simulate a conversion event being sent to pixel <span className="font-mono bg-zoru-surface-2 px-1 rounded text-xs">{selectedPixel}</span>.
                         </ZoruDialogDescription>
                     </ZoruDialogHeader>
                     <div className="space-y-4 py-2">
@@ -296,7 +296,7 @@ export default function EventsManagerPage() {
                     </div>
                     <ZoruDialogFooter>
                         <Button variant="outline" onClick={() => setTestDialogOpen(false)} disabled={sending}>Cancel</Button>
-                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white min-w-[100px]" onClick={handleSendTest} disabled={sending}>
+                        <Button className="bg-zoru-ink hover:bg-zoru-ink/90 text-white min-w-[100px]" onClick={handleSendTest} disabled={sending}>
                             {sending ? (
                                 <><RefreshCw className="mr-2 h-4 w-4 animate-spin" /> Sending...</>
                             ) : (

@@ -320,10 +320,10 @@ export function ScheduleClient({
       subtitle="Click a cell to assign the selected shift. Click again to clear."
       primaryAction={
         <>
-          <div className="flex items-center text-[12px] text-green-600 mr-4 print:hidden">
+          <div className="flex items-center text-[12px] text-zoru-ink mr-4 print:hidden">
             <span className="relative flex h-2 w-2 mr-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zoru-surface-2 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-zoru-ink"></span>
             </span>
             {activeUsers} active user{activeUsers !== 1 ? 's' : ''}
           </div>
@@ -469,7 +469,7 @@ const ScheduleFilters = React.memo(function ScheduleFilters({
           placeholder="Search employees..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="h-9 w-full rounded-lg border border-zoru-line bg-zoru-bg pl-9 pr-3 text-[13px] outline-none focus:border-blue-500"
+          className="h-9 w-full rounded-lg border border-zoru-line bg-zoru-bg pl-9 pr-3 text-[13px] outline-none focus:border-zoru-line"
         />
       </div>
       <Select value={shiftFilter} onValueChange={setShiftFilter}>
@@ -532,7 +532,7 @@ const ScheduleToolbar = React.memo(function ScheduleToolbar({
         <div className="w-[1px] bg-zoru-line" />
         <Button 
           variant="ghost" 
-          className="h-full rounded-none px-3 text-[12px] text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+          className="h-full rounded-none px-3 text-[12px] text-zoru-ink hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-50"
           onClick={onBulkClear} 
           disabled={pending}
         >

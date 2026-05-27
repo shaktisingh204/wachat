@@ -185,7 +185,7 @@ export function QuickCreateDialog({ open, onOpenChange, entity, onCreated }: Qui
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="priority">Priority</Label>
-                                <select id="priority" name="priority" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                                <select id="priority" name="priority" className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-sm ring-offset-zoru-surface file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zoru-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                                     <option value="Low">Low</option>
                                     <option value="Medium">Medium</option>
                                     <option value="High">High</option>
@@ -196,7 +196,7 @@ export function QuickCreateDialog({ open, onOpenChange, entity, onCreated }: Qui
                     
                     {/* Fallback for unsupported entities */}
                     {!['client', 'contact', 'vendor', 'item', 'employee', 'lead', 'project', 'task'].includes(entity) && (
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm text-zoru-ink-muted">
                             Quick creation is not supported for {entity}. Please create it from the main {getEntityTitle()} page.
                         </div>
                     )}

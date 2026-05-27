@@ -248,7 +248,7 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
       }
     >
       {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+        <div className="mb-4 rounded-md border border-zoru-line bg-zoru-surface-2 p-4 text-sm text-zoru-ink">
           {error}
         </div>
       )}
@@ -282,7 +282,7 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
 
       <div className="mb-6 flex items-center gap-2">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
           <Input 
             placeholder="Search records..." 
             className="pl-8"
@@ -322,7 +322,7 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
                         <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
                           <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600 focus:bg-red-50" onClick={() => handleDelete(item._id as string)}>
+                        <DropdownMenuItem className="text-zoru-ink focus:bg-zoru-surface-2" onClick={() => handleDelete(item._id as string)}>
                           <Trash className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -343,7 +343,7 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
           <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
             {viewingItem && Object.entries(viewingItem).filter(([k]) => k !== '__v').map(([key, value]) => (
               <div key={key} className="grid grid-cols-3 gap-4 border-b pb-2">
-                <div className="font-medium text-sm text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                <div className="font-medium text-sm text-zoru-ink-muted capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
                 <div className="col-span-2 text-sm">{String(value)}</div>
               </div>
             ))}

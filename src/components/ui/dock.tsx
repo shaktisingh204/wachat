@@ -31,13 +31,13 @@ interface DockProps {
 }
 
 export type DockAccent = {
-  /** Tailwind class string for the active/hover gradient (e.g. "from-rose-500 to-pink-500"). */
+  /** Tailwind class string for the active/hover gradient (e.g. "from-zoru-ink to-zoru-ink"). */
   gradient: string;
-  /** Foreground text/ink colour to pair with the soft tile (e.g. "text-rose-700"). */
+  /** Foreground text/ink colour to pair with the soft tile (e.g. "text-zoru-ink"). */
   ink: string;
-  /** Soft tile bg (e.g. "bg-rose-50"). */
+  /** Soft tile bg (e.g. "bg-zoru-surface-2"). */
   soft: string;
-  /** Ring colour used on hover (e.g. "ring-rose-200/60"). */
+  /** Ring colour used on hover (e.g. "ring-zoru-line/60"). */
   ring: string;
 };
 
@@ -76,10 +76,10 @@ export const scaleValue = function (
 };
 
 const DEFAULT_ACCENT: DockAccent = {
-  gradient: "from-zinc-700 to-zinc-900",
-  ink: "text-zinc-700",
+  gradient: "from-zoru-ink to-zoru-ink",
+  ink: "text-zoru-ink",
   soft: "bg-white",
-  ring: "ring-zinc-200/60",
+  ring: "ring-zoru-line/60",
 };
 
 export function DockIcon({
@@ -180,7 +180,7 @@ export function DockIcon({
           }}
           className={cn(
             "group/a relative aspect-square w-full rounded-2xl p-1.5",
-            "bg-white/90 ring-1 ring-zinc-200/70",
+            "bg-white/90 ring-1 ring-zoru-line/70",
             "shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_2px_8px_-3px_rgba(15,23,42,0.18)]",
             "transition-all duration-200 ease-out",
             "hover:ring-2 hover:-translate-y-0.5",
@@ -303,7 +303,7 @@ export function Dock({
           className={cn(
             "relative flex items-center gap-0.5 rounded-2xl p-1.5",
             "bg-white/70 backdrop-blur-xl",
-            "ring-1 ring-zinc-200/70",
+            "ring-1 ring-zoru-line/70",
             "shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_10px_30px_-12px_rgba(15,23,42,0.35)]",
             className,
           )}

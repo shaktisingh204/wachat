@@ -77,7 +77,7 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
                 <ZoruTableCell className="font-medium">{item.name}</ZoruTableCell>
                 <ZoruTableCell className="text-sm font-mono text-zoru-ink-light">{item.url}</ZoruTableCell>
                 <ZoruTableCell>
-                  <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'active' ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>
                     {item.status}
                   </span>
                 </ZoruTableCell>
@@ -90,7 +90,7 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
                     <Key className="w-4 h-4 text-zoru-ink-light" />
                   </Button>
                   <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} disabled={deletingId === item.id}>
-                    {deletingId === item.id ? <LoaderCircle className="w-4 h-4 text-red-500 animate-spin" /> : <Trash2 className="w-4 h-4 text-red-500" />}
+                    {deletingId === item.id ? <LoaderCircle className="w-4 h-4 text-zoru-ink animate-spin" /> : <Trash2 className="w-4 h-4 text-zoru-ink" />}
                   </Button>
                 </ZoruTableCell>
               </ZoruTableRow>

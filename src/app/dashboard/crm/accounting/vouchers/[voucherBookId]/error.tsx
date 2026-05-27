@@ -17,9 +17,9 @@ export default function VoucherBookError({
 
     return (
         <div className="flex h-[50vh] items-center justify-center p-4">
-            <Card className="max-w-md w-full border-red-200 dark:border-red-900/50">
+            <Card className="max-w-md w-full border-zoru-line dark:border-zoru-line/50">
                 <ZoruCardHeader>
-                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                    <div className="flex items-center gap-2 text-zoru-ink dark:text-zoru-ink-muted">
                         <AlertCircle className="h-5 w-5" />
                         <ZoruCardTitle>Something went wrong!</ZoruCardTitle>
                     </div>

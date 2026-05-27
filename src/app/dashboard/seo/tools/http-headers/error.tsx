@@ -16,8 +16,8 @@ export default function ErrorBoundary({
 
   return (
     <div className="flex flex-col items-center justify-center p-8 space-y-4">
-      <div className="text-red-500 font-semibold text-lg">Something went wrong!</div>
-      <p className="text-sm text-gray-500">{error.message}</p>
+      <div className="text-zoru-ink font-semibold text-lg">Something went wrong!</div>
+      <p className="text-sm text-zoru-ink">{error.message}</p>
       <Button onClick={() => reset()}>Try again</Button>
     </div>
   );

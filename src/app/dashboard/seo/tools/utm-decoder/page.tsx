@@ -79,12 +79,12 @@ export default function UtmDecoderPage() {
       </Card>
 
       {!parsed.valid ? (
-        <p className="text-sm text-muted-foreground">{parsed.error}</p>
+        <p className="text-sm text-zoru-ink-muted">{parsed.error}</p>
       ) : (
         <div className="space-y-4">
           <Card>
             <ZoruCardContent className="p-4">
-              <div className="text-xs text-muted-foreground">Base URL</div>
+              <div className="text-xs text-zoru-ink-muted">Base URL</div>
               <div className="font-mono text-sm break-all">{parsed.base}</div>
             </ZoruCardContent>
           </Card>
@@ -103,7 +103,7 @@ export default function UtmDecoderPage() {
                   <ZoruTableBody>
                     {parsed.utm.length === 0 ? (
                       <ZoruTableRow>
-                        <ZoruTableCell colSpan={2} className="text-sm text-muted-foreground">
+                        <ZoruTableCell colSpan={2} className="text-sm text-zoru-ink-muted">
                           No UTM parameters found.
                         </ZoruTableCell>
                       </ZoruTableRow>

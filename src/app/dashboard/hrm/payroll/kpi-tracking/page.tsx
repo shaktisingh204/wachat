@@ -12,7 +12,7 @@ async function KpiLoader() {
 
 export default function KpiTrackingPage() {
   return (
-    <React.Suspense fallback={<div className="p-4 text-sm text-muted-foreground">Loading KPIs...</div>}>
+    <React.Suspense fallback={<div className="p-4 text-sm text-zoru-ink-muted">Loading KPIs...</div>}>
       <KpiLoader />
     </React.Suspense>
   );

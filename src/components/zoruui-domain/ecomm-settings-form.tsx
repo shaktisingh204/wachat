@@ -108,13 +108,13 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                                     ))}
                                 </ZoruSelectContent>
                             </Select>
-                            <p className="text-xs text-muted-foreground">Add and verify domains in the section below.</p>
+                            <p className="text-xs text-zoru-ink-muted">Add and verify domains in the section below.</p>
                         </div>
                     </div>
                     <Separator />
                      <div>
                         <h3 className="text-base font-semibold mb-2 flex items-center gap-2"><CreditCard className="h-4 w-4"/>Payment Links</h3>
-                        <p className="text-sm text-muted-foreground mb-4">Provide direct payment links for services like Razorpay, Paytm, or GPay to enable "Pay" buttons in your shop flows.</p>
+                        <p className="text-sm text-zoru-ink-muted mb-4">Provide direct payment links for services like Razorpay, Paytm, or GPay to enable "Pay" buttons in your shop flows.</p>
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="paymentLinkRazorpay">Razorpay Link</Label>
@@ -133,7 +133,7 @@ export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
                      <Separator />
                      <div>
                         <h3 className="text-base font-semibold mb-2 flex items-center gap-2"><Bell className="h-4 w-4"/>Abandoned Cart Reminder</h3>
-                        <p className="text-sm text-muted-foreground mb-4">Automatically send a follow-up message to users who leave items in their cart.</p>
+                        <p className="text-sm text-zoru-ink-muted mb-4">Automatically send a follow-up message to users who leave items in their cart.</p>
                         <div className="space-y-4 rounded-lg border p-4">
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="abandonedCart.enabled" className="font-medium">Enable Reminder</Label>

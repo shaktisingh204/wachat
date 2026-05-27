@@ -92,13 +92,13 @@ const BASE_COLS: ColumnDef[] = [
 
 export function deliveryLabel(row: MetaRow): { label: string; color: string; icon?: React.ReactNode } {
     const s = (row.effective_status || row.status || '').toUpperCase();
-    if (s.includes('DISAPPROVED')) return { label: 'Rejected', color: 'text-red-600' };
-    if (s.includes('PENDING')) return { label: 'In review', color: 'text-amber-600' };
-    if (s.includes('DELETED')) return { label: 'Deleted', color: 'text-muted-foreground' };
-    if (s.includes('ARCHIVED')) return { label: 'Archived', color: 'text-muted-foreground' };
-    if (s === 'ACTIVE') return { label: 'Active', color: 'text-green-600' };
-    if (s === 'PAUSED') return { label: 'Off', color: 'text-muted-foreground' };
-    return { label: s || 'Unknown', color: 'text-muted-foreground' };
+    if (s.includes('DISAPPROVED')) return { label: 'Rejected', color: 'text-zoru-ink' };
+    if (s.includes('PENDING')) return { label: 'In review', color: 'text-zoru-ink' };
+    if (s.includes('DELETED')) return { label: 'Deleted', color: 'text-zoru-ink-muted' };
+    if (s.includes('ARCHIVED')) return { label: 'Archived', color: 'text-zoru-ink-muted' };
+    if (s === 'ACTIVE') return { label: 'Active', color: 'text-zoru-ink' };
+    if (s === 'PAUSED') return { label: 'Off', color: 'text-zoru-ink-muted' };
+    return { label: s || 'Unknown', color: 'text-zoru-ink-muted' };
 }
 
 export function MetaDataTable({
@@ -140,10 +140,10 @@ export function MetaDataTable({
     };
 
     return (
-        <div className="relative border rounded-lg bg-background overflow-hidden">
+        <div className="relative border rounded-lg bg-zoru-surface overflow-hidden">
             <div className="overflow-x-auto">
                 <Table>
-                    <ZoruTableHeader className="bg-muted/60 sticky top-0 z-[1]">
+                    <ZoruTableHeader className="bg-zoru-surface-2/60 sticky top-0 z-[1]">
                         <ZoruTableRow className="h-10">
                             <ZoruTableHead className="w-10">
                                 <Checkbox
@@ -155,7 +155,7 @@ export function MetaDataTable({
                                 <ZoruTableHead
                                     key={String(col.id)}
                                     className={cn(
-                                        'text-[11px] uppercase tracking-wider font-semibold text-muted-foreground whitespace-nowrap',
+                                        'text-[11px] uppercase tracking-wider font-semibold text-zoru-ink-muted whitespace-nowrap',
                                         col.align === 'right' && 'text-right',
                                     )}
                                     style={col.width ? { width: col.width } : undefined}
@@ -176,7 +176,7 @@ export function MetaDataTable({
                     <ZoruTableBody>
                         {rows.length === 0 ? (
                             <ZoruTableRow>
-                                <ZoruTableCell colSpan={BASE_COLS.length + 1} className="h-40 text-center text-muted-foreground">
+                                <ZoruTableCell colSpan={BASE_COLS.length + 1} className="h-40 text-center text-zoru-ink-muted">
                                     No {level === 'campaign' ? 'campaigns' : level === 'adset' ? 'ad sets' : 'ads'} to show.
                                 </ZoruTableCell>
                             </ZoruTableRow>
@@ -190,7 +190,7 @@ export function MetaDataTable({
                                         key={row.id}
                                         className={cn(
                                             'cursor-pointer group',
-                                            selected && 'bg-[#E7F0FE]/40 dark:bg-[#1877F2]/10',
+                                            selected && 'bg-zoru-surface/40 dark:bg-zoru-ink/10',
                                         )}
                                     >
                                         <ZoruTableCell onClick={(e) => e.stopPropagation()}>
@@ -201,7 +201,7 @@ export function MetaDataTable({
                                                 <Switch
                                                     checked={active}
                                                     onCheckedChange={(val) => onToggle(row.id, val)}
-                                                    className="data-[state=checked]:bg-[#1877F2]"
+                                                    className="data-[state=checked]:bg-zoru-ink"
                                                 />
                                             </div>
                                         </ZoruTableCell>
@@ -218,17 +218,17 @@ export function MetaDataTable({
                                                     {linkBase ? (
                                                         <Link
                                                             href={`${linkBase}/${row.id}`}
-                                                            className="font-medium text-sm text-[#1877F2] hover:underline truncate block"
+                                                            className="font-medium text-sm text-zoru-ink hover:underline truncate block"
                                                         >
                                                             {row.name}
                                                         </Link>
                                                     ) : (
                                                         <span className="font-medium text-sm truncate block">{row.name}</span>
                                                     )}
-                                                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
+                                                    <div className="flex items-center gap-2 text-[11px] text-zoru-ink-muted mt-0.5">
                                                         {row.objective && <span className="truncate">{row.objective}</span>}
                                                         {row.issues ? (
-                                                            <span className="flex items-center gap-1 text-amber-600">
+                                                            <span className="flex items-center gap-1 text-zoru-ink">
                                                                 <AlertTriangle className="h-3 w-3" />
                                                                 {row.issues} issue{row.issues > 1 ? 's' : ''}
                                                             </span>
@@ -243,14 +243,14 @@ export function MetaDataTable({
                                                 {delivery.label}
                                             </div>
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-xs text-muted-foreground">
+                                        <ZoruTableCell className="text-xs text-zoru-ink-muted">
                                             {row.bid_strategy || '—'}
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-right text-sm">
                                             {row.budget ? (
                                                 <div>
                                                     <div>{formatMoney(row.budget)}</div>
-                                                    <div className="text-[10px] text-muted-foreground">Daily</div>
+                                                    <div className="text-[10px] text-zoru-ink-muted">Daily</div>
                                                 </div>
                                             ) : '—'}
                                         </ZoruTableCell>
@@ -301,7 +301,7 @@ export function MetaDataTable({
                                                     )}
                                                     <ZoruDropdownMenuSeparator />
                                                     <ZoruDropdownMenuItem
-                                                        className="text-destructive"
+                                                        className="text-zoru-ink"
                                                         onClick={() => onDelete?.(row.id)}
                                                     >
                                                         <Trash2 className="mr-2 h-4 w-4" /> Delete

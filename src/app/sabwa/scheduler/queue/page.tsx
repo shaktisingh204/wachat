@@ -114,7 +114,7 @@ const STATUS_BADGE_CLASS: Record<SabwaScheduledStatus, string> = {
   pending:
     "border-zoru-line bg-zoru-surface text-zoru-ink",
   paused:
-    "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200",
+    "border-zoru-line bg-zoru-surface-2 text-zoru-ink dark:border-zoru-line dark:bg-zoru-ink dark:text-white",
   sent: "border-zoru-line-strong bg-zoru-surface-2 text-zoru-ink",
   failed: "border-zoru-line-strong bg-zoru-surface-2 text-zoru-ink",
   cancelled:

@@ -57,7 +57,7 @@ const mockConnections: Connection[] = [
     account: "harsh@example.com",
     lastSync: "10 mins ago",
     icon: Cloud,
-    color: "text-blue-500",
+    color: "text-zoru-ink",
     usage: 15,
     metrics: [
       { label: "Storage", value: "15GB / 100GB" },
@@ -73,7 +73,7 @@ const mockConnections: Connection[] = [
     account: "sabnode-workspace",
     lastSync: "2 days ago",
     icon: MessageSquare,
-    color: "text-purple-500",
+    color: "text-zoru-ink",
     metrics: [
       { label: "Active Channels", value: "12" },
       { label: "Messages Processed", value: "45k" }
@@ -89,7 +89,7 @@ const mockConnections: Connection[] = [
     account: "admin@company.com",
     lastSync: "Failed 1 hr ago",
     icon: CloudCog,
-    color: "text-blue-400",
+    color: "text-zoru-ink-muted",
     metrics: [
       { label: "Leads", value: "12,400" },
       { label: "API Calls", value: "940/10k" }
@@ -105,7 +105,7 @@ const mockConnections: Connection[] = [
     account: "@harshkhandelwal",
     lastSync: "Just now",
     icon: Github,
-    color: "text-zinc-800 dark:text-zinc-200",
+    color: "text-zoru-ink dark:text-white",
     metrics: [
       { label: "Synced Repos", value: "45" },
       { label: "Webhooks", value: "8 Active" }
@@ -120,7 +120,7 @@ const mockConnections: Connection[] = [
     account: "acct_1H2x...",
     lastSync: "1 hr ago",
     icon: CreditCard,
-    color: "text-indigo-500",
+    color: "text-zoru-ink",
     metrics: [
       { label: "Mode", value: "Live" },
       { label: "Events/hr", value: "342" }
@@ -135,7 +135,7 @@ const mockConnections: Connection[] = [
     account: "us-east-1",
     lastSync: "5 mins ago",
     icon: Database,
-    color: "text-orange-500",
+    color: "text-zoru-ink",
     metrics: [
       { label: "Buckets", value: "8" },
       { label: "Transfer", value: "4.2 TB" }
@@ -188,10 +188,10 @@ export default function ConnectionsPage() {
 
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="relative w-full sm:max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zoru-ink-muted" />
           <Input 
             placeholder="Search connections..." 
-            className="pl-9 bg-background shadow-sm border-muted"
+            className="pl-9 bg-zoru-surface shadow-sm border-muted"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -219,19 +219,19 @@ export default function ConnectionsPage() {
             <Card variant="interactive" className="h-full flex flex-col group relative overflow-hidden">
               {/* Top Accent Line */}
               <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${
-                conn.status === "Connected" ? "from-emerald-400 to-teal-400" :
-                conn.status === "Expired" ? "from-amber-400 to-orange-400" :
-                "from-rose-400 to-red-500"
+                conn.status === "Connected" ? "from-zoru-surface-2 to-zoru-surface-2" :
+                conn.status === "Expired" ? "from-zoru-surface-2 to-zoru-surface-2" :
+                "from-zoru-surface-2 to-zoru-ink"
               }`} />
               
               <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center border ${conn.color} shadow-sm group-hover:scale-105 transition-transform`}>
+                  <div className={`w-12 h-12 rounded-xl bg-zoru-surface-2/50 flex items-center justify-center border ${conn.color} shadow-sm group-hover:scale-105 transition-transform`}>
                     <conn.icon className="w-6 h-6" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-base leading-tight tracking-tight">{conn.name}</h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                    <div className="flex items-center gap-2 text-sm text-zoru-ink-muted mt-1">
                       <Key className="w-3.5 h-3.5" />
                       <span>{conn.type}</span>
                     </div>
@@ -239,14 +239,14 @@ export default function ConnectionsPage() {
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="-mr-2 text-muted-foreground">
+                    <Button variant="ghost" size="icon" className="-mr-2 text-zoru-ink-muted">
                       <MoreVertical className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem>View Details</DropdownMenuItem>
                     <DropdownMenuItem>Test Connection</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">Revoke Access</DropdownMenuItem>
+                    <DropdownMenuItem className="text-zoru-ink">Revoke Access</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </CardHeader>
@@ -254,24 +254,24 @@ export default function ConnectionsPage() {
               <CardContent className="flex-1 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Account</p>
+                    <p className="text-xs text-zoru-ink-muted font-medium uppercase tracking-wider">Account</p>
                     <p className="text-sm font-medium">{conn.account}</p>
                   </div>
                   {getStatusBadge(conn.status)}
                 </div>
 
                 {conn.errorMessage && (
-                  <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg border border-destructive/20 flex gap-2 items-start">
+                  <div className="bg-zoru-ink/10 text-zoru-ink text-sm p-3 rounded-lg border border-destructive/20 flex gap-2 items-start">
                     <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
                     <p className="leading-snug">{conn.errorMessage}</p>
                   </div>
                 )}
 
                 {(conn.metrics || conn.usage !== undefined) && (
-                  <div className="pt-4 border-t border-border/50 grid grid-cols-2 gap-4">
+                  <div className="pt-4 border-t border-zoru-line/50 grid grid-cols-2 gap-4">
                     {conn.metrics?.map((m, idx) => (
                       <div key={idx}>
-                        <p className="text-xs text-muted-foreground mb-1">{m.label}</p>
+                        <p className="text-xs text-zoru-ink-muted mb-1">{m.label}</p>
                         <p className="text-sm font-semibold">{m.value}</p>
                       </div>
                     ))}
@@ -281,7 +281,7 @@ export default function ConnectionsPage() {
                 {conn.usage !== undefined && (
                   <div className="space-y-1.5 pt-2">
                     <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Storage Usage</span>
+                      <span className="text-zoru-ink-muted">Storage Usage</span>
                       <span className="font-medium">{conn.usage}%</span>
                     </div>
                     <Progress value={conn.usage} className="h-1.5" />
@@ -289,8 +289,8 @@ export default function ConnectionsPage() {
                 )}
               </CardContent>
 
-              <CardFooter className="bg-muted/30 pt-4 pb-4 border-t border-border/50 flex items-center justify-between mt-auto">
-                <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <CardFooter className="bg-zoru-surface-2/30 pt-4 pb-4 border-t border-zoru-line/50 flex items-center justify-between mt-auto">
+                <div className="text-xs text-zoru-ink-muted flex items-center gap-1.5">
                   <RefreshCcw className="w-3.5 h-3.5" />
                   Last sync: {conn.lastSync}
                 </div>
@@ -315,9 +315,9 @@ export default function ConnectionsPage() {
       </m.div>
 
       {filteredConnections.length === 0 && (
-        <div className="py-24 text-center text-muted-foreground flex flex-col items-center justify-center border-2 border-dashed border-muted rounded-2xl">
-          <Box className="w-12 h-12 mb-4 text-muted-foreground/50" />
-          <h3 className="text-lg font-semibold text-foreground mb-1">No connections found</h3>
+        <div className="py-24 text-center text-zoru-ink-muted flex flex-col items-center justify-center border-2 border-dashed border-muted rounded-2xl">
+          <Box className="w-12 h-12 mb-4 text-zoru-ink-muted/50" />
+          <h3 className="text-lg font-semibold text-zoru-ink mb-1">No connections found</h3>
           <p>Try adjusting your search or filters to find what you're looking for.</p>
           <Button variant="outline" className="mt-6" onClick={() => setSearchTerm("")}>
             Clear Search

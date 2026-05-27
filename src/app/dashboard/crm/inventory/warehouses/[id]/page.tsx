@@ -166,13 +166,13 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                 <ZoruCardContent>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                         <div>
-                            <dt className="text-xs text-zinc-500">Code</dt>
-                            <dd className="font-mono text-zinc-900 dark:text-zinc-100">
+                            <dt className="text-xs text-zoru-ink">Code</dt>
+                            <dd className="font-mono text-zoru-ink dark:text-white">
                                 {fmt(warehouse.code)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zinc-500">Type</dt>
+                            <dt className="text-xs text-zoru-ink">Type</dt>
                             <dd>
                                 <Badge variant="secondary">
                                     {typeLabel(warehouse.type)}
@@ -181,15 +181,15 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                         </div>
                         {warehouse.gstin ? (
                             <div>
-                                <dt className="text-xs text-zinc-500">GSTIN</dt>
-                                <dd className="font-mono text-zinc-900 dark:text-zinc-100">
+                                <dt className="text-xs text-zoru-ink">GSTIN</dt>
+                                <dd className="font-mono text-zoru-ink dark:text-white">
                                     {warehouse.gstin}
                                 </dd>
                             </div>
                         ) : null}
                         {warehouse.isDefault ? (
                             <div>
-                                <dt className="text-xs text-zinc-500">Default</dt>
+                                <dt className="text-xs text-zoru-ink">Default</dt>
                                 <dd className="flex items-center gap-1.5">
                                     <BadgeCheck className="h-3.5 w-3.5 text-zoru-info" />
                                     Yes
@@ -207,32 +207,32 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                 <ZoruCardContent>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                         <div className="sm:col-span-2">
-                            <dt className="text-xs text-zinc-500">Address</dt>
-                            <dd className="text-zinc-900 dark:text-zinc-100">
+                            <dt className="text-xs text-zoru-ink">Address</dt>
+                            <dd className="text-zoru-ink dark:text-white">
                                 {fmt(warehouse.address)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zinc-500">City</dt>
-                            <dd className="text-zinc-900 dark:text-zinc-100">
+                            <dt className="text-xs text-zoru-ink">City</dt>
+                            <dd className="text-zoru-ink dark:text-white">
                                 {fmt(warehouse.city)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zinc-500">State</dt>
-                            <dd className="text-zinc-900 dark:text-zinc-100">
+                            <dt className="text-xs text-zoru-ink">State</dt>
+                            <dd className="text-zoru-ink dark:text-white">
                                 {fmt(warehouse.state)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zinc-500">Country</dt>
-                            <dd className="text-zinc-900 dark:text-zinc-100">
+                            <dt className="text-xs text-zoru-ink">Country</dt>
+                            <dd className="text-zoru-ink dark:text-white">
                                 {fmt(warehouse.country)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zinc-500">Pincode</dt>
-                            <dd className="text-zinc-900 dark:text-zinc-100">
+                            <dt className="text-xs text-zoru-ink">Pincode</dt>
+                            <dd className="text-zoru-ink dark:text-white">
                                 {fmt(warehouse.pincode)}
                             </dd>
                         </div>
@@ -247,14 +247,14 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                 <ZoruCardContent>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                         <div>
-                            <dt className="text-xs text-zinc-500">Manager</dt>
-                            <dd className="text-zinc-900 dark:text-zinc-100">
+                            <dt className="text-xs text-zoru-ink">Manager</dt>
+                            <dd className="text-zoru-ink dark:text-white">
                                 {fmt(warehouse.managerName)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zinc-500">Phone</dt>
-                            <dd className="text-zinc-900 dark:text-zinc-100">
+                            <dt className="text-xs text-zoru-ink">Phone</dt>
+                            <dd className="text-zoru-ink dark:text-white">
                                 {fmt(warehouse.phone)}
                             </dd>
                         </div>
@@ -269,8 +269,8 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                 <ZoruCardContent>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
                         <div>
-                            <dt className="text-xs text-zinc-500">Units</dt>
-                            <dd className="text-zinc-900 dark:text-zinc-100" suppressHydrationWarning>
+                            <dt className="text-xs text-zoru-ink">Units</dt>
+                            <dd className="text-zoru-ink dark:text-white" suppressHydrationWarning>
                                 {(warehouse as any).capacityUnits
                                     ? Number(
                                           (warehouse as any).capacityUnits,
@@ -279,8 +279,8 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zinc-500">Footprint</dt>
-                            <dd className="text-zinc-900 dark:text-zinc-100" suppressHydrationWarning>
+                            <dt className="text-xs text-zoru-ink">Footprint</dt>
+                            <dd className="text-zoru-ink dark:text-white" suppressHydrationWarning>
                                 {(warehouse as any).capacitySqft
                                     ? `${Number(
                                           (warehouse as any).capacitySqft,
@@ -289,8 +289,8 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zinc-500">Climate</dt>
-                            <dd className="flex items-center gap-1.5 text-zinc-900 dark:text-zinc-100">
+                            <dt className="text-xs text-zoru-ink">Climate</dt>
+                            <dd className="flex items-center gap-1.5 text-zoru-ink dark:text-white">
                                 {(warehouse as any).climateControlled ? (
                                     <>
                                         <Snowflake className="h-3.5 w-3.5 text-zoru-info" />
@@ -336,20 +336,20 @@ async function InventorySummaryCard({ id }: { id: string }) {
             <ZoruCardContent>
                 <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
                     <div>
-                        <dt className="text-xs text-zinc-500">Items</dt>
-                        <dd className="text-lg font-semibold text-zinc-900 dark:text-zinc-100" suppressHydrationWarning>
+                        <dt className="text-xs text-zoru-ink">Items</dt>
+                        <dd className="text-lg font-semibold text-zoru-ink dark:text-white" suppressHydrationWarning>
                             {summary.itemsCount.toLocaleString()}
                         </dd>
                     </div>
                     <div>
-                        <dt className="text-xs text-zinc-500">Total stock</dt>
-                        <dd className="text-lg font-semibold text-zinc-900 dark:text-zinc-100" suppressHydrationWarning>
+                        <dt className="text-xs text-zoru-ink">Total stock</dt>
+                        <dd className="text-lg font-semibold text-zoru-ink dark:text-white" suppressHydrationWarning>
                             {summary.totalStock.toLocaleString()}
                         </dd>
                     </div>
                     <div>
-                        <dt className="text-xs text-zinc-500">Stock value</dt>
-                        <dd className="text-lg font-semibold text-zinc-900 dark:text-zinc-100" suppressHydrationWarning>
+                        <dt className="text-xs text-zoru-ink">Stock value</dt>
+                        <dd className="text-lg font-semibold text-zoru-ink dark:text-white" suppressHydrationWarning>
                             {summary.totalValue.toLocaleString('en-IN', {
                                 style: 'currency',
                                 currency: 'INR',
@@ -374,7 +374,7 @@ async function StockByItemCard({ id }: { id: string }) {
             </ZoruCardHeader>
             <ZoruCardContent className="p-0">
                 {stockRows.length === 0 ? (
-                    <p className="p-4 text-sm text-zinc-500">
+                    <p className="p-4 text-sm text-zoru-ink">
                         No items stocked in this warehouse yet.
                     </p>
                 ) : (
@@ -428,9 +428,9 @@ async function StockByItemCard({ id }: { id: string }) {
                                                 className={[
                                                     'px-3 py-2 text-right font-mono',
                                                     r.stock <= 0
-                                                        ? 'text-rose-500'
+                                                        ? 'text-zoru-ink'
                                                         : low
-                                                          ? 'text-amber-500'
+                                                          ? 'text-zoru-ink'
                                                           : '',
                                                 ].join(' ')}
                                                 suppressHydrationWarning

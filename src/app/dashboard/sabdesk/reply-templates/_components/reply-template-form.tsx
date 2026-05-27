@@ -177,7 +177,7 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
         <div className="space-y-1.5">
           <Label htmlFor="body">
             Template body *{' '}
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-zoru-ink-muted">
               Use {'{{variable}}'} placeholders
             </span>
           </Label>
@@ -206,7 +206,7 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
                 </Badge>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-zoru-ink-muted">
               These will be saved alongside the body as the template&apos;s
               variable list.
             </p>
@@ -215,10 +215,10 @@ export function ReplyTemplateForm({ initialData }: ReplyTemplateFormProps) {
 
         {/* Row 4: Active + Status (status only when editing) */}
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="flex items-center justify-between rounded-md border border-border px-3 py-2">
+          <div className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-2">
             <div className="flex flex-col">
               <Label htmlFor="isActiveToggle">Active</Label>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-zoru-ink-muted">
                 Inactive templates won&apos;t show in agent picker.
               </span>
             </div>

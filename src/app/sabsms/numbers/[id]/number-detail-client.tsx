@@ -334,10 +334,10 @@ export function NumberDetailClient({ detail }: Props) {
       
       {/* Predictive billing alerting */}
       {detail.projectedUsageCost > 50 && (
-        <Alert variant="default" className="border-amber-200 bg-amber-50/50">
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
-          <ZoruAlertTitle className="text-amber-800">High projected volume cost</ZoruAlertTitle>
-          <ZoruAlertDescription className="text-amber-700">
+        <Alert variant="default" className="border-zoru-line bg-zoru-surface-2/50">
+          <AlertTriangle className="h-4 w-4 text-zoru-ink" />
+          <ZoruAlertTitle className="text-zoru-ink">High projected volume cost</ZoruAlertTitle>
+          <ZoruAlertDescription className="text-zoru-ink">
             Based on the last 30 days of traffic, this number is projected to incur an additional{" "}
             <span className="font-semibold">${detail.projectedUsageCost.toFixed(2)}</span> in usage charges this month.
           </ZoruAlertDescription>
@@ -597,7 +597,7 @@ export function NumberDetailClient({ detail }: Props) {
           </ZoruCardHeader>
           <ZoruCardContent className="p-0">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-xs text-slate-500">
+              <thead className="bg-zoru-surface-2 text-xs text-zoru-ink">
                 <tr>
                   <th className="px-3 py-2 text-left">Country</th>
                   <th className="px-3 py-2 text-right">Sent</th>
@@ -610,7 +610,7 @@ export function NumberDetailClient({ detail }: Props) {
                   <tr>
                     <td
                       colSpan={4}
-                      className="px-3 py-8 text-center text-xs text-slate-500"
+                      className="px-3 py-8 text-center text-xs text-zoru-ink"
                     >
                       No traffic in the last 30 days.
                     </td>
@@ -646,7 +646,7 @@ export function NumberDetailClient({ detail }: Props) {
           </ZoruCardHeader>
           <ZoruCardContent className="p-0">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-xs text-slate-500">
+              <thead className="bg-zoru-surface-2 text-xs text-zoru-ink">
                 <tr>
                   <th className="px-3 py-2 text-left">Template</th>
                   <th className="px-3 py-2 text-right">Sent</th>
@@ -659,7 +659,7 @@ export function NumberDetailClient({ detail }: Props) {
                   <tr>
                     <td
                       colSpan={4}
-                      className="px-3 py-8 text-center text-xs text-slate-500"
+                      className="px-3 py-8 text-center text-xs text-zoru-ink"
                     >
                       No template traffic yet.
                     </td>
@@ -693,18 +693,18 @@ export function NumberDetailClient({ detail }: Props) {
         <ZoruCardContent>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <div className="text-xs font-medium uppercase tracking-wide text-zoru-ink">
                 Campaigns
               </div>
               <ul className="mt-2 space-y-1 text-sm">
                 {detail.campaigns.length === 0 ? (
-                  <li className="text-slate-500">
+                  <li className="text-zoru-ink">
                     Not assigned to any campaigns.
                   </li>
                 ) : (
                   detail.campaigns.map((c) => (
                     <li key={c.id} className="flex items-center gap-2">
-                      <ArrowUpRight className="h-3.5 w-3.5 text-slate-400" />
+                      <ArrowUpRight className="h-3.5 w-3.5 text-zoru-ink-muted" />
                       <a
                         href={`/sabsms/campaigns/${c.id}`}
                         className="hover:underline"
@@ -717,7 +717,7 @@ export function NumberDetailClient({ detail }: Props) {
               </ul>
             </div>
             <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <div className="text-xs font-medium uppercase tracking-wide text-zoru-ink">
                 Sender pool
               </div>
               <Select value={poolId} onValueChange={setPoolId}>
@@ -743,7 +743,7 @@ export function NumberDetailClient({ detail }: Props) {
           <ZoruCardTitle>Per-number overrides</ZoruCardTitle>
           <ZoruCardDescription>
             Throttle, quiet hours, webhooks, sender id. Saves to{" "}
-            <code className="rounded bg-slate-100 px-1 text-xs">
+            <code className="rounded bg-zoru-surface-2 px-1 text-xs">
               sabsms_numbers
             </code>
             .
@@ -751,7 +751,7 @@ export function NumberDetailClient({ detail }: Props) {
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-5">
           <div>
-            <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <div className="text-xs font-medium uppercase tracking-wide text-zoru-ink">
               Throttle
             </div>
             <div className="mt-2 grid gap-3 md:grid-cols-2">
@@ -792,7 +792,7 @@ export function NumberDetailClient({ detail }: Props) {
 
           <div>
             <div className="flex items-center justify-between">
-              <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+              <div className="text-xs font-medium uppercase tracking-wide text-zoru-ink">
                 Quiet hours
               </div>
               <label className="flex items-center gap-2 text-xs">
@@ -860,7 +860,7 @@ export function NumberDetailClient({ detail }: Props) {
           <Separator />
 
           <div>
-            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-500">
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-zoru-ink">
               <Webhook className="h-3.5 w-3.5" /> Webhooks
             </div>
             <div className="mt-2 grid gap-3 md:grid-cols-3">
@@ -912,7 +912,7 @@ export function NumberDetailClient({ detail }: Props) {
                   placeholder="e.g. SABSMS"
                   maxLength={11}
                 />
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-zoru-ink">
                   Per-country support varies; for unsupported routes the engine
                   falls back to the workspace default.
                 </p>
@@ -952,7 +952,7 @@ export function NumberDetailClient({ detail }: Props) {
             defaultSort="newest"
           />
           <div className="space-y-2">
-            <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <div className="text-xs font-medium uppercase tracking-wide text-zoru-ink">
               Outbound
             </div>
             <SabsmsDataTable<SendHistoryRow>
@@ -965,7 +965,7 @@ export function NumberDetailClient({ detail }: Props) {
             />
           </div>
           <div className="space-y-2">
-            <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <div className="text-xs font-medium uppercase tracking-wide text-zoru-ink">
               Inbound
             </div>
             <SabsmsDataTable<SendHistoryRow>
@@ -1162,7 +1162,7 @@ export function NumberDetailClient({ detail }: Props) {
         description={`Last ${detail.audit.length} entries scoped to ${detail.e164}.`}
       >
         {detail.audit.length === 0 ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-zoru-ink">
             No audit entries yet for this number.
           </p>
         ) : (
@@ -1170,15 +1170,15 @@ export function NumberDetailClient({ detail }: Props) {
             {detail.audit.map((a, i) => (
               <li
                 key={`${a.action}-${i}`}
-                className="rounded-md border border-slate-200 bg-white p-3"
+                className="rounded-md border border-zoru-line bg-white p-3"
               >
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-medium">{a.action}</span>
-                  <span className="font-mono text-slate-500">
+                  <span className="font-mono text-zoru-ink">
                     {new Date(a.createdAt).toLocaleString()}
                   </span>
                 </div>
-                <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-words text-[11px] text-slate-600">
+                <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-words text-[11px] text-zoru-ink">
                   {JSON.stringify(a.detail, null, 2)}
                 </pre>
               </li>
@@ -1200,10 +1200,10 @@ function Stat({
   sub?: string;
 }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-white p-3">
-      <div className="text-xs uppercase tracking-wide text-slate-500">{label}</div>
+    <div className="rounded-md border border-zoru-line bg-white p-3">
+      <div className="text-xs uppercase tracking-wide text-zoru-ink">{label}</div>
       <div className="mt-1 text-sm font-medium">{value}</div>
-      {sub && <div className="text-[10px] text-slate-400">{sub}</div>}
+      {sub && <div className="text-[10px] text-zoru-ink-muted">{sub}</div>}
     </div>
   );
 }

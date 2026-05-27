@@ -27,7 +27,7 @@ class ErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode
 
 export default function DnsLookupPageWrapper() {
   return (
-    <ErrorBoundary fallback={<div className="p-4 text-red-500">Something went wrong in the DNS Lookup tool.</div>}>
+    <ErrorBoundary fallback={<div className="p-4 text-zoru-ink">Something went wrong in the DNS Lookup tool.</div>}>
       <DnsLookupPage />
     </ErrorBoundary>
   );
@@ -142,7 +142,7 @@ function DnsLookupPage() {
           onKeyDown={(e) => e.key === 'Enter' && run()}
         />
         <select
-          className="border rounded h-9 px-2 bg-background"
+          className="border rounded h-9 px-2 bg-zoru-surface"
           value={type}
           onChange={(e) => setType(e.target.value)}
         >
@@ -161,8 +161,8 @@ function DnsLookupPage() {
       </div>
 
       {error && (
-        <Card className="border-red-500">
-          <ZoruCardContent className="p-4 flex items-center gap-2 text-red-600 text-sm">
+        <Card className="border-zoru-line">
+          <ZoruCardContent className="p-4 flex items-center gap-2 text-zoru-ink text-sm">
             <AlertCircle className="w-4 h-4" />
             {error}
           </ZoruCardContent>
@@ -187,13 +187,13 @@ function DnsLookupPage() {
             </div>
 
             {flattenedData.length === 0 ? (
-              <div className="text-sm text-muted-foreground p-4 bg-muted rounded">
+              <div className="text-sm text-zoru-ink-muted p-4 bg-zoru-surface-2 rounded">
                 No DNS records found for the selected type(s).
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left border-collapse">
-                  <thead className="bg-muted">
+                  <thead className="bg-zoru-surface-2">
                     <tr>
                       <th className="p-2 border font-medium w-24">Type</th>
                       <th className="p-2 border font-medium">Value</th>
@@ -201,8 +201,8 @@ function DnsLookupPage() {
                   </thead>
                   <tbody>
                     {flattenedData.map((row, idx) => (
-                      <tr key={idx} className="border-b last:border-0 hover:bg-muted/50">
-                        <td className="p-2 border font-mono font-semibold text-primary">{row.type}</td>
+                      <tr key={idx} className="border-b last:border-0 hover:bg-zoru-surface-2/50">
+                        <td className="p-2 border font-mono font-semibold text-zoru-ink">{row.type}</td>
                         <td className="p-2 border font-mono break-all text-xs">
                           {row.value}
                         </td>

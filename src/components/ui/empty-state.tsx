@@ -66,12 +66,12 @@ export function EmptyState({
                 </m.div>
             )}
 
-            <h3 className="text-lg font-semibold tracking-tight text-foreground">
+            <h3 className="text-lg font-semibold tracking-tight text-zoru-ink">
                 {title}
             </h3>
 
             {description && (
-                <p className="text-sm text-muted-foreground">{description}</p>
+                <p className="text-sm text-zoru-ink-muted">{description}</p>
             )}
 
             {action && <div className="mt-2">{action}</div>}

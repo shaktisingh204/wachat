@@ -171,7 +171,7 @@ export function HolidaysTable({
                         onClick={() => onDelete(id)}
                         aria-label="Delete"
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-rose-500" />
+                        <Trash2 className="h-3.5 w-3.5 text-zoru-ink" />
                       </Button>
                     </div>
                   </ZoruTableCell>

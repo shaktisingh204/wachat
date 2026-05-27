@@ -138,7 +138,7 @@ export default function TimeLogDetailPage({
       actions={
         log && !log.end_time ? (
           <Button
-            className="bg-destructive text-white hover:bg-destructive/90"
+            className="bg-zoru-ink text-white hover:bg-zoru-ink/90"
             disabled={isBusy}
             onClick={handleStopTimer}
           >
@@ -206,7 +206,7 @@ export default function TimeLogDetailPage({
               />
             </div>
             {log.reason ? (
-              <div className="mt-4 rounded-lg border border-rose-50 bg-rose-50/40 p-3 text-[12.5px] text-zoru-danger-ink">
+              <div className="mt-4 rounded-lg border border-zoru-line bg-zoru-surface-2/40 p-3 text-[12.5px] text-zoru-danger-ink">
                 <span className="font-semibold">Reason: </span>
                 {log.reason}
               </div>
@@ -240,7 +240,7 @@ export default function TimeLogDetailPage({
                 </div>
                 {activeBreak ? (
                   <Button
-                    className="bg-destructive text-white hover:bg-destructive/90"
+                    className="bg-zoru-ink text-white hover:bg-zoru-ink/90"
                     disabled={isBusy}
                     onClick={() =>
                       activeBreak._id && handleStopBreak(activeBreak._id)
@@ -310,7 +310,7 @@ export default function TimeLogDetailPage({
                             {!br.end_time ? (
                               <Button
                                 size="sm"
-                                className="bg-destructive text-white hover:bg-destructive/90"
+                                className="bg-zoru-ink text-white hover:bg-zoru-ink/90"
                                 onClick={() =>
                                   br._id && handleStopBreak(br._id)
                                 }

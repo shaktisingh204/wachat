@@ -48,14 +48,14 @@ export interface BlockPaletteProps {
 export function BlockPalette({ onAdd }: BlockPaletteProps) {
   return (
     <aside
-      className="flex h-full w-60 shrink-0 flex-col border-r border-border bg-card"
+      className="flex h-full w-60 shrink-0 flex-col border-r border-zoru-line bg-zoru-surface"
       aria-label="Block palette"
     >
       <header className="px-4 py-3">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-wider text-zoru-ink-muted">
           Blocks
         </p>
-        <p className="text-xs text-muted-foreground/80">Click to add</p>
+        <p className="text-xs text-zoru-ink-muted/80">Click to add</p>
       </header>
       <Separator />
       <ScrollArea className="flex-1">

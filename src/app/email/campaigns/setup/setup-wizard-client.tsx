@@ -201,8 +201,8 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
                 <div>
                   <h4 className="text-sm font-medium text-zoru-ink-muted">Campaign Settings</h4>
                   <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
-                    <span className="text-zoru-ink-muted">Name:</span> <span>{name || <span className="text-red-500">Missing</span>}</span>
-                    <span className="text-zoru-ink-muted">Subject:</span> <span>{subject || <span className="text-red-500">Missing</span>}</span>
+                    <span className="text-zoru-ink-muted">Name:</span> <span>{name || <span className="text-zoru-ink">Missing</span>}</span>
+                    <span className="text-zoru-ink-muted">Subject:</span> <span>{subject || <span className="text-zoru-ink">Missing</span>}</span>
                     <span className="text-zoru-ink-muted">From:</span> <span>{fromName} &lt;{fromEmail}&gt;</span>
                   </div>
                 </div>
@@ -210,7 +210,7 @@ export function SetupWizardClient({ initialLists, initialSegments }: SetupWizard
                   <h4 className="text-sm font-medium text-zoru-ink-muted mb-2">Audience</h4>
                   <div className="flex flex-wrap gap-2">
                     {listIds.length === 0 && segmentIds.length === 0 && (
-                      <Badge variant="outline" className="text-amber-500 border-amber-500">No audience selected (draft mode)</Badge>
+                      <Badge variant="outline" className="text-zoru-ink border-zoru-line">No audience selected (draft mode)</Badge>
                     )}
                     {listIds.map(id => {
                       const list = initialLists.find(l => l._id === id);

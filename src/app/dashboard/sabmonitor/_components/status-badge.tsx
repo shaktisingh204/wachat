@@ -15,11 +15,11 @@ export function StatusBadge({
 }): React.JSX.Element {
     const tone =
         status === 'up' || status === 'resolved' || status === 'active' || status === 'live'
-            ? 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30'
+            ? 'bg-zoru-ink/15 text-zoru-ink border-zoru-line/30'
             : status === 'warning'
-              ? 'bg-amber-500/15 text-amber-700 border-amber-500/30'
+              ? 'bg-zoru-ink/15 text-zoru-ink border-zoru-line/30'
               : status === 'down' || status === 'ongoing'
-                ? 'bg-rose-500/15 text-rose-700 border-rose-500/30'
+                ? 'bg-zoru-ink/15 text-zoru-ink border-zoru-line/30'
                 : 'bg-zoru-surface-muted text-zoru-ink-muted border-zoru-line';
     return (
         <span

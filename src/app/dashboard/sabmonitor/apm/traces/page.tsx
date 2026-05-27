@@ -91,9 +91,9 @@ export default async function ApmTracesPage({ searchParams }: PageProps): Promis
                                         <td className="p-3 text-right text-zoru-ink-muted">{t.spanCount}</td>
                                         <td className="p-3 text-right">
                                             {t.errored ? (
-                                                <span className="text-rose-700">error</span>
+                                                <span className="text-zoru-ink">error</span>
                                             ) : (
-                                                <span className="text-emerald-600">ok</span>
+                                                <span className="text-zoru-ink">ok</span>
                                             )}
                                         </td>
                                     </tr>

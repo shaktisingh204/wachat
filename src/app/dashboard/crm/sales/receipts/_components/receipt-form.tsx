@@ -678,12 +678,12 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                         </p>
                     </div>
                 ) : openInvoices.length === 0 && !editing ? (
-                    <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-5 text-center">
-                        <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-emerald-500" />
-                        <h4 className="text-[14px] font-semibold text-emerald-800 dark:text-emerald-300">
+                    <div className="rounded-lg border border-zoru-line/20 bg-zoru-ink/5 p-5 text-center">
+                        <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-zoru-ink" />
+                        <h4 className="text-[14px] font-semibold text-zoru-ink dark:text-zoru-ink-muted">
                             No Outstanding Balances Found
                         </h4>
-                        <p className="mx-auto mt-1 max-w-md text-[12px] text-emerald-600 dark:text-emerald-400">
+                        <p className="mx-auto mt-1 max-w-md text-[12px] text-zoru-ink dark:text-zoru-ink-muted">
                             This customer has fully paid all invoices. The entire amount received will sit as an unapplied advance payment on their ledger.
                         </p>
                         <div className="mt-4 flex justify-center">
@@ -692,7 +692,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                     type="checkbox"
                                     checked={excessAsAdvance}
                                     onChange={(e) => setExcessAsAdvance(e.target.checked)}
-                                    className="h-4 w-4 rounded border-zoru-line text-emerald-600 focus:ring-emerald-500"
+                                    className="h-4 w-4 rounded border-zoru-line text-zoru-ink focus:ring-zoru-line"
                                 />
                                 Auto-treat full amount as customer advance
                             </Label>
@@ -753,7 +753,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                 }}
                                                 className={`flex items-center justify-center gap-0.5 rounded px-1.5 py-1 text-[11px] font-medium transition-all ${
                                                     distributeMode === 'fifo'
-                                                        ? 'bg-zoru-surface-1 text-emerald-600 dark:text-emerald-400 shadow-sm font-semibold'
+                                                        ? 'bg-zoru-surface-1 text-zoru-ink dark:text-zoru-ink-muted shadow-sm font-semibold'
                                                         : 'text-zoru-ink-muted hover:text-zoru-ink'
                                                 }`}
                                             >
@@ -769,7 +769,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                 }}
                                                 className={`flex items-center justify-center gap-0.5 rounded px-1.5 py-1 text-[11px] font-medium transition-all ${
                                                     distributeMode === 'equal'
-                                                        ? 'bg-zoru-surface-1 text-amber-600 dark:text-amber-400 shadow-sm font-semibold'
+                                                        ? 'bg-zoru-surface-1 text-zoru-ink dark:text-zoru-ink-muted shadow-sm font-semibold'
                                                         : 'text-zoru-ink-muted hover:text-zoru-ink'
                                                 }`}
                                             >
@@ -799,7 +799,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
 
                                         <div className="flex justify-between font-medium">
                                             <span className="text-zoru-ink-muted">Applied to Invoices:</span>
-                                            <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                                            <span className="font-bold text-zoru-ink dark:text-zoru-ink-muted">
                                                 {fmtMoney(totalSettled, currency)}
                                             </span>
                                         </div>
@@ -809,7 +809,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                             <span
                                                 className={`font-extrabold ${
                                                     Math.max(0, totalAmount - totalSettled) > 0
-                                                        ? 'text-amber-600 dark:text-amber-400'
+                                                        ? 'text-zoru-ink dark:text-zoru-ink-muted'
                                                         : 'text-zoru-ink-muted'
                                                 }`}
                                             >
@@ -831,7 +831,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                         </div>
                                         <div className="h-1.5 w-full rounded-full bg-zoru-surface-3 overflow-hidden">
                                             <div
-                                                className="h-full bg-emerald-500 transition-all duration-300"
+                                                className="h-full bg-zoru-ink transition-all duration-300"
                                                 style={{
                                                     width: `${
                                                         totalAmount > 0
@@ -890,7 +890,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                                 <span
                                                                     className={`inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium ${
                                                                         isOverdue
-                                                                            ? 'bg-red-500/10 text-red-600 dark:text-red-400'
+                                                                            ? 'bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
                                                                             : 'bg-zoru-surface-3 text-zoru-ink-muted'
                                                                     }`}
                                                                 >
@@ -922,7 +922,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                                             max="100"
                                                                             value={percentage}
                                                                             onChange={(e) => handleSliderChange(inv.id, Number(e.target.value), inv.balance)}
-                                                                            className="h-1 w-full bg-zoru-surface-3 rounded-lg appearance-none cursor-pointer accent-emerald-500 dark:accent-emerald-400"
+                                                                            className="h-1 w-full bg-zoru-surface-3 rounded-lg appearance-none cursor-pointer accent-zoru-ink dark:accent-zoru-ink-muted"
                                                                         />
                                                                         <span className="text-[10px] font-bold text-zoru-ink-muted w-[32px] text-right">
                                                                             {Math.round(percentage)}%
@@ -936,7 +936,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                                         type="button"
                                                                         variant="ghost"
                                                                         size="sm"
-                                                                        className="h-6 px-1.5 text-[10.5px] hover:bg-emerald-500/10 hover:text-emerald-600"
+                                                                        className="h-6 px-1.5 text-[10.5px] hover:bg-zoru-ink/10 hover:text-zoru-ink"
                                                                         onClick={() => {
                                                                             // Pay full balance or remaining totalAmount
                                                                             const maxAllocatable = distributeMode === 'manual' ? inv.balance : Math.min(inv.balance, Math.max(0, totalAmount - totalSettled + allocatedVal));
@@ -949,7 +949,7 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                                         type="button"
                                                                         variant="ghost"
                                                                         size="sm"
-                                                                        className="h-6 px-1.5 text-[10.5px] text-zoru-danger-ink hover:bg-red-500/10"
+                                                                        className="h-6 px-1.5 text-[10.5px] text-zoru-danger-ink hover:bg-zoru-ink/10"
                                                                         onClick={() => handleAmountChange(inv.id, '')}
                                                                     >
                                                                         Clear
@@ -999,14 +999,14 @@ export function ReceiptForm({ initial }: ReceiptFormProps) {
                                                         {row.invoiceLabel || (row.invoiceId ? invoiceMeta[row.invoiceId]?.label : 'N/A') || row.invoiceId}
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400">
+                                                <td className="px-4 py-3 text-right font-bold text-zoru-ink dark:text-zoru-ink-muted">
                                                     {fmtMoney(Number(row.amount) || 0, currency)}
                                                 </td>
                                             </tr>
                                         ))}
                                         <tr className="bg-zoru-surface-2 font-bold">
                                             <td className="px-4 py-3 text-zoru-ink-muted">Total Applied</td>
-                                            <td className="px-4 py-3 text-right text-emerald-600 dark:text-emerald-400">
+                                            <td className="px-4 py-3 text-right text-zoru-ink dark:text-zoru-ink-muted">
                                                 {fmtMoney(totalApplied, currency)}
                                             </td>
                                         </tr>

@@ -47,14 +47,14 @@ const items = [
 
 export function Accordion03() {
   return (
-    <div className="w-full max-w-3xl shadow-sm rounded-xl bg-card">
+    <div className="w-full max-w-3xl shadow-sm rounded-xl bg-zoru-surface">
       <Accordion type="single" defaultValue="02" collapsible className="w-full">
         {items.map((item) => (
           <AccordionItem className="relative" value={item.id} key={item.id}>
             <AccordionTrigger className="pl-6 hover:no-underline [&>svg]:hidden">
               <h1 className="text-lg md:text-xl font-semibold">{item.title}</h1>
             </AccordionTrigger>
-            <AccordionContent className="space-y-6 text-muted-foreground w-full h-full md:h-full grid md:grid-cols-2">
+            <AccordionContent className="space-y-6 text-zoru-ink-muted w-full h-full md:h-full grid md:grid-cols-2">
               <div className="px-6 space-y-6">
                 <p> {item.content}</p>
                 <Button>View More</Button>

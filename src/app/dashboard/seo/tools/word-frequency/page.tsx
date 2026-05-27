@@ -22,14 +22,14 @@ export default function WordFrequencyPage() {
             <div key={row.word} className="space-y-0.5">
               <div className="flex justify-between text-xs">
                 <span className="font-mono">{row.word}</span>
-                <span className="text-muted-foreground">{row.count}</span>
+                <span className="text-zoru-ink-muted">{row.count}</span>
               </div>
-              <div className="h-1.5 bg-muted rounded">
-                <div className="h-full rounded bg-primary" style={{ width: `${(row.count / max) * 100}%` }} />
+              <div className="h-1.5 bg-zoru-surface-2 rounded">
+                <div className="h-full rounded bg-zoru-ink" style={{ width: `${(row.count / max) * 100}%` }} />
               </div>
             </div>
           ))}
-          {freq.length === 0 && <div className="text-center text-muted-foreground py-6">Start typing to see word frequency.</div>}
+          {freq.length === 0 && <div className="text-center text-zoru-ink-muted py-6">Start typing to see word frequency.</div>}
         </ZoruCardContent>
       </Card>
     </ToolShell>

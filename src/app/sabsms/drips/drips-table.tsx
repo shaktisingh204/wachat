@@ -170,13 +170,13 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
         <div className="space-y-0.5">
           <Link
             href={`/sabsms/drips/${r.id}`}
-            className="font-medium text-slate-900 hover:text-slate-700"
+            className="font-medium text-zoru-ink hover:text-zoru-ink"
           >
             {r.name}
           </Link>
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+          <div className="flex items-center gap-1.5 text-[11px] text-zoru-ink">
             <span>{r.stepCount} steps</span>
-            <span className="text-slate-300">·</span>
+            <span className="text-zoru-ink-muted">·</span>
             <MiniDots count={r.stepCount} branchCount={r.branchCount} />
           </div>
         </div>
@@ -222,7 +222,7 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
       align: "right",
       render: (r) => (
         <span className="flex items-center justify-end gap-1 font-mono text-xs">
-          <Users className="h-3 w-3 text-slate-400" />
+          <Users className="h-3 w-3 text-zoru-ink-muted" />
           {r.activeRecipients.toLocaleString()}
         </span>
       ),
@@ -234,7 +234,7 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
       align: "right",
       render: (r) => (
         <span className="flex items-center justify-end gap-1 font-mono text-xs">
-          <Zap className="h-3 w-3 text-amber-500" />
+          <Zap className="h-3 w-3 text-zoru-ink" />
           {r.throughputPerMin.toFixed(1)}/min
         </span>
       ),
@@ -263,7 +263,7 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
       width: "120px",
       hideByDefault: true,
       render: (r) => (
-        <span className="text-xs text-slate-600">{r.cohort ?? "—"}</span>
+        <span className="text-xs text-zoru-ink">{r.cohort ?? "—"}</span>
       ),
     },
     {
@@ -287,7 +287,7 @@ export function DripsTable({ rows, templateOptions }: DripsTableProps) {
       header: "Updated",
       width: "150px",
       render: (r) => (
-        <span className="text-xs text-slate-600">
+        <span className="text-xs text-zoru-ink">
           {new Date(r.updatedAt).toLocaleString()}
         </span>
       ),
@@ -558,15 +558,15 @@ function SummaryCard({
     <Card
       className={
         tone === "warning" && value > 0
-          ? "border-amber-200 bg-amber-50/60"
+          ? "border-zoru-line bg-zoru-surface-2/60"
           : undefined
       }
     >
       <ZoruCardContent className="p-3">
-        <div className="text-[11px] uppercase tracking-wide text-slate-500">
+        <div className="text-[11px] uppercase tracking-wide text-zoru-ink">
           {label}
         </div>
-        <div className="mt-0.5 text-2xl font-semibold text-slate-900">
+        <div className="mt-0.5 text-2xl font-semibold text-zoru-ink">
           {value.toLocaleString()}
         </div>
       </ZoruCardContent>
@@ -584,22 +584,22 @@ function MiniDots({ count, branchCount }: { count: number; branchCount: number }
           <span
             key={i}
             className={`h-1.5 w-1.5 rounded-full ${
-              isBranch ? "bg-amber-500" : "bg-slate-300"
+              isBranch ? "bg-zoru-ink" : "bg-zoru-surface-2"
             }`}
             aria-hidden
           />
         );
       })}
-      {count > 12 && <span className="ml-0.5 text-[10px] text-slate-400">+{count - 12}</span>}
+      {count > 12 && <span className="ml-0.5 text-[10px] text-zoru-ink-muted">+{count - 12}</span>}
     </span>
   );
 }
 
 function Detail({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-white px-3 py-2">
-      <div className="text-[10px] uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-0.5 font-medium text-slate-900">{value}</div>
+    <div className="rounded-md border border-zoru-line bg-white px-3 py-2">
+      <div className="text-[10px] uppercase tracking-wide text-zoru-ink">{label}</div>
+      <div className="mt-0.5 font-medium text-zoru-ink">{value}</div>
     </div>
   );
 }
@@ -610,7 +610,7 @@ function DropoffChart({
   rows: Array<{ step: number; delivered: number }>;
 }) {
   if (rows.length === 0) {
-    return <div className="text-xs text-slate-500">No data yet.</div>;
+    return <div className="text-xs text-zoru-ink">No data yet.</div>;
   }
   return (
     <ZoruChartContainer height={180}>

@@ -29,13 +29,13 @@ function FormSkeleton() {
 function FormError({ message, onRetry }: { message: string; onRetry: () => void }) {
     return (
         <div className="p-4 w-full max-w-lg mx-auto mt-10">
-            <div className="p-6 border-2 border-destructive/20 bg-destructive/10 text-destructive rounded-lg text-center space-y-4">
+            <div className="p-6 border-2 border-destructive/20 bg-zoru-ink/10 text-zoru-ink rounded-lg text-center space-y-4">
                 <AlertCircle className="mx-auto h-10 w-10" />
                 <h3 className="font-semibold text-lg">Failed to load form</h3>
                 <p className="text-sm">{message}</p>
                 <button 
                     onClick={onRetry}
-                    className="mt-4 px-4 py-2 bg-destructive text-white rounded-md hover:bg-destructive/90 transition-colors"
+                    className="mt-4 px-4 py-2 bg-zoru-ink text-white rounded-md hover:bg-zoru-ink/90 transition-colors"
                 >
                     Retry
                 </button>

@@ -12,19 +12,19 @@ import { cn } from "@/lib/utils"
  *  - info: sky
  */
 const alertVariants = cva(
-  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
+  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-zoru-ink",
   {
     variants: {
       variant: {
-        default: "bg-background text-foreground",
+        default: "bg-zoru-surface text-zoru-ink",
         destructive:
-          "border-destructive/40 bg-[hsl(var(--prism-rose)/0.06)] text-destructive [&>svg]:text-destructive",
+          "border-destructive/40 bg-zoru-ink text-zoru-ink [&>svg]:text-zoru-ink",
         success:
-          "border-[hsl(var(--prism-emerald)/0.4)] bg-[hsl(var(--prism-emerald)/0.06)] text-[hsl(var(--prism-emerald))] [&>svg]:text-[hsl(var(--prism-emerald))]",
+          "border-zoru-line bg-zoru-ink text-zoru-ink [&>svg]:text-zoru-ink",
         warning:
-          "border-[hsl(var(--prism-coral)/0.5)] bg-[hsl(var(--prism-coral)/0.08)] text-[hsl(var(--prism-coral))] [&>svg]:text-[hsl(var(--prism-coral))]",
+          "border-zoru-line bg-zoru-ink text-zoru-ink [&>svg]:text-zoru-ink",
         info:
-          "border-[hsl(var(--prism-sky)/0.4)] bg-[hsl(var(--prism-sky)/0.06)] text-[hsl(var(--prism-sky))] [&>svg]:text-[hsl(var(--prism-sky))]",
+          "border-zoru-line bg-zoru-ink text-zoru-ink [&>svg]:text-zoru-ink",
       },
     },
     defaultVariants: {

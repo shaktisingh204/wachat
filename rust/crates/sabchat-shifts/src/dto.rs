@@ -6,7 +6,6 @@
 //! and responses round-trip with the TS clients exactly like the sibling
 //! routers do.
 
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use utoipa::ToSchema;

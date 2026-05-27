@@ -12,7 +12,7 @@ export interface ClayTopbarProps extends React.HTMLAttributes<HTMLElement> {
 /**
  * ClayTopbar — flat row of pill groups. Slot-based: the actual pill
  * buttons are composed by the caller (typically `<ClayButton variant="pill">`).
- * Restyled to consume shadcn tokens (`bg-card`, `border-border`).
+ * Restyled to consume shadcn tokens (`bg-zoru-surface`, `border-zoru-line`).
  */
 export function ClayTopbar({
   left,
@@ -24,7 +24,7 @@ export function ClayTopbar({
   return (
     <header
       className={cn(
-        'relative flex w-full shrink-0 items-center justify-between border-b border-border bg-card text-card-foreground',
+        'relative flex w-full shrink-0 items-center justify-between border-b border-zoru-line bg-zoru-surface text-zoru-ink',
         'h-[68px] px-5',
         className,
       )}

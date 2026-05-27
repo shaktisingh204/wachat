@@ -353,13 +353,13 @@ function FlowBuilder({ flowId }: { flowId: string }) {
   const isPaused = currentFlow?.status === 'PAUSED';
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden bg-background">
+    <div className="relative flex h-full w-full flex-col overflow-hidden bg-zoru-surface">
       {/* ─── Clay header bar ─── */}
-      <header className="flex h-[64px] shrink-0 items-center justify-between gap-4 border-b border-border bg-card/80 px-5 backdrop-blur">
+      <header className="flex h-[64px] shrink-0 items-center justify-between gap-4 border-b border-zoru-line bg-zoru-surface/80 px-5 backdrop-blur">
         <div className="flex min-w-0 items-center gap-3">
           <Link
             href="/wachat/flow-builder"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
           >
             <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
             Back
@@ -368,18 +368,18 @@ function FlowBuilder({ flowId }: { flowId: string }) {
           <Input
             value={flowName}
             onChange={(e) => setFlowName(e.target.value)}
-            className="h-9 w-[260px] rounded-[10px] border-border bg-card font-semibold text-foreground"
+            className="h-9 w-[260px] rounded-[10px] border-zoru-line bg-zoru-surface font-semibold text-zoru-ink"
             placeholder="Flow name"
           />
           {currentFlow ? (
-            <div className="flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1">
+            <div className="flex items-center gap-2 rounded-full border border-zoru-line bg-zoru-surface-2 px-3 py-1">
               <span
                 className={cn(
                   'h-1.5 w-1.5 rounded-full',
-                  isPaused ? 'bg-amber-500' : 'bg-emerald-500',
+                  isPaused ? 'bg-zoru-ink' : 'bg-zoru-ink',
                 )}
               />
-              <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <span className="text-[10.5px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                 {isPaused ? 'Paused' : 'Active'}
               </span>
               <Switch
@@ -441,7 +441,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
         <div
           className="relative h-full w-full flex-1"
           ref={reactFlowWrapper}
-          style={{ backgroundColor: 'hsl(var(--background))' }}
+          style={{ backgroundColor: 'var(--zoru-surface)' }}
         >
           <ReactFlow
             nodes={nodes}
@@ -474,7 +474,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
                   <button
                     type="button"
                     aria-label="Add block"
-                    className="group flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-white shadow-md transition-[transform,background] hover:bg-foreground/90 active:scale-95"
+                    className="group flex h-12 w-12 items-center justify-center rounded-full bg-zoru-ink text-white shadow-md transition-[transform,background] hover:bg-zoru-ink/90 active:scale-95"
                   >
                     <LuPlus className="h-5 w-5" strokeWidth={2.25} />
                   </button>
@@ -482,13 +482,13 @@ function FlowBuilder({ flowId }: { flowId: string }) {
                 <ZoruPopoverContent
                   side="right"
                   align="start"
-                  className="ml-4 w-[340px] rounded-[16px] border border-border bg-card p-0 shadow-lg"
+                  className="ml-4 w-[340px] rounded-[16px] border border-zoru-line bg-zoru-surface p-0 shadow-lg"
                 >
-                  <div className="border-b border-border px-4 py-3.5">
-                    <h4 className="text-[14px] font-semibold leading-none text-foreground">
+                  <div className="border-b border-zoru-line px-4 py-3.5">
+                    <h4 className="text-[14px] font-semibold leading-none text-zoru-ink">
                       Add block
                     </h4>
-                    <p className="mt-1 text-[11.5px] text-muted-foreground">
+                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
                       Drag a block onto the canvas to add it to your flow.
                     </p>
                   </div>
@@ -504,9 +504,9 @@ function FlowBuilder({ flowId }: { flowId: string }) {
             {/* Flow status footer — shown when empty or just start node */}
             {nodes.length <= 1 ? (
               <Panel position="bottom-center" className="mb-6">
-                <div className="pointer-events-none rounded-full border border-border bg-card px-4 py-2 text-[11.5px] font-medium text-muted-foreground shadow-sm">
+                <div className="pointer-events-none rounded-full border border-zoru-line bg-zoru-surface px-4 py-2 text-[11.5px] font-medium text-zoru-ink-muted shadow-sm">
                   Tap the{' '}
-                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-foreground text-[9px] text-white">
+                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-zoru-ink text-[9px] text-white">
                     +
                   </span>{' '}
                   button to add your first block
@@ -518,7 +518,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
 
         {/* Right properties panel — desktop pinned */}
         {selectedNode && isPropsOpen ? (
-          <aside className="hidden w-[320px] shrink-0 border-l border-border bg-card overflow-y-auto md:block">
+          <aside className="hidden w-[320px] shrink-0 border-l border-zoru-line bg-zoru-surface overflow-y-auto md:block">
             <PropertiesPanel
               node={selectedNode}
               onUpdate={onNodeUpdate}
@@ -605,16 +605,16 @@ function FlowSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-[480px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
-        <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
+      <ZoruDialogContent className="max-w-[480px] rounded-[18px] border border-zoru-line bg-zoru-surface p-0 shadow-lg">
+        <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-zoru-line px-6 py-5">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-zoru-surface-2 text-zoru-ink">
             <LuSettings2 className="h-5 w-5" strokeWidth={2} />
           </span>
           <div className="min-w-0 flex-1">
-            <ZoruDialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
+            <ZoruDialogTitle className="text-[16px] font-semibold text-zoru-ink leading-tight">
               Flow settings
             </ZoruDialogTitle>
-            <ZoruDialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
+            <ZoruDialogDescription className="mt-0.5 text-[12px] text-zoru-ink-muted leading-snug">
               Configure the basic settings for this flow.
             </ZoruDialogDescription>
           </div>
@@ -625,9 +625,9 @@ function FlowSettingsDialog({
             <div className="flex flex-col gap-1.5">
               <Label
                 htmlFor="flow-name"
-                className="text-[11.5px] font-semibold text-muted-foreground"
+                className="text-[11.5px] font-semibold text-zoru-ink-muted"
               >
-                Flow name <span className="ml-1 text-destructive">*</span>
+                Flow name <span className="ml-1 text-zoru-ink">*</span>
               </Label>
               <Input
                 id="flow-name"
@@ -641,7 +641,7 @@ function FlowSettingsDialog({
             <div className="flex flex-col gap-1.5">
               <Label
                 htmlFor="flow-keywords"
-                className="text-[11.5px] font-semibold text-muted-foreground"
+                className="text-[11.5px] font-semibold text-zoru-ink-muted"
               >
                 Trigger keywords
               </Label>
@@ -651,14 +651,14 @@ function FlowSettingsDialog({
                 onChange={(e) => setKeywords(e.target.value)}
                 placeholder="hello, promo, help"
               />
-              <p className="mt-0.5 text-[11px] text-muted-foreground">
+              <p className="mt-0.5 text-[11px] text-zoru-ink-muted">
                 Comma-separated words that will start this flow when a
                 customer sends them.
               </p>
             </div>
           </div>
 
-          <ZoruDialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
+          <ZoruDialogFooter className="border-t border-zoru-line px-6 py-4 sm:justify-end gap-2">
             <Button
               type="button"
               variant="outline"

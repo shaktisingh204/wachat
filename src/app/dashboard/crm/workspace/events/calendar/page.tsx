@@ -452,7 +452,7 @@ function MonthGrid({
         {DAYS.map((d) => (
           <div
             key={d}
-            className="py-2 text-center text-[11.5px] font-semibold uppercase tracking-wide text-muted-foreground"
+            className="py-2 text-center text-[11.5px] font-semibold uppercase tracking-wide text-zoru-ink-muted"
           >
             {d}
           </div>
@@ -462,7 +462,7 @@ function MonthGrid({
             return (
               <div
                 key={i}
-                className="min-h-[88px] rounded-lg border border-transparent bg-secondary p-1.5"
+                className="min-h-[88px] rounded-lg border border-transparent bg-zoru-surface-2 p-1.5"
               />
             );
           }
@@ -471,9 +471,9 @@ function MonthGrid({
           return (
             <div
               key={i}
-              className="min-h-[88px] rounded-lg border border-border bg-card p-1.5 text-[12px]"
+              className="min-h-[88px] rounded-lg border border-zoru-line bg-zoru-surface p-1.5 text-[12px]"
             >
-              <div className="mb-1 text-[11px] font-semibold text-muted-foreground">{d}</div>
+              <div className="mb-1 text-[11px] font-semibold text-zoru-ink-muted">{d}</div>
               <div className="flex flex-col gap-1">
                 {dayEvents.slice(0, 3).map((e) => (
                   <Link
@@ -487,7 +487,7 @@ function MonthGrid({
                   </Link>
                 ))}
                 {dayEvents.length > 3 ? (
-                  <span className="text-[10.5px] text-muted-foreground">
+                  <span className="text-[10.5px] text-zoru-ink-muted">
                     +{dayEvents.length - 3} more
                   </span>
                 ) : null}
@@ -518,7 +518,7 @@ function WeekGrid({
         {days.map((d) => (
           <div
             key={d.toISOString()}
-            className="rounded-lg border border-border bg-card p-2 min-h-[200px]"
+            className="rounded-lg border border-zoru-line bg-zoru-surface p-2 min-h-[200px]"
           >
             <div className="mb-2 text-[11.5px] font-semibold text-zoru-ink-muted uppercase tracking-wide">
               {DAYS[d.getDay()]} {d.getDate()}
@@ -530,10 +530,10 @@ function WeekGrid({
                   <Link
                     key={e._id}
                     href={`/dashboard/crm/workspace/events/${e._id}`}
-                    className="block rounded-md border border-border bg-secondary/40 px-2 py-1 text-[12px] hover:bg-secondary"
+                    className="block rounded-md border border-zoru-line bg-zoru-surface-2/40 px-2 py-1 text-[12px] hover:bg-zoru-surface-2"
                   >
                     <div className="truncate font-medium">{e.event_name}</div>
-                    <div className="text-[11px] text-muted-foreground">
+                    <div className="text-[11px] text-zoru-ink-muted">
                       {time
                         ? time.toLocaleTimeString(undefined, {
                             hour: '2-digit',
@@ -566,7 +566,7 @@ function DayList({
           {day.toLocaleDateString(undefined, { weekday: 'long' })}
         </div>
         {events.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
+          <p className="py-6 text-center text-sm text-zoru-ink-muted">
             No events scheduled for this day.
           </p>
         ) : (
@@ -598,7 +598,7 @@ function DayList({
                       {e.event_name}
                     </Link>
                     {e.where ? (
-                      <div className="truncate text-[12px] text-muted-foreground">
+                      <div className="truncate text-[12px] text-zoru-ink-muted">
                         {e.where}
                       </div>
                     ) : null}
@@ -608,7 +608,7 @@ function DayList({
                       href={e.online_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[12px] text-primary hover:underline"
+                      className="inline-flex items-center gap-1 text-[12px] text-zoru-ink hover:underline"
                     >
                       <ExternalLink className="h-3 w-3" /> Join
                     </a>

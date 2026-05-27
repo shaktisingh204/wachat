@@ -89,12 +89,12 @@ export function TopClientsView({ rows, page, limit }: Props) {
 
       <Card>
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-foreground">
+          <h2 className="text-[16px] font-semibold text-zoru-ink">
             Top 10 clients by revenue
           </h2>
         </div>
         {chartData.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-muted-foreground">
+          <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
             No revenue in this range.
           </div>
         ) : (
@@ -116,38 +116,38 @@ export function TopClientsView({ rows, page, limit }: Props) {
       </Card>
 
       <Card>
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <Table>
             <ZoruTableHeader>
-              <ZoruTableRow className="border-border hover:bg-transparent">
-                <ZoruTableHead className="w-10 text-muted-foreground">#</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Client</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Invoices</ZoruTableHead>
-                <ZoruTableHead className="text-right text-muted-foreground">Revenue</ZoruTableHead>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="w-10 text-zoru-ink-muted">#</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Invoices</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Revenue</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
               {pageRows.length === 0 ? (
-                <ZoruTableRow className="border-border">
-                  <ZoruTableCell colSpan={4} className="h-20 text-center text-[13px] text-muted-foreground">
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell colSpan={4} className="h-20 text-center text-[13px] text-zoru-ink-muted">
                     No clients in this range.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
                 pageRows.map((r, i) => (
-                  <ZoruTableRow key={`${r.clientId || 'none'}-${start + i}`} className="border-border">
-                    <ZoruTableCell className="text-muted-foreground">{start + i + 1}</ZoruTableCell>
-                    <ZoruTableCell className="font-medium text-foreground">
+                  <ZoruTableRow key={`${r.clientId || 'none'}-${start + i}`} className="border-zoru-line">
+                    <ZoruTableCell className="text-zoru-ink-muted">{start + i + 1}</ZoruTableCell>
+                    <ZoruTableCell className="font-medium text-zoru-ink">
                       {r.clientId ? (
                         <EntityRowLink href={`/dashboard/crm/accounts/${r.clientId}`} label={r.clientName} />
                       ) : (
                         r.clientName
                       )}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-foreground">
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                       {fmtNumber(r.invoices)}
                     </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] font-medium text-emerald-500">
+                    <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
                       {fmtMoney(r.revenue)}
                     </ZoruTableCell>
                   </ZoruTableRow>

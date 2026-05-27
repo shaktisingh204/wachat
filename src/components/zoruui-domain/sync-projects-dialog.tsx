@@ -101,7 +101,7 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                     inputMode="numeric"
                     required
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-zoru-ink-muted">
                   Find this in Meta Business Manager → WhatsApp Accounts → your WABA. Do not paste the Business Portfolio ID, Page ID, or App ID here.
                 </p>
             </div>
@@ -114,7 +114,7 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                 placeholder="Permanent system-user token"
                 required
               />
-               <p className="text-xs text-muted-foreground">
+               <p className="text-xs text-zoru-ink-muted">
                 Needs <code>whatsapp_business_management</code> and <code>whatsapp_business_messaging</code> scopes. See the manual setup guide for instructions on generating a system-user token.
               </p>
             </div>
@@ -130,7 +130,7 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
              <div className="space-y-2">
                 <Label htmlFor="groupName">Group Name (Optional)</Label>
                 <Input id="groupName" name="groupName" placeholder="e.g. My Agency's Clients" />
-                <p className="text-xs text-muted-foreground">The added project will be placed into this new group.</p>
+                <p className="text-xs text-zoru-ink-muted">The added project will be placed into this new group.</p>
             </div>
           </div>
           <ZoruDialogFooter>

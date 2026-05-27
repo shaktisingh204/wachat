@@ -97,21 +97,21 @@ export default function TicketCustomFormsPage() {
             >
               <div className="space-y-3 text-sm">
                 <div>
-                  <div className="text-muted-foreground text-xs">Field name</div>
+                  <div className="text-zoru-ink-muted text-xs">Field name</div>
                   <div>{row.field_name}</div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground text-xs">Type</div>
+                  <div className="text-zoru-ink-muted text-xs">Type</div>
                   <div>{row.field_type}</div>
                 </div>
                 {row.field_values ? (
                   <div>
-                    <div className="text-muted-foreground text-xs">Values</div>
+                    <div className="text-zoru-ink-muted text-xs">Values</div>
                     <div className="font-mono text-xs">{row.field_values}</div>
                   </div>
                 ) : null}
                 <div>
-                  <div className="text-muted-foreground text-xs">Required</div>
+                  <div className="text-zoru-ink-muted text-xs">Required</div>
                   <div>{row.is_required ? 'Yes' : 'No'}</div>
                 </div>
               </div>

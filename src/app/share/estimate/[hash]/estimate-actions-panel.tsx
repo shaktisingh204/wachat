@@ -77,7 +77,7 @@ export function EstimateActionsPanel({ hash, status, signature, declineReason, i
                 <img
                   src={signature.signatureDataUrl}
                   alt={`Signature of ${signature.signedByName}`}
-                  className="h-20 rounded-md border border-zinc-200 bg-white"
+                  className="h-20 rounded-md border border-zoru-line bg-white"
                 />
               ) : null}
             </>
@@ -85,7 +85,7 @@ export function EstimateActionsPanel({ hash, status, signature, declineReason, i
             <p>This estimate has been accepted.</p>
           )}
           {effectiveInvoiceHash ? (
-            <div className="mt-4 pt-4 border-t border-zinc-200">
+            <div className="mt-4 pt-4 border-t border-zoru-line">
               <Button asChild>
                 <a href={`/share/invoice/${effectiveInvoiceHash}`}>
                   Pay Advance / Deposit
@@ -104,7 +104,7 @@ export function EstimateActionsPanel({ hash, status, signature, declineReason, i
         <ZoruCardHeader>
           <ZoruCardTitle>Estimate declined</ZoruCardTitle>
         </ZoruCardHeader>
-        <ZoruCardContent className="space-y-2 text-sm text-zinc-600">
+        <ZoruCardContent className="space-y-2 text-sm text-zoru-ink">
           {declineReason ? (
             <p className="whitespace-pre-line">Reason: {declineReason}</p>
           ) : (

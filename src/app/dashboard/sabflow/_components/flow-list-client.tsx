@@ -305,25 +305,25 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
       {/* ── Hero strip ────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-widest text-zinc-500 mb-1">
+          <p className="text-xs font-medium uppercase tracking-widest text-zoru-ink mb-1">
             SabFlow
           </p>
-          <h1 className="text-2xl font-bold text-zinc-100">Flows</h1>
-          <p className="text-sm text-zinc-400 mt-1">
+          <h1 className="text-2xl font-bold text-white">Flows</h1>
+          <p className="text-sm text-zoru-ink-muted mt-1">
             Build, schedule, and monitor automation workflows across your stack.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setTemplatesOpen(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-sm font-medium text-zinc-200 hover:bg-zinc-800 transition-colors"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-zoru-line bg-zoru-ink text-sm font-medium text-white hover:bg-zoru-ink transition-colors"
           >
             <LuSparkles className="w-4 h-4" />
             Browse templates
           </button>
           <button
             onClick={handleNewFlow}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-100 text-zinc-900 text-sm font-medium hover:bg-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zoru-surface-2 text-zoru-ink text-sm font-medium hover:bg-white transition-colors"
           >
             <LuPlus className="w-4 h-4" />
             New flow
@@ -360,13 +360,13 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
           <div className="relative">
-            <LuSearch className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <LuSearch className="w-3.5 h-3.5 text-zoru-ink absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search flows…"
-              className="w-64 bg-zinc-900 border border-zinc-700/60 rounded-lg pl-9 pr-3 py-1.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500"
+              className="w-64 bg-zoru-ink border border-zoru-line/60 rounded-lg pl-9 pr-3 py-1.5 text-sm text-white placeholder:text-zoru-ink focus:outline-none focus:border-zoru-line"
             />
           </div>
 
@@ -379,8 +379,8 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
                 className={cn(
                   'px-2.5 py-1 rounded-full text-xs font-medium border transition-colors',
                   statusFilter === chip.id
-                    ? 'bg-zinc-100 text-zinc-900 border-zinc-100'
-                    : 'bg-zinc-800/60 text-zinc-300 border-zinc-700/60 hover:bg-zinc-700/60',
+                    ? 'bg-zoru-surface-2 text-zoru-ink border-zoru-line'
+                    : 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/60 hover:bg-zoru-ink/60',
                 )}
               >
                 {chip.label}
@@ -393,7 +393,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
             <select
               value={folderFilter}
               onChange={(e) => setFolderFilter(e.target.value)}
-              className="rounded-lg border border-zinc-700/60 bg-zinc-900 px-2.5 py-1 text-xs font-medium text-zinc-300 hover:bg-zinc-800 focus:outline-none focus:border-zinc-500"
+              className="rounded-lg border border-zoru-line/60 bg-zoru-ink px-2.5 py-1 text-xs font-medium text-zoru-ink-muted hover:bg-zoru-ink focus:outline-none focus:border-zoru-line"
               aria-label="Filter by folder"
             >
               <option value="">All folders</option>
@@ -414,7 +414,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
               e.stopPropagation();
               setSortOpen((v) => !v);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-700/60 bg-zinc-900 text-xs font-medium text-zinc-300 hover:bg-zinc-800 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zoru-line/60 bg-zoru-ink text-xs font-medium text-zoru-ink-muted hover:bg-zoru-ink transition-colors"
           >
             <LuArrowDownUp className="w-3.5 h-3.5" />
             {currentSortLabel}
@@ -424,7 +424,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
             <div
               role="menu"
               onClick={(e) => e.stopPropagation()}
-              className="absolute right-0 mt-1 z-20 w-48 rounded-lg border border-zinc-700/60 bg-zinc-900 shadow-xl py-1"
+              className="absolute right-0 mt-1 z-20 w-48 rounded-lg border border-zoru-line/60 bg-zoru-ink shadow-xl py-1"
             >
               {SORT_OPTIONS.map((opt) => (
                 <button
@@ -436,8 +436,8 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
                   className={cn(
                     'flex w-full items-center justify-between px-3 py-1.5 text-xs text-left transition-colors',
                     sortKey === opt.id
-                      ? 'text-zinc-100 bg-zinc-800'
-                      : 'text-zinc-300 hover:bg-zinc-800',
+                      ? 'text-white bg-zoru-ink'
+                      : 'text-zoru-ink-muted hover:bg-zoru-ink',
                   )}
                 >
                   {opt.label}
@@ -452,7 +452,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
       {/* ── Tag-chip row ───────────────────────────────────────────────── */}
       {tagCounts.length > 0 && (
         <div className="mb-4 flex flex-wrap items-center gap-1.5">
-          <span className="text-[10.5px] uppercase tracking-wide text-zinc-500 mr-1">
+          <span className="text-[10.5px] uppercase tracking-wide text-zoru-ink mr-1">
             Tags:
           </span>
           {tagCounts.map(([tag, count]) => {
@@ -465,8 +465,8 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
                 className={cn(
                   'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-colors',
                   active
-                    ? 'border-amber-400 bg-amber-400/10 text-amber-300'
-                    : 'border-zinc-700/60 bg-zinc-800/60 text-zinc-300 hover:bg-zinc-700/60',
+                    ? 'border-zoru-line bg-zoru-surface-2/10 text-zoru-ink-muted'
+                    : 'border-zoru-line/60 bg-zoru-ink/60 text-zoru-ink-muted hover:bg-zoru-ink/60',
                 )}
               >
                 <span>#{tag}</span>
@@ -480,7 +480,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
             <button
               type="button"
               onClick={() => setTagFilter([])}
-              className="ml-1 rounded-full border border-zinc-700/60 px-2 py-0.5 text-[10.5px] text-zinc-400 hover:text-zinc-200"
+              className="ml-1 rounded-full border border-zoru-line/60 px-2 py-0.5 text-[10.5px] text-zoru-ink-muted hover:text-white"
             >
               Clear
             </button>
@@ -490,7 +490,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
 
       {/* ── Error ──────────────────────────────────────────────────────── */}
       {error && (
-        <div className="mb-4 px-3 py-2 rounded-lg border border-red-500/40 bg-red-500/10 text-xs text-red-300">
+        <div className="mb-4 px-3 py-2 rounded-lg border border-zoru-line/40 bg-zoru-ink/10 text-xs text-zoru-ink-muted">
           {error}
         </div>
       )}
@@ -498,7 +498,7 @@ export function FlowListClient({ initialFlows, initialError }: Props) {
       {/* ── Grid / empty ───────────────────────────────────────────────── */}
       {refreshing && flows.length === 0 ? (
         <div className="flex items-center justify-center py-24">
-          <LuLoader className="w-6 h-6 text-zinc-500 animate-spin" />
+          <LuLoader className="w-6 h-6 text-zoru-ink animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState
@@ -593,17 +593,17 @@ function MetadataModal({
     >
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       <div
-        className="relative z-10 w-full max-w-sm rounded-2xl border border-zinc-700/60 bg-zinc-900 p-5 shadow-xl"
+        className="relative z-10 w-full max-w-sm rounded-2xl border border-zoru-line/60 bg-zoru-ink p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-sm font-semibold text-zinc-100 mb-1">
+        <h3 className="text-sm font-semibold text-white mb-1">
           Edit metadata
         </h3>
-        <p className="text-[11.5px] text-zinc-400 mb-4 truncate">
+        <p className="text-[11.5px] text-zoru-ink-muted mb-4 truncate">
           {flow.name}
         </p>
 
-        <label className="block text-[11px] font-medium text-zinc-400 mb-1 uppercase tracking-wide">
+        <label className="block text-[11px] font-medium text-zoru-ink-muted mb-1 uppercase tracking-wide">
           Folder
         </label>
         <input
@@ -612,7 +612,7 @@ function MetadataModal({
           value={folder}
           onChange={(e) => setFolder(e.target.value)}
           placeholder="e.g. Onboarding, Internal, Demo"
-          className="w-full mb-4 rounded-lg border border-zinc-700/60 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500"
+          className="w-full mb-4 rounded-lg border border-zoru-line/60 bg-zoru-ink px-3 py-2 text-xs text-white placeholder:text-zoru-ink focus:outline-none focus:border-zoru-line"
         />
         <datalist id="folder-suggestions">
           {existingFolders.map((f) => (
@@ -620,7 +620,7 @@ function MetadataModal({
           ))}
         </datalist>
 
-        <label className="block text-[11px] font-medium text-zinc-400 mb-1 uppercase tracking-wide">
+        <label className="block text-[11px] font-medium text-zoru-ink-muted mb-1 uppercase tracking-wide">
           Tags (comma-separated)
         </label>
         <input
@@ -628,9 +628,9 @@ function MetadataModal({
           value={tags}
           onChange={(e) => setTags(e.target.value)}
           placeholder="lead-gen, onboarding, beta"
-          className="w-full rounded-lg border border-zinc-700/60 bg-zinc-950 px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500"
+          className="w-full rounded-lg border border-zoru-line/60 bg-zoru-ink px-3 py-2 text-xs text-white placeholder:text-zoru-ink focus:outline-none focus:border-zoru-line"
         />
-        <p className="mt-1 text-[10.5px] text-zinc-500">
+        <p className="mt-1 text-[10.5px] text-zoru-ink">
           Lower-case letters, digits, dashes only — separated by commas.
         </p>
 
@@ -638,7 +638,7 @@ function MetadataModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-zinc-700/60 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800"
+            className="rounded-lg border border-zoru-line/60 px-3 py-1.5 text-xs text-zoru-ink-muted hover:bg-zoru-ink"
           >
             Cancel
           </button>
@@ -646,7 +646,7 @@ function MetadataModal({
             type="button"
             onClick={commit}
             disabled={saving}
-            className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-medium text-zinc-900 hover:bg-amber-400 disabled:opacity-50"
+            className="rounded-lg bg-zoru-ink px-3 py-1.5 text-xs font-medium text-zoru-ink hover:bg-zoru-surface-2 disabled:opacity-50"
           >
             {saving ? 'Saving…' : 'Save'}
           </button>
@@ -668,13 +668,13 @@ function StatCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
-      <div className="flex items-center gap-1.5 text-zinc-500 text-[10.5px] font-medium uppercase tracking-wider mb-2">
+    <div className="rounded-xl border border-zoru-line bg-zoru-ink/50 p-4">
+      <div className="flex items-center gap-1.5 text-zoru-ink text-[10.5px] font-medium uppercase tracking-wider mb-2">
         {icon}
         {label}
       </div>
-      <p className="text-2xl font-semibold text-zinc-100 tabular-nums">
-        {value === null ? <span className="text-zinc-600">—</span> : value}
+      <p className="text-2xl font-semibold text-white tabular-nums">
+        {value === null ? <span className="text-zoru-ink">—</span> : value}
       </p>
     </div>
   );
@@ -696,11 +696,11 @@ function EmptyState({
   if (hasFlows) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center mb-4">
-          <LuSearch className="w-5 h-5 text-zinc-400" />
+        <div className="w-12 h-12 rounded-xl bg-zoru-ink flex items-center justify-center mb-4">
+          <LuSearch className="w-5 h-5 text-zoru-ink-muted" />
         </div>
-        <p className="text-zinc-300 font-medium">No matching flows</p>
-        <p className="text-sm text-zinc-500 mt-1">
+        <p className="text-zoru-ink-muted font-medium">No matching flows</p>
+        <p className="text-sm text-zoru-ink mt-1">
           {query ? `Nothing matched "${query}".` : 'No flows in this filter.'}
         </p>
       </div>
@@ -708,24 +708,24 @@ function EmptyState({
   }
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center mb-4">
-        <LuWorkflow className="w-5 h-5 text-zinc-400" />
+      <div className="w-12 h-12 rounded-xl bg-zoru-ink flex items-center justify-center mb-4">
+        <LuWorkflow className="w-5 h-5 text-zoru-ink-muted" />
       </div>
-      <p className="text-zinc-300 font-medium">No flows yet</p>
-      <p className="text-sm text-zinc-500 mt-1 max-w-sm">
+      <p className="text-zoru-ink-muted font-medium">No flows yet</p>
+      <p className="text-sm text-zoru-ink mt-1 max-w-sm">
         Create a flow from scratch, or start from a battle-tested template.
       </p>
       <div className="flex items-center gap-2 mt-4">
         <button
           onClick={onBrowseTemplates}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-zinc-700 bg-zinc-900 text-sm font-medium text-zinc-200 hover:bg-zinc-800 transition-colors"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-zoru-line bg-zoru-ink text-sm font-medium text-white hover:bg-zoru-ink transition-colors"
         >
           <LuSparkles className="w-4 h-4" />
           Browse templates
         </button>
         <button
           onClick={onNewFlow}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-zinc-100 text-zinc-900 text-sm font-medium hover:bg-white transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-zoru-surface-2 text-zoru-ink text-sm font-medium hover:bg-white transition-colors"
         >
           <LuPlus className="w-4 h-4" />
           New flow
@@ -770,10 +770,10 @@ function FlowCardLite({
       onClick={onOpen}
       onKeyDown={(e) => e.key === 'Enter' && onOpen()}
       className={cn(
-        'group relative flex flex-col rounded-xl border border-zinc-800',
-        'bg-zinc-900/50 overflow-hidden cursor-pointer',
-        'hover:border-zinc-700 hover:bg-zinc-900 transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40',
+        'group relative flex flex-col rounded-xl border border-zoru-line',
+        'bg-zoru-ink/50 overflow-hidden cursor-pointer',
+        'hover:border-zoru-line hover:bg-zoru-ink transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line/40',
       )}
     >
       {/* Top strip — status + menu */}
@@ -782,20 +782,20 @@ function FlowCardLite({
           className={cn(
             'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold',
             isPublished
-              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+              ? 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/30'
               : flow.status === 'ARCHIVED'
-                ? 'bg-zinc-500/10 text-zinc-400 border-zinc-500/30'
-                : 'bg-amber-500/10 text-amber-300 border-amber-500/30',
+                ? 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/30'
+                : 'bg-zoru-ink/10 text-zoru-ink-muted border-zoru-line/30',
           )}
         >
           <LuCircle
             className={cn(
               'h-1.5 w-1.5 fill-current',
               isPublished
-                ? 'text-emerald-400'
+                ? 'text-zoru-ink-muted'
                 : flow.status === 'ARCHIVED'
-                  ? 'text-zinc-400'
-                  : 'text-amber-400',
+                  ? 'text-zoru-ink-muted'
+                  : 'text-zoru-ink-muted',
             )}
           />
           {isPublished ? 'Enabled' : flow.status === 'ARCHIVED' ? 'Disabled' : 'Draft'}
@@ -808,14 +808,14 @@ function FlowCardLite({
               onMenuToggle();
             }}
             aria-label="Flow actions"
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-400 hover:text-zinc-100 p-1 -mr-1 rounded"
+            className="opacity-0 group-hover:opacity-100 transition-opacity text-zoru-ink-muted hover:text-white p-1 -mr-1 rounded"
           >
             <LuEllipsis className="w-4 h-4" />
           </button>
           {menuOpen && (
             <div
               onClick={(e) => e.stopPropagation()}
-              className="absolute right-0 mt-1 z-20 w-40 rounded-lg border border-zinc-700/60 bg-zinc-900 shadow-xl py-1"
+              className="absolute right-0 mt-1 z-20 w-40 rounded-lg border border-zoru-line/60 bg-zoru-ink shadow-xl py-1"
             >
               <MenuItem
                 icon={<LuPencil className="w-3.5 h-3.5" />}
@@ -849,7 +849,7 @@ function FlowCardLite({
                   onEditMetadata();
                 }}
               />
-              <div className="my-1 h-px bg-zinc-800" />
+              <div className="my-1 h-px bg-zoru-ink" />
               <MenuItem
                 icon={<LuTrash2 className="w-3.5 h-3.5" />}
                 label="Delete"
@@ -867,16 +867,16 @@ function FlowCardLite({
       {/* Body */}
       <div className="px-3.5 py-3 flex flex-col gap-2">
         <p
-          className="truncate text-[14px] font-semibold text-zinc-100"
+          className="truncate text-[14px] font-semibold text-white"
           title={flow.name}
         >
           {flow.name}
         </p>
 
-        <div className="flex items-center gap-1.5 text-[11px] text-zinc-500">
+        <div className="flex items-center gap-1.5 text-[11px] text-zoru-ink">
           <LuZap className="w-3 h-3" />
           <span>{flow.groups?.length ?? 0} groups</span>
-          <span className="text-zinc-700">·</span>
+          <span className="text-zoru-ink">·</span>
           <LuPlay className="w-3 h-3" />
           <span>—</span>
         </div>
@@ -892,13 +892,13 @@ function FlowCardLite({
                   e.stopPropagation();
                   onTagClick(tag);
                 }}
-                className="rounded-full border border-zinc-700/60 bg-zinc-800/60 px-1.5 py-0.5 text-[10px] font-medium text-zinc-300 hover:border-amber-400/60 hover:text-amber-300 transition-colors"
+                className="rounded-full border border-zoru-line/60 bg-zoru-ink/60 px-1.5 py-0.5 text-[10px] font-medium text-zoru-ink-muted hover:border-zoru-line/60 hover:text-zoru-ink-muted transition-colors"
               >
                 #{tag}
               </button>
             ))}
             {flow.tags.length > 5 && (
-              <span className="text-[10px] text-zinc-500">
+              <span className="text-[10px] text-zoru-ink">
                 +{flow.tags.length - 5}
               </span>
             )}
@@ -907,15 +907,15 @@ function FlowCardLite({
 
         <div className="flex items-center justify-between mt-1">
           {flow.folderId ? (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-blue-500/10 text-blue-300 border border-blue-500/30">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-zoru-ink/10 text-zoru-ink-muted border border-zoru-line/30">
               📁 {flow.folderId}
             </span>
           ) : (
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-zinc-800/80 text-zinc-400 border border-zinc-700/60">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-zoru-ink/80 text-zoru-ink-muted border border-zoru-line/60">
               Default workspace
             </span>
           )}
-          <span className="text-[10.5px] text-zinc-500" title={format(new Date(flow.updatedAt), 'PPpp')}>
+          <span className="text-[10.5px] text-zoru-ink" title={format(new Date(flow.updatedAt), 'PPpp')}>
             {updatedRel}
           </span>
         </div>
@@ -941,8 +941,8 @@ function MenuItem({
       className={cn(
         'flex w-full items-center gap-2 px-3 py-1.5 text-xs transition-colors',
         danger
-          ? 'text-red-400 hover:bg-red-500/10'
-          : 'text-zinc-300 hover:bg-zinc-800',
+          ? 'text-zoru-ink-muted hover:bg-zoru-ink/10'
+          : 'text-zoru-ink-muted hover:bg-zoru-ink',
       )}
     >
       {icon}

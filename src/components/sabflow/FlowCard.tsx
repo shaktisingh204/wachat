@@ -125,7 +125,7 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
           )}
         >
           <LuCircle
-            className={cn('h-1.5 w-1.5 fill-current', isPublished ? 'text-green-500' : 'text-amber-500')}
+            className={cn('h-1.5 w-1.5 fill-current', isPublished ? 'text-zoru-ink' : 'text-zoru-ink')}
           />
           {isPublished ? 'Published' : 'Draft'}
         </span>

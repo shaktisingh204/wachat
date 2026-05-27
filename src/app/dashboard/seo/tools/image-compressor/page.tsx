@@ -208,7 +208,7 @@ export default function ImageCompressorPage() {
               onChange={(e) => setFiles(Array.from(e.target.files || []))}
             />
             {files.length > 0 && (
-              <div className="text-sm text-muted-foreground mt-2">
+              <div className="text-sm text-zoru-ink-muted mt-2">
                 {files.length} file{files.length > 1 ? 's' : ''} selected.
               </div>
             )}
@@ -218,7 +218,7 @@ export default function ImageCompressorPage() {
             <select
               value={format}
               onChange={(e) => setFormat(e.target.value as any)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-1"
+              className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-sm ring-offset-zoru-surface file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zoru-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-1"
             >
               <option value="image/jpeg">JPEG</option>
               <option value="image/webp">WebP</option>
@@ -257,27 +257,27 @@ export default function ImageCompressorPage() {
                 <div key={idx} className="border rounded-md p-3 space-y-2 flex flex-col">
                   <div className="font-medium text-sm truncate" title={res.file.name}>{res.file.name}</div>
                   {res.error ? (
-                    <div className="text-sm text-destructive">{res.error}</div>
+                    <div className="text-sm text-zoru-ink">{res.error}</div>
                   ) : (
                     <>
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                          <div className="text-muted-foreground">Original</div>
+                          <div className="text-zoru-ink-muted">Original</div>
                           <div className="font-mono">{formatBytes(res.origBytes)}</div>
                         </div>
                         <div>
-                          <div className="text-muted-foreground">Compressed</div>
+                          <div className="text-zoru-ink-muted">Compressed</div>
                           <div className="font-mono">{formatBytes(res.outBytes)}</div>
                         </div>
                       </div>
-                      <div className="flex-1 flex items-center justify-center bg-muted/30 rounded overflow-hidden p-2 min-h-[120px]">
+                      <div className="flex-1 flex items-center justify-center bg-zoru-surface-2/30 rounded overflow-hidden p-2 min-h-[120px]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={res.outUrl} alt={`Compressed ${res.file.name}`} className="max-h-32 object-contain" />
                       </div>
                       <a
                         href={res.outUrl}
                         download={`compressed-${res.file.name.split('.')[0]}.${outExt}`}
-                        className="text-sm underline text-primary mt-2 block text-center"
+                        className="text-sm underline text-zoru-ink mt-2 block text-center"
                       >
                         Download
                       </a>

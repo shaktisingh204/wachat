@@ -204,7 +204,7 @@ export default function WebsiteBuilderDashboard() {
             </ZoruPageDescription>
           </ZoruPageHeading>
         </PageHeader>
-        <div className="p-4 bg-red-50 text-red-600 rounded-md border border-red-200">
+        <div className="p-4 bg-zoru-surface-2 text-zoru-ink rounded-md border border-zoru-line">
           <p className="font-semibold">Error</p>
           <p>{error}</p>
           <Button variant="outline" className="mt-4" onClick={fetchData}>

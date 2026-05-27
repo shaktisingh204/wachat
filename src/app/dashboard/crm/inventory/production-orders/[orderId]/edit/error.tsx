@@ -23,7 +23,7 @@ export default function EditProductionOrderError({
   return (
     <div className="w-full px-6 pt-6 pb-10">
       <EmptyState
-        icon={<AlertTriangle className="h-6 w-6 text-destructive" />}
+        icon={<AlertTriangle className="h-6 w-6 text-zoru-ink" />}
         title="Something went wrong"
         description={
           error?.message?.length && error.message.length < 200

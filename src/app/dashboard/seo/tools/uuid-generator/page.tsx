@@ -27,7 +27,7 @@ export default function UuidGeneratorPage() {
         {list[0] && <Button variant="outline" onClick={() => navigator.clipboard.writeText(list[0])}>Copy latest</Button>}
       </div>
       <Card><ZoruCardContent className="p-4 space-y-1">
-        {list.length === 0 && <div className="text-sm text-muted-foreground">Click to generate.</div>}
+        {list.length === 0 && <div className="text-sm text-zoru-ink-muted">Click to generate.</div>}
         {list.map((u, i) => <div key={i} className="font-mono text-xs border-t last:border-0 first:border-t-0 py-1">{u}</div>)}
       </ZoruCardContent></Card>
     </ToolShell>

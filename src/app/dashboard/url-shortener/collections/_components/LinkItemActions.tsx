@@ -116,7 +116,7 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                         ) : (
                             <div className="space-y-3 max-h-[300px] overflow-y-auto">
                                 {geoData?.map((item) => (
-                                    <div key={item.country} className="flex justify-between items-center p-3 rounded-lg border border-zoru-border bg-zinc-900/50">
+                                    <div key={item.country} className="flex justify-between items-center p-3 rounded-lg border border-zoru-border bg-zoru-ink/50">
                                         <span className="text-sm font-medium">{item.country || 'Unknown'}</span>
                                         <span className="text-sm text-zoru-ink-muted">{item.count} clicks</span>
                                     </div>
@@ -156,7 +156,7 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                                         onChange={(e) => handleUpdateTarget(index, 'weight', parseInt(e.target.value) || 0)} 
                                     />
                                 </div>
-                                <Button variant="ghost" size="icon" className="mb-[2px] text-red-400 hover:text-red-300 hover:bg-red-950" onClick={() => handleRemoveTarget(index)}>
+                                <Button variant="ghost" size="icon" className="mb-[2px] text-zoru-ink-muted hover:text-zoru-ink-muted hover:bg-zoru-ink" onClick={() => handleRemoveTarget(index)}>
                                     <Trash className="h-4 w-4" />
                                 </Button>
                             </div>

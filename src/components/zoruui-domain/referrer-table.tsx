@@ -17,7 +17,7 @@ function ShareBar({ pct }: { pct: number }) {
   return (
     <div className="h-1 w-full rounded-full bg-zoru-surface-2 overflow-hidden mt-0.5">
       <div
-        className="h-full rounded-full bg-[#6366f1]/60"
+        className="h-full rounded-full bg-zoru-ink/60"
         style={{ width: `${Math.min(100, pct)}%` }}
       />
     </div>

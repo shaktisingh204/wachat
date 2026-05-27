@@ -72,6 +72,7 @@ fn ensure_some_timer(
 
 /// Render an `AppliesTo` block into a BSON sub-document for storage.
 /// `None` / empty fields are omitted so the on-disk shape stays clean.
+#[allow(dead_code)]
 fn applies_to_to_bson(a: &AppliesTo) -> Document {
     let mut out = doc! {};
 

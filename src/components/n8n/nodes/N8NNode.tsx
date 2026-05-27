@@ -84,9 +84,9 @@ export function N8NNode({
         'absolute select-none rounded-xl border-2 bg-[var(--gray-1)] shadow-md',
         'transition-[border-color,box-shadow] duration-100',
         isSelected
-          ? 'border-[#f76808] shadow-[0_0_0_3px_rgba(247,104,8,0.18)]'
+          ? 'border-zoru-line shadow-[0_0_0_3px_rgba(247,104,8,0.18)]'
           : isTarget
-          ? 'border-blue-400 shadow-[0_0_0_3px_rgba(96,165,250,0.25)]'
+          ? 'border-zoru-line shadow-[0_0_0_3px_rgba(96,165,250,0.25)]'
           : 'border-[var(--gray-5)] hover:border-[var(--gray-7)]',
         node.disabled && 'opacity-50',
       )}
@@ -130,8 +130,8 @@ export function N8NNode({
               className={cn(
                 'h-3 w-3 rounded-full border-2 border-[var(--gray-1)] transition-colors',
                 isTarget
-                  ? 'bg-blue-400 scale-125'
-                  : 'bg-[var(--gray-8)] hover:bg-blue-400',
+                  ? 'bg-zoru-surface-2 scale-125'
+                  : 'bg-[var(--gray-8)] hover:bg-zoru-surface-2',
               )}
               onMouseUp={(e) => {
                 e.stopPropagation();
@@ -156,7 +156,7 @@ export function N8NNode({
               data-port="output"
               type="button"
               title={`Output ${i}`}
-              className="h-3 w-3 rounded-full border-2 border-[var(--gray-1)] bg-[var(--gray-8)] hover:bg-[#f76808] transition-colors"
+              className="h-3 w-3 rounded-full border-2 border-[var(--gray-1)] bg-[var(--gray-8)] hover:bg-zoru-ink transition-colors"
               onMouseDown={(e) => {
                 e.stopPropagation();
                 onConnectionStart(node.name, i);
@@ -175,7 +175,7 @@ export function N8NNode({
 
       {/* ── Notes indicator ─────────────────────────────────────────────────── */}
       {node.notes && (
-        <div className="absolute -bottom-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 text-[8px] font-bold text-white">
+        <div className="absolute -bottom-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-zoru-surface-2 text-[8px] font-bold text-white">
           N
         </div>
       )}

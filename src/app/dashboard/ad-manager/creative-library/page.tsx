@@ -113,7 +113,7 @@ export default function CreativeLibraryPage() {
                 description="All images and videos uploaded to this ad account."
             />
 
-            <div className="inline-flex items-center gap-1 rounded-md border bg-muted/30 p-1">
+            <div className="inline-flex items-center gap-1 rounded-md border bg-zoru-surface-2/30 p-1">
                 <Button
                     variant={activeTab === 'images' ? 'default' : 'ghost'}
                     size="sm"
@@ -158,7 +158,7 @@ export default function CreativeLibraryPage() {
                             {images.map((img) => (
                                 <Card key={img.hash} className="overflow-hidden group relative">
                                     <div
-                                        className="aspect-square bg-muted cursor-pointer relative"
+                                        className="aspect-square bg-zoru-surface-2 cursor-pointer relative"
                                         onClick={() => window.open(img.url, '_blank')}
                                         title="Click to preview"
                                     >
@@ -172,14 +172,14 @@ export default function CreativeLibraryPage() {
                                         <div className="flex items-center justify-between gap-1">
                                             <div className="min-w-0">
                                                 <div className="text-xs font-medium truncate">{img.name}</div>
-                                                <div className="text-[10px] text-muted-foreground">
+                                                <div className="text-[10px] text-zoru-ink-muted">
                                                     {img.width}×{img.height}
                                                 </div>
                                             </div>
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-6 w-6 shrink-0 text-muted-foreground hover:text-red-600"
+                                                className="h-6 w-6 shrink-0 text-zoru-ink-muted hover:text-zoru-ink"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setImages((prev) => prev.filter((i) => i.hash !== img.hash));
@@ -225,7 +225,7 @@ export default function CreativeLibraryPage() {
                             {videos.map((v) => (
                                 <Card key={v.id} className="overflow-hidden group relative">
                                     <div
-                                        className="aspect-video bg-muted relative cursor-pointer"
+                                        className="aspect-video bg-zoru-surface-2 relative cursor-pointer"
                                         onClick={() => v.source ? window.open(v.source, '_blank') : v.picture && window.open(v.picture, '_blank')}
                                         title="Click to preview"
                                     >
@@ -241,7 +241,7 @@ export default function CreativeLibraryPage() {
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-6 w-6 shrink-0 text-muted-foreground hover:text-red-600"
+                                                className="h-6 w-6 shrink-0 text-zoru-ink-muted hover:text-zoru-ink"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setVideos((prev) => prev.filter((vid) => vid.id !== v.id));

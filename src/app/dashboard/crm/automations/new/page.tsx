@@ -41,8 +41,8 @@ export default async function NewAutomationPage({
                     <Link href="?template=blank" className="block h-full">
                         <Card className="h-full hover:border-primary/50 transition-colors cursor-pointer group">
                             <ZoruCardHeader>
-                                <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
-                                    <Plus className="h-5 w-5 text-gray-600 group-hover:text-primary" />
+                                <div className="h-10 w-10 rounded-lg bg-zoru-surface-2 flex items-center justify-center mb-4 group-hover:bg-zoru-ink/10 transition-colors">
+                                    <Plus className="h-5 w-5 text-zoru-ink group-hover:text-zoru-ink" />
                                 </div>
                                 <ZoruCardTitle>Blank Automation</ZoruCardTitle>
                                 <ZoruCardDescription>Start from scratch and build your own custom automation flow.</ZoruCardDescription>
@@ -53,8 +53,8 @@ export default async function NewAutomationPage({
                     <Link href="?template=tpl-new-lead-welcome" className="block h-full">
                         <Card className="h-full hover:border-primary/50 transition-colors cursor-pointer group">
                             <ZoruCardHeader>
-                                <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center mb-4 group-hover:bg-blue-100 transition-colors">
-                                    <Mail className="h-5 w-5 text-blue-600" />
+                                <div className="h-10 w-10 rounded-lg bg-zoru-surface-2 flex items-center justify-center mb-4 group-hover:bg-zoru-surface-2 transition-colors">
+                                    <Mail className="h-5 w-5 text-zoru-ink" />
                                 </div>
                                 <ZoruCardTitle>New Lead Welcome Sequence</ZoruCardTitle>
                                 <ZoruCardDescription>Automatically sends a welcome email and WhatsApp message when a new lead is tagged.</ZoruCardDescription>
@@ -65,8 +65,8 @@ export default async function NewAutomationPage({
                     <Link href="?template=tpl-abandoned-cart" className="block h-full">
                         <Card className="h-full hover:border-primary/50 transition-colors cursor-pointer group">
                             <ZoruCardHeader>
-                                <div className="h-10 w-10 rounded-lg bg-orange-50 flex items-center justify-center mb-4 group-hover:bg-orange-100 transition-colors">
-                                    <ShoppingCart className="h-5 w-5 text-orange-600" />
+                                <div className="h-10 w-10 rounded-lg bg-zoru-surface-2 flex items-center justify-center mb-4 group-hover:bg-zoru-surface-2 transition-colors">
+                                    <ShoppingCart className="h-5 w-5 text-zoru-ink" />
                                 </div>
                                 <ZoruCardTitle>Abandoned Cart Recovery</ZoruCardTitle>
                                 <ZoruCardDescription>Sends a reminder email to customers who left items in their cart.</ZoruCardDescription>

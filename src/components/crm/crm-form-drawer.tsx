@@ -55,7 +55,7 @@ export function CrmFormDrawer({
         {/* Drawer Header */}
         <ZoruSheetHeader className="px-6 py-4 border-b border-zoru-line bg-zoru-surface-2/40">
           <ZoruSheetTitle className="text-lg font-semibold text-zoru-ink flex items-center gap-2">
-            <FilePlus2 className="h-4 w-4 text-primary" /> {title}
+            <FilePlus2 className="h-4 w-4 text-zoru-ink" /> {title}
           </ZoruSheetTitle>
           {description && (
             <ZoruSheetDescription className="text-[13px] text-zoru-ink-muted mt-0.5">
@@ -81,7 +81,7 @@ export function CrmFormDrawer({
                   onClick={() => setActiveSectionId(sec.id)}
                   className={`w-full flex items-center justify-between text-left px-3 py-2 rounded-md text-[12.5px] transition-all ${
                     isActive
-                      ? 'bg-primary text-white font-medium shadow-[var(--zoru-shadow-sm)]'
+                      ? 'bg-zoru-ink text-white font-medium shadow-[var(--zoru-shadow-sm)]'
                       : 'text-zoru-ink-muted hover:bg-zoru-surface-2/70 hover:text-zoru-ink'
                   }`}
                 >

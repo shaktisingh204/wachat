@@ -17,17 +17,17 @@ export function ProductMessageContent({ catalogId, productRetailerId, isReply = 
       <Card className="shadow-none border-0 bg-transparent">
         <ZoruCardHeader className="p-2">
             <div className="flex items-center gap-2">
-                 <ShoppingBag className="h-5 w-5 text-primary"/>
+                 <ShoppingBag className="h-5 w-5 text-zoru-ink"/>
                 <ZoruCardTitle className="text-base">Product Inquiry</ZoruCardTitle>
             </div>
         </ZoruCardHeader>
         <ZoruCardContent className="p-2 space-y-1 text-xs">
           <p><span className="font-semibold">Product SKU:</span></p>
-          <p className="font-mono text-muted-foreground bg-background rounded p-1">{productRetailerId}</p>
+          <p className="font-mono text-zoru-ink-muted bg-zoru-surface rounded p-1">{productRetailerId}</p>
           {!isReply && (
             <>
               <p className="pt-2"><span className="font-semibold">From Catalog:</span></p>
-              <p className="font-mono text-muted-foreground bg-background rounded p-1">{catalogId}</p>
+              <p className="font-mono text-zoru-ink-muted bg-zoru-surface rounded p-1">{catalogId}</p>
             </>
           )}
         </ZoruCardContent>

@@ -113,7 +113,7 @@ export const SabInput = React.forwardRef<HTMLInputElement, SabInputProps>(
           ref={ref}
           disabled={disabled}
           className={cn(
-            'peer flex-1 bg-transparent outline-none placeholder:text-[hsl(var(--sab-fg-subtle))] disabled:cursor-not-allowed',
+            'peer flex-1 bg-transparent outline-none placeholder:text-zoru-ink disabled:cursor-not-allowed',
             s.text,
             className,
           )}

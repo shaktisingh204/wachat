@@ -1128,7 +1128,7 @@ export default function TelegramContactsPage() {
                                                                 href={`https://t.me/${row.username}`}
                                                                 target="_blank"
                                                                 rel="noreferrer"
-                                                                className="text-[13px] text-[#229ED9] hover:underline"
+                                                                className="text-[13px] text-zoru-ink hover:underline"
                                                             >
                                                                 @{row.username}
                                                             </a>

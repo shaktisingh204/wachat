@@ -49,15 +49,15 @@ export default async function RecognitionDetailPage({
             <Award className="h-5 w-5 text-zoru-warning-ink" />
             <span className="text-sm font-medium">Celebration card</span>
           </div>
-          <div className="mt-3 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 p-4 text-center">
-            <p className="text-xs uppercase tracking-wide text-amber-700">
+          <div className="mt-3 rounded-lg bg-gradient-to-br from-zoru-surface-2 to-zoru-surface-2 p-4 text-center">
+            <p className="text-xs uppercase tracking-wide text-zoru-ink">
               {row.type}
             </p>
-            <p className="mt-1 text-lg font-semibold text-amber-900">
+            <p className="mt-1 text-lg font-semibold text-zoru-ink">
               {row.points ? `${row.points} pts` : '—'}
             </p>
             {row.monetaryReward != null ? (
-              <p className="mt-0.5 text-xs text-amber-800">
+              <p className="mt-0.5 text-xs text-zoru-ink">
                 {fmtINR(row.monetaryReward, row.currency)}
               </p>
             ) : null}

@@ -158,7 +158,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                         <ZoruCardContent>
                             <dl className="grid grid-cols-1 gap-y-2 text-sm">
                                 <div className="flex items-center justify-between">
-                                    <dt className="text-xs text-zinc-500">
+                                    <dt className="text-xs text-zoru-ink">
                                         Line items
                                     </dt>
                                     <dd className="font-mono">
@@ -166,13 +166,13 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                     </dd>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <dt className="text-xs text-zinc-500">
+                                    <dt className="text-xs text-zoru-ink">
                                         Total quantity
                                     </dt>
                                     <dd className="font-mono">{totalQty}</dd>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <dt className="text-xs text-zinc-500">
+                                    <dt className="text-xs text-zoru-ink">
                                         Attachments
                                     </dt>
                                     <dd className="font-mono">
@@ -180,11 +180,11 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                                     </dd>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <dt className="text-xs text-zinc-500">Created</dt>
+                                    <dt className="text-xs text-zoru-ink">Created</dt>
                                     <dd>{fmtDate(transfer.createdAt)}</dd>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <dt className="text-xs text-zinc-500">Updated</dt>
+                                    <dt className="text-xs text-zoru-ink">Updated</dt>
                                     <dd>{fmtDate(transfer.updatedAt)}</dd>
                                 </div>
                             </dl>
@@ -209,19 +209,19 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                             <ZoruCardContent>
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
                         <div>
-                            <dt className="text-xs text-zinc-500">Transfer #</dt>
-                            <dd className="font-mono text-zinc-900 dark:text-zinc-100">
+                            <dt className="text-xs text-zoru-ink">Transfer #</dt>
+                            <dd className="font-mono text-zoru-ink dark:text-white">
                                 {number}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zinc-500">Date</dt>
-                            <dd className="text-zinc-900 dark:text-zinc-100">
+                            <dt className="text-xs text-zoru-ink">Date</dt>
+                            <dd className="text-zoru-ink dark:text-white">
                                 {fmtDate(transfer.transferDate)}
                             </dd>
                         </div>
                         <div>
-                            <dt className="text-xs text-zinc-500">Status</dt>
+                            <dt className="text-xs text-zoru-ink">Status</dt>
                             <dd>
                                 <Badge
                                     variant={
@@ -311,7 +311,7 @@ export default async function StockTransferDetailPage({ params }: PageProps) {
                         <ZoruCardTitle>Notes</ZoruCardTitle>
                     </ZoruCardHeader>
                     <ZoruCardContent>
-                        <p className="whitespace-pre-wrap text-sm text-zinc-900 dark:text-zinc-100">
+                        <p className="whitespace-pre-wrap text-sm text-zoru-ink dark:text-white">
                             {transfer.notes}
                         </p>
                     </ZoruCardContent>

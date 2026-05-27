@@ -80,31 +80,31 @@ const MOCK_TESTIMONIALS = [
 
 function TestimonialSection() {
     return (
-        <section className="py-24 bg-muted/30">
+        <section className="py-24 bg-zoru-surface-2/30">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex flex-col items-center justify-center space-y-4 text-center">
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Client Testimonials</h2>
-                    <p className="max-w-[700px] text-muted-foreground md:text-xl/relaxed">
+                    <p className="max-w-[700px] text-zoru-ink-muted md:text-xl/relaxed">
                         Don't just take our word for it. Here's what our clients have to say about our work.
                     </p>
                 </div>
                 <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3 lg:gap-8 mt-12">
                     {MOCK_TESTIMONIALS.map((t) => (
-                        <Card key={t.id} className="bg-background border-none shadow-sm">
+                        <Card key={t.id} className="bg-zoru-surface border-none shadow-sm">
                             <CardContent className="p-6">
                                 <div className="flex items-center space-x-1 mb-4">
                                     {Array.from({ length: 5 }).map((_, i) => (
-                                        <Star key={i} className={`w-4 h-4 ${i < t.rating ? 'fill-primary text-primary' : 'text-muted'}`} />
+                                        <Star key={i} className={`w-4 h-4 ${i < t.rating ? 'fill-primary text-zoru-ink' : 'text-muted'}`} />
                                     ))}
                                 </div>
-                                <p className="text-muted-foreground mb-6 line-clamp-4">"{t.content}"</p>
+                                <p className="text-zoru-ink-muted mb-6 line-clamp-4">"{t.content}"</p>
                                 <div className="flex items-center space-x-4">
                                     <Avatar>
                                         <AvatarFallback>{t.avatar}</AvatarFallback>
                                     </Avatar>
                                     <div>
                                         <p className="text-sm font-semibold">{t.client}</p>
-                                        <p className="text-xs text-muted-foreground">{t.company}</p>
+                                        <p className="text-xs text-zoru-ink-muted">{t.company}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -144,8 +144,8 @@ async function WebsiteHomePageContent(props: { params: Promise<{ slug: string }>
                         isEditable={false}
                     />
                 ) : (
-                    <div className="text-center py-24 text-muted-foreground">
-                        <LayoutGrid className="mx-auto h-12 w-12 text-muted-foreground/50"/>
+                    <div className="text-center py-24 text-zoru-ink-muted">
+                        <LayoutGrid className="mx-auto h-12 w-12 text-zoru-ink-muted/50"/>
                         <h1 className="mt-4 text-2xl font-semibold">{site.name}</h1>
                         <p className="mt-2 text-sm">This site is under construction. Come back soon!</p>
                     </div>

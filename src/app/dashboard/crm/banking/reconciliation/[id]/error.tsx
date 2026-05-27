@@ -19,7 +19,7 @@ export default function ReconciliationDetailError({
   return (
     <div className="flex h-full min-h-[500px] w-full items-center justify-center p-6">
       <EmptyState
-        icon={<AlertTriangle className="text-destructive h-8 w-8" />}
+        icon={<AlertTriangle className="text-zoru-ink h-8 w-8" />}
         title="Unable to load Reconciliation"
         description={
           error?.message?.length && error.message.length < 200

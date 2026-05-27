@@ -113,7 +113,7 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
 
                 <div className="flex gap-2 my-2">
                     <div className="relative flex-1">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
                         <Input
                             placeholder="Search products..."
                             className="pl-8"
@@ -129,11 +129,11 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
 
                 <div className="flex-1 overflow-hidden min-h-[300px] border rounded-md relative">
                     {loading ? (
-                        <div className="absolute inset-0 flex items-center justify-center bg-background/50 z-10">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-zoru-surface/50 z-10">
+                            <Loader2 className="h-8 w-8 animate-spin text-zoru-ink" />
                         </div>
                     ) : products.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                        <div className="flex flex-col items-center justify-center h-full text-zoru-ink-muted">
                             <ShoppingBag className="h-10 w-10 mb-2 opacity-20" />
                             <p>No products found.</p>
                         </div>
@@ -146,16 +146,16 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
                                         <div
                                             key={product.id}
                                             className={`
-                                                flex items-start gap-3 p-2 rounded-lg border cursor-pointer transition-all hover:bg-accent
-                                                ${isSelected ? 'border-primary ring-1 ring-primary bg-primary/5' : 'border-muted'}
+                                                flex items-start gap-3 p-2 rounded-lg border cursor-pointer transition-all hover:bg-zoru-surface-2
+                                                ${isSelected ? 'border-primary ring-1 ring-primary bg-zoru-ink/5' : 'border-muted'}
                                             `}
                                             onClick={() => toggleSelection(product.retailer_id)}
                                         >
-                                            <div className="h-12 w-12 rounded bg-muted overflow-hidden flex-shrink-0">
+                                            <div className="h-12 w-12 rounded bg-zoru-surface-2 overflow-hidden flex-shrink-0">
                                                 {product.image_url ? (
                                                     <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
                                                 ) : (
-                                                    <div className="h-full w-full flex items-center justify-center bg-muted text-muted-foreground text-xs">IMG</div>
+                                                    <div className="h-full w-full flex items-center justify-center bg-zoru-surface-2 text-zoru-ink-muted text-xs">IMG</div>
                                                 )}
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -169,7 +169,7 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
                                                     </span>
                                                 </div>
                                             </div>
-                                            {isSelected && <Check className="h-4 w-4 text-primary shrink-0 mt-1" />}
+                                            {isSelected && <Check className="h-4 w-4 text-zoru-ink shrink-0 mt-1" />}
                                         </div>
                                     );
                                 })}
@@ -179,7 +179,7 @@ export function ProductPicker({ projectId, catalogId, selectedIds, onSelectionCh
                 </div>
 
                 <ZoruDialogFooter className="flex justify-between sm:justify-between items-center w-full">
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-zoru-ink-muted">
                         {localSelected.size} selected
                     </div>
                     <div className="flex gap-2">

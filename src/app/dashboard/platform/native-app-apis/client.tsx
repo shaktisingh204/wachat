@@ -83,7 +83,7 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
                 <ZoruTableCell className="text-sm text-zoru-ink-light">{fmtDate(item.createdAt)}</ZoruTableCell>
                 <ZoruTableCell className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} disabled={isPending}>
-                    <Trash2 className="w-4 h-4 text-red-500" />
+                    <Trash2 className="w-4 h-4 text-zoru-ink" />
                   </Button>
                 </ZoruTableCell>
               </ZoruTableRow>
@@ -104,9 +104,9 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
           </ZoruDialogHeader>
           <div className="grid gap-4 py-4">
             {newKey ? (
-              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                <p className="text-sm text-green-800 mb-2 font-medium">Please copy your API key now. It will not be shown again.</p>
-                <code className="block p-3 bg-white border border-green-200 rounded text-green-900 font-mono break-all">
+              <div className="bg-zoru-surface-2 p-4 rounded-lg border border-zoru-line">
+                <p className="text-sm text-zoru-ink mb-2 font-medium">Please copy your API key now. It will not be shown again.</p>
+                <code className="block p-3 bg-white border border-zoru-line rounded text-zoru-ink font-mono break-all">
                   {newKey}
                 </code>
               </div>

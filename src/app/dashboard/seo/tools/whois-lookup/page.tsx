@@ -30,11 +30,11 @@ export default function WhoisLookupPage() {
         <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
         <Button onClick={run} disabled={loading}>{loading ? 'Looking up…' : 'Lookup'}</Button>
       </div>
-      {error && <Card className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></Card>}
+      {error && <Card className="border-zoru-line"><ZoruCardContent className="p-4 text-zoru-ink text-sm">{error}</ZoruCardContent></Card>}
       {data && (
         <>
           <Card><ZoruCardContent className="p-4">
-            <div className="text-xs text-muted-foreground mb-2">Server: {data.server}</div>
+            <div className="text-xs text-zoru-ink-muted mb-2">Server: {data.server}</div>
             <table className="w-full text-xs">
               <tbody>
                 {Object.entries(data.parsed || {}).map(([k, v]) => (
@@ -44,7 +44,7 @@ export default function WhoisLookupPage() {
             </table>
           </ZoruCardContent></Card>
           <Button variant="outline" onClick={() => setShowRaw((s) => !s)}>{showRaw ? 'Hide' : 'Show'} raw WHOIS</Button>
-          {showRaw && <pre className="text-xs bg-muted p-3 rounded overflow-auto max-h-96 whitespace-pre-wrap">{data.raw}</pre>}
+          {showRaw && <pre className="text-xs bg-zoru-surface-2 p-3 rounded overflow-auto max-h-96 whitespace-pre-wrap">{data.raw}</pre>}
         </>
       )}
     </ToolShell>

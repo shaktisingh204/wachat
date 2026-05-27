@@ -178,10 +178,10 @@ export default async function LateReportPage(props: PageProps) {
 
           <Card className="p-6">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-[16px] font-semibold text-foreground">
+              <h2 className="text-[16px] font-semibold text-zoru-ink">
                 Late items by month — stacked by kind
               </h2>
-              <span className="text-[12px] text-muted-foreground">
+              <span className="text-[12px] text-zoru-ink-muted">
                 {totals.kindCount} kind{totals.kindCount === 1 ? '' : 's'}
               </span>
             </div>
@@ -189,26 +189,26 @@ export default async function LateReportPage(props: PageProps) {
           </Card>
 
           <Card className="p-0">
-            <div className="overflow-x-auto rounded-lg border border-border">
+            <div className="overflow-x-auto rounded-lg border border-zoru-line">
               <Table>
                 <ZoruTableHeader>
-                  <ZoruTableRow className="border-border hover:bg-transparent">
-                    <ZoruTableHead className="text-muted-foreground">Kind</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground">Title</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground">Project</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground">Owner</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-muted-foreground">Due</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-muted-foreground">Late</ZoruTableHead>
-                    <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-                    <ZoruTableHead className="text-right text-muted-foreground">Action</ZoruTableHead>
+                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableHead className="text-zoru-ink-muted">Kind</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Project</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Owner</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-zoru-ink-muted">Due</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-zoru-ink-muted">Late</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-zoru-ink-muted">Action</ZoruTableHead>
                   </ZoruTableRow>
                 </ZoruTableHeader>
                 <ZoruTableBody>
                   {pageRows.length === 0 ? (
-                    <ZoruTableRow className="border-border">
+                    <ZoruTableRow className="border-zoru-line">
                       <ZoruTableCell
                         colSpan={8}
-                        className="h-20 text-center text-[13px] text-muted-foreground"
+                        className="h-20 text-center text-[13px] text-zoru-ink-muted"
                       >
                         No late items in this range.
                       </ZoruTableCell>
@@ -217,7 +217,7 @@ export default async function LateReportPage(props: PageProps) {
                     pageRows.map((r) => (
                       <ZoruTableRow
                         key={`${r.kind}-${r._id}`}
-                        className="border-border"
+                        className="border-zoru-line"
                       >
                         <ZoruTableCell>
                           <Badge variant={kindVariant(r.kind)}>
@@ -230,32 +230,32 @@ export default async function LateReportPage(props: PageProps) {
                             label={r.title}
                           />
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-foreground">
+                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                           {r.projectId ? (
                             <EntityRowLink
                               href={`/dashboard/crm/projects/${r.projectId}`}
                               label={r.projectName}
                             />
                           ) : (
-                            <span className="text-muted-foreground">—</span>
+                            <span className="text-zoru-ink-muted">—</span>
                           )}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-foreground">
+                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                           {r.ownerName}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[13px] text-destructive">
+                        <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                           {r.dueDate ? r.dueDate.slice(0, 10) : '—'}
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[13px] font-medium text-destructive">
+                        <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
                           {r.lateDays}d
                         </ZoruTableCell>
-                        <ZoruTableCell className="text-[13px] text-foreground">
+                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                           {r.status}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
                           <a
                             href={kindHref(r.kind, r._id)}
-                            className="text-[13px] text-primary hover:underline font-medium"
+                            className="text-[13px] text-zoru-ink hover:underline font-medium"
                           >
                             Resolve
                           </a>

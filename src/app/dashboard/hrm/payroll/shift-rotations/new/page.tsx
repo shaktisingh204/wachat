@@ -27,7 +27,7 @@ async function RotationFormWrapper() {
         return <RotationForm shifts={shiftsRes.items ?? []} />;
     } catch (error: any) {
         return (
-            <div className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-md border border-destructive/20 bg-destructive/10 text-destructive">
+            <div className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-md border border-destructive/20 bg-zoru-ink/10 text-zoru-ink">
                 <AlertCircle className="h-6 w-6" />
                 <p className="text-sm font-medium">
                     Failed to load shifts. {error?.message}
@@ -47,7 +47,7 @@ export default async function NewShiftRotationPage() {
             subtitle="Build a repeating shift pattern for an employee, department or team."
         >
             <Suspense fallback={
-                <div className="space-y-4 rounded-[var(--zoru-radius)] border bg-card p-6">
+                <div className="space-y-4 rounded-[var(--zoru-radius)] border bg-zoru-surface p-6">
                     <Skeleton className="h-10 w-full max-w-sm" />
                     <Skeleton className="h-20 w-full" />
                     <Skeleton className="h-64 w-full" />

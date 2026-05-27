@@ -96,14 +96,14 @@ export default async function BankTransactionDetailPage({
             {/* Summary */}
             <Card className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <span className="text-[14px] font-medium text-foreground">Overview</span>
+                    <span className="text-[14px] font-medium text-zoru-ink">Overview</span>
                     <StatusPill label={tx.status} tone={tone} />
                     <span
                         className={[
                             'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11.5px] font-medium',
                             isCredit
-                                ? 'bg-emerald-500/10 text-emerald-500'
-                                : 'bg-rose-500/10 text-rose-500',
+                                ? 'bg-zoru-ink/10 text-zoru-ink'
+                                : 'bg-zoru-ink/10 text-zoru-ink',
                         ].join(' ')}
                     >
                         {isCredit ? (
@@ -116,8 +116,8 @@ export default async function BankTransactionDetailPage({
                 </div>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-muted-foreground">Account</div>
-                        <div className="text-foreground">
+                        <div className="text-zoru-ink-muted">Account</div>
+                        <div className="text-zoru-ink">
                             <Link
                                 href={`/dashboard/crm/banking/all/${tx.accountId}`}
                                 className="hover:underline"
@@ -127,40 +127,40 @@ export default async function BankTransactionDetailPage({
                         </div>
                     </div>
                     <div>
-                        <div className="text-muted-foreground">Date</div>
-                        <div className="text-foreground">{fmtDate(tx.transactionDate)}</div>
+                        <div className="text-zoru-ink-muted">Date</div>
+                        <div className="text-zoru-ink">{fmtDate(tx.transactionDate)}</div>
                     </div>
                     <div>
-                        <div className="text-muted-foreground">Amount</div>
+                        <div className="text-zoru-ink-muted">Amount</div>
                         <div
                             className={[
                                 'text-[18px] font-semibold',
-                                isCredit ? 'text-emerald-500' : 'text-rose-500',
+                                isCredit ? 'text-zoru-ink' : 'text-zoru-ink',
                             ].join(' ')}
                         >
                             {isCredit ? '+' : '−'} {fmtMoney(tx.amount)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-muted-foreground">Balance after</div>
-                        <div className="font-mono text-foreground">
+                        <div className="text-zoru-ink-muted">Balance after</div>
+                        <div className="font-mono text-zoru-ink">
                             {fmtMoney(tx.balanceAfter)}
                         </div>
                     </div>
                     <div>
-                        <div className="text-muted-foreground">Reference</div>
-                        <div className="font-mono text-foreground">
+                        <div className="text-zoru-ink-muted">Reference</div>
+                        <div className="font-mono text-zoru-ink">
                             {tx.referenceNumber || '—'}
                         </div>
                     </div>
                     <div>
-                        <div className="text-muted-foreground">Category</div>
-                        <div className="capitalize text-foreground">{tx.category || '—'}</div>
+                        <div className="text-zoru-ink-muted">Category</div>
+                        <div className="capitalize text-zoru-ink">{tx.category || '—'}</div>
                     </div>
                     {tx.description ? (
                         <div className="sm:col-span-2">
-                            <div className="text-muted-foreground">Description</div>
-                            <div className="whitespace-pre-wrap text-foreground">
+                            <div className="text-zoru-ink-muted">Description</div>
+                            <div className="whitespace-pre-wrap text-zoru-ink">
                                 {tx.description}
                             </div>
                         </div>
@@ -171,13 +171,13 @@ export default async function BankTransactionDetailPage({
             {/* Linked voucher */}
             {tx.voucherEntryId ? (
                 <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
-                    <div className="flex items-center gap-2 text-[13px] text-foreground">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
+                        <FileText className="h-4 w-4 text-zoru-ink-muted" />
                         Linked voucher entry
                     </div>
                     <Link
                         href={`/dashboard/crm/accounting/vouchers/${tx.voucherEntryId}`}
-                        className="font-mono text-[12.5px] text-foreground underline-offset-2 hover:underline"
+                        className="font-mono text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
                     >
                         {tx.voucherEntryId}
                     </Link>
@@ -187,15 +187,15 @@ export default async function BankTransactionDetailPage({
             {/* Source statement file (SabFile) */}
             {tx.sourceFileUrl ? (
                 <Card className="flex flex-wrap items-center justify-between gap-2 p-4">
-                    <div className="flex items-center gap-2 text-[13px] text-foreground">
-                        <Paperclip className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2 text-[13px] text-zoru-ink">
+                        <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
                         Source statement
                     </div>
                     <a
                         href={tx.sourceFileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="max-w-[420px] truncate text-[12.5px] text-foreground underline-offset-2 hover:underline"
+                        className="max-w-[420px] truncate text-[12.5px] text-zoru-ink underline-offset-2 hover:underline"
                     >
                         {tx.sourceFileUrl}
                     </a>
@@ -204,11 +204,11 @@ export default async function BankTransactionDetailPage({
 
             {/* Status actions */}
             <Card className="p-4">
-                <div className="mb-2 flex items-center gap-2 text-[13px] text-foreground">
-                    <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                <div className="mb-2 flex items-center gap-2 text-[13px] text-zoru-ink">
+                    <CheckCircle2 className="h-4 w-4 text-zoru-ink-muted" />
                     Status actions
                 </div>
-                <p className="mb-3 text-[12px] text-muted-foreground">
+                <p className="mb-3 text-[12px] text-zoru-ink-muted">
                     Bank transactions are immutable once posted. You can only move them
                     between pending → cleared → reconciled, or archive a row.
                 </p>
@@ -216,7 +216,7 @@ export default async function BankTransactionDetailPage({
             </Card>
 
             {/* Audit timestamps */}
-            <Card className="p-4 text-[12px] text-muted-foreground">
+            <Card className="p-4 text-[12px] text-zoru-ink-muted">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     <span>Created {fmtDate(tx.createdAt)}</span>
                     <span>Updated {fmtDate(tx.updatedAt)}</span>

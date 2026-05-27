@@ -216,7 +216,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
       header: "Error",
       render: (r) =>
         r.errorMessage ? (
-          <span className="text-xs text-rose-600" title={r.errorMessage}>
+          <span className="text-xs text-zoru-ink" title={r.errorMessage}>
             {r.errorMessage.slice(0, 32)}
           </span>
         ) : (
@@ -434,7 +434,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
       </Card>
 
       {shareUrl && (
-        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm">
+        <div className="rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-sm">
           Public share link minted —{" "}
           <code className="rounded bg-white px-1 text-xs">{shareUrl}</code>{" "}
           (TODO: <code>/sabsms/share/[token]</code> read-side route)
@@ -1055,7 +1055,7 @@ export function CampaignDetailClient({ bundle }: CampaignDetailClientProps) {
               )}
             </dl>
             {drawerRow.errorMessage && (
-              <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800">
+              <div className="rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-xs text-zoru-ink">
                 {drawerRow.errorMessage}
               </div>
             )}

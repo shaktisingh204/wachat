@@ -26,7 +26,7 @@ export function SabpublishSyncHistoryTab({
     <div className="overflow-x-auto rounded-md border">
       <Table>
         <thead>
-          <tr className="text-left text-xs uppercase text-muted-foreground">
+          <tr className="text-left text-xs uppercase text-zoru-ink-muted">
             <th className="px-3 py-2">Provider</th>
             <th className="px-3 py-2">Kind</th>
             <th className="px-3 py-2">Status</th>
@@ -53,7 +53,7 @@ export function SabpublishSyncHistoryTab({
                   : '—'}
               </td>
               <td className="px-3 py-2">{j.changedFieldsCount}</td>
-              <td className="px-3 py-2 text-destructive">
+              <td className="px-3 py-2 text-zoru-ink">
                 {j.errorMessage ?? ''}
               </td>
             </tr>

@@ -93,10 +93,10 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
       case "high":
         return <Badge variant="destructive">High Risk</Badge>;
       case "medium":
-        return <Badge variant="secondary" className="bg-orange-100 text-orange-800 hover:bg-orange-200">Medium</Badge>;
+        return <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2">Medium</Badge>;
       case "low":
       default:
-        return <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200">Low Risk</Badge>;
+        return <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2">Low Risk</Badge>;
     }
   };
 
@@ -112,7 +112,7 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
       header: "Deliverability",
       render: (r) => (
         <div className="flex flex-col gap-1">
-          <span className={`text-xs font-medium ${r.deliverabilityScore < 95 ? 'text-rose-600' : 'text-emerald-600'}`}>
+          <span className={`text-xs font-medium ${r.deliverabilityScore < 95 ? 'text-zoru-ink' : 'text-zoru-ink'}`}>
             {r.deliverabilityScore.toFixed(1)}%
           </span>
           {r.trend && (
@@ -158,7 +158,7 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
       id: "blockRate", // 5. Per-number block rate
       header: "Block Rate",
       render: (r) => (
-        <span className={`text-xs ${r.blockRate > 1.0 ? 'text-rose-600 font-medium' : ''}`}>
+        <span className={`text-xs ${r.blockRate > 1.0 ? 'text-zoru-ink font-medium' : ''}`}>
           {r.blockRate.toFixed(2)}%
         </span>
       ),
@@ -175,7 +175,7 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
       header: "Warm-up",
       render: (r) => (
         <div className="w-24 space-y-1">
-          <div className="flex justify-between text-[10px] text-slate-500">
+          <div className="flex justify-between text-[10px] text-zoru-ink">
             <span>{r.warmupProgress === 100 ? 'Ready' : 'Warming'}</span>
             <span>{r.warmupProgress}%</span>
           </div>
@@ -189,7 +189,7 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
   const rowActions: SabsmsRowAction<NumberScorecardRow>[] = [
     {
       label: "AI: Should I rotate?", // 7. AI: Should I rotate this number out?
-      icon: <Sparkles className="h-4 w-4 text-purple-500" />,
+      icon: <Sparkles className="h-4 w-4 text-zoru-ink" />,
       onSelect: (r) => console.log("AI Analyze", r.id),
     },
     {
@@ -246,10 +246,10 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
       >
         {/* Visual Charts Area (Features 10, 19) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-zoru-line bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-orange-500" />
+              <h3 className="font-semibold text-zoru-ink flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-zoru-ink" />
                 Underperformer Volume
               </h3>
               <Button variant="outline" size="sm" className="h-7 text-xs">View Full</Button>
@@ -267,10 +267,10 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
             </div>
           </div>
           
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-zoru-line bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-                <Activity className="h-4 w-4 text-blue-500" />
+              <h3 className="font-semibold text-zoru-ink flex items-center gap-2">
+                <Activity className="h-4 w-4 text-zoru-ink" />
                 Capacity Utilisation
               </h3>
               <Button variant="outline" size="sm" className="h-7 text-xs">View Full</Button>
@@ -403,12 +403,12 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
             content: (
               <div className="p-4 space-y-6">
                 <div>
-                  <h4 className="font-medium text-slate-900 mb-4">Deliverability by Carrier</h4>
+                  <h4 className="font-medium text-zoru-ink mb-4">Deliverability by Carrier</h4>
                   <div className="space-y-4">
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span className="font-medium">AT&T</span>
-                        <span className={detailRow?.carrierBreakdown.att && detailRow.carrierBreakdown.att < 95 ? "text-rose-600" : "text-emerald-600"}>
+                        <span className={detailRow?.carrierBreakdown.att && detailRow.carrierBreakdown.att < 95 ? "text-zoru-ink" : "text-zoru-ink"}>
                           {detailRow?.carrierBreakdown.att.toFixed(1)}%
                         </span>
                       </div>
@@ -417,7 +417,7 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span className="font-medium">Verizon</span>
-                        <span className={detailRow?.carrierBreakdown.verizon && detailRow.carrierBreakdown.verizon < 95 ? "text-rose-600" : "text-emerald-600"}>
+                        <span className={detailRow?.carrierBreakdown.verizon && detailRow.carrierBreakdown.verizon < 95 ? "text-zoru-ink" : "text-zoru-ink"}>
                           {detailRow?.carrierBreakdown.verizon.toFixed(1)}%
                         </span>
                       </div>
@@ -426,7 +426,7 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span className="font-medium">T-Mobile</span>
-                        <span className={detailRow?.carrierBreakdown.tmobile && detailRow.carrierBreakdown.tmobile < 95 ? "text-rose-600" : "text-emerald-600"}>
+                        <span className={detailRow?.carrierBreakdown.tmobile && detailRow.carrierBreakdown.tmobile < 95 ? "text-zoru-ink" : "text-zoru-ink"}>
                           {detailRow?.carrierBreakdown.tmobile.toFixed(1)}%
                         </span>
                       </div>
@@ -435,11 +435,11 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
                   </div>
                 </div>
                 
-                <div className="rounded-lg bg-purple-50 p-4 border border-purple-100">
-                  <h4 className="font-medium text-purple-900 flex items-center gap-2 mb-2">
+                <div className="rounded-lg bg-zoru-surface-2 p-4 border border-zoru-line">
+                  <h4 className="font-medium text-zoru-ink flex items-center gap-2 mb-2">
                     <Sparkles className="h-4 w-4" /> AI Analysis
                   </h4>
-                  <p className="text-sm text-purple-800 leading-relaxed">
+                  <p className="text-sm text-zoru-ink leading-relaxed">
                     Based on the recent block rate of {detailRow?.blockRate.toFixed(2)}% across T-Mobile and Verizon, it is recommended to <strong>{detailRow?.banRisk === 'high' ? 'rotate this number out immediately' : 'monitor closely'}</strong>.
                   </p>
                 </div>
@@ -451,27 +451,27 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
             label: "Raw Events",
             icon: <FileText className="h-4 w-4" />,
             content: (
-              <div className="p-4 text-sm text-slate-500">
+              <div className="p-4 text-sm text-zoru-ink">
                 <div className="flex justify-between items-center mb-4">
-                  <h4 className="font-medium text-slate-900">Recent Failures</h4>
+                  <h4 className="font-medium text-zoru-ink">Recent Failures</h4>
                   <Button variant="outline" size="sm" className="h-7 text-xs">
                     View full logs <ArrowRight className="h-3 w-3 ml-1" />
                   </Button>
                 </div>
                 <div className="space-y-3">
-                  <div className="p-3 border border-slate-100 rounded-md bg-slate-50">
+                  <div className="p-3 border border-zoru-line rounded-md bg-zoru-surface-2">
                     <div className="flex justify-between mb-1">
-                      <span className="font-medium text-rose-600">Error 30007</span>
+                      <span className="font-medium text-zoru-ink">Error 30007</span>
                       <span className="text-xs">10 mins ago</span>
                     </div>
-                    <p className="text-xs text-slate-600">Carrier Violation - Message blocked due to spam heuristics.</p>
+                    <p className="text-xs text-zoru-ink">Carrier Violation - Message blocked due to spam heuristics.</p>
                   </div>
-                  <div className="p-3 border border-slate-100 rounded-md bg-slate-50">
+                  <div className="p-3 border border-zoru-line rounded-md bg-zoru-surface-2">
                     <div className="flex justify-between mb-1">
-                      <span className="font-medium text-rose-600">Error 30004</span>
+                      <span className="font-medium text-zoru-ink">Error 30004</span>
                       <span className="text-xs">1 hour ago</span>
                     </div>
-                    <p className="text-xs text-slate-600">Message blocked - Destination number opted out.</p>
+                    <p className="text-xs text-zoru-ink">Message blocked - Destination number opted out.</p>
                   </div>
                 </div>
               </div>

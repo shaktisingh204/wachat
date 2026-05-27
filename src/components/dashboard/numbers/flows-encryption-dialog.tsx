@@ -90,20 +90,20 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
                 </ZoruDialogHeader>
 
                 <div className="flex flex-col gap-4 py-4">
-                    <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/50">
+                    <div className="flex items-center justify-between p-4 border rounded-lg bg-zoru-surface-2/50">
                         <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-full ${hasKeys ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
+                            <div className={`p-2 rounded-full ${hasKeys ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>
                                 <Key className="h-5 w-5" />
                             </div>
                             <div className="flex flex-col">
                                 <span className="font-medium">RSA Key Pair</span>
-                                <span className="text-xs text-muted-foreground">
+                                <span className="text-xs text-zoru-ink-muted">
                                     {hasKeys ? 'Generated and stored securely' : 'Not generated yet'}
                                 </span>
                             </div>
                         </div>
                         {hasKeys ? (
-                            <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">Ready</Badge>
+                            <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2">Ready</Badge>
                         ) : (
                             <Button size="sm" onClick={handleGenerateKeys} disabled={isPending}>
                                 {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Generate'}
@@ -111,20 +111,20 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
                         )}
                     </div>
 
-                    <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/50">
+                    <div className="flex items-center justify-between p-4 border rounded-lg bg-zoru-surface-2/50">
                         <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-full ${isUploaded ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}`}>
+                            <div className={`p-2 rounded-full ${isUploaded ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>
                                 <Upload className="h-5 w-5" />
                             </div>
                             <div className="flex flex-col">
                                 <span className="font-medium">Meta Upload</span>
-                                <span className="text-xs text-muted-foreground">
+                                <span className="text-xs text-zoru-ink-muted">
                                     {isUploaded ? 'Public Key synced with Meta' : 'Required to enable Flows'}
                                 </span>
                             </div>
                         </div>
                         {isUploaded ? (
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100">Synced</Badge>
+                            <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2">Synced</Badge>
                         ) : (
                             <Button
                                 size="sm"
@@ -138,10 +138,10 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
                     </div>
 
                     {isUploaded && (
-                        <Alert className="bg-green-50 border-green-200">
-                            <ShieldCheck className="h-4 w-4 text-green-600" />
-                            <ZoruAlertTitle className="text-green-800">Fully Configured</ZoruAlertTitle>
-                            <ZoruAlertDescription className="text-green-700">
+                        <Alert className="bg-zoru-surface-2 border-zoru-line">
+                            <ShieldCheck className="h-4 w-4 text-zoru-ink" />
+                            <ZoruAlertTitle className="text-zoru-ink">Fully Configured</ZoruAlertTitle>
+                            <ZoruAlertDescription className="text-zoru-ink">
                                 This phone number is ready to send and receive encrypted WhatsApp Flows.
                             </ZoruAlertDescription>
                         </Alert>
@@ -157,14 +157,14 @@ export function FlowsEncryptionDialog({ project, phone, trigger, open: controlle
                         </Alert>
                     )}
                     {hasKeys && config?.privateKey && (
-                        <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/50">
+                        <div className="flex items-center justify-between p-4 border rounded-lg bg-zoru-surface-2/50">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-full bg-orange-100 text-orange-600">
+                                <div className="p-2 rounded-full bg-zoru-surface-2 text-zoru-ink">
                                     <Lock className="h-5 w-5" />
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="font-medium">Private Key</span>
-                                    <span className="text-xs text-muted-foreground">Download for safekeeping</span>
+                                    <span className="text-xs text-zoru-ink-muted">Download for safekeeping</span>
                                 </div>
                             </div>
                             <Button

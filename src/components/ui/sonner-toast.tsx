@@ -51,24 +51,24 @@ export interface ToasterRef {
 }
 
 const variantStyles: Record<Variant, string> = {
-  default: 'bg-card text-foreground',
-  success: 'bg-card',
-  error: 'bg-card',
-  warning: 'bg-card',
+  default: 'bg-zoru-surface text-zoru-ink',
+  success: 'bg-zoru-surface',
+  error: 'bg-zoru-surface',
+  warning: 'bg-zoru-surface',
 };
 
 const titleColor: Record<Variant, string> = {
-  default: 'text-foreground',
-  success: 'text-green-600 dark:text-green-400',
-  error: 'text-destructive',
-  warning: 'text-amber-600 dark:text-amber-400',
+  default: 'text-zoru-ink',
+  success: 'text-zoru-ink dark:text-zoru-ink-muted',
+  error: 'text-zoru-ink',
+  warning: 'text-zoru-ink dark:text-zoru-ink-muted',
 };
 
 const iconColor: Record<Variant, string> = {
-  default: 'text-muted-foreground',
-  success: 'text-green-600 dark:text-green-400',
-  error: 'text-destructive',
-  warning: 'text-amber-600 dark:text-amber-400',
+  default: 'text-zoru-ink-muted',
+  success: 'text-zoru-ink dark:text-zoru-ink-muted',
+  error: 'text-zoru-ink',
+  warning: 'text-zoru-ink dark:text-zoru-ink-muted',
 };
 
 const variantIcons: Record<Variant, React.ComponentType<{ className?: string }>> = {
@@ -128,7 +128,7 @@ const Toaster = forwardRef<ToasterRef, { defaultPosition?: Position }>(
                       {title}
                     </h3>
                   )}
-                  <p className="text-xs text-muted-foreground">{message}</p>
+                  <p className="text-xs text-zoru-ink-muted">{message}</p>
                 </div>
               </div>
 
@@ -144,12 +144,12 @@ const Toaster = forwardRef<ToasterRef, { defaultPosition?: Position }>(
                     className={cn(
                       'cursor-pointer',
                       variant === 'success'
-                        ? 'text-green-600 hover:bg-green-600/10 dark:hover:bg-green-400/20'
+                        ? 'text-zoru-ink hover:bg-zoru-ink/10 dark:hover:bg-zoru-surface-2/20'
                         : variant === 'error'
-                        ? 'text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20'
+                        ? 'text-zoru-ink hover:bg-zoru-ink/10 dark:hover:bg-zoru-ink/20'
                         : variant === 'warning'
-                        ? 'text-amber-600 hover:bg-amber-600/10 dark:hover:bg-amber-400/20'
-                        : 'text-foreground hover:bg-muted/10 dark:hover:bg-muted/20'
+                        ? 'text-zoru-ink hover:bg-zoru-ink/10 dark:hover:bg-zoru-surface-2/20'
+                        : 'text-zoru-ink hover:bg-zoru-surface-2/10 dark:hover:bg-zoru-surface-2/20'
                     )}
                   >
                     {actions.label}
@@ -161,10 +161,10 @@ const Toaster = forwardRef<ToasterRef, { defaultPosition?: Position }>(
                     sonnerToast.dismiss(toastId);
                     onDismiss?.();
                   }}
-                  className="rounded-full p-1 hover:bg-muted/50 dark:hover:bg-muted/30 transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="rounded-full p-1 hover:bg-zoru-surface-2/50 dark:hover:bg-zoru-surface-2/30 transition-colors focus:outline-none focus:ring-2 focus:ring-zoru-line"
                   aria-label="Dismiss notification"
                 >
-                  <X className="h-3 w-3 text-muted-foreground" />
+                  <X className="h-3 w-3 text-zoru-ink-muted" />
                 </button>
               </div>
             </motion.div>

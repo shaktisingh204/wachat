@@ -154,7 +154,7 @@ export default function SabChatAiRepliesPage() {
         <ZoruPageHeading>
           <div className="flex items-center gap-3">
             <ZoruPageTitle>AI Assistant Engine</ZoruPageTitle>
-            <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+            <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
               <Sparkles className="h-3 w-3 mr-1" /> Premium
             </Badge>
           </div>
@@ -194,7 +194,7 @@ export default function SabChatAiRepliesPage() {
             <Card>
               <ZoruCardHeader>
                 <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
                     <Bot className="h-5 w-5" />
                   </span>
                   <div>
@@ -206,7 +206,7 @@ export default function SabChatAiRepliesPage() {
                       id="aiEnabled"
                       name="aiEnabled"
                       defaultChecked={settings.aiEnabled}
-                      className="data-[state=checked]:bg-purple-600"
+                      className="data-[state=checked]:bg-zoru-ink"
                     />
                   </div>
                 </div>
@@ -290,7 +290,7 @@ export default function SabChatAiRepliesPage() {
                   <div className="space-y-3">
                     <Label>Supported Languages</Label>
                     <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary" className="bg-blue-50 text-blue-700">English (Primary)</Badge>
+                      <Badge variant="secondary" className="bg-zoru-surface-2 text-zoru-ink">English (Primary)</Badge>
                       <Badge variant="outline">Spanish</Badge>
                       <Badge variant="outline">French</Badge>
                       <Badge variant="outline">German</Badge>
@@ -349,11 +349,11 @@ export default function SabChatAiRepliesPage() {
           {/* Right Column: AI Sandbox */}
           <div className="lg:col-span-1">
             <div className="sticky top-6">
-              <Card className="h-[600px] flex flex-col border-purple-200 dark:border-purple-900/50 shadow-md">
-                <ZoruCardHeader className="border-b border-zoru-line py-4 bg-purple-50/50 dark:bg-purple-950/20">
+              <Card className="h-[600px] flex flex-col border-zoru-line dark:border-zoru-line/50 shadow-md">
+                <ZoruCardHeader className="border-b border-zoru-line py-4 bg-zoru-surface-2/50 dark:bg-zoru-ink/20">
                   <div className="flex items-center gap-2">
-                    <Wand2 className="h-4 w-4 text-purple-600" />
-                    <ZoruCardTitle className="text-base text-purple-900 dark:text-purple-100">AI Sandbox</ZoruCardTitle>
+                    <Wand2 className="h-4 w-4 text-zoru-ink" />
+                    <ZoruCardTitle className="text-base text-zoru-ink dark:text-white">AI Sandbox</ZoruCardTitle>
                   </div>
                   <ZoruCardDescription className="text-xs">
                     Test your current configuration in real-time.
@@ -367,7 +367,7 @@ export default function SabChatAiRepliesPage() {
                         <div className={`max-w-[85%] rounded-lg p-3 text-sm shadow-sm ${
                           msg.sender === 'bot' 
                             ? 'bg-white dark:bg-zoru-bg border border-zoru-line text-zoru-ink' 
-                            : 'bg-purple-600 text-white'
+                            : 'bg-zoru-ink text-white'
                         }`}>
                           {msg.text}
                         </div>
@@ -376,9 +376,9 @@ export default function SabChatAiRepliesPage() {
                     {isSimulating && (
                       <div className="flex justify-start">
                         <div className="bg-white dark:bg-zoru-bg border border-zoru-line rounded-lg p-3 text-sm shadow-sm flex items-center gap-1">
-                          <span className="h-2 w-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                          <span className="h-2 w-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                          <span className="h-2 w-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                          <span className="h-2 w-2 bg-zoru-surface-2 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                          <span className="h-2 w-2 bg-zoru-surface-2 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                          <span className="h-2 w-2 bg-zoru-surface-2 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                         </div>
                       </div>
                     )}
@@ -392,7 +392,7 @@ export default function SabChatAiRepliesPage() {
                         placeholder="Message AI..." 
                         className="flex-1 bg-zoru-surface-2 border-0"
                       />
-                      <Button type="submit" size="icon-sm" className="bg-purple-600 hover:bg-purple-700 text-white rounded-full h-8 w-8">
+                      <Button type="submit" size="icon-sm" className="bg-zoru-ink hover:bg-zoru-ink text-white rounded-full h-8 w-8">
                         <Send className="h-3 w-3" />
                       </Button>
                     </form>

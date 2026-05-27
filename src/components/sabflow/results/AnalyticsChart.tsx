@@ -30,7 +30,7 @@ function CircularProgress({ rate, size = 80 }: { rate: number; size?: number }) 
           fill="none"
           stroke="currentColor"
           strokeWidth={6}
-          className="text-zinc-200 dark:text-zinc-700"
+          className="text-white dark:text-zoru-ink"
         />
         <circle
           cx={cx}
@@ -42,7 +42,7 @@ function CircularProgress({ rate, size = 80 }: { rate: number; size?: number }) 
           strokeDasharray={circ}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          className="text-amber-500 transition-all duration-700"
+          className="text-zoru-ink transition-all duration-700"
         />
         <text
           x={cx}
@@ -51,13 +51,13 @@ function CircularProgress({ rate, size = 80 }: { rate: number; size?: number }) 
           textAnchor="middle"
           fontSize={size * 0.22}
           fontWeight={600}
-          className="rotate-90 fill-zinc-700 dark:fill-zinc-200"
+          className="rotate-90 fill-zoru-ink dark:fill-white"
           transform={`rotate(90, ${cx}, ${cy})`}
         >
           {rate}%
         </text>
       </svg>
-      <span className="text-xs text-zinc-500 dark:text-zinc-400">Completion</span>
+      <span className="text-xs text-zoru-ink dark:text-zoru-ink-muted">Completion</span>
     </div>
   );
 }
@@ -75,7 +75,7 @@ function BarChart({ data }: { data: DailyCount[] }) {
 
   return (
     <div className="flex-1 min-w-0">
-      <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
+      <p className="text-xs font-semibold text-zoru-ink dark:text-zoru-ink-muted uppercase tracking-wide mb-3">
         Sessions — last {barCount} days
       </p>
       <svg
@@ -101,7 +101,7 @@ function BarChart({ data }: { data: DailyCount[] }) {
                   width={barW}
                   height={totalH}
                   rx={4}
-                  className="fill-zinc-200 dark:fill-zinc-700"
+                  className="fill-white dark:fill-zoru-ink"
                 />
               )}
               {/* Completed bar (amber overlay) */}
@@ -112,7 +112,7 @@ function BarChart({ data }: { data: DailyCount[] }) {
                   width={barW}
                   height={completedH}
                   rx={4}
-                  className="fill-amber-500"
+                  className="fill-zoru-ink"
                 />
               )}
               {/* Count label */}
@@ -122,7 +122,7 @@ function BarChart({ data }: { data: DailyCount[] }) {
                   y={CHART_HEIGHT - totalH - 4}
                   textAnchor="middle"
                   fontSize={10}
-                  className="fill-zinc-500 dark:fill-zinc-400"
+                  className="fill-zoru-ink dark:fill-zoru-ink-muted"
                 >
                   {day.total}
                 </text>
@@ -133,7 +133,7 @@ function BarChart({ data }: { data: DailyCount[] }) {
                 y={CHART_HEIGHT + 16}
                 textAnchor="middle"
                 fontSize={10}
-                className="fill-zinc-400 dark:fill-zinc-500"
+                className="fill-zoru-ink-muted dark:fill-zoru-ink"
               >
                 {fmtAxisDate(day.date)}
               </text>
@@ -147,17 +147,17 @@ function BarChart({ data }: { data: DailyCount[] }) {
           x2={viewW}
           y2={CHART_HEIGHT}
           strokeWidth={1}
-          className="stroke-zinc-200 dark:stroke-zinc-700"
+          className="stroke-white dark:stroke-zoru-ink"
         />
       </svg>
       {/* Legend */}
       <div className="flex items-center gap-4 mt-2">
-        <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-          <span className="inline-block w-3 h-3 rounded-sm bg-zinc-200 dark:bg-zinc-700" />
+        <div className="flex items-center gap-1.5 text-xs text-zoru-ink dark:text-zoru-ink-muted">
+          <span className="inline-block w-3 h-3 rounded-sm bg-zoru-surface-2 dark:bg-zoru-ink" />
           Total
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-          <span className="inline-block w-3 h-3 rounded-sm bg-amber-500" />
+        <div className="flex items-center gap-1.5 text-xs text-zoru-ink dark:text-zoru-ink-muted">
+          <span className="inline-block w-3 h-3 rounded-sm bg-zoru-ink" />
           Completed
         </div>
       </div>
@@ -174,7 +174,7 @@ type Props = {
 
 export function AnalyticsChart({ dailyCounts, completionRate }: Props) {
   return (
-    <div className="flex items-start gap-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl p-5">
+    <div className="flex items-start gap-8 bg-white dark:bg-zoru-ink border border-zoru-line dark:border-zoru-line rounded-xl p-5">
       <BarChart data={dailyCounts} />
       <div className="flex-shrink-0 pt-5">
         <CircularProgress rate={completionRate} size={88} />

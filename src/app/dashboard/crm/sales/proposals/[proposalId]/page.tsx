@@ -529,7 +529,7 @@ export default function ProposalDetailPage(props: {
       {isAccepted ? (
         <Card className="p-6">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+            <CheckCircle2 className="h-5 w-5 text-zoru-ink" />
             <h2 className="text-[16px] text-zoru-ink">Accepted &amp; Signed</h2>
           </div>
           {data.signs.length === 0 ? (

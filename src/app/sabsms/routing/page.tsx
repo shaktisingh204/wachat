@@ -88,30 +88,30 @@ function FallbackFlowBuilder() {
   };
 
   return (
-    <div className="space-y-3 bg-slate-50/50 p-4 rounded-lg border border-slate-100 mt-2">
+    <div className="space-y-3 bg-zoru-surface-2/50 p-4 rounded-lg border border-zoru-line mt-2">
       {flow.map((node, i) => (
         <div key={node.id} className="relative flex items-center gap-3">
           {i > 0 && (
-            <div className="absolute left-[11px] -top-[16px] bottom-1/2 w-px bg-slate-300" />
+            <div className="absolute left-[11px] -top-[16px] bottom-1/2 w-px bg-zoru-surface-2" />
           )}
-          <div className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium border ${i === 0 ? "bg-blue-100 border-blue-300 text-blue-700" : "bg-white border-slate-300 text-slate-600 shadow-sm"}`}>
+          <div className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium border ${i === 0 ? "bg-zoru-surface-2 border-zoru-line text-zoru-ink" : "bg-white border-zoru-line text-zoru-ink shadow-sm"}`}>
             {i + 1}
           </div>
-          <div className={`flex-1 flex items-center justify-between p-2.5 border rounded-md shadow-sm transition-colors ${i === 0 ? "bg-blue-50/50 border-blue-200" : "bg-white border-slate-200 hover:border-slate-300"}`}>
+          <div className={`flex-1 flex items-center justify-between p-2.5 border rounded-md shadow-sm transition-colors ${i === 0 ? "bg-zoru-surface-2/50 border-zoru-line" : "bg-white border-zoru-line hover:border-zoru-line"}`}>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{i === 0 ? "Primary Provider" : `Fallback ${i}`}</span>
-              <span className="text-sm font-medium text-slate-900">{node.provider}</span>
+              <span className="text-[10px] font-medium text-zoru-ink uppercase tracking-wider">{i === 0 ? "Primary Provider" : `Fallback ${i}`}</span>
+              <span className="text-sm font-medium text-zoru-ink">{node.provider}</span>
             </div>
             {i > 0 && (
               <div className="flex items-center gap-0.5">
-                <button onClick={() => moveUp(i)} disabled={i === 1} className="p-1.5 text-slate-400 hover:text-slate-600 disabled:opacity-30 rounded hover:bg-slate-100 transition-colors">
+                <button onClick={() => moveUp(i)} disabled={i === 1} className="p-1.5 text-zoru-ink-muted hover:text-zoru-ink disabled:opacity-30 rounded hover:bg-zoru-surface-2 transition-colors">
                   <ArrowUp className="h-3.5 w-3.5" />
                 </button>
-                <button onClick={() => moveDown(i)} disabled={i === flow.length - 1} className="p-1.5 text-slate-400 hover:text-slate-600 disabled:opacity-30 rounded hover:bg-slate-100 transition-colors">
+                <button onClick={() => moveDown(i)} disabled={i === flow.length - 1} className="p-1.5 text-zoru-ink-muted hover:text-zoru-ink disabled:opacity-30 rounded hover:bg-zoru-surface-2 transition-colors">
                   <ArrowDown className="h-3.5 w-3.5" />
                 </button>
-                <div className="w-px h-4 bg-slate-200 mx-1" />
-                <button onClick={() => remove(i)} className="p-1.5 text-slate-400 hover:text-red-600 rounded hover:bg-red-50 transition-colors">
+                <div className="w-px h-4 bg-zoru-surface-2 mx-1" />
+                <button onClick={() => remove(i)} className="p-1.5 text-zoru-ink-muted hover:text-zoru-ink rounded hover:bg-zoru-surface-2 transition-colors">
                   <X className="h-3.5 w-3.5" />
                 </button>
               </div>
@@ -120,11 +120,11 @@ function FallbackFlowBuilder() {
         </div>
       ))}
       <div className="relative flex items-center gap-3 pt-1">
-        <div className="absolute left-[11px] -top-3 bottom-1/2 w-px border-l-2 border-dashed border-slate-300" />
-        <div className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white border-2 border-dashed border-slate-300 text-slate-400">
+        <div className="absolute left-[11px] -top-3 bottom-1/2 w-px border-l-2 border-dashed border-zoru-line" />
+        <div className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white border-2 border-dashed border-zoru-line text-zoru-ink-muted">
           <Plus className="h-3 w-3" />
         </div>
-        <button onClick={addFallback} className="text-sm text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1.5 transition-colors">
+        <button onClick={addFallback} className="text-sm text-zoru-ink hover:text-zoru-ink font-medium flex items-center gap-1.5 transition-colors">
           Add Fallback Route
         </button>
       </div>
@@ -200,19 +200,19 @@ function RouteTraceTool() {
       </ZoruCardHeader>
       <ZoruCardContent className="space-y-4">
         <div>
-          <label className="text-xs text-slate-500 mb-1 block">Test Number</label>
+          <label className="text-xs text-zoru-ink mb-1 block">Test Number</label>
           <input 
             type="text" 
             placeholder="+1 234 567 8900" 
-            className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
+            className="flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
           />
         </div>
         <div>
-          <label className="text-xs text-slate-500 mb-1 block">Message Category</label>
+          <label className="text-xs text-zoru-ink mb-1 block">Message Category</label>
           <select 
-            className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
+            className="flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
@@ -227,22 +227,22 @@ function RouteTraceTool() {
         </Button>
 
         {traceLog && (
-          <div className="mt-4 space-y-2 border-t border-slate-100 pt-4">
+          <div className="mt-4 space-y-2 border-t border-zoru-line pt-4">
             <h4 className="text-sm font-semibold mb-3">Trace Results</h4>
             {traceLog.map((log, i) => (
-              <div key={i} className={`p-3 rounded-md text-sm border ${log.status === "matched" ? "bg-green-50 border-green-200" : "bg-slate-50 border-slate-100 opacity-75"}`}>
+              <div key={i} className={`p-3 rounded-md text-sm border ${log.status === "matched" ? "bg-zoru-surface-2 border-zoru-line" : "bg-zoru-surface-2 border-zoru-line opacity-75"}`}>
                 <div className="flex items-center gap-2 font-medium mb-1">
                   {log.status === "matched" ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <CheckCircle2 className="h-4 w-4 text-zoru-ink" />
                   ) : (
-                    <XCircle className="h-4 w-4 text-slate-400" />
+                    <XCircle className="h-4 w-4 text-zoru-ink-muted" />
                   )}
-                  <span className={log.status === "matched" ? "text-green-900" : "text-slate-700"}>
+                  <span className={log.status === "matched" ? "text-zoru-ink" : "text-zoru-ink"}>
                     {log.rule.name}
                   </span>
                   <Badge variant="outline" className="ml-auto text-[10px]">{log.rule.provider}</Badge>
                 </div>
-                <div className="text-xs text-slate-500 ml-6">
+                <div className="text-xs text-zoru-ink ml-6">
                   {log.reason}
                 </div>
               </div>
@@ -285,7 +285,7 @@ export default function RoutingPage() {
     {
       id: "drag",
       header: "",
-      render: () => <GripVertical className="h-4 w-4 text-slate-400 cursor-move" />,
+      render: () => <GripVertical className="h-4 w-4 text-zoru-ink-muted cursor-move" />,
       width: "40px"
     },
     {
@@ -294,7 +294,7 @@ export default function RoutingPage() {
       render: (row) => (
         <div>
           <div className="font-medium">{row.name}</div>
-          <div className="text-xs text-slate-500 flex gap-1 mt-1">
+          <div className="text-xs text-zoru-ink flex gap-1 mt-1">
             {row.tags.map(t => <Badge key={t} variant="secondary" className="text-[10px] px-1 py-0">{t}</Badge>)}
           </div>
         </div>
@@ -305,9 +305,9 @@ export default function RoutingPage() {
       header: "Conditions",
       render: (row) => (
         <div className="text-sm">
-          <div><span className="text-slate-500">Dest:</span> {row.destination}</div>
-          <div><span className="text-slate-500">Cat:</span> {row.category}</div>
-          {row.timeOfDay !== "Any" && <div><span className="text-slate-500">Time:</span> {row.timeOfDay}</div>}
+          <div><span className="text-zoru-ink">Dest:</span> {row.destination}</div>
+          <div><span className="text-zoru-ink">Cat:</span> {row.category}</div>
+          {row.timeOfDay !== "Any" && <div><span className="text-zoru-ink">Time:</span> {row.timeOfDay}</div>}
         </div>
       )
     },
@@ -321,8 +321,8 @@ export default function RoutingPage() {
       header: "Simulation",
       render: (row) => (
         <div className="text-sm">
-          <div><span className="text-slate-500">Cost:</span> {row.costEst}/msg</div>
-          <div><span className="text-slate-500">DLR:</span> {row.deliverabilityEst}</div>
+          <div><span className="text-zoru-ink">Cost:</span> {row.costEst}/msg</div>
+          <div><span className="text-zoru-ink">DLR:</span> {row.deliverabilityEst}</div>
         </div>
       )
     },
@@ -416,12 +416,12 @@ export default function RoutingPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="md:col-span-3 space-y-4">
           {/* F3: Conflict Detection Mock */}
-          <Card className="bg-amber-50 border-amber-200 shadow-none">
+          <Card className="bg-zoru-surface-2 border-zoru-line shadow-none">
             <div className="flex items-start p-4 gap-3">
-              <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
+              <AlertTriangle className="h-5 w-5 text-zoru-ink mt-0.5" />
               <div>
-                <h4 className="text-sm font-semibold text-amber-900">Rule Conflict Detected</h4>
-                <p className="text-sm text-amber-700">"US Marketing Primary" fully shadows "Global Alert Fallback" for US destinations.</p>
+                <h4 className="text-sm font-semibold text-zoru-ink">Rule Conflict Detected</h4>
+                <p className="text-sm text-zoru-ink">"US Marketing Primary" fully shadows "Global Alert Fallback" for US destinations.</p>
               </div>
             </div>
           </Card>
@@ -450,13 +450,13 @@ export default function RoutingPage() {
                 { label: "Delete", onSelect: () => {}, destructive: true }
               ]}
             />
-            <div className="p-4 border-t border-slate-100 flex justify-between items-center">
+            <div className="p-4 border-t border-zoru-line flex justify-between items-center">
               <div className="flex items-center gap-4">
-                <div className="text-sm text-slate-500">Visual Rule Chain matches table order</div>
+                <div className="text-sm text-zoru-ink">Visual Rule Chain matches table order</div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500">Density:</span>
+                  <span className="text-xs text-zoru-ink">Density:</span>
                   <select 
-                    className="text-xs border-slate-200 rounded p-1"
+                    className="text-xs border-zoru-line rounded p-1"
                     value={density}
                     onChange={(e) => setDensity(e.target.value as any)}
                   >
@@ -487,7 +487,7 @@ export default function RoutingPage() {
               </ZoruCardTitle>
             </ZoruCardHeader>
             <ZoruCardContent className="space-y-4">
-              <div className="text-sm text-slate-500">If no rules match, messages will route using default fallbacks.</div>
+              <div className="text-sm text-zoru-ink">If no rules match, messages will route using default fallbacks.</div>
               <Button variant="outline" className="w-full">Edit Fallbacks</Button>
             </ZoruCardContent>
           </Card>
@@ -511,16 +511,16 @@ export default function RoutingPage() {
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium">Rule Name</label>
-              <input type="text" className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors mt-1" defaultValue={selectedRuleId !== "new" ? MOCK_RULES.find(r => r.id === selectedRuleId)?.name : ""} />
+              <input type="text" className="flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm shadow-sm transition-colors mt-1" defaultValue={selectedRuleId !== "new" ? MOCK_RULES.find(r => r.id === selectedRuleId)?.name : ""} />
             </div>
             
-            <div className="pt-4 border-t border-slate-100">
+            <div className="pt-4 border-t border-zoru-line">
               <h4 className="text-sm font-medium mb-3">Conditions</h4>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-slate-500">Destination Country</label>
-                    <select className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm mt-1">
+                    <label className="text-xs text-zoru-ink">Destination Country</label>
+                    <select className="flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm mt-1">
                       <option>Any</option>
                       <option>US (+1)</option>
                       <option>UK (+44)</option>
@@ -528,8 +528,8 @@ export default function RoutingPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs text-slate-500">Category</label>
-                    <select className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm mt-1">
+                    <label className="text-xs text-zoru-ink">Category</label>
+                    <select className="flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm mt-1">
                       <option>Any</option>
                       <option>Marketing</option>
                       <option>OTP</option>
@@ -537,8 +537,8 @@ export default function RoutingPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-slate-500">Time of Day (Sender TZ)</label>
-                  <select className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm mt-1">
+                  <label className="text-xs text-zoru-ink">Time of Day (Sender TZ)</label>
+                  <select className="flex h-9 w-full rounded-md border border-zoru-line bg-transparent px-3 py-1 text-sm mt-1">
                     <option>Any Time</option>
                     <option>Business Hours (09:00 - 17:00)</option>
                     <option>Night Shift (20:00 - 08:00)</option>
@@ -547,11 +547,11 @@ export default function RoutingPage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-100">
+            <div className="pt-4 border-t border-zoru-line">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h4 className="text-sm font-medium">Routing Flow</h4>
-                  <p className="text-xs text-slate-500 mt-1">Define primary and fallback providers visually.</p>
+                  <p className="text-xs text-zoru-ink mt-1">Define primary and fallback providers visually.</p>
                 </div>
               </div>
               <FallbackFlowBuilder />

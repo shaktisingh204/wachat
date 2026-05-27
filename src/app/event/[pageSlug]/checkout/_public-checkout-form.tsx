@@ -154,7 +154,7 @@ export function PublicCheckoutForm({
         </label>
       </section>
 
-      {error ? <p className="text-sm text-red-300">{error}</p> : null}
+      {error ? <p className="text-sm text-zoru-ink-muted">{error}</p> : null}
 
       <button
         type="submit"

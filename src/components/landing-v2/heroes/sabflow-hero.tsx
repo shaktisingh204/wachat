@@ -35,13 +35,13 @@ const nodeMap = Object.fromEntries(nodes.map((n) => [n.id, n]));
 export function SabflowHero() {
     return (
         <div className="relative h-full w-full">
-            <div aria-hidden className="absolute inset-0 rounded-3xl bg-violet-500/15 blur-3xl" />
+            <div aria-hidden className="absolute inset-0 rounded-3xl bg-zoru-ink/15 blur-3xl" />
 
             <m.div
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6 }}
-                className="relative h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-[#0d0521]/80 shadow-[0_30px_80px_-20px_rgba(168,85,247,0.5)] backdrop-blur"
+                className="relative h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-zoru-ink/80 shadow-[0_30px_80px_-20px_rgba(168,85,247,0.5)] backdrop-blur"
             >
                 {/* dot grid */}
                 <div
@@ -96,7 +96,7 @@ export function SabflowHero() {
                             <m.div
                                 animate={{ y: [0, -3, 0] }}
                                 transition={{ duration: 3 + i * 0.3, repeat: Infinity, ease: 'easeInOut' }}
-                                className="flex items-center gap-2 rounded-xl border border-violet-300/30 bg-black/40 px-3 py-2 shadow-[0_10px_28px_-8px_rgba(168,85,247,0.6)] backdrop-blur-md"
+                                className="flex items-center gap-2 rounded-xl border border-zoru-line/30 bg-black/40 px-3 py-2 shadow-[0_10px_28px_-8px_rgba(168,85,247,0.6)] backdrop-blur-md"
                             >
                                 <div
                                     className="grid h-7 w-7 place-items-center rounded-lg"
@@ -123,11 +123,11 @@ export function SabflowHero() {
                         <m.span
                             animate={{ scale: [1, 1.4, 1] }}
                             transition={{ duration: 1.6, repeat: Infinity }}
-                            className="h-2 w-2 rounded-full bg-violet-400 shadow-[0_0_10px_#a78bfa]"
+                            className="h-2 w-2 rounded-full bg-zoru-surface-2 shadow-[0_0_10px_#a78bfa]"
                         />
                         <span className="font-semibold text-white">Flow running</span>
                     </div>
-                    <span className="text-violet-200/70">
+                    <span className="text-white/70">
                         18,422 executions / day · 99.97% ok
                     </span>
                 </m.div>

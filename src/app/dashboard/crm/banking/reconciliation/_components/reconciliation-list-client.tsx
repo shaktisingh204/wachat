@@ -130,12 +130,12 @@ function KpiStrip({ kpis }: { kpis: CrmReconciliationKpis }) {
       <StatCard
         label="Reconciled"
         value={kpis.reconciled.toLocaleString()}
-        icon={<CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+        icon={<CheckCircle2 className="h-4 w-4 text-zoru-ink" />}
       />
       <StatCard
         label="Unreconciled"
         value={kpis.unreconciled.toLocaleString()}
-        icon={<ListChecks className="h-4 w-4 text-amber-500" />}
+        icon={<ListChecks className="h-4 w-4 text-zoru-ink" />}
       />
       <StatCard
         label="Last reconciled"
@@ -172,7 +172,7 @@ function RecordsTable({
   }
   return (
     <Card className="overflow-hidden p-0">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+      <div className="flex items-center justify-between border-b border-zoru-line px-4 py-3">
         <h2 className="text-[14px] font-semibold text-zoru-ink">
           Saved reconciliations
         </h2>
@@ -183,28 +183,28 @@ function RecordsTable({
       <div className="overflow-x-auto">
         <Table>
           <ZoruTableHeader>
-            <ZoruTableRow className="border-border hover:bg-transparent">
-              <ZoruTableHead className="text-muted-foreground">Period</ZoruTableHead>
-              <ZoruTableHead className="text-muted-foreground">Account</ZoruTableHead>
-              <ZoruTableHead className="text-right text-muted-foreground">
+            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+              <ZoruTableHead className="text-zoru-ink-muted">Period</ZoruTableHead>
+              <ZoruTableHead className="text-zoru-ink-muted">Account</ZoruTableHead>
+              <ZoruTableHead className="text-right text-zoru-ink-muted">
                 Opening
               </ZoruTableHead>
-              <ZoruTableHead className="text-right text-muted-foreground">
+              <ZoruTableHead className="text-right text-zoru-ink-muted">
                 Closing
               </ZoruTableHead>
-              <ZoruTableHead className="text-right text-muted-foreground">
+              <ZoruTableHead className="text-right text-zoru-ink-muted">
                 Matched
               </ZoruTableHead>
-              <ZoruTableHead className="text-right text-muted-foreground">
+              <ZoruTableHead className="text-right text-zoru-ink-muted">
                 Unmatched
               </ZoruTableHead>
-              <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-              <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
+              <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+              <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
             </ZoruTableRow>
           </ZoruTableHeader>
           <ZoruTableBody>
             {records.map((rec) => (
-              <ZoruTableRow key={rec._id} className="border-border">
+              <ZoruTableRow key={rec._id} className="border-zoru-line">
                 <ZoruTableCell className="text-[12.5px] text-zoru-ink">
                   {rec.periodStart ? fmtDate(rec.periodStart) : '—'} -{' '}
                   {rec.periodEnd ? fmtDate(rec.periodEnd) : '—'}
@@ -221,7 +221,7 @@ function RecordsTable({
                 <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
                   {rec.matchedCount ?? 0}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-amber-600">
+                <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
                   {rec.unmatchedCount ?? 0}
                 </ZoruTableCell>
                 <ZoruTableCell>
@@ -229,8 +229,8 @@ function RecordsTable({
                     className={[
                       'rounded-full px-2 py-0.5 text-[11px] font-medium',
                       rec.status === 'Completed' || rec.status === 'completed'
-                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                        : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+                        ? 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted'
+                        : 'bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted',
                     ].join(' ')}
                   >
                     {rec.status ?? 'in_progress'}
@@ -314,8 +314,8 @@ const TransactionTable = ({
             // Build the row cell styling classes
             const cellClass = isMatched
               ? isAiMatched
-                ? "bg-emerald-500/10 dark:bg-emerald-500/20 border-y border-emerald-500/40 text-emerald-950 dark:text-emerald-300 font-semibold"
-                : "bg-emerald-500/5 dark:bg-emerald-500/10 border-y border-emerald-500/20 text-zoru-ink"
+                ? "bg-zoru-ink/10 dark:bg-zoru-ink/20 border-y border-zoru-line/40 text-zoru-ink dark:text-zoru-ink-muted font-semibold"
+                : "bg-zoru-ink/5 dark:bg-zoru-ink/10 border-y border-zoru-line/20 text-zoru-ink"
               : "text-zoru-ink border-b border-zoru-line";
 
             return (
@@ -323,12 +323,12 @@ const TransactionTable = ({
                 key={e._id}
                 className={[
                   "transition-all duration-200",
-                  isMatched ? "hover:bg-emerald-500/15" : "hover:bg-zoru-surface-2",
+                  isMatched ? "hover:bg-zoru-ink/15" : "hover:bg-zoru-surface-2",
                   isAiMatched ? "shadow-[inset_4px_0_0_0_#10b981]" : ""
                 ].join(' ')}
                 data-state={isMatched ? 'selected' : ''}
               >
-                <ZoruTableCell className={[cellClass, isAiMatched ? "border-l border-emerald-500/40" : ""].join(' ')}>
+                <ZoruTableCell className={[cellClass, isAiMatched ? "border-l border-zoru-line/40" : ""].join(' ')}>
                   <div className="flex items-center gap-1.5">
                     <Checkbox
                       checked={isMatched}
@@ -792,7 +792,7 @@ export function ReconciliationListClient({
               size="sm"
               onClick={handleAIAutoMatch}
               disabled={!reconciliationData || isLoading}
-              className="border-emerald-500/30 text-zoru-success-ink bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/50 flex items-center gap-1.5 shadow-[var(--zoru-shadow-sm)]"
+              className="border-zoru-line/30 text-zoru-success-ink bg-zoru-ink/5 hover:bg-zoru-ink/10 hover:border-zoru-line/50 flex items-center gap-1.5 shadow-[var(--zoru-shadow-sm)]"
             >
               <Sparkles className="h-3.5 w-3.5" />
               AI Auto-Matcher
@@ -878,17 +878,17 @@ export function ReconciliationListClient({
             <StatCard
               label="Cleared in books"
               value={fmtInr(clearedBookAmount)}
-              icon={<CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+              icon={<CheckCircle2 className="h-4 w-4 text-zoru-ink" />}
             />
             <StatCard
               label="Cleared in bank"
               value={fmtInr(clearedStatementAmount)}
-              icon={<CheckCircle2 className="h-4 w-4 text-blue-500" />}
+              icon={<CheckCircle2 className="h-4 w-4 text-zoru-ink" />}
             />
             <StatCard
               label="Uncleared amount"
               value={fmtInr(unclearedBookAmount)}
-              icon={<Clock className="h-4 w-4 text-amber-500" />}
+              icon={<Clock className="h-4 w-4 text-zoru-ink" />}
             />
             <StatCard
               label="Difference"
@@ -897,7 +897,7 @@ export function ReconciliationListClient({
                 <GitCompare 
                   className={[
                     "h-4 w-4", 
-                    difference === 0 ? "text-emerald-500 animate-pulse" : "text-zoru-danger-ink"
+                    difference === 0 ? "text-zoru-ink animate-pulse" : "text-zoru-danger-ink"
                   ].join(' ')} 
                 />
               }

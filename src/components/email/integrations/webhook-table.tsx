@@ -167,7 +167,7 @@ export function WebhookTable({ webhooks, onEdit, onChanged }: WebhookTableProps)
                       <ZoruAlertDialogTrigger asChild>
                         <ZoruDropdownMenuItem
                           onSelect={(e) => e.preventDefault()}
-                          className="text-destructive"
+                          className="text-zoru-ink"
                         >
                           <Trash2 className="h-4 w-4" /> Delete
                         </ZoruDropdownMenuItem>

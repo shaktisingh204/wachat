@@ -43,7 +43,7 @@ export function KanbanCard({ contact, index }: KanbanCardProps) {
 
     return (
         <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
-            <Card className="cursor-grab active:cursor-grabbing bg-card">
+            <Card className="cursor-grab active:cursor-grabbing bg-zoru-surface">
                 <ZoruCardHeader>
                     <div className="flex justify-between items-start">
                         <ZoruCardTitle className="text-sm font-semibold">{contact.name}</ZoruCardTitle>
@@ -54,7 +54,7 @@ export function KanbanCard({ contact, index }: KanbanCardProps) {
                     <ZoruCardDescription className="text-xs">{contact.waId}</ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
+                    <p className="text-xs text-zoru-ink-muted line-clamp-2">
                         {contact.lastMessage || 'No recent activity.'}
                     </p>
                 </ZoruCardContent>

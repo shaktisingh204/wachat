@@ -95,7 +95,7 @@ export function AppRail({ activeApp }: AppRailProps) {
 
     return (
         <nav
-            className="hidden md:flex flex-col h-[calc(100vh-1rem)] w-[64px] shrink-0 m-2 mr-0 rounded-2xl z-20 overflow-hidden bg-card border border-border"
+            className="hidden md:flex flex-col h-[calc(100vh-1rem)] w-[64px] shrink-0 m-2 mr-0 rounded-2xl z-20 overflow-hidden bg-zoru-surface border border-zoru-line"
             style={{
                 boxShadow: '0 1px 3px hsl(240 6% 10% / 0.04)',
             }}
@@ -104,9 +104,9 @@ export function AppRail({ activeApp }: AppRailProps) {
             <div className="flex items-center justify-center pt-4 pb-3 shrink-0">
                 <Link
                     href="/dashboard"
-                    className="flex items-center justify-center w-9 h-9 rounded-xl bg-foreground text-background transition-all duration-200 hover:scale-105"
+                    className="flex items-center justify-center w-9 h-9 rounded-xl bg-zoru-ink text-zoru-surface transition-all duration-200 hover:scale-105"
                 >
-                    <SabNodeLogo className="w-5 h-5 text-background" />
+                    <SabNodeLogo className="w-5 h-5 text-zoru-surface" />
                 </Link>
             </div>
 
@@ -125,7 +125,7 @@ export function AppRail({ activeApp }: AppRailProps) {
                 />
 
                 {/* Micro label */}
-                <span className="mt-3 mb-1 text-[9px] font-bold uppercase tracking-[0.12em] select-none text-muted-foreground/60">
+                <span className="mt-3 mb-1 text-[9px] font-bold uppercase tracking-[0.12em] select-none text-zoru-ink-muted/60">
                     Apps
                 </span>
 
@@ -170,7 +170,7 @@ export function AppRail({ activeApp }: AppRailProps) {
                         >
                             <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-border transition-all duration-200">
                                 <ZoruAvatarImage src={avatarSrc} />
-                                <ZoruAvatarFallback className="text-[11px] font-bold bg-secondary text-foreground">
+                                <ZoruAvatarFallback className="text-[11px] font-bold bg-zoru-surface-2 text-zoru-ink">
                                     {initials}
                                 </ZoruAvatarFallback>
                             </Avatar>
@@ -222,15 +222,15 @@ function RailItem({
                     className={cn(
                         'relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 group',
                         destructive
-                            ? 'text-muted-foreground hover:text-destructive hover:bg-destructive/10'
+                            ? 'text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-ink/10'
                             : active
-                                ? 'bg-secondary text-foreground'
-                                : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                                ? 'bg-zoru-surface-2 text-zoru-ink'
+                                : 'text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2'
                     )}
                 >
                     {/* Left indicator bar */}
                     {active && !destructive && (
-                        <span className="absolute -left-[1px] top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-foreground" />
+                        <span className="absolute -left-[1px] top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-zoru-ink" />
                     )}
                     <Icon className="h-[18px] w-[18px] shrink-0" />
                     <span className="sr-only">{label}</span>

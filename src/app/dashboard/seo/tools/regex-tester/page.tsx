@@ -186,7 +186,7 @@ export default function RegexTesterPage() {
       }
       
       nodes.push(
-        <mark key={`match-${i}-${index}`} className="bg-yellow-300 text-black px-[2px] rounded-sm bg-opacity-70 border-b-2 border-yellow-500">
+        <mark key={`match-${i}-${index}`} className="bg-zoru-surface-2 text-black px-[2px] rounded-sm bg-opacity-70 border-b-2 border-zoru-line">
           {m[0]}
         </mark>
       );
@@ -208,14 +208,14 @@ export default function RegexTesterPage() {
         {/* Main Testing Area */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex gap-2 items-center">
-            <span className="text-xl text-muted-foreground">/</span>
+            <span className="text-xl text-zoru-ink-muted">/</span>
             <Input 
               value={pattern} 
               onChange={(e) => setPattern(e.target.value)} 
               placeholder="pattern" 
               className="font-mono text-base flex-1" 
             />
-            <span className="text-xl text-muted-foreground">/</span>
+            <span className="text-xl text-zoru-ink-muted">/</span>
             <Input 
               value={flags} 
               onChange={(e) => setFlags(e.target.value)} 
@@ -225,8 +225,8 @@ export default function RegexTesterPage() {
           </div>
           
           {error && (
-            <Card className="border-red-500 bg-red-50/50">
-              <ZoruCardContent className="p-4 text-red-600 text-sm font-medium">
+            <Card className="border-zoru-line bg-zoru-surface-2/50">
+              <ZoruCardContent className="p-4 text-zoru-ink text-sm font-medium">
                 Error: {error}
               </ZoruCardContent>
             </Card>
@@ -240,10 +240,10 @@ export default function RegexTesterPage() {
               <ZoruCardContent className="p-4 flex flex-wrap gap-2">
                 {parsedTokens.map((t, idx) => (
                   <div key={idx} className="flex flex-col border border-zoru-line rounded-md overflow-hidden text-xs bg-zoru-bg">
-                    <div className="bg-muted px-2 py-1 font-mono font-bold text-center border-b border-zoru-line bg-gray-100/50 dark:bg-gray-800/50">
+                    <div className="bg-zoru-surface-2 px-2 py-1 font-mono font-bold text-center border-b border-zoru-line bg-zoru-surface-2/50 dark:bg-zoru-ink/50">
                       {t.token}
                     </div>
-                    <div className="px-2 py-1 text-muted-foreground text-center">
+                    <div className="px-2 py-1 text-zoru-ink-muted text-center">
                       {t.description}
                     </div>
                   </div>
@@ -265,14 +265,14 @@ export default function RegexTesterPage() {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <label className="text-sm font-medium text-zoru-ink">Match Results</label>
-              <div className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-1 rounded-full">
+              <div className="text-xs font-semibold text-zoru-ink-muted bg-zoru-surface-2 px-2 py-1 rounded-full">
                 {matches.length} match{matches.length !== 1 ? 'es' : ''}
               </div>
             </div>
             <Card>
               <ZoruCardContent className="p-4">
                 <div className="font-mono text-sm whitespace-pre-wrap break-words leading-relaxed">
-                  {highlightedNodes || <span className="text-muted-foreground italic">No matches yet...</span>}
+                  {highlightedNodes || <span className="text-zoru-ink-muted italic">No matches yet...</span>}
                 </div>
               </ZoruCardContent>
             </Card>
@@ -290,17 +290,17 @@ export default function RegexTesterPage() {
               <Accordion type="multiple" defaultValue={['category-0', 'category-1', 'category-2', 'category-3']} className="w-full">
                 {CHEATSHEET.map((cat, catIdx) => (
                   <ZoruAccordionItem key={catIdx} value={`category-${catIdx}`} className="border-x-0 first:border-t-0 last:border-b-0">
-                    <ZoruAccordionTrigger className="px-4 py-3 hover:bg-muted/50 transition-colors">
+                    <ZoruAccordionTrigger className="px-4 py-3 hover:bg-zoru-surface-2/50 transition-colors">
                       {cat.category}
                     </ZoruAccordionTrigger>
                     <ZoruAccordionContent className="px-4 pb-4">
                       <div className="space-y-2.5 pt-1">
                         {cat.items.map((item, i) => (
                           <div key={i} className="flex gap-3 text-sm">
-                            <code className="font-mono bg-muted/60 text-zoru-ink-strong px-1.5 py-0.5 rounded text-xs whitespace-nowrap self-start">
+                            <code className="font-mono bg-zoru-surface-2/60 text-zoru-ink-strong px-1.5 py-0.5 rounded text-xs whitespace-nowrap self-start">
                               {item.token}
                             </code>
-                            <span className="text-muted-foreground text-xs leading-relaxed">
+                            <span className="text-zoru-ink-muted text-xs leading-relaxed">
                               {item.description}
                             </span>
                           </div>

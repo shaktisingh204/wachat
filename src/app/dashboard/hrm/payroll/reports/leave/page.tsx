@@ -291,9 +291,9 @@ export default function LeaveReportPage() {
                                 <th className="px-4 py-3 font-medium text-zoru-ink-muted">Employee</th>
                                 <th className="px-4 py-3 font-medium text-zoru-ink-muted">Leave Type</th>
                                 <th className="px-4 py-3 text-center font-medium text-zoru-ink-muted">Allocated</th>
-                                <th className="px-4 py-3 text-center font-medium text-green-600">Used</th>
-                                <th className="px-4 py-3 text-center font-medium text-amber-500">Pending</th>
-                                <th className="px-4 py-3 text-center font-medium text-sky-500">Remaining</th>
+                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">Used</th>
+                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">Pending</th>
+                                <th className="px-4 py-3 text-center font-medium text-zoru-ink">Remaining</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -325,8 +325,8 @@ export default function LeaveReportPage() {
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-3 text-center text-zoru-ink">{group.allocated}</td>
-                                                <td className="px-4 py-3 text-center font-semibold text-green-600">{group.used}</td>
-                                                <td className="px-4 py-3 text-center font-semibold text-amber-500">{group.pending}</td>
+                                                <td className="px-4 py-3 text-center font-semibold text-zoru-ink">{group.used}</td>
+                                                <td className="px-4 py-3 text-center font-semibold text-zoru-ink">{group.pending}</td>
                                                 <td className="px-4 py-3 text-center">
                                                     <Badge variant={group.remaining > 0 ? 'info' : 'danger'}>{group.remaining}</Badge>
                                                 </td>
@@ -341,8 +341,8 @@ export default function LeaveReportPage() {
                                                         <Badge variant="secondary" className="text-[11px] font-medium">{row.leaveType}</Badge>
                                                     </td>
                                                     <td className="px-4 py-2 text-center text-zoru-ink-muted">{row.allocated}</td>
-                                                    <td className="px-4 py-2 text-center font-medium text-green-600/80">{row.used}</td>
-                                                    <td className="px-4 py-2 text-center font-medium text-amber-500/80">{row.pending}</td>
+                                                    <td className="px-4 py-2 text-center font-medium text-zoru-ink/80">{row.used}</td>
+                                                    <td className="px-4 py-2 text-center font-medium text-zoru-ink/80">{row.pending}</td>
                                                     <td className="px-4 py-2 text-center text-zoru-ink-muted">{row.remaining}</td>
                                                 </tr>
                                             ))}
@@ -353,8 +353,8 @@ export default function LeaveReportPage() {
                                         <td className="px-4 py-3 text-zoru-ink">Totals</td>
                                         <td className="px-4 py-3" />
                                         <td className="px-4 py-3 text-center text-zoru-ink">{groupedData.reduce((s, r) => s + r.allocated, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-green-600">{groupedData.reduce((s, r) => s + r.used, 0)}</td>
-                                        <td className="px-4 py-3 text-center text-amber-500">{groupedData.reduce((s, r) => s + r.pending, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-zoru-ink">{groupedData.reduce((s, r) => s + r.used, 0)}</td>
+                                        <td className="px-4 py-3 text-center text-zoru-ink">{groupedData.reduce((s, r) => s + r.pending, 0)}</td>
                                         <td className="px-4 py-3 text-center text-zoru-ink">{groupedData.reduce((s, r) => s + r.remaining, 0)}</td>
                                     </tr>
                                 </>

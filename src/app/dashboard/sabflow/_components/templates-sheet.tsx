@@ -188,24 +188,24 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
         aria-label="Browse templates"
         className={cn(
           'absolute right-0 top-0 h-full w-full max-w-[640px]',
-          'bg-zinc-950 border-l border-zinc-800 shadow-2xl',
+          'bg-zoru-ink border-l border-zoru-line shadow-2xl',
           'flex flex-col',
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zoru-line shrink-0">
           <div className="flex items-center gap-2">
-            <LuSparkles className="w-4 h-4 text-zinc-400" />
-            <span className="text-sm font-semibold text-zinc-100">
+            <LuSparkles className="w-4 h-4 text-zoru-ink-muted" />
+            <span className="text-sm font-semibold text-white">
               Browse templates
             </span>
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs text-zoru-ink">
               {filtered.length} of {CHATBOT_TEMPLATES.length}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="text-zinc-500 hover:text-zinc-200 transition-colors"
+            className="text-zoru-ink hover:text-white transition-colors"
           >
             <LuX className="w-4 h-4" />
           </button>
@@ -214,13 +214,13 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
         {/* Toolbar */}
         <div className="px-6 pt-4 pb-3 space-y-3 shrink-0">
           <div className="relative">
-            <LuSearch className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <LuSearch className="w-3.5 h-3.5 text-zoru-ink absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search templates (e.g. lead, support, quiz)…"
-              className="w-full bg-zinc-900 border border-zinc-700/60 rounded-lg pl-9 pr-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500"
+              className="w-full bg-zoru-ink border border-zoru-line/60 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-zoru-ink focus:outline-none focus:border-zoru-line"
               autoFocus
             />
           </div>
@@ -233,8 +233,8 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
                 className={cn(
                   'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors',
                   filter === cat
-                    ? 'bg-zinc-100 text-zinc-900 border-zinc-100'
-                    : 'bg-zinc-800/60 text-zinc-300 border-zinc-700/60 hover:bg-zinc-700/60',
+                    ? 'bg-zoru-surface-2 text-zoru-ink border-zoru-line'
+                    : 'bg-zoru-ink/60 text-zoru-ink-muted border-zoru-line/60 hover:bg-zoru-ink/60',
                 )}
               >
                 {cat}
@@ -242,8 +242,8 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
                   className={cn(
                     'inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full px-1 text-[10px]',
                     filter === cat
-                      ? 'bg-zinc-900/15 text-zinc-700'
-                      : 'bg-zinc-900 text-zinc-500',
+                      ? 'bg-zoru-ink/15 text-zoru-ink'
+                      : 'bg-zoru-ink text-zoru-ink',
                   )}
                 >
                   {counts[cat] ?? 0}
@@ -255,7 +255,7 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
 
         {/* Error */}
         {error && (
-          <div className="mx-6 mb-2 px-3 py-2 rounded-lg border border-red-500/40 bg-red-500/10 text-xs text-red-300">
+          <div className="mx-6 mb-2 px-3 py-2 rounded-lg border border-zoru-line/40 bg-zoru-ink/10 text-xs text-zoru-ink-muted">
             {error}
           </div>
         )}
@@ -275,7 +275,7 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
         {/* List */}
         <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-6">
           {filtered.length === 0 ? (
-            <p className="text-sm text-zinc-500 py-10 text-center">
+            <p className="text-sm text-zoru-ink py-10 text-center">
               No templates match your filter.
             </p>
           ) : (
@@ -292,33 +292,33 @@ export function TemplatesSheet({ open, onClose, onCreated }: Props) {
                     onClick={() => handleSelect(tpl)}
                     className={cn(
                       'group relative flex flex-col gap-2 rounded-xl border p-4 text-left transition-colors',
-                      'border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-zinc-700',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40',
+                      'border-zoru-line bg-zoru-ink/50 hover:bg-zoru-ink hover:border-zoru-line',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line/40',
                       disabled && !busy && 'opacity-50 cursor-not-allowed',
                     )}
                   >
                     <div className="flex items-center gap-2">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-700/60 bg-zinc-950">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-zoru-line/60 bg-zoru-ink">
                         {busy ? (
-                          <LuLoader className="h-4 w-4 animate-spin text-zinc-300" />
+                          <LuLoader className="h-4 w-4 animate-spin text-zoru-ink-muted" />
                         ) : (
-                          <Icon className="h-4 w-4 text-zinc-300" strokeWidth={1.75} />
+                          <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-semibold text-zinc-100 truncate">
+                        <p className="text-[13px] font-semibold text-white truncate">
                           <span className="mr-1" aria-hidden>
                             {tpl.emoji}
                           </span>
                           {tpl.name}
                         </p>
-                        <p className="text-[10.5px] uppercase tracking-wider text-zinc-500 mt-0.5">
+                        <p className="text-[10.5px] uppercase tracking-wider text-zoru-ink mt-0.5">
                           {tpl.category}
                         </p>
                       </div>
-                      <LuChevronRight className="h-4 w-4 text-zinc-600 group-hover:text-zinc-300 transition-colors" />
+                      <LuChevronRight className="h-4 w-4 text-zoru-ink group-hover:text-zoru-ink-muted transition-colors" />
                     </div>
-                    <p className="text-[11.5px] text-zinc-400 leading-snug">
+                    <p className="text-[11.5px] text-zoru-ink-muted leading-snug">
                       {tpl.description}
                     </p>
                   </button>
@@ -353,8 +353,8 @@ function FeaturedRow({
   if (templates.length === 0) return null;
   return (
     <div className="px-6 pb-3 shrink-0">
-      <div className="mb-2 flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-zinc-500">
-        <LuSparkles className="h-3 w-3 text-amber-400" />
+      <div className="mb-2 flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-zoru-ink">
+        <LuSparkles className="h-3 w-3 text-zoru-ink-muted" />
         Featured
       </div>
       <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
@@ -368,21 +368,21 @@ function FeaturedRow({
               disabled={disabled}
               onClick={() => onSelect(tpl)}
               className={cn(
-                'group shrink-0 w-[220px] rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-500/10 to-zinc-900/60 p-3 text-left transition-colors',
-                'hover:border-amber-400/60 hover:from-amber-500/15',
+                'group shrink-0 w-[220px] rounded-xl border border-zoru-line/30 bg-gradient-to-br from-zoru-ink/10 to-zoru-ink/60 p-3 text-left transition-colors',
+                'hover:border-zoru-line/60 hover:from-zoru-ink/15',
                 disabled && !busy && 'opacity-50 cursor-not-allowed',
               )}
             >
               <div className="flex items-center gap-2 mb-1.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-amber-400/30 bg-zinc-950 text-amber-300">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-zoru-line/30 bg-zoru-ink text-zoru-ink-muted">
                   {busy ? <LuLoader className="h-3.5 w-3.5 animate-spin" /> : <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />}
                 </div>
-                <p className="flex-1 truncate text-[12.5px] font-semibold text-zinc-100">
+                <p className="flex-1 truncate text-[12.5px] font-semibold text-white">
                   <span className="mr-1" aria-hidden>{tpl.emoji}</span>
                   {tpl.name}
                 </p>
               </div>
-              <p className="text-[10.5px] text-zinc-400 leading-snug line-clamp-2">
+              <p className="text-[10.5px] text-zoru-ink-muted leading-snug line-clamp-2">
                 {tpl.description}
               </p>
             </button>

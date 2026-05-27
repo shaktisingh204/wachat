@@ -63,7 +63,7 @@ use telegram_api_credentials::TelegramApiCredentialsState;
 use telegram_business_inbox::TelegramBusinessInboxState;
 use telegram_contacts::TelegramContactsState;
 use telegram_settings::TelegramSettingsState;
-use telegram_webhooks::{BotApiClient as TelegramWebhooksBotApi, TelegramWebhooksState};
+use telegram_webhooks::TelegramWebhooksState;
 use sabflow_engine::SabflowEngineState;
 use sabflow_engine_runtime::SabflowRuntimeState;
 use email_audience::EmailAudienceState;

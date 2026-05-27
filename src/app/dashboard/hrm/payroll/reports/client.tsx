@@ -23,8 +23,8 @@ const REPORT_CATEGORIES = [
         icon: CalendarCheck,
         title: 'Attendance Report',
         description: 'Track employee attendance, absences, late arrivals, WFH days, and half-days across any date range.',
-        color: 'text-emerald-500',
-        bg: 'bg-emerald-50',
+        color: 'text-zoru-ink',
+        bg: 'bg-zoru-surface-2',
         stroke: '#10b981', // emerald-500
     },
     {
@@ -33,8 +33,8 @@ const REPORT_CATEGORIES = [
         icon: CalendarX,
         title: 'Leave Report',
         description: 'View leave allocation, usage, pending requests, and remaining balances by employee and leave type.',
-        color: 'text-amber-500',
-        bg: 'bg-amber-50',
+        color: 'text-zoru-ink',
+        bg: 'bg-zoru-surface-2',
         stroke: '#f59e0b', // amber-500
     },
     {
@@ -43,8 +43,8 @@ const REPORT_CATEGORIES = [
         icon: FileSpreadsheet,
         title: 'Payroll Summary',
         description: 'Monthly payroll breakdown with gross salary, PF, ESI, TDS, professional tax, and net pay per employee.',
-        color: 'text-sky-500',
-        bg: 'bg-sky-50',
+        color: 'text-zoru-ink',
+        bg: 'bg-zoru-surface-2',
         stroke: '#0ea5e9', // sky-500
     },
     {
@@ -53,8 +53,8 @@ const REPORT_CATEGORIES = [
         icon: BookOpen,
         title: 'Salary Register',
         description: 'Detailed salary component register — basic, HRA, allowances, and all deductions for any month.',
-        color: 'text-accent-foreground',
-        bg: 'bg-accent',
+        color: 'text-zoru-ink',
+        bg: 'bg-zoru-surface-2',
         stroke: '#52525b', // zinc-500
     },
 ];
@@ -115,10 +115,10 @@ export default function HrReportsIndexClient() {
                             <Card className="relative flex h-full flex-col p-6 transition-shadow duration-150 group-hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-primary/30">
                                 <button
                                     onClick={(e) => toggleFavourite(e, id)}
-                                    className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-amber-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                                    className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full text-zoru-ink-muted transition-colors hover:bg-zoru-surface-2 hover:text-zoru-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                                     aria-label={isFav ? "Remove from favourites" : "Add to favourites"}
                                 >
-                                    <Star className={`h-4 w-4 ${isFav ? 'fill-amber-500 text-amber-500' : ''}`} />
+                                    <Star className={`h-4 w-4 ${isFav ? 'fill-zoru-ink text-zoru-ink' : ''}`} />
                                 </button>
                                 
                                 <div className={`mb-4 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${bg}`}>

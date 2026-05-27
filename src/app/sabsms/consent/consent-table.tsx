@@ -158,7 +158,7 @@ export function ConsentTable({
         render: (r) => (
           <button
             type="button"
-            className="font-mono text-xs text-slate-700 hover:text-slate-900"
+            className="font-mono text-xs text-zoru-ink hover:text-zoru-ink"
             onClick={() => openTimeline(r)}
           >
             {r.phoneHash.slice(0, 12)}…{r.phoneHash.slice(-4)}
@@ -182,7 +182,7 @@ export function ConsentTable({
         id: "captureMethod",
         header: "Capture",
         render: (r) => (
-          <span className="text-xs text-slate-600">{r.captureMethod}</span>
+          <span className="text-xs text-zoru-ink">{r.captureMethod}</span>
         ),
         width: "120px",
       },
@@ -191,16 +191,16 @@ export function ConsentTable({
         header: "Source URL",
         render: (r) =>
           r.source ? (
-            <span className="truncate text-xs text-slate-600">{r.source}</span>
+            <span className="truncate text-xs text-zoru-ink">{r.source}</span>
           ) : (
-            <span className="text-xs text-slate-400">—</span>
+            <span className="text-xs text-zoru-ink-muted">—</span>
           ),
       },
       {
         id: "ip",
         header: "IP",
         render: (r) => (
-          <span className="font-mono text-xs text-slate-500">
+          <span className="font-mono text-xs text-zoru-ink">
             {r.ip ?? "—"}
           </span>
         ),
@@ -212,14 +212,14 @@ export function ConsentTable({
         render: (r) =>
           r.userAgent ? (
             <span
-              className="truncate text-xs text-slate-500"
+              className="truncate text-xs text-zoru-ink"
               title={r.userAgent}
             >
               {r.userAgent.slice(0, 36)}
               {r.userAgent.length > 36 ? "…" : ""}
             </span>
           ) : (
-            <span className="text-xs text-slate-400">—</span>
+            <span className="text-xs text-zoru-ink-muted">—</span>
           ),
         width: "200px",
         hideByDefault: true,
@@ -365,7 +365,7 @@ export function ConsentTable({
           {jurisdictions.map((j) => (
             <span
               key={j.code}
-              className="flex items-center gap-1.5 rounded-md border border-slate-200 px-2.5 py-1 text-xs"
+              className="flex items-center gap-1.5 rounded-md border border-zoru-line px-2.5 py-1 text-xs"
               title={j.note}
             >
               <Badge
@@ -379,7 +379,7 @@ export function ConsentTable({
               >
                 {j.code}
               </Badge>
-              <span className="text-slate-600">{j.note}</span>
+              <span className="text-zoru-ink">{j.note}</span>
             </span>
           ))}
         </ZoruCardContent>
@@ -554,15 +554,15 @@ export function ConsentTable({
         }
       >
         {timelineLoading ? (
-          <p className="text-sm text-slate-500">Loading…</p>
+          <p className="text-sm text-zoru-ink">Loading…</p>
         ) : timelineRows.length === 0 ? (
-          <p className="text-sm text-slate-500">No events for this hash.</p>
+          <p className="text-sm text-zoru-ink">No events for this hash.</p>
         ) : (
           <ol className="space-y-3">
             {timelineRows.map((e) => (
               <li
                 key={e.id}
-                className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs"
+                className="rounded-md border border-zoru-line bg-zoru-surface-2 px-3 py-2 text-xs"
               >
                 <div className="flex items-center justify-between">
                   <Badge
@@ -572,15 +572,15 @@ export function ConsentTable({
                   >
                     {e.kind}
                   </Badge>
-                  <span className="text-slate-500">
+                  <span className="text-zoru-ink">
                     {new Date(e.createdAt).toLocaleString()}
                   </span>
                 </div>
-                <p className="mt-1.5 text-slate-700">
+                <p className="mt-1.5 text-zoru-ink">
                   via {e.captureMethod}
                   {e.source && ` · ${e.source}`}
                 </p>
-                {e.ip && <p className="text-slate-500">ip {e.ip}</p>}
+                {e.ip && <p className="text-zoru-ink">ip {e.ip}</p>}
               </li>
             ))}
           </ol>
@@ -604,7 +604,7 @@ export function ConsentTable({
           />
           {verifyResult && (
             <div
-              className={`rounded-md border p-3 text-sm ${verifyResult.verified ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-rose-200 bg-rose-50 text-rose-800"}`}
+              className={`rounded-md border p-3 text-sm ${verifyResult.verified ? "border-zoru-line bg-zoru-surface-2 text-zoru-ink" : "border-zoru-line bg-zoru-surface-2 text-zoru-ink"}`}
             >
               {verifyResult.verified
                 ? `Verified at ${verifyResult.verifiedAt}`
@@ -906,7 +906,7 @@ function ConsentTaxonomyEditor({
         {labels.map((l) => (
           <li
             key={l}
-            className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-1.5 text-sm"
           >
             <span>{l}</span>
             <Button variant="ghost" size="sm" onClick={() => remove(l)}>

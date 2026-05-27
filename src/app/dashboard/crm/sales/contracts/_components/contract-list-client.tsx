@@ -62,11 +62,11 @@ interface KpiCardProps {
 function KpiCard({ label, value, active, onClick, tone = 'neutral' }: KpiCardProps) {
   const toneClass =
     tone === 'green'
-      ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+      ? 'border-zoru-line/30 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
       : tone === 'amber'
-        ? 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400'
+        ? 'border-zoru-line/30 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
         : tone === 'red'
-          ? 'border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-400'
+          ? 'border-zoru-line/30 bg-zoru-ink/10 text-zoru-ink dark:text-zoru-ink-muted'
           : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink-muted';
 
   return (
@@ -650,7 +650,7 @@ export function ContractListClient({
           </div>
 
           {error ? (
-            <div className="rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-700 dark:text-amber-400">
+            <div className="rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
               {error}
             </div>
           ) : null}

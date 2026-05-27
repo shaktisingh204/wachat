@@ -346,14 +346,14 @@ export default function BulkEditorPage() {
                         <select 
                             value={entityType} 
                             onChange={(e) => setEntityType(e.target.value as any)}
-                            className="h-9 px-3 rounded-md border border-input bg-background text-sm mr-2"
+                            className="h-9 px-3 rounded-md border border-zoru-line bg-zoru-surface text-sm mr-2"
                         >
                             <option value="campaigns">Campaigns</option>
                             <option value="adsets">Ad Sets</option>
                             <option value="ads">Ads</option>
                         </select>
                         
-                        <div className="flex items-center rounded-md border border-input overflow-hidden">
+                        <div className="flex items-center rounded-md border border-zoru-line overflow-hidden">
                             <Button variant="ghost" size="icon" className="h-9 w-9 rounded-none border-r" onClick={undo} disabled={historyIndex <= 0} title="Undo">
                                 <Undo2 className="h-4 w-4" />
                             </Button>
@@ -420,7 +420,7 @@ export default function BulkEditorPage() {
                             <RotateCcw className="h-4 w-4 mr-1" /> Reset
                         </Button>
                         <Button
-                            className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
+                            className="bg-zoru-ink hover:bg-zoru-ink/90 text-white"
                             onClick={saveAll}
                             disabled={saving || dirtyCount === 0}
                         >
@@ -431,7 +431,7 @@ export default function BulkEditorPage() {
                 }
             />
 
-            <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
+            <div className="flex items-center gap-2 text-sm text-zoru-ink-muted flex-wrap">
                 <Table2 className="h-4 w-4" />
                 <span>Edit {entityType} inline. Use bulk tools below for selected items.</span>
 
@@ -455,7 +455,7 @@ export default function BulkEditorPage() {
                                     <Label>Replace with</Label>
                                     <Input value={replaceText} onChange={e => setReplaceText(e.target.value)} placeholder="Replacement text..." />
                                 </div>
-                                <p className="text-xs text-muted-foreground">Applies to selected items, or all if none selected.</p>
+                                <p className="text-xs text-zoru-ink-muted">Applies to selected items, or all if none selected.</p>
                             </div>
                             <DialogFooter>
                                 <Button variant="outline" onClick={() => setFindReplaceOpen(false)}>Cancel</Button>
@@ -485,7 +485,7 @@ export default function BulkEditorPage() {
                                             placeholder="e.g. 10 for +10%, -20 for -20%" 
                                         />
                                     </div>
-                                    <p className="text-xs text-muted-foreground">Applies to selected items, or all if none selected.</p>
+                                    <p className="text-xs text-zoru-ink-muted">Applies to selected items, or all if none selected.</p>
                                 </div>
                                 <DialogFooter>
                                     <Button variant="outline" onClick={() => setBudgetIncrementOpen(false)}>Cancel</Button>
@@ -508,7 +508,7 @@ export default function BulkEditorPage() {
                     ) : (
                         <div ref={parentRef} className="h-[600px] overflow-auto">
                             <Table>
-                                <ZoruTableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
+                                <ZoruTableHeader className="sticky top-0 z-10 bg-zoru-surface/95 backdrop-blur shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
                                     <ZoruTableRow>
                                         <ZoruTableHead className="w-10">
                                             <Checkbox
@@ -530,7 +530,7 @@ export default function BulkEditorPage() {
                                         return (
                                             <ZoruTableRow 
                                                 key={r.id} 
-                                                className={r.dirty ? 'bg-amber-50 dark:bg-amber-950/20' : ''}
+                                                className={r.dirty ? 'bg-zoru-surface-2 dark:bg-zoru-ink/20' : ''}
                                                 data-index={virtualRow.index}
                                                 ref={rowVirtualizer.measureElement}
                                             >
@@ -541,12 +541,12 @@ export default function BulkEditorPage() {
                                                         aria-label={`Select ${r.name}`}
                                                     />
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-xs font-mono text-muted-foreground w-40 truncate">{r.id}</ZoruTableCell>
+                                                <ZoruTableCell className="text-xs font-mono text-zoru-ink-muted w-40 truncate">{r.id}</ZoruTableCell>
                                                 <ZoruTableCell>
                                                     <EditableNameCell row={r} onUpdate={handleUpdateRow} />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="w-24">
-                                                    <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded-full ${r.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-secondary text-secondary-foreground'}`}>
+                                                    <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded-full ${r.status === 'ACTIVE' ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>
                                                         {r.status}
                                                     </span>
                                                 </ZoruTableCell>

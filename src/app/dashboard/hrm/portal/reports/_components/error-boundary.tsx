@@ -28,11 +28,11 @@ export class ReportsErrorBoundary extends React.Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 flex flex-col items-center justify-center space-y-4">
-          <AlertCircle className="h-8 w-8 text-red-500" />
+        <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-6 flex flex-col items-center justify-center space-y-4">
+          <AlertCircle className="h-8 w-8 text-zoru-ink" />
           <div className="text-center">
-            <h3 className="text-[15px] font-semibold text-red-900">Something went wrong loading reports</h3>
-            <p className="text-[13px] text-red-700 mt-1">{this.state.error?.message}</p>
+            <h3 className="text-[15px] font-semibold text-zoru-ink">Something went wrong loading reports</h3>
+            <p className="text-[13px] text-zoru-ink mt-1">{this.state.error?.message}</p>
           </div>
           <Button variant="outline" size="sm" onClick={() => this.setState({ hasError: false })}>
             Try again

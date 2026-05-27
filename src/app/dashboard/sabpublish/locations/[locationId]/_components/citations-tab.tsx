@@ -78,7 +78,7 @@ export function SabpublishCitationsTab({
                     {c.matchScore}% · {c.status}
                   </Badge>
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-zoru-ink-muted">
                   {c.foundFields.name ? `Name: ${c.foundFields.name} · ` : ''}
                   {c.foundFields.address
                     ? `Addr: ${c.foundFields.address} · `

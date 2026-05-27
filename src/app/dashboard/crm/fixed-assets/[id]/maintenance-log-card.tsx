@@ -56,7 +56,7 @@ export function MaintenanceLogCard({ assetId, currency }: { assetId: string, cur
         {loading ? (
           <p className="text-[13px] text-zoru-ink-muted">Loading logs...</p>
         ) : logs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-zoru-line bg-muted/50 p-6 text-center">
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2/50 p-6 text-center">
             <p className="text-[13px] text-zoru-ink-muted">No maintenance history recorded.</p>
           </div>
         ) : (

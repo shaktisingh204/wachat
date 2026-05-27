@@ -9,25 +9,25 @@ const quotes = [
         body: 'We replaced Intercom, Chatwoot, Zoho, and Mailchimp with one SabNode tenant. Saved 70% and our agents stopped tab-switching.',
         name: 'Priya Menon',
         role: 'Head of CX, Lumen Living',
-        avatarColor: 'from-rose-400 to-pink-500',
+        avatarColor: 'from-zoru-surface-2 to-zoru-ink',
     },
     {
         body: 'The omnichannel inbox alone paid for the year. WhatsApp + Instagram + email in one window, with AI drafting replies in our tone.',
         name: 'Tunde Bakare',
         role: 'COO, North & Co',
-        avatarColor: 'from-amber-400 to-orange-500',
+        avatarColor: 'from-zoru-surface-2 to-zoru-ink',
     },
     {
         body: 'SabFlow is what we always wished Zapier was. 900 integrations, real branching, real reporting. We automated the back-office in a weekend.',
         name: 'Sara Lindqvist',
         role: 'Founder, Cirrus Studio',
-        avatarColor: 'from-violet-400 to-fuchsia-500',
+        avatarColor: 'from-zoru-surface-2 to-zoru-ink',
     },
     {
         body: 'Onboarding to SabChat took an afternoon. Two weeks later first-response time dropped from 14m to 2m and CSAT jumped to 4.8.',
         name: 'Marco Bellini',
         role: 'Support Lead, Prisma Mobility',
-        avatarColor: 'from-sky-400 to-indigo-500',
+        avatarColor: 'from-zoru-surface-2 to-zoru-ink',
     },
 ];
 
@@ -58,10 +58,10 @@ export function Testimonials() {
                     viewport={{ once: true }}
                     className="mx-auto max-w-3xl text-center"
                 >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zoru-ink">
                         Customer love
                     </p>
-                    <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl md:text-6xl">
+                    <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zoru-ink sm:text-5xl md:text-6xl">
                         Teams that switched, don&apos;t look back.
                     </h2>
                 </m.div>
@@ -78,8 +78,8 @@ export function Testimonials() {
                 <m.div className="flex gap-16 px-6" style={{ x }}>
                     {doubled.map((q, i) => (
                         <figure key={i} className="flex w-[460px] flex-shrink-0 flex-col">
-                            <Quote className="h-7 w-7 text-amber-500/70" />
-                            <blockquote className="mt-4 text-lg leading-relaxed text-zinc-800">
+                            <Quote className="h-7 w-7 text-zoru-ink/70" />
+                            <blockquote className="mt-4 text-lg leading-relaxed text-zoru-ink">
                                 {q.body}
                             </blockquote>
                             <figcaption className="mt-6 flex items-center gap-3">
@@ -87,12 +87,12 @@ export function Testimonials() {
                                     {q.name.split(' ').map((s) => s[0]).join('').slice(0, 2)}
                                 </div>
                                 <div>
-                                    <div className="text-sm font-medium text-zinc-900">{q.name}</div>
-                                    <div className="text-xs text-zinc-500">{q.role}</div>
+                                    <div className="text-sm font-medium text-zoru-ink">{q.name}</div>
+                                    <div className="text-xs text-zoru-ink">{q.role}</div>
                                 </div>
                                 <div className="ml-auto flex items-center gap-0.5">
                                     {[0, 1, 2, 3, 4].map((s) => (
-                                        <Star key={s} className="h-3 w-3 fill-amber-400 text-amber-400" />
+                                        <Star key={s} className="h-3 w-3 fill-zoru-ink-muted text-zoru-ink-muted" />
                                     ))}
                                 </div>
                             </figcaption>

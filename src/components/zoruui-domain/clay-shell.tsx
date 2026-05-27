@@ -14,7 +14,7 @@ export interface ClayShellProps
 
 /**
  * ClayShell — outermost layout primitive. Now expressed entirely in
- * shadcn tokens (`bg-background`, `bg-card`, `text-foreground`) so
+ * shadcn tokens (`bg-zoru-surface`, `bg-zoru-surface`, `text-zoru-ink`) so
  * it inherits whatever theme the consumer has set rather than the
  * legacy clay palette.
  */
@@ -25,7 +25,7 @@ export const ClayShell = React.forwardRef<HTMLDivElement, ClayShellProps>(
         <div
           ref={ref}
           className={cn(
-            'relative w-full bg-background text-foreground',
+            'relative w-full bg-zoru-surface text-zoru-ink',
             className,
           )}
           style={{ fontFamily: 'var(--font-sab-sans), system-ui, sans-serif' }}
@@ -39,13 +39,13 @@ export const ClayShell = React.forwardRef<HTMLDivElement, ClayShellProps>(
     return (
       <div
         ref={ref}
-        className="relative w-full bg-background text-foreground p-3 md:p-4"
+        className="relative w-full bg-zoru-surface text-zoru-ink p-3 md:p-4"
         style={{ fontFamily: 'var(--font-sab-sans), system-ui, sans-serif' }}
         {...props}
       >
         <div
           className={cn(
-            'rounded-3xl bg-card text-card-foreground shadow-sm overflow-hidden',
+            'rounded-3xl bg-zoru-surface text-zoru-ink shadow-sm overflow-hidden',
             className,
           )}
         >

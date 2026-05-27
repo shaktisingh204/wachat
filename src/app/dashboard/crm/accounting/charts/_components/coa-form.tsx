@@ -110,7 +110,7 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                     placeholder="e.g. 1100"
                                     defaultValue={(initial as { code?: string } | null | undefined)?.code ?? ''}
                                 />
-                                <p className="text-[11.5px] text-muted-foreground">
+                                <p className="text-[11.5px] text-zoru-ink-muted">
                                     Optional. Useful for chart numbering schemes.
                                 </p>
                             </div>
@@ -148,7 +148,7 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                     </ZoruSelectContent>
                                 </Select>
                                 {selectedNature ? (
-                                    <p className="text-[11.5px] text-muted-foreground">
+                                    <p className="text-[11.5px] text-zoru-ink-muted">
                                         Nature: <strong>{selectedNature}</strong> ·{' '}
                                         Sub-nature: <strong>{selectedGroup?.category.replace(/_/g, ' ')}</strong>
                                     </p>
@@ -226,12 +226,12 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                     initialId={(initial as { taxBehavior?: string } | null | undefined)?.taxBehavior ?? 'none'}
                                 />
                             </div>
-                            <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
+                            <label className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                                 <div>
-                                    <p className="text-[13px] font-medium text-foreground">
+                                    <p className="text-[13px] font-medium text-zoru-ink">
                                         Affects gross profit
                                     </p>
-                                    <p className="text-[11.5px] text-muted-foreground">
+                                    <p className="text-[11.5px] text-zoru-ink-muted">
                                         Include this account in COGS / gross-profit calculations.
                                     </p>
                                 </div>
@@ -262,10 +262,10 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                     defaultValue={initial?.description ?? ''}
                                 />
                             </div>
-                            <label className="flex items-center justify-between rounded-lg border border-border bg-secondary p-3">
+                            <label className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 p-3">
                                 <div>
-                                    <p className="text-[13px] font-medium text-foreground">Active</p>
-                                    <p className="text-[11.5px] text-muted-foreground">
+                                    <p className="text-[13px] font-medium text-zoru-ink">Active</p>
+                                    <p className="text-[11.5px] text-zoru-ink-muted">
                                         Inactive accounts stay in your history but hide from pickers.
                                     </p>
                                 </div>

@@ -24,7 +24,7 @@ export default function EmbeddedSignup({ appId, configId, includeCatalog, state,
   const authUrl = `/api/auth/facebook/login?includeCatalog=${includeCatalog}&state=${state}${reauthorize ? '&reauthorize=true' : ''}`;
 
   return (
-    <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
+    <Button asChild size="lg" className="bg-zoru-ink hover:bg-zoru-ink/90 w-full">
       <Link href={authUrl}>
         <WhatsAppIcon className="mr-2 h-5 w-5" />
         {reauthorize ? 'Re-authorize with Facebook' : 'Connect with Facebook'}

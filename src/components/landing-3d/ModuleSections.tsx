@@ -48,23 +48,23 @@ export function ModuleDetailSections() {
     <div id="modules" className="relative">
       <div className="container mx-auto px-6 pt-8 pb-4 text-center">
         <div
-          className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/85 px-3.5 py-1.5 text-[11px] font-semibold text-emerald-800"
+          className="inline-flex items-center gap-2 rounded-full border border-zoru-line bg-white/85 px-3.5 py-1.5 text-[11px] font-semibold text-zoru-ink"
           style={{
             backdropFilter: 'blur(12px) saturate(1.5)',
             WebkitBackdropFilter: 'blur(12px) saturate(1.5)',
           }}
         >
-          <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500" />
+          <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-zoru-surface-2 to-zoru-ink" />
           <span className="uppercase tracking-[0.08em]">The modules</span>
         </div>
         <h2
           ref={introTitleRef}
-          className="mt-5 text-3xl md:text-4xl lg:text-[44px] font-semibold leading-[1.08] tracking-[-0.02em] text-emerald-950 max-w-2xl mx-auto"
+          className="mt-5 text-3xl md:text-4xl lg:text-[44px] font-semibold leading-[1.08] tracking-[-0.02em] text-zoru-ink max-w-2xl mx-auto"
           style={{ perspective: '1000px' }}
         >
           Twelve modules. One connected system.
         </h2>
-        <p className="mt-4 text-base md:text-lg text-emerald-900/70 max-w-xl mx-auto leading-relaxed">
+        <p className="mt-4 text-base md:text-lg text-zoru-ink/70 max-w-xl mx-auto leading-relaxed">
           Scroll on. Each module reveals itself as it enters view.
         </p>
       </div>
@@ -198,11 +198,11 @@ function ModuleBranch({
   const textBlock = (
     <div ref={textBlockRef} className="max-w-md">
       <div data-reveal className="flex items-center gap-3">
-        <div className="font-mono text-[11px] text-emerald-700 tabular-nums">
+        <div className="font-mono text-[11px] text-zoru-ink tabular-nums">
           {num} / 12
         </div>
-        <div className="h-px w-12 bg-emerald-300" />
-        <div className="text-[10px] uppercase tracking-[0.2em] text-emerald-700/70">
+        <div className="h-px w-12 bg-zoru-surface-2" />
+        <div className="text-[10px] uppercase tracking-[0.2em] text-zoru-ink/70">
           Module
         </div>
       </div>
@@ -210,7 +210,7 @@ function ModuleBranch({
       <h3
         ref={headingRef}
         data-reveal
-        className="mt-5 text-3xl md:text-4xl lg:text-[44px] font-semibold leading-[1.08] tracking-[-0.02em] text-emerald-950"
+        className="mt-5 text-3xl md:text-4xl lg:text-[44px] font-semibold leading-[1.08] tracking-[-0.02em] text-zoru-ink"
         style={{ perspective: '1000px' }}
       >
         {m.label}
@@ -225,14 +225,14 @@ function ModuleBranch({
       </p>
       <p
         data-reveal
-        className="mt-4 text-[15px] text-emerald-900/70 leading-relaxed"
+        className="mt-4 text-[15px] text-zoru-ink/70 leading-relaxed"
       >
         {content.description}
       </p>
 
       <ul ref={bulletsRef} className="mt-7 space-y-3">
         {content.bullets.map((b) => (
-          <li key={b} className="flex items-start gap-3 text-[14.5px] text-emerald-900/85">
+          <li key={b} className="flex items-start gap-3 text-[14.5px] text-zoru-ink/85">
             <span
               className="flex-shrink-0 mt-0.5 h-[18px] w-[18px] rounded-full flex items-center justify-center"
               style={{ background: `${m.color}22`, color: m.color }}
@@ -361,10 +361,10 @@ function FruitCard({
         />
 
         <div className="relative flex items-start justify-between mb-5">
-          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-800">
+          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-zoru-ink">
             <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60 animate-ping" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="absolute inline-flex h-full w-full rounded-full bg-zoru-ink opacity-60 animate-ping" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-zoru-ink" />
             </span>
             {content.status}
           </div>
@@ -376,7 +376,7 @@ function FruitCard({
             >
               {content.metric.value}
             </div>
-            <div className="text-[10px] uppercase tracking-[0.15em] text-emerald-700/70 mt-1.5">
+            <div className="text-[10px] uppercase tracking-[0.15em] text-zoru-ink/70 mt-1.5">
               {content.metric.label}
             </div>
           </div>
@@ -413,24 +413,24 @@ function FruitCard({
         </div>
 
         <div className="relative text-center mt-2">
-          <div className="text-[20px] font-semibold text-emerald-950 tracking-[-0.01em]">
+          <div className="text-[20px] font-semibold text-zoru-ink tracking-[-0.01em]">
             {m.label}
           </div>
-          <div className="text-[13px] text-emerald-800/70 mt-1">
+          <div className="text-[13px] text-zoru-ink/70 mt-1">
             {content.tagline}
           </div>
         </div>
 
-        <div className="relative mt-6 pt-5 border-t border-emerald-200/50 grid grid-cols-3 gap-3">
+        <div className="relative mt-6 pt-5 border-t border-zoru-line/50 grid grid-cols-3 gap-3">
           {content.rows.slice(0, 3).map((r, i) => (
             <div key={i} className="text-center min-w-0">
               <div
-                className="text-[11px] font-semibold text-emerald-950 truncate"
+                className="text-[11px] font-semibold text-zoru-ink truncate"
                 style={{ fontFeatureSettings: '"tnum"' }}
               >
                 {r.right}
               </div>
-              <div className="text-[9px] text-emerald-700/70 uppercase tracking-wider mt-0.5 truncate">
+              <div className="text-[9px] text-zoru-ink/70 uppercase tracking-wider mt-0.5 truncate">
                 {r.label}
               </div>
             </div>

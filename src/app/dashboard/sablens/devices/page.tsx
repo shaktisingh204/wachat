@@ -66,7 +66,7 @@ export default async function SablensDevicesPage() {
                   {d.deviceFingerprint}
                 </ZoruCardDescription>
               </ZoruCardHeader>
-              <ZoruCardContent className="text-xs text-muted-foreground">
+              <ZoruCardContent className="text-xs text-zoru-ink-muted">
                 Last seen{' '}
                 {d.lastSeenAt ? new Date(d.lastSeenAt).toLocaleString() : 'never'}
               </ZoruCardContent>

@@ -5,11 +5,11 @@ import { useEffect, useState } from 'react';
 import { Mail, MessageSquare, Instagram, Send, Inbox, MessageCircle } from 'lucide-react';
 
 const channels = [
-    { name: 'WhatsApp', icon: MessageSquare, color: 'from-emerald-400 to-teal-500', from: 'Asha · WhatsApp', msg: 'Can you ship by Friday?', tag: 'whatsapp' },
-    { name: 'Instagram', icon: Instagram, color: 'from-pink-400 to-fuchsia-500', from: 'Rohan · Instagram DM', msg: 'Need bulk pricing for 200 units', tag: 'instagram' },
-    { name: 'Email', icon: Mail, color: 'from-sky-400 to-blue-500', from: 'priya@acme.com', msg: 'Re: Invoice #4821 follow-up', tag: 'email' },
-    { name: 'Telegram', icon: Send, color: 'from-cyan-400 to-sky-500', from: 'Karan · Telegram', msg: 'Hello? Order status?', tag: 'telegram' },
-    { name: 'Web chat', icon: MessageCircle, color: 'from-amber-400 to-orange-500', from: 'Guest · Web', msg: 'Hi! Looking for the demo link', tag: 'web' },
+    { name: 'WhatsApp', icon: MessageSquare, color: 'from-zoru-surface-2 to-zoru-ink', from: 'Asha · WhatsApp', msg: 'Can you ship by Friday?', tag: 'whatsapp' },
+    { name: 'Instagram', icon: Instagram, color: 'from-zoru-surface-2 to-zoru-ink', from: 'Rohan · Instagram DM', msg: 'Need bulk pricing for 200 units', tag: 'instagram' },
+    { name: 'Email', icon: Mail, color: 'from-zoru-surface-2 to-zoru-ink', from: 'priya@acme.com', msg: 'Re: Invoice #4821 follow-up', tag: 'email' },
+    { name: 'Telegram', icon: Send, color: 'from-zoru-surface-2 to-zoru-ink', from: 'Karan · Telegram', msg: 'Hello? Order status?', tag: 'telegram' },
+    { name: 'Web chat', icon: MessageCircle, color: 'from-zoru-surface-2 to-zoru-ink', from: 'Guest · Web', msg: 'Hi! Looking for the demo link', tag: 'web' },
 ];
 
 export function SabchatHero() {
@@ -21,17 +21,17 @@ export function SabchatHero() {
 
     return (
         <div className="relative h-full w-full">
-            <div aria-hidden className="absolute inset-0 rounded-3xl bg-orange-500/15 blur-3xl" />
+            <div aria-hidden className="absolute inset-0 rounded-3xl bg-zoru-ink/15 blur-3xl" />
 
             <m.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="relative grid h-full w-full grid-cols-[80px_1fr] overflow-hidden rounded-3xl border border-white/10 bg-[#1a0d02]/80 shadow-[0_30px_80px_-20px_rgba(251,146,60,0.5)] backdrop-blur"
+                className="relative grid h-full w-full grid-cols-[80px_1fr] overflow-hidden rounded-3xl border border-white/10 bg-zoru-ink/80 shadow-[0_30px_80px_-20px_rgba(251,146,60,0.5)] backdrop-blur"
             >
                 {/* channel rail */}
                 <div className="flex flex-col items-center gap-3 border-r border-white/5 bg-black/30 py-5">
-                    <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg">
+                    <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-zoru-surface-2 to-zoru-ink shadow-lg">
                         <Inbox className="h-4 w-4 text-white" />
                     </div>
                     <div className="my-2 h-px w-8 bg-white/10" />
@@ -51,7 +51,7 @@ export function SabchatHero() {
                                 {i === tick % channels.length && (
                                     <m.span
                                         layoutId="chan-dot"
-                                        className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#1a0d02] bg-rose-500"
+                                        className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-zoru-line bg-zoru-ink"
                                     />
                                 )}
                             </m.div>
@@ -63,14 +63,14 @@ export function SabchatHero() {
                 <div className="flex flex-col">
                     <div className="flex items-center justify-between border-b border-white/5 px-5 py-3">
                         <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-200/70">Unified inbox</p>
+                            <p className="text-[11px] font-semibold uppercase tracking-wider text-white/70">Unified inbox</p>
                             <p className="mt-0.5 text-sm font-semibold text-white">All channels · 14 open</p>
                         </div>
                         <div className="flex items-center gap-2">
                             <m.span
                                 animate={{ scale: [1, 1.3, 1] }}
                                 transition={{ duration: 1.4, repeat: Infinity }}
-                                className="h-2 w-2 rounded-full bg-emerald-400"
+                                className="h-2 w-2 rounded-full bg-zoru-surface-2"
                             />
                             <span className="text-[11px] text-white/60">3 agents online</span>
                         </div>
@@ -107,7 +107,7 @@ export function SabchatHero() {
                         </AnimatePresence>
                     </div>
                     <div className="border-t border-white/5 px-5 py-3 text-[11px] text-white/50">
-                        Avg first-reply <span className="font-semibold text-amber-200">28s</span> · CSAT <span className="font-semibold text-amber-200">4.8/5</span>
+                        Avg first-reply <span className="font-semibold text-white">28s</span> · CSAT <span className="font-semibold text-white">4.8/5</span>
                     </div>
                 </div>
             </m.div>

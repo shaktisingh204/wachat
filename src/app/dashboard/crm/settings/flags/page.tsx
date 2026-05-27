@@ -110,15 +110,15 @@ export default function FlagsPage() {
             >
               <div className="space-y-3 text-sm">
                 <div>
-                  <div className="text-muted-foreground text-xs">Module</div>
+                  <div className="text-zoru-ink-muted text-xs">Module</div>
                   <div>{String(row.resource_type || '—')}</div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground text-xs">Resource ID</div>
+                  <div className="text-zoru-ink-muted text-xs">Resource ID</div>
                   <div className="font-mono">{String(row.resource_id || '—')}</div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground text-xs">Reason</div>
+                  <div className="text-zoru-ink-muted text-xs">Reason</div>
                   <div className="whitespace-pre-wrap">{String(row.reason || '—')}</div>
                 </div>
               </div>

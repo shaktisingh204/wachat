@@ -16,7 +16,7 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-zoru-ink px-4">
       <Card className="w-full max-w-sm p-8">
         <div className="flex flex-col items-center gap-4 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-danger-ink/10">

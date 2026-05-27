@@ -20,7 +20,7 @@ export default function VouchersError({
   return (
     <div className="w-full px-6 pt-6 pb-10 flex-1">
       <EmptyState
-        icon={<AlertTriangle className="text-destructive h-8 w-8" />}
+        icon={<AlertTriangle className="text-zoru-ink h-8 w-8" />}
         title="Unable to load Vouchers"
         description={
           error?.message?.length && error.message.length < 200

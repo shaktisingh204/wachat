@@ -29,7 +29,7 @@ export function PremiumToggle({
         <span
           className={cn(
             "text-sm font-medium transition-colors duration-300",
-            isChecked ? "text-foreground" : "text-muted-foreground"
+            isChecked ? "text-zoru-ink" : "text-zoru-ink-muted"
           )}
         >
           {label}
@@ -44,8 +44,8 @@ export function PremiumToggle({
         onMouseLeave={() => setIsPressed(false)}
         className={cn(
           "group relative h-8 w-14 rounded-full p-1 transition-all duration-500 ease-out",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-          isChecked ? "bg-foreground" : "bg-muted-foreground/20"
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2 focus-visible:ring-offset-zoru-surface",
+          isChecked ? "bg-zoru-ink" : "bg-zoru-surface-2-foreground/20"
         )}
       >
         {/* Glow effect */}
@@ -68,7 +68,7 @@ export function PremiumToggle({
         <div
           className={cn(
             "relative h-6 w-6 rounded-full shadow-lg transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]",
-            "bg-background",
+            "bg-zoru-surface",
             isChecked ? "translate-x-6" : "translate-x-0",
             isPressed && "scale-90 duration-150"
           )}
@@ -84,8 +84,8 @@ export function PremiumToggle({
             className={cn(
               "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-500",
               isChecked
-                ? "h-2 w-2 bg-foreground opacity-100 scale-100"
-                : "h-1.5 w-1.5 bg-muted-foreground/40 opacity-100 scale-100"
+                ? "h-2 w-2 bg-zoru-ink opacity-100 scale-100"
+                : "h-1.5 w-1.5 bg-zoru-surface-2-foreground/40 opacity-100 scale-100"
             )}
           />
 
@@ -94,7 +94,7 @@ export function PremiumToggle({
             className={cn(
               "absolute inset-0 rounded-full transition-all duration-700",
               isChecked
-                ? "animate-ping bg-foreground/20 scale-150 opacity-0"
+                ? "animate-ping bg-zoru-ink/20 scale-150 opacity-0"
                 : "scale-100 opacity-0"
             )}
             key={isChecked ? "on" : "off"}

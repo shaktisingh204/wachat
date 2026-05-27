@@ -16,14 +16,14 @@
 import type { PresenceEntry } from './usePresence';
 
 const AVATAR_PALETTE = [
-  'bg-orange-500',
-  'bg-emerald-500',
-  'bg-violet-500',
-  'bg-rose-500',
-  'bg-amber-500',
-  'bg-sky-500',
-  'bg-indigo-500',
-  'bg-pink-500',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
+  'bg-zoru-ink',
 ];
 
 function colourFor(userId: string): string {
@@ -70,7 +70,7 @@ export function PresenceAvatars({
           ) : (
             <span>{initialOf(entry)}</span>
           )}
-          <span className="absolute -right-0.5 -bottom-0.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-[var(--gray-1)]" />
+          <span className="absolute -right-0.5 -bottom-0.5 h-2 w-2 rounded-full bg-zoru-ink ring-2 ring-[var(--gray-1)]" />
         </span>
       ))}
       {overflow > 0 && (

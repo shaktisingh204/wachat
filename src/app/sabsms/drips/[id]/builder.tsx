@@ -421,21 +421,21 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
             </div>
             <Separator />
             <label className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-1.5 text-slate-700">
+              <span className="flex items-center gap-1.5 text-zoru-ink">
                 {enabled ? (
-                  <PlayCircle className="h-3.5 w-3.5 text-emerald-600" />
+                  <PlayCircle className="h-3.5 w-3.5 text-zoru-ink" />
                 ) : (
-                  <PauseCircle className="h-3.5 w-3.5 text-amber-600" />
+                  <PauseCircle className="h-3.5 w-3.5 text-zoru-ink" />
                 )}
                 {enabled ? "Running" : "Paused"}
               </span>
               <Switch checked={enabled} onCheckedChange={handleToggleEnabled} />
             </label>
-            <div className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 text-xs">
-              <span className="flex items-center gap-1.5 text-slate-600">
+            <div className="flex items-center justify-between rounded-md bg-zoru-surface-2 px-3 py-2 text-xs">
+              <span className="flex items-center gap-1.5 text-zoru-ink">
                 <Users className="h-3 w-3" /> Live enrolments
               </span>
-              <span className="font-semibold text-slate-900">{enrolCount}</span>
+              <span className="font-semibold text-zoru-ink">{enrolCount}</span>
             </div>
             <SabsmsRefreshButton onRefresh={handleRefreshEnrol} defaultInterval={30} />
           </ZoruCardContent>
@@ -459,7 +459,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
             ).map(([key, label]) => (
               <label
                 key={key}
-                className="flex items-center justify-between text-xs text-slate-700"
+                className="flex items-center justify-between text-xs text-zoru-ink"
               >
                 {label}
                 <Switch
@@ -482,22 +482,22 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
           </ZoruCardHeader>
           <ZoruCardContent>
             {validation.ok ? (
-              <div className="flex items-center gap-2 text-sm text-emerald-700">
+              <div className="flex items-center gap-2 text-sm text-zoru-ink">
                 <CheckCircle2 className="h-4 w-4" /> No issues.
               </div>
             ) : (
               <div className="space-y-1.5">
-                <div className="flex items-center gap-2 text-sm font-medium text-rose-800">
+                <div className="flex items-center gap-2 text-sm font-medium text-zoru-ink">
                   <AlertTriangle className="h-4 w-4" />
                   {validation.errors.length} issue{validation.errors.length === 1 ? "" : "s"}
                 </div>
-                <ul className="ml-2 list-disc space-y-0.5 text-[11px] text-rose-700">
+                <ul className="ml-2 list-disc space-y-0.5 text-[11px] text-zoru-ink">
                   {validation.errors.slice(0, 6).map((e, i) => (
                     <li key={i}>{e}</li>
                   ))}
                 </ul>
                 {globalErrors.length === 0 && validation.errors.length > 6 && (
-                  <div className="text-[11px] text-slate-500">
+                  <div className="text-[11px] text-zoru-ink">
                     …and {validation.errors.length - 6} more (see node cards).
                   </div>
                 )}
@@ -529,7 +529,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
           </Button>
         </div>
 
-        <div className="flex items-center justify-between rounded-md border border-slate-200 bg-white p-3 text-xs text-slate-500">
+        <div className="flex items-center justify-between rounded-md border border-zoru-line bg-white p-3 text-xs text-zoru-ink">
           <span>
             Last saved{" "}
             {lastSavedAt ? new Date(lastSavedAt).toLocaleString() : "—"}
@@ -538,7 +538,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
             {saving ? "Saving…" : "Save"}
           </Button>
         </div>
-        <div className="text-[11px] text-slate-500">
+        <div className="text-[11px] text-zoru-ink">
           Tip: press <ZoruKbd>⌘</ZoruKbd>
           <ZoruKbd>S</ZoruKbd> to save without leaving the canvas.
         </div>
@@ -593,7 +593,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
           </ZoruDialogHeader>
           <div className="max-h-[55vh] space-y-2 overflow-y-auto">
             {drip.versions.length === 0 ? (
-              <div className="text-sm text-slate-500">
+              <div className="text-sm text-zoru-ink">
                 No prior versions yet. Save once to create the first snapshot.
               </div>
             ) : (
@@ -603,13 +603,13 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 .map((v) => (
                   <div
                     key={v.versionId}
-                    className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2 text-sm"
+                    className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-2 text-sm"
                   >
                     <div className="space-y-0.5">
-                      <div className="font-medium text-slate-800">
+                      <div className="font-medium text-zoru-ink">
                         {new Date(v.savedAt).toLocaleString()}
                       </div>
-                      <div className="text-[11px] text-slate-500">
+                      <div className="text-[11px] text-zoru-ink">
                         {v.draft.nodes.length} nodes · {v.draft.edges.length} edges
                       </div>
                     </div>
@@ -651,7 +651,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
           </ZoruDialogHeader>
           <div className="space-y-2">
             {otherDrips.length === 0 ? (
-              <div className="text-sm text-slate-500">No other drips to clone from.</div>
+              <div className="text-sm text-zoru-ink">No other drips to clone from.</div>
             ) : (
               otherDrips.map((d) => (
                 <Button
@@ -717,12 +717,12 @@ function AddOptionButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex items-start gap-3 rounded-md border border-slate-200 px-3 py-3 text-left transition hover:border-slate-400"
+      className="flex items-start gap-3 rounded-md border border-zoru-line px-3 py-3 text-left transition hover:border-zoru-line"
     >
-      <span className="rounded-md bg-slate-100 p-1.5 text-slate-700">{icon}</span>
+      <span className="rounded-md bg-zoru-surface-2 p-1.5 text-zoru-ink">{icon}</span>
       <span className="space-y-0.5">
-        <span className="block text-sm font-medium text-slate-800">{label}</span>
-        <span className="block text-xs text-slate-500">{description}</span>
+        <span className="block text-sm font-medium text-zoru-ink">{label}</span>
+        <span className="block text-xs text-zoru-ink">{description}</span>
       </span>
     </button>
   );
@@ -771,7 +771,7 @@ function CanvasTrunk({
         />
         {node.kind !== "exit" && (
           <div className="flex flex-col items-center gap-1 py-1">
-            <ArrowDown className="h-3.5 w-3.5 text-slate-400" />
+            <ArrowDown className="h-3.5 w-3.5 text-zoru-ink-muted" />
             <Button
               variant="outline"
               size="sm"
@@ -780,7 +780,7 @@ function CanvasTrunk({
             >
               <Plus className="h-3 w-3" /> Add step
             </Button>
-            <ArrowDown className="h-3.5 w-3.5 text-slate-400" />
+            <ArrowDown className="h-3.5 w-3.5 text-zoru-ink-muted" />
           </div>
         )}
       </React.Fragment>,
@@ -791,16 +791,16 @@ function CanvasTrunk({
       elements.push(
         <div
           key={`${node.id}-branch`}
-          className="grid grid-cols-2 gap-3 rounded-md border border-dashed border-slate-200 p-2"
+          className="grid grid-cols-2 gap-3 rounded-md border border-dashed border-zoru-line p-2"
         >
           <div>
-            <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold text-emerald-700">
+            <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold text-zoru-ink">
               <Badge variant="default" className="h-4 px-1 text-[9px]">YES</Badge>
             </div>
             {tEdge && <CanvasSub edgeTo={tEdge.to} draft={draft} templates={templates} errorsByNode={errorsByNode} dripId={dripId} onChange={onChange} onDelete={onDelete} onAdd={onAdd} onSuggest={onSuggest} seen={seen} />}
           </div>
           <div>
-            <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold text-rose-700">
+            <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold text-zoru-ink">
               <Badge variant="secondary" className="h-4 px-1 text-[9px]">NO</Badge>
             </div>
             {fEdge && <CanvasSub edgeTo={fEdge.to} draft={draft} templates={templates} errorsByNode={errorsByNode} dripId={dripId} onChange={onChange} onDelete={onDelete} onAdd={onAdd} onSuggest={onSuggest} seen={seen} />}
@@ -894,8 +894,8 @@ function DryRunDialog({
           </div>
         </div>
         {steps && (
-          <div className="mt-3 max-h-72 space-y-1.5 overflow-y-auto rounded-md border border-slate-200 bg-slate-50 p-2 text-xs">
-            {steps.length === 0 && <div className="text-slate-500">No steps simulated.</div>}
+          <div className="mt-3 max-h-72 space-y-1.5 overflow-y-auto rounded-md border border-zoru-line bg-zoru-surface-2 p-2 text-xs">
+            {steps.length === 0 && <div className="text-zoru-ink">No steps simulated.</div>}
             {steps.map((s) => {
               const tpl = templates.find((t) => t.id === s.templateId);
               return (
@@ -904,10 +904,10 @@ function DryRunDialog({
                   className="flex items-center justify-between rounded-md bg-white px-2 py-1.5 shadow-sm"
                 >
                   <div>
-                    <div className="font-medium text-slate-800">
+                    <div className="font-medium text-zoru-ink">
                       #{s.index + 1} {tpl?.name ?? s.templateId}
                     </div>
-                    <div className="text-[11px] text-slate-500">
+                    <div className="text-[11px] text-zoru-ink">
                       Scheduled {new Date(s.scheduledAt).toLocaleString()}
                     </div>
                   </div>

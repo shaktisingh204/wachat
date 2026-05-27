@@ -73,7 +73,7 @@ export default function BalanceSheetPage(): React.JSX.Element {
     if (!isMounted) {
         return (
             <div className="flex h-full items-center justify-center py-16">
-                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
             </div>
         );
     }
@@ -81,7 +81,7 @@ export default function BalanceSheetPage(): React.JSX.Element {
     if (isLoading && !data) {
         return (
             <div className="flex h-full items-center justify-center py-16">
-                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
             </div>
         );
     }
@@ -153,13 +153,13 @@ export default function BalanceSheetPage(): React.JSX.Element {
 
     const chart = (
         <div>
-            <h2 className="text-[15px] font-semibold text-foreground">Composition</h2>
-            <p className="mt-0.5 text-[12px] text-muted-foreground">
+            <h2 className="text-[15px] font-semibold text-zoru-ink">Composition</h2>
+            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
                 Assets vs liabilities vs equity (absolute values).
             </p>
             <div className="mt-4 h-64 w-full">
                 {pieData.length === 0 ? (
-                    <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
+                    <div className="flex h-full items-center justify-center text-[13px] text-zoru-ink-muted">
                         Nothing to plot yet.
                     </div>
                 ) : (
@@ -189,16 +189,16 @@ export default function BalanceSheetPage(): React.JSX.Element {
     const table = (
         <Table>
             <TableHeader>
-                <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground">Account</TableHead>
-                    <TableHead className="text-muted-foreground text-right">Amount</TableHead>
-                    <TableHead className="text-muted-foreground text-right">Share (%)</TableHead>
+                <TableRow className="border-zoru-line hover:bg-transparent">
+                    <TableHead className="text-zoru-ink-muted">Account</TableHead>
+                    <TableHead className="text-zoru-ink-muted text-right">Amount</TableHead>
+                    <TableHead className="text-zoru-ink-muted text-right">Share (%)</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 {pageRows.length === 0 ? (
-                    <TableRow className="border-border">
-                        <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
+                    <TableRow className="border-zoru-line">
+                        <TableCell colSpan={3} className="h-24 text-center text-zoru-ink-muted">
                             No accounts to display.
                         </TableCell>
                     </TableRow>
@@ -208,15 +208,15 @@ export default function BalanceSheetPage(): React.JSX.Element {
                         return (
                             <TableRow
                                 key={`${entry.account}-${idx}`}
-                                className={`border-border ${entry.isMain ? 'bg-secondary font-semibold' : ''}`}
+                                className={`border-zoru-line ${entry.isMain ? 'bg-zoru-surface-2 font-semibold' : ''}`}
                             >
-                                <TableCell className={`text-foreground ${entry.isSub ? 'pl-8' : ''}`}>
+                                <TableCell className={`text-zoru-ink ${entry.isSub ? 'pl-8' : ''}`}>
                                     {entry.account}
                                 </TableCell>
-                                <TableCell className="text-right font-mono text-foreground">
+                                <TableCell className="text-right font-mono text-zoru-ink">
                                     {fmtMoney(entry.amount)}
                                 </TableCell>
-                                <TableCell className="text-right font-mono text-foreground">
+                                <TableCell className="text-right font-mono text-zoru-ink">
                                     {share}%
                                 </TableCell>
                             </TableRow>

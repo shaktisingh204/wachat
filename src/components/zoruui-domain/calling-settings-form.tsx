@@ -147,7 +147,7 @@ export function CallingSettingsForm({ project, phone, onSuccess }: CallingSettin
                                  <div className="space-y-2">
                                     <Label htmlFor="restrict_to_user_countries">Restrict to Countries (Optional)</Label>
                                     <Input id="restrict_to_user_countries" name="restrict_to_user_countries" defaultValue={settings.call_icons?.restrict_to_user_countries?.join(', ')} placeholder="e.g. US, BR, IN" />
-                                    <p className="text-xs text-muted-foreground">Comma-separated list of ISO 3166-1 alpha-2 country codes where the call icon should appear.</p>
+                                    <p className="text-xs text-zoru-ink-muted">Comma-separated list of ISO 3166-1 alpha-2 country codes where the call icon should appear.</p>
                                 </div>
                                 <div className="space-y-2"><Label>Callback Permission Prompt</Label><Select name="callback_permission_status" defaultValue={settings.callback_permission_status || 'DISABLED'}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="ENABLED">Enabled (Show Prompt)</ZoruSelectItem><ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem></ZoruSelectContent></Select></div>
                             </ZoruCardContent>

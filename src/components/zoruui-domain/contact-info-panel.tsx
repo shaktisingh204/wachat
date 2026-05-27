@@ -263,8 +263,8 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
     }, [project.tags]);
 
     return (
-        <div className="flex flex-col h-full bg-background border-l">
-            <div className="px-4 py-3 border-b flex items-center justify-between bg-muted/20 flex-shrink-0">
+        <div className="flex flex-col h-full bg-zoru-surface border-l">
+            <div className="px-4 py-3 border-b flex items-center justify-between bg-zoru-surface-2/20 flex-shrink-0">
                 <h3 className="font-semibold text-lg">Contact Info</h3>
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
                     <X className="h-4 w-4" />
@@ -285,7 +285,7 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                                 className="h-8 text-center font-medium"
                                 autoFocus
                             />
-                            <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={handleSaveName} disabled={isPending}>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2" onClick={handleSaveName} disabled={isPending}>
                                 <Check className="h-4 w-4" />
                             </Button>
                             <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0 text-zoru-ink-muted" onClick={() => { setIsEditingName(false); setEditedName(contact.name); }}>
@@ -383,13 +383,13 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                                     </Button>
                                 </div>
                             ) : (
-                                <div className="text-center text-sm text-zoru-ink-muted py-8 bg-muted/30 rounded-lg border border-dashed">
+                                <div className="text-center text-sm text-zoru-ink-muted py-8 bg-zoru-surface-2/30 rounded-lg border border-dashed">
                                     No custom attributes found
                                 </div>
                             )}
                         </TabsContent>
                         <TabsContent value="files" className="mt-4">
-                            <div className="text-center text-sm text-zoru-ink-muted py-8 bg-muted/30 rounded-lg border border-dashed">
+                            <div className="text-center text-sm text-zoru-ink-muted py-8 bg-zoru-surface-2/30 rounded-lg border border-dashed">
                                 No shared files
                             </div>
                         </TabsContent>

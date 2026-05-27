@@ -121,7 +121,7 @@ export function SetDetailDrawer({
                     <ZoruSheetDescription>
                         <code className="font-mono text-[12px]">{setName}</code>
                         {set?.archived && (
-                            <Badge variant="ghost" className="ml-2 text-amber-700">
+                            <Badge variant="ghost" className="ml-2 text-zoru-ink">
                                 Archived
                             </Badge>
                         )}
@@ -645,7 +645,7 @@ function StickerRowEditor({
                     onClick={onDelete}
                     disabled={busy === `del-${sticker.fileId}`}
                 >
-                    <Trash2 className="h-4 w-4 text-red-500" />
+                    <Trash2 className="h-4 w-4 text-zoru-ink" />
                 </Button>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">

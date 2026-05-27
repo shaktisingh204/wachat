@@ -17,7 +17,7 @@ export default function SabsmsError({
 
   return (
     <div className="space-y-6">
-      <Card className="border-zoru-danger bg-rose-50/50">
+      <Card className="border-zoru-danger bg-zoru-surface-2/50">
         <ZoruCardHeader>
           <ZoruCardTitle className="text-zoru-danger">Connection Error</ZoruCardTitle>
           <ZoruCardDescription>
@@ -25,7 +25,7 @@ export default function SabsmsError({
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-4">
-          <div className="text-sm font-mono bg-rose-100/50 p-2 rounded text-rose-800">
+          <div className="text-sm font-mono bg-zoru-surface-2/50 p-2 rounded text-zoru-ink">
             {error.message || 'Unknown error occurred'}
           </div>
           <Button variant="destructive" onClick={() => reset()}>

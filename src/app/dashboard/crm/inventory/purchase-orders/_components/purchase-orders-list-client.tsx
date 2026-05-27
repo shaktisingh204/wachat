@@ -497,7 +497,7 @@ export function PurchaseOrdersListClient({
         </div>
 
         {error ? (
-          <div className="rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-700 dark:text-amber-400">
+          <div className="rounded border border-zoru-line/40 bg-zoru-ink/10 px-3 py-2 text-[12.5px] text-zoru-ink dark:text-zoru-ink-muted">
             {error}
           </div>
         ) : null}
@@ -538,7 +538,7 @@ export function PurchaseOrdersListClient({
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={8}
-                      className="h-24 text-center text-[13px] text-muted-foreground"
+                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
                     >
                       {filtersActive
                         ? 'No purchase orders match the current filters.'
@@ -593,7 +593,7 @@ export function PurchaseOrdersListClient({
                             <ZoruDropdownMenuItem onClick={() => { setSelected(new Set([po._id])); setCancelPending(true); }}>
                               Cancel
                             </ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem className="text-destructive" onClick={() => { setSelected(new Set([po._id])); setDeletePending(true); }}>
+                            <ZoruDropdownMenuItem className="text-zoru-ink" onClick={() => { setSelected(new Set([po._id])); setDeletePending(true); }}>
                               Delete
                             </ZoruDropdownMenuItem>
                           </ZoruDropdownMenuContent>

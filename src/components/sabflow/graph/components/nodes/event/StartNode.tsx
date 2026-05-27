@@ -106,7 +106,7 @@ export function StartNode({ event, onEventUpdate, flow }: Props) {
         // NOTE: no overflow-hidden — the EventSourceEndpoint sits outside the right edge
         'transition-[border-color,box-shadow]',
         'hover:shadow-md',
-        isFocused ? 'border-2 border-[#f76808]' : 'border border-[var(--gray-5)]',
+        isFocused ? 'border-2 border-zoru-line' : 'border border-[var(--gray-5)]',
         isMouseDown ? 'cursor-grabbing shadow-lg z-10' : 'cursor-grab',
         isDraggingGraph ? 'pointer-events-none' : 'pointer-events-auto',
       )}
@@ -149,7 +149,7 @@ export function StartNode({ event, onEventUpdate, flow }: Props) {
               }
             }}
             onClick={(e) => e.stopPropagation()}
-            className="prevent-group-drag flex-1 text-[12px] text-[var(--gray-10)] bg-transparent border-b border-[#f76808] outline-none"
+            className="prevent-group-drag flex-1 text-[12px] text-[var(--gray-10)] bg-transparent border-b border-zoru-line outline-none"
           />
         ) : (
           <span className="text-[12px] text-[var(--gray-10)]">

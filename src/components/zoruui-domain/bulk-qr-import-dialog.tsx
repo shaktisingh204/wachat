@@ -168,20 +168,20 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
       <ZoruDialogContent className="sm:max-w-lg">
         <ZoruDialogHeader>
           <ZoruDialogTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5 text-purple-600" />
+            <Upload className="h-5 w-5 text-zoru-ink" />
             Bulk Import QR Codes
           </ZoruDialogTitle>
         </ZoruDialogHeader>
 
         {step === 'upload' && (
           <div className="space-y-5 py-2">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-zoru-ink-muted">
               Upload a CSV file with your QR code data. Each row becomes one QR code.
             </p>
-            <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border">
+            <div className="flex items-center justify-between p-3 bg-zoru-surface-2 rounded-lg border">
               <div>
                 <p className="text-sm font-medium">Download Template</p>
-                <p className="text-xs text-muted-foreground">CSV with example rows</p>
+                <p className="text-xs text-zoru-ink-muted">CSV with example rows</p>
               </div>
               <Button variant="outline" size="sm" onClick={downloadTemplateCsv}>
                 <FileDown className="h-4 w-4 mr-2" />
@@ -189,19 +189,19 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
               </Button>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="qr-csv-file">CSV File <span className="text-red-500">*</span></Label>
+              <Label htmlFor="qr-csv-file">CSV File <span className="text-zoru-ink">*</span></Label>
               <input
                 id="qr-csv-file"
                 ref={fileInputRef}
                 type="file"
                 accept=".csv"
                 onChange={handleFileChange}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium cursor-pointer"
+                className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium cursor-pointer"
               />
-              <p className="text-xs text-muted-foreground">Columns: name, dataType, data (JSON), isDynamic, tags (semicolon-separated)</p>
+              <p className="text-xs text-zoru-ink-muted">Columns: name, dataType, data (JSON), isDynamic, tags (semicolon-separated)</p>
             </div>
             {fileError && (
-              <p className="text-sm text-red-600 flex items-center gap-2">
+              <p className="text-sm text-zoru-ink flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 {fileError}
               </p>
@@ -222,9 +222,9 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
             </div>
 
             {parseErrors.length > 0 && (
-              <div className="bg-red-50 border border-red-100 rounded-lg p-3 space-y-1 max-h-28 overflow-y-auto">
+              <div className="bg-zoru-surface-2 border border-zoru-line rounded-lg p-3 space-y-1 max-h-28 overflow-y-auto">
                 {parseErrors.map((err, i) => (
-                  <p key={i} className="text-xs text-red-700">Row {err.row}: {err.message}</p>
+                  <p key={i} className="text-xs text-zoru-ink">Row {err.row}: {err.message}</p>
                 ))}
               </div>
             )}
@@ -232,26 +232,26 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
             {parsedRows.length > 0 && (
               <div className="border rounded-lg overflow-auto max-h-52">
                 <table className="w-full text-xs">
-                  <thead className="bg-slate-50 border-b">
+                  <thead className="bg-zoru-surface-2 border-b">
                     <tr>
                       {['Name', 'Type', 'Dynamic', 'Tags'].map(h => (
-                        <th key={h} className="text-left px-3 py-2 font-medium text-slate-600">{h}</th>
+                        <th key={h} className="text-left px-3 py-2 font-medium text-zoru-ink">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {parsedRows.slice(0, 5).map((row, i) => (
-                      <tr key={i} className={cn("border-b last:border-0", i % 2 === 1 && "bg-slate-50/50")}>
+                      <tr key={i} className={cn("border-b last:border-0", i % 2 === 1 && "bg-zoru-surface-2/50")}>
                         <td className="px-3 py-2 font-medium truncate max-w-[120px]">{row.name}</td>
-                        <td className="px-3 py-2 text-muted-foreground">{row.dataType}</td>
+                        <td className="px-3 py-2 text-zoru-ink-muted">{row.dataType}</td>
                         <td className="px-3 py-2">{row.isDynamic ? 'Yes' : 'No'}</td>
-                        <td className="px-3 py-2 text-muted-foreground truncate max-w-[100px]">{row.tags.join(', ') || '—'}</td>
+                        <td className="px-3 py-2 text-zoru-ink-muted truncate max-w-[100px]">{row.tags.join(', ') || '—'}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
                 {parsedRows.length > 5 && (
-                  <p className="text-xs text-muted-foreground text-center py-2 bg-slate-50">
+                  <p className="text-xs text-zoru-ink-muted text-center py-2 bg-zoru-surface-2">
                     +{parsedRows.length - 5} more rows
                   </p>
                 )}
@@ -259,7 +259,7 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
             )}
 
             {parsedRows.length === 0 && (
-              <p className="text-sm text-center text-muted-foreground py-4">No valid rows found. Check your CSV format.</p>
+              <p className="text-sm text-center text-zoru-ink-muted py-4">No valid rows found. Check your CSV format.</p>
             )}
 
             <div className="flex justify-end gap-2 pt-2">
@@ -274,15 +274,15 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
         {step === 'importing' && (
           <div className="space-y-5 py-4">
             <div className="flex flex-col items-center gap-4">
-              <LoaderCircle className="h-10 w-10 text-purple-600 animate-spin" />
+              <LoaderCircle className="h-10 w-10 text-zoru-ink animate-spin" />
               <p className="font-medium">Importing QR codes...</p>
-              <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-zoru-surface-2 rounded-full h-2 overflow-hidden">
                 <div
-                  className="h-2 bg-purple-600 rounded-full transition-all duration-300"
+                  className="h-2 bg-zoru-ink rounded-full transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <p className="text-sm text-muted-foreground">{progress}% complete</p>
+              <p className="text-sm text-zoru-ink-muted">{progress}% complete</p>
             </div>
           </div>
         )}
@@ -290,12 +290,12 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
         {step === 'done' && (
           <div className="space-y-5 py-4">
             <div className="flex flex-col items-center gap-4 text-center">
-              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-                <CheckCircle className="h-8 w-8 text-green-600" />
+              <div className="w-16 h-16 rounded-full bg-zoru-surface-2 flex items-center justify-center">
+                <CheckCircle className="h-8 w-8 text-zoru-ink" />
               </div>
               <div>
                 <p className="font-semibold text-lg">Import Started</p>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-zoru-ink-muted mt-1">
                   Your {parsedRows.length} QR codes are being processed. They will appear in your dashboard shortly.
                 </p>
               </div>

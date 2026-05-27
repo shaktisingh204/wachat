@@ -80,6 +80,7 @@ fn doc_i64(d: &Document, field: &str) -> i64 {
         .unwrap_or(0)
 }
 
+#[allow(dead_code)]
 fn doc_f64(d: &Document, field: &str) -> f64 {
     d.get_f64(field)
         .ok()

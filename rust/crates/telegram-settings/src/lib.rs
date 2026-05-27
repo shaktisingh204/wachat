@@ -19,7 +19,7 @@ pub mod state;
 use axum::{
     Router,
     extract::FromRef,
-    routing::{delete, get, post, put},
+    routing::{delete, get, post},
 };
 use sabnode_auth::AuthConfig;
 use std::sync::Arc;

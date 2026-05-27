@@ -84,7 +84,7 @@ export function ProfileForm({ user }: UserProfileFormProps) {
                     <Input value={formattedCreatedAt} disabled />
                 </div>
                 
-                <div className="pt-4 border-t border-border">
+                <div className="pt-4 border-t border-zoru-line">
                     <h3 className="text-lg font-medium mb-4">Preferences</h3>
                     
                     <div className="space-y-4">

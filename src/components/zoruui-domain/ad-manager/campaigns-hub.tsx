@@ -155,7 +155,7 @@ function LevelTabs({
     counts: Record<Level, number | null>;
 }) {
     return (
-        <div className="flex items-center gap-1 border rounded-lg p-1 bg-background">
+        <div className="flex items-center gap-1 border rounded-lg p-1 bg-zoru-surface">
             {(Object.keys(LEVEL_META) as Level[]).map((l) => {
                 const meta = LEVEL_META[l];
                 const Icon = meta.icon;
@@ -166,7 +166,7 @@ function LevelTabs({
                         type="button"
                         onClick={() => setLevel(l)}
                         className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                            active ? 'bg-[#1877F2] text-white' : 'text-foreground/70 hover:bg-muted'
+                            active ? 'bg-zoru-ink text-white' : 'text-zoru-ink/70 hover:bg-zoru-surface-2'
                         }`}
                     >
                         <Icon className="h-4 w-4" />
@@ -362,7 +362,7 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
     if (!activeAccount) {
         return (
             <div className="py-12 flex flex-col items-center justify-center gap-4 text-center">
-                <Megaphone className="h-16 w-16 text-muted-foreground" />
+                <Megaphone className="h-16 w-16 text-zoru-ink-muted" />
                 <Alert className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
                     <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
@@ -378,12 +378,12 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
     return (
         <div className="flex flex-col gap-3">
             {/* Toolbar */}
-            <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-background px-3 py-2 shadow-sm">
+            <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-zoru-surface px-3 py-2 shadow-sm">
                 <LevelTabs level={level} setLevel={setLevel} counts={counts} />
                 <div className="flex-1" />
                 <Button
                     size="sm"
-                    className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
+                    className="bg-zoru-ink hover:bg-zoru-ink/90 text-white"
                     onClick={() => router.push('/dashboard/ad-manager/create')}
                 >
                     <Plus className="h-4 w-4 mr-1" /> Create
@@ -391,7 +391,7 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
                 {selectedIds.size > 0 && (
                     <>
                         <div className="h-6 w-px bg-border mx-1" />
-                        <span className="text-xs text-muted-foreground">{selectedIds.size} selected</span>
+                        <span className="text-xs text-zoru-ink-muted">{selectedIds.size} selected</span>
                         <Button variant="outline" size="sm" onClick={() => handleBulk('ACTIVE')}>Activate</Button>
                         <Button variant="outline" size="sm" onClick={() => handleBulk('PAUSED')}>Pause</Button>
                         <Button variant="outline" size="sm" onClick={() => handleBulk('DELETED')}>Delete</Button>
@@ -517,7 +517,7 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
                                     onChange={(e) => setEditingBudget(e.target.value)}
                                     placeholder="e.g. 500"
                                 />
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-zoru-ink-muted">
                                     In account currency (whole units, not cents).
                                 </p>
                             </div>
@@ -526,7 +526,7 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
                     <ZoruSheetFooter>
                         <Button variant="outline" onClick={() => setEditingId(null)}>Cancel</Button>
                         <Button
-                            className="bg-[#1877F2] hover:bg-[#1877F2]/90"
+                            className="bg-zoru-ink hover:bg-zoru-ink/90"
                             onClick={saveEdit}
                             disabled={savingEdit}
                         >

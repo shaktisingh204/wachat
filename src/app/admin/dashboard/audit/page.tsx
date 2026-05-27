@@ -79,7 +79,7 @@ export default async function AuditLogAdminPage({
                         diagnose failures, and export evidence for regulators.
                     </p>
                 </div>
-                <div className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-600">
+                <div className="flex items-center gap-2 rounded-full border border-zoru-line bg-zoru-surface-2 px-3 py-1.5 text-xs font-medium text-zoru-ink">
                     <ShieldCheck className="h-3.5 w-3.5" />
                     Append-only ledger
                 </div>
@@ -101,7 +101,7 @@ export default async function AuditLogAdminPage({
                         id="tenantId"
                         name="tenantId"
                         defaultValue={tenantId}
-                        className="mt-1 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-sm text-zoru-ink focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/20"
+                        className="mt-1 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-sm text-zoru-ink focus:border-zoru-line/50 focus:outline-none focus:ring-1 focus:ring-zoru-line/20"
                     />
                 </div>
                 <div>
@@ -118,12 +118,12 @@ export default async function AuditLogAdminPage({
                         min={1}
                         max={365}
                         defaultValue={sp.days ?? '7'}
-                        className="mt-1 w-28 rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-sm text-zoru-ink focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/20"
+                        className="mt-1 w-28 rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-sm text-zoru-ink focus:border-zoru-line/50 focus:outline-none focus:ring-1 focus:ring-zoru-line/20"
                     />
                 </div>
                 <button
                     type="submit"
-                    className="rounded-md bg-amber-500 px-4 py-1.5 text-sm font-medium text-zinc-950 hover:bg-amber-400"
+                    className="rounded-md bg-zoru-ink px-4 py-1.5 text-sm font-medium text-zoru-ink hover:bg-zoru-surface-2"
                 >
                     Apply
                 </button>

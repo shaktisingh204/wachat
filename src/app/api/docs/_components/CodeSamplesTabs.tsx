@@ -68,7 +68,7 @@ export function CodeSamplesTabs({ samples }: Props): JSX.Element {
           </Button>
         </div>
       </div>
-      <pre className="px-4 py-3 text-xs text-zinc-100 m-0 overflow-x-auto leading-relaxed">
+      <pre className="px-4 py-3 text-xs text-white m-0 overflow-x-auto leading-relaxed">
         <code>{sample.source}</code>
       </pre>
     </div>

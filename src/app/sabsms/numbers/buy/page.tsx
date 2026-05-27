@@ -183,10 +183,10 @@ export default function BuyNumbersPage() {
       </div>
 
       {/* Dense Search Interface */}
-      <Card className="border-neutral-200 dark:border-neutral-800 shadow-sm">
+      <Card className="border-zoru-line dark:border-zoru-line shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-5 w-5 text-neutral-500" />
+            <SlidersHorizontal className="h-5 w-5 text-zoru-ink" />
             <CardTitle className="text-lg">Advanced Search</CardTitle>
           </div>
           <CardDescription>Use granular filters to find the exact numbers you need.</CardDescription>
@@ -252,7 +252,7 @@ export default function BuyNumbersPage() {
             </div>
           </div>
 
-          <div className="mt-6 pt-6 border-t border-neutral-100 dark:border-neutral-800">
+          <div className="mt-6 pt-6 border-t border-zoru-line dark:border-zoru-line">
             <Label className="mb-3 block">Required Capabilities</Label>
             <div className="flex flex-wrap gap-6">
               <div className="flex items-center space-x-2">
@@ -261,7 +261,7 @@ export default function BuyNumbersPage() {
                   htmlFor="cap-voice"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
                 >
-                  <PhoneCall className="h-4 w-4 text-blue-500" />
+                  <PhoneCall className="h-4 w-4 text-zoru-ink" />
                   Voice
                 </label>
               </div>
@@ -271,7 +271,7 @@ export default function BuyNumbersPage() {
                   htmlFor="cap-sms"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
                 >
-                  <MessageSquare className="h-4 w-4 text-green-500" />
+                  <MessageSquare className="h-4 w-4 text-zoru-ink" />
                   SMS
                 </label>
               </div>
@@ -281,15 +281,15 @@ export default function BuyNumbersPage() {
                   htmlFor="cap-mms"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
                 >
-                  <ImageIcon className="h-4 w-4 text-purple-500" />
+                  <ImageIcon className="h-4 w-4 text-zoru-ink" />
                   MMS
                 </label>
               </div>
             </div>
           </div>
         </CardContent>
-        <CardFooter className="bg-neutral-50 dark:bg-neutral-900/50 flex justify-between items-center py-4 border-t border-neutral-100 dark:border-neutral-800 rounded-b-xl">
-          <Button variant="ghost" className="text-neutral-500" onClick={handleClearFilters}>
+        <CardFooter className="bg-zoru-surface-2 dark:bg-zoru-ink/50 flex justify-between items-center py-4 border-t border-zoru-line dark:border-zoru-line rounded-b-xl">
+          <Button variant="ghost" className="text-zoru-ink" onClick={handleClearFilters}>
             Clear Filters
           </Button>
           <Button onClick={handleSearch} disabled={isSearching} className="gap-2 min-w-[120px]">
@@ -304,8 +304,8 @@ export default function BuyNumbersPage() {
       </Card>
 
       {/* Results Table */}
-      <Card className="border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden">
-        <CardHeader className="bg-neutral-50 dark:bg-neutral-900/50 border-b border-neutral-100 dark:border-neutral-800 pb-4">
+      <Card className="border-zoru-line dark:border-zoru-line shadow-sm overflow-hidden">
+        <CardHeader className="bg-zoru-surface-2 dark:bg-zoru-ink/50 border-b border-zoru-line dark:border-zoru-line pb-4">
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="text-lg">Available Inventory</CardTitle>
@@ -316,7 +316,7 @@ export default function BuyNumbersPage() {
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-neutral-50/50 dark:bg-neutral-900/20 hover:bg-neutral-50/50 dark:hover:bg-neutral-900/20">
+              <TableRow className="bg-zoru-surface-2/50 dark:bg-zoru-ink/20 hover:bg-zoru-surface-2/50 dark:hover:bg-zoru-ink/20">
                 <TableHead className="w-[50px]">
                   <Checkbox 
                     checked={selectedNumbers.size === results.length && results.length > 0}
@@ -334,7 +334,7 @@ export default function BuyNumbersPage() {
             <TableBody>
               {results.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center h-32 text-neutral-500">
+                  <TableCell colSpan={7} className="text-center h-32 text-zoru-ink">
                     {isSearching ? "Searching..." : "No numbers found matching your criteria."}
                   </TableCell>
                 </TableRow>
@@ -348,10 +348,10 @@ export default function BuyNumbersPage() {
                       />
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+                      <div className="font-medium text-zoru-ink dark:text-white flex items-center gap-2">
                         {item.friendlyName}
                       </div>
-                      <div className="text-xs text-neutral-500 flex items-center gap-1 mt-1">
+                      <div className="text-xs text-zoru-ink flex items-center gap-1 mt-1">
                         <Globe className="h-3 w-3" />
                         {item.country}
                       </div>
@@ -362,7 +362,7 @@ export default function BuyNumbersPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1.5 text-sm text-neutral-600 dark:text-neutral-400">
+                      <div className="flex items-center gap-1.5 text-sm text-zoru-ink dark:text-zoru-ink-muted">
                         <MapPin className="h-3.5 w-3.5" />
                         {item.region}
                       </div>
@@ -370,17 +370,17 @@ export default function BuyNumbersPage() {
                     <TableCell>
                       <div className="flex gap-2">
                         {item.capabilities.voice && (
-                          <div className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 p-1.5 rounded-md" title="Voice">
+                          <div className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted p-1.5 rounded-md" title="Voice">
                             <PhoneCall className="h-3.5 w-3.5" />
                           </div>
                         )}
                         {item.capabilities.sms && (
-                          <div className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 p-1.5 rounded-md" title="SMS">
+                          <div className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted p-1.5 rounded-md" title="SMS">
                             <MessageSquare className="h-3.5 w-3.5" />
                           </div>
                         )}
                         {item.capabilities.mms && (
-                          <div className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 p-1.5 rounded-md" title="MMS">
+                          <div className="bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/30 dark:text-zoru-ink-muted p-1.5 rounded-md" title="MMS">
                             <ImageIcon className="h-3.5 w-3.5" />
                           </div>
                         )}
@@ -389,7 +389,7 @@ export default function BuyNumbersPage() {
                     <TableCell className="text-right">
                       <div className="font-medium">${item.monthlyPrice.toFixed(2)}</div>
                       {item.setupFee > 0 && (
-                        <div className="text-xs text-neutral-500">
+                        <div className="text-xs text-zoru-ink">
                           +${item.setupFee.toFixed(2)} setup
                         </div>
                       )}
@@ -425,7 +425,7 @@ export default function BuyNumbersPage() {
               <span className="text-sm font-medium">Monthly Recurring:</span>
               <span className="font-semibold">${selectedTotalMonthly.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between items-center text-neutral-500 text-sm">
+            <div className="flex justify-between items-center text-zoru-ink text-sm">
               <span>One-time Setup Fees:</span>
               <span>${selectedTotalSetup.toFixed(2)}</span>
             </div>

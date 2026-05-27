@@ -423,10 +423,10 @@ export default function TelegramAutoReplyPage() {
 
             {/* Conflicts banner */}
             {conflicts.length > 0 && (
-                <Card className="border-amber-300/40 bg-amber-50/40 dark:bg-amber-900/10">
+                <Card className="border-zoru-line/40 bg-zoru-surface-2/40 dark:bg-zoru-ink/10">
                     <ZoruCardContent className="flex items-center justify-between gap-3 p-4">
                         <div className="flex items-center gap-2 text-sm">
-                            <AlertTriangle className="h-4 w-4 text-amber-500" />
+                            <AlertTriangle className="h-4 w-4 text-zoru-ink" />
                             <span>
                                 <strong>{conflicts.length}</strong> conflicting rule
                                 pair{conflicts.length === 1 ? '' : 's'} detected — two
@@ -459,7 +459,7 @@ export default function TelegramAutoReplyPage() {
             {/* Filter bar */}
             <div className="flex flex-wrap items-center gap-2">
                 <div className="relative max-w-xs flex-1">
-                    <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
                     <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -507,7 +507,7 @@ export default function TelegramAutoReplyPage() {
                             <Skeleton className="h-8 w-full" />
                         </div>
                     ) : loadError ? (
-                        <div className="p-6 text-sm text-destructive">{loadError}</div>
+                        <div className="p-6 text-sm text-zoru-ink">{loadError}</div>
                     ) : rules.length === 0 ? (
                         <div className="p-8">
                             <EmptyState
@@ -636,7 +636,7 @@ export default function TelegramAutoReplyPage() {
                         {conflicts.map((c, i) => (
                             <div
                                 key={i}
-                                className="rounded-md border bg-card/60 p-3 text-sm"
+                                className="rounded-md border bg-zoru-surface/60 p-3 text-sm"
                             >
                                 <div className="flex flex-wrap items-center gap-2">
                                     <Badge variant="ghost">A</Badge>
@@ -648,7 +648,7 @@ export default function TelegramAutoReplyPage() {
                                         {c.ruleBName}
                                     </span>
                                 </div>
-                                <p className="mt-1 text-xs text-muted-foreground">
+                                <p className="mt-1 text-xs text-zoru-ink-muted">
                                     {c.reason}
                                 </p>
                             </div>
@@ -677,7 +677,7 @@ function Kpi({
         <Card>
             <TelegramProjectGate />
             <ZoruCardContent className="p-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
                     {label}
                 </p>
                 <p

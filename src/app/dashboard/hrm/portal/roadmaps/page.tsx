@@ -42,7 +42,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-6 text-red-500 flex flex-col items-center justify-center bg-red-50 rounded-lg border border-red-200">
+        <div className="p-6 text-zoru-ink flex flex-col items-center justify-center bg-zoru-surface-2 rounded-lg border border-zoru-line">
           <h2 className="font-semibold text-lg">Failed to load roadmaps</h2>
           <p className="text-sm mt-1">{this.state.error?.message}</p>
           <Button onClick={() => this.setState({ hasError: false, error: null })} className="mt-4" variant="outline">

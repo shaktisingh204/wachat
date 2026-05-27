@@ -335,7 +335,7 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
                   Export selected
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setPendingBulk(true)}>
-                  <Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />
+                  <Trash2 className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={1.75} />
                   Delete selected
                 </Button>
               </div>
@@ -449,7 +449,7 @@ export function TaxonomyLookupPage<R extends TaxonomyRow>({
                                 Edit
                               </Button>
                               <Button variant="outline" size="sm" onClick={() => setPendingDelete(row)}>
-                                <Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />
+                                <Trash2 className="h-3.5 w-3.5 text-zoru-ink" strokeWidth={1.75} />
                                 Delete
                               </Button>
                             </div>
@@ -614,7 +614,7 @@ function TaxonomyDialog<R extends TaxonomyRow>({
                       name={f.name}
                       required={f.required}
                       defaultValue={defaultVal}
-                      className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-surface px-3 py-2 text-sm ring-offset-zoru-surface placeholder:text-zoru-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {f.placeholder ? (
                         <option value="">{f.placeholder}</option>

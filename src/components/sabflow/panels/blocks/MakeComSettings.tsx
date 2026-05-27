@@ -73,9 +73,9 @@ export function MakeComSettings({ block, onBlockChange, variables: _variables = 
 
       {/* Status badge */}
       {isConfigured ? (
-        <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 border border-emerald-500/25 px-3 py-2">
-          <LuCircleCheckBig className="h-4 w-4 text-emerald-400 shrink-0" strokeWidth={1.8} />
-          <span className="text-[12px] text-emerald-400 font-medium">
+        <div className="flex items-center gap-2 rounded-lg bg-zoru-ink/10 border border-zoru-line/25 px-3 py-2">
+          <LuCircleCheckBig className="h-4 w-4 text-zoru-ink-muted shrink-0" strokeWidth={1.8} />
+          <span className="text-[12px] text-zoru-ink-muted font-medium">
             Scenario webhook is configured.
           </span>
         </div>
@@ -109,16 +109,16 @@ export function MakeComSettings({ block, onBlockChange, variables: _variables = 
         type="button"
         onClick={handleTest}
         disabled={!webhookUrl || isTesting}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#f76808] px-3 py-2 text-[12px] font-medium text-[#f76808] hover:bg-[#f7680814] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-zoru-line px-3 py-2 text-[12px] font-medium text-zoru-ink hover:bg-zoru-ink disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
       >
         <LuPlay className="h-3.5 w-3.5" strokeWidth={2} />
         {isTesting ? 'Sending test…' : 'Send test payload'}
       </button>
 
       {testError && (
-        <div className="rounded-lg border border-red-500/25 bg-red-500/10 p-3 space-y-1">
-          <p className="text-[10.5px] font-medium text-red-400 uppercase tracking-wide">Error</p>
-          <p className="text-[11px] text-red-300 font-mono break-all">{testError}</p>
+        <div className="rounded-lg border border-zoru-line/25 bg-zoru-ink/10 p-3 space-y-1">
+          <p className="text-[10.5px] font-medium text-zoru-ink-muted uppercase tracking-wide">Error</p>
+          <p className="text-[11px] text-zoru-ink-muted font-mono break-all">{testError}</p>
         </div>
       )}
 
@@ -129,8 +129,8 @@ export function MakeComSettings({ block, onBlockChange, variables: _variables = 
             <span
               className={
                 lastResponse.status >= 200 && lastResponse.status < 300
-                  ? 'text-emerald-400'
-                  : 'text-red-400'
+                  ? 'text-zoru-ink-muted'
+                  : 'text-zoru-ink-muted'
               }
             >
               {lastResponse.status}

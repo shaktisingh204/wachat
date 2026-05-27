@@ -26,10 +26,10 @@ export default function ErrorBoundary({
       back={{ href: `/dashboard/crm/inventory/production-orders/${orderId}`, label: 'Back to order' }}
     >
       <Card className="flex flex-col items-center justify-center gap-4 p-8 text-center h-64">
-        <AlertCircle className="h-10 w-10 text-destructive" />
+        <AlertCircle className="h-10 w-10 text-zoru-ink" />
         <div className="space-y-1">
           <h3 className="font-semibold text-lg">Something went wrong</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-zoru-ink-muted">
             {error.message || 'Failed to load update yield form.'}
           </p>
         </div>

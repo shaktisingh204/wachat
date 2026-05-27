@@ -83,8 +83,8 @@ export default function AutocompleteSuggestionsPage() {
         </Button>
       </div>
       {error && (
-        <Card className="border-red-500">
-          <ZoruCardContent className="p-4 text-red-600 text-sm">
+        <Card className="border-zoru-line">
+          <ZoruCardContent className="p-4 text-zoru-ink text-sm">
             {error}
           </ZoruCardContent>
         </Card>

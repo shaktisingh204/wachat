@@ -26,13 +26,13 @@ export const TestimonialsColumn = (props: {
           ease: "linear",
           repeatType: "loop",
         }}
-        className="flex flex-col gap-6 pb-6 bg-background"
+        className="flex flex-col gap-6 pb-6 bg-zoru-surface"
       >
         {[
           ...new Array(2).fill(0).map((_, index) => (
             <React.Fragment key={index}>
               {props.testimonials.map(({ text, image, name, role }, i) => (
-                <div className="p-10 rounded-3xl shadow-lg shadow-primary/10 max-w-xs w-full bg-card" key={i}>
+                <div className="p-10 rounded-3xl shadow-lg shadow-primary/10 max-w-xs w-full bg-zoru-surface" key={i}>
                   <div>{text}</div>
                   <div className="flex items-center gap-2 mt-5">
                     {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -88,7 +88,7 @@ export function ElevenLabsSettings({ block, onBlockChange }: Props) {
         />
         <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
           Use{' '}
-          <span className="font-mono text-[#f76808]">{'{{variable}}'}</span>
+          <span className="font-mono text-zoru-ink">{'{{variable}}'}</span>
           {' '}to inject dynamic values.
         </p>
       </Field>

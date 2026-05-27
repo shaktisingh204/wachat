@@ -419,7 +419,7 @@ export default function ClientCategoriesPage() {
                 disabled={isMutating}
               >
                 <Trash2
-                  className="h-3.5 w-3.5 text-red-500"
+                  className="h-3.5 w-3.5 text-zoru-ink"
                   strokeWidth={1.75}
                 />
                 Delete
@@ -596,7 +596,7 @@ export default function ClientCategoriesPage() {
                               disabled={isMutating}
                             >
                               <Trash2
-                                className="h-3.5 w-3.5 text-red-500"
+                                className="h-3.5 w-3.5 text-zoru-ink"
                                 strokeWidth={1.75}
                               />
                               Delete
@@ -924,7 +924,7 @@ function SubCategoryDrawerPanel({
                     disabled={isPending}
                   >
                     <Trash2
-                      className="h-3 w-3 text-red-500"
+                      className="h-3 w-3 text-zoru-ink"
                       strokeWidth={1.75}
                     />
                   </Button>

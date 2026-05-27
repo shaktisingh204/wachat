@@ -23,11 +23,11 @@ interface AttendanceCalendarByEmployeeProps {
 }
 
 const STATUS_TO_COLOR: Record<string, string> = {
-  present: 'bg-emerald-500/30 text-emerald-900 dark:text-emerald-100',
-  wfh: 'bg-emerald-500/20 text-emerald-900 dark:text-emerald-100',
-  absent: 'bg-rose-500/30 text-rose-900 dark:text-rose-100',
-  half_day: 'bg-amber-500/30 text-amber-900 dark:text-amber-100',
-  leave: 'bg-sky-500/30 text-sky-900 dark:text-sky-100',
+  present: 'bg-zoru-ink/30 text-zoru-ink dark:text-white',
+  wfh: 'bg-zoru-ink/20 text-zoru-ink dark:text-white',
+  absent: 'bg-zoru-ink/30 text-zoru-ink dark:text-white',
+  half_day: 'bg-zoru-ink/30 text-zoru-ink dark:text-white',
+  leave: 'bg-zoru-ink/30 text-zoru-ink dark:text-white',
   holiday: 'bg-zoru-surface-2 text-zoru-ink-muted',
 };
 
@@ -195,10 +195,10 @@ export function AttendanceCalendarByEmployee({
       </div>
 
       <div className="flex flex-wrap items-center gap-3 text-[11px] text-zoru-ink-muted">
-        <Legend className="bg-emerald-500/30" label="Present / WFH" />
-        <Legend className="bg-rose-500/30" label="Absent" />
-        <Legend className="bg-amber-500/30" label="Half day" />
-        <Legend className="bg-sky-500/30" label="Leave" />
+        <Legend className="bg-zoru-ink/30" label="Present / WFH" />
+        <Legend className="bg-zoru-ink/30" label="Absent" />
+        <Legend className="bg-zoru-ink/30" label="Half day" />
+        <Legend className="bg-zoru-ink/30" label="Leave" />
         <Legend className="bg-zoru-surface-2" label="Holiday" />
       </div>
     </div>

@@ -509,7 +509,7 @@ export default function ClientDocumentsPage() {
                 disabled={isMutating}
               >
                 <Trash2
-                  className="h-3.5 w-3.5 text-red-500"
+                  className="h-3.5 w-3.5 text-zoru-ink"
                   strokeWidth={1.75}
                 />
                 Delete
@@ -658,7 +658,7 @@ export default function ClientDocumentsPage() {
                               href={r.url}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1 text-accent-foreground underline"
+                              className="inline-flex items-center gap-1 text-zoru-ink underline"
                             >
                               <ExternalLink
                                 className="h-3 w-3"
@@ -696,7 +696,7 @@ export default function ClientDocumentsPage() {
                               disabled={isMutating}
                             >
                               <Trash2
-                                className="h-3.5 w-3.5 text-red-500"
+                                className="h-3.5 w-3.5 text-zoru-ink"
                                 strokeWidth={1.75}
                               />
                               Delete

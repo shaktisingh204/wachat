@@ -18,7 +18,7 @@ export default function ErrorBoundary({
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] p-6 space-y-4 text-center zoruui">
       <h2 className="text-xl font-semibold tracking-tight">Something went wrong!</h2>
-      <p className="text-sm text-muted-foreground max-w-[500px]">
+      <p className="text-sm text-zoru-ink-muted max-w-[500px]">
         An error occurred while loading the Ad Sets. Please try again or contact support if the issue persists.
       </p>
       <Button onClick={() => reset()} variant="default">

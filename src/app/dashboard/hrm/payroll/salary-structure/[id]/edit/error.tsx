@@ -25,10 +25,10 @@ export default function EditSalaryStructureError({
             subtitle="Could not load the requested data."
         >
             <div className="flex h-[300px] flex-col items-center justify-center space-y-4 rounded-xl border border-zoru-line bg-zoru-surface p-6 shadow-sm text-center">
-                <AlertCircle className="h-10 w-10 text-destructive" />
+                <AlertCircle className="h-10 w-10 text-zoru-ink" />
                 <div>
                     <h3 className="text-lg font-medium">Something went wrong!</h3>
-                    <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+                    <p className="text-sm text-zoru-ink-muted mt-1 max-w-sm mx-auto">
                         There was a problem fetching the salary structure data. This could be due to a network issue or the record might not exist.
                     </p>
                 </div>

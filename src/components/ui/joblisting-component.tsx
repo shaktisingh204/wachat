@@ -148,7 +148,7 @@ export default function JobListingComponent({
           <>
             <div className="group absolute inset-0 z-10 grid place-items-center">
               <motion.div
-                className="bg-background flex h-fit w-[90%] cursor-pointer flex-col items-start gap-4 overflow-hidden p-4 shadow-md"
+                className="bg-zoru-surface flex h-fit w-[90%] cursor-pointer flex-col items-start gap-4 overflow-hidden p-4 shadow-md"
                 ref={ref}
                 layoutId={`workItem-${activeItem.company}`}
                 style={{ borderRadius: 12 }}
@@ -161,7 +161,7 @@ export default function JobListingComponent({
                     <div className="flex w-full flex-col gap-0.5">
                       <div className="flex w-full flex-row justify-between gap-0.5">
                         <motion.div
-                          className="text-foreground text-sm font-medium"
+                          className="text-zoru-ink text-sm font-medium"
                           layoutId={`workItemCompany-${activeItem.company}`}
                         >
                           {activeItem.company}
@@ -169,12 +169,12 @@ export default function JobListingComponent({
                       </div>
                       <motion.p
                         layoutId={`workItemTitle-${activeItem.company}`}
-                        className="text-foreground text-sm"
+                        className="text-zoru-ink text-sm"
                       >
                         {activeItem.title} / {activeItem.salary}
                       </motion.p>
                       <motion.div
-                        className="text-foreground flex flex-row gap-2 text-xs"
+                        className="text-zoru-ink flex flex-row gap-2 text-xs"
                         layoutId={`workItemExtras-${activeItem.company}`}
                       >
                         {activeItem.remote === "Yes" &&
@@ -193,7 +193,7 @@ export default function JobListingComponent({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0, transition: { duration: 0.05 } }}
-                  className="text-foreground text-sm"
+                  className="text-zoru-ink text-sm"
                 >
                   {activeItem.job_description}
                 </motion.p>
@@ -208,7 +208,7 @@ export default function JobListingComponent({
             <motion.div
               layoutId={`workItem-${role.company}`}
               key={role.company}
-              className="group bg-background flex w-full cursor-pointer flex-row items-center gap-4 p-2 shadow-sm md:p-4"
+              className="group bg-zoru-surface flex w-full cursor-pointer flex-row items-center gap-4 p-2 shadow-sm md:p-4"
               onClick={() => {
                 setActiveItem(role)
                 if (onJobClick) onJobClick(role)
@@ -220,20 +220,20 @@ export default function JobListingComponent({
               </motion.div>
               <div className="flex w-full flex-col items-start justify-between gap-0.5">
                 <motion.div
-                  className="text-foreground  font-medium"
+                  className="text-zoru-ink  font-medium"
                   layoutId={`workItemCompany-${role.company}`}
                 >
                   {role.company}
                 </motion.div>
                 <motion.div
-                  className="text-foreground text-xs"
+                  className="text-zoru-ink text-xs"
                   layoutId={`workItemTitle-${role.company}`}
                 >
                   {role.title} / {role.salary}
                 </motion.div>
 
                 <motion.div
-                  className="text-foreground flex flex-row gap-2 text-xs"
+                  className="text-zoru-ink flex flex-row gap-2 text-xs"
                   layoutId={`workItemExtras-${role.company}`}
                 >
                   {role.remote === "Yes" && ` ${role.location} `}

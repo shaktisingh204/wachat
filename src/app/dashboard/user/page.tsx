@@ -72,7 +72,7 @@ export default async function UserDashboardPage() {
             </Avatar>
             <div className="space-y-2 flex-1">
               <h3 className="text-2xl font-semibold tracking-tight">{user.name || 'Anonymous User'}</h3>
-              <p className="text-muted-foreground">{user.email}</p>
+              <p className="text-zoru-ink-muted">{user.email}</p>
               <div className="flex flex-wrap gap-2 pt-2">
                 <Badge variant="secondary" className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
@@ -101,14 +101,14 @@ export default async function UserDashboardPage() {
         <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-xl flex items-center gap-2">
-              <Shield className="w-5 h-5 text-primary" />
+              <Shield className="w-5 h-5 text-zoru-ink" />
               Security
             </ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <Key className="w-4 h-4 text-muted-foreground" />
+                <Key className="w-4 h-4 text-zoru-ink-muted" />
                 <span className="text-sm font-medium">Password</span>
               </div>
               <Badge variant={hasPassword ? "default" : "destructive"}>
@@ -117,10 +117,10 @@ export default async function UserDashboardPage() {
             </div>
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <LayoutDashboard className="w-4 h-4 text-muted-foreground" />
+                <LayoutDashboard className="w-4 h-4 text-zoru-ink-muted" />
                 <span className="text-sm font-medium">API Keys</span>
               </div>
-              <span className="text-sm text-muted-foreground">{apiKeysCount} active</span>
+              <span className="text-sm text-zoru-ink-muted">{apiKeysCount} active</span>
             </div>
           </ZoruCardContent>
           <Separator />
@@ -137,7 +137,7 @@ export default async function UserDashboardPage() {
         <Card className="md:col-span-2">
           <ZoruCardHeader>
             <ZoruCardTitle className="text-xl flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-primary" />
+              <Building2 className="w-5 h-5 text-zoru-ink" />
               Business Profile
             </ZoruCardTitle>
             <ZoruCardDescription>Information about your company or organization.</ZoruCardDescription>
@@ -146,25 +146,25 @@ export default async function UserDashboardPage() {
             {user.businessProfile ? (
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground">Business Name</dt>
+                  <dt className="text-sm font-medium text-zoru-ink-muted">Business Name</dt>
                   <dd className="mt-1 text-sm font-semibold">{user.businessProfile.name || 'Not provided'}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground">GSTIN</dt>
+                  <dt className="text-sm font-medium text-zoru-ink-muted">GSTIN</dt>
                   <dd className="mt-1 text-sm">{user.businessProfile.gstin || 'Not provided'}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground">PAN</dt>
+                  <dt className="text-sm font-medium text-zoru-ink-muted">PAN</dt>
                   <dd className="mt-1 text-sm">{user.businessProfile.pan || 'Not provided'}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground">Address</dt>
+                  <dt className="text-sm font-medium text-zoru-ink-muted">Address</dt>
                   <dd className="mt-1 text-sm">{user.businessProfile.address || 'Not provided'}</dd>
                 </div>
               </dl>
             ) : (
               <EmptyState 
-                icon={<Building2 className="w-12 h-12 text-muted-foreground/50" />}
+                icon={<Building2 className="w-12 h-12 text-zoru-ink-muted/50" />}
                 title="No Business Profile"
                 description="You haven't set up your business profile yet."
                 action={
@@ -181,18 +181,18 @@ export default async function UserDashboardPage() {
         <Card>
           <ZoruCardHeader>
             <ZoruCardTitle className="text-xl flex items-center gap-2">
-              <Globe className="w-5 h-5 text-primary" />
+              <Globe className="w-5 h-5 text-zoru-ink" />
               Workspaces
             </ZoruCardTitle>
           </ZoruCardHeader>
           <ZoruCardContent className="space-y-4">
              <div className="flex flex-col gap-1">
-                <span className="text-sm font-medium text-muted-foreground">Total Workspaces</span>
+                <span className="text-sm font-medium text-zoru-ink-muted">Total Workspaces</span>
                 <span className="text-2xl font-bold">{projects.length}</span>
              </div>
              {activeProject && (
-               <div className="p-3 bg-muted rounded-md border text-sm">
-                 <p className="font-medium text-muted-foreground mb-1">Active Workspace</p>
+               <div className="p-3 bg-zoru-surface-2 rounded-md border text-sm">
+                 <p className="font-medium text-zoru-ink-muted mb-1">Active Workspace</p>
                  <p className="font-semibold truncate" title={activeProject.name}>{activeProject.name}</p>
                </div>
              )}

@@ -42,10 +42,10 @@ export const SabCheckbox = React.forwardRef<
         'peer group inline-flex shrink-0 items-center justify-center rounded-[5px] border transition-all',
         'focus-visible:outline-none focus-visible:ring-[3px]',
         'disabled:cursor-not-allowed disabled:opacity-50',
-        'data-[state=checked]:border-[hsl(var(--sab-primary))] data-[state=checked]:bg-[hsl(var(--sab-primary))]',
-        'data-[state=indeterminate]:border-[hsl(var(--sab-primary))] data-[state=indeterminate]:bg-[hsl(var(--sab-primary))]',
-        'border-[hsl(var(--sab-border-strong))] bg-[hsl(var(--sab-surface))]',
-        'hover:border-[hsl(var(--sab-primary))]',
+        'data-[state=checked]:border-zoru-line data-[state=checked]:bg-zoru-ink',
+        'data-[state=indeterminate]:border-zoru-line data-[state=indeterminate]:bg-zoru-ink',
+        'border-zoru-line bg-zoru-ink',
+        'hover:border-zoru-line',
         s.box,
         className,
       )}
@@ -56,7 +56,7 @@ export const SabCheckbox = React.forwardRef<
       {...props}
     >
       <CheckboxPrimitive.Indicator
-        className="flex items-center justify-center text-[hsl(var(--sab-primary-fg))]"
+        className="flex items-center justify-center text-zoru-ink"
         forceMount
       >
         <Check

@@ -194,7 +194,7 @@ export function AgentsSettingsClient({ project: initialProject }: { project: Wit
                                     <ZoruSelectItem value="skill-based">Skill-Based Routing</ZoruSelectItem>
                                 </ZoruSelectContent>
                             </Select>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="text-xs text-zoru-ink-muted mt-1">
                                 {routingStrategy === 'manual' && "Agents must manually pick conversations or an admin must assign them."}
                                 {routingStrategy === 'round-robin' && "New conversations are automatically assigned in a round-robin fashion."}
                                 {routingStrategy === 'skill-based' && "Conversations are routed to agents based on their assigned skills."}
@@ -232,7 +232,7 @@ export function AgentsSettingsClient({ project: initialProject }: { project: Wit
                                                 </Avatar>
                                                 <div className="space-y-0.5">
                                                     <p className="text-sm font-medium leading-none">{agent.name}</p>
-                                                    <p className="text-sm text-muted-foreground">{agent.email}</p>
+                                                    <p className="text-sm text-zoru-ink-muted">{agent.email}</p>
                                                     <div className="flex items-center gap-2 mt-2">
                                                         <Badge variant="outline">{agent.role}</Badge>
                                                         {(agent.skills || []).map((s: string) => (
@@ -266,7 +266,7 @@ export function AgentsSettingsClient({ project: initialProject }: { project: Wit
                                         
                                         {/* Skill Editor */}
                                         {editingSkillsAgentId === agent.userId.toString() && (
-                                            <div className="mt-2 p-3 bg-muted/30 rounded-md border text-sm">
+                                            <div className="mt-2 p-3 bg-zoru-surface-2/30 rounded-md border text-sm">
                                                 <div className="flex justify-between items-center mb-2">
                                                     <h4 className="font-medium">Edit Skills</h4>
                                                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setEditingSkillsAgentId(null)}>
@@ -293,7 +293,7 @@ export function AgentsSettingsClient({ project: initialProject }: { project: Wit
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-sm text-muted-foreground">No team members have been added to this project yet.</p>
+                                <p className="text-sm text-zoru-ink-muted">No team members have been added to this project yet.</p>
                             )}
                         </div>
                     </div>
@@ -312,7 +312,7 @@ export function AgentsSettingsClient({ project: initialProject }: { project: Wit
                     
                     <div className="py-4 space-y-4">
                         {openTicketsCount > 0 ? (
-                            <div className="p-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-md text-sm">
+                            <div className="p-3 bg-zoru-ink/10 text-zoru-ink border border-destructive/20 rounded-md text-sm">
                                 <p className="font-semibold mb-1">Warning: {openTicketsCount} open tickets assigned</p>
                                 <p>You must reassign these tickets before removing the agent, or unassign them.</p>
                             </div>

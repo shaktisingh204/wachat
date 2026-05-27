@@ -323,7 +323,7 @@ export function SavedViewsBar({
                                             <Lock className="h-3 w-3 opacity-60" />
                                         )}
                                         {view.isDefault ? (
-                                            <Star className="h-3 w-3 fill-current text-amber-500" />
+                                            <Star className="h-3 w-3 fill-current text-zoru-ink" />
                                         ) : null}
                                         <span className="max-w-[16ch] truncate">
                                             {view.name}
@@ -332,7 +332,7 @@ export function SavedViewsBar({
                                     <button
                                         type="button"
                                         onClick={() => void handleToggleDefault(view)}
-                                        className="ml-1 inline-flex items-center text-zoru-ink-muted hover:text-amber-500"
+                                        className="ml-1 inline-flex items-center text-zoru-ink-muted hover:text-zoru-ink"
                                         aria-label={
                                             view.isDefault
                                                 ? 'Unpin default'
@@ -353,7 +353,7 @@ export function SavedViewsBar({
                                     <button
                                         type="button"
                                         onClick={() => void handleDelete(view)}
-                                        className="inline-flex items-center text-zoru-ink-muted hover:text-rose-500"
+                                        className="inline-flex items-center text-zoru-ink-muted hover:text-zoru-ink"
                                         aria-label="Delete view"
                                         title="Delete view"
                                     >

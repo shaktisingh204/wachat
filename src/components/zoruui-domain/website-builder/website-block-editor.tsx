@@ -69,7 +69,7 @@ class BlockEditorErrorBoundary extends React.Component<{ children: React.ReactNo
     render() {
         if (this.state.hasError) {
             return (
-                <div className="p-4 rounded-md bg-destructive/10 text-destructive text-sm">
+                <div className="p-4 rounded-md bg-zoru-ink/10 text-zoru-ink text-sm">
                     <p className="font-semibold">Something went wrong.</p>
                     <p>This block editor crashed. Try removing and re-adding the block.</p>
                     <Button variant="outline" size="sm" className="mt-2" onClick={() => this.setState({ hasError: false })}>
@@ -86,11 +86,11 @@ class BlockEditorErrorBoundary extends React.Component<{ children: React.ReactNo
 export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate, onRemove }: PropertiesPanelProps) {
     if (!selectedBlock) {
         return (
-            <div className="text-center text-muted-foreground p-8 h-full flex flex-col items-center justify-center animate-in fade-in duration-500">
-                <div className="h-20 w-20 bg-muted/50 rounded-full flex items-center justify-center mb-4">
-                    <Trash2 className="h-8 w-8 text-muted-foreground/30" />
+            <div className="text-center text-zoru-ink-muted p-8 h-full flex flex-col items-center justify-center animate-in fade-in duration-500">
+                <div className="h-20 w-20 bg-zoru-surface-2/50 rounded-full flex items-center justify-center mb-4">
+                    <Trash2 className="h-8 w-8 text-zoru-ink-muted/30" />
                 </div>
-                <h3 className="font-medium text-lg text-foreground">No Block Selected</h3>
+                <h3 className="font-medium text-lg text-zoru-ink">No Block Selected</h3>
                 <p className="text-sm max-w-[200px] mt-2">Select a block on the canvas to edit its properties here.</p>
             </div>
         );
@@ -138,7 +138,7 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
             case 'column': return <ColumnBlockEditor {...props} />;
             case 'cart': return <CartBlockEditor {...props} />;
             case 'crmAutomation': return <CrmAutomationBlockEditor {...props} />;
-            default: return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>;
+            default: return <p className="text-sm text-zoru-ink-muted">Editor not available for this block type.</p>;
         }
     };
 
@@ -146,7 +146,7 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
         <Card className="h-full flex flex-col border-0 shadow-none bg-transparent">
             <ZoruCardHeader className="pb-4 border-b">
                 <ZoruCardTitle className="text-lg">Block Properties</ZoruCardTitle>
-                <ZoruCardDescription>Editing: <span className="font-semibold text-primary capitalize">{selectedBlock.type?.replace(/([A-Z])/g, ' $1').trim()}</span></ZoruCardDescription>
+                <ZoruCardDescription>Editing: <span className="font-semibold text-zoru-ink capitalize">{selectedBlock.type?.replace(/([A-Z])/g, ' $1').trim()}</span></ZoruCardDescription>
             </ZoruCardHeader>
             <ZoruCardContent className="flex-1 overflow-y-auto pt-6 px-1">
                 <BlockEditorErrorBoundary key={selectedBlock.id}>

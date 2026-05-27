@@ -116,10 +116,10 @@ export function DlqSection(props: {
           <ZoruCardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="border-b bg-muted/30 text-xs uppercase text-muted-foreground">
+                <thead className="border-b bg-zoru-surface-2/30 text-xs uppercase text-zoru-ink-muted">
                   <tr>
                     <th
-                      className="px-3 py-2 text-left cursor-pointer hover:bg-muted/50"
+                      className="px-3 py-2 text-left cursor-pointer hover:bg-zoru-surface-2/50"
                       onClick={() => handleSort("lastAttemptAt")}
                     >
                       <div className="flex items-center gap-1">
@@ -127,7 +127,7 @@ export function DlqSection(props: {
                       </div>
                     </th>
                     <th
-                      className="px-3 py-2 text-right cursor-pointer hover:bg-muted/50"
+                      className="px-3 py-2 text-right cursor-pointer hover:bg-zoru-surface-2/50"
                       onClick={() => handleSort("attempts")}
                     >
                       <div className="flex items-center justify-end gap-1">
@@ -143,7 +143,7 @@ export function DlqSection(props: {
                   {sortedItems.map((d) => (
                     <tr
                       key={d._id}
-                      className="border-b last:border-0 hover:bg-muted/20"
+                      className="border-b last:border-0 hover:bg-zoru-surface-2/20"
                     >
                       <td className="whitespace-nowrap px-3 py-2">
                         {fmtDate(d.lastAttemptAt)}
@@ -155,7 +155,7 @@ export function DlqSection(props: {
                         </Badge>
                       </td>
                       <td className="px-3 py-2">
-                        <span className="line-clamp-1 max-w-[40ch] text-xs text-muted-foreground">
+                        <span className="line-clamp-1 max-w-[40ch] text-xs text-zoru-ink-muted">
                           {d.lastError ?? "—"}
                         </span>
                       </td>

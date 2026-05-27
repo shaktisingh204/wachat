@@ -228,7 +228,7 @@ export default function DocumentsListPage() {
                                                         size="icon"
                                                         onClick={() => setPendingDelete(d)}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
                                                     </Button>
                                                 </ZoruTableCell>
                                             </ZoruTableRow>

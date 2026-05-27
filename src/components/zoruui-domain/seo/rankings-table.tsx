@@ -68,7 +68,7 @@ export function RankingsTable({ keywords, onRefresh }: { keywords: any[]; onRefr
                             </TableCell>
                             <TableCell className="text-right">
                                 <Button variant="ghost" size="icon" onClick={() => handleDelete(kw._id)}>
-                                    <Trash2 className="h-4 w-4 text-zoru-ink-muted hover:text-red-500" />
+                                    <Trash2 className="h-4 w-4 text-zoru-ink-muted hover:text-zoru-ink" />
                                 </Button>
                             </TableCell>
                         </TableRow>
@@ -98,8 +98,8 @@ function LocationBadge({ code }: { code: string }) {
 
 function RankDisplay({ rank }: { rank?: number }) {
     if (!rank || rank === 0) return <span className="text-zoru-ink-muted">-</span>;
-    if (rank <= 3) return <span className="font-bold text-green-600 text-lg">#{rank}</span>;
-    if (rank <= 10) return <span className="font-medium text-green-600">#{rank}</span>;
+    if (rank <= 3) return <span className="font-bold text-zoru-ink text-lg">#{rank}</span>;
+    if (rank <= 10) return <span className="font-medium text-zoru-ink">#{rank}</span>;
     return <span>#{rank}</span>;
 }
 
@@ -117,14 +117,14 @@ function RankChange({ history }: { history: any[] }) {
     const change = prev - current; // Rank decrease is GOOD (moved up)
 
     if (change === 0) return <Minus className="h-4 w-4 text-zoru-ink-muted" />;
-    if (change > 0) return <div className="flex items-center text-green-600"><TrendingUp className="h-4 w-4 mr-1" /> {change}</div>;
-    return <div className="flex items-center text-red-500"><TrendingDown className="h-4 w-4 mr-1" /> {Math.abs(change)}</div>;
+    if (change > 0) return <div className="flex items-center text-zoru-ink"><TrendingUp className="h-4 w-4 mr-1" /> {change}</div>;
+    return <div className="flex items-center text-zoru-ink"><TrendingDown className="h-4 w-4 mr-1" /> {Math.abs(change)}</div>;
 }
 
 function getDifficultyColor(diff?: number) {
     if (!diff) return "";
-    if (diff > 80) return "bg-red-100 text-red-800";
-    if (diff > 60) return "bg-orange-100 text-orange-800";
-    if (diff > 40) return "bg-yellow-100 text-yellow-800";
-    return "bg-green-100 text-green-800";
+    if (diff > 80) return "bg-zoru-surface-2 text-zoru-ink";
+    if (diff > 60) return "bg-zoru-surface-2 text-zoru-ink";
+    if (diff > 40) return "bg-zoru-surface-2 text-zoru-ink";
+    return "bg-zoru-surface-2 text-zoru-ink";
 }

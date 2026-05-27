@@ -309,9 +309,9 @@ export function QuickSendClient({
             { keys: ["?"], description: "Open shortcut list" },
           ]}
         />
-        <div className="flex items-center gap-2 text-xs text-slate-500">
+        <div className="flex items-center gap-2 text-xs text-zoru-ink">
           <span>Workspace:</span>
-          <code className="rounded bg-slate-100 px-2 py-0.5">{workspaceId}</code>
+          <code className="rounded bg-zoru-surface-2 px-2 py-0.5">{workspaceId}</code>
         </div>
       </div>
 
@@ -333,7 +333,7 @@ export function QuickSendClient({
             placeholder={PASTE_PLACEHOLDER}
             className="font-mono text-xs"
           />
-          <div className="flex flex-wrap gap-3 text-xs text-slate-600">
+          <div className="flex flex-wrap gap-3 text-xs text-zoru-ink">
             <Badge variant="default">{parsed.rows.length} valid</Badge>
             {parsed.errors.length > 0 && (
               <Badge variant="destructive">
@@ -348,7 +348,7 @@ export function QuickSendClient({
             )}
           </div>
           {parsed.errors.length > 0 && (
-            <details className="rounded border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+            <details className="rounded border border-zoru-line bg-zoru-surface-2 p-3 text-xs text-zoru-ink">
               <summary className="cursor-pointer font-medium">
                 {parsed.errors.length} parse issue
                 {parsed.errors.length === 1 ? "" : "s"} (click to expand)
@@ -360,7 +360,7 @@ export function QuickSendClient({
                   </li>
                 ))}
                 {parsed.errors.length > 50 && (
-                  <li className="text-slate-500">
+                  <li className="text-zoru-ink">
                     …and {parsed.errors.length - 50} more
                   </li>
                 )}
@@ -387,7 +387,7 @@ export function QuickSendClient({
             onChange={(e) => setBody(e.target.value)}
             placeholder="Hi {{first_name}}, your order {{order_id}} is on its way."
           />
-          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-zoru-ink">
             <span>{body.length} chars</span>
             <span>·</span>
             <span>{segmentCount(body).encoding}</span>
@@ -419,12 +419,12 @@ export function QuickSendClient({
               <Label
                 key={c.value}
                 htmlFor={`category-${c.value}`}
-                className="flex cursor-pointer items-start gap-2 rounded border border-slate-200 p-3"
+                className="flex cursor-pointer items-start gap-2 rounded border border-zoru-line p-3"
               >
                 <ZoruRadioGroupItem id={`category-${c.value}`} value={c.value} />
                 <span>
                   <span className="block font-medium">{c.label}</span>
-                  <span className="block text-[11px] text-slate-500">
+                  <span className="block text-[11px] text-zoru-ink">
                     {c.hint}
                   </span>
                 </span>
@@ -433,7 +433,7 @@ export function QuickSendClient({
           </RadioGroup>
 
           {category === "marketing" && (
-            <label className="flex items-start gap-2 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            <label className="flex items-start gap-2 rounded border border-zoru-line bg-zoru-surface-2 p-3 text-sm text-zoru-ink">
               <Checkbox
                 checked={marketingAttested}
                 onCheckedChange={(v) => setMarketingAttested(v === true)}
@@ -447,7 +447,7 @@ export function QuickSendClient({
           )}
 
           {requires10DLC && (
-            <div className="space-y-2 rounded border border-slate-200 p-3">
+            <div className="space-y-2 rounded border border-zoru-line p-3">
               <Label htmlFor="tendlc-campaign-id" className="text-sm font-medium">10DLC Campaign ID (US requirement)</Label>
               <Input
                 id="tendlc-campaign-id"
@@ -455,14 +455,14 @@ export function QuickSendClient({
                 onChange={(e) => setTendlcCampaignId(e.target.value)}
                 placeholder="CXXXXXXXXXXXXX"
               />
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-zoru-ink">
                 Required for US outbound messages to comply with carrier A2P rules.
               </p>
             </div>
           )}
 
           {requiresDLT && (
-            <div className="space-y-2 rounded border border-slate-200 p-3">
+            <div className="space-y-2 rounded border border-zoru-line p-3">
               <Label htmlFor="dlt-template-id" className="text-sm font-medium">DLT Template ID (India requirement)</Label>
               <Input
                 id="dlt-template-id"
@@ -470,7 +470,7 @@ export function QuickSendClient({
                 onChange={(e) => setDltTemplateId(e.target.value)}
                 placeholder="1000XXXXXXXXXXXXXXXXX"
               />
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-zoru-ink">
                 Required by TRAI for commercial messaging in India.
               </p>
             </div>
@@ -499,7 +499,7 @@ export function QuickSendClient({
                 value={throttle}
                 onChange={(e) => setThrottle(Number(e.target.value))}
               />
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-zoru-ink">
                 Caps the engine enqueue rate. Range 1-50/sec.
               </p>
             </div>
@@ -527,7 +527,7 @@ export function QuickSendClient({
                 </ZoruSelectContent>
               </Select>
               {senderNumbers.length === 0 && (
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-zoru-ink">
                   No active numbers yet — falls back to the engine
                   default sender.
                 </p>
@@ -538,20 +538,20 @@ export function QuickSendClient({
           <Separator />
 
           <div className="grid gap-3 md:grid-cols-3">
-            <label className="flex items-center justify-between rounded border border-slate-200 p-3 text-sm">
+            <label className="flex items-center justify-between rounded border border-zoru-line p-3 text-sm">
               <span>
                 <span className="block font-medium">Dry-run preview</span>
-                <span className="block text-xs text-slate-500">
+                <span className="block text-xs text-zoru-ink">
                   No real sends — writes a dry-run audit entry only.
                 </span>
               </span>
               <Switch checked={dryRun} onCheckedChange={setDryRun} />
             </label>
 
-            <label className="flex items-center justify-between rounded border border-slate-200 p-3 text-sm">
+            <label className="flex items-center justify-between rounded border border-zoru-line p-3 text-sm">
               <span>
                 <span className="block font-medium">Skip suppressed</span>
-                <span className="block text-xs text-slate-500">
+                <span className="block text-xs text-zoru-ink">
                   Check sabsms_suppressions per row.
                 </span>
               </span>
@@ -561,10 +561,10 @@ export function QuickSendClient({
               />
             </label>
 
-            <label className="flex items-center justify-between rounded border border-slate-200 p-3 text-sm">
+            <label className="flex items-center justify-between rounded border border-zoru-line p-3 text-sm">
               <span>
                 <span className="block font-medium">Skip if sent today</span>
-                <span className="block text-xs text-slate-500">
+                <span className="block text-xs text-zoru-ink">
                   Re-checks last 24h of sabsms_messages.
                 </span>
               </span>
@@ -586,7 +586,7 @@ export function QuickSendClient({
           </ZoruCardDescription>
         </ZoruCardHeader>
         <ZoruCardContent>
-          <div className="overflow-hidden rounded border border-slate-200">
+          <div className="overflow-hidden rounded border border-zoru-line">
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow>
@@ -619,7 +619,7 @@ export function QuickSendClient({
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={4}
-                      className="py-8 text-center text-sm text-slate-500"
+                      className="py-8 text-center text-sm text-zoru-ink"
                     >
                       Paste at least one phone to see the preview.
                     </ZoruTableCell>
@@ -629,7 +629,7 @@ export function QuickSendClient({
             </Table>
           </div>
           {parsed.rows.length > 25 && (
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-zoru-ink">
               Showing 25 of {parsed.rows.length} rows.
             </p>
           )}
@@ -677,7 +677,7 @@ export function QuickSendClient({
             </Button>
           </div>
           {testResult && (
-            <p className="rounded border border-slate-200 bg-slate-50 p-2 text-xs">
+            <p className="rounded border border-zoru-line bg-zoru-surface-2 p-2 text-xs">
               {testResult}
             </p>
           )}
@@ -692,7 +692,7 @@ export function QuickSendClient({
           <Link href={saveAsCampaignHref}>Save as campaign instead</Link>
         </Button>
         {launchState.kind === "error" && (
-          <span className="rounded border border-rose-200 bg-rose-50 px-3 py-1 text-sm text-rose-700">
+          <span className="rounded border border-zoru-line bg-zoru-surface-2 px-3 py-1 text-sm text-zoru-ink">
             {launchState.message}
           </span>
         )}

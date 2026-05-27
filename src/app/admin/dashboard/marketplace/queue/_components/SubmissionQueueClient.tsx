@@ -24,12 +24,12 @@ interface Props {
 
 function StatusBadge({ status }: { status: string }) {
   if (status === 'approved') {
-    return <Badge variant="secondary" className="gap-1 bg-green-100 text-green-700 border-green-200"><CheckCircle className="h-3 w-3" />Approved</Badge>;
+    return <Badge variant="secondary" className="gap-1 bg-zoru-surface-2 text-zoru-ink border-zoru-line"><CheckCircle className="h-3 w-3" />Approved</Badge>;
   }
   if (status === 'rejected') {
-    return <Badge variant="secondary" className="gap-1 bg-red-100 text-red-700 border-red-200"><XCircle className="h-3 w-3" />Rejected</Badge>;
+    return <Badge variant="secondary" className="gap-1 bg-zoru-surface-2 text-zoru-ink border-zoru-line"><XCircle className="h-3 w-3" />Rejected</Badge>;
   }
-  return <Badge variant="secondary" className="gap-1 bg-amber-100 text-amber-700 border-amber-200"><Clock className="h-3 w-3" />Pending</Badge>;
+  return <Badge variant="secondary" className="gap-1 bg-zoru-surface-2 text-zoru-ink border-zoru-line"><Clock className="h-3 w-3" />Pending</Badge>;
 }
 
 interface RejectModalProps {
@@ -51,7 +51,7 @@ function RejectModal({ submissionIds, submissionNames, onConfirm, onClose, isPen
           <p className="text-sm text-zoru-ink-muted mt-0.5 truncate">&ldquo;{submissionNames}&rdquo;</p>
         </div>
         <div className="px-6 py-5 space-y-3">
-          <Label className="block text-sm font-medium text-zoru-ink">Reason <span className="text-red-500">*</span></Label>
+          <Label className="block text-sm font-medium text-zoru-ink">Reason <span className="text-zoru-ink">*</span></Label>
           <Textarea
             rows={4}
             placeholder="Explain why this template was rejected so the author can improve it…"
@@ -63,7 +63,7 @@ function RejectModal({ submissionIds, submissionNames, onConfirm, onClose, isPen
         </div>
         <div className="flex justify-end gap-2 px-6 py-4 border-t border-zoru-line">
           <Button variant="outline" size="sm" onClick={onClose} disabled={isPending}>Cancel</Button>
-          <Button size="sm" className="bg-red-600 hover:bg-red-500 text-white" disabled={!reason.trim() || isPending} onClick={() => onConfirm(submissionIds, reason.trim())}>
+          <Button size="sm" className="bg-zoru-ink hover:bg-zoru-ink text-white" disabled={!reason.trim() || isPending} onClick={() => onConfirm(submissionIds, reason.trim())}>
             {isPending ? <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />Rejecting…</> : 'Reject'}
           </Button>
         </div>
@@ -119,8 +119,8 @@ function PreviewModal({ submission, onClose, onApprove, onReject, isPending }: P
           )}
           {submission.rejectionReason && (
             <div>
-              <h3 className="text-sm font-medium text-red-500 uppercase tracking-wider mb-1">Rejection Reason</h3>
-              <p className="text-sm text-red-700 bg-red-50 p-3 rounded-lg border border-red-100">{submission.rejectionReason}</p>
+              <h3 className="text-sm font-medium text-zoru-ink uppercase tracking-wider mb-1">Rejection Reason</h3>
+              <p className="text-sm text-zoru-ink bg-zoru-surface-2 p-3 rounded-lg border border-zoru-line">{submission.rejectionReason}</p>
             </div>
           )}
         </div>
@@ -128,10 +128,10 @@ function PreviewModal({ submission, onClose, onApprove, onReject, isPending }: P
           <Button variant="outline" size="sm" onClick={onClose} disabled={isPending}>Close</Button>
           {submission.status === 'pending' && (
             <>
-              <Button size="sm" variant="outline" className="border-red-300 text-red-600 hover:bg-red-50" onClick={() => onReject(submission)} disabled={isPending}>
+              <Button size="sm" variant="outline" className="border-zoru-line text-zoru-ink hover:bg-zoru-surface-2" onClick={() => onReject(submission)} disabled={isPending}>
                 <XCircle className="mr-1 h-3.5 w-3.5" />Reject
               </Button>
-              <Button size="sm" className="bg-green-600 hover:bg-green-500 text-white" onClick={() => onApprove(submission.id)} disabled={isPending}>
+              <Button size="sm" className="bg-zoru-ink hover:bg-zoru-ink text-white" onClick={() => onApprove(submission.id)} disabled={isPending}>
                 <CheckCircle className="mr-1 h-3.5 w-3.5" />Approve
               </Button>
             </>
@@ -224,7 +224,7 @@ export function SubmissionQueueClient({ rows, currentPage, totalPages, statusFil
       <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-zoru-line bg-zoru-bg py-16 text-zoru-ink-muted relative">
         {isPending && (
           <div className="absolute inset-0 bg-zoru-bg/50 z-10 flex items-center justify-center rounded-2xl">
-            <Loader2 className="h-8 w-8 text-amber-500 animate-spin" />
+            <Loader2 className="h-8 w-8 text-zoru-ink animate-spin" />
           </div>
         )}
         <Inbox className="h-8 w-8 text-zoru-ink-muted" />
@@ -244,19 +244,19 @@ export function SubmissionQueueClient({ rows, currentPage, totalPages, statusFil
   return (
     <>
       {actionError && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4">
+        <div className="rounded-xl border border-zoru-line bg-zoru-surface-2 px-4 py-3 text-sm text-zoru-ink mb-4">
           {actionError}
         </div>
       )}
 
       {selectedIds.size > 0 && (
-        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
-          <span className="text-sm font-medium text-amber-800">{selectedIds.size} submission{selectedIds.size > 1 ? 's' : ''} selected</span>
+        <div className="mb-4 p-3 bg-zoru-surface-2 border border-zoru-line rounded-xl flex items-center justify-between">
+          <span className="text-sm font-medium text-zoru-ink">{selectedIds.size} submission{selectedIds.size > 1 ? 's' : ''} selected</span>
           <div className="flex gap-2">
-            <Button size="sm" className="bg-green-600 hover:bg-green-500 text-white" disabled={isPending} onClick={() => handleBatchApprove(Array.from(selectedIds))}>
+            <Button size="sm" className="bg-zoru-ink hover:bg-zoru-ink text-white" disabled={isPending} onClick={() => handleBatchApprove(Array.from(selectedIds))}>
               <CheckCircle className="mr-1 h-3.5 w-3.5" /> Approve Selected
             </Button>
-            <Button size="sm" variant="outline" className="border-red-300 text-red-600 hover:bg-red-50 bg-white" disabled={isPending} onClick={() => setRejectTargets(rows.filter(r => selectedIds.has(r.id)))}>
+            <Button size="sm" variant="outline" className="border-zoru-line text-zoru-ink hover:bg-zoru-surface-2 bg-white" disabled={isPending} onClick={() => setRejectTargets(rows.filter(r => selectedIds.has(r.id)))}>
               <XCircle className="mr-1 h-3.5 w-3.5" /> Reject Selected
             </Button>
           </div>
@@ -266,7 +266,7 @@ export function SubmissionQueueClient({ rows, currentPage, totalPages, statusFil
       <div className="rounded-2xl border border-zoru-line bg-zoru-bg overflow-hidden relative">
         {isPending && (
           <div className="absolute inset-0 bg-zoru-bg/50 z-10 flex items-center justify-center">
-            <Loader2 className="h-8 w-8 text-amber-500 animate-spin" />
+            <Loader2 className="h-8 w-8 text-zoru-ink animate-spin" />
           </div>
         )}
         <div className="overflow-x-auto">
@@ -292,7 +292,7 @@ export function SubmissionQueueClient({ rows, currentPage, totalPages, statusFil
                   </td>
                   <td className="px-5 py-4">
                     <p className="font-medium text-zoru-ink truncate max-w-xs">{row.name}</p>
-                    {row.rejectionReason && <p className="mt-0.5 text-xs text-red-500 truncate max-w-xs">{row.rejectionReason}</p>}
+                    {row.rejectionReason && <p className="mt-0.5 text-xs text-zoru-ink truncate max-w-xs">{row.rejectionReason}</p>}
                   </td>
                   <td className="px-5 py-4 text-zoru-ink-muted"><span className="truncate max-w-[140px] block">{row.authorName ?? row.authorId}</span></td>
                   <td className="px-5 py-4"><span className="inline-flex items-center rounded-full border border-zoru-line bg-zoru-surface px-2 py-0.5 text-[11px] font-medium text-zoru-ink-muted">{row.category}</span></td>
@@ -305,10 +305,10 @@ export function SubmissionQueueClient({ rows, currentPage, totalPages, statusFil
                       </Button>
                       {row.status === 'pending' && (
                         <>
-                          <Button size="sm" className="bg-green-600 hover:bg-green-500 text-white" onClick={() => handleBatchApprove([row.id])} disabled={isPending || selectedIds.size > 0}>
+                          <Button size="sm" className="bg-zoru-ink hover:bg-zoru-ink text-white" onClick={() => handleBatchApprove([row.id])} disabled={isPending || selectedIds.size > 0}>
                             <CheckCircle className="mr-1 h-3.5 w-3.5" /> Approve
                           </Button>
-                          <Button size="sm" variant="outline" className="border-red-300 text-red-600 hover:bg-red-50" onClick={() => setRejectTargets([row])} disabled={isPending || selectedIds.size > 0}>
+                          <Button size="sm" variant="outline" className="border-zoru-line text-zoru-ink hover:bg-zoru-surface-2" onClick={() => setRejectTargets([row])} disabled={isPending || selectedIds.size > 0}>
                             <XCircle className="mr-1 h-3.5 w-3.5" /> Reject
                           </Button>
                         </>

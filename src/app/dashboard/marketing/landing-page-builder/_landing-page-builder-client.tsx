@@ -180,7 +180,7 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
                     <ZoruChart.CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <ZoruChart.XAxis dataKey="channel" axisLine={false} tickLine={false} />
                     <ZoruChart.YAxis axisLine={false} tickLine={false} tickFormatter={(val: number) => `$${val/1000}k`} />
-                    <ZoruChart.Tooltip content={<ZoruChartTooltip />} cursor={{ fill: 'var(--zoru-bg-muted)' }} />
+                    <ZoruChart.Tooltip content={<ZoruChartTooltip />} cursor={{ fill: 'var(--zoru-bg-zoru-surface-2)' }} />
                     <ZoruChart.Bar dataKey="revenue" name="Revenue" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
                     <ZoruChart.Bar dataKey="spend" name="Spend" fill={ZORU_CHART_PALETTE[3]} radius={[4, 4, 0, 0]} />
                   </ZoruChart.BarChart>
@@ -295,7 +295,7 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
         }
       >
         {filteredData.length === 0 ? (
-          <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
+          <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed text-sm text-zoru-ink-muted">
             No records found.
           </div>
         ) : (
@@ -335,10 +335,10 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right space-x-2">
                       <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
-                        <Edit2 className="h-4 w-4 text-blue-500" />
+                        <Edit2 className="h-4 w-4 text-zoru-ink" />
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => handleDelete(item._id)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
+                        <Trash2 className="h-4 w-4 text-zoru-ink" />
                       </Button>
                     </ZoruTableCell>
                   </ZoruTableRow>

@@ -347,7 +347,7 @@ export function WorkflowCanvas({ workflow, onChange }: Props) {
                   strokeWidth={2}
                   fill="none"
                   markerEnd="url(#n8n-arrow)"
-                  className="group-hover:stroke-[#f76808]"
+                  className="group-hover:stroke-zoru-ink"
                   style={{ pointerEvents: 'none', transition: 'stroke 0.1s' }}
                 />
               </g>

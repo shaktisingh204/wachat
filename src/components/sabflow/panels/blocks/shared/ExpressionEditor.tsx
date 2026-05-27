@@ -527,8 +527,8 @@ export function ExpressionEditor({
 
   const exprClass = cn(
     'font-mono text-[12.5px]',
-    'border-purple-500/40 focus:border-purple-400',
-    'bg-purple-500/5',
+    'border-zoru-line/40 focus:border-zoru-line',
+    'bg-zoru-ink/5',
   );
 
   const containerClass = cn('relative', className);
@@ -555,7 +555,7 @@ export function ExpressionEditor({
         {isExpression && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-purple-400 font-mono text-[13px] font-semibold select-none"
+            className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-zoru-ink-muted font-mono text-[13px] font-semibold select-none"
           >
             =
           </span>
@@ -602,7 +602,7 @@ export function ExpressionEditor({
               'absolute right-1.5 top-1.5 flex h-6 items-center gap-1 rounded-md px-1.5',
               'text-[11px] font-mono font-semibold transition-colors',
               isExpression
-                ? 'bg-purple-500/15 text-purple-300 hover:bg-purple-500/25'
+                ? 'bg-zoru-ink/15 text-zoru-ink-muted hover:bg-zoru-ink/25'
                 : 'bg-[var(--gray-3)] text-[var(--gray-9)] hover:bg-[var(--gray-4)] hover:text-[var(--gray-11)]',
             )}
           >
@@ -670,7 +670,7 @@ function SuggestionMenu({
       style={style}
       className={cn(
         'min-w-[260px] max-w-[360px] max-h-[280px] overflow-y-auto',
-        'rounded-lg border border-purple-500/30 bg-[var(--gray-1)] shadow-xl',
+        'rounded-lg border border-zoru-line/30 bg-[var(--gray-1)] shadow-xl',
         'backdrop-blur-md p-1',
       )}
     >
@@ -688,7 +688,7 @@ function SuggestionMenu({
           className={cn(
             'w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors',
             index === activeIndex
-              ? 'bg-purple-500/15 text-purple-200'
+              ? 'bg-zoru-ink/15 text-white'
               : 'text-[var(--gray-11)] hover:bg-[var(--gray-3)]',
           )}
         >
@@ -706,7 +706,7 @@ function SuggestionMenu({
 }
 
 function SuggestionIcon({ icon }: { icon: Suggestion['icon'] }): ReactNode {
-  const className = 'h-3.5 w-3.5 shrink-0 text-purple-400';
+  const className = 'h-3.5 w-3.5 shrink-0 text-zoru-ink-muted';
   const strokeWidth = 1.8;
   if (icon === 'dollar')
     return <LuCircleDollarSign className={className} strokeWidth={strokeWidth} aria-hidden="true" />;

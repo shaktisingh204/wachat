@@ -240,7 +240,7 @@ export function ReferralsClient({
                           onClick={() => handleDelete(r._id)}
                           aria-label="Deactivate referral"
                         >
-                          <Trash2 className="h-4 w-4 text-red-500" />
+                          <Trash2 className="h-4 w-4 text-zoru-ink" />
                         </Button>
                       </ZoruTableCell>
                     </ZoruTableRow>

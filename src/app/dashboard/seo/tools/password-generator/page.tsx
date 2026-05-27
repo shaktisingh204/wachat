@@ -118,13 +118,13 @@ export default function PasswordGeneratorPage() {
   }, []);
 
   const strengthScore = strengthResult ? strengthResult.score : 0; // 0-4
-  const strengthColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-lime-500', 'bg-green-500'];
+  const strengthColors = ['bg-zoru-ink', 'bg-zoru-ink', 'bg-zoru-ink', 'bg-zoru-ink', 'bg-zoru-ink'];
   const strengthLabels = ['Very Weak', 'Weak', 'Fair', 'Strong', 'Very Strong'];
 
   return (
     <ToolShell title="Password Generator" description="Generate strong, memorable, and secure passwords.">
       
-      <div className="bg-card border rounded-lg p-6 space-y-6">
+      <div className="bg-zoru-surface border rounded-lg p-6 space-y-6">
         <div className="flex gap-4">
           <Button 
             variant={mode === 'random' ? 'default' : 'outline'} 
@@ -147,7 +147,7 @@ export default function PasswordGeneratorPage() {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <Label>Length</Label>
-                <span className="text-muted-foreground text-sm font-mono">{length}</span>
+                <span className="text-zoru-ink-muted text-sm font-mono">{length}</span>
               </div>
               <input 
                 type="range" 
@@ -160,7 +160,7 @@ export default function PasswordGeneratorPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               {(['upper','lower','digits','symbols'] as const).map((k) => (
-                <div key={k} className="flex items-center gap-2 bg-muted/50 p-2 rounded-md">
+                <div key={k} className="flex items-center gap-2 bg-zoru-surface-2/50 p-2 rounded-md">
                   <Switch checked={opts[k]} onCheckedChange={(v) => setOpts((s) => ({ ...s, [k]: v }))} />
                   <Label className="capitalize cursor-pointer" onClick={() => setOpts(s => ({...s, [k]: !s[k]}))}>{k}</Label>
                 </div>
@@ -174,7 +174,7 @@ export default function PasswordGeneratorPage() {
              <div className="space-y-2">
               <div className="flex justify-between">
                 <Label>Number of Words</Label>
-                <span className="text-muted-foreground text-sm font-mono">{wordCount}</span>
+                <span className="text-zoru-ink-muted text-sm font-mono">{wordCount}</span>
               </div>
               <input 
                 type="range" 
@@ -190,7 +190,7 @@ export default function PasswordGeneratorPage() {
               <div className="space-y-2">
                 <Label>Separator</Label>
                 <select 
-                  className="w-full bg-background border rounded-md p-2 text-sm"
+                  className="w-full bg-zoru-surface border rounded-md p-2 text-sm"
                   value={separator}
                   onChange={(e) => setSeparator(e.target.value)}
                 >
@@ -202,7 +202,7 @@ export default function PasswordGeneratorPage() {
                 </select>
               </div>
               
-              <div className="flex items-center gap-2 bg-muted/50 p-2 rounded-md mt-6">
+              <div className="flex items-center gap-2 bg-zoru-surface-2/50 p-2 rounded-md mt-6">
                   <Switch checked={capitalize} onCheckedChange={setCapitalize} />
                   <Label className="capitalize cursor-pointer" onClick={() => setCapitalize(!capitalize)}>Capitalize Words</Label>
               </div>
@@ -236,7 +236,7 @@ export default function PasswordGeneratorPage() {
             </Button>
           </div>
 
-          <div className="bg-card border rounded-lg p-6 space-y-4">
+          <div className="bg-zoru-surface border rounded-lg p-6 space-y-4">
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-medium text-lg">Password Strength</h3>
               <span className={cn("font-semibold", strengthResult ? `text-${strengthColors[strengthScore].split('-')[1]}-500` : '')}>
@@ -250,16 +250,16 @@ export default function PasswordGeneratorPage() {
                   key={idx} 
                   className={cn(
                     "flex-1 rounded-full transition-all duration-300",
-                    idx <= strengthScore ? strengthColors[strengthScore] : "bg-muted"
+                    idx <= strengthScore ? strengthColors[strengthScore] : "bg-zoru-surface-2"
                   )}
                 />
               ))}
             </div>
 
             {strengthResult && strengthResult.feedback && (
-              <div className="text-sm space-y-2 mt-4 text-muted-foreground">
+              <div className="text-sm space-y-2 mt-4 text-zoru-ink-muted">
                 {strengthResult.feedback.warning && (
-                  <p className="text-destructive flex items-start gap-2">
+                  <p className="text-zoru-ink flex items-start gap-2">
                     <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                     <span>{strengthResult.feedback.warning}</span>
                   </p>
@@ -278,14 +278,14 @@ export default function PasswordGeneratorPage() {
             )}
           </div>
 
-          <div className="bg-card border rounded-lg p-6">
+          <div className="bg-zoru-surface border rounded-lg p-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <h3 className="font-medium text-lg flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-primary" />
+                  <ShieldCheck className="w-5 h-5 text-zoru-ink" />
                   Have I Been Pwned Check
                 </h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-zoru-ink-muted mt-1">
                   Securely checks if this password has appeared in known data breaches using k-anonymity (only sends part of a hash).
                 </p>
               </div>
@@ -305,9 +305,9 @@ export default function PasswordGeneratorPage() {
             {pwnedCount !== null && (
               <div className={cn(
                 "mt-4 p-4 rounded-md border flex items-start gap-3",
-                pwnedCount > 0 ? "bg-destructive/10 border-destructive/20 text-destructive" : 
-                pwnedCount === -1 ? "bg-muted border-muted-foreground/20 text-muted-foreground" :
-                "bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400"
+                pwnedCount > 0 ? "bg-zoru-ink/10 border-destructive/20 text-zoru-ink" : 
+                pwnedCount === -1 ? "bg-zoru-surface-2 border-muted-foreground/20 text-zoru-ink-muted" :
+                "bg-zoru-ink/10 border-zoru-line/20 text-zoru-ink dark:text-zoru-ink-muted"
               )}>
                 {pwnedCount > 0 ? (
                   <ShieldAlert className="w-5 h-5 mt-0.5 flex-shrink-0" />

@@ -230,8 +230,8 @@ export function ViewSwitcher({
                     className={cn(
                         'h-8 rounded-full px-4 text-[12.5px] font-medium transition-colors',
                         view === v.key
-                            ? 'bg-foreground text-white shadow-sm'
-                            : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground',
+                            ? 'bg-zoru-ink text-white shadow-sm'
+                            : 'text-zoru-ink-muted hover:bg-zoru-surface-2/60 hover:text-zoru-ink',
                     )}
                     aria-pressed={view === v.key}
                 >

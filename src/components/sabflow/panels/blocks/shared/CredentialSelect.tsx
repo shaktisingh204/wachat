@@ -54,7 +54,7 @@ export function CredentialSelect({ credentialType, value, onChange }: Props) {
 
   if (error) {
     return (
-      <div className="text-[11.5px] text-red-500 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+      <div className="text-[11.5px] text-zoru-ink rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2">
         {error}
       </div>
     );
@@ -99,7 +99,7 @@ export function CredentialSelect({ credentialType, value, onChange }: Props) {
           href="/dashboard/sabflow/connections"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-[11.5px] text-[#f76808] hover:text-[#e05500] transition-colors"
+          className="flex items-center gap-1.5 text-[11.5px] text-zoru-ink hover:text-zoru-ink transition-colors"
         >
           <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
           Add {typeName} credential

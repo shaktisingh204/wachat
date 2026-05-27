@@ -505,7 +505,7 @@ export default function VendorsPage() {
                     />
 
                     <Card>
-                        <h2 className="text-[16px] font-semibold text-foreground">
+                        <h2 className="text-[16px] font-semibold text-zoru-ink">
                             All Vendors
                             {totalFiltered !== allVendors.length ? (
                                 <Badge variant="secondary" className="ml-2">
@@ -514,11 +514,11 @@ export default function VendorsPage() {
                                 </Badge>
                             ) : null}
                         </h2>
-                        <div className="mt-4 overflow-x-auto rounded-lg border border-border">
+                        <div className="mt-4 overflow-x-auto rounded-lg border border-zoru-line">
                             <Table>
                                 <ZoruTableHeader>
-                                    <ZoruTableRow className="border-border hover:bg-transparent">
-                                        <ZoruTableHead className="w-10 text-muted-foreground">
+                                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                        <ZoruTableHead className="w-10 text-zoru-ink-muted">
                                             <Checkbox
                                                 aria-label="Select all on page"
                                                 checked={
@@ -529,19 +529,19 @@ export default function VendorsPage() {
                                                 }
                                             />
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-muted-foreground">
+                                        <ZoruTableHead className="text-zoru-ink-muted">
                                             Vendor Name
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-muted-foreground">
+                                        <ZoruTableHead className="text-zoru-ink-muted">
                                             Email
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-muted-foreground">
+                                        <ZoruTableHead className="text-zoru-ink-muted">
                                             Phone
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-muted-foreground">
+                                        <ZoruTableHead className="text-zoru-ink-muted">
                                             Type
                                         </ZoruTableHead>
-                                        <ZoruTableHead className="text-right text-muted-foreground">
+                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
                                             Actions
                                         </ZoruTableHead>
                                     </ZoruTableRow>
@@ -554,7 +554,7 @@ export default function VendorsPage() {
                                             return (
                                                 <ZoruTableRow
                                                     key={id}
-                                                    className="border-border"
+                                                    className="border-zoru-line"
                                                     data-state={isSel ? 'selected' : undefined}
                                                 >
                                                     <ZoruTableCell>
@@ -564,7 +564,7 @@ export default function VendorsPage() {
                                                             onCheckedChange={() => handleToggleOne(id)}
                                                         />
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="font-medium text-foreground">
+                                                    <ZoruTableCell className="font-medium text-zoru-ink">
                                                         <EntityRowLink
                                                             href={`/dashboard/crm/purchases/vendors/${id}`}
                                                             label={vendor.name}
@@ -576,10 +576,10 @@ export default function VendorsPage() {
                                                             }
                                                         />
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="text-foreground">
+                                                    <ZoruTableCell className="text-zoru-ink">
                                                         {vendor.email || 'N/A'}
                                                     </ZoruTableCell>
-                                                    <ZoruTableCell className="text-foreground">
+                                                    <ZoruTableCell className="text-zoru-ink">
                                                         {vendor.phone || 'N/A'}
                                                     </ZoruTableCell>
                                                     <ZoruTableCell>
@@ -594,17 +594,17 @@ export default function VendorsPage() {
                                                             aria-label={`Delete ${vendor.name}`}
                                                             onClick={() => setDeleteTargetId(id)}
                                                         >
-                                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                                            <Trash2 className="h-4 w-4 text-zoru-ink" />
                                                         </Button>
                                                     </ZoruTableCell>
                                                 </ZoruTableRow>
                                             );
                                         })
                                     ) : (
-                                        <ZoruTableRow className="border-border">
+                                        <ZoruTableRow className="border-zoru-line">
                                             <ZoruTableCell
                                                 colSpan={6}
-                                                className="h-24 text-center text-muted-foreground"
+                                                className="h-24 text-center text-zoru-ink-muted"
                                             >
                                                 {hasActiveFilters || search
                                                     ? 'No vendors match your filters.'

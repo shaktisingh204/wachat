@@ -34,34 +34,34 @@ async function PublicTicketFormPageContent({ params }: PageProps) {
       <div className="flex flex-col gap-6 lg:col-span-3">
         <div>
           <div className="flex items-center gap-3">
-            <span className="rounded bg-secondary border border-border px-2 py-0.5 font-mono text-[11px] font-bold text-blue-600 uppercase">
+            <span className="rounded bg-zoru-surface-2 border border-zoru-line px-2 py-0.5 font-mono text-[11px] font-bold text-zoru-ink uppercase">
               GET
             </span>
-            <span className="font-mono text-[13px] text-foreground tracking-tight">
+            <span className="font-mono text-[13px] text-zoru-ink tracking-tight">
               /v1/ticket-forms/{formId.slice(0, 8)}...
             </span>
           </div>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight text-foreground font-mono">
+          <h1 className="mt-2 text-2xl font-bold tracking-tight text-zoru-ink font-mono">
             Open a support ticket
           </h1>
-          <p className="mt-1.5 text-[13px] text-muted-foreground font-sans">
+          <p className="mt-1.5 text-[13px] text-zoru-ink-muted font-sans">
             Describe the technical or service issue to post it directly to our ticketing system.
           </p>
         </div>
 
         {/* PARAMETER SCHEMA */}
         <Card>
-          <ZoruCardHeader className="border-b border-border py-3 bg-secondary/50">
+          <ZoruCardHeader className="border-b border-zoru-line py-3 bg-zoru-surface-2/50">
             <div className="flex items-center gap-2">
-              <Database className="h-4 w-4 text-muted-foreground" />
-              <ZoruCardTitle className="text-[12px] font-mono uppercase tracking-wider text-muted-foreground">
+              <Database className="h-4 w-4 text-zoru-ink-muted" />
+              <ZoruCardTitle className="text-[12px] font-mono uppercase tracking-wider text-zoru-ink-muted">
                 Payload Contract Attributes
               </ZoruCardTitle>
             </div>
           </ZoruCardHeader>
           <ZoruCardContent className="p-0">
             <Table>
-              <ZoruTableHeader className="bg-secondary/20">
+              <ZoruTableHeader className="bg-zoru-surface-2/20">
                 <ZoruTableRow>
                   <ZoruTableHead className="font-mono text-[11.5px]">Parameter</ZoruTableHead>
                   <ZoruTableHead className="font-mono text-[11.5px]">Type</ZoruTableHead>
@@ -71,28 +71,28 @@ async function PublicTicketFormPageContent({ params }: PageProps) {
               <ZoruTableBody>
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">name</ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">string</ZoruTableCell>
+                  <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">string</ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     <Badge variant="danger">REQUIRED</Badge>
                   </ZoruTableCell>
                 </ZoruTableRow>
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">email</ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">string</ZoruTableCell>
+                  <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">string</ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     <Badge variant="danger">REQUIRED</Badge>
                   </ZoruTableCell>
                 </ZoruTableRow>
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">subject</ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">string</ZoruTableCell>
+                  <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">string</ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     <Badge variant="danger">REQUIRED</Badge>
                   </ZoruTableCell>
                 </ZoruTableRow>
                 <ZoruTableRow>
                   <ZoruTableCell className="font-mono text-[12.5px]">description</ZoruTableCell>
-                  <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">string</ZoruTableCell>
+                  <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">string</ZoruTableCell>
                   <ZoruTableCell className="text-right">
                     <Badge variant="danger">REQUIRED</Badge>
                   </ZoruTableCell>
@@ -100,7 +100,7 @@ async function PublicTicketFormPageContent({ params }: PageProps) {
                 {form.fields.map((f: any) => (
                   <ZoruTableRow key={f._id}>
                     <ZoruTableCell className="font-mono text-[12.5px]">{String(f.field_name || '')}</ZoruTableCell>
-                    <ZoruTableCell className="font-mono text-[11px] text-muted-foreground">{String(f.field_type || 'string')}</ZoruTableCell>
+                    <ZoruTableCell className="font-mono text-[11px] text-zoru-ink-muted">{String(f.field_type || 'string')}</ZoruTableCell>
                     <ZoruTableCell className="text-right">
                       <Badge variant={f.is_required ? 'danger' : 'outline'}>
                         {f.is_required ? 'REQUIRED' : 'OPTIONAL'}
@@ -118,10 +118,10 @@ async function PublicTicketFormPageContent({ params }: PageProps) {
       <div className="lg:col-span-2">
         <div className="sticky top-6 flex flex-col gap-5">
           <div className="flex items-center gap-3">
-            <span className="rounded bg-secondary border border-border px-2 py-0.5 font-mono text-[11px] font-bold text-green-600 uppercase">
+            <span className="rounded bg-zoru-surface-2 border border-zoru-line px-2 py-0.5 font-mono text-[11px] font-bold text-zoru-ink uppercase">
               POST
             </span>
-            <span className="font-mono text-[13px] text-foreground tracking-tight">
+            <span className="font-mono text-[13px] text-zoru-ink tracking-tight">
               /v1/tickets/{formId.slice(0, 8)}.../submit
             </span>
           </div>

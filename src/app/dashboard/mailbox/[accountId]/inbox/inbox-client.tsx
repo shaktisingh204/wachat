@@ -352,7 +352,7 @@ export function InboxClient({
                                         <Star
                                             className={cn(
                                                 'h-4 w-4',
-                                                selected.starred && 'fill-yellow-400 text-yellow-500',
+                                                selected.starred && 'fill-zoru-ink-muted text-zoru-ink',
                                             )}
                                         />
                                     </Button>

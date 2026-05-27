@@ -70,7 +70,7 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
         { label: "Export Audit Log", icon: <Download className="h-4 w-4" /> },
       ]}
       toolbar={
-        <div className="flex items-center gap-2 border-b border-slate-200 pb-4">
+        <div className="flex items-center gap-2 border-b border-zoru-line pb-4">
           <Button variant={activeView === "overview" ? "default" : "outline"} onClick={() => setActiveView("overview")} size="sm">
             <BarChart2 className="mr-2 h-4 w-4" />
             Overview
@@ -124,12 +124,12 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
               <div className="flex items-center justify-between p-4 border rounded-md">
                 <div>
                   <p className="font-medium text-sm">Enable Balance-Based Limits</p>
-                  <p className="text-xs text-slate-500">Current Balance: ${balance.toFixed(2)}</p>
+                  <p className="text-xs text-zoru-ink">Current Balance: ${balance.toFixed(2)}</p>
                 </div>
                 <Switch checked={dynamicScaling} onCheckedChange={setDynamicScaling} />
               </div>
               {dynamicScaling && (
-                <div className="mt-4 p-3 bg-indigo-50 border border-indigo-100 rounded-md text-sm text-indigo-800 flex items-start gap-2">
+                <div className="mt-4 p-3 bg-zoru-surface-2 border border-zoru-line rounded-md text-sm text-zoru-ink flex items-start gap-2">
                   <Zap className="h-4 w-4 mt-0.5" />
                   <div>
                     <span className="font-semibold block mb-1">Dynamic Scaling is Active</span>
@@ -149,8 +149,8 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
               <ZoruCardContent>
                 <div className="relative flex h-[200px] items-end gap-1 px-2 pt-8">
                   {/* Visual limit line */}
-                  <div className="absolute left-0 right-0 border-t-2 border-dashed border-rose-400 z-10 flex items-center pointer-events-none" style={{ bottom: "75%" }}>
-                    <span className="absolute -top-6 right-2 text-xs font-semibold text-rose-600 bg-white px-1 py-0.5 rounded border border-rose-100 shadow-sm">Limit (10k/s)</span>
+                  <div className="absolute left-0 right-0 border-t-2 border-dashed border-zoru-line z-10 flex items-center pointer-events-none" style={{ bottom: "75%" }}>
+                    <span className="absolute -top-6 right-2 text-xs font-semibold text-zoru-ink bg-white px-1 py-0.5 rounded border border-zoru-line shadow-sm">Limit (10k/s)</span>
                   </div>
                   {/* Mock bar chart */}
                   {Array.from({ length: 30 }).map((_, i) => {
@@ -159,7 +159,7 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
                     return (
                       <div
                         key={i}
-                        className={`w-full rounded-t-sm transition-colors ${isOverLimit ? "bg-rose-500" : "bg-indigo-500/80 hover:bg-indigo-600"}`}
+                        className={`w-full rounded-t-sm transition-colors ${isOverLimit ? "bg-zoru-ink" : "bg-zoru-ink/80 hover:bg-zoru-ink"}`}
                         style={{ height: height + "%" }}
                       />
                     );
@@ -181,7 +181,7 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
                     return (
                       <div
                         key={i}
-                        className="w-full rounded-t-sm bg-rose-500/80 hover:bg-rose-600 transition-colors"
+                        className="w-full rounded-t-sm bg-zoru-ink/80 hover:bg-zoru-ink transition-colors"
                         style={{ height: height + "%" }}
                       />
                     );
@@ -271,7 +271,7 @@ export default function RateLimitsClient({ workspaceId }: { workspaceId: string 
                   render: (r) => (
                     <div className="flex items-center gap-2">
                       <Switch checked={r.active} />
-                      <span className="text-sm text-slate-500">{r.active ? "Active" : "Disabled"}</span>
+                      <span className="text-sm text-zoru-ink">{r.active ? "Active" : "Disabled"}</span>
                     </div>
                   ) 
                 },

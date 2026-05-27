@@ -104,30 +104,30 @@ export default function DomainAuthorityPage() {
 
   const getColorByScore = (score: number, inverse = false) => {
     if (inverse) {
-      if (score < 10) return "text-emerald-500";
-      if (score < 30) return "text-amber-500";
-      return "text-destructive";
+      if (score < 10) return "text-zoru-ink";
+      if (score < 30) return "text-zoru-ink";
+      return "text-zoru-ink";
     }
-    if (score >= 60) return "text-emerald-500";
-    if (score >= 30) return "text-amber-500";
-    return "text-destructive";
+    if (score >= 60) return "text-zoru-ink";
+    if (score >= 30) return "text-zoru-ink";
+    return "text-zoru-ink";
   };
 
   const getProgressColor = (score: number, inverse = false) => {
     if (inverse) {
-      if (score < 10) return "bg-emerald-500";
-      if (score < 30) return "bg-amber-500";
-      return "bg-destructive";
+      if (score < 10) return "bg-zoru-ink";
+      if (score < 30) return "bg-zoru-ink";
+      return "bg-zoru-ink";
     }
-    if (score >= 60) return "bg-emerald-500";
-    if (score >= 30) return "bg-amber-500";
-    return "bg-destructive";
+    if (score >= 60) return "bg-zoru-ink";
+    if (score >= 30) return "bg-zoru-ink";
+    return "bg-zoru-ink";
   };
 
   return (
     <ToolShell title="Domain Authority Checker" description="Comprehensive DA/PA metrics and link profile analysis.">
-      <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/30 mb-6">
-        <ZoruCardContent className="p-4 text-sm flex items-start gap-3 text-amber-800 dark:text-amber-200">
+      <Card className="border-zoru-line bg-zoru-surface-2 dark:bg-zoru-ink/30 mb-6">
+        <ZoruCardContent className="p-4 text-sm flex items-start gap-3 text-zoru-ink dark:text-white">
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
           <p>
             <strong>Note:</strong> Production Domain Authority and Page Authority require Moz or Ahrefs API credentials. 
@@ -151,7 +151,7 @@ export default function DomainAuthorityPage() {
       </div>
 
       {error && (
-        <div className="mb-6 p-4 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg flex items-center gap-3">
+        <div className="mb-6 p-4 text-sm text-zoru-ink bg-zoru-ink/10 border border-destructive/20 rounded-lg flex items-center gap-3">
           <AlertCircle className="h-5 w-5 shrink-0" />
           <p className="font-medium">{error}</p>
         </div>
@@ -159,9 +159,9 @@ export default function DomainAuthorityPage() {
 
       {result && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-muted/30 p-4 rounded-lg border">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zoru-surface-2/30 p-4 rounded-lg border">
             <div className="flex items-center gap-2 overflow-hidden w-full">
-              <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
+              <ExternalLink className="h-5 w-5 text-zoru-ink-muted shrink-0" />
               <span className="font-medium truncate text-lg">{result.checkedUrl}</span>
             </div>
             <div className="flex shrink-0 gap-2 w-full sm:w-auto">
@@ -178,12 +178,12 @@ export default function DomainAuthorityPage() {
             <Card className="overflow-hidden">
               <ZoruCardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <div className="text-sm font-medium text-muted-foreground">Domain Authority</div>
-                  <Activity className="h-4 w-4 text-muted-foreground" />
+                  <div className="text-sm font-medium text-zoru-ink-muted">Domain Authority</div>
+                  <Activity className="h-4 w-4 text-zoru-ink-muted" />
                 </div>
                 <div className={cn("text-4xl font-bold tracking-tight mb-2", getColorByScore(result.da))}>
                   {result.da}
-                  <span className="text-lg font-normal text-muted-foreground">/100</span>
+                  <span className="text-lg font-normal text-zoru-ink-muted">/100</span>
                 </div>
                 <Progress value={result.da} indicatorClassName={getProgressColor(result.da)} className="h-2" />
               </ZoruCardContent>
@@ -192,12 +192,12 @@ export default function DomainAuthorityPage() {
             <Card className="overflow-hidden">
               <ZoruCardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <div className="text-sm font-medium text-muted-foreground">Page Authority</div>
-                  <Activity className="h-4 w-4 text-muted-foreground" />
+                  <div className="text-sm font-medium text-zoru-ink-muted">Page Authority</div>
+                  <Activity className="h-4 w-4 text-zoru-ink-muted" />
                 </div>
                 <div className={cn("text-4xl font-bold tracking-tight mb-2", getColorByScore(result.pa))}>
                   {result.pa}
-                  <span className="text-lg font-normal text-muted-foreground">/100</span>
+                  <span className="text-lg font-normal text-zoru-ink-muted">/100</span>
                 </div>
                 <Progress value={result.pa} indicatorClassName={getProgressColor(result.pa)} className="h-2" />
               </ZoruCardContent>
@@ -206,12 +206,12 @@ export default function DomainAuthorityPage() {
             <Card className="overflow-hidden">
               <ZoruCardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <div className="text-sm font-medium text-muted-foreground">Trust Flow</div>
-                  <ShieldAlert className="h-4 w-4 text-muted-foreground" />
+                  <div className="text-sm font-medium text-zoru-ink-muted">Trust Flow</div>
+                  <ShieldAlert className="h-4 w-4 text-zoru-ink-muted" />
                 </div>
                 <div className={cn("text-4xl font-bold tracking-tight mb-2", getColorByScore(result.trustFlow))}>
                   {result.trustFlow}
-                  <span className="text-lg font-normal text-muted-foreground">/100</span>
+                  <span className="text-lg font-normal text-zoru-ink-muted">/100</span>
                 </div>
                 <Progress value={result.trustFlow} indicatorClassName={getProgressColor(result.trustFlow)} className="h-2" />
               </ZoruCardContent>
@@ -220,8 +220,8 @@ export default function DomainAuthorityPage() {
             <Card className="overflow-hidden">
               <ZoruCardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <div className="text-sm font-medium text-muted-foreground">Spam Score</div>
-                  <ShieldAlert className="h-4 w-4 text-muted-foreground" />
+                  <div className="text-sm font-medium text-zoru-ink-muted">Spam Score</div>
+                  <ShieldAlert className="h-4 w-4 text-zoru-ink-muted" />
                 </div>
                 <div className={cn("text-4xl font-bold tracking-tight mb-2", getColorByScore(result.spamScore, true))}>
                   {result.spamScore}%
@@ -235,11 +235,11 @@ export default function DomainAuthorityPage() {
             <Card>
               <ZoruCardContent className="p-6 flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-muted-foreground mb-1">Total Backlinks</div>
+                  <div className="text-sm font-medium text-zoru-ink-muted mb-1">Total Backlinks</div>
                   <div className="text-3xl font-bold">{result.backlinks.toLocaleString()}</div>
                 </div>
-                <div className="p-4 bg-primary/10 rounded-full">
-                  <LinkIcon className="h-6 w-6 text-primary" />
+                <div className="p-4 bg-zoru-ink/10 rounded-full">
+                  <LinkIcon className="h-6 w-6 text-zoru-ink" />
                 </div>
               </ZoruCardContent>
             </Card>
@@ -247,11 +247,11 @@ export default function DomainAuthorityPage() {
             <Card>
               <ZoruCardContent className="p-6 flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-muted-foreground mb-1">Linking Domains</div>
+                  <div className="text-sm font-medium text-zoru-ink-muted mb-1">Linking Domains</div>
                   <div className="text-3xl font-bold">{result.linkingDomains.toLocaleString()}</div>
                 </div>
-                <div className="p-4 bg-primary/10 rounded-full">
-                  <Activity className="h-6 w-6 text-primary" />
+                <div className="p-4 bg-zoru-ink/10 rounded-full">
+                  <Activity className="h-6 w-6 text-zoru-ink" />
                 </div>
               </ZoruCardContent>
             </Card>

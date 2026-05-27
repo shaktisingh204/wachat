@@ -29,10 +29,10 @@ interface Props {
 /* ── Type badge colours ─────────────────────────────────── */
 
 const TYPE_STYLES: Record<VariableType, { bg: string; text: string; label: string }> = {
-  text:    { bg: 'bg-blue-50 dark:bg-blue-950/40',    text: 'text-blue-600 dark:text-blue-400',   label: 'Text' },
-  number:  { bg: 'bg-violet-50 dark:bg-violet-950/40', text: 'text-violet-600 dark:text-violet-400', label: 'Num' },
-  boolean: { bg: 'bg-green-50 dark:bg-green-950/40',  text: 'text-green-600 dark:text-green-400',  label: 'Bool' },
-  object:  { bg: 'bg-amber-50 dark:bg-amber-950/40',  text: 'text-amber-600 dark:text-amber-400',  label: 'Obj' },
+  text:    { bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',    text: 'text-zoru-ink dark:text-zoru-ink-muted',   label: 'Text' },
+  number:  { bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40', text: 'text-zoru-ink dark:text-zoru-ink-muted', label: 'Num' },
+  boolean: { bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',  text: 'text-zoru-ink dark:text-zoru-ink-muted',  label: 'Bool' },
+  object:  { bg: 'bg-zoru-surface-2 dark:bg-zoru-ink/40',  text: 'text-zoru-ink dark:text-zoru-ink-muted',  label: 'Obj' },
 };
 
 /* ── Inline editable row ────────────────────────────────── */
@@ -76,7 +76,7 @@ function VariableRow({ variable, onSave, onDelete }: RowProps) {
       className={cn(
         'group flex flex-col gap-1.5 rounded-xl border px-3 py-2.5 transition-shadow',
         editing
-          ? 'border-[#f76808] shadow-[0_0_0_2px_rgba(247,104,8,0.15)] bg-[var(--gray-1)]'
+          ? 'border-zoru-line shadow-[0_0_0_2px_rgba(247,104,8,0.15)] bg-[var(--gray-1)]'
           : 'border-[var(--gray-5)] bg-[var(--gray-2)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-1)]',
       )}
     >
@@ -99,7 +99,7 @@ function VariableRow({ variable, onSave, onDelete }: RowProps) {
               className={cn(
                 'flex-1 min-w-0 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)]',
                 'px-2.5 py-1.5 text-[12.5px] font-mono text-[var(--gray-12)]',
-                'outline-none focus:border-[#f76808] focus:ring-1 focus:ring-[#f76808]/20 transition-colors',
+                'outline-none focus:border-zoru-line focus:ring-1 focus:ring-zoru-line/20 transition-colors',
               )}
             />
             <select
@@ -108,7 +108,7 @@ function VariableRow({ variable, onSave, onDelete }: RowProps) {
               className={cn(
                 'rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)]',
                 'px-2 py-1.5 text-[11.5px] text-[var(--gray-11)]',
-                'outline-none focus:border-[#f76808] transition-colors cursor-pointer',
+                'outline-none focus:border-zoru-line transition-colors cursor-pointer',
               )}
             >
               {(Object.keys(TYPE_STYLES) as VariableType[]).map((t) => (
@@ -130,7 +130,7 @@ function VariableRow({ variable, onSave, onDelete }: RowProps) {
             className={cn(
               'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)]',
               'px-2.5 py-1.5 text-[12px] text-[var(--gray-11)]',
-              'outline-none focus:border-[#f76808] focus:ring-1 focus:ring-[#f76808]/20 transition-colors',
+              'outline-none focus:border-zoru-line focus:ring-1 focus:ring-zoru-line/20 transition-colors',
             )}
           />
 
@@ -148,7 +148,7 @@ function VariableRow({ variable, onSave, onDelete }: RowProps) {
               className={cn(
                 'flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11.5px] font-medium transition-colors',
                 draft.name.trim()
-                  ? 'bg-[#f76808] text-white hover:bg-[#e25c00]'
+                  ? 'bg-zoru-ink text-white hover:bg-zoru-ink'
                   : 'bg-[var(--gray-4)] text-[var(--gray-8)] cursor-not-allowed',
               )}
             >
@@ -194,7 +194,7 @@ function VariableRow({ variable, onSave, onDelete }: RowProps) {
             <button
               onClick={() => onDelete(variable.id)}
               title="Delete variable"
-              className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-red-50 hover:text-red-600 transition-colors"
+              className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-zoru-surface-2 hover:text-zoru-ink transition-colors"
             >
               <LuTrash2 className="h-3 w-3" strokeWidth={2} />
             </button>
@@ -242,7 +242,7 @@ export function VariablesPanel({ variables, onUpdate }: Props) {
     <div className="flex flex-col h-full">
       {/* ── Header ──────────────────────────────────────── */}
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--gray-4)] shrink-0">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400 shrink-0">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink dark:bg-zoru-ink/40 dark:text-zoru-ink-muted shrink-0">
           <LuVariable className="h-3.5 w-3.5" strokeWidth={2} />
         </div>
         <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)]">Variables</span>
@@ -261,13 +261,13 @@ export function VariablesPanel({ variables, onUpdate }: Props) {
           className={cn(
             'flex-1 min-w-0 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]',
             'px-2.5 py-1.5 text-[12px] text-[var(--gray-12)] placeholder:text-[var(--gray-9)]',
-            'outline-none focus:border-[#f76808] focus:ring-1 focus:ring-[#f76808]/20 transition-colors',
+            'outline-none focus:border-zoru-line focus:ring-1 focus:ring-zoru-line/20 transition-colors',
           )}
         />
         <button
           onClick={handleAdd}
           title="Add variable"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#f76808] text-white hover:bg-[#e25c00] transition-colors"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zoru-ink text-white hover:bg-zoru-ink transition-colors"
         >
           <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
         </button>
@@ -293,7 +293,7 @@ export function VariablesPanel({ variables, onUpdate }: Props) {
             {!search && (
               <button
                 onClick={handleAdd}
-                className="flex items-center gap-1.5 rounded-lg bg-[#f76808] px-3 py-1.5 text-[12px] font-medium text-white hover:bg-[#e25c00] transition-colors"
+                className="flex items-center gap-1.5 rounded-lg bg-zoru-ink px-3 py-1.5 text-[12px] font-medium text-white hover:bg-zoru-ink transition-colors"
               >
                 <LuPlus className="h-3 w-3" strokeWidth={2.5} /> Add variable
               </button>

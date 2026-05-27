@@ -2,25 +2,27 @@
 
 import React, { useState } from 'react';
 import { Label, Input, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/zoruui';
-import { ChevronDown, ChevronRight, Palette, Layout, Settings, Blocks, Type, FileCode } from 'lucide-react';
+import { ChevronDown, ChevronRight, Palette, Layout, Settings, Type, FileCode } from 'lucide-react';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { Paperclip, X } from 'lucide-react';
 import { Button } from '@/components/zoruui';
+import type { DocumentType } from './live-document-editor';
+import { getSidebarEntity } from './seed-templates';
 
 interface LiveSidebarProps {
     docState: any;
     updateDocState: (patch: any) => void;
     updateDesignMetadata: (patch: any) => void;
-    documentType: string;
+    documentType: DocumentType;
 }
 
 function Accordion({ title, icon: Icon, children, defaultOpen = false }: { title: string, icon: any, children: React.ReactNode, defaultOpen?: boolean }) {
     const [isOpen, setIsOpen] = useState(defaultOpen);
     return (
         <div className="border-b border-zoru-line">
-            <button 
+            <button
                 className="flex w-full items-center justify-between px-4 py-3 hover:bg-zoru-surface-2"
                 onClick={() => setIsOpen(!isOpen)}
                 type="button"
@@ -40,18 +42,57 @@ function Accordion({ title, icon: Icon, children, defaultOpen = false }: { title
     );
 }
 
+function PrimaryEntityPicker({ documentType, docState, updateDocState }: { documentType: DocumentType; docState: any; updateDocState: (p: any) => void }) {
+    const entity = getSidebarEntity(documentType);
+    if (entity === 'none') return null;
+
+    if (entity === 'account') {
+        return (
+            <div className="space-y-1.5">
+                <Label>Client / Account</Label>
+                <EntityFormField entity="account" name="accountId" initialId={docState.accountId} onChange={(v) => updateDocState({ accountId: v })} />
+            </div>
+        );
+    }
+    if (entity === 'employee') {
+        return (
+            <div className="space-y-1.5">
+                <Label>Employee</Label>
+                <EntityFormField entity="employee" name="employeeId" initialId={docState.employeeId} onChange={(v) => updateDocState({ employeeId: v })} />
+            </div>
+        );
+    }
+    if (entity === 'candidate') {
+        return (
+            <div className="space-y-1.5">
+                <Label>Candidate</Label>
+                <EntityFormField entity="candidate" name="candidateId" initialId={docState.candidateId} onChange={(v) => updateDocState({ candidateId: v })} />
+            </div>
+        );
+    }
+    if (entity === 'vendor') {
+        return (
+            <div className="space-y-1.5">
+                <Label>Vendor</Label>
+                <EntityFormField entity="vendor" name="vendorId" initialId={docState.vendorId} onChange={(v) => updateDocState({ vendorId: v })} />
+            </div>
+        );
+    }
+    return null;
+}
+
 export function LiveSidebar({ docState, updateDocState, updateDesignMetadata, documentType }: LiveSidebarProps) {
     const { designMetadata } = docState;
 
     const handleAttachmentPick = (pick: SabFilePick) => {
         updateDocState({
-            attachments: [...docState.attachments, { url: pick.url, name: pick.name || pick.url }]
+            attachments: [...docState.attachments, { url: pick.url, name: pick.name || pick.url }],
         });
     };
 
     const removeAttachment = (idx: number) => {
         updateDocState({
-            attachments: docState.attachments.filter((_: any, i: number) => i !== idx)
+            attachments: docState.attachments.filter((_: any, i: number) => i !== idx),
         });
     };
 
@@ -73,15 +114,13 @@ export function LiveSidebar({ docState, updateDocState, updateDesignMetadata, do
                             onChange={(v) => updateDocState({ status: v || 'draft' })}
                         />
                     </div>
-                    <div className="space-y-1.5">
-                        <Label>Client / Account</Label>
-                        <EntityFormField
-                            entity="account"
-                            name="accountId"
-                            initialId={docState.accountId}
-                            onChange={(v) => updateDocState({ accountId: v })}
-                        />
-                    </div>
+
+                    <PrimaryEntityPicker
+                        documentType={documentType}
+                        docState={docState}
+                        updateDocState={updateDocState}
+                    />
+
                     <div className="space-y-1.5">
                         <Label>Currency</Label>
                         <EnumFormField
@@ -92,7 +131,7 @@ export function LiveSidebar({ docState, updateDocState, updateDesignMetadata, do
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label>Valid Until / Due Date</Label>
+                        <Label>Valid Until / Effective / Due Date</Label>
                         <Input
                             type="date"
                             value={docState.validUntil ? new Date(docState.validUntil).toISOString().split('T')[0] : ''}
@@ -107,14 +146,14 @@ export function LiveSidebar({ docState, updateDocState, updateDesignMetadata, do
                     <div className="space-y-1.5">
                         <Label>Theme Color</Label>
                         <div className="flex items-center gap-2">
-                            <input 
-                                type="color" 
-                                value={designMetadata.themeColor} 
+                            <input
+                                type="color"
+                                value={designMetadata.themeColor}
                                 onChange={(e) => updateDesignMetadata({ themeColor: e.target.value })}
                                 className="h-8 w-8 cursor-pointer rounded border-none p-0"
                             />
-                            <Input 
-                                value={designMetadata.themeColor} 
+                            <Input
+                                value={designMetadata.themeColor}
                                 onChange={(e) => updateDesignMetadata({ themeColor: e.target.value })}
                                 className="flex-1 font-mono text-xs"
                             />
@@ -123,8 +162,8 @@ export function LiveSidebar({ docState, updateDocState, updateDesignMetadata, do
                     <div className="space-y-1.5">
                         <Label>Show Logo</Label>
                         <div className="flex items-center gap-2 mt-1">
-                            <input 
-                                type="checkbox" 
+                            <input
+                                type="checkbox"
                                 checked={designMetadata.showLogo}
                                 onChange={(e) => updateDesignMetadata({ showLogo: e.target.checked })}
                                 className="h-4 w-4 rounded border-zoru-line text-zoru-primary focus:ring-zoru-primary"
@@ -207,7 +246,7 @@ export function LiveSidebar({ docState, updateDocState, updateDesignMetadata, do
                         <Paperclip className="mr-1.5 h-3.5 w-3.5" />
                         Add from SabFiles
                     </SabFilePickerButton>
-                    
+
                     {docState.attachments.length > 0 && (
                         <ul className="flex flex-col gap-1.5 mt-2">
                             {docState.attachments.map((a: any, idx: number) => (
@@ -222,13 +261,13 @@ export function LiveSidebar({ docState, updateDocState, updateDesignMetadata, do
                     )}
                 </div>
             </Accordion>
-            
+
             <Accordion title="Advanced CSS" icon={FileCode}>
                 <div className="space-y-1.5">
                     <Label>Custom CSS Injections</Label>
-                    <Textarea 
-                        placeholder=".custom-header { ... }" 
-                        className="font-mono text-xs" 
+                    <Textarea
+                        placeholder=".custom-header { ... }"
+                        className="font-mono text-xs"
                         rows={6}
                         value={designMetadata.customCss || ''}
                         onChange={(e) => updateDesignMetadata({ customCss: e.target.value })}

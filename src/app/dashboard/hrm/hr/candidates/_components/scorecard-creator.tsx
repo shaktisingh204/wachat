@@ -49,7 +49,7 @@ export function ScorecardCreator({ candidateId }: { candidateId: string }) {
               className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm transition-colors ${
                 rating >= star
                   ? 'border-zoru-ink bg-zoru-ink text-white dark:border-white dark:bg-white dark:text-black'
-                  : 'border-zinc-200 text-zinc-500 hover:border-zinc-300 dark:border-zinc-800'
+                  : 'border-zoru-line text-zoru-ink hover:border-zoru-line dark:border-zoru-line'
               }`}
             >
               {star}

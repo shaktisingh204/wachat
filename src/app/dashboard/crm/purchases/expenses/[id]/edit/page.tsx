@@ -1,40 +1,30 @@
-/**
- * Edit bill — `/dashboard/crm/purchases/expenses/[id]/edit`.
- *
- * Hydrates the existing bill, fetches custom-field definitions, and
- * passes both to the shared `<BillForm>` (re-used from the Create
- * flow). The form submits a PATCH because `_id` is rendered as a
- * hidden input.
- */
-
-import { notFound } from 'next/navigation';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { BillForm } from '../../_components/bill-form';
-import { getBill } from '@/app/actions/crm/bills.actions';
-import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
-import type { WsCustomField } from '@/lib/worksuite/meta-types';
+import { notFound, redirect } from 'next/navigation';
+import { getSession } from '@/app/actions/user.actions';
+import { loadLiveDocument, saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
 
 export const dynamic = 'force-dynamic';
 
-export default async function EditBillPage({
-  params,
+const BASE = '/dashboard/crm/purchases/expenses';
+
+export default async function EditExpenseReportPage({
+    params,
 }: {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const [{ bill }, customFields] = await Promise.all([
-    getBill(id),
-    getCustomFieldsFor('expense') as Promise<WsCustomField[]>,
-  ]);
+    const { id } = await params;
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
 
-  if (!bill) notFound();
+    const doc = await loadLiveDocument('expense_report', id);
+    if (!doc) notFound();
 
-  const title = bill.billNo || bill.vendorInvoiceNo || 'Bill';
-
-  return (
-    <EntityListShell title={`Edit ${title}`} subtitle="Update bill details.">
-      <BillForm initial={bill} customFields={customFields} />
-    </EntityListShell>
-  );
+    return (
+        <LiveDocumentEditor
+            documentType="expense_report"
+            initialData={doc as Record<string, unknown>}
+            saveAction={saveLiveDocument}
+            backHref={BASE}
+        />
+    );
 }

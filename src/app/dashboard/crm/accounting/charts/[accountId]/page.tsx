@@ -138,12 +138,12 @@ export default async function ChartOfAccountDetailPage(props: {
             rightRail={
                 <div className="flex flex-col gap-4">
                     <Card className="p-4">
-                        <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        <p className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                             Snapshot
                         </p>
                         <dl className="mt-2 space-y-1.5 text-[13px]">
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Nature</dt>
+                                <dt className="text-zoru-ink-muted">Nature</dt>
                                 <dd>
                                     {natureRaw ? (
                                         <StatusPill
@@ -156,28 +156,28 @@ export default async function ChartOfAccountDetailPage(props: {
                                 </dd>
                             </div>
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Sub-nature</dt>
+                                <dt className="text-zoru-ink-muted">Sub-nature</dt>
                                 <dd className="text-right">{subNatureRaw.replace(/_/g, ' ') || '—'}</dd>
                             </div>
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Parent group</dt>
+                                <dt className="text-zoru-ink-muted">Parent group</dt>
                                 <dd className="text-right">{groupName || '—'}</dd>
                             </div>
                             <div className="flex justify-between gap-3">
-                                <dt className="text-muted-foreground">Currency</dt>
+                                <dt className="text-zoru-ink-muted">Currency</dt>
                                 <dd className="font-mono">{account.currency}</dd>
                             </div>
                         </dl>
                     </Card>
                     <Card className="p-4">
-                        <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        <p className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                             Related
                         </p>
                         <ul className="mt-2 space-y-1.5 text-[13px]">
                             <li>
                                 <Link
                                     href={`/dashboard/crm/accounting/groups`}
-                                    className="text-accent-foreground hover:underline"
+                                    className="text-zoru-ink hover:underline"
                                 >
                                     Account groups
                                 </Link>
@@ -185,7 +185,7 @@ export default async function ChartOfAccountDetailPage(props: {
                             <li>
                                 <Link
                                     href="/dashboard/crm/accounting/vouchers"
-                                    className="text-accent-foreground hover:underline"
+                                    className="text-zoru-ink hover:underline"
                                 >
                                     Voucher books
                                 </Link>
@@ -193,7 +193,7 @@ export default async function ChartOfAccountDetailPage(props: {
                             <li>
                                 <Link
                                     href="/dashboard/crm/accounting/trial-balance"
-                                    className="text-accent-foreground hover:underline"
+                                    className="text-zoru-ink hover:underline"
                                 >
                                     Trial balance
                                 </Link>
@@ -223,10 +223,10 @@ export default async function ChartOfAccountDetailPage(props: {
 
                 {account.description ? (
                     <Card>
-                        <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        <p className="text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
                             Description
                         </p>
-                        <p className="mt-1.5 whitespace-pre-wrap text-[13px] text-foreground">
+                        <p className="mt-1.5 whitespace-pre-wrap text-[13px] text-zoru-ink">
                             {account.description}
                         </p>
                     </Card>
@@ -234,48 +234,48 @@ export default async function ChartOfAccountDetailPage(props: {
 
                 <Card className="p-0">
                     <div className="px-4 py-3">
-                        <p className="text-[13px] font-semibold text-foreground">
+                        <p className="text-[13px] font-semibold text-zoru-ink">
                             Recent transactions ({recent.length})
                         </p>
-                        <p className="text-[11.5px] text-muted-foreground">
+                        <p className="text-[11.5px] text-zoru-ink-muted">
                             Last 50 voucher entries that touched this account.
                         </p>
                     </div>
-                    <div className="overflow-x-auto border-t border-border">
+                    <div className="overflow-x-auto border-t border-zoru-line">
                         <Table>
                             <ZoruTableHeader>
-                                <ZoruTableRow className="border-border hover:bg-transparent">
-                                    <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">Voucher #</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">Note</ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-muted-foreground">Debit</ZoruTableHead>
-                                    <ZoruTableHead className="text-right text-muted-foreground">Credit</ZoruTableHead>
+                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Voucher #</ZoruTableHead>
+                                    <ZoruTableHead className="text-zoru-ink-muted">Note</ZoruTableHead>
+                                    <ZoruTableHead className="text-right text-zoru-ink-muted">Debit</ZoruTableHead>
+                                    <ZoruTableHead className="text-right text-zoru-ink-muted">Credit</ZoruTableHead>
                                 </ZoruTableRow>
                             </ZoruTableHeader>
                             <ZoruTableBody>
                                 {flattenedRecent.length === 0 ? (
-                                    <ZoruTableRow className="border-border">
-                                        <ZoruTableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                    <ZoruTableRow className="border-zoru-line">
+                                        <ZoruTableCell colSpan={5} className="h-24 text-center text-zoru-ink-muted">
                                             No transactions posted yet.
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : (
                                     flattenedRecent.map((entry) => {
                                         return (
-                                            <ZoruTableRow key={entry._id} className="border-border">
-                                                <ZoruTableCell className="text-foreground">
+                                            <ZoruTableRow key={entry._id} className="border-zoru-line">
+                                                <ZoruTableCell className="text-zoru-ink">
                                                     {entry.date}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-foreground">
+                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
                                                     {entry.voucherNumber}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-[12px] text-muted-foreground">
+                                                <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
                                                     {entry.note}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-foreground">
+                                                <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                                     {entry.debit > 0 ? fmtMoney(entry.debit, account.currency) : '—'}
                                                 </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-foreground">
+                                                <ZoruTableCell className="text-right font-mono text-zoru-ink">
                                                     {entry.credit > 0 ? fmtMoney(entry.credit, account.currency) : '—'}
                                                 </ZoruTableCell>
                                             </ZoruTableRow>
@@ -303,15 +303,15 @@ function SummaryCell({ label, value, type, currency, accent }: SummaryCellProps)
     return (
         <div
             className={[
-                'rounded-lg border border-border p-3',
-                accent ? 'bg-zoru-surface-2' : 'bg-secondary',
+                'rounded-lg border border-zoru-line p-3',
+                accent ? 'bg-zoru-surface-2' : 'bg-zoru-surface-2',
             ].join(' ')}
         >
-            <p className="text-[11.5px] text-muted-foreground">{label}</p>
-            <p className="mt-1 text-[18px] font-semibold text-foreground">
+            <p className="text-[11.5px] text-zoru-ink-muted">{label}</p>
+            <p className="mt-1 text-[18px] font-semibold text-zoru-ink">
                 {fmtMoney(value, currency)}
             </p>
-            <p className="text-[11px] font-mono text-muted-foreground">{type}</p>
+            <p className="text-[11px] font-mono text-zoru-ink-muted">{type}</p>
         </div>
     );
 }

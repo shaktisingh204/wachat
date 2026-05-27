@@ -32,11 +32,11 @@ import {
 } from '@/lib/sabfiles/share-ui';
 
 function previewIcon(mime?: string, className = 'h-14 w-14'): React.ReactElement {
-    if (mime?.startsWith('image/')) return <FileImage className={cn(className, 'text-violet-500')} />;
-    if (mime?.startsWith('video/')) return <FileVideo className={cn(className, 'text-rose-500')} />;
-    if (mime?.startsWith('audio/')) return <FileAudio className={cn(className, 'text-emerald-500')} />;
+    if (mime?.startsWith('image/')) return <FileImage className={cn(className, 'text-zoru-ink')} />;
+    if (mime?.startsWith('video/')) return <FileVideo className={cn(className, 'text-zoru-ink')} />;
+    if (mime?.startsWith('audio/')) return <FileAudio className={cn(className, 'text-zoru-ink')} />;
     if (mime?.includes('text') || mime?.includes('pdf'))
-        return <FileText className={cn(className, 'text-sky-500')} />;
+        return <FileText className={cn(className, 'text-zoru-ink')} />;
     return <FileIcon className={cn(className, 'text-zoru-ink-muted')} />;
 }
 

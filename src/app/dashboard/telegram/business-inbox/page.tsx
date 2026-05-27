@@ -454,7 +454,7 @@ export default function Page() {
     }
 
     return (
-        <div className="flex h-[calc(100vh-4rem)] flex-col bg-background">
+        <div className="flex h-[calc(100vh-4rem)] flex-col bg-zoru-surface">
             <TelegramProjectGate />
             {/* Analytics summary bar */}
             <AnalyticsBar
@@ -571,7 +571,7 @@ export default function Page() {
                             onJumpTo={setSelectedId}
                         />
                     ) : (
-                        <div className="flex h-full items-center justify-center p-8 text-sm text-muted-foreground">
+                        <div className="flex h-full items-center justify-center p-8 text-sm text-zoru-ink-muted">
                             Customer info appears here.
                         </div>
                     )}
@@ -644,7 +644,7 @@ function AnalyticsBar({
     onEvalSla: () => void;
 }) {
     return (
-        <div className="flex flex-shrink-0 items-center gap-6 border-b bg-card px-4 py-3">
+        <div className="flex flex-shrink-0 items-center gap-6 border-b bg-zoru-surface px-4 py-3">
             <div className="flex items-center gap-2">
                 <Inbox className="h-5 w-5" style={{ color: ACCENT }} />
                 <h1 className="text-base font-semibold">Telegram Business Inbox</h1>
@@ -690,10 +690,10 @@ function Stat({
 }) {
     return (
         <div className="flex items-center gap-2">
-            <Icon className={`h-4 w-4 ${tone === 'destructive' ? 'text-destructive' : 'text-muted-foreground'}`} />
+            <Icon className={`h-4 w-4 ${tone === 'destructive' ? 'text-zoru-ink' : 'text-zoru-ink-muted'}`} />
             <div className="leading-tight">
-                <div className={`text-sm font-medium ${tone === 'destructive' ? 'text-destructive' : ''}`}>{value}</div>
-                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+                <div className={`text-sm font-medium ${tone === 'destructive' ? 'text-zoru-ink' : ''}`}>{value}</div>
+                <div className="text-[10px] uppercase tracking-wide text-zoru-ink-muted">{label}</div>
             </div>
         </div>
     );
@@ -756,7 +756,7 @@ function ThreadListHeader(props: {
     return (
         <div className="flex-shrink-0 space-y-2 border-b p-3">
             <div className="flex items-center gap-2">
-                <Search className="h-4 w-4 text-muted-foreground" />
+                <Search className="h-4 w-4 text-zoru-ink-muted" />
                 <Input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -789,8 +789,8 @@ function ThreadListHeader(props: {
                         onClick={() => setStatusFilter(opt.value)}
                         className={`flex flex-col items-center rounded-md px-1 py-1 transition ${
                             statusFilter === opt.value
-                                ? 'bg-primary/10 text-primary font-medium'
-                                : 'text-muted-foreground hover:bg-accent'
+                                ? 'bg-zoru-ink/10 text-zoru-ink font-medium'
+                                : 'text-zoru-ink-muted hover:bg-zoru-surface-2'
                         }`}
                     >
                         <span className="truncate">{opt.label}</span>
@@ -848,10 +848,10 @@ function ThreadListHeader(props: {
             </div>
 
             {bulkMode && (
-                <div className="rounded-md border bg-accent/40 p-2">
+                <div className="rounded-md border bg-zoru-surface-2/40 p-2">
                     <div className="mb-1 flex items-center justify-between text-xs">
                         <span className="font-medium">{selectedCount} selected</span>
-                        <button onClick={toggleAll} className="text-primary hover:underline">
+                        <button onClick={toggleAll} className="text-zoru-ink hover:underline">
                             {allSelected ? 'Clear' : 'Select all'}
                         </button>
                     </div>
@@ -931,7 +931,7 @@ function BulkAssignButton({
                                 await onAssign(null);
                                 setOpen(false);
                             }}
-                            className="w-full rounded p-2 text-left text-sm hover:bg-accent"
+                            className="w-full rounded p-2 text-left text-sm hover:bg-zoru-surface-2"
                         >
                             Unassign
                         </button>
@@ -942,7 +942,7 @@ function BulkAssignButton({
                                     await onAssign(a._id);
                                     setOpen(false);
                                 }}
-                                className="w-full rounded p-2 text-left text-sm hover:bg-accent"
+                                className="w-full rounded p-2 text-left text-sm hover:bg-zoru-surface-2"
                             >
                                 {a.name}
                             </button>
@@ -1006,7 +1006,7 @@ function ThreadList({
                             type="button"
                             onClick={() => onSelect(t._id)}
                             className={`flex w-full items-start gap-2 px-3 py-2.5 text-left transition ${
-                                isSelected ? 'bg-primary/5' : 'hover:bg-accent/50'
+                                isSelected ? 'bg-zoru-ink/5' : 'hover:bg-zoru-surface-2/50'
                             }`}
                         >
                             {bulkMode && (
@@ -1020,12 +1020,12 @@ function ThreadList({
                             <div className="min-w-0 flex-1">
                                 <div className="flex items-center justify-between gap-2">
                                     <div className="truncate font-medium text-sm">{t.title}</div>
-                                    <div className="flex-shrink-0 text-[10px] text-muted-foreground">
+                                    <div className="flex-shrink-0 text-[10px] text-zoru-ink-muted">
                                         {fmtRelative(t.lastInboundAt ?? t.updatedAt)}
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <div className="truncate text-xs text-muted-foreground">
+                                    <div className="truncate text-xs text-zoru-ink-muted">
                                         {t.lastMessageDirection === 'outbound' && '↳ '}
                                         {t.lastMessagePreview || '—'}
                                     </div>
@@ -1061,7 +1061,7 @@ function ThreadList({
                                     {t.tags.slice(0, 2).map((tag) => (
                                         <span
                                             key={tag}
-                                            className="rounded bg-muted px-1 text-[10px] text-muted-foreground"
+                                            className="rounded bg-zoru-surface-2 px-1 text-[10px] text-zoru-ink-muted"
                                         >
                                             #{tag}
                                         </span>
@@ -1097,13 +1097,13 @@ function ThreadHeader({
 }) {
     const sla = fmtSlaCountdown(thread.slaDueAt, thread.slaBreached);
     return (
-        <div className="flex flex-shrink-0 items-center gap-3 border-b bg-card px-4 py-3">
+        <div className="flex flex-shrink-0 items-center gap-3 border-b bg-zoru-surface px-4 py-3">
             <Avatar className="h-10 w-10">
                 <ZoruAvatarFallback>{initials(thread.title)}</ZoruAvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
                 <div className="truncate font-semibold">{thread.title}</div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 text-xs text-zoru-ink-muted">
                     <span>{thread.type}</span>
                     <span>·</span>
                     <span>Last activity {fmtRelative(thread.lastInboundAt ?? thread.updatedAt)}</span>
@@ -1168,13 +1168,13 @@ function MessageList({ messages }: { messages: InboxMessage[] }) {
     }, [messages.length]);
     if (messages.length === 0) {
         return (
-            <div className="flex flex-1 items-center justify-center p-6 text-sm text-muted-foreground">
+            <div className="flex flex-1 items-center justify-center p-6 text-sm text-zoru-ink-muted">
                 No messages yet.
             </div>
         );
     }
     return (
-        <div ref={ref} className="flex-1 space-y-2 overflow-y-auto bg-muted/20 p-4">
+        <div ref={ref} className="flex-1 space-y-2 overflow-y-auto bg-zoru-surface-2/20 p-4">
             {messages.map((m) => {
                 const outbound = m.direction === 'outbound';
                 return (
@@ -1182,8 +1182,8 @@ function MessageList({ messages }: { messages: InboxMessage[] }) {
                         <div
                             className={`max-w-[70%] rounded-lg px-3 py-2 text-sm shadow-sm ${
                                 outbound
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'bg-card border'
+                                    ? 'bg-zoru-ink text-white'
+                                    : 'bg-zoru-surface border'
                             }`}
                         >
                             {m.text && <div className="whitespace-pre-wrap">{m.text}</div>}
@@ -1191,7 +1191,7 @@ function MessageList({ messages }: { messages: InboxMessage[] }) {
                             <div className="mt-1 text-[10px] opacity-70">
                                 {new Date(m.createdAt).toLocaleTimeString()}
                                 {m.status === 'failed' && (
-                                    <span className="ml-1 text-destructive">· failed</span>
+                                    <span className="ml-1 text-zoru-ink">· failed</span>
                                 )}
                             </div>
                         </div>
@@ -1216,7 +1216,7 @@ function Composer({
     isSending: boolean;
 }) {
     return (
-        <div className="flex flex-shrink-0 items-end gap-2 border-t bg-card p-3">
+        <div className="flex flex-shrink-0 items-end gap-2 border-t bg-zoru-surface p-3">
             <Textarea
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
@@ -1283,19 +1283,19 @@ function RightPane({
                             </Avatar>
                             <div>
                                 <div className="font-medium">{thread.title}</div>
-                                <div className="text-xs text-muted-foreground">{thread.type}</div>
+                                <div className="text-xs text-zoru-ink-muted">{thread.type}</div>
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-1 pt-2 text-xs">
-                            <div className="text-muted-foreground">Chat ID</div>
+                            <div className="text-zoru-ink-muted">Chat ID</div>
                             <div className="font-mono">{thread.chatId}</div>
-                            <div className="text-muted-foreground">Created</div>
+                            <div className="text-zoru-ink-muted">Created</div>
                             <div>{fmtRelative(thread.createdAt)} ago</div>
-                            <div className="text-muted-foreground">Notes</div>
+                            <div className="text-zoru-ink-muted">Notes</div>
                             <div>{thread.internalNotesCount}</div>
                             {agent && (
                                 <>
-                                    <div className="text-muted-foreground">Agent</div>
+                                    <div className="text-zoru-ink-muted">Agent</div>
                                     <div>{agent.name}</div>
                                 </>
                             )}
@@ -1305,7 +1305,7 @@ function RightPane({
 
                 {/* Tags */}
                 <div>
-                    <div className="mb-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    <div className="mb-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
                         <Tag className="h-3 w-3" /> Tags
                     </div>
                     <div className="flex flex-wrap gap-1">
@@ -1341,7 +1341,7 @@ function RightPane({
 
                 {/* Notes */}
                 <div>
-                    <div className="mb-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    <div className="mb-1 flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
                         <StickyNote className="h-3 w-3" /> Internal notes
                     </div>
                     <div className="space-y-2">
@@ -1362,13 +1362,13 @@ function RightPane({
                             </Button>
                         </div>
                         {notes.length === 0 && (
-                            <div className="rounded border border-dashed p-2 text-center text-xs text-muted-foreground">
+                            <div className="rounded border border-dashed p-2 text-center text-xs text-zoru-ink-muted">
                                 No notes yet.
                             </div>
                         )}
                         {notes.map((n) => (
-                            <div key={n._id} className="rounded border bg-amber-50 p-2 text-xs">
-                                <div className="mb-1 flex items-center justify-between text-[10px] text-muted-foreground">
+                            <div key={n._id} className="rounded border bg-zoru-surface-2 p-2 text-xs">
+                                <div className="mb-1 flex items-center justify-between text-[10px] text-zoru-ink-muted">
                                     <span>by {n.authorId.slice(0, 8)}…</span>
                                     <div className="flex items-center gap-1">
                                         <span>{fmtRelative(n.createdAt)}</span>
@@ -1384,7 +1384,7 @@ function RightPane({
                                 {n.mentions.length > 0 && (
                                     <div className="mt-1 flex gap-1 text-[10px]">
                                         {n.mentions.map((m) => (
-                                            <span key={m} className="text-primary">@{m}</span>
+                                            <span key={m} className="text-zoru-ink">@{m}</span>
                                         ))}
                                     </div>
                                 )}
@@ -1395,10 +1395,10 @@ function RightPane({
 
                 {/* Activity */}
                 <div>
-                    <div className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    <div className="mb-1 text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
                         Activity
                     </div>
-                    <div className="space-y-1 text-xs text-muted-foreground">
+                    <div className="space-y-1 text-xs text-zoru-ink-muted">
                         <div>Created {fmtRelative(thread.createdAt)} ago</div>
                         {thread.firstResponseAt && (
                             <div>First reply {fmtRelative(thread.firstResponseAt)} ago</div>
@@ -1418,7 +1418,7 @@ function RightPane({
                 {/* Related threads */}
                 {relatedThreads.length > 0 && (
                     <div>
-                        <div className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        <div className="mb-1 text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
                             Related threads
                         </div>
                         <div className="space-y-1">
@@ -1426,10 +1426,10 @@ function RightPane({
                                 <button
                                     key={r._id}
                                     onClick={() => onJumpTo(r._id)}
-                                    className="block w-full rounded border p-2 text-left text-xs hover:bg-accent"
+                                    className="block w-full rounded border p-2 text-left text-xs hover:bg-zoru-surface-2"
                                 >
                                     <div className="font-medium">{r.title}</div>
-                                    <div className="text-muted-foreground">
+                                    <div className="text-zoru-ink-muted">
                                         {r.status} · {fmtRelative(r.lastInboundAt ?? r.updatedAt)} ago
                                     </div>
                                 </button>
@@ -1519,16 +1519,16 @@ function RulesDrawer({
                         {rules.map((r) => (
                             <Card key={r._id}>
                                 <ZoruCardContent className="flex items-center gap-2 py-2">
-                                    <GripVertical className="h-4 w-4 text-muted-foreground" />
+                                    <GripVertical className="h-4 w-4 text-zoru-ink-muted" />
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2">
                                             <span className="font-medium">{r.name}</span>
                                             <Badge variant={r.enabled ? 'success' : 'ghost'} className="h-4 px-1 text-[10px]">
                                                 {r.enabled ? 'on' : 'off'}
                                             </Badge>
-                                            <span className="text-xs text-muted-foreground">priority {r.priority}</span>
+                                            <span className="text-xs text-zoru-ink-muted">priority {r.priority}</span>
                                         </div>
-                                        <div className="text-xs text-muted-foreground">
+                                        <div className="text-xs text-zoru-ink-muted">
                                             {r.assignTo?.kind ?? 'agent'} →{' '}
                                             {(r.assignTo?.agentIds ?? []).join(', ') || 'none'}
                                         </div>
@@ -1787,7 +1787,7 @@ function SlaDrawer({
                                 <ZoruCardContent className="flex items-center gap-2 py-2">
                                     <div className="flex-1">
                                         <div className="font-medium">{p.name}</div>
-                                        <div className="text-xs text-muted-foreground">
+                                        <div className="text-xs text-zoru-ink-muted">
                                             First response {fmtSeconds(p.firstResponseSeconds)} · Resolution {fmtSeconds(p.resolutionSeconds)}
                                             {p.applyToTags && p.applyToTags.length > 0 && (
                                                 <span> · tags: {p.applyToTags.join(', ')}</span>

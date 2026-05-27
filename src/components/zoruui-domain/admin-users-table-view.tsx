@@ -86,23 +86,23 @@ export function AdminUsersTableView({
     };
 
     return (
-        <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div className="rounded-2xl border border-zoru-line bg-white overflow-hidden">
+            <div className="px-6 py-4 border-b border-zoru-line flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-slate-500" />
-                    <span className="font-medium text-slate-900 text-sm">{total.toLocaleString()} users found</span>
+                    <Users className="h-4 w-4 text-zoru-ink" />
+                    <span className="font-medium text-zoru-ink text-sm">{total.toLocaleString()} users found</span>
                 </div>
                 <div className="flex items-center gap-3">
                     {selectedUserIds.length > 0 && (
-                        <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-md border border-slate-200">
-                            <span className="text-sm font-medium text-slate-700">{selectedUserIds.length} selected</span>
+                        <div className="flex items-center gap-2 bg-zoru-surface-2 px-3 py-1.5 rounded-md border border-zoru-line">
+                            <span className="text-sm font-medium text-zoru-ink">{selectedUserIds.length} selected</span>
                             <Button size="sm" variant="outline" onClick={handleBulkApprove} disabled={isApproving}>
                                 {isApproving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                                 Approve
                             </Button>
-                            <div className="flex items-center gap-2 border-l border-slate-300 pl-2">
+                            <div className="flex items-center gap-2 border-l border-zoru-line pl-2">
                                 <select 
-                                    className="text-sm border border-slate-300 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                    className="text-sm border border-zoru-line rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-zoru-line"
                                     value={bulkPlanId}
                                     onChange={(e) => setBulkPlanId(e.target.value)}
                                 >
@@ -127,69 +127,69 @@ export function AdminUsersTableView({
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead>
-                        <tr className="border-b border-slate-200">
+                        <tr className="border-b border-zoru-line">
                             <th className="px-4 py-3 text-left w-12">
                                 <input 
                                     type="checkbox" 
-                                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-600"
+                                    className="rounded border-zoru-line text-zoru-ink focus:ring-zoru-line"
                                     checked={plainUsers.length > 0 && selectedUserIds.length === plainUsers.length}
                                     onChange={handleSelectAll}
                                 />
                             </th>
-                            <th className="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Joined</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Plan</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                            <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                            <th className="text-left px-6 py-3 text-xs font-semibold text-zoru-ink uppercase tracking-wider">User</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-zoru-ink uppercase tracking-wider">Joined</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-zoru-ink uppercase tracking-wider">Plan</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-zoru-ink uppercase tracking-wider">Status</th>
+                            <th className="px-4 py-3 text-right text-xs font-semibold text-zoru-ink uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200">
+                    <tbody className="divide-y divide-zoru-line">
                         {plainUsers.length > 0 ? (
                             plainUsers.map((user) => (
-                                <tr key={user._id.toString()} className="hover:bg-slate-50 transition-colors">
+                                <tr key={user._id.toString()} className="hover:bg-zoru-surface-2 transition-colors">
                                     <td className="px-4 py-3.5">
                                         <input 
                                             type="checkbox"
-                                            className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-600"
+                                            className="rounded border-zoru-line text-zoru-ink focus:ring-zoru-line"
                                             checked={selectedUserIds.includes(user._id.toString())}
                                             onChange={() => handleSelectOne(user._id.toString())}
                                         />
                                     </td>
                                     <td className="px-6 py-3.5">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center shrink-0">
-                                                <span className="text-xs font-bold text-slate-900">
+                                            <div className="h-8 w-8 rounded-full bg-zoru-surface-2 border border-zoru-line flex items-center justify-center shrink-0">
+                                                <span className="text-xs font-bold text-zoru-ink">
                                                     {user.name.charAt(0).toUpperCase()}
                                                 </span>
                                             </div>
                                             <div>
-                                                <p className="font-medium text-slate-900">{user.name}</p>
-                                                <p className="text-xs text-slate-500">{user.email}</p>
+                                                <p className="font-medium text-zoru-ink">{user.name}</p>
+                                                <p className="text-xs text-zoru-ink">{user.email}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-3.5 text-xs text-slate-500">
+                                    <td className="px-4 py-3.5 text-xs text-zoru-ink">
                                         {new Date(user.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                                     </td>
                                     <td className="px-4 py-3.5">
-                                        <span className="inline-flex items-center rounded-full border border-slate-300 bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">
+                                        <span className="inline-flex items-center rounded-full border border-zoru-line bg-zoru-surface-2 px-2.5 py-0.5 text-xs font-medium text-zoru-ink">
                                             {user.plan?.name || 'N/A'}
                                         </span>
                                     </td>
                                     <td className="px-4 py-3.5">
                                         {user.isSuspended ? (
-                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-600">
+                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-2.5 py-0.5 text-xs font-medium text-zoru-ink">
                                                 <Ban className="h-3 w-3" />
                                                 Suspended
                                             </span>
                                         ) : user.isApproved ? (
-                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600">
-                                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-2.5 py-0.5 text-xs font-medium text-zoru-ink">
+                                                <span className="h-1.5 w-1.5 rounded-full bg-zoru-surface-2" />
                                                 Approved
                                             </span>
                                         ) : (
-                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-600">
-                                                <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-2.5 py-0.5 text-xs font-medium text-zoru-ink">
+                                                <span className="h-1.5 w-1.5 rounded-full bg-zoru-surface-2 animate-pulse" />
                                                 Pending
                                             </span>
                                         )}
@@ -222,7 +222,7 @@ export function AdminUsersTableView({
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={6} className="px-6 py-16 text-center text-slate-500">
+                                <td colSpan={6} className="px-6 py-16 text-center text-zoru-ink">
                                     No users found matching your search.
                                 </td>
                             </tr>
@@ -232,15 +232,15 @@ export function AdminUsersTableView({
             </div>
 
             {/* Pagination */}
-            <div className="px-6 py-3 border-t border-slate-200 flex items-center justify-between">
-                <span className="text-xs text-slate-500">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
+            <div className="px-6 py-3 border-t border-zoru-line flex items-center justify-between">
+                <span className="text-xs text-zoru-ink">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
                 <div className="flex gap-2">
                     <Button variant="outline" size="sm" asChild disabled={currentPage <= 1}
-                        className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
+                        className="border-zoru-line bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-40">
                         <Link href={`/admin/dashboard/users?page=${currentPage - 1}${query ? `&query=${query}` : ''}`}>Previous</Link>
                     </Button>
                     <Button variant="outline" size="sm" asChild disabled={currentPage >= totalPages}
-                        className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
+                        className="border-zoru-line bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-40">
                         <Link href={`/admin/dashboard/users?page=${currentPage + 1}${query ? `&query=${query}` : ''}`}>Next</Link>
                     </Button>
                 </div>

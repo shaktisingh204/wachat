@@ -45,7 +45,7 @@ export const SabSelectTrigger = React.forwardRef<
     className={cn(
       'sab-select-trigger group inline-flex w-full items-center justify-between gap-2 border outline-none transition-all',
       'focus:ring-[3px]',
-      'data-[placeholder]:text-[hsl(var(--sab-fg-subtle))]',
+      'data-[placeholder]:text-zoru-ink',
       'disabled:cursor-not-allowed disabled:opacity-60',
       TRIGGER_SIZE[size],
       className,
@@ -170,7 +170,7 @@ export const SabSelectItem = React.forwardRef<
     ref={ref}
     className={cn(
       'relative flex w-full cursor-default select-none items-center gap-2 rounded-[6px] py-2 pl-2 pr-8 text-[13px] outline-none transition-colors',
-      'focus:bg-[hsl(var(--sab-primary-soft))] focus:text-[hsl(var(--sab-primary))]',
+      'focus:bg-zoru-ink focus:text-zoru-ink',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       'data-[state=checked]:font-medium',
       className,

@@ -93,23 +93,23 @@ export default function ImageMetadataPage() {
   return (
     <ToolShell title="Image Metadata Viewer" description="Detailed metadata extraction, including EXIF and GPS tags.">
       <div className="space-y-6">
-        <input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/avif" onChange={onFile} className="block w-full text-sm text-slate-500
+        <input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/avif" onChange={onFile} className="block w-full text-sm text-zoru-ink
           file:mr-4 file:py-2 file:px-4
           file:rounded-full file:border-0
           file:text-sm file:font-semibold
-          file:bg-violet-50 file:text-violet-700
-          hover:file:bg-violet-100" />
+          file:bg-zoru-surface-2 file:text-zoru-ink
+          hover:file:bg-zoru-surface-2" />
         
         {data && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <ZoruCardContent className="p-4 space-y-2 text-sm">
                 <h3 className="font-bold text-lg mb-4">Basic Information</h3>
-                <div className="flex justify-between border-b pb-1"><span className="font-semibold text-muted-foreground">Name</span> <span className="font-medium truncate max-w-[200px]" title={data.name}>{data.name}</span></div>
-                <div className="flex justify-between border-b pb-1"><span className="font-semibold text-muted-foreground">Type</span> <span className="font-medium">{data.type}</span></div>
-                <div className="flex justify-between border-b pb-1"><span className="font-semibold text-muted-foreground">Size</span> <span className="font-medium">{(data.size / 1024).toFixed(1)} KB</span></div>
-                <div className="flex justify-between border-b pb-1"><span className="font-semibold text-muted-foreground">Dimensions</span> <span className="font-medium">{data.width} × {data.height}</span></div>
-                <div className="flex justify-between border-b pb-1"><span className="font-semibold text-muted-foreground">Last modified</span> <span className="font-medium">{data.lastModified}</span></div>
+                <div className="flex justify-between border-b pb-1"><span className="font-semibold text-zoru-ink-muted">Name</span> <span className="font-medium truncate max-w-[200px]" title={data.name}>{data.name}</span></div>
+                <div className="flex justify-between border-b pb-1"><span className="font-semibold text-zoru-ink-muted">Type</span> <span className="font-medium">{data.type}</span></div>
+                <div className="flex justify-between border-b pb-1"><span className="font-semibold text-zoru-ink-muted">Size</span> <span className="font-medium">{(data.size / 1024).toFixed(1)} KB</span></div>
+                <div className="flex justify-between border-b pb-1"><span className="font-semibold text-zoru-ink-muted">Dimensions</span> <span className="font-medium">{data.width} × {data.height}</span></div>
+                <div className="flex justify-between border-b pb-1"><span className="font-semibold text-zoru-ink-muted">Last modified</span> <span className="font-medium">{data.lastModified}</span></div>
               </ZoruCardContent>
             </Card>
 
@@ -119,17 +119,17 @@ export default function ImageMetadataPage() {
                 {gpsData ? (
                   <>
                     <div className="flex justify-between border-b pb-1">
-                      <span className="font-semibold text-muted-foreground">Coordinates</span>
+                      <span className="font-semibold text-zoru-ink-muted">Coordinates</span>
                       <span className="font-medium">{gpsData}</span>
                     </div>
                     <div className="pt-2">
-                      <a href={`https://www.google.com/maps/search/?api=1&query=${gpsData}`} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">
+                      <a href={`https://www.google.com/maps/search/?api=1&query=${gpsData}`} target="_blank" rel="noreferrer" className="text-zoru-ink hover:underline">
                         View on Google Maps
                       </a>
                     </div>
                   </>
                 ) : (
-                  <div className="text-muted-foreground italic py-4">No GPS metadata found in this image.</div>
+                  <div className="text-zoru-ink-muted italic py-4">No GPS metadata found in this image.</div>
                 )}
               </ZoruCardContent>
             </Card>
@@ -163,7 +163,7 @@ export default function ImageMetadataPage() {
 
                       return (
                         <div key={key} className="flex flex-col border-b pb-1 mb-1">
-                          <span className="font-semibold text-muted-foreground text-xs">{key}</span>
+                          <span className="font-semibold text-zoru-ink-muted text-xs">{key}</span>
                           <span className="font-medium truncate" title={displayValue}>{displayValue}</span>
                         </div>
                       );

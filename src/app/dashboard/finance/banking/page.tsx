@@ -37,10 +37,10 @@ export default function BankingReconciliationPage() {
       <div className="flex justify-between items-center shrink-0">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Building2 className="w-8 h-8 text-primary" />
+            <Building2 className="w-8 h-8 text-zoru-ink" />
             Open Banking & Reconciliation
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-zoru-ink-muted mt-1">
             Algorithmic transaction matching powered by AI.
           </p>
         </div>
@@ -56,17 +56,17 @@ export default function BankingReconciliationPage() {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
         {/* Left Pane: Bank Feed */}
         <Card className="animate-panel flex flex-col min-h-0 border-r-4 border-r-blue-500/20">
-          <CardHeader className="bg-muted/30 pb-4 shrink-0">
+          <CardHeader className="bg-zoru-surface-2/30 pb-4 shrink-0">
             <div className="flex justify-between items-center">
               <CardTitle>Live Bank Statement</CardTitle>
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+              <Badge variant="outline" className="bg-zoru-surface-2 text-zoru-ink border-zoru-line">
                 ICICI Connected Banking
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="flex-1 overflow-auto p-0">
             <Table>
-              <TableHeader className="sticky top-0 bg-background z-10 shadow-sm">
+              <TableHeader className="sticky top-0 bg-zoru-surface z-10 shadow-sm">
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>Description</TableHead>
@@ -80,14 +80,14 @@ export default function BankingReconciliationPage() {
                   { date: 'Oct 22', desc: 'NEFT-SBIN-JOHN DOE', amount: '+₹5,000.00', status: 'unmatched' },
                   { date: 'Oct 21', desc: 'ZOHO CORP RENEWAL', amount: '-₹3,200.00', status: 'match' },
                 ].map((txn, i) => (
-                  <TableRow key={i} className={`animate-row cursor-pointer hover:bg-muted/50 ${i === 0 ? 'bg-primary/5 border-l-4 border-l-primary' : ''}`}>
+                  <TableRow key={i} className={`animate-row cursor-pointer hover:bg-zoru-surface-2/50 ${i === 0 ? 'bg-zoru-ink/5 border-l-4 border-l-primary' : ''}`}>
                     <TableCell className="whitespace-nowrap">{txn.date}</TableCell>
                     <TableCell className="font-medium text-sm">
                       {txn.desc}
-                      {txn.status === 'match' && <Badge variant="default" className="ml-2 bg-emerald-500 hover:bg-emerald-600">AI Match</Badge>}
+                      {txn.status === 'match' && <Badge variant="default" className="ml-2 bg-zoru-ink hover:bg-zoru-ink">AI Match</Badge>}
                       {txn.status === 'partial' && <Badge variant="secondary" className="ml-2">Needs Review</Badge>}
                     </TableCell>
-                    <TableCell className={`text-right font-medium ${txn.amount.startsWith('+') ? 'text-emerald-600' : ''}`}>
+                    <TableCell className={`text-right font-medium ${txn.amount.startsWith('+') ? 'text-zoru-ink' : ''}`}>
                       {txn.amount}
                     </TableCell>
                   </TableRow>
@@ -99,40 +99,40 @@ export default function BankingReconciliationPage() {
 
         {/* Right Pane: Ledger Match */}
         <Card className="animate-panel flex flex-col min-h-0 relative">
-          <CardHeader className="bg-muted/30 pb-4 shrink-0">
+          <CardHeader className="bg-zoru-surface-2/30 pb-4 shrink-0">
             <CardTitle>SabFinance Ledger Match</CardTitle>
           </CardHeader>
           <CardContent className="flex-1 overflow-auto p-6 flex flex-col items-center justify-center space-y-6">
             
-            <div className="w-full max-w-md p-6 border rounded-xl bg-card shadow-sm space-y-4 relative overflow-hidden">
+            <div className="w-full max-w-md p-6 border rounded-xl bg-zoru-surface shadow-sm space-y-4 relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10">
                 <CheckCircle2 className="w-24 h-24" />
               </div>
-              <div className="flex items-center gap-3 text-emerald-600">
+              <div className="flex items-center gap-3 text-zoru-ink">
                 <CheckCircle2 className="w-6 h-6" />
                 <h3 className="font-semibold text-lg">99% Confidence Match</h3>
               </div>
               <div className="space-y-2 relative z-10">
                 <div className="flex justify-between text-sm border-b pb-2">
-                  <span className="text-muted-foreground">Bank Line:</span>
+                  <span className="text-zoru-ink-muted">Bank Line:</span>
                   <span className="font-medium">RAZORPAY SETTLEMENT</span>
                 </div>
                 <div className="flex justify-between text-sm border-b pb-2">
-                  <span className="text-muted-foreground">Ledger Voucher:</span>
+                  <span className="text-zoru-ink-muted">Ledger Voucher:</span>
                   <span className="font-medium">RV-1024 (Multiple Invoices)</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Difference:</span>
-                  <span className="font-medium text-emerald-600">₹0.00</span>
+                  <span className="text-zoru-ink-muted">Difference:</span>
+                  <span className="font-medium text-zoru-ink">₹0.00</span>
                 </div>
               </div>
-              <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20">
+              <Button className="w-full bg-zoru-ink hover:bg-zoru-ink text-white shadow-lg shadow-zoru-line/20">
                 Confirm & Reconcile (Enter)
               </Button>
             </div>
 
             <div className="text-center space-y-2">
-              <p className="text-sm text-muted-foreground">Or search for a different ledger entry manually</p>
+              <p className="text-sm text-zoru-ink-muted">Or search for a different ledger entry manually</p>
               <Button variant="outline" className="w-full max-w-md">Browse Ledger (Alt+L)</Button>
             </div>
 

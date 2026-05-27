@@ -110,11 +110,11 @@ export default function TaxesPage() {
                         >
                             <div className="space-y-3 text-sm">
                                 <div>
-                                    <div className="text-muted-foreground text-xs">Rate</div>
+                                    <div className="text-zoru-ink-muted text-xs">Rate</div>
                                     <div className="font-mono">{Number(row.rate_percent ?? 0)}%</div>
                                 </div>
                                 <div>
-                                    <div className="text-muted-foreground text-xs">Default</div>
+                                    <div className="text-zoru-ink-muted text-xs">Default</div>
                                     <div>{row.is_default ? 'Yes' : 'No'}</div>
                                 </div>
                             </div>

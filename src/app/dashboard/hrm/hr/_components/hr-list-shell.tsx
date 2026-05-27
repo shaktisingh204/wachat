@@ -496,7 +496,7 @@ export function HrNumCell({ value, suffix }: { value: unknown; suffix?: string }
 /** Progress bar cell — value 0–100. */
 export function HrProgressCell({ value }: { value: unknown }) {
   const pct = Math.min(100, Math.max(0, Number(value) || 0));
-  const color = pct >= 100 ? 'bg-green-500' : pct >= 60 ? 'bg-amber-500' : 'bg-zoru-line';
+  const color = pct >= 100 ? 'bg-zoru-ink' : pct >= 60 ? 'bg-zoru-ink' : 'bg-zoru-line';
   return (
     <div className="flex items-center gap-2">
       <div className="h-1.5 w-20 overflow-hidden rounded-full bg-zoru-line">

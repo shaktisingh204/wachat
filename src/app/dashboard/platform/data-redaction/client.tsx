@@ -122,7 +122,7 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
                 <Filter className="mr-2 h-4 w-4" />
                 Advanced Activity Log Filters
                 {(statusFilter !== 'all' || targetFieldFilter !== '') && (
-                  <span className="ml-2 rounded-full bg-primary/20 px-1.5 py-0.5 text-xs font-semibold">
+                  <span className="ml-2 rounded-full bg-zoru-ink/20 px-1.5 py-0.5 text-xs font-semibold">
                     {(statusFilter !== 'all' ? 1 : 0) + (targetFieldFilter !== '' ? 1 : 0)}
                   </span>
                 )}
@@ -132,7 +132,7 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
               <div className="grid gap-4">
                 <div className="space-y-2">
                   <h4 className="font-medium leading-none">Advanced Filters</h4>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-zoru-ink-muted">
                     Filter policies by specific criteria.
                   </p>
                 </div>
@@ -195,17 +195,17 @@ export function DataRedactionClient({ initialData, total, currentPage, totalPage
                 <ZoruTableCell className="font-mono text-sm">{item.targetFields.join(', ')}</ZoruTableCell>
                 <ZoruTableCell>{item.maskPattern}</ZoruTableCell>
                 <ZoruTableCell>
-                  <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-zoru-neutral-hover text-zoru-ink'}`}>
+                  <span className={`px-2 py-1 text-xs rounded-full ${item.status === 'active' ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-neutral-hover text-zoru-ink'}`}>
                     {item.status}
                   </span>
                 </ZoruTableCell>
                 <ZoruTableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
-                      <Pencil className="w-4 h-4 text-blue-500" />
+                      <Pencil className="w-4 h-4 text-zoru-ink" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
-                      <Trash2 className="w-4 h-4 text-red-500" />
+                      <Trash2 className="w-4 h-4 text-zoru-ink" />
                     </Button>
                   </div>
                 </ZoruTableCell>

@@ -21,13 +21,13 @@ interface NodeVisualMeta {
 }
 
 export const NODE_META: Record<EmailJourneyNodeType, NodeVisualMeta> = {
-  trigger:   { icon: Zap,       label: 'Trigger',   accent: 'text-amber-500' },
-  email:     { icon: Mail,      label: 'Email',     accent: 'text-blue-500' },
-  wait:      { icon: Clock,     label: 'Wait',      accent: 'text-violet-500' },
-  condition: { icon: GitBranch, label: 'Condition', accent: 'text-emerald-500' },
-  action:    { icon: Wand2,     label: 'Action',    accent: 'text-fuchsia-500' },
-  split:     { icon: Split,     label: 'A/B split', accent: 'text-rose-500' },
-  exit:      { icon: Flag,      label: 'Exit',      accent: 'text-zinc-500' },
+  trigger:   { icon: Zap,       label: 'Trigger',   accent: 'text-zoru-ink' },
+  email:     { icon: Mail,      label: 'Email',     accent: 'text-zoru-ink' },
+  wait:      { icon: Clock,     label: 'Wait',      accent: 'text-zoru-ink' },
+  condition: { icon: GitBranch, label: 'Condition', accent: 'text-zoru-ink' },
+  action:    { icon: Wand2,     label: 'Action',    accent: 'text-zoru-ink' },
+  split:     { icon: Split,     label: 'A/B split', accent: 'text-zoru-ink' },
+  exit:      { icon: Flag,      label: 'Exit',      accent: 'text-zoru-ink' },
 };
 
 interface JourneyNodeCardProps {
@@ -43,7 +43,7 @@ interface JourneyNodeCardProps {
  * cards with simple vertical connectors via CSS — no react-flow.
  */
 export function JourneyNodeCard({ node, selected, onSelect, index }: JourneyNodeCardProps) {
-  const meta = NODE_META[node.type] ?? { icon: Activity, label: node.type, accent: 'text-zinc-500' };
+  const meta = NODE_META[node.type] ?? { icon: Activity, label: node.type, accent: 'text-zoru-ink' };
   const Icon = meta.icon;
   const summary = nodeSummary(node);
 
@@ -54,10 +54,10 @@ export function JourneyNodeCard({ node, selected, onSelect, index }: JourneyNode
       className={cn(
         'group relative w-full max-w-md rounded-xl border bg-zoru-surface-1 px-4 py-3 text-left shadow-sm transition',
         'hover:border-zoru-ink-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-accent',
-        selected ? 'border-zoru-accent ring-1 ring-zoru-accent' : 'border-border',
+        selected ? 'border-zoru-accent ring-1 ring-zoru-accent' : 'border-zoru-line',
       )}
     >
-      <span className="absolute -left-2 top-3 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-zoru-surface-2 text-[10px] font-medium tabular-nums">
+      <span className="absolute -left-2 top-3 flex h-5 w-5 items-center justify-center rounded-full border border-zoru-line bg-zoru-surface-2 text-[10px] font-medium tabular-nums">
         {index + 1}
       </span>
       <div className="flex items-start gap-3">

@@ -131,8 +131,8 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
       header: "Health",
       render: (r) => (
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-emerald-600 font-medium">{r.healthDlr ?? "99"}% DLR</span>
-          <span className="text-slate-500">{r.healthComplaint ?? "<0.1"}% CMP</span>
+          <span className="text-zoru-ink font-medium">{r.healthDlr ?? "99"}% DLR</span>
+          <span className="text-zoru-ink">{r.healthComplaint ?? "<0.1"}% CMP</span>
         </div>
       ),
       width: "130px",
@@ -155,7 +155,7 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
     {
       id: "lastUsedAt",
       header: "Last Used",
-      render: (r) => <span className="text-xs text-slate-500">{r.lastUsedAt ?? "Never"}</span>,
+      render: (r) => <span className="text-xs text-zoru-ink">{r.lastUsedAt ?? "Never"}</span>,
       width: "120px",
       hideByDefault: true,
     },
@@ -349,7 +349,7 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
                 : "Configure a provider, then provision a number. The provisioning UI ships in Phase 1.5."
             }
             emptyAction={{ label: "Open providers", onClick: () => router.push("/sabsms/providers") }}
-            emptyIcon={<Phone className="h-8 w-8 text-slate-400" />}
+            emptyIcon={<Phone className="h-8 w-8 text-zoru-ink-muted" />}
             bulkActions={[
               {
                 label: "Bulk sync with provider",
@@ -385,8 +385,8 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
             label: "Routing & Webhooks",
             icon: <Link2 className="h-4 w-4" />,
             content: (
-              <div className="p-4 text-sm text-slate-500">
-                <h4 className="font-medium text-slate-900 mb-2">Routing & Webhooks</h4>
+              <div className="p-4 text-sm text-zoru-ink">
+                <h4 className="font-medium text-zoru-ink mb-2">Routing & Webhooks</h4>
                 <div className="flex flex-col gap-2">
                   <div>
                     <span className="font-medium">Webhook URL:</span> {detailRow?.webhookUrl || "Not configured"}
@@ -403,8 +403,8 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
             label: "Rental History",
             icon: <History className="h-4 w-4" />,
             content: (
-              <div className="p-4 text-sm text-slate-500">
-                <h4 className="font-medium text-slate-900 mb-2">Rental History</h4>
+              <div className="p-4 text-sm text-zoru-ink">
+                <h4 className="font-medium text-zoru-ink mb-2">Rental History</h4>
                 <p>Provisioned on: 2026-05-01</p>
                 <p>Last billed: 2026-05-01 ($1.00)</p>
               </div>
@@ -415,8 +415,8 @@ export function NumbersClient({ rows, fallbackFrom }: NumbersClientProps) {
             label: "Audit Log",
             icon: <ScrollText className="h-4 w-4" />,
             content: (
-              <div className="p-4 text-sm text-slate-500">
-                <h4 className="font-medium text-slate-900 mb-2">Audit Log</h4>
+              <div className="p-4 text-sm text-zoru-ink">
+                <h4 className="font-medium text-zoru-ink mb-2">Audit Log</h4>
                 <ul className="list-disc pl-4 space-y-1">
                   <li>Added to sender pool (2026-05-01)</li>
                   <li>Provisioned via Twilio (2026-05-01)</li>
