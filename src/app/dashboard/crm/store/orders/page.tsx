@@ -97,7 +97,7 @@ export default function StoreOrdersPage(): React.JSX.Element {
     const [storefronts, setStorefronts] = React.useState<Array<{ id: string; name: string }>>([]);
     const [isPending, startTransition] = React.useTransition();
     const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
-    const [storefrontFilter, setStorefrontFilter] = React.useState('');
+    const [storefrontFilter, setStorefrontFilter] = React.useState('__all__');
     const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
     const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
@@ -105,7 +105,7 @@ export default function StoreOrdersPage(): React.JSX.Element {
     const fetchData = React.useCallback(() => {
         startTransition(async () => {
             const [{ items: orders }, { items: sfList }] = await Promise.all([
-                getStoreOrders(storefrontFilter || undefined),
+                getStoreOrders(storefrontFilter === '__all__' ? undefined : storefrontFilter),
                 getStorefrontList(),
             ]);
             setItems(Array.isArray(orders) ? orders : []);
@@ -245,7 +245,7 @@ export default function StoreOrdersPage(): React.JSX.Element {
                                         <ZoruSelectValue placeholder="All storefronts" />
                                     </ZoruSelectTrigger>
                                     <ZoruSelectContent>
-                                        <ZoruSelectItem value="">All storefronts</ZoruSelectItem>
+                                        <ZoruSelectItem value="__all__">All storefronts</ZoruSelectItem>
                                         {storefronts.map((sf) => (
                                             <ZoruSelectItem key={sf.id} value={sf.id}>
                                                 {sf.name}

@@ -285,6 +285,16 @@ export async function saveProposal(
     const sections = parseSections(formData.get('sections'));
     const attachments = parseAttachments(formData.get('attachments'));
 
+    let designMetadata: Record<string, unknown> | undefined = undefined;
+    const dmRaw = asString(formData.get('designMetadata'));
+    if (dmRaw) {
+        try {
+            designMetadata = JSON.parse(dmRaw);
+        } catch {
+            // ignore malformed
+        }
+    }
+
     if (useRustCrm()) {
         try {
             if (isEditing) {
@@ -299,6 +309,7 @@ export async function saveProposal(
                     status,
                     sections,
                     attachments,
+                    designMetadata,
                 };
                 if (validUntil && !Number.isNaN(validUntil.getTime())) {
                     patch.validUntil = validUntil.toISOString();
@@ -330,6 +341,7 @@ export async function saveProposal(
                 status,
                 sections,
                 attachments,
+                designMetadata,
             };
             if (validUntil && !Number.isNaN(validUntil.getTime())) {
                 input.validUntil = validUntil.toISOString();
@@ -393,6 +405,7 @@ export async function saveProposal(
                 status,
                 sections,
                 attachments,
+                ...(designMetadata ? { designMetadata } : {}),
                 updatedAt: now,
             };
 
@@ -445,6 +458,7 @@ export async function saveProposal(
             status,
             sections,
             attachments,
+            ...(designMetadata ? { designMetadata } : {}),
             signsCount: 0,
             // Public portal hash — drives `/share/proposal/[hash]`.
             publicHash: generatePublicHash(),

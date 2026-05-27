@@ -396,6 +396,7 @@ pub async fn create_invoice(
         recurring: input.recurring.clone(),
         status: InvoiceStatus::Draft,
         lineage: lineage_chain,
+        design_metadata: input.design_metadata.and_then(|v| bson::to_document(&v).ok()),
     };
 
     let coll = mongo.collection::<Invoice>(INVOICES_COLL);
@@ -564,6 +565,11 @@ pub async fn update_invoice(
             ApiError::Internal(anyhow::Error::new(e).context("encode status"))
         })?;
         set.insert("status", b);
+    }
+    if let Some(v) = input.design_metadata {
+        if let Ok(doc) = bson::to_document(&v) {
+            set.insert("designMetadata", doc);
+        }
     }
 
     let mut filter = base_ownership_filter(user_id);

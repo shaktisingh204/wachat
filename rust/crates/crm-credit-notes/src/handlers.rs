@@ -393,6 +393,9 @@ pub async fn create_credit_note(
             .collect();
         new_doc.insert("lineage", Bson::Array(arr));
     }
+    if let Some(dm) = input.design_metadata.as_ref().and_then(|v| bson::to_document(v).ok()) {
+        new_doc.insert("designMetadata", dm);
+    }
 
     // ---- Insert ---------------------------------------------------------
     let coll = mongo.collection::<Document>(CREDIT_NOTES_COLL);
@@ -522,6 +525,11 @@ pub async fn update_credit_note(
             )
         })?;
         set.insert("status", b);
+    }
+    if let Some(v) = input.design_metadata {
+        if let Ok(doc) = bson::to_document(&v) {
+            set.insert("designMetadata", doc);
+        }
     }
 
     let mut filter = base_ownership_filter(user_id);

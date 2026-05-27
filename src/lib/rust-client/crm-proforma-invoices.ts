@@ -38,6 +38,7 @@ export interface CrmProformaInvoiceDoc {
   termsAndConditions?: string[];
   notes?: string;
   status?: CrmProformaStatus;
+  designMetadata?: Record<string, unknown>;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -68,10 +69,12 @@ export interface CrmProformaCreateInput {
   notes?: string;
   taxTotal?: number;
   discountTotal?: number;
+  designMetadata?: Record<string, unknown>;
 }
 
 export type CrmProformaUpdateInput = Partial<CrmProformaCreateInput> & {
   status?: CrmProformaStatus;
+  designMetadata?: Record<string, unknown>;
 };
 
 function buildListQuery(p?: CrmProformaListParams): string {

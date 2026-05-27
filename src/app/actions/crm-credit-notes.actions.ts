@@ -172,6 +172,16 @@ export async function saveCreditNote(prevState: any, formData: FormData): Promis
             const fromKindRaw = (formData.get('fromKind') as string | null) || undefined;
             const fromId = (formData.get('fromId') as string | null) || undefined;
 
+            let designMetadata: Record<string, unknown> | undefined = undefined;
+            const dmRaw = formData.get('designMetadata') as string | null;
+            if (dmRaw) {
+                try {
+                    designMetadata = JSON.parse(dmRaw);
+                } catch {
+                    // ignore malformed
+                }
+            }
+
             const created = await crmCreditNotesApi.create({
                 cnNo,
                 date,
@@ -185,6 +195,7 @@ export async function saveCreditNote(prevState: any, formData: FormData): Promis
                     fromKindRaw === 'invoice' && fromId ? fromId : undefined,
                 fromKind: fromKindRaw,
                 fromId,
+                designMetadata,
             });
 
             try {
@@ -276,6 +287,18 @@ export async function saveCreditNote(prevState: any, formData: FormData): Promis
                 }
             } catch {
                 // ignore lineage seed failures — credit note still saves
+            }
+        }
+
+        const dmRawLegacy = formData.get('designMetadata') as string | null;
+        if (dmRawLegacy) {
+            try {
+                const parsed = JSON.parse(dmRawLegacy);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    (creditNoteData as any).designMetadata = parsed;
+                }
+            } catch {
+                // ignore
             }
         }
 

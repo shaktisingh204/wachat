@@ -105,6 +105,8 @@ pub struct SalesOrder {
     /// staggered fulfillment ⇒ one invoice per delivery.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub linked_invoice_ids: Vec<ObjectId>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub design_metadata: Option<bson::Document>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub lineage: Vec<LineageRef>,
 }

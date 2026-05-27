@@ -45,6 +45,9 @@ pub struct CreateChallanInput {
     /// 24-char hex of the parent record.
     #[serde(default)]
     pub from_id: Option<String>,
+
+    #[serde(default)]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -66,6 +69,8 @@ pub struct UpdateChallanInput {
     pub notes: Option<String>,
     #[serde(default)]
     pub status: Option<String>,
+    #[serde(default)]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize)]

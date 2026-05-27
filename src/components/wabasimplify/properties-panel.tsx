@@ -416,7 +416,7 @@ function AgentEditor({ data, onChange }: { data: any; onChange: (d: any) => void
                     <ZoruSelectTrigger><ZoruSelectValue placeholder="Select an agent..." /></ZoruSelectTrigger>
                     <ZoruSelectContent>
                         {agents.length === 0 ? (
-                            <ZoruSelectItem value="" disabled>No agents configured</ZoruSelectItem>
+                            <ZoruSelectItem value="__placeholder__" disabled>No agents configured</ZoruSelectItem>
                         ) : agents.map((a: any) => (
                             <ZoruSelectItem key={a.userId?.toString()} value={a.userId?.toString()}>{a.name || a.email}</ZoruSelectItem>
                         ))}

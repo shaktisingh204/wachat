@@ -177,6 +177,16 @@ export async function saveSalesOrder(prevState: any, formData: FormData): Promis
             const fromKindRaw = (formData.get('fromKind') as string | null) || undefined;
             const fromId = (formData.get('fromId') as string | null) || undefined;
 
+            let designMetadata: Record<string, unknown> | undefined = undefined;
+            const dmRaw = formData.get('designMetadata') as string | null;
+            if (dmRaw) {
+                try {
+                    designMetadata = JSON.parse(dmRaw);
+                } catch {
+                    // ignore malformed
+                }
+            }
+
             const created = await crmSalesOrdersApi.create({
                 soNo,
                 date,
@@ -188,6 +198,7 @@ export async function saveSalesOrder(prevState: any, formData: FormData): Promis
                 internalNotes: (formData.get('notes') as string | null) || undefined,
                 fromKind: fromKindRaw,
                 fromId,
+                designMetadata,
             });
             const id = (created as any)._id?.toString() || '';
 
@@ -287,6 +298,18 @@ export async function saveSalesOrder(prevState: any, formData: FormData): Promis
                 }
             } catch {
                 // ignore lineage seed failures — sales order still saves
+            }
+        }
+
+        const dmRawLegacy = formData.get('designMetadata') as string | null;
+        if (dmRawLegacy) {
+            try {
+                const parsed = JSON.parse(dmRawLegacy);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    (orderData as any).designMetadata = parsed;
+                }
+            } catch {
+                // ignore
             }
         }
 

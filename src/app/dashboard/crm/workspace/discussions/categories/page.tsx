@@ -192,6 +192,7 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
 
   const handleSubmit = async (formData: FormData) => {
     if (editing?._id) formData.set('id', editing._id);
+    if (formData.get('parent') === '__none__') formData.set('parent', '');
     const res = await saveDiscussionCategory(null, formData);
     if (res.message) {
       toast({ title: 'Saved' });
@@ -324,13 +325,13 @@ export default function DiscussionCategoriesPage(): React.JSX.Element {
                     <Label htmlFor="parent">Parent</Label>
                     <Select
                       name="parent"
-                      defaultValue={editing?.parent ?? ''}
+                      defaultValue={editing?.parent ?? '__none__'}
                     >
                       <ZoruSelectTrigger id="parent" className="mt-1.5 h-10">
                         <ZoruSelectValue placeholder="None" />
                       </ZoruSelectTrigger>
                       <ZoruSelectContent>
-                        <ZoruSelectItem value="">None</ZoruSelectItem>
+                        <ZoruSelectItem value="__none__">None</ZoruSelectItem>
                         {rows
                           .filter((r) => r._id !== editing?._id)
                           .map((c) => (

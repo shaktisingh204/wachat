@@ -385,6 +385,11 @@ pub async fn create_quotation(
     if let Some(la) = lineage_array {
         new_doc.insert("lineage", Bson::Array(la));
     }
+    if let Some(v) = input.design_metadata {
+        if let Ok(doc) = bson::to_document(&v) {
+            new_doc.insert("designMetadata", doc);
+        }
+    }
 
     let docs = mongo.collection::<Document>(QUOTATIONS_COLL);
     docs.insert_one(&new_doc).await.map_err(|e| {
@@ -497,6 +502,11 @@ pub async fn update_quotation(
             ApiError::Internal(anyhow::Error::new(e).context("quotation.items.bson"))
         })?;
         set.insert("items", bson_items);
+    }
+    if let Some(v) = input.design_metadata {
+        if let Ok(doc) = bson::to_document(&v) {
+            set.insert("designMetadata", doc);
+        }
     }
 
     let mut filter = base_ownership_filter(user_id);

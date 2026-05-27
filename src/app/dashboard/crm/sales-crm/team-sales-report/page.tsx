@@ -63,18 +63,18 @@ export default function TeamSalesReportPage() {
 
     const [startDate, setStartDate] = useState<Date | undefined>();
     const [endDate, setEndDate] = useState<Date | undefined>();
-    const [pipelineId, setPipelineId] = useState<string>('');
+    const [pipelineId, setPipelineId] = useState<string>('__all__');
     const [leadSource, setLeadSource] = useState<string>('');
-    const [assigneeId, setAssigneeId] = useState<string>('');
+    const [assigneeId, setAssigneeId] = useState<string>('__all__');
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
             const { data, users: rawUsers } = await generateTeamSalesReportData({
                 createdFrom: startDate,
                 createdTo: endDate,
-                pipelineId,
+                pipelineId: pipelineId === '__all__' ? undefined : pipelineId,
                 leadSource,
-                assigneeId,
+                assigneeId: assigneeId === '__all__' ? undefined : assigneeId,
             });
             setReportData(Array.isArray(data) ? (data as ReportRow[]) : []);
             setUsers(Array.isArray(rawUsers) ? (rawUsers as UserOption[]) : []);
@@ -147,9 +147,9 @@ export default function TeamSalesReportPage() {
     const clearFilters = () => {
         setStartDate(undefined);
         setEndDate(undefined);
-        setPipelineId('');
+        setPipelineId('__all__');
         setLeadSource('');
-        setAssigneeId('');
+        setAssigneeId('__all__');
     };
 
     return (
@@ -219,7 +219,7 @@ export default function TeamSalesReportPage() {
                                 <ZoruSelectValue placeholder="All pipelines" />
                             </ZoruSelectTrigger>
                             <ZoruSelectContent>
-                                <ZoruSelectItem value="">All pipelines</ZoruSelectItem>
+                                <ZoruSelectItem value="__all__">All pipelines</ZoruSelectItem>
                                 <ZoruSelectItem value="sales">Sales Pipeline</ZoruSelectItem>
                             </ZoruSelectContent>
                         </Select>
@@ -231,7 +231,7 @@ export default function TeamSalesReportPage() {
                                 <ZoruSelectValue placeholder="All reps" />
                             </ZoruSelectTrigger>
                             <ZoruSelectContent>
-                                <ZoruSelectItem value="">All reps</ZoruSelectItem>
+                                <ZoruSelectItem value="__all__">All reps</ZoruSelectItem>
                                 {users.map((u) => {
                                     const uid = String(u._id ?? u.salespersonId ?? '');
                                     const uname = String(u.name ?? u.salespersonName ?? uid);

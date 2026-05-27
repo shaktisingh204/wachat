@@ -73,15 +73,15 @@ export default function PricingRulesPage(): React.JSX.Element {
     const [storefronts, setStorefronts] = React.useState<Array<{ id: string; name: string }>>([]);
     const [isPending, startTransition] = React.useTransition();
     const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
-    const [kindFilter, setKindFilter] = React.useState('');
-    const [storefrontFilter, setStorefrontFilter] = React.useState('');
+    const [kindFilter, setKindFilter] = React.useState('__all__');
+    const [storefrontFilter, setStorefrontFilter] = React.useState('__all__');
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
     const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
 
     const fetchData = React.useCallback(() => {
         startTransition(async () => {
             const [{ items: rules }, { items: sfList }] = await Promise.all([
-                getPricingRuleList(storefrontFilter || undefined),
+                getPricingRuleList(storefrontFilter === '__all__' ? undefined : storefrontFilter),
                 getStorefrontList(),
             ]);
             setItems(Array.isArray(rules) ? rules : []);
@@ -118,7 +118,7 @@ export default function PricingRulesPage(): React.JSX.Element {
     const filtered = React.useMemo(() => {
         return items.filter((r) => {
             if (statusFilter !== 'all' && rStatus(r) !== statusFilter) return false;
-            if (kindFilter && String(r.kind ?? '') !== kindFilter) return false;
+            if (kindFilter !== '__all__' && String(r.kind ?? '') !== kindFilter) return false;
             return true;
         });
     }, [items, statusFilter, kindFilter]);
@@ -197,11 +197,11 @@ export default function PricingRulesPage(): React.JSX.Element {
         URL.revokeObjectURL(url);
     }, [filtered, selected]);
 
-    const newHref = storefrontFilter
+    const newHref = storefrontFilter !== '__all__'
         ? `/dashboard/crm/store/pricing/new?storefrontId=${storefrontFilter}`
         : '/dashboard/crm/store/pricing/new';
 
-    const hasActiveFilters = statusFilter !== 'all' || !!kindFilter;
+    const hasActiveFilters = statusFilter !== 'all' || kindFilter !== '__all__';
 
     return (
         <>
@@ -227,7 +227,7 @@ export default function PricingRulesPage(): React.JSX.Element {
                                         <ZoruSelectValue placeholder="All storefronts" />
                                     </ZoruSelectTrigger>
                                     <ZoruSelectContent>
-                                        <ZoruSelectItem value="">All storefronts</ZoruSelectItem>
+                                        <ZoruSelectItem value="__all__">All storefronts</ZoruSelectItem>
                                         {storefronts.map((sf) => (
                                             <ZoruSelectItem key={sf.id} value={sf.id}>
                                                 {sf.name}
@@ -265,7 +265,7 @@ export default function PricingRulesPage(): React.JSX.Element {
                                             <ZoruSelectValue placeholder="All types" />
                                         </ZoruSelectTrigger>
                                         <ZoruSelectContent>
-                                            <ZoruSelectItem value="">All types</ZoruSelectItem>
+                                            <ZoruSelectItem value="__all__">All types</ZoruSelectItem>
                                             {kinds.map((k) => (
                                                 <ZoruSelectItem key={k} value={k}>
                                                     {k}
@@ -281,7 +281,7 @@ export default function PricingRulesPage(): React.JSX.Element {
                                     size="sm"
                                     onClick={() => {
                                         setStatusFilter('all');
-                                        setKindFilter('');
+                                        setKindFilter('__all__');
                                     }}
                                 >
                                     Clear filters

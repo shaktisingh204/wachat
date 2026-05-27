@@ -157,6 +157,10 @@ pub struct CreateQuotationInput {
     /// 24-char hex of the parent record. See [`Self::from_kind`].
     #[serde(default)]
     pub from_id: Option<String>,
+
+    /* ----- design ----- */
+    #[serde(default)]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 /// `PATCH /v1/crm/quotations/:quotationId` body. Every field is
@@ -199,6 +203,9 @@ pub struct UpdateQuotationInput {
     /// rejected (a quotation with no lines doesn't render).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub items: Option<Vec<LineItem>>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 impl UpdateQuotationInput {

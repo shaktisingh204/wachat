@@ -37,6 +37,7 @@ export interface CrmDeliveryChallanDoc {
   transportDetails?: CrmTransportDetails;
   notes?: string;
   status?: CrmChallanStatus;
+  designMetadata?: Record<string, unknown>;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -73,10 +74,12 @@ export interface CrmChallanCreateInput {
    */
   fromKind?: 'salesOrder' | 'invoice' | 'quotation';
   fromId?: string;
+  designMetadata?: Record<string, unknown>;
 }
 
 export type CrmChallanUpdateInput = Partial<CrmChallanCreateInput> & {
   status?: CrmChallanStatus;
+  designMetadata?: Record<string, unknown>;
 };
 
 function buildListQuery(p?: CrmChallanListParams): string {

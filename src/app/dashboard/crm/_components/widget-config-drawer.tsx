@@ -109,49 +109,54 @@ export function WidgetConfigDrawer({
           {triggerLabel}
         </Button>
       </ZoruSheetTrigger>
-      <ZoruSheetContent side="right" className="w-full max-w-md">
-        <ZoruSheetHeader>
+      <ZoruSheetContent
+        side="right"
+        className="flex w-full max-w-md flex-col overflow-hidden p-0"
+      >
+        <ZoruSheetHeader className="shrink-0 border-b border-zoru-line px-6 pb-4 pt-6">
           <ZoruSheetTitle>Configure dashboard widgets</ZoruSheetTitle>
           <ZoruSheetDescription>
             Toggle widgets on/off and drag to reorder. Changes save automatically.
           </ZoruSheetDescription>
         </ZoruSheetHeader>
 
-        <div className="mt-4 flex flex-col gap-2">
-          {loading ? (
-            <p className="text-sm text-zoru-ink-muted">Loading widgets…</p>
-          ) : widgets.length === 0 ? (
-            <p className="text-sm text-zoru-ink-muted">No widgets available for this dashboard.</p>
-          ) : (
-            widgets.map((w) => (
-              <div
-                key={w.widgetKey}
-                draggable
-                onDragStart={() => handleDragStart(w.widgetKey)}
-                onDragOver={handleDragOver}
-                onDrop={() => handleDrop(w.widgetKey)}
-                className={cn(
-                  'flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3',
-                  !w.enabled && 'opacity-60',
-                )}
-              >
-                <GripVertical
-                  className="h-4 w-4 cursor-grab text-zoru-ink-subtle"
-                  strokeWidth={1.75}
-                  aria-label="Drag to reorder"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm text-zoru-ink">{w.label}</p>
-                  <p className="text-[12px] text-zoru-ink-muted">{w.description}</p>
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+          <div className="flex flex-col gap-2">
+            {loading ? (
+              <p className="text-sm text-zoru-ink-muted">Loading widgets…</p>
+            ) : widgets.length === 0 ? (
+              <p className="text-sm text-zoru-ink-muted">No widgets available for this dashboard.</p>
+            ) : (
+              widgets.map((w) => (
+                <div
+                  key={w.widgetKey}
+                  draggable
+                  onDragStart={() => handleDragStart(w.widgetKey)}
+                  onDragOver={handleDragOver}
+                  onDrop={() => handleDrop(w.widgetKey)}
+                  className={cn(
+                    'flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3',
+                    !w.enabled && 'opacity-60',
+                  )}
+                >
+                  <GripVertical
+                    className="h-4 w-4 cursor-grab text-zoru-ink-subtle"
+                    strokeWidth={1.75}
+                    aria-label="Drag to reorder"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-zoru-ink">{w.label}</p>
+                    <p className="text-[12px] text-zoru-ink-muted">{w.description}</p>
+                  </div>
+                  <Switch
+                    checked={w.enabled}
+                    onCheckedChange={(c) => handleToggle(w.widgetKey, Boolean(c))}
+                    aria-label={`Toggle ${w.label}`}
+                  />
                 </div>
-                <Switch
-                  checked={w.enabled}
-                  onCheckedChange={(c) => handleToggle(w.widgetKey, Boolean(c))}
-                  aria-label={`Toggle ${w.label}`}
-                />
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
       </ZoruSheetContent>
     </Sheet>

@@ -145,6 +145,10 @@ pub struct CreateInvoiceInput {
     /// 24-char hex of the parent record.
     #[serde(default)]
     pub from_id: Option<String>,
+
+    /* ----- design ----- */
+    #[serde(default)]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 /// `PATCH /v1/crm/invoices/:invoiceId` body. Every field is optional;
@@ -200,6 +204,9 @@ pub struct UpdateInvoiceInput {
     /// handler against [`crm_sales_types::InvoiceStatus`].
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status: Option<String>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 impl UpdateInvoiceInput {

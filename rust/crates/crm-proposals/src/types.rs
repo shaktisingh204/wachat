@@ -46,6 +46,8 @@ pub struct CrmProposal {
     pub sections: Vec<ProposalSection>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub attachments: Vec<ProposalAttachment>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub design_metadata: Option<bson::Document>,
 
     /// Denormalised count from `crm_proposal_signs`.
     #[serde(default)]

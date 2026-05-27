@@ -65,4 +65,10 @@ pub struct CrmDeliveryChallan {
     pub created_at: BsonDateTime,
     #[serde(rename = "updatedAt", default, skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<BsonDateTime>,
+
+    /// Optional PDF designer payload — mirrors the field added to the
+    /// canonical `crm-sales-types::DeliveryChallan` so the handlers can
+    /// pass-through what the UI sends without losing layout state.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub design_metadata: Option<bson::Document>,
 }

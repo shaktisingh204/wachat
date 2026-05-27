@@ -135,7 +135,7 @@ export function CoaForm({ initial, groups }: CoaFormProps): React.JSX.Element {
                                     </ZoruSelectTrigger>
                                     <ZoruSelectContent>
                                         {groups.length === 0 ? (
-                                            <ZoruSelectItem value="" disabled>
+                                            <ZoruSelectItem value="__placeholder__" disabled>
                                                 No groups yet — create one under Account Groups
                                             </ZoruSelectItem>
                                         ) : (

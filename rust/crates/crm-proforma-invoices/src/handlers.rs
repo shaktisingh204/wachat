@@ -103,6 +103,7 @@ fn proforma_from_create(
         status: Some("Draft".to_owned()),
         created_at: BsonDateTime::from_chrono(Utc::now()),
         updated_at: None,
+        design_metadata: input.design_metadata.and_then(|v| bson::to_document(&v).ok()),
     })
 }
 
@@ -151,6 +152,11 @@ fn build_update_doc(patch: UpdateProformaInput) -> Document {
     }
     if let Some(v) = patch.discount_total {
         set.insert("discountTotal", v);
+    }
+    if let Some(v) = patch.design_metadata {
+        if let Ok(doc) = bson::to_document(&v) {
+            set.insert("designMetadata", doc);
+        }
     }
     doc! { "$set": set }
 }

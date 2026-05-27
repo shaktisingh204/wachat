@@ -1,19 +1,12 @@
-/**
- * Edit proforma invoice — `/dashboard/crm/sales/proforma/[id]/edit`.
- *
- * Server component: fetches the proforma and passes it to a thin client
- * form that submits `updateProformaInvoice`. The edit surface is kept
- * minimal (header + notes + status); line-item edits would require the
- * full builder, which lives on the `/new` page.
- */
+import { notFound, redirect } from 'next/navigation';
 
-import { notFound } from 'next/navigation';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getProformaInvoiceById } from '@/app/actions/crm-proforma-invoices.actions';
-import { EditProformaForm } from './edit-form';
+import { getSession } from '@/app/actions/user.actions';
+import { getProformaInvoiceById, saveProformaInvoice } from '@/app/actions/crm-proforma-invoices.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
 
 export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/crm/sales/proforma';
 
 export default async function EditProformaPage({
     params,
@@ -21,16 +14,19 @@ export default async function EditProformaPage({
     params: Promise<{ id: string }>;
 }) {
     const { id } = await params;
+
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
+
     const proforma = await getProformaInvoiceById(id);
     if (!proforma) notFound();
 
     return (
-        <EntityDetailShell
-            eyebrow="PROFORMA INVOICE"
-            title={`Edit ${(proforma as any).proformaNumber ?? 'proforma'}`}
-            back={{ href: `/dashboard/crm/sales/proforma/${id}`, label: 'Proforma Invoice' }}
-        >
-            <EditProformaForm proformaId={id} initial={proforma as any} />
-        </EntityDetailShell>
+        <LiveDocumentEditor
+            documentType="proforma"
+            initialData={proforma as Record<string, unknown>}
+            saveAction={saveProformaInvoice}
+            backHref={BASE}
+        />
     );
 }

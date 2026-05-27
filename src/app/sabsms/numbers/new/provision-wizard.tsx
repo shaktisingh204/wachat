@@ -155,7 +155,7 @@ const initialState: WizardState = {
   capabilities: { sms: true, mms: false, rcs: false, voice: false },
   pattern: "",
   selected: new Set(),
-  campaignId: "",
+  campaignId: "__none__",
   poolId: "default",
   defaultFooter: "Reply STOP to opt out. Msg&data rates may apply.",
   defaultSenderId: "",
@@ -211,7 +211,7 @@ export function ProvisionWizard({
     type: state.type,
     numbers: Array.from(state.selected),
     capabilities: state.capabilities,
-    campaignId: state.campaignId || undefined,
+    campaignId: state.campaignId === '__none__' ? undefined : state.campaignId,
     poolId: state.poolId || undefined,
     webhookUrlOverride: state.webhookUrlOverride || undefined,
     defaultFooter: state.defaultFooter || undefined,
@@ -674,7 +674,7 @@ export function ProvisionWizard({
                   <ZoruSelectValue placeholder="No campaign" />
                 </ZoruSelectTrigger>
                 <ZoruSelectContent>
-                  <ZoruSelectItem value="">No campaign</ZoruSelectItem>
+                  <ZoruSelectItem value="__none__">No campaign</ZoruSelectItem>
                   {campaigns.map((c) => (
                     <ZoruSelectItem key={c.id} value={c.id}>
                       {c.name}

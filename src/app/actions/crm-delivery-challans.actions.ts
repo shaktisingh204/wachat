@@ -194,6 +194,16 @@ export async function saveDeliveryChallan(prevState: any, formData: FormData): P
         // The Rust handler reads `fromKind`/`fromId` and stamps the
         // lineage chain on the new DC inside the same insert, replacing
         // the old post-create Mongo back-fill in this action.
+        let designMetadata: Record<string, unknown> | undefined = undefined;
+        const dmRaw = formData.get('designMetadata') as string | null;
+        if (dmRaw) {
+            try {
+                designMetadata = JSON.parse(dmRaw);
+            } catch {
+                // ignore malformed
+            }
+        }
+
         if (!id && useRustCrm()) {
             try {
                 const challanDateRaw = formData.get('challanDate') as string;
@@ -211,6 +221,7 @@ export async function saveDeliveryChallan(prevState: any, formData: FormData): P
                     ...(fromKind && fromId && ObjectId.isValid(fromId)
                         ? { fromKind, fromId }
                         : {}),
+                    designMetadata,
                 });
                 revalidatePath('/dashboard/crm/sales/delivery');
                 return {
@@ -287,6 +298,18 @@ export async function saveDeliveryChallan(prevState: any, formData: FormData): P
                 }
             } catch {
                 // ignore lineage seed failures — challan still saves
+            }
+        }
+
+        const dmRawLegacy = formData.get('designMetadata') as string | null;
+        if (dmRawLegacy) {
+            try {
+                const parsed = JSON.parse(dmRawLegacy);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    (challanData as any).designMetadata = parsed;
+                }
+            } catch {
+                // ignore
             }
         }
 

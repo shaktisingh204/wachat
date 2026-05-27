@@ -22,7 +22,7 @@ pub struct SelectedItem {
     pub plan_id: Option<ObjectId>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct SessionTotals {
     pub subtotal_minor: i64,

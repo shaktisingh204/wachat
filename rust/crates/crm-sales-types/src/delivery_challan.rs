@@ -130,6 +130,8 @@ pub struct DeliveryChallan {
     /* ----- workflow + lineage ------------------------------------ */
     #[serde(default)]
     pub status: DeliveryChallanStatus,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub design_metadata: Option<bson::Document>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub lineage: Vec<LineageRef>,
 }

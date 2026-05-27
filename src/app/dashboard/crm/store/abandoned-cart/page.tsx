@@ -92,7 +92,7 @@ export default function AbandonedCartsPage(): React.JSX.Element {
     const [items, setItems] = React.useState<CartItem[]>([]);
     const [storefronts, setStorefronts] = React.useState<Array<{ id: string; name: string }>>([]);
     const [isPending, startTransition] = React.useTransition();
-    const [storefrontFilter, setStorefrontFilter] = React.useState('');
+    const [storefrontFilter, setStorefrontFilter] = React.useState('__all__');
     const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
     const [minValue, setMinValue] = React.useState('');
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -104,7 +104,7 @@ export default function AbandonedCartsPage(): React.JSX.Element {
             const toDate = dateRange?.to?.toISOString().slice(0, 10);
             const [{ items: carts }, { items: sfList }] = await Promise.all([
                 getAbandonedCarts({
-                    storefrontId: storefrontFilter || undefined,
+                    storefrontId: storefrontFilter === '__all__' ? undefined : storefrontFilter,
                     fromDate,
                     toDate,
                 }),
@@ -206,7 +206,7 @@ export default function AbandonedCartsPage(): React.JSX.Element {
         URL.revokeObjectURL(url);
     }, [filtered, selected]);
 
-    const hasActiveFilters = !!storefrontFilter || !!dateRange?.from || !!dateRange?.to || !!minValue;
+    const hasActiveFilters = storefrontFilter !== '__all__' || !!dateRange?.from || !!dateRange?.to || !!minValue;
 
     return (
         <>
@@ -225,7 +225,7 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                                         <ZoruSelectValue placeholder="All storefronts" />
                                     </ZoruSelectTrigger>
                                     <ZoruSelectContent>
-                                        <ZoruSelectItem value="">All storefronts</ZoruSelectItem>
+                                        <ZoruSelectItem value="__all__">All storefronts</ZoruSelectItem>
                                         {storefronts.map((sf) => (
                                             <ZoruSelectItem key={sf.id} value={sf.id}>
                                                 {sf.name}
@@ -257,7 +257,7 @@ export default function AbandonedCartsPage(): React.JSX.Element {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => {
-                                        setStorefrontFilter('');
+                                        setStorefrontFilter('__all__');
                                         setDateRange(undefined);
                                         setMinValue('');
                                     }}

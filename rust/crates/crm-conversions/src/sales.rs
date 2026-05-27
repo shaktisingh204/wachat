@@ -75,6 +75,7 @@ pub fn quotation_to_sales_order(
         linked_delivery_ids: Vec::new(),
         linked_invoice_ids: Vec::new(),
         lineage,
+        design_metadata: None,
     }
 }
 
@@ -145,6 +146,7 @@ pub fn quotation_to_invoice(q: &Quotation, invoice_no: String) -> Invoice {
         recurring: None,
         status: InvoiceStatus::default(),
         lineage,
+        design_metadata: None,
     }
 }
 
@@ -282,6 +284,7 @@ pub fn sales_order_to_delivery_challan(
 
         status: DeliveryChallanStatus::default(),
         lineage,
+        design_metadata: None,
     }
 }
 
@@ -353,6 +356,7 @@ pub fn sales_order_to_invoice(so: &SalesOrder, invoice_no: String) -> Invoice {
         recurring: None,
         status: InvoiceStatus::default(),
         lineage,
+        design_metadata: None,
     }
 }
 
@@ -407,6 +411,7 @@ pub fn invoice_to_credit_note(
 
         status: CreditNoteStatus::default(),
         lineage,
+        design_metadata: None,
     }
 }
 

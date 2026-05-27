@@ -91,14 +91,14 @@ export default function ShippingZoneListPage(): React.JSX.Element {
     const [storefronts, setStorefronts] = React.useState<Array<{ id: string; name: string }>>([]);
     const [isPending, startTransition] = React.useTransition();
     const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
-    const [storefrontFilter, setStorefrontFilter] = React.useState('');
+    const [storefrontFilter, setStorefrontFilter] = React.useState('__all__');
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
     const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
 
     const fetchData = React.useCallback(() => {
         startTransition(async () => {
             const [{ items: zones }, { items: sfList }] = await Promise.all([
-                getShippingZoneList(storefrontFilter || undefined),
+                getShippingZoneList(storefrontFilter === '__all__' ? undefined : storefrontFilter),
                 getStorefrontList(),
             ]);
             setItems(Array.isArray(zones) ? zones : []);
@@ -202,7 +202,7 @@ export default function ShippingZoneListPage(): React.JSX.Element {
         URL.revokeObjectURL(url);
     }, [filtered, selected]);
 
-    const newHref = storefrontFilter
+    const newHref = storefrontFilter !== '__all__'
         ? `/dashboard/crm/store/shipping/new?storefrontId=${storefrontFilter}`
         : '/dashboard/crm/store/shipping/new';
 
@@ -232,7 +232,7 @@ export default function ShippingZoneListPage(): React.JSX.Element {
                                         <ZoruSelectValue placeholder="All storefronts" />
                                     </ZoruSelectTrigger>
                                     <ZoruSelectContent>
-                                        <ZoruSelectItem value="">All storefronts</ZoruSelectItem>
+                                        <ZoruSelectItem value="__all__">All storefronts</ZoruSelectItem>
                                         {storefronts.map((sf) => (
                                             <ZoruSelectItem key={sf.id} value={sf.id}>
                                                 {sf.name}

@@ -380,6 +380,7 @@ pub async fn create_sales_order(
         linked_delivery_ids: Vec::new(),
         linked_invoice_ids: Vec::new(),
         lineage: lineage.clone(),
+        design_metadata: input.design_metadata.and_then(|v| bson::to_document(&v).ok()),
     };
 
     let coll = mongo.collection::<SalesOrder>(SALES_ORDERS_COLL);
@@ -480,6 +481,11 @@ pub async fn update_sales_order(
     set_opt_str(&mut set, "internalNotes", input.internal_notes.as_ref());
     if let Some(s) = input.status.as_ref() {
         set.insert("status", status_to_str(s));
+    }
+    if let Some(v) = input.design_metadata {
+        if let Ok(doc) = bson::to_document(&v) {
+            set.insert("designMetadata", doc);
+        }
     }
 
     let mut filter = base_ownership_filter(user_id);

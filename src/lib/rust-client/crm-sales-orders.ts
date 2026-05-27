@@ -107,6 +107,7 @@ export interface CrmSalesOrderDoc {
   status: CrmSalesOrderStatus;
   linkedDeliveryIds?: string[];
   linkedInvoiceIds?: string[];
+  designMetadata?: Record<string, unknown>;
   lineage?: Array<{ kind: string; id: string }>;
   archived?: boolean;
   createdAt?: string;
@@ -141,6 +142,7 @@ export interface CrmSalesOrderCreateInput {
   status?: CrmSalesOrderStatus;
   fromKind?: string;
   fromId?: string;
+  designMetadata?: Record<string, unknown>;
 }
 
 export interface CrmSalesOrderUpdateInput {
@@ -158,6 +160,7 @@ export interface CrmSalesOrderUpdateInput {
   customerNotes?: string;
   internalNotes?: string;
   status?: CrmSalesOrderStatus;
+  designMetadata?: Record<string, unknown>;
 }
 
 /* ─── Client ──────────────────────────────────────────────────── */

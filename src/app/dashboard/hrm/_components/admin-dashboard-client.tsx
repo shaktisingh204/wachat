@@ -150,11 +150,7 @@ export function HrmAdminDashboardClient({
     <div className="space-y-6 max-w-7xl mx-auto w-full pb-10">
       
       {/* Premium Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-zoru-surface/50 p-6 rounded-3xl border border-zoru-line backdrop-blur-md shadow-[var(--zoru-shadow-lg)] relative overflow-hidden">
-        {/* Glow Effects */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-zoru-brand/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-60 h-60 bg-indigo-500/5 rounded-full blur-[80px] pointer-events-none" />
-        
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-7 rounded-3xl border border-zoru-line shadow-[var(--zoru-shadow-sm)] relative overflow-hidden">
         <div className="relative z-10">
           <h1 className="text-3xl font-extrabold tracking-tight text-zoru-ink flex items-center gap-2">
             HRM Executive Console
@@ -169,13 +165,13 @@ export function HrmAdminDashboardClient({
         
         <div className="flex flex-wrap gap-3 relative z-10">
           <Link href="/dashboard/hrm/payroll/employees/new">
-            <Button className="h-10 text-[13px] font-bold shadow-lg hover:shadow-zoru-brand/20 bg-gradient-to-r from-zoru-brand to-indigo-600 border-0 text-white rounded-xl flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]">
+            <Button className="h-10 text-[13px] font-bold shadow-lg hover:shadow-zoru-brand/20 bg-gradient-to-r from-zoru-brand to-zoru-ink border-0 text-white rounded-xl flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]">
               <UserPlus className="w-4 h-4" /> Add Employee
             </Button>
           </Link>
           <Link href="/dashboard/hrm/payroll">
             <Button variant="outline" className="h-10 text-[13px] font-bold border-zoru-line bg-zoru-surface-2/60 hover:bg-zoru-surface hover:text-zoru-ink text-zoru-ink rounded-xl flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]">
-              <Activity className="w-4 h-4 text-emerald-400" /> Run Payroll
+              <Activity className="w-4 h-4 text-zoru-ink" /> Run Payroll
             </Button>
           </Link>
         </div>
@@ -185,78 +181,74 @@ export function HrmAdminDashboardClient({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         
         {/* Metric: Headcount */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-indigo-500/40 hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors duration-300" />
+        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Total Headcount</p>
               <h3 className="text-3xl font-extrabold text-zoru-ink mt-1.5 tracking-tight font-mono">{totalEmployeesCount}</h3>
             </div>
-            <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 group-hover:scale-110 transition-transform duration-300">
+            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
               <Users className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[12px]">
             <span className="text-zoru-ink-muted font-medium">Active Members</span>
-            <span className="text-emerald-400 font-bold font-mono">{activeEmployeesCount}</span>
+            <span className="text-zoru-ink font-bold font-mono">{activeEmployeesCount}</span>
           </div>
         </Card>
  
         {/* Metric: Attendance Rate */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-emerald-500/40 hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors duration-300" />
+        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Today's Attendance</p>
               <h3 className="text-3xl font-extrabold text-zoru-ink mt-1.5 tracking-tight font-mono">{todayAttendanceRate}%</h3>
             </div>
-            <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 group-hover:scale-110 transition-transform duration-300">
+            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
               <UserCheck className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[12px]">
             <span className="text-zoru-ink-muted font-medium">Status</span>
-            <span className="text-emerald-400 font-bold flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" /> Live
+            <span className="text-zoru-ink font-bold flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-zoru-ink animate-ping" /> Live
             </span>
           </div>
         </Card>
  
         {/* Metric: Pending Leaves */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-rose-500/40 hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 rounded-full blur-2xl group-hover:bg-rose-500/10 transition-colors duration-300" />
+        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Pending Leaves</p>
               <h3 className="text-3xl font-extrabold text-zoru-ink mt-1.5 tracking-tight font-mono">{leavesList.length}</h3>
             </div>
-            <div className="p-3 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 group-hover:scale-110 transition-transform duration-300">
+            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
               <CalendarHeart className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[12px]">
             <span className="text-zoru-ink-muted font-medium">Requires Action</span>
-            <span className={`font-bold ${leavesList.length > 0 ? 'text-rose-400 animate-pulse' : 'text-zoru-ink-muted'}`}>
+            <span className={`font-bold ${leavesList.length > 0 ? 'text-zoru-ink animate-pulse' : 'text-zoru-ink-muted'}`}>
               {leavesList.length > 0 ? 'Action Needed' : 'All Clear'}
             </span>
           </div>
         </Card>
  
         {/* Metric: Active Job Postings */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-amber-500/40 hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-colors duration-300" />
+        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Active Jobs</p>
               <h3 className="text-3xl font-extrabold text-zoru-ink mt-1.5 tracking-tight font-mono">{activeJobsCount}</h3>
             </div>
-            <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 group-hover:scale-110 transition-transform duration-300">
+            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
               <Briefcase className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[12px]">
             <span className="text-zoru-ink-muted font-medium">Hiring Channels</span>
-            <span className="text-amber-400 font-bold font-mono">Active</span>
+            <span className="text-zoru-ink font-bold font-mono">Active</span>
           </div>
         </Card>
  
@@ -272,18 +264,19 @@ export function HrmAdminDashboardClient({
           <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-5 rounded-2xl flex flex-col">
             <div className="flex items-center justify-between pb-4 border-b border-zoru-line">
               <h3 className="text-[15px] font-extrabold tracking-tight text-zoru-ink flex items-center gap-2">
-                <CalendarHeart className="w-4 h-4 text-rose-400" /> Pending Leave Approvals
+                <CalendarHeart className="w-4 h-4 text-zoru-ink" /> Pending Leave Approvals
               </h3>
               <Badge tone={leavesList.length > 0 ? 'danger' : 'neutral'} className="font-mono">{leavesList.length}</Badge>
             </div>
 
             <div className="pt-4 flex-1">
               {leavesList.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-10 text-zoru-ink-muted">
-                  <div className="w-12 h-12 rounded-full bg-zoru-surface-2/40 flex items-center justify-center text-zoru-ink-muted mb-3 border border-zoru-line">
-                    <CheckCircle className="w-6 h-6 text-zoru-ink-muted" />
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <div className="w-12 h-12 rounded-full bg-zoru-surface-2 flex items-center justify-center text-zoru-ink mb-3 border border-zoru-line">
+                    <CheckCircle className="w-6 h-6" />
                   </div>
-                  <p className="text-[13px] font-medium">No pending leave requests to approve.</p>
+                  <h3 className="text-[14px] font-semibold text-zoru-ink">Inbox zero on leaves</h3>
+                  <p className="text-[12px] text-zoru-ink-muted mt-1 max-w-[220px]">No pending requests right now — your team is sorted.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -293,7 +286,7 @@ export function HrmAdminDashboardClient({
                       className="p-4 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:border-zoru-line-strong hover:bg-zoru-surface-2/50 transition-all duration-300 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-zoru-line flex items-center justify-center text-indigo-400 text-sm font-bold shrink-0 overflow-hidden">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zoru-ink to-zoru-ink border border-zoru-line flex items-center justify-center text-zoru-ink text-sm font-bold shrink-0 overflow-hidden">
                           {leave.employeeImage ? (
                             <img src={leave.employeeImage} alt={leave.employeeName} className="w-full h-full object-cover" />
                           ) : (
@@ -311,7 +304,7 @@ export function HrmAdminDashboardClient({
                             {leave.designation || 'Team Member'}
                           </p>
                           <p className="text-[12px] text-zoru-ink-muted font-medium flex items-center gap-1.5 mt-2.5">
-                            <Clock className="w-3.5 h-3.5 text-indigo-400" />
+                            <Clock className="w-3.5 h-3.5 text-zoru-ink" />
                             {leave.startDate ? new Date(leave.startDate).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '—'} 
                             <span className="text-zoru-ink-muted opacity-60">to</span> 
                             {leave.endDate ? new Date(leave.endDate).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
@@ -329,7 +322,7 @@ export function HrmAdminDashboardClient({
                           onClick={() => handleLeaveAction(leave._id, 'Approved')}
                           disabled={isPending}
                           size="sm"
-                          className="flex-1 md:flex-none h-8 text-[11px] font-bold gap-1 bg-emerald-500 hover:bg-emerald-600 text-white hover:scale-[1.02] transition-transform active:scale-[0.98] border-0 rounded-lg"
+                          className="flex-1 md:flex-none h-8 text-[11px] font-bold gap-1 bg-zoru-surface-20 hover:bg-zoru-ink text-white hover:scale-[1.02] transition-transform active:scale-[0.98] border-0 rounded-lg"
                         >
                           <UserCheck className="w-3.5 h-3.5" /> Approve
                         </Button>
@@ -338,7 +331,7 @@ export function HrmAdminDashboardClient({
                           disabled={isPending}
                           size="sm"
                           variant="outline"
-                          className="flex-1 md:flex-none h-8 text-[11px] font-bold gap-1 border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 text-rose-400 hover:text-rose-300 hover:scale-[1.02] transition-transform active:scale-[0.98] rounded-lg"
+                          className="flex-1 md:flex-none h-8 text-[11px] font-bold gap-1 border-zoru-line bg-zoru-surface-20/5 hover:bg-zoru-surface-2 text-zoru-ink hover:text-zoru-ink-muted hover:scale-[1.02] transition-transform active:scale-[0.98] rounded-lg"
                         >
                           <UserX className="w-3.5 h-3.5" /> Reject
                         </Button>
@@ -354,7 +347,7 @@ export function HrmAdminDashboardClient({
           <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-5 rounded-2xl flex flex-col">
             <div className="flex items-center justify-between pb-4 border-b border-zoru-line">
               <h3 className="text-[15px] font-extrabold tracking-tight text-zoru-ink flex items-center gap-2">
-                <Clock className="w-4 h-4 text-emerald-400" /> Today's Attendance Logs
+                <Clock className="w-4 h-4 text-zoru-ink" /> Today's Attendance Logs
               </h3>
               <Link href="/dashboard/hrm/payroll/attendance" className="text-[12px] font-bold text-zoru-brand hover:text-zoru-brand-dark flex items-center gap-0.5 transition-colors">
                 View Register <ChevronRight className="w-4 h-4" />
@@ -384,7 +377,7 @@ export function HrmAdminDashboardClient({
                       {todayAttendanceFeed.map((record, index) => (
                         <tr key={record._id || index} className="border-b border-zoru-line hover:bg-zoru-surface-2/20 transition-colors">
                           <td className="px-4 py-3.5 flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden">
+                            <div className="w-8 h-8 rounded-lg bg-zoru-surface-2 text-zoru-ink flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden">
                               {record.image ? (
                                 <img src={record.image} alt={record.employeeName} className="w-full h-full object-cover" />
                               ) : (
@@ -428,7 +421,7 @@ export function HrmAdminDashboardClient({
               <Link href="/dashboard/hrm/payroll/employees" className="group">
                 <div className="p-3 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:bg-zoru-brand/5 hover:border-zoru-brand/40 flex items-center justify-between transition-all duration-300 group-hover:scale-[1.01]">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-zoru-brand/10 group-hover:text-zoru-brand transition-colors duration-300">
+                    <div className="p-2 rounded-lg bg-zoru-surface-2 text-zoru-ink group-hover:bg-zoru-brand/10 group-hover:text-zoru-brand transition-colors duration-300">
                       <Users className="w-4 h-4" />
                     </div>
                     <div>
@@ -441,47 +434,47 @@ export function HrmAdminDashboardClient({
               </Link>
 
               <Link href="/dashboard/hrm/payroll" className="group">
-                <div className="p-3 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:bg-emerald-500/5 hover:border-emerald-500/40 flex items-center justify-between transition-all duration-300 group-hover:scale-[1.01]">
+                <div className="p-3 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:bg-zoru-surface-20/5 hover:border-zoru-line flex items-center justify-between transition-all duration-300 group-hover:scale-[1.01]">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/10 group-hover:text-emerald-300 transition-colors duration-300">
+                    <div className="p-2 rounded-lg bg-zoru-surface-2 text-zoru-ink group-hover:bg-zoru-surface-2 group-hover:text-zoru-ink-muted transition-colors duration-300">
                       <Activity className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-[13px] font-bold text-zoru-ink group-hover:text-emerald-400 transition-colors">Payroll Controls</span>
+                      <span className="text-[13px] font-bold text-zoru-ink group-hover:text-zoru-ink transition-colors">Payroll Controls</span>
                       <p className="text-[10px] text-zoru-ink-muted mt-0.5 font-medium">Run payroll, dispatch payslips</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-zoru-ink-muted group-hover:text-emerald-400 transition-all duration-300 group-hover:translate-x-0.5" />
+                  <ChevronRight className="w-4 h-4 text-zoru-ink-muted group-hover:text-zoru-ink transition-all duration-300 group-hover:translate-x-0.5" />
                 </div>
               </Link>
 
               <Link href="/dashboard/hrm/hr/okrs" className="group">
-                <div className="p-3 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:bg-amber-500/5 hover:border-amber-500/40 flex items-center justify-between transition-all duration-300 group-hover:scale-[1.01]">
+                <div className="p-3 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:bg-zoru-surface-20/5 hover:border-zoru-line flex items-center justify-between transition-all duration-300 group-hover:scale-[1.01]">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/10 group-hover:text-amber-300 transition-colors duration-300">
+                    <div className="p-2 rounded-lg bg-zoru-surface-2 text-zoru-ink group-hover:bg-zoru-surface-2 group-hover:text-zoru-ink-muted transition-colors duration-300">
                       <Target className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-[13px] font-bold text-zoru-ink group-hover:text-amber-400 transition-colors">OKRs & Performance</span>
+                      <span className="text-[13px] font-bold text-zoru-ink group-hover:text-zoru-ink transition-colors">OKRs & Performance</span>
                       <p className="text-[10px] text-zoru-ink-muted mt-0.5 font-medium">Configure team targets, reviews</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-zoru-ink-muted group-hover:text-amber-400 transition-all duration-300 group-hover:translate-x-0.5" />
+                  <ChevronRight className="w-4 h-4 text-zoru-ink-muted group-hover:text-zoru-ink transition-all duration-300 group-hover:translate-x-0.5" />
                 </div>
               </Link>
 
               <Link href="/dashboard/hrm/hr/jobs" className="group">
-                <div className="p-3 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:bg-pink-500/5 hover:border-pink-500/40 flex items-center justify-between transition-all duration-300 group-hover:scale-[1.01]">
+                <div className="p-3 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:bg-zoru-surface-20/5 hover:border-zoru-line flex items-center justify-between transition-all duration-300 group-hover:scale-[1.01]">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-pink-500/10 text-pink-400 group-hover:bg-pink-500/10 group-hover:text-pink-300 transition-colors duration-300">
+                    <div className="p-2 rounded-lg bg-zoru-surface-20/10 text-zoru-ink group-hover:bg-zoru-surface-20/10 group-hover:text-zoru-ink-muted transition-colors duration-300">
                       <Briefcase className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-[13px] font-bold text-zoru-ink group-hover:text-pink-400 transition-colors">Recruitment Pipeline</span>
+                      <span className="text-[13px] font-bold text-zoru-ink group-hover:text-zoru-ink transition-colors">Recruitment Pipeline</span>
                       <p className="text-[10px] text-zoru-ink-muted mt-0.5 font-medium">Job postings, candidate interviews</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-zoru-ink-muted group-hover:text-pink-400 transition-all duration-300 group-hover:translate-x-0.5" />
+                  <ChevronRight className="w-4 h-4 text-zoru-ink-muted group-hover:text-zoru-ink transition-all duration-300 group-hover:translate-x-0.5" />
                 </div>
               </Link>
             </div>
@@ -491,7 +484,7 @@ export function HrmAdminDashboardClient({
           <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-5 rounded-2xl flex flex-col">
             <div className="flex items-center justify-between pb-3 border-b border-zoru-line mb-4">
               <h3 className="text-[15px] font-extrabold tracking-tight text-zoru-ink flex items-center gap-2">
-                <Briefcase className="w-4 h-4 text-amber-400" /> Active Job Openings
+                <Briefcase className="w-4 h-4 text-zoru-ink" /> Active Job Openings
               </h3>
               <Badge tone="info" className="font-mono">{activeJobs.length}</Badge>
             </div>
@@ -515,7 +508,7 @@ export function HrmAdminDashboardClient({
                       </Badge>
                     </div>
                     <div className="flex items-center gap-2 text-[10px] text-zoru-ink-muted font-medium">
-                      <span className="flex items-center gap-0.5"><Building className="w-3 h-3 text-indigo-400" /> {job.department || 'General'}</span>
+                      <span className="flex items-center gap-0.5"><Building className="w-3 h-3 text-zoru-ink" /> {job.department || 'General'}</span>
                       {job.location && (
                         <>
                           <span className="opacity-50">•</span>
@@ -537,7 +530,7 @@ export function HrmAdminDashboardClient({
           {/* Upcoming Holidays Card */}
           <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-5 rounded-2xl flex flex-col">
             <h3 className="text-[15px] font-extrabold tracking-tight text-zoru-ink pb-3 border-b border-zoru-line flex items-center gap-2 mb-4">
-              <Calendar className="w-4 h-4 text-purple-400" /> Upcoming Holidays
+              <Calendar className="w-4 h-4 text-zoru-ink" /> Upcoming Holidays
             </h3>
 
             {upcomingHolidays.length === 0 ? (
@@ -549,8 +542,8 @@ export function HrmAdminDashboardClient({
               <div className="space-y-3">
                 {upcomingHolidays.map(holiday => (
                   <div key={holiday._id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-zoru-surface-2/20 transition-colors border border-transparent hover:border-zoru-line">
-                    <div className="shrink-0 w-11 h-11 rounded-xl bg-purple-500/10 text-purple-400 flex flex-col items-center justify-center border border-purple-500/20 font-medium shadow-md shadow-purple-500/5">
-                      <span className="text-[9px] uppercase font-bold tracking-widest text-purple-300">
+                    <div className="shrink-0 w-11 h-11 rounded-xl bg-zoru-surface-2 text-zoru-ink flex flex-col items-center justify-center border border-zoru-line font-medium shadow-md shadow-zoru-line">
+                      <span className="text-[9px] uppercase font-bold tracking-widest text-zoru-ink-muted">
                         {new Date(holiday.date).toLocaleString([], { month: 'short' })}
                       </span>
                       <span className="text-[15px] font-extrabold leading-none mt-0.5 font-mono">

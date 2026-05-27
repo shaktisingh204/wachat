@@ -170,6 +170,7 @@ export interface CrmInvoiceDoc {
 
   customFields?: Record<string, unknown>;
   tags?: string[];
+  designMetadata?: Record<string, unknown>;
   archived?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -205,6 +206,7 @@ export interface CrmInvoiceCreateInput {
   /** Optional lineage parent kind. Whitelisted on the Rust side. */
   fromKind?: 'quotation' | 'salesOrder' | 'proforma' | 'deal' | 'lead';
   fromId?: string;
+  designMetadata?: Record<string, unknown>;
 }
 
 export type CrmInvoiceUpdateInput = Partial<
@@ -212,6 +214,7 @@ export type CrmInvoiceUpdateInput = Partial<
 > & {
   /** Workflow status — only mutable via PATCH. */
   status?: CrmInvoiceStatus | string;
+  designMetadata?: Record<string, unknown>;
 };
 
 /* ─── Client ──────────────────────────────────────────────────── */

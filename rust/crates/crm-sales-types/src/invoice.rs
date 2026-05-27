@@ -206,6 +206,8 @@ pub struct Invoice {
     pub signature_image_file_id: Option<ObjectId>,
     #[serde(default)]
     pub pdf_status: PdfStatus,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub design_metadata: Option<bson::Document>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub email_log: Vec<EmailLog>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]

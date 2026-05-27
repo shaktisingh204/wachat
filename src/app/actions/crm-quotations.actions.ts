@@ -159,6 +159,16 @@ export async function saveQuotation(prevState: any, formData: FormData): Promise
                 total: Number(li.total ?? Number(li.quantity ?? 0) * Number(li.rate ?? 0)),
             }));
 
+            let designMetadata: Record<string, unknown> | undefined = undefined;
+            const dmRaw = formData.get('designMetadata') as string | null;
+            if (dmRaw) {
+                try {
+                    designMetadata = JSON.parse(dmRaw);
+                } catch {
+                    // ignore malformed
+                }
+            }
+
             const quotationNo = (formData.get('quotationNumber') as string | null) ||
                 `QUO-${Date.now().toString().slice(-5)}`;
             const dateRaw = (formData.get('quotationDate') as string | null) || '';
@@ -181,6 +191,7 @@ export async function saveQuotation(prevState: any, formData: FormData): Promise
                 notes,
                 fromKind: fromKindRaw as any,
                 fromId,
+                designMetadata,
             });
             const id = (created as any)._id?.toString() || '';
 
@@ -260,6 +271,18 @@ export async function saveQuotation(prevState: any, formData: FormData): Promise
             attachments: attachments && attachments.length ? attachments : undefined,
             status: 'Draft',
         };
+
+        const dmRawLegacy = formData.get('designMetadata') as string | null;
+        if (dmRawLegacy) {
+            try {
+                const parsed = JSON.parse(dmRawLegacy);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    (quotationData as any).designMetadata = parsed;
+                }
+            } catch {
+                // ignore
+            }
+        }
 
         if (!quotationData.accountId || lineItems.length === 0) {
             return { error: 'Client and at least one line item are required.' };

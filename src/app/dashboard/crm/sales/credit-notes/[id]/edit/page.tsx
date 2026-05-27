@@ -1,38 +1,32 @@
-/**
- * Edit credit note — `/dashboard/crm/sales/credit-notes/[id]/edit`.
- *
- * Hydrates the existing credit note and passes it to the shared
- * `<CreditNoteForm>` (re-used from the Create flow). The form submits a
- * PATCH because `_id` is rendered as a hidden input.
- */
+import { notFound, redirect } from 'next/navigation';
 
-import { notFound } from 'next/navigation';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { CreditNoteForm } from '../../_components/credit-note-form';
-import { getCreditNote } from '@/app/actions/crm/credit-notes.actions';
+import { getSession } from '@/app/actions/user.actions';
+import { getCreditNoteById, saveCreditNote } from '@/app/actions/crm-credit-notes.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
 
 export const dynamic = 'force-dynamic';
 
+const BASE = '/dashboard/crm/sales/credit-notes';
+
 export default async function EditCreditNotePage({
-  params,
+    params,
 }: {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const { creditNote } = await getCreditNote(id);
+    const { id } = await params;
 
-  if (!creditNote) notFound();
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
 
-  const title = creditNote.cnNo || String(creditNote._id);
+    const note = await getCreditNoteById(id);
+    if (!note) notFound();
 
-  return (
-    <EntityDetailShell
-      eyebrow="CREDIT NOTE"
-      title={`Edit ${title}`}
-      back={{ href: `/dashboard/crm/sales/credit-notes/${id}`, label: 'Credit Note' }}
-    >
-      <CreditNoteForm initial={creditNote} />
-    </EntityDetailShell>
-  );
+    return (
+        <LiveDocumentEditor
+            documentType="credit_note"
+            initialData={note as Record<string, unknown>}
+            saveAction={saveCreditNote}
+            backHref={BASE}
+        />
+    );
 }

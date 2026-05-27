@@ -51,6 +51,8 @@ pub struct CreateProposalInput {
     pub sections: Vec<ProposalSectionInput>,
     #[serde(default)]
     pub attachments: Vec<ProposalAttachmentInput>,
+    #[serde(default)]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -72,6 +74,8 @@ pub struct UpdateProposalInput {
     pub sections: Option<Vec<ProposalSectionInput>>,
     #[serde(default)]
     pub attachments: Option<Vec<ProposalAttachmentInput>>,
+    #[serde(default)]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize)]

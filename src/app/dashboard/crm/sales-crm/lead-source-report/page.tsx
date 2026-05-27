@@ -64,8 +64,8 @@ export default function LeadSourceReportPage() {
 
     const [startDate, setStartDate] = useState<Date | undefined>();
     const [endDate, setEndDate] = useState<Date | undefined>();
-    const [pipelineId, setPipelineId] = useState<string>('');
-    const [assigneeId, setAssigneeId] = useState<string>('');
+    const [pipelineId, setPipelineId] = useState<string>('__all__');
+    const [assigneeId, setAssigneeId] = useState<string>('__all__');
     const [sourceFilter, setSourceFilter] = useState<string>('all');
 
     const fetchData = useCallback(() => {
@@ -74,8 +74,8 @@ export default function LeadSourceReportPage() {
                 generateLeadSourceReportData({
                     createdFrom: startDate,
                     createdTo: endDate,
-                    pipelineId,
-                    assigneeId,
+                    pipelineId: pipelineId === '__all__' ? undefined : pipelineId,
+                    assigneeId: assigneeId === '__all__' ? undefined : assigneeId,
                 }),
                 generateTeamSalesReportData({}),
             ]);
@@ -153,8 +153,8 @@ export default function LeadSourceReportPage() {
     const clearFilters = () => {
         setStartDate(undefined);
         setEndDate(undefined);
-        setPipelineId('');
-        setAssigneeId('');
+        setPipelineId('__all__');
+        setAssigneeId('__all__');
         setSourceFilter('all');
     };
 
@@ -229,7 +229,7 @@ export default function LeadSourceReportPage() {
                                 <ZoruSelectValue placeholder="All pipelines" />
                             </ZoruSelectTrigger>
                             <ZoruSelectContent>
-                                <ZoruSelectItem value="">All pipelines</ZoruSelectItem>
+                                <ZoruSelectItem value="__all__">All pipelines</ZoruSelectItem>
                                 <ZoruSelectItem value="sales">Sales Pipeline</ZoruSelectItem>
                             </ZoruSelectContent>
                         </Select>
@@ -241,7 +241,7 @@ export default function LeadSourceReportPage() {
                                 <ZoruSelectValue placeholder="All assignees" />
                             </ZoruSelectTrigger>
                             <ZoruSelectContent>
-                                <ZoruSelectItem value="">All assignees</ZoruSelectItem>
+                                <ZoruSelectItem value="__all__">All assignees</ZoruSelectItem>
                                 {users.map((u) => (
                                     <ZoruSelectItem key={u.salespersonId} value={u.salespersonId}>
                                         {u.salespersonName}

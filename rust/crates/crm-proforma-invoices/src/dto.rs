@@ -40,6 +40,8 @@ pub struct CreateProformaInput {
     pub tax_total: Option<f64>,
     #[serde(default)]
     pub discount_total: Option<f64>,
+    #[serde(default)]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -67,6 +69,8 @@ pub struct UpdateProformaInput {
     pub tax_total: Option<f64>,
     #[serde(default)]
     pub discount_total: Option<f64>,
+    #[serde(default)]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize)]

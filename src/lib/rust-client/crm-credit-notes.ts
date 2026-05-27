@@ -90,6 +90,7 @@ export interface CrmCreditNoteDoc {
   notes?: string;
   attachments?: unknown[];
   status?: CreditNoteStatus;
+  designMetadata?: Record<string, unknown>;
   lineage?: Array<{ kind: string; id: string }>;
   archived?: boolean;
   createdAt?: string;
@@ -120,12 +121,14 @@ export interface CrmCreditNoteCreateInput {
   notes?: string;
   fromKind?: string;
   fromId?: string;
+  designMetadata?: Record<string, unknown>;
 }
 
 export type CrmCreditNoteUpdateInput = Partial<
   Omit<CrmCreditNoteCreateInput, 'fromKind' | 'fromId'>
 > & {
   status?: CreditNoteStatus;
+  designMetadata?: Record<string, unknown>;
 };
 
 /* ─── Client ──────────────────────────────────────────────────── */

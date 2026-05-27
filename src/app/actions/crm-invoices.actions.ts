@@ -130,6 +130,16 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
             const fromKindRaw = (formData.get('fromKind') as string | null) || undefined;
             const fromId = (formData.get('fromId') as string | null) || undefined;
 
+            let designMetadata: Record<string, unknown> | undefined = undefined;
+            const dmRaw = formData.get('designMetadata') as string | null;
+            if (dmRaw) {
+                try {
+                    designMetadata = JSON.parse(dmRaw);
+                } catch {
+                    // ignore malformed
+                }
+            }
+
             const created = await crmInvoicesApi.create({
                 invoiceNo,
                 date,
@@ -141,6 +151,7 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
                 customerNotes: notes,
                 fromKind: fromKindRaw as any,
                 fromId,
+                designMetadata,
             });
 
             const id = (created as any)._id?.toString() || '';
@@ -258,6 +269,18 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
                 }
             } catch {
                 // ignore lineage seed failures — invoice still saves
+            }
+        }
+
+        const dmRawLegacy = formData.get('designMetadata') as string | null;
+        if (dmRawLegacy) {
+            try {
+                const parsed = JSON.parse(dmRawLegacy);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    (invoiceData as any).designMetadata = parsed;
+                }
+            } catch {
+                // ignore
             }
         }
 

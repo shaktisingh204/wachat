@@ -113,6 +113,7 @@ export interface CrmQuotationDoc {
   /* ----- workflow ----- */
   status?: CrmQuotationStatus;
   pdfStatus?: string;
+  designMetadata?: Record<string, unknown>;
 
   /* ----- custom fields + audit ----- */
   customFields?: Record<string, unknown>;
@@ -149,6 +150,7 @@ export interface CrmQuotationCreateInput {
   items: CrmQuotationLineItem[];
   fromKind?: 'lead' | 'deal';
   fromId?: string;
+  designMetadata?: Record<string, unknown>;
 }
 
 export interface CrmQuotationUpdateInput {
@@ -163,6 +165,7 @@ export interface CrmQuotationUpdateInput {
   notes?: string;
   status?: CrmQuotationStatus | string;
   items?: CrmQuotationLineItem[];
+  designMetadata?: Record<string, unknown>;
 }
 
 /* ─── Client ──────────────────────────────────────────────────── */

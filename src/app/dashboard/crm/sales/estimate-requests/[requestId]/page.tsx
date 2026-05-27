@@ -89,7 +89,7 @@ export default function EstimateRequestDetailPage(props: {
   const [isLoading, startLoading] = useTransition();
   const [isConverting, setIsConverting] = useState(false);
   const [templates, setTemplates] = useState<any[]>([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('__none__');
 
   useEffect(() => {
     getEstimateTemplates().then((res) => setTemplates(res));
@@ -233,7 +233,7 @@ export default function EstimateRequestDetailPage(props: {
 
   const handleConvert = async () => {
     setIsConverting(true);
-    const res = await convertEstimateRequestToQuote(requestId, selectedTemplateId || undefined);
+    const res = await convertEstimateRequestToQuote(requestId, selectedTemplateId === '__none__' ? undefined : selectedTemplateId);
     setIsConverting(false);
     if (res.success) {
       toast({
@@ -316,7 +316,7 @@ export default function EstimateRequestDetailPage(props: {
                   <ZoruSelectValue placeholder="Select template..." />
                 </ZoruSelectTrigger>
                 <ZoruSelectContent>
-                  <ZoruSelectItem value="">None (Empty Quote)</ZoruSelectItem>
+                  <ZoruSelectItem value="__none__">None (Empty Quote)</ZoruSelectItem>
                   {templates.map((t) => (
                     <ZoruSelectItem key={t._id} value={t._id}>{t.name}</ZoruSelectItem>
                   ))}

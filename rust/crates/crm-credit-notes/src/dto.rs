@@ -125,6 +125,9 @@ pub struct CreateCreditNoteInput {
     /// 24-char hex of the parent record.
     #[serde(default)]
     pub from_id: Option<String>,
+    
+    #[serde(default)]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 /// `PATCH /v1/crm/credit-notes/:cnId` body. Every field is optional;
@@ -170,6 +173,8 @@ pub struct UpdateCreditNoteInput {
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status: Option<CreditNoteStatus>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 impl UpdateCreditNoteInput {

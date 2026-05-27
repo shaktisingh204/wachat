@@ -43,6 +43,7 @@ export interface CrmProposalDoc {
     status: string;
     sections?: CrmProposalSection[];
     attachments?: CrmProposalAttachment[];
+    designMetadata?: Record<string, unknown>;
     signsCount?: number;
     sentAt?: string;
     respondedAt?: string;
@@ -74,6 +75,7 @@ export interface CrmProposalCreateInput {
     status?: CrmProposalStatus;
     sections?: CrmProposalSection[];
     attachments?: CrmProposalAttachmentInput[];
+    designMetadata?: Record<string, unknown>;
 }
 
 export type CrmProposalUpdateInput = Partial<CrmProposalCreateInput>;

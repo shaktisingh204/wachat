@@ -117,6 +117,7 @@ fn challan_from_create(
         lineage: Vec::new(),
         created_at: BsonDateTime::from_chrono(Utc::now()),
         updated_at: None,
+        design_metadata: input.design_metadata.and_then(|v| bson::to_document(&v).ok()),
     })
 }
 
@@ -205,6 +206,11 @@ fn build_update_doc(patch: UpdateChallanInput) -> Document {
     }
     if let Some(v) = patch.status {
         set.insert("status", v);
+    }
+    if let Some(v) = patch.design_metadata {
+        if let Ok(doc) = bson::to_document(&v) {
+            set.insert("designMetadata", doc);
+        }
     }
     doc! { "$set": set }
 }

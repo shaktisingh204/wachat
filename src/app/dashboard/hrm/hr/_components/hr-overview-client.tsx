@@ -134,8 +134,6 @@ export function HrOverviewClient({
       {/* Premium Header Greeting */}
       <div className="relative overflow-hidden bg-zoru-surface/50 p-8 rounded-3xl border border-zoru-line backdrop-blur-md shadow-2xl">
         {/* Glow Spheres */}
-        <div className="absolute -top-10 -right-10 w-96 h-96 bg-zoru-brand/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute -bottom-10 -left-10 w-72 h-72 bg-indigo-500/5  rounded-full blur-[100px] pointer-events-none" />
         
         <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div>
@@ -143,7 +141,7 @@ export function HrOverviewClient({
               <span className="text-[11px] font-extrabold py-0.5 px-2.5 rounded-full bg-zoru-brand/10 text-zoru-brand border border-zoru-brand/20 tracking-wider uppercase">
                 People Operations Hub
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              <span className="w-1.5 h-1.5 rounded-full bg-zoru-ink animate-ping" />
             </div>
             <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-zoru-ink">
               HR Operations Overview
@@ -156,18 +154,18 @@ export function HrOverviewClient({
           {/* Quick Action Grid */}
           <div className="flex flex-wrap gap-3">
             <Link href="/dashboard/hrm/hr/jobs/new">
-              <Button className="h-10 text-[12.5px] font-bold shadow-lg hover:shadow-zoru-brand/20 bg-gradient-to-r from-zoru-brand to-indigo-600 border-0 text-white rounded-xl flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+              <Button className="h-10 text-[12.5px] font-bold shadow-lg hover:shadow-zoru-brand/20 bg-gradient-to-r from-zoru-brand to-zoru-ink border-0 text-white rounded-xl flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
                 <Plus className="w-4 h-4" /> Post a Job
               </Button>
             </Link>
             <Link href="/dashboard/hrm/hr/onboarding/new">
               <Button variant="outline" className="h-10 text-[12.5px] font-bold border-zoru-line bg-zoru-surface-2/60 hover:bg-zoru-surface hover:text-zoru-ink text-zoru-ink rounded-xl flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
-                <UserPlus className="w-4 h-4 text-emerald-400" /> Onboard Hire
+                <UserPlus className="w-4 h-4 text-zoru-ink" /> Onboard Hire
               </Button>
             </Link>
             <Link href="/dashboard/hrm/hr/announcements/new">
               <Button variant="outline" className="h-10 text-[12.5px] font-bold border-zoru-line bg-zoru-surface-2/60 hover:bg-zoru-surface hover:text-zoru-ink text-zoru-ink rounded-xl flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
-                <Megaphone className="w-4 h-4 text-amber-400" /> Publish Notice
+                <Megaphone className="w-4 h-4 text-zoru-ink" /> Publish Notice
               </Button>
             </Link>
           </div>
@@ -178,26 +176,24 @@ export function HrOverviewClient({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         
         {/* Metric 1: Headcount */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-indigo-500/40 hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors duration-300" />
+        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Total Directory</p>
               <h3 className="text-3xl font-extrabold text-zoru-ink mt-2 tracking-tight font-mono">{totalEmployeesCount}</h3>
             </div>
-            <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 group-hover:scale-110 transition-transform duration-300">
+            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
               <Users className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[11.5px]">
             <span className="text-zoru-ink-muted font-medium">Active Staff Count</span>
-            <span className="text-emerald-400 font-bold font-mono">{activeEmployeesCount}</span>
+            <span className="text-zoru-ink font-bold font-mono">{activeEmployeesCount}</span>
           </div>
         </Card>
 
         {/* Metric 2: Open Jobs */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-emerald-500/40 hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors duration-300" />
+        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Open Channels</p>
@@ -205,7 +201,7 @@ export function HrOverviewClient({
                 {jobs.filter(j => j.status?.toLowerCase() === 'open').length}
               </h3>
             </div>
-            <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 group-hover:scale-110 transition-transform duration-300">
+            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
               <Briefcase className="w-5 h-5" />
             </div>
           </div>
@@ -216,38 +212,36 @@ export function HrOverviewClient({
         </Card>
 
         {/* Metric 3: Active Onboardings */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-amber-500/40 hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-colors duration-300" />
+        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">New Hires Onboarding</p>
               <h3 className="text-3xl font-extrabold text-zoru-ink mt-2 tracking-tight font-mono">{onboardingKpis.inProgress}</h3>
             </div>
-            <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 group-hover:scale-110 transition-transform duration-300">
+            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
               <UserPlus className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[11.5px]">
             <span className="text-zoru-ink-muted font-medium">Completed This Month</span>
-            <span className="text-emerald-400 font-bold font-mono">+{onboardingKpis.completedThisMonth}</span>
+            <span className="text-zoru-ink font-bold font-mono">+{onboardingKpis.completedThisMonth}</span>
           </div>
         </Card>
 
         {/* Metric 4: Policies & Compliance */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-rose-500/40 hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 rounded-full blur-2xl group-hover:bg-rose-500/10 transition-colors duration-300" />
+        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Compliance Rate</p>
               <h3 className="text-3xl font-extrabold text-zoru-ink mt-2 tracking-tight font-mono">100%</h3>
             </div>
-            <div className="p-3 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 group-hover:scale-110 transition-transform duration-300">
+            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
               <ShieldCheck className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[11.5px]">
             <span className="text-zoru-ink-muted font-medium">Active Policy Manuals</span>
-            <span className="text-rose-400 font-bold font-mono">{policies.length}</span>
+            <span className="text-zoru-ink font-bold font-mono">{policies.length}</span>
           </div>
         </Card>
 
@@ -263,7 +257,7 @@ export function HrOverviewClient({
           <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-6 rounded-2xl flex flex-col">
             <div className="flex items-center justify-between pb-4 border-b border-zoru-line">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-indigo-500/10 rounded-xl border border-indigo-500/20 text-indigo-400">
+                <div className="p-2 bg-zoru-surface-2 rounded-xl border border-zoru-line text-zoru-ink">
                   <UserPlus className="w-4.5 h-4.5" />
                 </div>
                 <div>
@@ -280,12 +274,12 @@ export function HrOverviewClient({
 
             <div className="pt-5 space-y-4">
               {activeOnboardings.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-zoru-ink-muted">
-                  <div className="w-12 h-12 rounded-full bg-zoru-surface-2/30 border border-zoru-line flex items-center justify-center mb-3">
-                    <Heart className="w-6 h-6 text-indigo-400/50" />
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="w-12 h-12 rounded-full bg-zoru-surface-2 border border-zoru-line flex items-center justify-center mb-3">
+                    <Heart className="w-6 h-6 text-zoru-ink" />
                   </div>
-                  <p className="text-[13px] font-medium text-zoru-ink-muted">No active onboarding campaigns found.</p>
-                  <p className="text-[11.5px] text-zoru-ink-muted mt-1">Initiate a new onboarding workspace to track candidates.</p>
+                  <h3 className="text-[14px] font-semibold text-zoru-ink">No onboardings in flight</h3>
+                  <p className="text-[12px] text-zoru-ink-muted mt-1 max-w-[260px]">Initiate a new onboarding workspace to track candidates from offer to day one.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -298,7 +292,7 @@ export function HrOverviewClient({
                       >
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-zoru-line flex items-center justify-center text-indigo-400 text-sm font-extrabold shadow-inner shrink-0">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zoru-ink to-zoru-ink border border-zoru-line flex items-center justify-center text-zoru-ink text-sm font-extrabold shadow-inner shrink-0">
                               {onboarding.employeeName?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'NH'}
                             </div>
                             <div>
@@ -326,9 +320,9 @@ export function HrOverviewClient({
                         <div className="mt-4 pt-3 border-t border-zoru-line">
                           <div className="flex justify-between items-center text-[11.5px] mb-1.5">
                             <span className="text-zoru-ink-muted font-medium">Onboarding Milestones Completed</span>
-                            <span className="text-indigo-400 font-bold font-mono">{progress}%</span>
+                            <span className="text-zoru-ink font-bold font-mono">{progress}%</span>
                           </div>
-                          <Progress value={progress} className="h-1.5 bg-zoru-surface-2" indicatorClassName="bg-indigo-500" />
+                          <Progress value={progress} className="h-1.5 bg-zoru-surface-2" indicatorClassName="bg-zoru-surface-20" />
                         </div>
                       </div>
                     );
@@ -342,7 +336,7 @@ export function HrOverviewClient({
           <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-6 rounded-2xl flex flex-col">
             <div className="flex items-center justify-between pb-4 border-b border-zoru-line">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-emerald-400">
+                <div className="p-2 bg-zoru-surface-2 rounded-xl border border-zoru-line text-zoru-ink">
                   <Briefcase className="w-4.5 h-4.5" />
                 </div>
                 <div>
@@ -361,7 +355,7 @@ export function HrOverviewClient({
               {jobs.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-zoru-ink-muted">
                   <div className="w-12 h-12 rounded-full bg-zoru-surface-2/30 border border-zoru-line flex items-center justify-center mb-3">
-                    <Briefcase className="w-6 h-6 text-emerald-400/50" />
+                    <Briefcase className="w-6 h-6 text-zoru-ink" />
                   </div>
                   <p className="text-[13px] font-medium text-zoru-ink-muted">No active job listings found.</p>
                   <p className="text-[11.5px] text-zoru-ink-muted mt-1">Create hiring post to start receiving candidate applications.</p>
@@ -417,7 +411,7 @@ export function HrOverviewClient({
           <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-6 rounded-2xl flex flex-col">
             <div className="flex items-center justify-between pb-4 border-b border-zoru-line">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-amber-500/10 rounded-xl border border-amber-500/20 text-amber-400">
+                <div className="p-2 bg-zoru-surface-2 rounded-xl border border-zoru-line text-zoru-ink">
                   <Megaphone className="w-4.5 h-4.5" />
                 </div>
                 <h3 className="text-[15.5px] font-extrabold tracking-tight text-zoru-ink">Notice Board</h3>
@@ -474,7 +468,7 @@ export function HrOverviewClient({
           <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-6 rounded-2xl flex flex-col">
             <div className="flex items-center justify-between pb-4 border-b border-zoru-line">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-rose-500/10 rounded-xl border border-rose-500/20 text-rose-400">
+                <div className="p-2 bg-zoru-surface-2 rounded-xl border border-zoru-line text-zoru-ink">
                   <FileText className="w-4.5 h-4.5" />
                 </div>
                 <h3 className="text-[15.5px] font-extrabold tracking-tight text-zoru-ink">HR Policies</h3>

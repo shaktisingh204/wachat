@@ -155,6 +155,7 @@ fn doc_from_create(input: CreateProposalInput, user_id: ObjectId) -> Result<CrmP
         status,
         sections: filter_sections(input.sections),
         attachments: filter_attachments(input.attachments),
+        design_metadata: input.design_metadata.and_then(|v| bson::to_document(&v).ok()),
         signs_count: 0,
         sent_at,
         responded_at: None,
@@ -231,6 +232,11 @@ fn build_update_doc(patch: UpdateProposalInput, before: &CrmProposal) -> Result<
             .filter_map(|a| bson::to_document(a).ok().map(Bson::Document))
             .collect();
         set.insert("attachments", Bson::Array(docs));
+    }
+    if let Some(v) = patch.design_metadata {
+        if let Ok(doc) = bson::to_document(&v) {
+            set.insert("designMetadata", doc);
+        }
     }
 
     Ok(doc! { "$set": set })

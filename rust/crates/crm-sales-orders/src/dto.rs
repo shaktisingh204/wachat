@@ -130,6 +130,10 @@ pub struct CreateSalesOrderInput {
     /// to seed `lineage[]`.
     #[serde(default)]
     pub from_id: Option<String>,
+
+    /* ----- design ----- */
+    #[serde(default)]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 /// `PATCH /v1/crm/sales-orders/:soId` body. Every field is optional;
@@ -177,6 +181,9 @@ pub struct UpdateSalesOrderInput {
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status: Option<SalesOrderStatus>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub design_metadata: Option<serde_json::Value>,
 }
 
 impl UpdateSalesOrderInput {

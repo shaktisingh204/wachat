@@ -226,6 +226,18 @@ export async function updateProformaInvoice(
             }
         }
 
+        const dmRaw = formData.get('designMetadata') as string | null;
+        if (dmRaw) {
+            try {
+                const parsed = JSON.parse(dmRaw);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    $set.designMetadata = parsed;
+                }
+            } catch {
+                // ignore
+            }
+        }
+
         const result = await db.collection('crm_proforma_invoices').updateOne(
             { _id: new ObjectId(proformaId), userId: userObjectId },
             { $set },
@@ -359,6 +371,18 @@ export async function saveProformaInvoice(prevState: any, formData: FormData): P
                 }
             } catch {
                 // ignore lineage seed failures — proforma still saves
+            }
+        }
+
+        const dmRawLegacy = formData.get('designMetadata') as string | null;
+        if (dmRawLegacy) {
+            try {
+                const parsed = JSON.parse(dmRawLegacy);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    (proformaData as any).designMetadata = parsed;
+                }
+            } catch {
+                // ignore
             }
         }
 

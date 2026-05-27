@@ -24,7 +24,11 @@ import { useRouter } from 'next/navigation';
 
 import { getCrmDashboardStats } from '@/app/actions/crm.actions';
 import { getPinnedQuickList } from '@/app/actions/worksuite/dashboard.actions';
-import { getMyWidgets } from '@/app/actions/dashboard-widgets.actions';
+import {
+  getMyWidgets,
+  getDashboardWidgetsData,
+  type DashboardWidgetsData,
+} from '@/app/actions/dashboard-widgets.actions';
 import type { WidgetKey, WidgetPref } from '@/app/actions/dashboard-widgets.config';
 import type { WsPinnedItem } from '@/lib/worksuite/dashboard-types';
 import { useT } from '@/lib/i18n/client';
@@ -120,18 +124,21 @@ export function CrmDashboardClient({
   const [isLoading, setIsLoading] = useState(false);
   const [pinned, setPinned] = useState<PinnedRow[]>(initialPinned);
   const [widgetPrefs, setWidgetPrefs] = useState<WidgetPref[]>([]);
+  const [widgetData, setWidgetData] = useState<DashboardWidgetsData | null>(null);
   const [widgetReloadKey, setWidgetReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    void getMyWidgets('overview')
-      .then((prefs) => {
+    void Promise.all([getMyWidgets('overview'), getDashboardWidgetsData()])
+      .then(([prefs, data]) => {
         if (cancelled) return;
         setWidgetPrefs(prefs);
+        setWidgetData(data);
       })
       .catch(() => {
         if (cancelled) return;
         setWidgetPrefs([]);
+        setWidgetData(null);
       });
     return () => {
       cancelled = true;
@@ -255,13 +262,14 @@ export function CrmDashboardClient({
       </div>
 
       {/* Registry-driven widget grid — conditional on user prefs. */}
-      {enabledWidgets.length > 0 ? (
+      {enabledWidgets.length > 0 && widgetData ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {enabledWidgets.map((w) => (
             <RenderWidget
               key={w.widgetKey}
               widgetKey={w.widgetKey}
               label={w.label}
+              data={widgetData}
             />
           ))}
         </div>

@@ -2,19 +2,9 @@ import {
   notFound,
   redirect } from 'next/navigation';
 
-/**
- * Edit proposal page — server wrapper that loads the proposal by id and
- * passes it to `<ProposalForm initialData={...} />`.
- *
- * Section repeater + SabFile attachments are handled inside the form.
- * Async `params` per Next.js 15+ conventions.
- */
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
-import { getProposalById } from '@/app/actions/crm-proposals.actions';
-
-import { ProposalForm } from '../../_components/proposal-form';
+import { getProposalById, saveProposal } from '@/app/actions/crm-proposals.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,20 +23,12 @@ export default async function EditProposalPage({
     const proposal = await getProposalById(proposalId);
     if (!proposal) notFound();
 
-    const title =
-        (proposal.title as string | undefined) ||
-        (proposal.proposalNumber as string | undefined) ||
-        'Proposal';
-
     return (
-        <EntityDetailShell
-            eyebrow="PROPOSAL"
-            title={`Edit · ${title}`}
-            back={{ href: `${BASE}/${proposalId}`, label: 'Proposal' }}
-        >
-            <ProposalForm
-                initialData={proposal as Record<string, unknown>}
-            />
-        </EntityDetailShell>
+        <LiveDocumentEditor
+            documentType="proposal"
+            initialData={proposal as Record<string, unknown>}
+            saveAction={saveProposal}
+            backHref={BASE}
+        />
     );
 }

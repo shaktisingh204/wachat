@@ -112,6 +112,8 @@ pub struct Quotation {
     pub thumbnail_file_id: Option<ObjectId>,
     #[serde(default)]
     pub pdf_status: PdfStatus,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub design_metadata: Option<bson::Document>,
 
     /* ----- comm logs --------------------------------------------- */
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
