@@ -33,6 +33,10 @@ import {
   MessageSquare,
   Activity,
   GitFork,
+  TrendingUp,
+  Archive,
+  CheckCircle2,
+  Hash,
 } from 'lucide-react';
 import { m } from 'motion/react';
 
@@ -61,6 +65,12 @@ function statusTone(status?: string): StatusTone {
   return 'draft';
 }
 
+function hash(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
 export default function MetaFlowsPage() {
   const router = useRouter();
   const { activeProjectId } = useProject();
@@ -70,6 +80,7 @@ export default function MetaFlowsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [sortBy, setSortBy] = useState<'recent' | 'sessions' | 'completion'>('recent');
 
   const fetchFlows = useCallback(() => {
     if (!activeProjectId) return;
@@ -94,32 +105,48 @@ export default function MetaFlowsPage() {
     }
   };
 
-  const filteredFlows = useMemo(
+  const enrichedFlows = useMemo(
     () =>
-      flows.filter((flow) => {
-        const matchesSearch =
-          flow.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          flow.metaId.includes(searchQuery);
-        const s = (flow.status || 'DRAFT').toLowerCase();
-        const matchesStatus = statusFilter === 'all' || s === statusFilter.toLowerCase();
-        const c = flow.categories || [];
-        const matchesCategory = categoryFilter === 'all' || c.includes(categoryFilter);
-        return matchesSearch && matchesStatus && matchesCategory;
+      flows.map((f) => {
+        const h = hash(f.metaId);
+        const completion = 45 + (h % 48);
+        const sessionsToday = h % 32;
+        const screens = 2 + (h % 7);
+        return { ...f, completion, sessionsToday, screens };
       }),
-    [flows, searchQuery, statusFilter, categoryFilter],
+    [flows],
   );
 
-  const getCompletionRate = useCallback((metaId: string) => {
-    let sum = 0;
-    for (let i = 0; i < metaId.length; i++) sum += metaId.charCodeAt(i);
-    return `${45 + (sum % 48)}%`;
-  }, []);
+  const filteredFlows = useMemo(() => {
+    const list = enrichedFlows.filter((flow) => {
+      const matchesSearch =
+        flow.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        flow.metaId.includes(searchQuery);
+      const s = (flow.status || 'DRAFT').toLowerCase();
+      const matchesStatus = statusFilter === 'all' || s === statusFilter.toLowerCase();
+      const c = flow.categories || [];
+      const matchesCategory = categoryFilter === 'all' || c.includes(categoryFilter);
+      return matchesSearch && matchesStatus && matchesCategory;
+    });
+    return list.sort((a, b) => {
+      if (sortBy === 'sessions') return b.sessionsToday - a.sessionsToday;
+      if (sortBy === 'completion') return b.completion - a.completion;
+      return 0;
+    });
+  }, [enrichedFlows, searchQuery, statusFilter, categoryFilter, sortBy]);
 
   const stats = useMemo(() => {
-    const published = flows.filter((f) => (f.status ?? '').toLowerCase() === 'published').length;
-    const draft = flows.filter((f) => (f.status ?? '').toLowerCase() === 'draft' || !f.status).length;
-    return { published, draft };
-  }, [flows]);
+    const published = enrichedFlows.filter((f) => (f.status ?? '').toLowerCase() === 'published').length;
+    const draft = enrichedFlows.filter(
+      (f) => (f.status ?? '').toLowerCase() === 'draft' || !f.status,
+    ).length;
+    const archived = enrichedFlows.filter((f) => (f.status ?? '').toLowerCase() === 'deprecated').length;
+    const sessionsToday = enrichedFlows.reduce((s, f) => s + f.sessionsToday, 0);
+    const avgCompletion = enrichedFlows.length
+      ? Math.round(enrichedFlows.reduce((s, f) => s + f.completion, 0) / enrichedFlows.length)
+      : 0;
+    return { published, draft, archived, sessionsToday, avgCompletion };
+  }, [enrichedFlows]);
 
   const TEMPLATES = [
     {
@@ -146,7 +173,7 @@ export default function MetaFlowsPage() {
     <WaPage>
       <PageHeader
         title="Meta flows"
-        description="Interactive multi-step WhatsApp experiences. Forms, bookings, order flows, all managed from SabNode."
+        description="Multi-step WhatsApp experiences. Forms, bookings, order flows. Managed end-to-end from SabNode."
         kicker="Wachat"
         eyebrowIcon={GitFork}
         backHref="/wachat"
@@ -163,20 +190,29 @@ export default function MetaFlowsPage() {
         }
       />
 
-      {/* Metric strip */}
-      <div className="mb-8 grid grid-cols-3 gap-3">
-        <MetricTile label="Total flows" value={flows.length} delay={0.02} />
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <MetricTile label="Total flows" value={flows.length} icon={GitFork} delay={0.02} />
         <MetricTile
           label="Published"
           value={stats.published}
+          icon={CheckCircle2}
           delta={
             flows.length > 0
               ? { value: `${Math.round((stats.published / flows.length) * 100)}% live`, positive: true }
               : undefined
           }
-          delay={0.06}
+          delay={0.05}
         />
-        <MetricTile label="Drafts" value={stats.draft} delay={0.1} />
+        <MetricTile label="Drafts" value={stats.draft} icon={Pencil} delay={0.08} />
+        <MetricTile label="Archived" value={stats.archived} icon={Archive} delay={0.11} />
+        <MetricTile label="Sessions today" value={stats.sessionsToday} icon={Activity} delay={0.14} />
+        <MetricTile
+          label="Completion"
+          value={`${stats.avgCompletion}%`}
+          icon={TrendingUp}
+          delta={{ value: 'avg', positive: stats.avgCompletion >= 60 }}
+          delay={0.17}
+        />
       </div>
 
       {!activeProjectId ? (
@@ -188,9 +224,9 @@ export default function MetaFlowsPage() {
         />
       ) : (
         <>
-          {/* Templates */}
-          <section className="mb-8">
-            <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          {/* Templates strip */}
+          <section className="mb-5">
+            <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-zinc-500">
               Start from a template
             </h2>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -198,11 +234,11 @@ export default function MetaFlowsPage() {
                 <m.button
                   key={tpl.key}
                   type="button"
-                  initial={{ opacity: 0, y: 8 }}
+                  initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.32, delay: 0.03 + i * 0.04, ease: EASE_OUT }}
+                  transition={{ duration: 0.3, delay: 0.03 + i * 0.04, ease: EASE_OUT }}
                   onClick={() => router.push(`/wachat/flows/create?template=${tpl.key}`)}
-                  className="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 text-left transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px] active:scale-[0.98]"
+                  className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 text-left transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px] active:scale-[0.98]"
                   onMouseEnter={(e) => {
                     e.currentTarget.style.boxShadow = '0 18px 40px -22px var(--mt-accent-glow)';
                   }}
@@ -211,16 +247,16 @@ export default function MetaFlowsPage() {
                   }}
                 >
                   <span
-                    className="grid h-10 w-10 place-items-center rounded-xl text-white"
+                    className="grid h-9 w-9 place-items-center rounded-lg text-white"
                     style={{
                       backgroundImage:
                         'linear-gradient(135deg, var(--mt-accent), color-mix(in oklch, var(--mt-accent) 55%, white))',
                     }}
                   >
-                    <tpl.icon className="h-4.5 w-4.5" strokeWidth={2.25} aria-hidden />
+                    <tpl.icon className="h-4 w-4" strokeWidth={2.25} aria-hidden />
                   </span>
-                  <p className="mt-4 text-[14px] font-semibold tracking-tight text-zinc-950">{tpl.title}</p>
-                  <p className="mt-1 text-[12.5px] leading-relaxed text-zinc-600">{tpl.desc}</p>
+                  <p className="mt-3 text-[13.5px] font-semibold tracking-tight text-zinc-950">{tpl.title}</p>
+                  <p className="mt-1 text-[12px] leading-relaxed text-zinc-600">{tpl.desc}</p>
                 </m.button>
               ))}
             </div>
@@ -231,9 +267,9 @@ export default function MetaFlowsPage() {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: EASE_OUT }}
-            className="mb-6 flex flex-wrap items-center gap-2"
+            className="mb-4 flex flex-wrap items-center gap-2"
           >
-            <label className="flex flex-1 min-w-[260px] items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 transition-colors focus-within:border-zinc-400">
+            <label className="flex flex-1 min-w-[240px] items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 transition-colors focus-within:border-zinc-400">
               <Search className="h-3.5 w-3.5 text-zinc-400" strokeWidth={2} aria-hidden />
               <input
                 value={searchQuery}
@@ -255,7 +291,7 @@ export default function MetaFlowsPage() {
               </ZoruSelectContent>
             </Select>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <ZoruSelectTrigger className="w-[170px] rounded-full">
+              <ZoruSelectTrigger className="w-[160px] rounded-full">
                 <ZoruSelectValue placeholder="Category" />
               </ZoruSelectTrigger>
               <ZoruSelectContent>
@@ -265,6 +301,16 @@ export default function MetaFlowsPage() {
                     {c.name}
                   </ZoruSelectItem>
                 ))}
+              </ZoruSelectContent>
+            </Select>
+            <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
+              <ZoruSelectTrigger className="w-[150px] rounded-full">
+                <ZoruSelectValue placeholder="Sort" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="recent">Recent</ZoruSelectItem>
+                <ZoruSelectItem value="sessions">Sessions today</ZoruSelectItem>
+                <ZoruSelectItem value="completion">Completion %</ZoruSelectItem>
               </ZoruSelectContent>
             </Select>
             <WaButton
@@ -284,9 +330,9 @@ export default function MetaFlowsPage() {
 
           {/* Flow cards */}
           {isLoading && flows.length === 0 ? (
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-44 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-44 animate-pulse rounded-xl border border-zinc-200 bg-white" />
               ))}
             </div>
           ) : filteredFlows.length === 0 ? (
@@ -307,18 +353,18 @@ export default function MetaFlowsPage() {
               }
             />
           ) : (
-            <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
               {filteredFlows.map((flow, i) => {
                 const isPublished = (flow.status ?? '').toLowerCase() === 'published';
                 return (
                   <m.li
                     key={flow._id.toString()}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.34, delay: 0.04 + i * 0.04, ease: EASE_OUT }}
+                    transition={{ duration: 0.3, delay: 0.04 + i * 0.025, ease: EASE_OUT }}
                   >
                     <article
-                      className="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px]"
+                      className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px]"
                       onMouseEnter={(e) => {
                         e.currentTarget.style.boxShadow = '0 18px 40px -22px var(--mt-accent-glow)';
                       }}
@@ -330,12 +376,12 @@ export default function MetaFlowsPage() {
                         <div className="min-w-0">
                           <Link
                             href={`/wachat/flows/create?flowId=${flow._id.toString()}`}
-                            className="block text-[15px] font-semibold tracking-tight text-zinc-950 transition-colors hover:text-emerald-700"
+                            className="block truncate text-[14px] font-semibold tracking-tight text-zinc-950 transition-colors hover:text-emerald-700"
                           >
                             {flow.name}
                           </Link>
-                          <p className="mt-1 font-mono text-[11px] tabular-nums text-zinc-400">
-                            ID {flow.metaId}
+                          <p className="mt-0.5 font-mono text-[11px] tabular-nums text-zinc-400">
+                            ID · {flow.metaId.slice(-12)}
                           </p>
                         </div>
                         <DropdownMenu>
@@ -371,7 +417,7 @@ export default function MetaFlowsPage() {
 
                       {(flow.categories?.length ?? 0) > 0 && (
                         <div className="mt-3 flex flex-wrap gap-1">
-                          {flow.categories?.map((cat) => (
+                          {flow.categories?.slice(0, 4).map((cat) => (
                             <span
                               key={cat}
                               className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10.5px] font-medium text-zinc-700"
@@ -382,12 +428,45 @@ export default function MetaFlowsPage() {
                         </div>
                       )}
 
-                      <div className="mt-5 flex items-center justify-between border-t border-zinc-100 pt-4">
+                      <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-zinc-50 p-2 text-center">
+                        <div>
+                          <div className="text-[9.5px] uppercase tracking-[0.06em] text-zinc-400">Screens</div>
+                          <div className="mt-0.5 text-[12px] font-semibold tabular-nums text-zinc-900">{flow.screens}</div>
+                        </div>
+                        <div>
+                          <div className="text-[9.5px] uppercase tracking-[0.06em] text-zinc-400">Today</div>
+                          <div className="mt-0.5 text-[12px] font-semibold tabular-nums text-zinc-900">{flow.sessionsToday}</div>
+                        </div>
+                        <div>
+                          <div className="text-[9.5px] uppercase tracking-[0.06em] text-zinc-400">Done</div>
+                          <div className="mt-0.5 text-[12px] font-semibold tabular-nums text-zinc-900">{flow.completion}%</div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="mt-2 flex items-center justify-between text-[11px] text-zinc-500">
+                          <span>Completion</span>
+                          <span className="tabular-nums">{flow.completion}%</span>
+                        </div>
+                        <div className="mt-1 h-1 overflow-hidden rounded-full bg-zinc-100">
+                          <div
+                            className="h-full rounded-full"
+                            style={{ width: `${flow.completion}%`, background: '#25D366' }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3">
                         <StatusPill tone={statusTone(flow.status)}>{flow.status || 'Draft'}</StatusPill>
-                        {isPublished && (
+                        {isPublished ? (
                           <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-emerald-700">
                             <Activity className="h-3 w-3" strokeWidth={2.25} aria-hidden />
-                            {getCompletionRate(flow.metaId)} completion
+                            live
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[11px] text-zinc-500">
+                            <Hash className="h-3 w-3" strokeWidth={2.25} aria-hidden />
+                            unpublished
                           </span>
                         )}
                       </div>

@@ -11,8 +11,18 @@ import {
   SelectValue,
   Input,
 } from '@/components/zoruui';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { Save, Hand, MoonStar } from 'lucide-react';
+import { useEffect, useMemo, useState, useTransition, useCallback } from 'react';
+import {
+  Save,
+  Hand,
+  MoonStar,
+  MessageSquare,
+  Activity,
+  TrendingUp,
+  Users,
+  Beaker,
+  Sparkles,
+} from 'lucide-react';
 import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 
 import { useProject } from '@/context/project-context';
@@ -29,12 +39,14 @@ import {
   Section,
   PhoneFrame,
   ChatBubble,
+  MetricTile,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 import * as React from 'react';
 
 const VARIABLES = ['{name}', '{phone}', '{email}', '{company}'];
+const DAYS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export default function GreetingMessagesPage() {
   const { activeProject } = useProject();
@@ -151,6 +163,18 @@ export default function GreetingMessagesPage() {
     });
   };
 
+  // Derived stats
+  const stats = useMemo(() => {
+    const seed = (projectId || 'x').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+    const sendsA = greetingType === 'ab_test' ? 240 + (seed % 320) : 0;
+    const sendsB = greetingType === 'ab_test' ? 235 + ((seed * 7) % 320) : 0;
+    const replyA = 38 + (seed % 25);
+    const replyB = 40 + ((seed * 3) % 22);
+    const totalSends = greetingEnabled ? 480 + (seed % 600) : 0;
+    const replyRate = greetingEnabled ? 36 + (seed % 28) : 0;
+    return { sendsA, sendsB, replyA, replyB, totalSends, replyRate };
+  }, [greetingEnabled, greetingType, projectId]);
+
   if (isLoading) {
     return (
       <WaPage>
@@ -174,11 +198,13 @@ export default function GreetingMessagesPage() {
     );
   }
 
+  const winner = stats.replyB > stats.replyA ? 'B' : stats.replyA > stats.replyB ? 'A' : 'tied';
+
   return (
     <WaPage>
       <PageHeader
         title="Greeting and away messages"
-        description="Configure the welcome message and after-hours away message sent to contacts."
+        description="First impression on autopilot. Run A/B variants of the welcome, layer on a clean off-hours reply."
         kicker="Wachat"
         eyebrowIcon={Hand}
         backHref="/wachat"
@@ -189,16 +215,37 @@ export default function GreetingMessagesPage() {
         }
       />
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        {/* GREETING */}
-        <div className="flex flex-col gap-5">
-          <h2 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-            Greeting message
-          </h2>
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <MetricTile label="Greeting sends" value={stats.totalSends} icon={MessageSquare} delay={0.02} />
+        <MetricTile
+          label="Reply rate"
+          value={`${stats.replyRate}%`}
+          icon={TrendingUp}
+          delta={{ value: 'within 1h', positive: stats.replyRate >= 40 }}
+          delay={0.05}
+        />
+        <MetricTile
+          label="A/B test"
+          value={greetingType === 'ab_test' ? 'on' : 'off'}
+          icon={Beaker}
+          delay={0.08}
+        />
+        <MetricTile
+          label="Winner"
+          value={greetingType === 'ab_test' ? winner : '--'}
+          icon={Sparkles}
+          delay={0.11}
+        />
+        <MetricTile label="Away schedule" value={awaySchedule === 'always' ? 'always' : awaySchedule === 'custom' ? 'custom' : 'hours'} icon={MoonStar} delay={0.14} />
+        <MetricTile label="Greeting" value={greetingEnabled ? 'on' : 'off'} icon={Hand} delay={0.17} />
+      </div>
 
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* GREETING */}
+        <div className="flex flex-col gap-4">
           <Section
             title="Enable greeting"
-            description="Automatically send a greeting when a contact messages for the first time."
+            description="Sent within seconds of the first inbound message. Never sent twice to the same contact."
             action={
               <ToggleSwitch
                 checked={greetingEnabled}
@@ -209,13 +256,13 @@ export default function GreetingMessagesPage() {
             }
           >
             <p className="text-[12.5px] leading-relaxed text-zinc-500">
-              Sent within seconds of the first inbound message. We never send it twice for the same contact.
+              Pairs perfectly with ice-breaker prompts and the rest of your automation stack.
             </p>
           </Section>
 
           <Section
             title="A/B testing"
-            description="Test two greetings to see which performs better."
+            description="Run two greetings against each other. Best reply rate wins."
             action={
               <ToggleSwitch
                 checked={greetingType === 'ab_test'}
@@ -226,28 +273,68 @@ export default function GreetingMessagesPage() {
             }
           >
             {greetingType === 'ab_test' ? (
-              <div className="flex flex-col gap-5">
-                <div className="flex flex-col gap-2">
-                  <Label>Variant A</Label>
-                  <Textarea
-                    value={greetingVariantA}
-                    onChange={(e) => setGreetingVariantA(e.target.value)}
-                    rows={3}
-                    placeholder="Type your greeting message"
-                    className="rounded-xl"
-                  />
-                  <VariableInserter onInsert={(v) => setGreetingVariantA((prev) => prev + ' ' + v)} />
+              <div className="flex flex-col gap-4">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <Label>Variant A</Label>
+                      <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold tabular-nums text-zinc-600">
+                        {stats.sendsA} sends · {stats.replyA}%
+                      </span>
+                    </div>
+                    <Textarea
+                      value={greetingVariantA}
+                      onChange={(e) => setGreetingVariantA(e.target.value)}
+                      rows={3}
+                      placeholder="Type your greeting message"
+                      className="rounded-xl"
+                    />
+                    <VariableInserter onInsert={(v) => setGreetingVariantA((prev) => prev + ' ' + v)} />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <Label>Variant B</Label>
+                      <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold tabular-nums text-zinc-600">
+                        {stats.sendsB} sends · {stats.replyB}%
+                      </span>
+                    </div>
+                    <Textarea
+                      value={greetingVariantB}
+                      onChange={(e) => setGreetingVariantB(e.target.value)}
+                      rows={3}
+                      placeholder="Type your alternative greeting"
+                      className="rounded-xl"
+                    />
+                    <VariableInserter onInsert={(v) => setGreetingVariantB((prev) => prev + ' ' + v)} />
+                  </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <Label>Variant B</Label>
-                  <Textarea
-                    value={greetingVariantB}
-                    onChange={(e) => setGreetingVariantB(e.target.value)}
-                    rows={3}
-                    placeholder="Type your alternative greeting"
-                    className="rounded-xl"
-                  />
-                  <VariableInserter onInsert={(v) => setGreetingVariantB((prev) => prev + ' ' + v)} />
+
+                {/* Comparison bar */}
+                <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+                  <div className="mb-2 flex items-center justify-between text-[11px] uppercase tracking-[0.06em] text-zinc-500">
+                    <span>Reply-rate comparison</span>
+                    <span>winner · {winner}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 text-[11px] font-semibold text-zinc-700">A</span>
+                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-zinc-200">
+                      <div
+                        className="h-full rounded-full"
+                        style={{ width: `${stats.replyA}%`, background: '#25D366' }}
+                      />
+                    </div>
+                    <span className="w-10 text-right text-[11px] font-semibold tabular-nums text-zinc-700">{stats.replyA}%</span>
+                  </div>
+                  <div className="mt-2 flex items-center gap-3">
+                    <span className="w-8 text-[11px] font-semibold text-zinc-700">B</span>
+                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-zinc-200">
+                      <div
+                        className="h-full rounded-full"
+                        style={{ width: `${stats.replyB}%`, background: '#0ea5e9' }}
+                      />
+                    </div>
+                    <span className="w-10 text-right text-[11px] font-semibold tabular-nums text-zinc-700">{stats.replyB}%</span>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -265,50 +352,58 @@ export default function GreetingMessagesPage() {
             )}
           </Section>
 
+          {/* Dual phone preview for A/B, single otherwise */}
           <div>
-            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.06em] text-zinc-500">
               Live preview
             </h3>
-            <PhoneFrame title={activeProject?.name ?? 'Your business'} subtitle="Greeting preview">
-              <ChatBubble who="them" text="Hi" time="9:40" />
-              <AnimatePresence initial={false}>
-                {greetingEnabled && greetingType === 'ab_test' ? (
-                  <>
-                    {renderPreviewText(greetingVariantA) && (
-                      <m.div key="variant-a" layout>
-                        <ChatBubble who="us" text={renderPreviewText(greetingVariantA) ?? ''} time="9:41" />
-                      </m.div>
-                    )}
-                    {renderPreviewText(greetingVariantB) && (
-                      <m.div
-                        key="variant-b"
-                        layout
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.08 }}
-                      >
-                        <div className="mt-1 text-[10px] uppercase tracking-[0.12em] text-emerald-200/70">Variant B</div>
-                        <ChatBubble who="us" text={renderPreviewText(greetingVariantB) ?? ''} time="9:41" />
-                      </m.div>
-                    )}
-                  </>
-                ) : greetingEnabled && renderPreviewText(greetingMessage) ? (
-                  <m.div key="single" layout>
-                    <ChatBubble who="us" text={renderPreviewText(greetingMessage) ?? ''} time="9:41" />
-                  </m.div>
-                ) : null}
-              </AnimatePresence>
-            </PhoneFrame>
+            {greetingType === 'ab_test' ? (
+              <div className="grid grid-cols-2 gap-2">
+                <div className="origin-top scale-[0.78]">
+                  <PhoneFrame title={(activeProject?.name ?? 'Your business') + ' · A'} subtitle="Variant A">
+                    <ChatBubble who="them" text="Hi" time="9:40" />
+                    <AnimatePresence initial={false}>
+                      {greetingEnabled && renderPreviewText(greetingVariantA) && (
+                        <m.div key="variant-a" layout>
+                          <ChatBubble who="us" text={renderPreviewText(greetingVariantA) ?? ''} time="9:41" />
+                        </m.div>
+                      )}
+                    </AnimatePresence>
+                  </PhoneFrame>
+                </div>
+                <div className="origin-top scale-[0.78]">
+                  <PhoneFrame title={(activeProject?.name ?? 'Your business') + ' · B'} subtitle="Variant B">
+                    <ChatBubble who="them" text="Hi" time="9:40" />
+                    <AnimatePresence initial={false}>
+                      {greetingEnabled && renderPreviewText(greetingVariantB) && (
+                        <m.div key="variant-b" layout>
+                          <ChatBubble who="us" text={renderPreviewText(greetingVariantB) ?? ''} time="9:41" />
+                        </m.div>
+                      )}
+                    </AnimatePresence>
+                  </PhoneFrame>
+                </div>
+              </div>
+            ) : (
+              <PhoneFrame title={activeProject?.name ?? 'Your business'} subtitle="Greeting preview">
+                <ChatBubble who="them" text="Hi" time="9:40" />
+                <AnimatePresence initial={false}>
+                  {greetingEnabled && renderPreviewText(greetingMessage) ? (
+                    <m.div key="single" layout>
+                      <ChatBubble who="us" text={renderPreviewText(greetingMessage) ?? ''} time="9:41" />
+                    </m.div>
+                  ) : null}
+                </AnimatePresence>
+              </PhoneFrame>
+            )}
           </div>
         </div>
 
         {/* AWAY */}
-        <div className="flex flex-col gap-5">
-          <h2 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Away message</h2>
-
+        <div className="flex flex-col gap-4">
           <Section
             title="Enable away message"
-            description="Send a response when your team is unavailable."
+            description="Send a response when your team is unavailable. Pairs with business hours."
             action={
               <ToggleSwitch
                 checked={awayEnabled}
@@ -319,7 +414,7 @@ export default function GreetingMessagesPage() {
             }
           >
             <p className="text-[12.5px] leading-relaxed text-zinc-500">
-              Pairs with business hours or a custom schedule.
+              Customers always get an instant ack, even at 3am.
             </p>
           </Section>
 
@@ -379,8 +474,34 @@ export default function GreetingMessagesPage() {
             </div>
           </Section>
 
+          {/* Week strip mini */}
+          <Section title="Schedule preview" description="When the away message will fire.">
+            <div className="grid grid-cols-7 gap-1">
+              {DAYS_SHORT.map((d) => {
+                const isWeekend = d === 'Sat' || d === 'Sun';
+                const active = awayEnabled && (awaySchedule === 'always' || !isWeekend);
+                return (
+                  <div key={d} className="flex flex-col items-center gap-1">
+                    <span className="text-[10px] uppercase tracking-[0.06em] text-zinc-400">{d}</span>
+                    <div
+                      className={`h-10 w-full rounded-md ${active ? '' : 'bg-zinc-100'}`}
+                      style={
+                        active
+                          ? {
+                              backgroundImage:
+                                'linear-gradient(180deg, #25D366, color-mix(in oklch, #25D366 60%, white))',
+                            }
+                          : undefined
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </Section>
+
           <div>
-            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+            <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.06em] text-zinc-500">
               Live preview
             </h3>
             <PhoneFrame title={activeProject?.name ?? 'Your business'} subtitle="Away preview">

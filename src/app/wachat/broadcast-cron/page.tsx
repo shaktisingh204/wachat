@@ -55,6 +55,7 @@ import {
   WaButton,
   EmptyState,
   StatusPill,
+  MetricTile,
   type StatusTone,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
@@ -319,8 +320,16 @@ export default function BroadcastCronPage() {
         }
       />
 
-      {/* ── Add Entry ─────────────────────────────────────────────── */}
-      <Section title="1 / Add entry" description="Pick a phone number, then the template, then this entry's audience.">
+      {/* KPI strip - 4 tiles */}
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <MetricTile label="Pending" value={pendingCount} icon={Timer} delay={0} />
+        <MetricTile label="Queued" value={queue.filter((e) => e.status === 'started').length} icon={Play} delay={0.05} />
+        <MetricTile label="Failed" value={queue.filter((e) => e.status === 'failed').length} icon={AlertCircle} delay={0.1} />
+        <MetricTile label="Approved templates" value={approvedTemplates.length} icon={FileText} delay={0.15} />
+      </div>
+
+      {/* ── Compose ─────────────────────────────────────────────── */}
+      <Section title="Compose" description="Pick a phone number, then the template, then this entry's audience.">
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <Label className="text-[10.5px] uppercase tracking-[0.08em] text-zinc-500">
@@ -540,7 +549,7 @@ export default function BroadcastCronPage() {
       {/* ── Queue ────────────────────────────────────────────────── */}
       <div className="mt-6">
         <Section
-          title="2 / Broadcast queue"
+          title="Queue"
           description="Each entry fires the chosen template from its phone number to its own audience."
           action={
             queue.length > 0 ? (

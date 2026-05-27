@@ -33,8 +33,11 @@ import {
   Section,
   WaButton,
   StatusPill,
+  MetricTile,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Award, Beaker, Target, Users as UsersIcon } from 'lucide-react';
 
 /**
  * Wachat campaign A/B test. Same flow; wachat-ui chrome.
@@ -118,6 +121,27 @@ export default function CampaignAbTestPage() {
 
   const pct = (n: number, d: number) => (d > 0 ? `${((n / d) * 100).toFixed(1)}%` : '0%');
 
+  // Two-proportion z-test for reply-rate significance
+  const significance = (() => {
+    if (!results || results.length !== 2) return null;
+    const [A, B] = results;
+    const p1 = A.replied / Math.max(1, A.sent);
+    const p2 = B.replied / Math.max(1, B.sent);
+    const n1 = Math.max(1, A.sent);
+    const n2 = Math.max(1, B.sent);
+    const p = (A.replied + B.replied) / (n1 + n2);
+    const se = Math.sqrt(p * (1 - p) * (1 / n1 + 1 / n2));
+    const z = se > 0 ? (p1 - p2) / se : 0;
+    const abs = Math.abs(z);
+    const confidence = abs >= 2.58 ? 99 : abs >= 1.96 ? 95 : abs >= 1.64 ? 90 : 0;
+    return { z, confidence, lift: p1 - p2 };
+  })();
+
+  const audienceTotal =
+    audience === 'all'
+      ? 500
+      : segments.find((s: any) => s._id === audience)?.estimatedSize || 200;
+
   return (
     <WaPage>
       <PageHeader
@@ -127,6 +151,14 @@ export default function CampaignAbTestPage() {
         eyebrowIcon={FlaskConical}
         backHref="/wachat"
       />
+
+      {/* KPI strip - test setup snapshot */}
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <MetricTile label="Audience" value={audienceTotal.toLocaleString()} icon={UsersIcon} delay={0} />
+        <MetricTile label="Variants" value={2} icon={Beaker} delay={0.05} />
+        <MetricTile label="Split" value={`${split}/${100 - split}`} icon={Target} delay={0.1} />
+        <MetricTile label="Confidence" value={significance ? (significance.confidence ? `${significance.confidence}%` : 'low') : '-'} icon={Award} delay={0.15} />
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Section title="Variant A">
@@ -263,7 +295,64 @@ export default function CampaignAbTestPage() {
       )}
 
       {results && (
-        <div className="mt-4">
+        <div className="mt-4 flex flex-col gap-3">
+          {/* Winner / significance banner */}
+          {significance && (
+            <Section
+              title={
+                <span className="inline-flex items-center gap-2">
+                  <Award className="h-4 w-4 text-emerald-600" strokeWidth={2.25} aria-hidden /> Statistical readout
+                </span>
+              }
+              description={
+                significance.confidence >= 95
+                  ? `Significant at ${significance.confidence}% confidence (z = ${significance.z.toFixed(2)}).`
+                  : significance.confidence > 0
+                    ? `Marginal - ${significance.confidence}% confidence. Run longer to lock the winner.`
+                    : 'Not significant yet. Sample is too small or variants are tied.'
+              }
+            >
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <Stat label="Lift (A vs B)" value={`${(significance.lift * 100).toFixed(1)}%`} />
+                <Stat label="z-score" value={significance.z.toFixed(2)} />
+                <Stat label="Confidence" value={significance.confidence ? `${significance.confidence}%` : 'low'} />
+                <Stat label="Winner" value={significance.lift > 0 ? 'A' : significance.lift < 0 ? 'B' : 'tie'} />
+              </div>
+            </Section>
+          )}
+
+          {/* Comparison chart */}
+          <Section
+            title={
+              <span className="inline-flex items-center gap-2">
+                <ChartBar className="h-4 w-4" strokeWidth={2.25} aria-hidden /> Variant performance
+              </span>
+            }
+            description="Sent / opened / replied side-by-side."
+          >
+            <div className="h-[220px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={results.map((r) => ({
+                    name: `Variant ${r.variant}`,
+                    sent: r.sent,
+                    opened: r.opened,
+                    replied: r.replied,
+                  }))}
+                  margin={{ top: 6, right: 8, bottom: 0, left: -16 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
+                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#71717a' }} stroke="#e4e4e7" />
+                  <YAxis tick={{ fontSize: 10, fill: '#71717a' }} stroke="#e4e4e7" />
+                  <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e4e4e7' }} />
+                  <Bar dataKey="sent" fill="#a1a1aa" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="opened" fill="#60a5fa" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="replied" fill="#25D366" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Section>
+
           <Section
             title={
               <span className="inline-flex items-center gap-2">
@@ -314,5 +403,14 @@ export default function CampaignAbTestPage() {
         </div>
       )}
     </WaPage>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-zinc-100 bg-white p-3">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">{label}</p>
+      <p className="mt-1 text-[18px] font-semibold tabular-nums text-zinc-900">{value}</p>
+    </div>
   );
 }

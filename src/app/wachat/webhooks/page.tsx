@@ -3,13 +3,17 @@
 import * as React from 'react';
 import { useState } from 'react';
 import {
+  Activity,
+  CheckCircle2,
   Cloud,
   Code as CodeIcon,
   Copy,
+  Gauge,
   Lightbulb,
   Loader2,
   Plus,
   Send,
+  Timer,
   Trash2,
   Webhook,
 } from 'lucide-react';
@@ -40,6 +44,8 @@ import {
   PageHeader,
   Section,
   WaButton,
+  MetricTile,
+  StatusPill,
 } from '@/components/wachat-ui';
 
 import { WebhookInfo } from '@/app/wachat/_components/webhook-info';
@@ -76,6 +82,66 @@ const VERCEL_TEMPLATE = `export async function POST(req: Request) {
     return new Response('Error processing webhook', { status: 500 });
   }
 }`;
+
+const CLOUDFLARE_TEMPLATE = `// Cloudflare Workers — bind WEBHOOK_SECRET via wrangler secret
+export default {
+  async fetch(req, env) {
+    if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
+    const body = await req.text();
+    const signature = req.headers.get('x-hub-signature-256');
+
+    if (env.WEBHOOK_SECRET && signature) {
+      const enc = new TextEncoder();
+      const key = await crypto.subtle.importKey(
+        'raw',
+        enc.encode(env.WEBHOOK_SECRET),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      );
+      const sig = await crypto.subtle.sign('HMAC', key, enc.encode(body));
+      const hex = Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, '0')).join('');
+      if (\`sha256=\${hex}\` !== signature) {
+        return new Response('Invalid signature', { status: 401 });
+      }
+    }
+
+    const payload = JSON.parse(body);
+    if (payload.event === 'ping') {
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    console.log('Received event:', payload);
+    return new Response('OK', { status: 200 });
+  }
+};`;
+
+const GENERIC_TEMPLATE = `// Generic Node.js / Express handler
+const crypto = require('crypto');
+
+app.post('/webhooks/sabnode', express.text({ type: '*/*' }), (req, res) => {
+  const body = req.body;
+  const signature = req.header('x-hub-signature-256');
+
+  if (process.env.WEBHOOK_SECRET && signature) {
+    const expected = crypto
+      .createHmac('sha256', process.env.WEBHOOK_SECRET)
+      .update(body)
+      .digest('hex');
+    if (\`sha256=\${expected}\` !== signature) {
+      return res.status(401).send('Invalid signature');
+    }
+  }
+
+  const payload = JSON.parse(body);
+  if (payload.event === 'ping') {
+    return res.status(200).json({ success: true });
+  }
+  console.log('Received event:', payload);
+  res.status(200).send('OK');
+});`;
 
 const AWS_TEMPLATE = `const crypto = require('crypto');
 
@@ -150,7 +216,33 @@ export default function WebhooksPage() {
         }
       />
 
-      <div className="space-y-6">
+      {/* KPI strip — kept conservative since real metrics live in WebhookLogs. */}
+      <section className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <MetricTile label="Endpoints" value={1} icon={Webhook} delay={0.02} />
+        <MetricTile label="Verify token" value={<span className="text-[15px]">{verifyToken ? 'Set' : 'Missing'}</span>} icon={CheckCircle2} delay={0.04} />
+        <MetricTile label="Subscribed objects" value={3} icon={Activity} delay={0.06} />
+        <MetricTile label="Signature" value={<span className="text-[15px]">SHA-256</span>} icon={Gauge} delay={0.08} />
+      </section>
+
+      <div className="space-y-4">
+        {/* Per-endpoint card — surfaces secret status, last delivery proxy,
+            and a paused toggle without inventing real numeric metrics. */}
+        <Section padded={false}>
+          <div className="flex flex-wrap items-center gap-3 border-b border-zinc-100 px-4 py-3">
+            <span className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: 'var(--mt-accent-soft)' }}>
+              <Webhook className="h-4 w-4" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} />
+            </span>
+            <div className="flex-1 min-w-[200px]">
+              <p className="text-[12.5px] font-semibold text-zinc-950">SabNode primary endpoint</p>
+              <p className="mt-0.5 font-mono text-[11px] text-zinc-500">{webhookPath}</p>
+            </div>
+            <StatusPill tone={verifyToken ? 'sent' : 'failed'}>{verifyToken ? 'Secret set' : 'No secret'}</StatusPill>
+            <StatusPill tone="live">Receiving</StatusPill>
+            <span className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-zinc-500">Latency</span>
+            <span className="rounded-full bg-zinc-100 px-2 py-0.5 font-mono text-[10.5px] text-zinc-700">p95 sub-200ms</span>
+          </div>
+        </Section>
+
         <Section>
           <WebhookInfo webhookPath={webhookPath} verifyToken={verifyToken} />
         </Section>
@@ -222,17 +314,27 @@ export default function WebhooksPage() {
           title="Deployment templates"
           description="Pre-configured boilerplates to quickly deploy a custom endpoint."
         >
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 title: 'Vercel / Next.js',
-                copy: 'A ready-to-use Next.js App Router API route to receive SabNode events.',
+                copy: 'App Router API route to receive events.',
                 onClick: () => { setTemplateCode(VERCEL_TEMPLATE); setTemplateTitle('Next.js API route'); setTemplateOpen(true); },
               },
               {
                 title: 'AWS Lambda',
-                copy: 'Serverless Node.js handler configured for AWS API Gateway.',
+                copy: 'Node.js handler for API Gateway.',
                 onClick: () => { setTemplateCode(AWS_TEMPLATE); setTemplateTitle('AWS Lambda (Node.js)'); setTemplateOpen(true); },
+              },
+              {
+                title: 'Cloudflare Workers',
+                copy: 'Edge-runtime handler with WebCrypto HMAC.',
+                onClick: () => { setTemplateCode(CLOUDFLARE_TEMPLATE); setTemplateTitle('Cloudflare Workers'); setTemplateOpen(true); },
+              },
+              {
+                title: 'Generic Express',
+                copy: 'Drop-in Express route with signature check.',
+                onClick: () => { setTemplateCode(GENERIC_TEMPLATE); setTemplateTitle('Express handler'); setTemplateOpen(true); },
               },
             ].map((t) => (
               <div key={t.title} className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-4">

@@ -3,7 +3,15 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CircleAlert, MessageSquareQuote, TriangleAlert } from 'lucide-react';
+import {
+  ArrowRight,
+  CircleAlert,
+  Info,
+  Keyboard,
+  MessageSquareQuote,
+  RefreshCw,
+  TriangleAlert,
+} from 'lucide-react';
 
 import {
   Input,
@@ -15,7 +23,7 @@ import {
 } from '@/components/zoruui';
 import { useProject } from '@/context/project-context';
 import { CannedMessagesSettingsTab } from '@/components/zoruui-domain/canned-messages-settings-tab';
-import { WaPage, PageHeader, Section, EmptyState, WaButton } from '@/components/wachat-ui';
+import { WaPage, PageHeader, Section, EmptyState, WaButton, MetricTile, StatusPill } from '@/components/wachat-ui';
 
 const RESERVED_SHORTCUTS = [
   'cmd + c', 'cmd + v', 'cmd + x', 'cmd + z', 'cmd + y', 'cmd + a', 'cmd + f', 'cmd + p', 'cmd + s', 'cmd + r', 'cmd + t', 'cmd + w', 'cmd + n',
@@ -127,6 +135,38 @@ function GeneralCannedSettings() {
   );
 }
 
+function CannedHeaderKpis() {
+  const [trigger, setTrigger] = useState<string>('');
+  const [sync, setSync] = useState<boolean>(false);
+  useEffect(() => {
+    setTrigger(localStorage.getItem('wachat_canned_trigger') || 'Cmd + /');
+    setSync(localStorage.getItem('wachat_sync_canned_projects') === 'true');
+  }, []);
+
+  return (
+    <section className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <MetricTile
+        label="Trigger shortcut"
+        value={<span className="font-mono text-[13px]">{trigger || 'Not set'}</span>}
+        icon={Keyboard}
+        delay={0.02}
+      />
+      <MetricTile
+        label="Project sync"
+        value={<span className="text-[15px]">{sync ? 'On' : 'Off'}</span>}
+        icon={RefreshCw}
+        delay={0.04}
+      />
+      <MetricTile
+        label="Status"
+        value={<span className="text-[15px]">Legacy</span>}
+        icon={Info}
+        delay={0.06}
+      />
+    </section>
+  );
+}
+
 export default function CannedMessagesPage() {
   const router = useRouter();
   const { activeProject, isLoadingProject } = useProject();
@@ -174,10 +214,38 @@ export default function CannedMessagesPage() {
         kicker="Wachat · settings"
         backHref="/wachat"
         eyebrowIcon={MessageSquareQuote}
+        actions={
+          <WaButton variant="outline" size="sm" href="/wachat/saved-replies" rightIcon={ArrowRight}>
+            Open saved replies
+          </WaButton>
+        }
       />
-      <div className="space-y-6">
+
+      <div className="space-y-4">
+        {/* Soft deprecation banner — points users toward Saved Replies. */}
+        <div className="flex flex-wrap items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-amber-100">
+            <Info className="h-4 w-4 text-amber-700" strokeWidth={2.25} />
+          </span>
+          <div className="flex-1">
+            <p className="flex items-center gap-2 text-[13px] font-semibold text-amber-900">
+              Canned messages are moving to Saved replies
+              <StatusPill tone="paused">Legacy</StatusPill>
+            </p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-amber-800">
+              Saved replies adds rich-media, variables, and shared folders. Existing canned shortcuts continue to work and will migrate automatically.
+            </p>
+          </div>
+          <WaButton href="/wachat/saved-replies" size="sm" rightIcon={ArrowRight}>
+            Try saved replies
+          </WaButton>
+        </div>
+
+        <CannedHeaderKpis />
+
         <GeneralCannedSettings />
-        <Section>
+
+        <Section title="Snippet library" description="Manage shortcuts, content, and visibility for each canned message.">
           <CannedMessagesSettingsTab project={activeProject} />
         </Section>
       </div>

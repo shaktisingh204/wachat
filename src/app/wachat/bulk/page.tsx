@@ -1,19 +1,21 @@
 'use client';
 
-import { Suspense, useEffect, useState, useTransition, useCallback } from 'react';
-import { Boxes } from 'lucide-react';
+import { Suspense, useEffect, useState, useTransition, useCallback, useMemo } from 'react';
+import { Boxes, Database, FileText, BookCopy, FilePlus2 } from 'lucide-react';
 
 import { getProjects } from '@/app/actions/project.actions';
 import { getTemplates } from '@/app/actions/template.actions';
 import type { WithId, Project, Template } from '@/lib/definitions';
-import { WaPage, PageHeader } from '@/components/wachat-ui';
+import { WaPage, PageHeader, MetricTile, Section } from '@/components/wachat-ui';
 
 import { BulkActionsClient } from '@/app/wachat/_components/bulk-actions-client';
 
-/**
- * Wachat Bulk - root bulk-send page (CSV-driven).
- * Same data layer as before; wachat-ui chrome.
- */
+function compact(n: number | null | undefined): string {
+  const v = typeof n === 'number' && Number.isFinite(n) ? n : 0;
+  if (v >= 1_000_000) return (v / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (v >= 1_000) return (v / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return String(v);
+}
 
 function BulkActionsSkeleton() {
   return (
@@ -65,15 +67,52 @@ function BulkPageContent() {
     fetchInitialData();
   }, [fetchInitialData]);
 
+  const approvedCount = useMemo(
+    () => templates.filter((t: any) => (t.status || '').toUpperCase() === 'APPROVED').length,
+    [templates],
+  );
+
   if (isLoading) return <BulkActionsSkeleton />;
 
   return (
-    <BulkActionsClient
-      sourceProjectName={selectedProjects[0]?.name || ''}
-      allProjects={allProjects}
-      initialTemplates={templates}
-      initialSelectedProjects={selectedProjects}
-    />
+    <>
+      {/* Context KPI strip */}
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <MetricTile label="WABA projects" value={compact(allProjects.length)} icon={Database} delay={0} />
+        <MetricTile label="Selected" value={compact(selectedProjects.length)} icon={Boxes} delay={0.05} />
+        <MetricTile label="Source templates" value={compact(templates.length)} icon={FileText} delay={0.1} />
+        <MetricTile label="Approved" value={compact(approvedCount)} icon={BookCopy} delay={0.15} />
+      </div>
+
+      {selectedProjects.length > 0 && (
+        <Section
+          title={`Targeting ${selectedProjects.length} project${selectedProjects.length === 1 ? '' : 's'}`}
+          description="Bulk actions will run across every selected project."
+          padded={false}
+        >
+          <div className="flex flex-wrap gap-2 p-4">
+            {selectedProjects.map((p) => (
+              <span
+                key={p._id.toString()}
+                className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-[12px] text-zinc-700"
+              >
+                <Database className="h-3.5 w-3.5 text-zinc-400" strokeWidth={2} aria-hidden />
+                {p.name}
+              </span>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      <div className="mt-4">
+        <BulkActionsClient
+          sourceProjectName={selectedProjects[0]?.name || ''}
+          allProjects={allProjects}
+          initialTemplates={templates}
+          initialSelectedProjects={selectedProjects}
+        />
+      </div>
+    </>
   );
 }
 

@@ -6,8 +6,10 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import type { WithId } from 'mongodb';
 import {
+  Activity,
   AlertCircle,
   CheckCircle2,
+  KeyRound,
   Pencil,
   Phone,
   RefreshCw,
@@ -163,7 +165,10 @@ export default function NumbersPage() {
   const stats = useMemo(() => {
     const verified = phoneNumbers.filter((p) => (p.code_verification_status ?? '').toLowerCase().includes('verified')).length;
     const green = phoneNumbers.filter((p) => ['green', 'high'].includes((p.quality_rating ?? '').toLowerCase())).length;
-    return { verified, green };
+    const unlimited = phoneNumbers.filter((p) => (p.throughput?.level ?? '').toUpperCase() === 'UNLIMITED').length;
+    const encryptionReady = phoneNumbers.filter((p) => p.flowsEncryptionConfig?.metaStatus === 'UPLOADED').length;
+    const lowQuality = phoneNumbers.filter((p) => ['yellow', 'red', 'low', 'medium'].includes((p.quality_rating ?? '').toLowerCase())).length;
+    return { verified, green, unlimited, encryptionReady, lowQuality };
   }, [phoneNumbers]);
 
   const badQualityNumbers = useMemo(
@@ -224,10 +229,13 @@ export default function NumbersPage() {
         </m.div>
       )}
 
-      <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <MetricTile label="Registered" value={phoneNumbers.length} icon={Phone} delay={0.05} />
-        <MetricTile label="Verified" value={stats.verified} icon={ShieldCheck} delay={0.1} />
-        <MetricTile label="Green quality" value={stats.green} icon={Shield} delay={0.15} />
+      <section className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <MetricTile label="Registered" value={phoneNumbers.length} icon={Phone} delay={0.04} />
+        <MetricTile label="Verified" value={stats.verified} icon={ShieldCheck} delay={0.06} />
+        <MetricTile label="Green quality" value={stats.green} icon={Shield} delay={0.08} />
+        <MetricTile label="Low quality" value={stats.lowQuality} icon={AlertCircle} delay={0.1} />
+        <MetricTile label="Unlimited tier" value={stats.unlimited} icon={Activity} delay={0.12} />
+        <MetricTile label="Encryption ready" value={stats.encryptionReady} icon={KeyRound} delay={0.14} />
       </section>
 
       {!activeProjectId ? (
@@ -293,16 +301,38 @@ export default function NumbersPage() {
                     </div>
                   </div>
 
-                  <ul className="space-y-2 text-[12px]">
-                    <li className="flex items-center justify-between">
+                  <ul className="divide-y divide-zinc-100 text-[12px]">
+                    <li className="flex items-center justify-between py-1.5">
                       <span className="text-[10.5px] uppercase tracking-[0.08em] text-zinc-500">Status</span>
                       <StatusPill tone={status.tone}>{status.label}</StatusPill>
                     </li>
-                    <li className="flex items-center justify-between">
+                    <li className="flex items-center justify-between py-1.5">
                       <span className="text-[10.5px] uppercase tracking-[0.08em] text-zinc-500">Quality</span>
                       <StatusPill tone={quality.tone}>{quality.label}</StatusPill>
                     </li>
-                    <li className="flex items-center justify-between gap-3">
+                    <li className="flex items-center justify-between py-1.5">
+                      <span className="text-[10.5px] uppercase tracking-[0.08em] text-zinc-500">Messaging tier</span>
+                      <span className="rounded-full bg-zinc-100 px-2 py-0.5 font-mono text-[10.5px] text-zinc-700">
+                        {phone.throughput?.level ? phone.throughput.level.toLowerCase() : 'standard'}
+                      </span>
+                    </li>
+                    <li className="flex items-center justify-between py-1.5">
+                      <span className="text-[10.5px] uppercase tracking-[0.08em] text-zinc-500">Flows encryption</span>
+                      <StatusPill
+                        tone={
+                          phone.flowsEncryptionConfig?.metaStatus === 'UPLOADED'
+                            ? 'sent'
+                            : phone.flowsEncryptionConfig?.metaStatus === 'FAILED'
+                              ? 'failed'
+                              : 'draft'
+                        }
+                      >
+                        {phone.flowsEncryptionConfig?.metaStatus
+                          ? phone.flowsEncryptionConfig.metaStatus.toLowerCase()
+                          : 'not set'}
+                      </StatusPill>
+                    </li>
+                    <li className="flex items-center justify-between gap-3 py-1.5">
                       <span className="text-[10.5px] uppercase tracking-[0.08em] text-zinc-500">About</span>
                       <span className="max-w-[180px] truncate text-[12px] text-zinc-700" title={phone.profile?.about || 'Not set'}>
                         {phone.profile?.about || 'Not set'}

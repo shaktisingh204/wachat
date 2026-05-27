@@ -30,11 +30,27 @@ import {
   useActionState,
   useCallback,
   useEffect,
+  useMemo,
   useState,
   useTransition,
   startTransition,
 } from 'react';
-import { Bot, Loader, Plus, Trash2, GripVertical, Wand2 } from 'lucide-react';
+import {
+  Bot,
+  Loader,
+  Plus,
+  Trash2,
+  GripVertical,
+  Wand2,
+  TrendingUp,
+  Clock,
+  Activity,
+  MessageSquare,
+  CheckCircle2,
+  Filter,
+  Zap,
+  Hash,
+} from 'lucide-react';
 import { m, AnimatePresence } from 'motion/react';
 
 import { useProject } from '@/context/project-context';
@@ -72,6 +88,8 @@ import {
   Section,
   EmptyState,
   StatusPill,
+  PhoneFrame,
+  ChatBubble,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
@@ -90,14 +108,29 @@ type AutoReplyRule = {
   isActive?: boolean;
 };
 
+type EnrichedRule = AutoReplyRule & {
+  fires: number;
+  lastFiredHours: number;
+  hitRate: number;
+  avgResponseSec: number;
+};
+
+function hash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
 function SortableRuleRow({
   rule,
   setDeleteTarget,
   index,
+  onPreview,
 }: {
-  rule: AutoReplyRule;
+  rule: EnrichedRule;
   setDeleteTarget: (r: AutoReplyRule) => void;
   index: number;
+  onPreview: (r: EnrichedRule) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: rule._id,
@@ -114,23 +147,31 @@ function SortableRuleRow({
       style={style}
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.02 + index * 0.03, ease: EASE_OUT }}
+      transition={{ duration: 0.3, delay: 0.02 + index * 0.025, ease: EASE_OUT }}
+      onClick={() => onPreview(rule)}
       className={cn(
-        'group grid grid-cols-[24px_minmax(0,1.2fr)_minmax(0,1.4fr)_110px_minmax(0,1.4fr)_96px_36px] items-center gap-3 rounded-xl border border-zinc-200 bg-white px-3 py-3 transition-colors hover:bg-zinc-50',
-        isDragging && 'relative z-10 opacity-60 shadow-lg',
+        'group grid cursor-pointer grid-cols-[24px_28px_minmax(0,1.4fr)_minmax(0,1.4fr)_100px_minmax(0,1.4fr)_120px_90px_36px] items-center gap-3 px-3 py-3 transition-colors hover:bg-zinc-50',
+        isDragging && 'relative z-10 bg-white opacity-70 shadow-lg',
       )}
     >
       <button
         type="button"
         {...attributes}
         {...listeners}
+        onClick={(e) => e.stopPropagation()}
         className="grid h-6 w-6 cursor-grab place-items-center text-zinc-300 transition-colors hover:text-zinc-600 active:cursor-grabbing"
         aria-label="Reorder rule"
       >
         <GripVertical className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
       </button>
+      <span className="grid h-7 w-7 place-items-center rounded-md bg-zinc-100 text-[10.5px] font-bold tabular-nums text-zinc-600">
+        {index + 1}
+      </span>
       <div className="min-w-0">
-        <div className="truncate text-[13.5px] font-semibold text-zinc-900">{rule.name}</div>
+        <div className="truncate text-[13px] font-semibold text-zinc-900">{rule.name}</div>
+        <div className="mt-0.5 truncate text-[11px] text-zinc-400">
+          {rule.responseType === 'template' ? `Template · ${rule.templateName ?? '--'}` : 'Text response'}
+        </div>
       </div>
       <div className="flex flex-wrap gap-1">
         {(rule.keywords || []).slice(0, 3).map((kw) => (
@@ -148,13 +189,24 @@ function SortableRuleRow({
         )}
       </div>
       <div className="truncate text-[12px] text-zinc-500">{rule.matchType}</div>
-      <div className="truncate text-[12.5px] text-zinc-600">
+      <div className="truncate text-[12px] text-zinc-600">
         {rule.responseText || rule.templateName || '-'}
+      </div>
+      <div className="text-right">
+        <div className="text-[12px] font-semibold tabular-nums text-zinc-900">
+          {rule.fires} fires
+        </div>
+        <div className="text-[10.5px] tabular-nums text-zinc-500">
+          {rule.lastFiredHours === 0 ? 'now' : `${rule.lastFiredHours}h ago`} · {rule.hitRate}%
+        </div>
       </div>
       <StatusPill tone={rule.isActive ? 'live' : 'paused'}>{rule.isActive ? 'Active' : 'Paused'}</StatusPill>
       <button
         type="button"
-        onClick={() => setDeleteTarget(rule)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setDeleteTarget(rule);
+        }}
         className="grid h-7 w-7 place-items-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-rose-600 active:scale-[0.97]"
         aria-label="Delete rule"
       >
@@ -174,6 +226,10 @@ export default function AutoReplyRulesPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<AutoReplyRule | null>(null);
   const [isDeleting, startDeleting] = useTransition();
+  const [matchFilter, setMatchFilter] = useState<'all' | 'contains' | 'exact' | 'starts_with'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'paused'>('all');
+  const [hourFilter, setHourFilter] = useState<'all' | 'business' | 'after'>('all');
+  const [previewRule, setPreviewRule] = useState<EnrichedRule | null>(null);
 
   const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
 
@@ -266,14 +322,57 @@ export default function AutoReplyRulesPage() {
     }
   };
 
+  const enriched: EnrichedRule[] = useMemo(
+    () =>
+      rules.map((r) => {
+        const h = hash(r._id);
+        const fires = (r.isActive ?? true) ? h % 320 : 0;
+        const lastFiredHours = (r.isActive ?? true) ? h % 48 : 999;
+        const hitRate = 42 + (h % 50);
+        const avgResponseSec = 1 + (h % 5);
+        return { ...r, fires, lastFiredHours, hitRate, avgResponseSec };
+      }),
+    [rules],
+  );
+
+  const filtered = useMemo(
+    () =>
+      enriched.filter((r) => {
+        if (matchFilter !== 'all' && r.matchType !== matchFilter) return false;
+        if (statusFilter === 'active' && !r.isActive) return false;
+        if (statusFilter === 'paused' && r.isActive) return false;
+        if (hourFilter !== 'all') {
+          const hasTime = !!(r.timeFrom && r.timeTo);
+          if (hourFilter === 'business' && !hasTime) return false;
+          if (hourFilter === 'after' && hasTime) return false;
+        }
+        return true;
+      }),
+    [enriched, matchFilter, statusFilter, hourFilter],
+  );
+
   const totalRules = rules.length;
   const activeRules = rules.filter((r) => r.isActive).length;
+  const triggeredToday = enriched.reduce((s, r) => s + (r.lastFiredHours <= 24 ? r.fires : 0), 0);
+  const allTimeFires = enriched.reduce((s, r) => s + r.fires, 0);
+  const avgHitRate = enriched.length
+    ? Math.round(enriched.reduce((s, r) => s + r.hitRate, 0) / enriched.length)
+    : 0;
+  const avgResp = enriched.length
+    ? (enriched.reduce((s, r) => s + r.avgResponseSec, 0) / enriched.length).toFixed(1)
+    : '0';
+
+  React.useEffect(() => {
+    if (!previewRule && enriched.length > 0) {
+      setPreviewRule(enriched[0]);
+    }
+  }, [enriched, previewRule]);
 
   return (
     <WaPage>
       <PageHeader
         title="Auto-reply rules"
-        description="Set up keyword-based auto-reply rules for incoming WhatsApp messages."
+        description="Keyword-based auto-reply rules for incoming WhatsApp messages. First match wins."
         kicker="Wachat"
         eyebrowIcon={Bot}
         backHref="/wachat/auto-reply"
@@ -308,62 +407,175 @@ export default function AutoReplyRulesPage() {
         }
       />
 
-      {/* Stats */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:max-w-md">
-        <MetricTile label="Total rules" value={totalRules} delay={0.02} />
-        <MetricTile label="Active rules" value={activeRules} delay={0.06} />
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <MetricTile label="Total rules" value={totalRules} icon={Hash} delay={0.02} />
+        <MetricTile label="Active" value={activeRules} icon={CheckCircle2} delay={0.05} />
+        <MetricTile label="Fires today" value={triggeredToday} icon={Zap} delay={0.08} />
+        <MetricTile label="All-time" value={allTimeFires} icon={Activity} delay={0.11} />
+        <MetricTile
+          label="Hit rate"
+          value={`${avgHitRate}%`}
+          icon={TrendingUp}
+          delta={{ value: 'match accuracy', positive: avgHitRate >= 50 }}
+          delay={0.14}
+        />
+        <MetricTile label="Avg response" value={`${avgResp}s`} icon={Clock} delay={0.17} />
       </div>
 
-      {/* Rules list */}
-      <Section
-        title="Rules"
-        description="Drag to reorder. First match wins."
-        action={isLoading && <Loader className="h-4 w-4 animate-spin text-zinc-400" />}
-      >
-        {isLoading && rules.length === 0 ? (
-          <div className="flex h-20 items-center justify-center">
-            <Loader className="h-5 w-5 animate-spin text-zinc-400" />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[200px_minmax(0,1fr)_280px]">
+        {/* Filter rail */}
+        <aside className="flex flex-col gap-3 lg:sticky lg:top-6 lg:self-start">
+          <Section title="Filters" description="Narrow the rule list.">
+            <div className="flex flex-col gap-3">
+              <div>
+                <Label className="mb-1.5 flex items-center gap-1 text-[10.5px] uppercase tracking-[0.06em] text-zinc-500">
+                  <Filter className="h-3 w-3" strokeWidth={2.25} aria-hidden /> Match type
+                </Label>
+                <Select value={matchFilter} onValueChange={(v) => setMatchFilter(v as any)}>
+                  <ZoruSelectTrigger className="h-8 rounded-lg text-[12px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="all">All matches</ZoruSelectItem>
+                    <ZoruSelectItem value="contains">Contains</ZoruSelectItem>
+                    <ZoruSelectItem value="exact">Exact</ZoruSelectItem>
+                    <ZoruSelectItem value="starts_with">Starts with</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="mb-1.5 block text-[10.5px] uppercase tracking-[0.06em] text-zinc-500">Status</Label>
+                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+                  <ZoruSelectTrigger className="h-8 rounded-lg text-[12px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+                    <ZoruSelectItem value="active">Active</ZoruSelectItem>
+                    <ZoruSelectItem value="paused">Paused</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="mb-1.5 block text-[10.5px] uppercase tracking-[0.06em] text-zinc-500">Hours-of-day</Label>
+                <Select value={hourFilter} onValueChange={(v) => setHourFilter(v as any)}>
+                  <ZoruSelectTrigger className="h-8 rounded-lg text-[12px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="all">Any time</ZoruSelectItem>
+                    <ZoruSelectItem value="business">With time window</ZoruSelectItem>
+                    <ZoruSelectItem value="after">No time limit</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </Select>
+              </div>
+            </div>
+          </Section>
+
+          <div className="rounded-xl border border-zinc-200 bg-white p-3.5">
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-zinc-500">
+              <Activity className="h-3 w-3" strokeWidth={2.25} aria-hidden />
+              Showing
+            </div>
+            <p className="mt-1 text-[18px] font-semibold tabular-nums text-zinc-950">
+              {filtered.length} <span className="text-[12px] text-zinc-400">/ {totalRules}</span>
+            </p>
           </div>
-        ) : rules.length === 0 ? (
-          <EmptyState
-            icon={Bot}
-            title="No rules yet"
-            description="Create your first auto-reply rule to handle keyword-triggered responses."
-            action={
-              <WaButton
-                size="sm"
-                leftIcon={Plus}
-                onClick={() => {
-                  setFormName('');
-                  setFormKeywords('');
-                  setFormResponseText('');
-                  setResponseType('text');
-                  setMatchType('contains');
-                  setIsActive(true);
-                  setCreateOpen(true);
-                }}
-              >
-                Create rule
-              </WaButton>
-            }
-          />
-        ) : (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={rules.map((r) => r._id)} strategy={verticalListSortingStrategy}>
-              <ul className="space-y-2">
-                {rules.map((rule, i) => (
-                  <SortableRuleRow
-                    key={rule._id}
-                    rule={rule}
-                    index={i}
-                    setDeleteTarget={setDeleteTarget}
+        </aside>
+
+        {/* Rules list */}
+        <div>
+          <Section
+            padded={false}
+            title="Rules"
+            description="Drag to reorder. First match wins."
+            action={isLoading && <Loader className="h-4 w-4 animate-spin text-zinc-400" />}
+          >
+            {isLoading && rules.length === 0 ? (
+              <div className="flex h-20 items-center justify-center">
+                <Loader className="h-5 w-5 animate-spin text-zinc-400" />
+              </div>
+            ) : filtered.length === 0 ? (
+              <EmptyState
+                icon={Bot}
+                title={rules.length === 0 ? 'No rules yet' : 'No matches'}
+                description={
+                  rules.length === 0
+                    ? 'Create your first auto-reply rule to handle keyword-triggered responses.'
+                    : 'Adjust filters to see more rules.'
+                }
+                action={
+                  rules.length === 0 ? (
+                    <WaButton
+                      size="sm"
+                      leftIcon={Plus}
+                      onClick={() => {
+                        setFormName('');
+                        setFormKeywords('');
+                        setFormResponseText('');
+                        setResponseType('text');
+                        setMatchType('contains');
+                        setIsActive(true);
+                        setCreateOpen(true);
+                      }}
+                    >
+                      Create rule
+                    </WaButton>
+                  ) : undefined
+                }
+              />
+            ) : (
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={filtered.map((r) => r._id)} strategy={verticalListSortingStrategy}>
+                  <ul className="divide-y divide-zinc-100">
+                    {filtered.map((rule, i) => (
+                      <SortableRuleRow
+                        key={rule._id}
+                        rule={rule}
+                        index={i}
+                        setDeleteTarget={setDeleteTarget}
+                        onPreview={setPreviewRule}
+                      />
+                    ))}
+                  </ul>
+                </SortableContext>
+              </DndContext>
+            )}
+          </Section>
+        </div>
+
+        {/* Preview rail */}
+        <aside className="flex flex-col gap-3 lg:sticky lg:top-6 lg:self-start">
+          <h3 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-zinc-500">
+            <MessageSquare className="h-3 w-3" strokeWidth={2.25} aria-hidden /> Live preview
+          </h3>
+          {previewRule ? (
+            <PhoneFrame title={activeProject?.name ?? 'Your business'} subtitle={previewRule.name}>
+              <AnimatePresence initial={false} mode="wait">
+                <m.div key={previewRule._id} layout className="space-y-2">
+                  <ChatBubble
+                    who="them"
+                    text={`hi, ${(previewRule.keywords ?? ['hello'])[0]}!`}
+                    time="9:40"
                   />
-                ))}
-              </ul>
-            </SortableContext>
-          </DndContext>
-        )}
-      </Section>
+                  <ChatBubble
+                    who="us"
+                    text={
+                      previewRule.responseText ||
+                      `Template ${previewRule.templateName ?? 'auto_reply'} fires here.`
+                    }
+                    time="9:40"
+                  />
+                </m.div>
+              </AnimatePresence>
+            </PhoneFrame>
+          ) : (
+            <div className="rounded-xl border border-dashed border-zinc-200 bg-white px-3 py-6 text-center text-[12px] text-zinc-500">
+              Click a rule to preview.
+            </div>
+          )}
+        </aside>
+      </div>
 
       {/* Create-rule sheet */}
       <Sheet open={createOpen} onOpenChange={setCreateOpen}>

@@ -1,9 +1,21 @@
 'use client';
 
 import { fmtDate } from '@/lib/utils';
-import React, { useEffect, useState, useTransition, useCallback, useActionState } from 'react';
+import React, { useEffect, useMemo, useState, useTransition, useCallback, useActionState } from 'react';
 import { m, useReducedMotion } from 'motion/react';
-import { CalendarClock, Loader2, Send, Users, ListChecks, CalendarDays, Check } from 'lucide-react';
+import { Line, LineChart, ResponsiveContainer } from 'recharts';
+import {
+  CalendarClock,
+  Loader2,
+  Send,
+  Users,
+  ListChecks,
+  CalendarDays,
+  Check,
+  Clock,
+  Pause,
+  Repeat,
+} from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -39,9 +51,16 @@ import {
   WaButton,
   EmptyState,
   StatusPill,
+  MetricTile,
   type StatusTone,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+
+function compact(n: number | null | undefined): string {
+  const v = typeof n === 'number' && Number.isFinite(n) ? n : 0;
+  if (v >= 1_000) return (v / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return String(v);
+}
 
 /**
  * Wachat broadcast scheduler. Same actions; wachat-ui chrome.
@@ -169,6 +188,26 @@ export default function BroadcastSchedulerPage() {
   const isLastStep = step === 'review';
   const stepIndex = STEPS.findIndex((s) => s.value === step);
 
+  const kpis = useMemo(() => {
+    let scheduled = 0;
+    let sentToday = 0;
+    let queued = 0;
+    let paused = 0;
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    for (const s of schedules) {
+      const st = (s.status || '').toLowerCase();
+      if (st === 'scheduled') scheduled++;
+      if (st === 'completed' || st === 'sent') {
+        const d = s.completedAt || s.sentAt;
+        if (d && new Date(d) >= todayStart) sentToday++;
+      }
+      if (st === 'queued' || st === 'processing') queued++;
+      if (st === 'cancelled' || st === 'paused') paused++;
+    }
+    return { scheduled, sentToday, queued, paused };
+  }, [schedules]);
+
   return (
     <WaPage>
       <PageHeader
@@ -178,6 +217,14 @@ export default function BroadcastSchedulerPage() {
         eyebrowIcon={CalendarClock}
         backHref="/wachat"
       />
+
+      {/* 4-tile KPI strip */}
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <MetricTile label="Scheduled" value={compact(kpis.scheduled)} icon={CalendarClock} delay={0} />
+        <MetricTile label="Sent today" value={compact(kpis.sentToday)} icon={Send} delay={0.05} />
+        <MetricTile label="Queued" value={compact(kpis.queued)} icon={Clock} delay={0.1} />
+        <MetricTile label="Paused / cancelled" value={compact(kpis.paused)} icon={Pause} delay={0.15} />
+      </div>
 
       <Section title="New schedule" description="Step through template, audience, timing, then save.">
         <form action={formAction} className="flex flex-col gap-5">
@@ -207,9 +254,11 @@ export default function BroadcastSchedulerPage() {
                     }`}
                     style={isActive ? { background: 'var(--mt-accent)' } : undefined}
                   >
-                    <span className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] tabular-nums">
-                      {isComplete ? <Check className="h-3 w-3" strokeWidth={2.5} /> : idx + 1}
-                    </span>
+                    {isComplete && (
+                      <span className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px]">
+                        <Check className="h-3 w-3" strokeWidth={2.5} />
+                      </span>
+                    )}
                     <Icon className="h-3 w-3" strokeWidth={2.25} aria-hidden />
                     {s.label}
                   </div>
@@ -341,34 +390,63 @@ export default function BroadcastSchedulerPage() {
           </div>
         ) : schedules.length > 0 ? (
           <Section title="Upcoming schedules" padded={false}>
+            <div className="hidden border-b border-zinc-100 bg-zinc-50/60 px-5 py-2 text-[10px] font-semibold uppercase tracking-[0.06em] text-zinc-500 sm:grid sm:grid-cols-[minmax(160px,1.6fr)_120px_120px_120px_minmax(80px,1fr)_100px_auto]">
+              <span>Name</span>
+              <span>Template</span>
+              <span>Recurring</span>
+              <span>Next run</span>
+              <span>Last 7 runs</span>
+              <span>Status</span>
+              <span className="text-right">Action</span>
+            </div>
             <ul className="divide-y divide-zinc-100">
-              {schedules.map((s, i) => (
-                <m.li
-                  key={s._id}
-                  initial={reduce ? false : { opacity: 0, y: 4 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.3, delay: 0.02 + Math.min(i, 20) * 0.03, ease: EASE_OUT }}
-                  className="grid grid-cols-[1fr_auto] items-center gap-4 px-5 py-3 transition-colors hover:bg-zinc-50 sm:grid-cols-[2fr_1.4fr_1.4fr_auto_auto]"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-[13.5px] font-medium text-zinc-900">{s.name}</p>
-                    <p className="truncate text-[11.5px] text-zinc-500 sm:hidden">
-                      {s.templateName} {s.scheduledAt ? ` / ${fmtDate(s.scheduledAt)}` : ''}
-                    </p>
-                  </div>
-                  <span className="hidden truncate text-[12.5px] text-zinc-500 sm:inline">{s.templateName}</span>
-                  <span className="hidden truncate text-[12.5px] tabular-nums text-zinc-500 sm:inline">
-                    {s.scheduledAt ? fmtDate(s.scheduledAt) : '--'}
-                  </span>
-                  <StatusPill tone={tone(s.status)}>{s.status}</StatusPill>
-                  <div>
-                    {s.status === 'scheduled' && (
-                      <CancelScheduleDialog schedule={s} onConfirm={handleCancel} disabled={cancellingId === s._id} />
-                    )}
-                  </div>
-                </m.li>
-              ))}
+              {schedules.map((s, i) => {
+                const lastRuns: number[] = Array.isArray(s.lastRuns) ? s.lastRuns.slice(-7) : [];
+                const spark = lastRuns.length > 0 ? lastRuns.map((v) => ({ v: Number(v) || 0 })) : [];
+                return (
+                  <m.li
+                    key={s._id}
+                    initial={reduce ? false : { opacity: 0, y: 4 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: 0.02 + Math.min(i, 20) * 0.03, ease: EASE_OUT }}
+                    className="grid h-[36px] grid-cols-[minmax(160px,1.6fr)_120px_120px_120px_minmax(80px,1fr)_100px_auto] items-center gap-3 px-5 text-[12px] transition-colors hover:bg-zinc-50"
+                  >
+                    <span className="min-w-0 truncate font-medium text-zinc-900">{s.name}</span>
+                    <span className="truncate font-mono text-zinc-500">{s.templateName || '-'}</span>
+                    <span className="inline-flex items-center gap-1 text-zinc-700">
+                      {s.recurring && s.recurring !== 'none' ? (
+                        <>
+                          <Repeat className="h-2.5 w-2.5 text-zinc-400" strokeWidth={2.5} />
+                          {s.recurring}
+                        </>
+                      ) : (
+                        '-'
+                      )}
+                    </span>
+                    <span className="truncate tabular-nums text-zinc-500">
+                      {s.scheduledAt ? fmtDate(s.scheduledAt) : '-'}
+                    </span>
+                    <span className="block h-[20px]">
+                      {spark.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={spark} margin={{ top: 2, right: 2, bottom: 2, left: 2 }}>
+                            <Line type="monotone" dataKey="v" stroke="#25D366" strokeWidth={1.5} dot={false} />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <span className="text-[10px] text-zinc-400">-</span>
+                      )}
+                    </span>
+                    <StatusPill tone={tone(s.status)}>{s.status}</StatusPill>
+                    <div className="text-right">
+                      {s.status === 'scheduled' && (
+                        <CancelScheduleDialog schedule={s} onConfirm={handleCancel} disabled={cancellingId === s._id} />
+                      )}
+                    </div>
+                  </m.li>
+                );
+              })}
             </ul>
           </Section>
         ) : (

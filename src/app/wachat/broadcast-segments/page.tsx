@@ -1,9 +1,19 @@
 'use client';
 
 import { fmtDate } from '@/lib/utils';
-import { useEffect, useState, useTransition, useCallback, useActionState } from 'react';
+import { useEffect, useMemo, useState, useTransition, useCallback, useActionState } from 'react';
 import { m, useReducedMotion } from 'motion/react';
-import { Loader2, Pencil, Plus, Trash2, Users, Layers } from 'lucide-react';
+import {
+  Loader2,
+  Pencil,
+  Plus,
+  Trash2,
+  Users,
+  Layers,
+  Clock,
+  Activity,
+  Megaphone,
+} from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -45,8 +55,16 @@ import {
   Section,
   WaButton,
   EmptyState,
+  MetricTile,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+
+function compact(n: number | null | undefined): string {
+  const v = typeof n === 'number' && Number.isFinite(n) ? n : 0;
+  if (v >= 1_000_000) return (v / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (v >= 1_000) return (v / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return String(v);
+}
 
 /**
  * Wachat Broadcast Segments - saved audience segments.
@@ -182,6 +200,16 @@ export default function BroadcastSegmentsPage() {
     }
   };
 
+  const kpis = useMemo(() => {
+    let totalContacts = 0;
+    let usedRecent = 0;
+    for (const s of segments) {
+      totalContacts += Number(s.matchCount || s.estimatedSize || 0);
+      if (Number(s.broadcastsLast30d || 0) > 0) usedRecent++;
+    }
+    return { totalContacts, usedRecent };
+  }, [segments]);
+
   return (
     <WaPage>
       <PageHeader
@@ -201,6 +229,13 @@ export default function BroadcastSegmentsPage() {
           />
         }
       />
+
+      {/* KPI strip */}
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <MetricTile label="Total segments" value={compact(segments.length)} icon={Layers} delay={0} />
+        <MetricTile label="Contacts in segments" value={compact(kpis.totalContacts)} icon={Users} delay={0.05} />
+        <MetricTile label="Used in broadcasts (30d)" value={compact(kpis.usedRecent)} icon={Megaphone} delay={0.1} />
+      </div>
 
       <Section
         title={`Your segments (${segments.length})`}
@@ -293,6 +328,24 @@ export default function BroadcastSegmentsPage() {
                         </ZoruAlertDialog>
                       </div>
                     </div>
+                    {/* Match count + last recompute */}
+                    <dl className="mt-3 grid grid-cols-2 gap-2 text-[11px]">
+                      <div className="rounded-lg bg-zinc-50 px-2 py-1.5">
+                        <dt className="text-[9.5px] uppercase tracking-[0.08em] text-zinc-500">Matches</dt>
+                        <dd className="font-semibold tabular-nums text-zinc-900">
+                          {compact(seg.matchCount ?? seg.estimatedSize ?? 0)}
+                        </dd>
+                      </div>
+                      <div className="rounded-lg bg-zinc-50 px-2 py-1.5">
+                        <dt className="text-[9.5px] uppercase tracking-[0.08em] text-zinc-500">Recomputed</dt>
+                        <dd className="inline-flex items-center gap-1 truncate text-zinc-700">
+                          <Clock className="h-2.5 w-2.5 text-zinc-400" strokeWidth={2.5} />
+                          {seg.lastRecomputedAt ? fmtDate(seg.lastRecomputedAt) : '-'}
+                        </dd>
+                      </div>
+                    </dl>
+
+                    {/* Segment rules / filters */}
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {(filters.tags || []).map((tag: string) => (
                         <span key={tag} className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700">
@@ -313,7 +366,30 @@ export default function BroadcastSegmentsPage() {
                         <span className="text-[11.5px] text-zinc-500">No filters</span>
                       )}
                     </div>
-                    <p className="mt-3 text-[11px] text-zinc-500">Created {fmtDate(seg.createdAt)}</p>
+
+                    {/* Sample contacts */}
+                    {Array.isArray(seg.sampleContacts) && seg.sampleContacts.length > 0 && (
+                      <div className="mt-3 border-t border-zinc-100 pt-2">
+                        <p className="text-[9.5px] uppercase tracking-[0.08em] text-zinc-500">Sample</p>
+                        <ul className="mt-1 space-y-0.5">
+                          {seg.sampleContacts.slice(0, 3).map((c: any, idx: number) => (
+                            <li key={idx} className="truncate font-mono text-[11px] tabular-nums text-zinc-600">
+                              {c.phone || c.name || String(c)}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    <p className="mt-3 flex items-center justify-between text-[10.5px] text-zinc-500">
+                      <span>Created {fmtDate(seg.createdAt)}</span>
+                      {Number(seg.broadcastsLast30d || 0) > 0 && (
+                        <span className="inline-flex items-center gap-1">
+                          <Activity className="h-2.5 w-2.5" strokeWidth={2.5} />
+                          {seg.broadcastsLast30d} sends (30d)
+                        </span>
+                      )}
+                    </p>
                   </m.article>
                 );
               })}

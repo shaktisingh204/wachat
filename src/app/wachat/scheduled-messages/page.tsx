@@ -1,9 +1,9 @@
 'use client';
 
 import { fmtDate } from '@/lib/utils';
-import React, { useEffect, useState, useTransition, useCallback, useActionState } from 'react';
+import React, { useEffect, useMemo, useState, useTransition, useCallback, useActionState } from 'react';
 import { m, useReducedMotion } from 'motion/react';
-import { Ban, Clock, Loader2, Pencil, Send } from 'lucide-react';
+import { Ban, Clock, Loader2, Pencil, Send, CalendarCheck, CalendarX, Hourglass } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -44,9 +44,16 @@ import {
   WaButton,
   EmptyState,
   StatusPill,
+  MetricTile,
   type StatusTone,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+
+function compact(n: number | null | undefined): string {
+  const v = typeof n === 'number' && Number.isFinite(n) ? n : 0;
+  if (v >= 1_000) return (v / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return String(v);
+}
 
 /**
  * Wachat scheduled messages. Same actions; wachat-ui chrome.
@@ -227,6 +234,24 @@ export default function ScheduledMessagesPage() {
 
   const filtered = messages.filter((m) => statusFilter === 'all' || m.status === statusFilter);
 
+  const kpis = useMemo(() => {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    let scheduled = 0;
+    let sentToday = 0;
+    let queued = 0;
+    let cancelled = 0;
+    for (const m of messages) {
+      if (m.status === 'pending') {
+        scheduled++;
+        if (new Date(m.scheduledAt) <= new Date(Date.now() + 60 * 60 * 1000)) queued++;
+      }
+      if (m.status === 'sent' && m.sentAt && new Date(m.sentAt) >= todayStart) sentToday++;
+      if (m.status === 'cancelled') cancelled++;
+    }
+    return { scheduled, sentToday, queued, cancelled };
+  }, [messages]);
+
   return (
     <WaPage>
       <PageHeader
@@ -237,7 +262,15 @@ export default function ScheduledMessagesPage() {
         backHref="/wachat"
       />
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_1.4fr]">
+      {/* 4-tile KPI strip */}
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <MetricTile label="Scheduled" value={compact(kpis.scheduled)} icon={Clock} delay={0} />
+        <MetricTile label="Sent today" value={compact(kpis.sentToday)} icon={CalendarCheck} delay={0.05} />
+        <MetricTile label="Queued (next hour)" value={compact(kpis.queued)} icon={Hourglass} delay={0.1} />
+        <MetricTile label="Cancelled" value={compact(kpis.cancelled)} icon={CalendarX} delay={0.15} />
+      </div>
+
+      <div className="grid gap-3 lg:grid-cols-[1fr_1.4fr]">
         <Section title="Schedule a message" description="One-off send for a specific number.">
           <form action={formAction} className="flex flex-col gap-4">
             <input type="hidden" name="projectId" value={projectId || ''} />

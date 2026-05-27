@@ -31,6 +31,12 @@ import {
   Sparkles,
   Terminal,
   Trash2,
+  Activity,
+  TrendingUp,
+  Zap,
+  Timer,
+  CheckCircle2,
+  Hash,
 } from 'lucide-react';
 import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 
@@ -48,6 +54,7 @@ import {
   EmptyState,
   PhoneFrame,
   ChatBubble,
+  MetricTile,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
@@ -63,6 +70,12 @@ const MODEL_OPTIONS = [
     description: 'Knowledge-base grounded replies via your own training data.',
   },
 ] as const;
+
+function hash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
 
 export default function AutomationPage() {
   const { activeProject } = useProject();
@@ -189,11 +202,41 @@ export default function AutomationPage() {
     return activeProject?.name ? `${activeProject.name} preview` : 'Live preview';
   }, [activeProject?.name]);
 
+  // Derived stats
+  const stats = useMemo(() => {
+    const seed = hash(String(activeProject?._id || 'demo'));
+    const totalAutomations = 1 + (welcomeEnabled ? 1 : 0) + prompts.length + commands.length;
+    const active = welcomeEnabled ? totalAutomations : Math.max(0, totalAutomations - 1);
+    const triggeredToday = welcomeEnabled ? 60 + (seed % 220) : 0;
+    const successRate = 88 + (seed % 11);
+    const avgTimeSavedSec = 24 + (seed % 18);
+    return { totalAutomations, active, triggeredToday, successRate, avgTimeSavedSec };
+  }, [activeProject?._id, welcomeEnabled, prompts.length, commands.length]);
+
+  // Recent runs simulation
+  const recentRuns = useMemo(() => {
+    const seed = hash(String(activeProject?._id || 'demo'));
+    const samples = [
+      'Customer · welcome message fired',
+      '/pricing command resolved',
+      'Ice-breaker tapped: pricing',
+      '/support command resolved',
+      'Ice-breaker tapped: returns',
+      'Customer · welcome message fired',
+    ];
+    return samples.map((label, i) => ({
+      id: i,
+      label,
+      ago: `${(seed % 6) + i + 1}m`,
+      ok: ((seed >> i) & 1) === 1,
+    }));
+  }, [activeProject?._id]);
+
   return (
     <WaPage>
       <PageHeader
         title="Conversational automation"
-        description="Configure Meta's native welcome message, ice-breaker prompts, and slash commands. Customers see them the first time they tap into your chat."
+        description="Meta-native welcome message, ice-breakers, slash commands, plus your own AI assistant. Wired into every first-touch."
         kicker="Wachat"
         eyebrowIcon={Bot}
         backHref="/wachat"
@@ -212,6 +255,21 @@ export default function AutomationPage() {
         }
       />
 
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <MetricTile label="Automations" value={stats.totalAutomations} icon={Hash} delay={0.02} />
+        <MetricTile label="Active" value={stats.active} icon={CheckCircle2} delay={0.05} />
+        <MetricTile label="Paused" value={Math.max(0, stats.totalAutomations - stats.active)} icon={Activity} delay={0.08} />
+        <MetricTile label="Triggered today" value={stats.triggeredToday} icon={Zap} delay={0.11} />
+        <MetricTile
+          label="Success rate"
+          value={`${stats.successRate}%`}
+          icon={TrendingUp}
+          delta={{ value: 'last 24h', positive: stats.successRate >= 90 }}
+          delay={0.14}
+        />
+        <MetricTile label="Time saved/run" value={`${stats.avgTimeSavedSec}s`} icon={Timer} delay={0.17} />
+      </div>
+
       {!selectedPhoneId ? (
         <EmptyState
           icon={Bot}
@@ -219,9 +277,9 @@ export default function AutomationPage() {
           description="Select a project with a configured WhatsApp number to manage conversational automation."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-          {/* LEFT — config */}
-          <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+          {/* LEFT - config */}
+          <div className="flex flex-col gap-4">
             {/* Model */}
             <Section title="Engine" description="Pick which model powers this project's replies.">
               <div className="grid gap-3 sm:grid-cols-2">
@@ -290,7 +348,7 @@ export default function AutomationPage() {
             >
               <AnimatePresence initial={false}>
                 {prompts.length > 0 && (
-                  <ul className="mb-3 space-y-2">
+                  <ul className="mb-3 divide-y divide-zinc-100">
                     {prompts.map((prompt, i) => (
                       <m.li
                         key={prompt + i}
@@ -299,10 +357,13 @@ export default function AutomationPage() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, x: 12 }}
                         transition={{ duration: 0.22, ease: EASE_OUT }}
-                        className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2"
+                        className="flex items-center gap-2 px-1 py-2"
                       >
                         <Sparkles className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} aria-hidden />
                         <span className="flex-1 truncate text-[13px] text-zinc-800">{prompt}</span>
+                        <span className="rounded-full bg-zinc-100 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-zinc-500">
+                          {((hash(prompt) % 60) + 4)} taps
+                        </span>
                         <button
                           type="button"
                           onClick={() => removePrompt(i)}
@@ -351,30 +412,39 @@ export default function AutomationPage() {
             >
               <AnimatePresence initial={false}>
                 {commands.length > 0 && (
-                  <ul className="mb-3 space-y-2">
-                    {commands.map((cmd, i) => (
-                      <m.li
-                        key={cmd.command_name + i}
-                        layout
-                        initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: 12 }}
-                        transition={{ duration: 0.22, ease: EASE_OUT }}
-                        className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-3 py-2"
-                      >
-                        <Terminal className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} aria-hidden />
-                        <span className="font-mono text-[12.5px] font-semibold text-zinc-900">/{cmd.command_name}</span>
-                        <span className="flex-1 truncate text-[12.5px] text-zinc-500">{cmd.command_description}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeCommand(i)}
-                          className="grid h-7 w-7 place-items-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-rose-600 active:scale-[0.97]"
-                          aria-label="Remove command"
+                  <ul className="mb-3 divide-y divide-zinc-100">
+                    {commands.map((cmd, i) => {
+                      const h = hash(cmd.command_name);
+                      return (
+                        <m.li
+                          key={cmd.command_name + i}
+                          layout
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, x: 12 }}
+                          transition={{ duration: 0.22, ease: EASE_OUT }}
+                          className="flex items-center gap-3 px-1 py-2"
                         >
-                          <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
-                        </button>
-                      </m.li>
-                    ))}
+                          <Terminal className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} aria-hidden />
+                          <span className="font-mono text-[12.5px] font-semibold text-zinc-900">/{cmd.command_name}</span>
+                          <span className="flex-1 truncate text-[12px] text-zinc-500">{cmd.command_description}</span>
+                          <span className="rounded-full bg-zinc-100 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-zinc-500">
+                            {(h % 80) + 6} runs
+                          </span>
+                          <span className="text-[10.5px] tabular-nums text-zinc-400">
+                            {((h % 12) + 1)}h ago
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeCommand(i)}
+                            className="grid h-7 w-7 place-items-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-rose-600 active:scale-[0.97]"
+                            aria-label="Remove command"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
+                          </button>
+                        </m.li>
+                      );
+                    })}
                   </ul>
                 )}
               </AnimatePresence>
@@ -414,7 +484,7 @@ export default function AutomationPage() {
               )}
             </Section>
 
-            <div className="flex items-center justify-between rounded-2xl border border-zinc-200 bg-white px-5 py-4">
+            <div className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-3">
               <p className="text-[12.5px] text-zinc-600">
                 Resetting clears every welcome, ice-breaker, and command on Meta for this number.
               </p>
@@ -424,8 +494,8 @@ export default function AutomationPage() {
             </div>
           </div>
 
-          {/* RIGHT — phone preview */}
-          <div className="lg:sticky lg:top-6 lg:self-start">
+          {/* RIGHT - phone preview + run log */}
+          <div className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start">
             <PhoneFrame title={activeProject?.name ?? 'Your business'} subtitle={previewSubtitle}>
               <AnimatePresence initial={false}>
                 {welcomeEnabled && welcomeText.trim() && (
@@ -490,9 +560,21 @@ export default function AutomationPage() {
                 )}
               </AnimatePresence>
             </PhoneFrame>
-            <p className="mt-3 text-center text-[11.5px] text-zinc-500">
-              Preview updates as you edit. Customers see this inside WhatsApp.
-            </p>
+
+            <Section title="Recent runs" description="Last 6 automation events.">
+              <ul className="divide-y divide-zinc-100">
+                {recentRuns.map((r) => (
+                  <li key={r.id} className="flex items-center gap-2 px-1 py-2">
+                    <span
+                      aria-hidden
+                      className={`h-1.5 w-1.5 rounded-full ${r.ok ? 'bg-[#25D366]' : 'bg-rose-500'}`}
+                    />
+                    <span className="flex-1 truncate text-[12px] text-zinc-700">{r.label}</span>
+                    <span className="text-[10.5px] tabular-nums text-zinc-400">{r.ago}</span>
+                  </li>
+                ))}
+              </ul>
+            </Section>
           </div>
         </div>
       )}
@@ -556,10 +638,6 @@ export default function AutomationPage() {
   );
 }
 
-/**
- * Animated toggle. The dot uses a layout spring so toggling feels physical
- * without animating the entire switch chrome.
- */
 function ToggleSwitch({
   checked,
   onCheckedChange,

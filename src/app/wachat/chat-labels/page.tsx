@@ -3,12 +3,13 @@
 import * as React from 'react';
 import {
   useEffect,
+  useMemo,
   useState,
   useTransition,
   useCallback,
   useActionState,
 } from 'react';
-import { Tag, X, Loader2, Plus } from 'lucide-react';
+import { Tag, X, Loader2, Plus, Hash, Clock, Users } from 'lucide-react';
 import { m, AnimatePresence } from 'motion/react';
 
 import {
@@ -22,9 +23,11 @@ import {
   PageHeader,
   WaButton,
   Section,
+  MetricTile,
   EmptyState,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+import { fmtDate } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
 import {
   getChatLabels,
@@ -33,10 +36,9 @@ import {
 } from '@/app/actions/wachat-features.actions';
 
 /**
- * /wachat/chat-labels — Manage colored labels for chat organization,
- * rebuilt on wachat-ui primitives. Color picker uses a neutral
- * swatch palette so labels stay distinguishable without clashing
- * with the emerald module accent.
+ * /wachat/chat-labels - Manage colored labels for chat organization,
+ * enriched with per-label usage count, last-used timestamp, and the
+ * list of agents who applied each label.
  */
 
 const PRESET_COLORS = [
@@ -100,17 +102,58 @@ export default function ChatLabelsPage() {
     }
   };
 
+  const totalUsage = useMemo(
+    () => labels.reduce((sum, l) => sum + (Number(l.usageCount) || 0), 0),
+    [labels],
+  );
+  const mostUsed = useMemo(() => {
+    if (labels.length === 0) return null;
+    return [...labels].sort((a, b) => (Number(b.usageCount) || 0) - (Number(a.usageCount) || 0))[0];
+  }, [labels]);
+  const recentlyUsed = useMemo(() => {
+    const dated = labels.filter((l) => l.lastUsedAt || l.updatedAt);
+    if (dated.length === 0) return null;
+    return [...dated].sort((a, b) => {
+      const ta = new Date(a.lastUsedAt || a.updatedAt || 0).getTime();
+      const tb = new Date(b.lastUsedAt || b.updatedAt || 0).getTime();
+      return tb - ta;
+    })[0];
+  }, [labels]);
+
   return (
     <WaPage>
       <PageHeader
         title="Chat labels"
-        description="Create reusable labels to organize and categorize WhatsApp conversations."
+        description="Reusable labels to organize and categorize WhatsApp conversations."
         kicker="Wachat · labels"
         backHref="/wachat"
         eyebrowIcon={Tag}
       />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+      {/* KPI strip */}
+      <section aria-labelledby="labels-kpis" className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <h2 id="labels-kpis" className="sr-only">Labels overview</h2>
+        <MetricTile label="Total labels" value={labels.length.toLocaleString('en-IN')} icon={Tag} delay={0} />
+        <MetricTile label="Total applications" value={totalUsage.toLocaleString('en-IN')} icon={Hash} delay={0.04} />
+        <MetricTile
+          label="Most used"
+          value={mostUsed ? mostUsed.name : '--'}
+          icon={Users}
+          delay={0.08}
+        />
+        <MetricTile
+          label="Recently used"
+          value={
+            recentlyUsed
+              ? fmtDate(recentlyUsed.lastUsedAt || recentlyUsed.updatedAt)
+              : '--'
+          }
+          icon={Clock}
+          delay={0.12}
+        />
+      </section>
+
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
         <Section title="Create a label" description="Name and pick a swatch.">
           <form action={formAction} className="flex flex-col gap-4">
             <input type="hidden" name="projectId" value={projectId || ''} />
@@ -138,9 +181,13 @@ export default function ChatLabelsPage() {
                     )}
                     style={{ backgroundColor: c.value }}
                     aria-label={c.name}
+                    title={c.name}
                   />
                 ))}
               </div>
+              <p className="mt-2 text-[11px] text-zinc-500">
+                Picked: <span className="font-mono">{PRESET_COLORS.find((c) => c.value === selectedColor)?.name}</span>
+              </p>
             </div>
             <div>
               <WaButton
@@ -155,48 +202,89 @@ export default function ChatLabelsPage() {
         </Section>
 
         <Section
-          title={`Your labels (${labels.length})`}
-          description="Click the close icon on any label to remove it."
+          title={`Your labels (${labels.length.toLocaleString('en-IN')})`}
+          description="Usage count, last application, and contributors per label."
+          padded={false}
         >
           {isLoading && labels.length === 0 ? (
             <div className="flex h-20 items-center justify-center">
               <Loader2 className="h-5 w-5 animate-spin text-zinc-400" />
             </div>
           ) : labels.length === 0 ? (
-            <EmptyState
-              icon={Tag}
-              title="No labels yet"
-              description="Create your first label using the form on the left."
-            />
+            <div className="p-5">
+              <EmptyState
+                icon={Tag}
+                title="No labels yet"
+                description="Create your first label using the form on the left."
+              />
+            </div>
           ) : (
-            <ul className="flex flex-wrap gap-2">
+            <ul className="divide-y divide-zinc-100">
               <AnimatePresence initial={false}>
-                {labels.map((label, i) => (
-                  <m.li
-                    key={label._id}
-                    initial={{ opacity: 0, y: 4, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.94 }}
-                    transition={{ duration: 0.22, delay: i * 0.02, ease: EASE_OUT }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-[13px] font-medium text-zinc-800"
-                  >
-                    <span
-                      className="h-2.5 w-2.5 rounded-full"
-                      style={{ backgroundColor: label.color }}
-                      aria-hidden
-                    />
-                    {label.name}
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(label._id)}
-                      disabled={isDeletingId === label._id}
-                      className="ml-1 grid h-5 w-5 place-items-center rounded-full text-zinc-400 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.92]"
-                      aria-label={`Delete ${label.name}`}
+                {labels.map((label, i) => {
+                  const usage = Number(label.usageCount) || 0;
+                  const lastUsed = label.lastUsedAt || label.updatedAt;
+                  const agents: string[] = Array.isArray(label.appliedBy)
+                    ? label.appliedBy.slice(0, 3)
+                    : Array.isArray(label.agents)
+                      ? label.agents.slice(0, 3)
+                      : [];
+                  const extraAgents =
+                    (Array.isArray(label.appliedBy) ? label.appliedBy.length : 0) +
+                    (Array.isArray(label.agents) ? label.agents.length : 0) -
+                    agents.length;
+                  return (
+                    <m.li
+                      key={label._id}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.97 }}
+                      transition={{ duration: 0.25, delay: i * 0.03, ease: EASE_OUT }}
+                      className="flex items-center gap-3 px-4 py-2.5 transition-colors duration-150 hover:bg-zinc-50/60"
                     >
-                      <X className="h-3 w-3" strokeWidth={2.25} />
-                    </button>
-                  </m.li>
-                ))}
+                      <span
+                        className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[12px] font-medium text-zinc-800"
+                      >
+                        <span
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: label.color }}
+                          aria-hidden
+                        />
+                        {label.name}
+                      </span>
+                      <div className="ml-2 flex min-w-0 flex-1 items-center gap-4 text-[11.5px] text-zinc-500">
+                        <span className="inline-flex items-center gap-1 tabular-nums">
+                          <Hash className="h-3 w-3" strokeWidth={2} aria-hidden />
+                          {usage.toLocaleString('en-IN')} use{usage === 1 ? '' : 's'}
+                        </span>
+                        {lastUsed && (
+                          <span className="inline-flex items-center gap-1 tabular-nums">
+                            <Clock className="h-3 w-3" strokeWidth={2} aria-hidden />
+                            {fmtDate(lastUsed)}
+                          </span>
+                        )}
+                        {agents.length > 0 && (
+                          <span className="inline-flex min-w-0 items-center gap-1.5">
+                            <Users className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
+                            <span className="truncate">
+                              {agents.join(', ')}
+                              {extraAgents > 0 && ` +${extraAgents}`}
+                            </span>
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(label._id)}
+                        disabled={isDeletingId === label._id}
+                        className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-zinc-400 transition-colors duration-150 hover:bg-rose-50 hover:text-rose-600 active:scale-[0.92]"
+                        aria-label={`Delete ${label.name}`}
+                      >
+                        <X className="h-3.5 w-3.5" strokeWidth={2.25} />
+                      </button>
+                    </m.li>
+                  );
+                })}
               </AnimatePresence>
             </ul>
           )}

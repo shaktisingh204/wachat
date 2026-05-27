@@ -3,17 +3,23 @@
 import * as React from 'react';
 import { m, useReducedMotion } from 'motion/react';
 import {
+  Activity,
+  AlertTriangle,
   ArrowRight,
   ArrowUpRight,
+  CheckCircle2,
+  Clock,
   Code2,
   Copy,
   Edit2,
   FileSpreadsheet,
   Globe,
+  Layers,
   Link as LinkIcon,
   PieChart,
   Plus,
   Puzzle,
+  Send,
   ShoppingBag,
   Store,
   Trash2,
@@ -29,6 +35,7 @@ import {
   Tabs,
   type TabSpec,
   DataRow,
+  MetricTile,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
@@ -221,52 +228,68 @@ export default function IntegrationsPage() {
         eyebrowIcon={Puzzle}
       />
 
+      {/* KPI strip — purely derived from local config (no fake metrics). */}
+      {(() => {
+        const total = integrations.length;
+        const ready = integrations.filter((i) => i.status === 'ready').length;
+        const comingSoon = total - ready;
+        const oauthConnected = oauthConnections.filter((o) => o.connected).length;
+        const activeWebhooks = webhookSamples.filter((w) => w.status === 'active').length;
+        const keys = apiKeys.length;
+        return (
+          <section className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            <MetricTile label="Total apps" value={total} icon={Layers} delay={0.02} />
+            <MetricTile label="Ready" value={ready} icon={CheckCircle2} delay={0.04} />
+            <MetricTile label="Coming soon" value={comingSoon} icon={Clock} delay={0.06} />
+            <MetricTile label="OAuth linked" value={oauthConnected} icon={Activity} delay={0.08} />
+            <MetricTile label="Live webhooks" value={activeWebhooks} icon={Send} delay={0.1} />
+            <MetricTile label="API keys" value={keys} icon={AlertTriangle} delay={0.12} />
+          </section>
+        );
+      })()}
+
       <Tabs items={TABS} active={tab} onChange={setTab} />
 
       {tab === 'apps' && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {integrations.map((integration, i) => (
               <m.div
                 key={integration.title}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, delay: reduce ? 0 : i * 0.04, ease: EASE_OUT }}
-                className="flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-5 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px]"
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = '0 18px 40px -22px var(--mt-accent-glow)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = '0 0 0 1px transparent';
-                }}
+                className="flex h-24 items-center gap-3 rounded-xl border border-zinc-200 bg-white px-3.5 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px]"
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 14px 32px -22px var(--mt-accent-glow)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 0 0 1px transparent'; }}
               >
-                <div className="flex items-center gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-zinc-200 bg-white">
-                    <BrandLogo brand={integration.brand} fallback={integration.fallbackIcon} className="h-5 w-5" />
-                  </span>
-                  <h3 className="truncate text-[14.5px] font-semibold tracking-tight text-zinc-950">
-                    {integration.title}
-                  </h3>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-zinc-200 bg-white">
+                  <BrandLogo brand={integration.brand} fallback={integration.fallbackIcon} className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="truncate text-[13.5px] font-semibold tracking-tight text-zinc-950">
+                      {integration.title}
+                    </h3>
+                    {integration.status === 'ready' ? (
+                      <StatusPill tone="live">Ready</StatusPill>
+                    ) : (
+                      <StatusPill tone="paused">Soon</StatusPill>
+                    )}
+                  </div>
+                  <p className="mt-0.5 line-clamp-2 text-[11.5px] leading-snug text-zinc-500">
+                    {integration.description}
+                  </p>
                 </div>
-                <p className="flex-1 text-[13px] leading-relaxed text-zinc-600">
-                  {integration.description}
-                </p>
-                <div className="flex items-center justify-between border-t border-zinc-100 pt-3">
-                  {integration.status === 'ready' ? (
-                    <StatusPill tone="live">Ready</StatusPill>
-                  ) : (
-                    <StatusPill tone="paused">Coming soon</StatusPill>
-                  )}
-                  {integration.status === 'ready' && integration.href ? (
-                    <WaButton href={integration.href} size="sm" rightIcon={ArrowRight}>
-                      Configure
-                    </WaButton>
-                  ) : (
-                    <WaButton size="sm" variant="outline" disabled>
-                      Notify me
-                    </WaButton>
-                  )}
-                </div>
+                {integration.status === 'ready' && integration.href ? (
+                  <WaButton href={integration.href} size="sm" rightIcon={ArrowRight}>
+                    Open
+                  </WaButton>
+                ) : (
+                  <WaButton size="sm" variant="outline" disabled>
+                    Notify
+                  </WaButton>
+                )}
               </m.div>
             ))}
           </div>

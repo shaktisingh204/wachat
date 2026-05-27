@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState, useTransition } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import {
   Activity,
   AppWindow,
@@ -11,13 +11,16 @@ import {
   Lock,
   Phone,
   RefreshCw,
+  Shield,
   Smartphone,
   TriangleAlert,
   ExternalLink,
   Info,
   TrendingDown,
+  Lightbulb,
   type LucideIcon,
 } from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -30,11 +33,13 @@ import {
   WaPage,
   PageHeader,
   WaButton,
+  MetricTile,
   Section,
   EmptyState,
   StatusPill,
   type StatusTone,
 } from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 import {
   useZoruToast,
   Input,
@@ -126,11 +131,13 @@ const yAxisFormatter = (val: number) => {
 export default function HealthPage() {
   const { activeProject } = useProject();
   const { toast } = useZoruToast();
+  const reduceMotion = useReducedMotion();
   const [isPending, startTransition] = useTransition();
   const [wabaHealth, setWabaHealth] = useState<any>(null);
   const [phoneHealths, setPhoneHealths] = useState<PhoneHealth[]>([]);
   const [pinInput, setPinInput] = useState('');
   const [pinPhoneId, setPinPhoneId] = useState<string | null>(null);
+  const [lastSyncAt, setLastSyncAt] = useState<Date | null>(null);
 
   useEffect(() => {
     document.title = 'Account health · Wachat';
@@ -166,6 +173,8 @@ export default function HealthPage() {
         );
         setPhoneHealths(healthResults);
       }
+
+      setLastSyncAt(new Date());
     });
   }, [activeProject?._id, activeProject?.phoneNumbers]);
 
@@ -198,6 +207,77 @@ export default function HealthPage() {
   const entities: any[] = wabaHealth?.entities || [];
   const overallColor = statusColor(overallStatus);
 
+  // Aggregate health summary across entities and phones
+  const summary = useMemo(() => {
+    const allErrors = entities.flatMap((e: any) => (e.errors || []) as any[]);
+    const totalErrors = allErrors.length;
+    const greenPhones = phoneHealths.filter(
+      (p) => statusColor(p.qualityRating) === 'green',
+    ).length;
+    const amberPhones = phoneHealths.filter(
+      (p) => statusColor(p.qualityRating) === 'amber',
+    ).length;
+    const redPhones = phoneHealths.filter((p) => statusColor(p.qualityRating) === 'red').length;
+    return {
+      totalErrors,
+      greenPhones,
+      amberPhones,
+      redPhones,
+      totalPhones: phoneHealths.length,
+      allErrors,
+    };
+  }, [entities, phoneHealths]);
+
+  // Error type breakdown
+  const errorTypeBreakdown = useMemo(() => {
+    const map = new Map<string, { type: string; tone: StatusColor; count: number }>();
+    summary.allErrors.forEach((err: any) => {
+      const cat = categorizeError(err);
+      const cur = map.get(cat.type) || { ...cat, count: 0 };
+      cur.count += 1;
+      map.set(cat.type, cur);
+    });
+    return Array.from(map.values()).sort((a, b) => b.count - a.count);
+  }, [summary.allErrors]);
+
+  const errorMax = Math.max(1, ...errorTypeBreakdown.map((e) => e.count));
+
+  // Recovery suggestions
+  const recoverySuggestions = useMemo(() => {
+    const out: { label: string; suggestion: string }[] = [];
+    if (errorTypeBreakdown.some((e) => e.type === 'Policy violation')) {
+      out.push({
+        label: 'Policy violation flagged',
+        suggestion: 'Pause broadcasts and review WhatsApp Business policy for the affected number.',
+      });
+    }
+    if (errorTypeBreakdown.some((e) => e.type === 'Quality drop')) {
+      out.push({
+        label: 'Quality dropping',
+        suggestion: 'Slow down opt-in/promotional sends and warm up traffic gradually.',
+      });
+    }
+    if (errorTypeBreakdown.some((e) => e.type === 'Billing issue')) {
+      out.push({
+        label: 'Billing blocked',
+        suggestion: 'Update payment method in Meta Business Manager to resume messaging.',
+      });
+    }
+    if (errorTypeBreakdown.some((e) => e.type === 'Rate limit')) {
+      out.push({
+        label: 'Rate-limited',
+        suggestion: 'Reduce concurrent broadcast volume or request a higher messaging tier.',
+      });
+    }
+    if (summary.redPhones > 0) {
+      out.push({
+        label: `${summary.redPhones} phone number(s) flagged`,
+        suggestion: 'Re-verify display name and reduce spam reports to recover quality.',
+      });
+    }
+    return out;
+  }, [errorTypeBreakdown, summary.redPhones]);
+
   return (
     <WaPage>
       <PageHeader
@@ -206,16 +286,24 @@ export default function HealthPage() {
         description="Monitor WABA status, resolve messaging blockers, and manage phone quality."
         eyebrowIcon={Activity}
         actions={
-          <WaButton size="sm" variant="outline" onClick={fetchHealth} disabled={isPending} leftIcon={RefreshCw}>
-            Refresh
-          </WaButton>
+          <>
+            {lastSyncAt && (
+              <span className="hidden items-center gap-1.5 text-[11px] text-zinc-500 sm:inline-flex">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                Synced {Math.max(0, Math.round((Date.now() - lastSyncAt.getTime()) / 1000))}s ago
+              </span>
+            )}
+            <WaButton size="sm" variant="outline" onClick={fetchHealth} disabled={isPending} leftIcon={RefreshCw}>
+              Refresh
+            </WaButton>
+          </>
         }
       />
 
       {/* Alert banner */}
       {overallColor !== 'muted' && overallColor !== 'green' && (
         <div
-          className={`mb-6 flex items-start gap-3 rounded-2xl border px-4 py-3 ${
+          className={`mb-4 flex items-start gap-3 rounded-xl border px-4 py-3 ${
             overallColor === 'red'
               ? 'border-rose-200 bg-rose-50'
               : 'border-amber-200 bg-amber-50'
@@ -230,7 +318,7 @@ export default function HealthPage() {
             <p className={`text-[13px] font-semibold ${overallColor === 'red' ? 'text-rose-900' : 'text-amber-900'}`}>
               {overallColor === 'red' ? 'Messaging disabled' : 'Account warning'}
             </p>
-            <p className={`mt-0.5 text-[12.5px] leading-relaxed ${overallColor === 'red' ? 'text-rose-700' : 'text-amber-700'}`}>
+            <p className={`mt-0.5 text-[12px] leading-relaxed ${overallColor === 'red' ? 'text-rose-700' : 'text-amber-700'}`}>
               {overallColor === 'red'
                 ? 'Your WhatsApp Business Account cannot send messages right now. Resolve the critical errors below.'
                 : 'Your account is facing warnings that could lead to messaging restrictions.'}
@@ -239,12 +327,135 @@ export default function HealthPage() {
         </div>
       )}
 
+      {/* 6-tile health KPI strip */}
+      {wabaHealth && (
+        <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+          <MetricTile
+            label="Messaging"
+            value={overallStatus || '--'}
+            delta={
+              overallColor === 'green'
+                ? { value: 'Healthy', positive: true }
+                : overallColor === 'red'
+                ? { value: 'Blocked', positive: false }
+                : overallColor === 'amber'
+                ? { value: 'Warning', positive: false }
+                : undefined
+            }
+            icon={Activity}
+            delay={reduceMotion ? 0 : 0.02}
+          />
+          <MetricTile
+            label="Entities"
+            value={entities.length.toLocaleString()}
+            icon={Building2}
+            delay={reduceMotion ? 0 : 0.04}
+          />
+          <MetricTile
+            label="Phone numbers"
+            value={summary.totalPhones.toLocaleString()}
+            icon={Phone}
+            delay={reduceMotion ? 0 : 0.06}
+          />
+          <MetricTile
+            label="Healthy phones"
+            value={`${summary.greenPhones}/${summary.totalPhones || 0}`}
+            delta={
+              summary.totalPhones > 0
+                ? {
+                    value: `${Math.round((summary.greenPhones / Math.max(1, summary.totalPhones)) * 100)}%`,
+                    positive: summary.greenPhones === summary.totalPhones,
+                  }
+                : undefined
+            }
+            icon={CircleCheck}
+            delay={reduceMotion ? 0 : 0.08}
+          />
+          <MetricTile
+            label="Warnings"
+            value={summary.amberPhones.toLocaleString()}
+            delta={
+              summary.amberPhones > 0
+                ? { value: 'Watch', positive: false }
+                : undefined
+            }
+            icon={TriangleAlert}
+            delay={reduceMotion ? 0 : 0.1}
+          />
+          <MetricTile
+            label="Active errors"
+            value={summary.totalErrors.toLocaleString()}
+            delta={
+              summary.totalErrors > 0
+                ? { value: 'Resolve', positive: false }
+                : { value: 'Clean', positive: true }
+            }
+            icon={Shield}
+            delay={reduceMotion ? 0 : 0.12}
+          />
+        </div>
+      )}
+
+      {/* Recovery suggestions */}
+      {recoverySuggestions.length > 0 && (
+        <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+          {recoverySuggestions.map((s, i) => (
+            <m.div
+              key={s.label}
+              initial={{ opacity: 0, y: 6 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: i * 0.04, ease: EASE_OUT }}
+              className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3"
+            >
+              <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" strokeWidth={2.25} aria-hidden />
+              <div>
+                <p className="text-[12.5px] font-semibold text-amber-900">{s.label}</p>
+                <p className="mt-0.5 text-[11.5px] leading-relaxed text-amber-800">{s.suggestion}</p>
+              </div>
+            </m.div>
+          ))}
+        </div>
+      )}
+
+      {/* Error taxonomy breakdown */}
+      {errorTypeBreakdown.length > 0 && (
+        <div className="mb-4">
+          <Section title="Error taxonomy" description="Active issues grouped by category">
+            <ul className="space-y-2">
+              {errorTypeBreakdown.map((e) => {
+                const width = (e.count / errorMax) * 100;
+                const color =
+                  e.tone === 'red' ? '#f43f5e' : e.tone === 'amber' ? '#f59e0b' : '#a1a1aa';
+                return (
+                  <li key={e.type} className="flex items-center gap-2.5">
+                    <span className="w-32 text-[12px] font-medium text-zinc-900">{e.type}</span>
+                    <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-zinc-100">
+                      <m.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${width}%` }}
+                        transition={{ duration: 0.4, ease: EASE_OUT }}
+                        className="absolute inset-y-0 left-0 rounded-full"
+                        style={{ background: color }}
+                      />
+                    </div>
+                    <span className="w-8 text-right text-[12px] font-semibold tabular-nums text-zinc-900">
+                      {e.count}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </Section>
+        </div>
+      )}
+
       {/* Overall messaging status card */}
       {wabaHealth && (
-        <div className="mb-6 overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-          <div className="flex items-center gap-4 border-b border-zinc-100 bg-zinc-50/60 px-6 py-5">
+        <div className="mb-4 overflow-hidden rounded-xl border border-zinc-200 bg-white">
+          <div className="flex items-center gap-4 border-b border-zinc-100 bg-zinc-50/60 px-5 py-4">
             <span
-              className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${
+              className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${
                 overallColor === 'green'
                   ? 'bg-emerald-100 text-emerald-600'
                   : overallColor === 'amber'
@@ -255,21 +466,21 @@ export default function HealthPage() {
               }`}
             >
               {overallColor === 'green' ? (
-                <CircleCheck className="h-6 w-6" />
+                <CircleCheck className="h-5 w-5" />
               ) : overallColor === 'amber' ? (
-                <TriangleAlert className="h-6 w-6" />
+                <TriangleAlert className="h-5 w-5" />
               ) : overallColor === 'red' ? (
-                <Ban className="h-6 w-6" />
+                <Ban className="h-5 w-5" />
               ) : (
-                <Activity className="h-6 w-6" />
+                <Activity className="h-5 w-5" />
               )}
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2.5">
-                <h2 className="text-[15px] font-semibold text-zinc-900">Messaging status</h2>
+                <h2 className="text-[14px] font-semibold text-zinc-900">Messaging status</h2>
                 <StatusPill tone={colorToTone(overallColor)}>{overallStatus || 'unknown'}</StatusPill>
               </div>
-              <p className="mt-0.5 text-[12.5px] text-zinc-500">
+              <p className="mt-0.5 text-[12px] text-zinc-500">
                 {overallColor === 'green'
                   ? 'Your account is healthy. Business-initiated and user-initiated messages can send.'
                   : overallColor === 'amber'
@@ -288,10 +499,10 @@ export default function HealthPage() {
                 const eColor = statusColor(entity.can_send_message);
                 const EIcon = entityIcon(entity.entity_type);
                 return (
-                  <div key={i} className="px-6 py-4">
+                  <div key={i} className="px-5 py-3">
                     <div className="flex items-center gap-3">
                       <span
-                        className={`grid h-8 w-8 place-items-center rounded-xl ${
+                        className={`grid h-8 w-8 place-items-center rounded-lg ${
                           eColor === 'green'
                             ? 'bg-emerald-100 text-emerald-600'
                             : eColor === 'amber'
@@ -307,19 +518,22 @@ export default function HealthPage() {
                         <div className="flex items-center gap-2">
                           <span className="text-[13px] font-medium text-zinc-900">{entity.entity_type}</span>
                           <StatusPill tone={colorToTone(eColor)}>{entity.can_send_message || 'unknown'}</StatusPill>
+                          {errors.length > 0 && (
+                            <StatusPill tone="failed">{errors.length} errors</StatusPill>
+                          )}
                         </div>
                         <p className="font-mono text-[11px] text-zinc-500">{entity.id}</p>
                       </div>
                     </div>
 
                     {errors.length > 0 && (
-                      <div className="ml-11 mt-3 space-y-2">
+                      <div className="ml-11 mt-2.5 space-y-2">
                         {errors.map((err: any, j: number) => {
                           const errMeta = categorizeError(err);
                           return (
                             <div
                               key={j}
-                              className={`flex flex-col gap-2 rounded-xl border px-3 py-2.5 ${
+                              className={`flex flex-col gap-2 rounded-lg border px-3 py-2 ${
                                 errMeta.tone === 'red'
                                   ? 'border-rose-200 bg-rose-50/60'
                                   : errMeta.tone === 'amber'
@@ -383,16 +597,29 @@ export default function HealthPage() {
       {/* Phone numbers */}
       {phoneHealths.length > 0 && (
         <div>
-          <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Phone numbers</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+              Phone numbers
+            </h2>
+            <div className="inline-flex items-center gap-2 text-[11px] text-zinc-500">
+              <StatusPill tone="sent">{summary.greenPhones} healthy</StatusPill>
+              {summary.amberPhones > 0 && (
+                <StatusPill tone="queued">{summary.amberPhones} warning</StatusPill>
+              )}
+              {summary.redPhones > 0 && (
+                <StatusPill tone="failed">{summary.redPhones} flagged</StatusPill>
+              )}
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
             {phoneHealths.map((phone) => (
               <Section key={phone.phoneNumberId}>
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-zinc-100 text-zinc-700">
+                <div className="mb-3 flex items-center gap-3">
+                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-zinc-100 text-zinc-700">
                     <Phone className="h-4 w-4" strokeWidth={2} />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13.5px] font-semibold text-zinc-900">{phone.displayName}</p>
+                    <p className="truncate text-[13px] font-semibold text-zinc-900">{phone.displayName}</p>
                     <p className="font-mono text-[11px] text-zinc-500">{phone.displayNumber}</p>
                   </div>
                   <StatusPill tone={colorToTone(statusColor(phone.qualityRating))}>
@@ -400,25 +627,25 @@ export default function HealthPage() {
                   </StatusPill>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl bg-zinc-50 px-3 py-2.5">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-lg bg-zinc-50 px-3 py-2">
                     <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
                       Messaging tier
                     </p>
-                    <p className="text-[13px] font-medium text-zinc-900">{phone.messagingLimitTier || 'Unknown'}</p>
+                    <p className="text-[12.5px] font-medium text-zinc-900">{phone.messagingLimitTier || 'Unknown'}</p>
                   </div>
-                  <div className="rounded-xl bg-zinc-50 px-3 py-2.5">
+                  <div className="rounded-lg bg-zinc-50 px-3 py-2">
                     <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
                       Name status
                     </p>
-                    <p className="text-[13px] font-medium capitalize text-zinc-900">
+                    <p className="text-[12.5px] font-medium capitalize text-zinc-900">
                       {(phone.nameStatus || 'Unknown').replace(/_/g, ' ')}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-4 border-t border-zinc-100 pt-4">
-                  <div className="mb-3 flex items-center justify-between">
+                <div className="mt-3 border-t border-zinc-100 pt-3">
+                  <div className="mb-2 flex items-center justify-between">
                     <h3 className="text-[12px] font-semibold text-zinc-900">Quality history</h3>
                     <ZoruTooltipProvider>
                       <Tooltip>
@@ -440,7 +667,7 @@ export default function HealthPage() {
                     </ZoruTooltipProvider>
                   </div>
 
-                  <ZoruChartContainer height={140}>
+                  <ZoruChartContainer height={120}>
                     <ZoruChart.LineChart
                       data={MOCK_QUALITY_HISTORY}
                       margin={{ top: 5, right: 10, left: -20, bottom: 0 }}
@@ -503,12 +730,20 @@ export default function HealthPage() {
                   </ZoruChartContainer>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-4">
-                  <div className="flex items-center gap-3 text-[11.5px] text-zinc-500">
+                <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3">
+                  <div className="flex items-center gap-3 text-[11px] text-zinc-500">
                     {phone.commerceSettings && (
                       <>
-                        <span>Cart {phone.commerceSettings.is_cart_enabled ? '✓' : '✗'}</span>
-                        <span>Catalog {phone.commerceSettings.is_catalog_visible ? '✓' : '✗'}</span>
+                        <StatusPill
+                          tone={phone.commerceSettings.is_cart_enabled ? 'sent' : 'paused'}
+                        >
+                          Cart {phone.commerceSettings.is_cart_enabled ? 'on' : 'off'}
+                        </StatusPill>
+                        <StatusPill
+                          tone={phone.commerceSettings.is_catalog_visible ? 'sent' : 'paused'}
+                        >
+                          Catalog {phone.commerceSettings.is_catalog_visible ? 'on' : 'off'}
+                        </StatusPill>
                       </>
                     )}
                   </div>

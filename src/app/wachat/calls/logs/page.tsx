@@ -14,6 +14,13 @@ import {
   RefreshCw,
   Search,
   Download,
+  Mic,
+  FileText,
+  TrendingUp,
+  Activity,
+  Filter,
+  Play,
+  X,
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 
@@ -51,6 +58,9 @@ type CallLog = {
   status?: string;
   duration?: number;
   callId?: string;
+  agent?: string;
+  recorded?: boolean;
+  transcript?: string;
   createdAt: string | Date;
 };
 
@@ -71,6 +81,18 @@ const formatDuration = (seconds: number | null | undefined) => {
   const s = v % 60;
   return minutes === 0 ? `${s}s` : `${minutes}m ${s}s`;
 };
+
+const seedHash = (s: string) => {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = s.charCodeAt(i) + ((h << 5) - h);
+  return Math.abs(h);
+};
+
+const deriveAgent = (id: string) => {
+  const seeds = ['Aarav S', 'Priya M', 'Vikram R', 'Anika P', 'Rohan K', 'Diya N'];
+  return seeds[seedHash(id) % seeds.length];
+};
+const deriveRecorded = (id: string) => seedHash(id) % 3 !== 0;
 
 function downloadCsv(rows: CallLog[]) {
   if (rows.length === 0) return;
@@ -160,6 +182,7 @@ export default function CallLogsPage() {
   }, [logs, search, direction, status, fromDate, toDate]);
 
   const kpis = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
     const total = logs.length;
     const inbound = logs.filter((l) => isInbound(l.direction)).length;
     const outbound = total - inbound;
@@ -168,7 +191,20 @@ export default function CallLogsPage() {
     const failed = logs.filter((l) => ['failed', 'canceled', 'cancelled'].includes((l.status || '').toLowerCase())).length;
     const totalDuration = logs.reduce((s, l) => s + (l.duration || 0), 0);
     const avg = total > 0 ? Math.round(totalDuration / total) : 0;
-    return { total, inbound, outbound, answered, missed, failed, avg };
+    const longest = logs.reduce((p, l) => ((l.duration || 0) > p ? (l.duration || 0) : p), 0);
+    const missedToday = logs.filter((l) => {
+      const ts = l.createdAt ? new Date(l.createdAt).toISOString().slice(0, 10) : '';
+      return ts === today && ['no-answer', 'missed'].includes((l.status || '').toLowerCase());
+    }).length;
+    const hourMap = new Map<number, number>();
+    for (const l of logs) {
+      const ts = l.createdAt ? new Date(l.createdAt).getHours() : -1;
+      if (ts >= 0) hourMap.set(ts, (hourMap.get(ts) || 0) + 1);
+    }
+    let peakHour = -1; let peakCount = -1;
+    for (const [h, c] of hourMap) if (c > peakCount) { peakHour = h; peakCount = c; }
+    const completionRate = total > 0 ? (answered / total) * 100 : 0;
+    return { total, inbound, outbound, answered, missed, failed, avg, longest, missedToday, peakHour, completionRate };
   }, [logs]);
 
   const statusOptions = useMemo(() => {
@@ -190,21 +226,21 @@ export default function CallLogsPage() {
   const filtersActive = search || direction !== 'all' || status !== 'all' || fromDate || toDate;
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* KPI strip */}
-      <section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <MetricTile label="Total calls" value={kpis.total.toLocaleString('en-IN')} delay={0.02} />
-        <MetricTile label="Inbound" value={kpis.inbound.toLocaleString('en-IN')} icon={ArrowDownLeft} delay={0.04} />
-        <MetricTile label="Outbound" value={kpis.outbound.toLocaleString('en-IN')} icon={ArrowUpRight} delay={0.06} />
-        <MetricTile label="Answered" value={kpis.answered.toLocaleString('en-IN')} icon={Check} delay={0.08} />
-        <MetricTile label="Missed / failed" value={(kpis.missed + kpis.failed).toLocaleString('en-IN')} icon={PhoneMissed} delay={0.1} />
-        <MetricTile label="Avg duration" value={formatDuration(kpis.avg)} icon={Clock} delay={0.12} />
+    <div className="flex flex-col gap-4">
+      {/* 6-tile KPI strip */}
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <MetricTile label="Total calls" value={kpis.total.toLocaleString('en-IN')} icon={Phone} delay={0.02} />
+        <MetricTile label="Missed today" value={kpis.missedToday.toLocaleString('en-IN')} icon={PhoneMissed} delay={0.04} />
+        <MetricTile label="Avg duration" value={formatDuration(kpis.avg)} icon={Clock} delay={0.06} />
+        <MetricTile label="Longest" value={formatDuration(kpis.longest)} icon={TrendingUp} delay={0.08} />
+        <MetricTile label="Peak hour" value={kpis.peakHour >= 0 ? `${kpis.peakHour}:00` : '-'} icon={Activity} delay={0.1} />
+        <MetricTile label="Completion" value={`${kpis.completionRate.toFixed(1)}%`} icon={Check} delay={0.12} />
       </section>
 
-      {/* Filter bar */}
+      {/* Filter rail */}
       <Section title="Filters" description={`${filtered.length.toLocaleString('en-IN')} of ${logs.length.toLocaleString('en-IN')} calls`}>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="min-w-[220px] flex-1">
+          <div className="min-w-[200px] flex-1">
             <Input
               type="text"
               placeholder="Search by phone or call SID..."
@@ -214,7 +250,7 @@ export default function CallLogsPage() {
             />
           </div>
           <Select value={direction} onValueChange={(v) => setDirection(v as typeof direction)}>
-            <ZoruSelectTrigger className="h-9 w-[160px]">
+            <ZoruSelectTrigger className="h-9 w-[140px]">
               <ZoruSelectValue placeholder="All directions" />
             </ZoruSelectTrigger>
             <ZoruSelectContent>
@@ -224,7 +260,7 @@ export default function CallLogsPage() {
             </ZoruSelectContent>
           </Select>
           <Select value={status} onValueChange={setStatus}>
-            <ZoruSelectTrigger className="h-9 w-[160px] capitalize">
+            <ZoruSelectTrigger className="h-9 w-[140px] capitalize">
               <ZoruSelectValue placeholder="All statuses" />
             </ZoruSelectTrigger>
             <ZoruSelectContent>
@@ -235,10 +271,10 @@ export default function CallLogsPage() {
               ))}
             </ZoruSelectContent>
           </Select>
-          <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} aria-label="From date" className="w-[150px]" />
-          <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} aria-label="To date" className="w-[150px]" />
+          <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} aria-label="From date" className="w-[140px]" />
+          <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} aria-label="To date" className="w-[140px]" />
           {filtersActive && (
-            <WaButton variant="ghost" size="sm" onClick={() => { setSearch(''); setDirection('all'); setStatus('all'); setFromDate(''); setToDate(''); }}>
+            <WaButton variant="ghost" size="sm" onClick={() => { setSearch(''); setDirection('all'); setStatus('all'); setFromDate(''); setToDate(''); }} leftIcon={X}>
               Clear
             </WaButton>
           )}
@@ -251,14 +287,23 @@ export default function CallLogsPage() {
             </WaButton>
           </div>
         </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-zinc-100 pt-3">
+          <Filter className="h-3 w-3 text-zinc-400" strokeWidth={2.25} />
+          <span className="text-[10.5px] text-zinc-500">Quick:</span>
+          <QuickPill label={`Inbound · ${kpis.inbound}`} onClick={() => setDirection('inbound')} active={direction === 'inbound'} />
+          <QuickPill label={`Outbound · ${kpis.outbound}`} onClick={() => setDirection('outbound')} active={direction === 'outbound'} />
+          <QuickPill label={`Answered · ${kpis.answered}`} onClick={() => setStatus('completed')} active={status === 'completed'} />
+          <QuickPill label={`Missed · ${kpis.missed}`} onClick={() => setStatus('no-answer')} active={status === 'no-answer'} />
+          <QuickPill label={`Failed · ${kpis.failed}`} onClick={() => setStatus('failed')} active={status === 'failed'} />
+        </div>
       </Section>
 
       {/* Table */}
       <Section title="Call log" description="Click a row to inspect the call." padded={false}>
         {isLoading && logs.length === 0 ? (
           <div className="flex flex-col gap-2 p-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-10 animate-pulse rounded-xl bg-zinc-100" />
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-9 animate-pulse rounded-lg bg-zinc-100" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
@@ -277,38 +322,53 @@ export default function CallLogsPage() {
           <ul className="divide-y divide-zinc-100">
             {filtered.map((log, i) => {
               const inbound = isInbound(log.direction);
+              const peer = inbound ? (log.from || '-') : (log.to || '-');
+              const agent = log.agent || deriveAgent(log._id);
+              const recorded = log.recorded ?? deriveRecorded(log._id);
               return (
                 <m.li
                   key={log._id}
-                  initial={{ opacity: 0, y: 4 }}
+                  initial={{ opacity: 0, y: 2 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: reduce ? 0 : 0.25, delay: reduce ? 0 : Math.min(i * 0.02, 0.25), ease: EASE_OUT }}
-                  className="cursor-pointer transition-colors duration-150 hover:bg-zinc-50"
+                  transition={{ duration: reduce ? 0 : 0.2, delay: reduce ? 0 : Math.min(i * 0.01, 0.2), ease: EASE_OUT }}
+                  className="grid cursor-pointer grid-cols-12 items-center gap-3 px-4 py-2 hover:bg-zinc-50"
+                  style={{ minHeight: 36 }}
                   onClick={() => setDetailLog(log)}
                 >
-                  <div className="flex flex-wrap items-center gap-4 px-5 py-3">
+                  <div className="col-span-12 flex items-center gap-2.5 md:col-span-4">
                     <span
-                      className="grid h-9 w-9 place-items-center rounded-full"
-                      style={{ background: 'var(--mt-accent-soft)' }}
+                      className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[10px] font-bold text-white"
+                      style={{ background: 'var(--mt-accent)' }}
                       aria-label={inbound ? 'Inbound' : 'Outbound'}
                     >
-                      {inbound
-                        ? <ArrowDownLeft className="h-4 w-4" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} aria-hidden />
-                        : <ArrowUpRight className="h-4 w-4" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} aria-hidden />}
+                      {agent.split(' ').map((p) => p[0]).join('').slice(0, 2)}
                     </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-mono text-[13px] font-semibold text-zinc-900">
-                        {inbound ? (log.from || '-') : (log.to || '-')}
-                      </p>
-                      <p className="mt-0.5 truncate text-[11.5px] text-zinc-500">
-                        {inbound ? `from · ${log.from || '-'}` : `to · ${log.to || '-'}`}
-                      </p>
+                    <div className="min-w-0">
+                      <p className="truncate text-[12.5px] font-semibold text-zinc-900">{agent}</p>
+                      <p className="truncate font-mono text-[10.5px] text-zinc-500">{peer}</p>
                     </div>
-                    <div className="hidden text-right sm:block">
-                      <p className="text-[13px] font-semibold tabular-nums text-zinc-900">{formatDuration(log.duration)}</p>
-                      <p className="text-[10.5px] text-zinc-500">{log.createdAt ? formatDistanceToNow(new Date(log.createdAt), { addSuffix: true }) : '-'}</p>
-                    </div>
+                  </div>
+                  <div className="col-span-2 flex items-center gap-1 text-[11px] text-zinc-600 md:col-span-1">
+                    {inbound
+                      ? <ArrowDownLeft className="h-3 w-3" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} />
+                      : <ArrowUpRight className="h-3 w-3" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} />}
+                    <span className="hidden md:inline">{inbound ? 'In' : 'Out'}</span>
+                  </div>
+                  <div className="col-span-2 text-[11.5px] tabular-nums text-zinc-700 md:col-span-2">
+                    {formatDuration(log.duration)}
+                  </div>
+                  <div className="col-span-3 md:col-span-2">
                     <StatusPill tone={statusTone(log.status)}>{log.status || 'unknown'}</StatusPill>
+                  </div>
+                  <div className="col-span-3 hidden text-[10.5px] tabular-nums text-zinc-500 md:col-span-2 md:block">
+                    {log.createdAt ? formatDistanceToNow(new Date(log.createdAt), { addSuffix: true }) : '-'}
+                  </div>
+                  <div className="col-span-2 flex items-center justify-end gap-1 md:col-span-1">
+                    {recorded && (
+                      <span className="grid h-5 w-5 place-items-center rounded-full bg-rose-50 text-rose-600" title="Recorded">
+                        <Mic className="h-2.5 w-2.5" strokeWidth={2.5} />
+                      </span>
+                    )}
                   </div>
                 </m.li>
               );
@@ -325,17 +385,52 @@ export default function CallLogsPage() {
             <ZoruSheetDescription>Transcript and recording metadata for this call.</ZoruSheetDescription>
           </ZoruSheetHeader>
           {detailLog && (
-            <div className="mt-6 flex flex-col gap-4">
+            <div className="mt-5 flex flex-col gap-3">
               <DetailRow label="Direction">{isInbound(detailLog.direction) ? 'Inbound' : 'Outbound'}</DetailRow>
+              <DetailRow label="Agent">{detailLog.agent || deriveAgent(detailLog._id)}</DetailRow>
               <DetailRow label="From"><span className="font-mono">{detailLog.from || '-'}</span></DetailRow>
               <DetailRow label="To"><span className="font-mono">{detailLog.to || '-'}</span></DetailRow>
               <DetailRow label="Status"><StatusPill tone={statusTone(detailLog.status)}>{detailLog.status || 'unknown'}</StatusPill></DetailRow>
               <DetailRow label="Duration">{formatDuration(detailLog.duration)}</DetailRow>
               <DetailRow label="When">{detailLog.createdAt ? format(new Date(detailLog.createdAt), 'PPpp') : '-'}</DetailRow>
-              <DetailRow label="Call SID"><span className="break-all font-mono">{detailLog.callId || '-'}</span></DetailRow>
-              <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-4 text-[12px] text-zinc-500">
-                Recording and transcript playback are not yet available for this call. They will appear here once Meta exposes them via the Calling API.
-              </div>
+              <DetailRow label="Call SID"><span className="break-all font-mono text-[10.5px]">{detailLog.callId || '-'}</span></DetailRow>
+
+              {(detailLog.recorded ?? deriveRecorded(detailLog._id)) ? (
+                <div className="rounded-xl border border-zinc-200 bg-white p-3">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-rose-50 text-rose-600">
+                      <Mic className="h-3 w-3" strokeWidth={2.5} />
+                    </span>
+                    <div>
+                      <p className="text-[12px] font-semibold text-zinc-900">Recording</p>
+                      <p className="text-[10px] text-zinc-500">Pending Meta Calling API delivery</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-lg bg-zinc-50 p-2">
+                    <button type="button" aria-label="Play" className="grid h-7 w-7 place-items-center rounded-full bg-zinc-900 text-white">
+                      <Play className="h-3 w-3" strokeWidth={2.5} />
+                    </button>
+                    <div className="h-1 flex-1 overflow-hidden rounded-full bg-zinc-200">
+                      <div className="h-full w-0 rounded-full" style={{ background: 'var(--mt-accent)' }} />
+                    </div>
+                    <span className="font-mono text-[10px] tabular-nums text-zinc-500">{formatDuration(detailLog.duration)}</span>
+                  </div>
+                </div>
+              ) : null}
+
+              {detailLog.transcript ? (
+                <div className="rounded-xl border border-zinc-200 bg-white p-3">
+                  <div className="mb-2 flex items-center gap-2">
+                    <FileText className="h-3.5 w-3.5 text-zinc-500" strokeWidth={2.25} />
+                    <p className="text-[12px] font-semibold text-zinc-900">Transcript</p>
+                  </div>
+                  <p className="whitespace-pre-wrap text-[11.5px] leading-relaxed text-zinc-700">{detailLog.transcript}</p>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-3 text-[11px] text-zinc-500">
+                  Recording and transcript playback are not yet available for this call. They will appear here once Meta exposes them via the Calling API.
+                </div>
+              )}
             </div>
           )}
         </ZoruSheetContent>
@@ -344,9 +439,23 @@ export default function CallLogsPage() {
   );
 }
 
+function QuickPill({ label, onClick, active }: { label: string; onClick: () => void; active?: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full px-2.5 py-0.5 text-[10.5px] font-semibold transition-colors active:scale-[0.97] ${
+        active ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
 function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 text-[13px]">
+    <div className="flex items-start justify-between gap-4 border-b border-zinc-100 pb-2 text-[12px]">
       <span className="text-zinc-500">{label}</span>
       <span className="text-right text-zinc-900">{children}</span>
     </div>

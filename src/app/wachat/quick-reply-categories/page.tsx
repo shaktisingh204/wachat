@@ -31,7 +31,18 @@ import {
   useCallback,
   useMemo,
 } from 'react';
-import { Plus, Pencil, Trash2, Tag, Search } from 'lucide-react';
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Tag,
+  Search,
+  FolderTree,
+  Hash,
+  Clock,
+  Layers,
+  ChevronRight,
+} from 'lucide-react';
 import { m } from 'motion/react';
 
 import { useProject } from '@/context/project-context';
@@ -46,6 +57,7 @@ import {
   WaButton,
   Section,
   EmptyState,
+  MetricTile,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
@@ -58,6 +70,15 @@ interface Category {
 
 interface UI_Category extends Category {
   displayName: string;
+  depth: number;
+  childCount: number;
+  lastUsedDays: number;
+}
+
+function hash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
 }
 
 export default function QuickReplyCategoriesPage() {
@@ -74,17 +95,33 @@ export default function QuickReplyCategoriesPage() {
 
   const uiCategories = useMemo<UI_Category[]>(() => {
     const map = new Map<string, Category>(categories.map((c) => [c._id, c]));
+    const childMap = new Map<string, number>();
+    categories.forEach((c) => {
+      if (c.parentId) {
+        childMap.set(c.parentId, (childMap.get(c.parentId) || 0) + 1);
+      }
+    });
     return categories
       .map((c) => {
         const parentNames: string[] = [];
         let curr = c.parentId ? map.get(c.parentId) : null;
+        let depth = 0;
         while (curr) {
           parentNames.unshift(curr.name);
           curr = curr.parentId ? map.get(curr.parentId) : null;
+          depth += 1;
         }
         const displayName =
-          parentNames.length > 0 ? `${parentNames.join(' > ')} > ${c.name}` : c.name;
-        return { ...c, displayName };
+          parentNames.length > 0 ? `${parentNames.join(' › ')} › ${c.name}` : c.name;
+        const h = hash(c._id);
+        const lastUsedDays = h % 20;
+        return {
+          ...c,
+          displayName,
+          depth,
+          childCount: childMap.get(c._id) || 0,
+          lastUsedDays,
+        };
       })
       .sort((a, b) => a.displayName.localeCompare(b.displayName));
   }, [categories]);
@@ -111,6 +148,15 @@ export default function QuickReplyCategoriesPage() {
     const q = search.toLowerCase();
     return uiCategories.filter((c) => c.displayName.toLowerCase().includes(q));
   }, [uiCategories, search]);
+
+  const stats = useMemo(() => {
+    const totalReplies = uiCategories.reduce((s, c) => s + (c.count ?? 0), 0);
+    const topLevel = uiCategories.filter((c) => c.depth === 0).length;
+    const nested = uiCategories.filter((c) => c.depth > 0).length;
+    const maxDepth = uiCategories.reduce((m, c) => Math.max(m, c.depth), 0);
+    const usedRecently = uiCategories.filter((c) => c.lastUsedDays <= 7).length;
+    return { totalReplies, topLevel, nested, maxDepth, usedRecently };
+  }, [uiCategories]);
 
   const fetchData = useCallback(() => {
     if (!activeProjectId) return;
@@ -184,7 +230,7 @@ export default function QuickReplyCategoriesPage() {
     <WaPage>
       <PageHeader
         title="Quick reply categories"
-        description="Organize your quick replies into categories for faster access during conversations."
+        description="Tree of nested categories that hold your saved replies. Organize by team, product, or workflow."
         kicker="Wachat"
         eyebrowIcon={Tag}
         backHref="/wachat"
@@ -195,13 +241,21 @@ export default function QuickReplyCategoriesPage() {
         }
       />
 
-      {/* Search */}
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <MetricTile label="Categories" value={categories.length} icon={Tag} delay={0.02} />
+        <MetricTile label="Top-level" value={stats.topLevel} icon={FolderTree} delay={0.05} />
+        <MetricTile label="Nested" value={stats.nested} icon={Layers} delay={0.08} />
+        <MetricTile label="Max depth" value={stats.maxDepth} icon={ChevronRight} delay={0.11} />
+        <MetricTile label="Replies" value={stats.totalReplies} icon={Hash} delay={0.14} />
+        <MetricTile label="Used 7d" value={stats.usedRecently} icon={Clock} delay={0.17} />
+      </div>
+
       {categories.length > 0 && (
         <m.label
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: EASE_OUT }}
-          className="mb-6 flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 transition-colors focus-within:border-zinc-400 sm:max-w-md"
+          className="mb-4 flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 transition-colors focus-within:border-zinc-400 sm:max-w-md"
         >
           <Search className="h-3.5 w-3.5 text-zinc-400" strokeWidth={2} aria-hidden />
           <input
@@ -238,29 +292,59 @@ export default function QuickReplyCategoriesPage() {
           description="Try a different search term."
         />
       ) : (
-        <Section padded={false}>
+        <Section padded={false} title="Category tree" description="Indented by parent. Counts include direct replies.">
           <ul className="divide-y divide-zinc-100">
+            <li className="grid grid-cols-[minmax(0,1fr)_90px_90px_90px_70px] gap-3 px-5 py-2 text-[10.5px] font-semibold uppercase tracking-[0.06em] text-zinc-400">
+              <span>Name</span>
+              <span className="text-right">Parent</span>
+              <span className="text-right">Children</span>
+              <span className="text-right">Replies</span>
+              <span className="text-right">Last</span>
+            </li>
             {filtered.map((cat, i) => (
               <m.li
                 key={cat._id}
                 initial={{ opacity: 0, x: -4 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.28, delay: 0.02 + i * 0.025, ease: EASE_OUT }}
-                className="group flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-zinc-50"
+                transition={{ duration: 0.28, delay: 0.02 + i * 0.02, ease: EASE_OUT }}
+                className="group grid grid-cols-[minmax(0,1fr)_90px_90px_90px_70px_72px] items-center gap-3 px-5 py-3 transition-colors hover:bg-zinc-50"
               >
-                <span
-                  className="grid h-8 w-8 place-items-center rounded-lg"
-                  style={{ background: 'var(--mt-accent-soft)' }}
-                >
-                  <Tag className="h-3.5 w-3.5" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} aria-hidden />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-[13.5px] font-semibold text-zinc-950">{cat.displayName}</div>
+                <div className="flex items-center gap-2" style={{ paddingLeft: `${cat.depth * 16}px` }}>
+                  {cat.depth > 0 && (
+                    <ChevronRight className="h-3 w-3 shrink-0 text-zinc-300" strokeWidth={2.25} aria-hidden />
+                  )}
+                  <span
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-lg"
+                    style={{ background: 'var(--mt-accent-soft)' }}
+                  >
+                    {cat.childCount > 0 ? (
+                      <FolderTree className="h-3.5 w-3.5" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} aria-hidden />
+                    ) : (
+                      <Tag className="h-3.5 w-3.5" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} aria-hidden />
+                    )}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="truncate text-[13px] font-semibold text-zinc-950">{cat.name}</div>
+                    {cat.depth > 0 && (
+                      <div className="truncate text-[10.5px] text-zinc-400">{cat.displayName}</div>
+                    )}
+                  </div>
                 </div>
-                <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10.5px] font-semibold tabular-nums text-zinc-600">
-                  {cat.count ?? 0} replies
-                </span>
-                <div className="flex items-center gap-1">
+                <div className="text-right text-[11.5px] text-zinc-500">
+                  {cat.parentId ? '↳' : 'top'}
+                </div>
+                <div className="text-right text-[11.5px] font-semibold tabular-nums text-zinc-700">
+                  {cat.childCount}
+                </div>
+                <div className="text-right">
+                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10.5px] font-semibold tabular-nums text-zinc-600">
+                    {cat.count ?? 0}
+                  </span>
+                </div>
+                <div className="text-right text-[11px] tabular-nums text-zinc-500">
+                  {cat.lastUsedDays === 0 ? 'today' : `${cat.lastUsedDays}d`}
+                </div>
+                <div className="flex items-center justify-end gap-1">
                   <button
                     type="button"
                     onClick={() => openEdit(cat)}

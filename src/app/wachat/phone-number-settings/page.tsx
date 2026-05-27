@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useCallback, useEffect, useState, useTransition } from 'react';
-import { Loader2, Phone, Save, Sparkles } from 'lucide-react';
+import { Image as ImageIcon, Loader2, Phone, Save, Sparkles, Type } from 'lucide-react';
 
 import {
   Dialog,
@@ -23,7 +23,11 @@ import {
   Section,
   EmptyState,
   WaButton,
+  MetricTile,
+  PhoneFrame,
+  ChatBubble,
 } from '@/components/wachat-ui';
+import { SabFilePickerButton } from '@/components/sabfiles';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -152,15 +156,16 @@ export default function PhoneNumberSettingsPage() {
     }
   };
 
-  const fields = [
-    { key: 'about', label: 'About', helpText: 'Max 139 characters.' },
-    { key: 'description', label: 'Business description', multiline: true, helpText: 'Max 512 characters. Shown to users in chat.' },
-    { key: 'address', label: 'Address', helpText: 'Physical location. Min 5, max 256 chars.' },
-    { key: 'email', label: 'Email', helpText: 'Max 128 characters.' },
+  const fields: { key: string; label: string; multiline?: boolean; helpText: string; max?: number }[] = [
+    { key: 'about', label: 'About', helpText: 'Max 139 characters.', max: 139 },
+    { key: 'description', label: 'Business description', multiline: true, helpText: 'Max 512 characters. Shown to users in chat.', max: 512 },
+    { key: 'address', label: 'Address', helpText: 'Physical location. Min 5, max 256 chars.', max: 256 },
+    { key: 'email', label: 'Email', helpText: 'Max 128 characters.', max: 128 },
     { key: 'websites', label: 'Websites', helpText: 'Comma separated. Maximum 2 URLs.' },
   ];
 
   const current = phones[selectedIdx];
+  const profilePicUrl = profile.profilePicUrl || current?.profile?.profile_picture_url || '';
 
   return (
     <WaPage>
@@ -207,61 +212,141 @@ export default function PhoneNumberSettingsPage() {
             })}
           </div>
 
-          <Section
-            title={current?.display_phone_number || current?.number || 'Profile'}
-            description={current?.verified_name || current?.displayName || ''}
-            action={
-              <WaButton size="sm" variant="outline" onClick={() => {
-                setDraftDisplayName(current?.verified_name || current?.displayName || '');
-                setDisplayNameOpen(true);
-              }}>
-                Edit display name
-              </WaButton>
-            }
-          >
-            <div className="flex max-w-xl flex-col gap-5">
-              {fields.map((f) => (
-                <div key={f.key} className="flex flex-col gap-1.5">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor={`pn-${f.key}`} className="text-[12px] font-semibold text-zinc-700">
-                      {f.label}
-                    </Label>
-                    {f.key === 'description' && (
-                      <WaButton size="sm" variant="ghost" onClick={generateDescription} disabled={isGenerating} leftIcon={isGenerating ? Loader2 : Sparkles}>
-                        {isGenerating ? 'Generating' : 'AI generate'}
-                      </WaButton>
+          <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <MetricTile
+              label="About"
+              value={<span className="text-[15px]">{(profile.about || '').length}/139</span>}
+              icon={Type}
+              delay={0.02}
+            />
+            <MetricTile
+              label="Description"
+              value={<span className="text-[15px]">{(profile.description || '').length}/512</span>}
+              icon={Type}
+              delay={0.04}
+            />
+            <MetricTile
+              label="Websites"
+              value={
+                <span className="text-[15px]">
+                  {(profile.websites || '').split(',').filter((s: string) => s.trim()).length}/2
+                </span>
+              }
+              icon={Phone}
+              delay={0.06}
+            />
+            <MetricTile
+              label="Profile photo"
+              value={<span className="text-[15px]">{profilePicUrl ? 'Set' : 'Not set'}</span>}
+              icon={ImageIcon}
+              delay={0.08}
+            />
+          </section>
+
+          <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+            <Section
+              title={current?.display_phone_number || current?.number || 'Profile'}
+              description={current?.verified_name || current?.displayName || ''}
+              action={
+                <WaButton size="sm" variant="outline" onClick={() => {
+                  setDraftDisplayName(current?.verified_name || current?.displayName || '');
+                  setDisplayNameOpen(true);
+                }}>
+                  Edit display name
+                </WaButton>
+              }
+            >
+              <div className="flex flex-col gap-5">
+                <div className="flex items-center gap-3">
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-zinc-200 bg-zinc-100">
+                    {profilePicUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={profilePicUrl} alt="Profile" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="grid h-full w-full place-items-center text-zinc-400">
+                        <ImageIcon className="h-5 w-5" strokeWidth={2} />
+                      </div>
                     )}
                   </div>
-                  {f.multiline ? (
-                    <Textarea
-                      id={`pn-${f.key}`}
-                      value={profile[f.key] || ''}
-                      onChange={(e) => setProfile((prev) => ({ ...prev, [f.key]: e.target.value }))}
-                      rows={4}
-                      maxLength={f.key === 'description' ? 512 : undefined}
-                      className="rounded-xl"
-                    />
-                  ) : (
-                    <Input
-                      id={`pn-${f.key}`}
-                      value={profile[f.key] || ''}
-                      onChange={(e) => setProfile((prev) => ({ ...prev, [f.key]: e.target.value }))}
-                      maxLength={f.key === 'about' ? 139 : f.key === 'address' ? 256 : f.key === 'email' ? 128 : undefined}
-                      className="rounded-xl"
-                    />
-                  )}
-                  {f.helpText && (
-                    <span className="text-[11.5px] text-zinc-500">{f.helpText}</span>
-                  )}
+                  <div className="flex-1">
+                    <p className="text-[12.5px] font-semibold text-zinc-900">Profile photo</p>
+                    <p className="mt-0.5 text-[11.5px] text-zinc-500">JPEG or PNG, square 640px recommended.</p>
+                  </div>
+                  <SabFilePickerButton
+                    accept="image"
+                    label="Pick image"
+                    onPick={(p) => setProfile((prev) => ({ ...prev, profilePicUrl: (p as any).url || (p as any).publicUrl || '' }))}
+                  />
                 </div>
-              ))}
-              <div className="pt-2">
-                <WaButton onClick={handleSave} disabled={isSaving} leftIcon={isSaving ? Loader2 : Save}>
-                  {isSaving ? 'Saving' : 'Save profile'}
-                </WaButton>
+
+                {fields.map((f) => {
+                  const value = profile[f.key] || '';
+                  return (
+                    <div key={f.key} className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor={`pn-${f.key}`} className="text-[12px] font-semibold text-zinc-700">
+                          {f.label}
+                        </Label>
+                        {f.key === 'description' && (
+                          <WaButton size="sm" variant="ghost" onClick={generateDescription} disabled={isGenerating} leftIcon={isGenerating ? Loader2 : Sparkles}>
+                            {isGenerating ? 'Generating' : 'AI generate'}
+                          </WaButton>
+                        )}
+                      </div>
+                      {f.multiline ? (
+                        <Textarea
+                          id={`pn-${f.key}`}
+                          value={value}
+                          onChange={(e) => setProfile((prev) => ({ ...prev, [f.key]: e.target.value }))}
+                          rows={4}
+                          maxLength={f.max}
+                          className="rounded-xl"
+                        />
+                      ) : (
+                        <Input
+                          id={`pn-${f.key}`}
+                          value={value}
+                          onChange={(e) => setProfile((prev) => ({ ...prev, [f.key]: e.target.value }))}
+                          maxLength={f.max}
+                          className="rounded-xl"
+                        />
+                      )}
+                      <div className="flex items-center justify-between">
+                        {f.helpText && <span className="text-[11.5px] text-zinc-500">{f.helpText}</span>}
+                        {f.max && (
+                          <span className={`font-mono text-[10.5px] tabular-nums ${value.length > f.max ? 'text-rose-600' : 'text-zinc-400'}`}>
+                            {value.length}/{f.max}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                <div className="pt-1">
+                  <WaButton onClick={handleSave} disabled={isSaving} leftIcon={isSaving ? Loader2 : Save}>
+                    {isSaving ? 'Saving' : 'Save profile'}
+                  </WaButton>
+                </div>
               </div>
-            </div>
-          </Section>
+            </Section>
+
+            <Section title="Live preview" description="How your business appears in a customer's chat.">
+              <PhoneFrame
+                title={current?.verified_name || current?.displayName || 'Your business'}
+                subtitle={profile.about ? profile.about.slice(0, 38) : 'business account'}
+              >
+                <ChatBubble who="them" text="Hi, is this the official account?" time="9:41" delay={0.05} />
+                <ChatBubble
+                  who="us"
+                  kind="template"
+                  text={profile.description?.slice(0, 110) || 'Yes! Welcome. How can we help today?'}
+                  time="9:41"
+                  delay={0.2}
+                />
+                <ChatBubble who="us" kind="cta" text="Tap to view our site" time="9:42" delay={0.4} />
+              </PhoneFrame>
+            </Section>
+          </div>
         </div>
       )}
 

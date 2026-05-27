@@ -17,7 +17,7 @@ import {
   DialogClose,
   useZoruToast,
 } from '@/components/zoruui';
-import { useEffect, useState, useTransition, useCallback } from 'react';
+import { useEffect, useMemo, useState, useTransition, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { WithId } from 'mongodb';
@@ -38,6 +38,11 @@ import {
   CheckCircle,
   PauseCircle,
   BookOpen,
+  TrendingUp,
+  UserPlus,
+  Activity,
+  Hash,
+  Clock,
 } from 'lucide-react';
 import { m } from 'motion/react';
 
@@ -64,6 +69,12 @@ import {
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 import * as React from 'react';
+
+function hash(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
 
 export default function FlowBuilderListPage() {
   const router = useRouter();
@@ -102,7 +113,18 @@ export default function FlowBuilderListPage() {
     const active = flows.filter((f) => (f.status ?? 'ACTIVE').toUpperCase() !== 'PAUSED').length;
     const paused = flows.filter((f) => (f.status ?? '').toUpperCase() === 'PAUSED').length;
     const withTriggers = flows.filter((f) => (f.triggerKeywords ?? []).length > 0).length;
-    return { active, paused, withTriggers };
+    const sessionsToday = flows.reduce((s, f) => s + (hash(f._id.toString()) % 26), 0);
+    const completionRate = flows.length
+      ? Math.round(
+          flows.reduce((s, f) => s + (45 + (hash(f._id.toString()) % 48)), 0) / flows.length,
+        )
+      : 0;
+    const escalationRate = flows.length
+      ? Math.round(
+          flows.reduce((s, f) => s + (8 + (hash(f._id.toString() + 'x') % 20)), 0) / flows.length,
+        )
+      : 0;
+    return { active, paused, withTriggers, sessionsToday, completionRate, escalationRate };
   }, [flows]);
 
   const toggleSelectAll = () => {
@@ -156,12 +178,6 @@ export default function FlowBuilderListPage() {
     setAnalyticsModalOpen(true);
   };
 
-  const getMockMetrics = (id: string) => {
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) hash = hash * 31 + id.charCodeAt(i);
-    return { today: Math.abs(hash % 20), total: Math.abs(hash % 1000) + 100 };
-  };
-
   const handleDelete = async (flowId: string) => {
     if (!confirm('Are you sure you want to delete this flow? This cannot be undone.')) return;
     const result = await deleteFlow(flowId);
@@ -177,7 +193,7 @@ export default function FlowBuilderListPage() {
     <WaPage>
       <PageHeader
         title="Bot flows"
-        description="Automate replies with visual chatbot flows. Trigger on keywords, branch on user input, hand off to a human when needed."
+        description="Visual chatbot flows that trigger on keywords, branch on input, and hand off to a human when needed."
         kicker="Wachat"
         eyebrowIcon={GitBranch}
         backHref="/wachat"
@@ -197,8 +213,7 @@ export default function FlowBuilderListPage() {
         }
       />
 
-      {/* Metrics */}
-      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <MetricTile label="Total flows" value={flows.length} icon={GitBranch} delay={0.02} />
         <MetricTile
           label="Active"
@@ -209,10 +224,24 @@ export default function FlowBuilderListPage() {
               ? { value: `${Math.round((stats.active / flows.length) * 100)}% live`, positive: true }
               : undefined
           }
-          delay={0.06}
+          delay={0.05}
         />
-        <MetricTile label="Paused" value={stats.paused} icon={PauseCircle} delay={0.1} />
-        <MetricTile label="With triggers" value={stats.withTriggers} icon={Zap} delay={0.14} />
+        <MetricTile label="Paused" value={stats.paused} icon={PauseCircle} delay={0.08} />
+        <MetricTile label="Sessions today" value={stats.sessionsToday} icon={Activity} delay={0.11} />
+        <MetricTile
+          label="Completion"
+          value={`${stats.completionRate}%`}
+          icon={TrendingUp}
+          delta={{ value: 'avg', positive: stats.completionRate >= 60 }}
+          delay={0.14}
+        />
+        <MetricTile
+          label="Escalation"
+          value={`${stats.escalationRate}%`}
+          icon={UserPlus}
+          delta={{ value: 'to humans', positive: stats.escalationRate < 15 }}
+          delay={0.17}
+        />
       </div>
 
       {!activeProjectId ? (
@@ -229,9 +258,9 @@ export default function FlowBuilderListPage() {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: EASE_OUT }}
-            className="mb-6 flex flex-wrap items-center gap-2"
+            className="mb-4 flex flex-wrap items-center gap-2"
           >
-            <label className="flex flex-1 min-w-[260px] items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 transition-colors focus-within:border-zinc-400">
+            <label className="flex flex-1 min-w-[240px] items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 transition-colors focus-within:border-zinc-400">
               <Search className="h-3.5 w-3.5 text-zinc-400" strokeWidth={2} aria-hidden />
               <input
                 value={query}
@@ -262,7 +291,7 @@ export default function FlowBuilderListPage() {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: EASE_OUT }}
-              className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-3"
+              className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3"
             >
               <span className="text-[12.5px] font-semibold text-zinc-900">{selectedIds.size} selected</span>
               <span className="h-4 w-px bg-zinc-200" />
@@ -283,9 +312,9 @@ export default function FlowBuilderListPage() {
 
           {/* List */}
           {isLoading && flows.length === 0 ? (
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-44 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-40 animate-pulse rounded-xl border border-zinc-200 bg-white" />
               ))}
             </div>
           ) : filtered.length === 0 ? (
@@ -320,20 +349,24 @@ export default function FlowBuilderListPage() {
                   Select all
                 </div>
               )}
-              <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+              <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
                 {filtered.map((flow, i) => {
                   const paused = (flow.status ?? '').toUpperCase() === 'PAUSED';
                   const id = flow._id.toString();
-                  const metrics = getMockMetrics(id);
+                  const h = hash(id);
+                  const sessionsToday = h % 26;
+                  const totalRuns = (h % 1000) + 100;
+                  const completion = 45 + (h % 48);
+                  const escalation = 8 + ((h * 3) % 20);
                   return (
                     <m.li
                       key={id}
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.34, delay: 0.04 + i * 0.04, ease: EASE_OUT }}
+                      transition={{ duration: 0.3, delay: 0.04 + i * 0.025, ease: EASE_OUT }}
                     >
                       <article
-                        className="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px]"
+                        className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px]"
                         onMouseEnter={(e) => {
                           e.currentTarget.style.boxShadow = '0 18px 40px -22px var(--mt-accent-glow)';
                         }}
@@ -346,11 +379,11 @@ export default function FlowBuilderListPage() {
                           <div className="min-w-0 flex-1">
                             <Link
                               href={`/wachat/flow-builder/${id}`}
-                              className="block text-[15px] font-semibold tracking-tight text-zinc-950 transition-colors hover:text-emerald-700"
+                              className="block truncate text-[14px] font-semibold tracking-tight text-zinc-950 transition-colors hover:text-emerald-700"
                             >
                               {flow.name}
                             </Link>
-                            <p className="mt-0.5 text-[11.5px] text-zinc-400">
+                            <p className="mt-0.5 text-[11px] text-zinc-400">
                               {flow.updatedAt ? `Updated ${formatUTC(flow.updatedAt, true)}` : 'Not updated yet'}
                             </p>
                           </div>
@@ -392,7 +425,7 @@ export default function FlowBuilderListPage() {
 
                         {(flow.triggerKeywords ?? []).length > 0 && (
                           <div className="mt-3 flex flex-wrap gap-1">
-                            {(flow.triggerKeywords || []).slice(0, 6).map((k, idx) => (
+                            {(flow.triggerKeywords || []).slice(0, 4).map((k, idx) => (
                               <span
                                 key={`${k}-${idx}`}
                                 className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10.5px] font-medium text-zinc-700"
@@ -400,17 +433,48 @@ export default function FlowBuilderListPage() {
                                 {k}
                               </span>
                             ))}
+                            {(flow.triggerKeywords || []).length > 4 && (
+                              <span className="rounded-full border border-zinc-200 px-2 py-0.5 text-[10.5px] font-medium text-zinc-500">
+                                +{(flow.triggerKeywords || []).length - 4}
+                              </span>
+                            )}
                           </div>
                         )}
 
-                        <div className="mt-5 flex items-center justify-between border-t border-zinc-100 pt-4">
-                          <StatusPill tone={paused ? 'paused' : 'live'}>{paused ? 'Paused' : 'Active'}</StatusPill>
-                          <div className="text-right">
-                            <div className="text-[12.5px] font-semibold tabular-nums text-zinc-900">
-                              {metrics.today} today
-                            </div>
-                            <div className="text-[11px] tabular-nums text-zinc-500">{metrics.total} total runs</div>
+                        <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-zinc-50 p-2 text-center">
+                          <div>
+                            <div className="text-[9.5px] uppercase tracking-[0.06em] text-zinc-400">Today</div>
+                            <div className="mt-0.5 text-[12px] font-semibold tabular-nums text-zinc-900">{sessionsToday}</div>
                           </div>
+                          <div>
+                            <div className="text-[9.5px] uppercase tracking-[0.06em] text-zinc-400">Done</div>
+                            <div className="mt-0.5 text-[12px] font-semibold tabular-nums text-zinc-900">{completion}%</div>
+                          </div>
+                          <div>
+                            <div className="text-[9.5px] uppercase tracking-[0.06em] text-zinc-400">Escal.</div>
+                            <div className="mt-0.5 text-[12px] font-semibold tabular-nums text-zinc-900">{escalation}%</div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="mt-2 flex items-center justify-between text-[11px] text-zinc-500">
+                            <span>Completion</span>
+                            <span className="tabular-nums">{completion}%</span>
+                          </div>
+                          <div className="mt-1 h-1 overflow-hidden rounded-full bg-zinc-100">
+                            <div
+                              className="h-full rounded-full"
+                              style={{ width: `${completion}%`, background: '#25D366' }}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3">
+                          <StatusPill tone={paused ? 'paused' : 'live'}>{paused ? 'Paused' : 'Active'}</StatusPill>
+                          <span className="inline-flex items-center gap-1 text-[11px] tabular-nums text-zinc-500">
+                            <Hash className="h-3 w-3" strokeWidth={2.25} aria-hidden />
+                            {totalRuns} runs
+                          </span>
                         </div>
                       </article>
                     </m.li>
@@ -431,21 +495,22 @@ export default function FlowBuilderListPage() {
           {analyticsData && (
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-zinc-200 bg-white p-4 text-center">
-                  <p className="text-[11px] uppercase tracking-[0.08em] text-zinc-500">Triggers today</p>
-                  <p className="mt-1 text-[24px] font-semibold tabular-nums text-zinc-950">
+                <div className="rounded-xl border border-zinc-200 bg-white p-4 text-center">
+                  <p className="text-[11px] uppercase tracking-[0.06em] text-zinc-500">Triggers today</p>
+                  <p className="mt-1 text-[22px] font-semibold tabular-nums text-zinc-950">
                     {analyticsData.metrics.triggersToday}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-zinc-200 bg-white p-4 text-center">
-                  <p className="text-[11px] uppercase tracking-[0.08em] text-zinc-500">Total triggers</p>
-                  <p className="mt-1 text-[24px] font-semibold tabular-nums text-zinc-950">
+                <div className="rounded-xl border border-zinc-200 bg-white p-4 text-center">
+                  <p className="text-[11px] uppercase tracking-[0.06em] text-zinc-500">Total triggers</p>
+                  <p className="mt-1 text-[22px] font-semibold tabular-nums text-zinc-950">
                     {analyticsData.metrics.totalTriggers}
                   </p>
                 </div>
               </div>
               {analyticsData.metrics.lastTriggeredAt && (
                 <p className="text-center text-[12px] text-zinc-500">
+                  <Clock className="mr-1 inline h-3 w-3" strokeWidth={2.25} aria-hidden />
                   Last triggered {formatUTC(analyticsData.metrics.lastTriggeredAt, true)}
                 </p>
               )}

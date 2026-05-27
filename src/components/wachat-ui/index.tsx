@@ -43,7 +43,10 @@ interface WaPageProps {
 export function WaPage({ children, fullBleed = false }: WaPageProps) {
     return (
         <ModuleTheme slug="wachat">
-            <div className={fullBleed ? 'min-h-full' : 'mx-auto w-full max-w-[1440px] px-5 pb-10 pt-5'}>
+            <div
+                data-wachat-bold
+                className={fullBleed ? 'min-h-full' : 'mx-auto w-full max-w-[1440px] px-5 pb-10 pt-5'}
+            >
                 {children}
             </div>
         </ModuleTheme>

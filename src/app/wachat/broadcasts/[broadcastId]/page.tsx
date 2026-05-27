@@ -1,12 +1,24 @@
 'use client';
 
 import { fmtDate } from '@/lib/utils';
-import React, { useState, useEffect, useTransition, useCallback } from 'react';
+import React, { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import type { WithId } from 'mongodb';
 import Papa from 'papaparse';
 import { formatDistanceToNow } from 'date-fns';
 import { m, useReducedMotion } from 'motion/react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import {
   Calendar as CalendarIcon,
@@ -14,14 +26,19 @@ import {
   CheckCheck,
   CircleDashed,
   CircleX,
+  Clock,
+  Coins,
   Download,
   Eye,
   Loader2,
+  MailWarning,
   Megaphone,
   RefreshCw,
+  RotateCcw,
   Send,
   TriangleAlert,
   Users,
+  Zap,
 } from 'lucide-react';
 
 import {
@@ -48,10 +65,6 @@ import {
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
-/**
- * Wachat broadcast detail report. Same actions; wachat-ui chrome.
- */
-
 type Broadcast = {
   _id: any;
   templateName: string;
@@ -61,6 +74,10 @@ type Broadcast = {
   errorCount?: number;
   deliveredCount?: number;
   readCount?: number;
+  respondedCount?: number;
+  optOutCount?: number;
+  estimatedCost?: number;
+  cost?: number;
   status:
     | 'QUEUED'
     | 'PROCESSING'
@@ -134,9 +151,9 @@ function ReportSkeleton() {
         <div className="mt-3 h-9 w-72 rounded-lg bg-zinc-100" />
         <div className="mt-2 h-3 w-96 rounded-full bg-zinc-100" />
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-[110px] rounded-2xl border border-zinc-200 bg-white" />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="h-[100px] rounded-2xl border border-zinc-200 bg-white" />
         ))}
       </div>
       <div className="mt-6 h-[420px] rounded-2xl border border-zinc-200 bg-white" />
@@ -148,7 +165,7 @@ export default function BroadcastReportPage() {
   const reduce = useReducedMotion();
   const [broadcast, setBroadcast] = useState<WithId<Broadcast> | null>(null);
   const [attempts, setAttempts] = useState<BroadcastAttempt[]>([]);
-  const [, setLogs] = useState<WithId<BroadcastLog>[]>([]);
+  const [logs, setLogs] = useState<WithId<BroadcastLog>[]>([]);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isExporting, startExportTransition] = useTransition();
@@ -259,6 +276,50 @@ export default function BroadcastReportPage() {
     });
   };
 
+  // Per-hour delivery timeline derived from attempts that are loaded
+  const hourly = useMemo(() => {
+    if (!attempts.length) return [] as { label: string; sent: number; failed: number }[];
+    const buckets = new Map<string, { sent: number; failed: number }>();
+    for (const a of attempts) {
+      const ts = (a as any).sentAt ? new Date((a as any).sentAt) : null;
+      if (!ts || isNaN(ts.getTime())) continue;
+      const k = `${ts.getUTCFullYear()}-${ts.getUTCMonth() + 1}-${ts.getUTCDate()} ${ts.getUTCHours()}`;
+      const cur = buckets.get(k) || { sent: 0, failed: 0 };
+      if (a.status === 'FAILED') cur.failed++;
+      else if (a.status === 'SENT' || a.status === 'DELIVERED' || a.status === 'READ') cur.sent++;
+      buckets.set(k, cur);
+    }
+    return Array.from(buckets, ([key, v]) => {
+      const [, , , h] = key.split(/[-\s]/);
+      return { label: `${String(h).padStart(2, '0')}:00`, sent: v.sent, failed: v.failed };
+    });
+  }, [attempts]);
+
+  // Failure breakdown by error string (closest proxy for WhatsApp error code)
+  const failureBreakdown = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const a of attempts) {
+      if (a.status !== 'FAILED') continue;
+      const code = a.error ? String(a.error).slice(0, 80) : 'Unknown';
+      m.set(code, (m.get(code) || 0) + 1);
+    }
+    return Array.from(m, ([code, count]) => ({ code, count })).sort((a, b) => b.count - a.count);
+  }, [attempts]);
+
+  // Median delivery latency in seconds, from loaded attempts that have sentAt and deliveredAt
+  const medianLatencyS = useMemo(() => {
+    const ls: number[] = [];
+    for (const a of attempts as any[]) {
+      if (a?.sentAt && a?.deliveredAt) {
+        const d = new Date(a.deliveredAt).getTime() - new Date(a.sentAt).getTime();
+        if (d > 0 && d < 1000 * 60 * 60) ls.push(d / 1000);
+      }
+    }
+    if (!ls.length) return null;
+    ls.sort((x, y) => x - y);
+    return ls[Math.floor(ls.length / 2)];
+  }, [attempts]);
+
   if (isPageLoading) return <ReportSkeleton />;
   if (!broadcast) {
     return (
@@ -278,6 +339,9 @@ export default function BroadcastReportPage() {
   const delivered = broadcast.deliveredCount ?? 0;
   const read = broadcast.readCount ?? 0;
   const failed = broadcast.errorCount ?? 0;
+  const responded = broadcast.respondedCount ?? 0;
+  const optOuts = broadcast.optOutCount ?? 0;
+  const cost = broadcast.estimatedCost ?? broadcast.cost ?? 0;
 
   const enrichedAttempts = attempts.map((attempt) => {
     let detail = '';
@@ -288,7 +352,14 @@ export default function BroadcastReportPage() {
     } else {
       detail = 'Waiting to be sent';
     }
-    return { ...attempt, detail };
+    let latency: number | null = null;
+    const aa = attempt as any;
+    if (aa?.sentAt && aa?.deliveredAt) {
+      const d = new Date(aa.deliveredAt).getTime() - new Date(aa.sentAt).getTime();
+      if (d > 0 && d < 1000 * 60 * 60) latency = d / 1000;
+    }
+    const lastEvent = aa?.readAt || aa?.deliveredAt || aa?.sentAt || null;
+    return { ...attempt, detail, latency, lastEvent };
   });
 
   return (
@@ -302,6 +373,16 @@ export default function BroadcastReportPage() {
         actions={
           <>
             <StatusPill tone={t.tone}>{t.label}</StatusPill>
+            {failed > 0 && (
+              <WaButton
+                variant="outline"
+                size="sm"
+                leftIcon={RotateCcw}
+                onClick={() => handleFilterChange('FAILED')}
+              >
+                Re-target failed ({compact(failed)})
+              </WaButton>
+            )}
             <WaButton variant="outline" size="sm" onClick={onRefresh} disabled={isRefreshing} leftIcon={RefreshCw}>
               {isRefreshing ? 'Refreshing' : 'Refresh'}
             </WaButton>
@@ -312,27 +393,65 @@ export default function BroadcastReportPage() {
         }
       />
 
-      <p className="mb-6 flex flex-wrap items-center gap-3 text-[12.5px] text-zinc-500">
+      <p className="mb-4 flex flex-wrap items-center gap-3 text-[12px] text-zinc-500">
         <span className="inline-flex items-center gap-1">
           <CalendarIcon className="h-3 w-3" strokeWidth={2.25} aria-hidden />
           Queued {formatDistanceToNow(new Date(broadcast.createdAt), { addSuffix: true })}
         </span>
+        {broadcast.startedAt && (
+          <span className="inline-flex items-center gap-1">
+            <Zap className="h-3 w-3" strokeWidth={2.25} aria-hidden />
+            Started {formatDistanceToNow(new Date(broadcast.startedAt), { addSuffix: true })}
+          </span>
+        )}
         {broadcast.completedAt && (
-          <span>/ Completed {formatDistanceToNow(new Date(broadcast.completedAt), { addSuffix: true })}</span>
+          <span className="inline-flex items-center gap-1">
+            <CheckCheck className="h-3 w-3" strokeWidth={2.25} aria-hidden />
+            Completed {formatDistanceToNow(new Date(broadcast.completedAt), { addSuffix: true })}
+          </span>
+        )}
+        {logs.length > 0 && (
+          <span className="inline-flex items-center gap-1">
+            <MailWarning className="h-3 w-3" strokeWidth={2.25} aria-hidden />
+            {logs.length} log entries
+          </span>
         )}
       </p>
 
-      {/* KPI strip */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <MetricTile label="Total contacts" value={compact(total)} icon={Users} delay={0} />
-        <MetricTile label="Sent" value={compact(sent)} icon={Send} delay={0.05} delta={{ value: `${pct(sent, total)}% of total`, positive: true }} />
-        <MetricTile label="Delivered" value={compact(delivered)} icon={CheckCheck} delay={0.1} delta={{ value: `${pct(delivered, sent)}% of sent`, positive: true }} />
-        <MetricTile label="Read" value={compact(read)} icon={Eye} delay={0.15} delta={{ value: `${pct(read, delivered)}% of delivered`, positive: true }} />
-        <MetricTile label="Failed" value={compact(failed)} icon={TriangleAlert} delay={0.2} delta={{ value: `${pct(failed, total)}% of total`, positive: failed === 0 }} />
+      {/* 8-tile KPI strip */}
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
+        <MetricTile label="Contacts" value={compact(total)} icon={Users} delay={0} />
+        <MetricTile label="Sent" value={compact(sent)} icon={Send} delay={0.04} delta={{ value: `${pct(sent, total)}%`, positive: true }} />
+        <MetricTile label="Delivered" value={compact(delivered)} icon={CheckCheck} delay={0.08} delta={{ value: `${pct(delivered, sent)}%`, positive: true }} />
+        <MetricTile label="Read" value={compact(read)} icon={Eye} delay={0.12} delta={{ value: `${pct(read, delivered)}%`, positive: true }} />
+        <MetricTile label="Responded" value={compact(responded)} icon={Zap} delay={0.16} delta={{ value: `${pct(responded, delivered)}%`, positive: true }} />
+        <MetricTile label="Failed" value={compact(failed)} icon={TriangleAlert} delay={0.2} delta={{ value: `${pct(failed, total)}%`, positive: failed === 0 }} />
+        <MetricTile label="Opt-outs" value={compact(optOuts)} icon={CircleX} delay={0.24} />
+        <MetricTile
+          label="Median latency"
+          value={medianLatencyS != null ? `${medianLatencyS.toFixed(1)}s` : '-'}
+          icon={Clock}
+          delay={0.28}
+        />
       </div>
 
+      {/* Cost tile separate row for emphasis when available */}
+      {cost > 0 && (
+        <div className="mb-4">
+          <Section title="Cost" description="Estimated cost for this broadcast.">
+            <div className="flex items-baseline gap-2">
+              <Coins className="h-4 w-4 text-zinc-400" strokeWidth={2.25} />
+              <span className="text-[20px] font-semibold tabular-nums text-zinc-900">
+                {Number(cost).toLocaleString(undefined, { maximumFractionDigits: 4 })}
+              </span>
+              <span className="text-[12px] text-zinc-500">across {compact(sent)} sent messages</span>
+            </div>
+          </Section>
+        </div>
+      )}
+
       {/* Phone preview + funnel */}
-      <div className="mb-6 grid gap-5 lg:grid-cols-[320px_1fr]">
+      <div className="mb-4 grid gap-3 lg:grid-cols-[320px_1fr]">
         <div className="mx-auto lg:mx-0">
           <PhoneFrame title={broadcast.templateName || 'Broadcast'} subtitle="template preview">
             <ChatBubble
@@ -354,10 +473,63 @@ export default function BroadcastReportPage() {
             <FunnelBar label="Sent" count={sent} total={total} delay={0.05} reduce={!!reduce} />
             <FunnelBar label="Delivered" count={delivered} total={total} delay={0.1} reduce={!!reduce} />
             <FunnelBar label="Read" count={read} total={total} delay={0.15} reduce={!!reduce} />
+            {responded > 0 && (
+              <FunnelBar label="Responded" count={responded} total={total} delay={0.18} reduce={!!reduce} />
+            )}
             {failed > 0 && (
               <FunnelBar label="Failed" count={failed} total={total} negative delay={0.2} reduce={!!reduce} />
             )}
           </div>
+        </Section>
+      </div>
+
+      {/* Hourly timeline + failure breakdown */}
+      <div className="mb-4 grid gap-3 lg:grid-cols-[1.4fr_1fr]">
+        <Section title="Per-hour delivery" description="Loaded attempts grouped by send hour.">
+          {hourly.length === 0 ? (
+            <p className="py-8 text-center text-[12px] text-zinc-500">No timestamps available yet.</p>
+          ) : (
+            <div className="h-[200px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={hourly} margin={{ top: 6, right: 8, bottom: 0, left: -16 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
+                  <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#71717a' }} stroke="#e4e4e7" />
+                  <YAxis tick={{ fontSize: 10, fill: '#71717a' }} stroke="#e4e4e7" />
+                  <Tooltip
+                    contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e4e4e7' }}
+                    cursor={{ stroke: '#a1a1aa', strokeDasharray: '3 3' }}
+                  />
+                  <Line type="monotone" dataKey="sent" stroke="#25D366" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="failed" stroke="#e11d48" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </Section>
+
+        <Section title="Failure breakdown" description="Top error reasons from loaded attempts.">
+          {failureBreakdown.length === 0 ? (
+            <p className="py-8 text-center text-[12px] text-zinc-500">No failures recorded.</p>
+          ) : (
+            <div className="h-[200px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={failureBreakdown.slice(0, 6)} margin={{ top: 6, right: 8, bottom: 0, left: -16 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
+                  <XAxis dataKey="code" tick={{ fontSize: 9, fill: '#71717a' }} stroke="#e4e4e7" />
+                  <YAxis tick={{ fontSize: 10, fill: '#71717a' }} stroke="#e4e4e7" />
+                  <Tooltip
+                    contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e4e4e7' }}
+                    cursor={{ fill: 'rgba(225,29,72,0.04)' }}
+                  />
+                  <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                    {failureBreakdown.slice(0, 6).map((_, i) => (
+                      <Cell key={i} fill="#e11d48" />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </Section>
       </div>
 
@@ -388,6 +560,15 @@ export default function BroadcastReportPage() {
           })}
         </div>
 
+        {/* Column header (~36px row) */}
+        <div className="hidden border-b border-zinc-100 bg-zinc-50/60 px-5 py-2 text-[10px] font-semibold uppercase tracking-[0.06em] text-zinc-500 sm:grid sm:grid-cols-[minmax(140px,1.2fr)_100px_minmax(160px,2fr)_90px_120px]">
+          <span>Phone</span>
+          <span>Status</span>
+          <span>Detail / message id</span>
+          <span className="text-right">Latency</span>
+          <span className="text-right">Last event</span>
+        </div>
+
         {isRefreshing && enrichedAttempts.length === 0 ? (
           <div className="flex h-40 items-center justify-center">
             <Loader2 className="h-5 w-5 animate-spin text-zinc-400" />
@@ -412,9 +593,9 @@ export default function BroadcastReportPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.25, delay: 0.01 + Math.min(i, 20) * 0.025, ease: EASE_OUT }}
-                    className="grid grid-cols-[minmax(140px,1fr)_auto_minmax(120px,2fr)] items-center gap-4 px-5 py-2.5 transition-colors hover:bg-zinc-50"
+                    className="grid h-[36px] grid-cols-[minmax(140px,1.2fr)_100px_minmax(160px,2fr)_90px_120px] items-center gap-4 px-5 text-[12px] transition-colors hover:bg-zinc-50"
                   >
-                    <span className="truncate font-mono text-[12px] tabular-nums text-zinc-900">{attempt.phone}</span>
+                    <span className="truncate font-mono tabular-nums text-zinc-900">{attempt.phone}</span>
                     <StatusPill tone={chip.tone}>
                       <span className="inline-flex items-center gap-1">
                         {chip.icon}
@@ -422,6 +603,12 @@ export default function BroadcastReportPage() {
                       </span>
                     </StatusPill>
                     <span className="truncate font-mono text-[11px] text-zinc-500">{attempt.detail}</span>
+                    <span className="text-right tabular-nums text-zinc-700">
+                      {attempt.latency != null ? `${attempt.latency.toFixed(1)}s` : '-'}
+                    </span>
+                    <span className="text-right tabular-nums text-zinc-500">
+                      {attempt.lastEvent ? formatDistanceToNow(new Date(attempt.lastEvent), { addSuffix: true }) : '-'}
+                    </span>
                   </m.li>
                 );
               })}

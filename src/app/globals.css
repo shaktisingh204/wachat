@@ -1127,3 +1127,23 @@
   }
 }
 @import '../styles/sabflow.css';
+
+/* Wachat module: force heavier weight on every text element regardless of
+   utility classes. Overrides Tailwind font-{weight} with higher specificity
+   so authored weight classes (font-medium, font-normal) still resolve to
+   600 inside any WaPage tree. SVG/icon elements skipped. */
+[data-wachat-bold],
+[data-wachat-bold] *:not(svg):not(path):not(circle):not(rect):not(line):not(g) {
+  font-weight: 600;
+}
+[data-wachat-bold] h1,
+[data-wachat-bold] h2,
+[data-wachat-bold] h3,
+[data-wachat-bold] h4,
+[data-wachat-bold] strong,
+[data-wachat-bold] b,
+[data-wachat-bold] th,
+[data-wachat-bold] .font-bold,
+[data-wachat-bold] .font-semibold {
+  font-weight: 700;
+}

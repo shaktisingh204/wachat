@@ -4,10 +4,15 @@ import * as React from 'react';
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { m, AnimatePresence } from 'motion/react';
 import {
+  Activity,
+  CheckCircle2,
+  Clock,
   Eye,
+  Filter,
   Loader2,
   RefreshCw,
   RotateCcw,
+  TriangleAlert,
   Webhook,
 } from 'lucide-react';
 
@@ -34,6 +39,7 @@ import {
   EmptyState,
   WaButton,
   StatusPill,
+  MetricTile,
   type StatusTone,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
@@ -72,17 +78,34 @@ export default function WebhookLogsPage() {
   const [isLoading, startLoading] = useTransition();
   const [isRetrying, startRetrying] = useTransition();
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'success' | 'failed' | 'queued'>('all');
+
+  const kpis = useMemo(() => {
+    const total = logs.length;
+    const success = logs.filter((l) => ['success', 'sent', 'received'].includes((l.status || '').toLowerCase())).length;
+    const failed = logs.filter((l) => ['failed', 'error'].includes((l.status || '').toLowerCase())).length;
+    const queued = logs.filter((l) => ['pending', 'queued', 'sending'].includes((l.status || '').toLowerCase())).length;
+    const eventTypes = new Set(logs.map((l) => l.event || l.type).filter(Boolean)).size;
+    const successRate = total === 0 ? 0 : Math.round((success / total) * 100);
+    return { total, success, failed, queued, eventTypes, successRate };
+  }, [logs]);
 
   const filteredLogs = useMemo(() => {
-    if (!searchQuery.trim()) return logs;
-    const lower = searchQuery.toLowerCase();
+    const lower = searchQuery.trim().toLowerCase();
     return logs.filter((l) => {
+      if (statusFilter !== 'all') {
+        const s = (l.status || '').toLowerCase();
+        if (statusFilter === 'success' && !['success', 'sent', 'received'].includes(s)) return false;
+        if (statusFilter === 'failed' && !['failed', 'error'].includes(s)) return false;
+        if (statusFilter === 'queued' && !['pending', 'queued', 'sending'].includes(s)) return false;
+      }
+      if (!lower) return true;
       if ((l.event || l.type || '').toLowerCase().includes(lower)) return true;
       if (l.payload && JSON.stringify(l.payload).toLowerCase().includes(lower)) return true;
       if (l.body && JSON.stringify(l.body).toLowerCase().includes(lower)) return true;
       return false;
     });
-  }, [logs, searchQuery]);
+  }, [logs, searchQuery, statusFilter]);
 
   const fetchLogs = useCallback(
     (pid: string) => {
@@ -124,6 +147,42 @@ export default function WebhookLogsPage() {
           </WaButton>
         }
       />
+
+      <section className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <MetricTile label="Events total" value={kpis.total} icon={Activity} delay={0.02} />
+        <MetricTile label="Success" value={kpis.success} icon={CheckCircle2} delay={0.04} />
+        <MetricTile label="Failed" value={kpis.failed} icon={TriangleAlert} delay={0.06} />
+        <MetricTile label="Queued" value={kpis.queued} icon={Clock} delay={0.08} />
+        <MetricTile label="Event types" value={kpis.eventTypes} icon={Filter} delay={0.1} />
+        <MetricTile label="Success rate" value={<span className="text-[15px]">{kpis.successRate}%</span>} icon={Activity} delay={0.12} />
+      </section>
+
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-zinc-500">Filter</span>
+        {([
+          { id: 'all', label: 'All' },
+          { id: 'success', label: '2xx success' },
+          { id: 'failed', label: '4xx and 5xx' },
+          { id: 'queued', label: 'Queued' },
+        ] as const).map((opt) => {
+          const active = statusFilter === opt.id;
+          return (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => setStatusFilter(opt.id)}
+              className={`inline-flex h-7 items-center gap-1 rounded-full border px-2.5 text-[11.5px] font-semibold transition-[transform,background-color,color] duration-150 active:scale-[0.97] ${
+                active
+                  ? 'border-transparent text-white'
+                  : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-900'
+              }`}
+              style={active ? { background: 'var(--mt-accent)' } : undefined}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
 
       <Section
         title="Recent deliveries"
@@ -170,13 +229,16 @@ export default function WebhookLogsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.25, delay: i * 0.015, ease: EASE_OUT }}
-                    className="flex items-center gap-3 px-1 py-3"
+                    className="flex h-10 items-center gap-3 px-1"
                   >
-                    <span className="hidden w-44 font-mono text-[12px] tabular-nums text-zinc-500 sm:block">
+                    <span className="hidden w-40 font-mono text-[11px] tabular-nums text-zinc-500 sm:block">
                       {row.receivedAt ? fmtDate(row.receivedAt) : '--'}
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-zinc-900">
+                    <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-zinc-900">
                       {row.event || row.type || 'webhook'}
+                    </span>
+                    <span className="hidden font-mono text-[11px] tabular-nums text-zinc-400 md:block">
+                      attempt 1
                     </span>
                     <StatusPill tone={t.tone}>{t.label}</StatusPill>
                     <div className="flex items-center gap-1">

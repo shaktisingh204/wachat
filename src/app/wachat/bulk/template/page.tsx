@@ -1,16 +1,18 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { AlertCircle, Database, FilePlus2 } from 'lucide-react';
+import { AlertCircle, Database, FilePlus2, Boxes, FileText } from 'lucide-react';
 
 import { CreateTemplateForm } from '@/app/wachat/_components/create-template-form';
 import { getProjectById } from '@/app/actions/project.actions';
 import type { WithId, Project } from '@/lib/definitions';
-import { WaPage, PageHeader, EmptyState, Section } from '@/components/wachat-ui';
+import { WaPage, PageHeader, EmptyState, Section, MetricTile } from '@/components/wachat-ui';
 
-/**
- * Wachat Bulk -> Create Template. Same form, wachat-ui chrome.
- */
+function compact(n: number | null | undefined): string {
+  const v = typeof n === 'number' && Number.isFinite(n) ? n : 0;
+  if (v >= 1_000) return (v / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return String(v);
+}
 
 function BulkTemplatePageSkeleton() {
   return (
@@ -52,8 +54,21 @@ function BulkTemplatePageContent() {
     );
   }
 
+  const phoneCount = projects.reduce(
+    (s, p) => s + ((p as any).phoneNumbers?.length || 0),
+    0,
+  );
+  const wabaCount = new Set(projects.map((p) => (p as any).wabaId || (p as any).businessAccountId).filter(Boolean)).size;
+
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <MetricTile label="Selected projects" value={compact(projects.length)} icon={Boxes} delay={0} />
+        <MetricTile label="Phone numbers" value={compact(phoneCount)} icon={Database} delay={0.05} />
+        <MetricTile label="WABAs" value={compact(wabaCount)} icon={FileText} delay={0.1} />
+        <MetricTile label="Target template" value="1" icon={FilePlus2} delay={0.15} />
+      </div>
+
       <Section
         title={`Targeting ${projects.length} project${projects.length === 1 ? '' : 's'}`}
         description="This template will be created across every selected project."

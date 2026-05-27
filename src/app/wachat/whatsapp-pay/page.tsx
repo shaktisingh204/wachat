@@ -22,6 +22,10 @@ import {
   MoreHorizontal,
   Receipt,
   FileText,
+  TrendingUp,
+  Users,
+  RotateCcw,
+  Activity,
 } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 
@@ -67,6 +71,7 @@ type PaymentRow = {
   status: string;
   description: string;
   date: string;
+  customer?: string;
 };
 
 const statusTone = (status?: string): StatusTone => {
@@ -74,6 +79,7 @@ const statusTone = (status?: string): StatusTone => {
   if (s === 'success' || s === 'completed' || s === 'captured') return 'live';
   if (s === 'failed' || s === 'canceled' || s === 'cancelled') return 'failed';
   if (s === 'pending' || s === 'created') return 'queued';
+  if (s === 'refunded') return 'paused';
   return 'draft';
 };
 
@@ -113,20 +119,42 @@ export default function WhatsAppPayPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProjectId]);
 
-  const stats = useMemo(
-    () =>
-      transactions.reduce(
-        (acc, t) => {
-          if (t.status === 'SUCCESS') {
-            acc.successfulTransactions++;
-            acc.totalRevenue += t.amount / 100;
-          }
-          return acc;
-        },
-        { successfulTransactions: 0, totalRevenue: 0 },
-      ),
-    [transactions],
-  );
+  const stats = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    let successfulCount = 0;
+    let totalRevenue = 0;
+    let failedCount = 0;
+    let refundedCount = 0;
+    let refundedAmount = 0;
+    let txToday = 0;
+    let volumeToday = 0;
+    let initiatedCount = 0;
+    const customers = new Map<string, number>();
+    for (const t of transactions) {
+      const status = (t.status ?? '').toUpperCase();
+      const amount = t.amount / 100;
+      const desc = t.description || '-';
+      if (status === 'SUCCESS' || status === 'COMPLETED' || status === 'CAPTURED') {
+        successfulCount++; totalRevenue += amount;
+        customers.set(desc, (customers.get(desc) || 0) + amount);
+      } else if (status === 'REFUNDED') { refundedCount++; refundedAmount += amount; }
+      else if (status === 'FAILED' || status === 'CANCELED' || status === 'CANCELLED') { failedCount++; }
+      else if (status === 'PENDING' || status === 'CREATED') { initiatedCount++; }
+      const created = t.createdAt ? new Date(t.createdAt as unknown as string | Date).toISOString().slice(0, 10) : '';
+      if (created === today) {
+        txToday++;
+        if (status === 'SUCCESS' || status === 'COMPLETED' || status === 'CAPTURED') volumeToday += amount;
+      }
+    }
+    let topCustomer = '-'; let topAmount = 0;
+    for (const [k, v] of customers) if (v > topAmount) { topCustomer = k; topAmount = v; }
+    const avgAmount = successfulCount > 0 ? totalRevenue / successfulCount : 0;
+    const successRate = transactions.length > 0 ? (successfulCount / transactions.length) * 100 : 0;
+    return {
+      successfulCount, totalRevenue, failedCount, refundedCount, refundedAmount,
+      txToday, volumeToday, avgAmount, successRate, topCustomer, topAmount, initiatedCount,
+    };
+  }, [transactions]);
 
   const handleExport = () => {
     if (!transactions.length) return;
@@ -201,18 +229,23 @@ export default function WhatsAppPayPage() {
       {
         accessorKey: 'date',
         header: 'Date',
-        cell: ({ row }) => <span className="text-[12px] text-zinc-500">{format(new Date(row.original.date), 'PPp')}</span>,
+        cell: ({ row }) => <span className="text-[11.5px] text-zinc-500 tabular-nums">{format(new Date(row.original.date), 'dd MMM, HH:mm')}</span>,
+      },
+      {
+        accessorKey: 'id',
+        header: 'TX ID',
+        cell: ({ row }) => <span className="font-mono text-[11px] text-zinc-500">{row.original.id.slice(-10)}</span>,
       },
       {
         accessorKey: 'description',
         header: 'Description',
-        cell: ({ row }) => <span className="text-zinc-900">{row.original.description}</span>,
+        cell: ({ row }) => <span className="text-[12.5px] text-zinc-900">{row.original.description}</span>,
       },
       {
         accessorKey: 'amount',
         header: () => <div className="text-right">Amount</div>,
         cell: ({ row }) => (
-          <div className="text-right font-semibold tabular-nums text-zinc-900">{fmtINR(row.original.amount / 100)}</div>
+          <div className="text-right text-[12.5px] font-semibold tabular-nums text-zinc-900">{fmtINR(row.original.amount / 100)}</div>
         ),
       },
       {
@@ -229,9 +262,9 @@ export default function WhatsAppPayPage() {
               <button
                 type="button"
                 aria-label="Open actions"
-                className="grid h-7 w-7 place-items-center rounded-full text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.94]"
+                className="grid h-6 w-6 place-items-center rounded-full text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.94]"
               >
-                <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={2.25} />
+                <MoreHorizontal className="h-3 w-3" strokeWidth={2.25} />
               </button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end">
@@ -271,8 +304,19 @@ export default function WhatsAppPayPage() {
 
   const statsLoading = isLoading && transactions.length === 0;
 
+  // Funnel
+  const funnel = useMemo(() => {
+    const initiated = stats.initiatedCount + stats.successfulCount + stats.failedCount + stats.refundedCount;
+    return [
+      { label: 'Initiated', value: initiated, color: '#a1a1aa' },
+      { label: 'Paid', value: stats.successfulCount, color: '#25D366' },
+      { label: 'Refunded', value: stats.refundedCount, color: '#f59e0b' },
+    ];
+  }, [stats]);
+  const funnelMax = Math.max(...funnel.map((f) => f.value), 1);
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       {/* Actions strip */}
       <m.div
         initial={{ opacity: 0, y: 4 }}
@@ -285,31 +329,72 @@ export default function WhatsAppPayPage() {
           Refresh
         </WaButton>
         <WaButton variant="outline" size="sm" onClick={handleExport} disabled={transactions.length === 0} leftIcon={Download}>
-          Export
+          Export CSV
         </WaButton>
         <WaButton variant="outline" size="sm" onClick={handleGenerateReconciliation} disabled={transactions.length === 0} leftIcon={FileText}>
           Reconciliation
         </WaButton>
       </m.div>
 
-      {/* KPIs */}
-      <section className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <MetricTile label="Total revenue" value={fmtINR(stats.totalRevenue)} icon={IndianRupee} delay={0.02} />
-        <MetricTile label="Successful payments" value={stats.successfulTransactions.toLocaleString('en-IN')} icon={CheckCircle2} delay={0.06} />
-        <MetricTile label="Failed or pending" value={(transactions.length - stats.successfulTransactions).toLocaleString('en-IN')} icon={XCircle} delay={0.1} />
+      {/* 6-tile KPI strip */}
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <MetricTile label="Today" value={stats.txToday.toLocaleString('en-IN')} icon={Activity} delay={0.02} />
+        <MetricTile label="Volume" value={fmtINR(stats.totalRevenue)} icon={IndianRupee} delay={0.04} />
+        <MetricTile label="Success rate" value={`${stats.successRate.toFixed(1)}%`} icon={CheckCircle2} delay={0.06} />
+        <MetricTile label="Refunds" value={stats.refundedCount.toLocaleString('en-IN')} icon={RotateCcw} delay={0.08} />
+        <MetricTile label="Avg amount" value={fmtINR(stats.avgAmount)} icon={TrendingUp} delay={0.1} />
+        <MetricTile label="Top customer" value={stats.topAmount > 0 ? fmtINR(stats.topAmount) : '-'} icon={Users} delay={0.12} />
       </section>
 
-      {/* Chart */}
-      <Section title="Transactions over time" description="Revenue curve across the selected range.">
-        <TransactionChart transactions={transactions} dateRange={dateRange} />
-      </Section>
+      <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+        {/* Chart */}
+        <Section title="Transactions over time" description="Revenue curve across the selected range.">
+          <TransactionChart transactions={transactions} dateRange={dateRange} />
+        </Section>
+
+        {/* Funnel */}
+        <Section title="Payment funnel" description="From intent to settlement.">
+          <ul className="flex flex-col gap-2">
+            {funnel.map((f) => {
+              const pct = (f.value / funnelMax) * 100;
+              return (
+                <li key={f.label}>
+                  <div className="flex items-center justify-between text-[11.5px]">
+                    <span className="font-semibold text-zinc-700">{f.label}</span>
+                    <span className="tabular-nums text-zinc-900">{f.value.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-zinc-100">
+                    <m.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 0.7, ease: EASE_OUT }}
+                      style={{ background: f.color }}
+                      className="h-full"
+                    />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="mt-4 grid grid-cols-2 gap-2 border-t border-zinc-100 pt-3 text-[11px]">
+            <div>
+              <p className="font-semibold uppercase tracking-wider text-zinc-500">Refunded volume</p>
+              <p className="mt-0.5 text-[13px] font-semibold tabular-nums text-zinc-900">{fmtINR(stats.refundedAmount)}</p>
+            </div>
+            <div>
+              <p className="font-semibold uppercase tracking-wider text-zinc-500">Volume today</p>
+              <p className="mt-0.5 text-[13px] font-semibold tabular-nums text-zinc-900">{fmtINR(stats.volumeToday)}</p>
+            </div>
+          </div>
+        </Section>
+      </div>
 
       {/* Table */}
       <Section title="Transaction history" description="A detailed log of every payment from chat.">
         {statsLoading ? (
           <div className="flex flex-col gap-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-10 animate-pulse rounded-xl bg-zinc-100" />
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-9 animate-pulse rounded-lg bg-zinc-100" />
             ))}
           </div>
         ) : tableData.length === 0 ? (

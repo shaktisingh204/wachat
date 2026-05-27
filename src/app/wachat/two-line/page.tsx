@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { m, AnimatePresence } from 'motion/react';
-import { Bot, Edit2, Phone, Plus, Trash2, User, Users } from 'lucide-react';
+import { Activity, Bot, Clock, Edit2, Phone, Plus, Trash2, User, Users } from 'lucide-react';
 
 import {
   Dialog,
@@ -29,6 +29,7 @@ import {
   EmptyState,
   WaButton,
   StatusPill,
+  MetricTile,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
@@ -124,7 +125,73 @@ export default function MultiNumberManagementPage() {
         }
       />
 
-      <Section title="Routing matrix" description="Each WABA number routes to a team and a default destination.">
+      {(() => {
+        const botRoutes = numbers.filter((n) => n.defaultRoute === 'bot').length;
+        const agentRoutes = numbers.filter((n) => n.defaultRoute === 'agent').length;
+        const teamsCovered = new Set(numbers.map((n) => n.teamId)).size;
+        return (
+          <section className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            <MetricTile label="Numbers" value={numbers.length} icon={Phone} delay={0.02} />
+            <MetricTile label="Teams covered" value={teamsCovered} icon={Users} delay={0.04} />
+            <MetricTile label="Routes to bot" value={botRoutes} icon={Bot} delay={0.06} />
+            <MetricTile label="Routes to agent" value={agentRoutes} icon={User} delay={0.08} />
+            <MetricTile label="Last change" value={<span className="text-[15px]">Just now</span>} icon={Clock} delay={0.1} />
+          </section>
+        );
+      })()}
+
+      {/* Routing matrix — teams as columns, numbers as rows */}
+      {numbers.length > 0 && (
+        <Section title="Routing matrix" description="Visual grid of which team owns each number, click to reassign.">
+          <div className="overflow-x-auto">
+            <table className="w-full border-separate border-spacing-0 text-[12px]">
+              <thead>
+                <tr>
+                  <th className="sticky left-0 z-10 bg-white px-2 py-2 text-left text-[10.5px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
+                    Number
+                  </th>
+                  {TEAMS.map((t) => (
+                    <th key={t.id} className="px-2 py-2 text-center text-[10.5px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
+                      {t.name}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {numbers.map((n) => (
+                  <tr key={n.id} className="border-t border-zinc-100">
+                    <td className="sticky left-0 z-10 bg-white px-2 py-2 font-mono text-[11.5px] text-zinc-900">
+                      {n.number}
+                    </td>
+                    {TEAMS.map((t) => {
+                      const active = n.teamId === t.id;
+                      return (
+                        <td key={t.id} className="px-1 py-1.5 text-center">
+                          <button
+                            type="button"
+                            onClick={() => setNumbers((prev) => prev.map((x) => (x.id === n.id ? { ...x, teamId: t.id } : x)))}
+                            className={`grid h-7 w-full place-items-center rounded-lg border text-[11px] font-semibold transition-[transform,background-color,color] duration-150 active:scale-[0.97] ${
+                              active
+                                ? 'border-transparent text-white'
+                                : 'border-zinc-200 bg-white text-zinc-500 hover:border-zinc-900 hover:text-zinc-900'
+                            }`}
+                            style={active ? { background: 'var(--mt-accent)' } : undefined}
+                            aria-label={`Assign ${n.number} to ${t.name}`}
+                          >
+                            {active ? n.defaultRoute === 'bot' ? <Bot className="h-3 w-3" strokeWidth={2.5} /> : <User className="h-3 w-3" strokeWidth={2.5} /> : '·'}
+                          </button>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Section>
+      )}
+
+      <Section title="Routing list" description="Each WABA number routes to a team and a default destination.">
         {numbers.length === 0 ? (
           <EmptyState
             icon={Phone}

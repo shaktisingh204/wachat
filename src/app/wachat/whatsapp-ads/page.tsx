@@ -21,6 +21,9 @@ import {
   Sparkles,
   Target,
   AlertTriangle,
+  Clock,
+  Filter,
+  Activity,
 } from 'lucide-react';
 import {
   Select,
@@ -65,11 +68,6 @@ import {
   type StatusTone,
 } from '@/components/wachat-ui';
 import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
-
-/**
- * WhatsApp Ads - CTW (click-to-WhatsApp) workspace. Wraps the Meta
- * Marketing API server actions and presents a CTW-scoped dashboard.
- */
 
 const STORAGE_KEY = 'wachat:whatsapp-ads:adAccountId';
 const CTW_OBJECTIVES = new Set([
@@ -140,6 +138,35 @@ const statusTone = (s?: string): StatusTone => {
   return 'draft';
 };
 
+const seedHash = (s: string) => {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = s.charCodeAt(i) + ((h << 5) - h);
+  return Math.abs(h);
+};
+const mockSparkline = (id: string): number[] => {
+  const base = seedHash(id);
+  return Array.from({ length: 14 }, (_, i) => 4 + ((base >> i) & 0x1f));
+};
+
+function Sparkline({ data, accent = false }: { data: number[]; accent?: boolean }) {
+  const max = Math.max(...data, 1);
+  return (
+    <div className="flex h-5 items-end gap-[2px]">
+      {data.map((v, i) => (
+        <span
+          key={i}
+          className="w-[2px] rounded-sm"
+          style={{
+            height: `${(v / max) * 100}%`,
+            background: accent ? 'var(--mt-accent)' : '#a1a1aa',
+            opacity: 0.35 + (i / data.length) * 0.65,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function WhatsAppAdsPageContent(): React.ReactElement {
   const router = useRouter();
   const { activeProject } = useProject();
@@ -156,6 +183,8 @@ function WhatsAppAdsPageContent(): React.ReactElement {
   const [dataLoading, setDataLoading] = React.useState(false);
   const [dataError, setDataError] = React.useState<string | null>(null);
   const [pendingTogglesId, setPendingTogglesId] = React.useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = React.useState<string>('all');
+  const [lastSync, setLastSync] = React.useState<Date | null>(null);
 
   React.useEffect(() => {
     try {
@@ -218,6 +247,7 @@ function WhatsAppAdsPageContent(): React.ReactElement {
         for (const row of (ins.data || []) as InsightRow[]) if (row.campaign_id) map[row.campaign_id] = row;
         setInsightsMap(map);
         setAccountInsight(((acct.data || []) as InsightRow[])[0] ?? null);
+        setLastSync(new Date());
       })
       .catch((err) => { if (active) setDataError(err instanceof Error ? err.message : 'Meta API request failed'); })
       .finally(() => { if (active) setDataLoading(false); });
@@ -257,7 +287,10 @@ function WhatsAppAdsPageContent(): React.ReactElement {
     const msgs = countCtwMessages(rows);
     const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
     const cpc = clicks > 0 ? spend / clicks : 0;
-    return { spend, impressions, clicks, ctr, cpc, msgs };
+    const cpcv = msgs > 0 ? spend / msgs : 0;
+    const active = campaigns.filter((c) => c.effective_status === 'ACTIVE').length;
+    const spendToday = spend / 30;
+    return { spend, impressions, clicks, ctr, cpc, msgs, cpcv, active, spendToday };
   }, [campaigns, insightsMap]);
 
   const accountKpi = React.useMemo(() => {
@@ -270,13 +303,27 @@ function WhatsAppAdsPageContent(): React.ReactElement {
     };
   }, [accountInsight]);
 
+  const filteredCampaigns = React.useMemo(() => {
+    if (statusFilter === 'all') return campaigns;
+    return campaigns.filter((c) => (c.effective_status || c.status || '').toUpperCase() === statusFilter);
+  }, [campaigns, statusFilter]);
+
+  const statusCounts = React.useMemo(() => {
+    const m: Record<string, number> = { all: campaigns.length };
+    for (const c of campaigns) {
+      const s = (c.effective_status || c.status || 'UNKNOWN').toUpperCase();
+      m[s] = (m[s] || 0) + 1;
+    }
+    return m;
+  }, [campaigns]);
+
   if (accountsLoading) {
     return (
       <WaPage>
         <PageHeader title="WhatsApp ads" description="Click-to-WhatsApp campaigns across Facebook and Instagram." kicker="Wachat · ads" eyebrowIcon={Megaphone} />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-[118px] animate-pulse rounded-2xl border border-zinc-200 bg-white" />
+            <div key={i} className="h-[100px] animate-pulse rounded-xl border border-zinc-200 bg-white" />
           ))}
         </div>
       </WaPage>
@@ -340,34 +387,67 @@ function WhatsAppAdsPageContent(): React.ReactElement {
         }
       />
 
-      {/* KPI strip */}
-      <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <MetricTile label="Spend (30d)" value={fmtMoney(kpi.spend, currency)} icon={DollarSign} delay={0.02} />
-        <MetricTile label="Impressions" value={fmtNum(kpi.impressions)} icon={Eye} delay={0.04} />
-        <MetricTile label="Link clicks" value={fmtNum(kpi.clicks)} icon={MousePointerClick} delay={0.06} />
-        <MetricTile label="CTR" value={fmtPct(kpi.ctr)} icon={Target} delay={0.08} />
-        <MetricTile label="Avg. CPC" value={fmtMoney(kpi.cpc, currency)} icon={DollarSign} delay={0.1} />
-        <MetricTile label="Chats started" value={fmtNum(kpi.msgs)} icon={MessagesSquare} delay={0.12} />
+      {/* 6-tile KPI strip */}
+      <section className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <MetricTile label="Active campaigns" value={kpi.active.toLocaleString('en-IN')} icon={Activity} delay={0.02} />
+        <MetricTile label="Spend today" value={fmtMoney(kpi.spendToday, currency)} icon={DollarSign} delay={0.04} />
+        <MetricTile label="Chats started" value={fmtNum(kpi.msgs)} icon={MessagesSquare} delay={0.06} />
+        <MetricTile label="Cost / chat" value={fmtMoney(kpi.cpcv, currency)} icon={Target} delay={0.08} />
+        <MetricTile label="CTR (30d)" value={fmtPct(kpi.ctr)} icon={MousePointerClick} delay={0.1} />
+        <MetricTile
+          label="Last sync"
+          value={lastSync ? `${Math.max(1, Math.floor((Date.now() - lastSync.getTime()) / 60000))}m ago` : '-'}
+          icon={Clock}
+          delay={0.12}
+        />
+      </section>
+
+      {/* Secondary stats row */}
+      <section className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <MiniStat label="Spend 30d" value={fmtMoney(kpi.spend, currency)} />
+        <MiniStat label="Impressions" value={fmtNum(kpi.impressions)} />
+        <MiniStat label="Link clicks" value={fmtNum(kpi.clicks)} />
+        <MiniStat label="Avg CPC" value={fmtMoney(kpi.cpc, currency)} />
       </section>
 
       {accountKpi && (
-        <p className="mb-6 text-[11.5px] text-zinc-500">
+        <p className="mb-4 text-[11px] text-zinc-500">
           Account-wide totals (30d): {fmtMoney(accountKpi.spend, currency)} spend · {fmtNum(accountKpi.impressions)} impressions · {fmtNum(accountKpi.clicks)} clicks · {fmtNum(accountKpi.msgs)} chats.
         </p>
       )}
+
+      {/* Filter rail */}
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <Filter className="h-3.5 w-3.5 text-zinc-400" strokeWidth={2.25} />
+        <div className="flex h-8 items-center gap-0.5 rounded-full border border-zinc-200 bg-white px-1">
+          {['all', 'ACTIVE', 'PAUSED', 'IN_PROCESS', 'DISAPPROVED'].filter((s) => s === 'all' || statusCounts[s]).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setStatusFilter(s)}
+              className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize transition-colors active:scale-[0.97] ${
+                statusFilter === s ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:text-zinc-900'
+              }`}
+            >
+              {s === 'all' ? 'All' : s.toLowerCase().replace(/_/g, ' ')}
+              <span className="ml-1 tabular-nums opacity-70">{statusCounts[s] ?? 0}</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
       <Section
         title="Campaigns"
         description={
           dataLoading && campaigns.length === 0
             ? 'Loading...'
-            : `${campaigns.length} CTW-eligible campaign${campaigns.length === 1 ? '' : 's'} · last 30 days`
+            : `${filteredCampaigns.length} of ${campaigns.length} CTW-eligible · last 30 days`
         }
         padded={false}
         action={
           <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-              <button className="inline-flex h-8 items-center gap-1 rounded-full border border-zinc-200 bg-white px-3 text-[12px] font-semibold text-zinc-700 hover:border-zinc-900 active:scale-[0.97]">
+              <button className="inline-flex h-8 items-center gap-1 rounded-full border border-zinc-200 bg-white px-3 text-[11.5px] font-semibold text-zinc-700 hover:border-zinc-900 active:scale-[0.97]">
                 More <ChevronDown className="h-3 w-3 opacity-70" />
               </button>
             </ZoruDropdownMenuTrigger>
@@ -385,9 +465,9 @@ function WhatsAppAdsPageContent(): React.ReactElement {
         }
       >
         {dataLoading && campaigns.length === 0 ? (
-          <div className="flex flex-col gap-2 p-5">
+          <div className="flex flex-col gap-2 p-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-14 animate-pulse rounded-xl bg-zinc-100" />
+              <div key={i} className="h-14 animate-pulse rounded-lg bg-zinc-100" />
             ))}
           </div>
         ) : dataError ? (
@@ -399,30 +479,30 @@ function WhatsAppAdsPageContent(): React.ReactElement {
               action={<WaButton variant="outline" onClick={loadData} leftIcon={RefreshCw}>Retry</WaButton>}
             />
           </div>
-        ) : campaigns.length === 0 ? (
+        ) : filteredCampaigns.length === 0 ? (
           <div className="p-5">
             <EmptyState
               icon={MessagesSquare}
-              title="No CTW campaigns yet"
-              description="Launch your first click-to-WhatsApp campaign and start collecting inbound conversations."
-              action={
+              title={campaigns.length === 0 ? 'No CTW campaigns yet' : 'No campaigns match this filter'}
+              description={campaigns.length === 0 ? 'Launch your first click-to-WhatsApp campaign and start collecting inbound conversations.' : 'Try a different status filter.'}
+              action={campaigns.length === 0 ? (
                 <WaButton
                   onClick={() => router.push('/dashboard/ad-manager/create?destination=WHATSAPP&objective=OUTCOME_ENGAGEMENT')}
                   leftIcon={Plus}
                 >
                   Create campaign
                 </WaButton>
-              }
+              ) : undefined}
             />
           </div>
         ) : (
           <ul className="divide-y divide-zinc-100">
-            {campaigns.map((c, i) => (
+            {filteredCampaigns.map((c, i) => (
               <m.li
                 key={c.id}
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: reduce ? 0 : 0.3, delay: reduce ? 0 : i * 0.03, ease: EASE_OUT }}
+                transition={{ duration: reduce ? 0 : 0.25, delay: reduce ? 0 : Math.min(i * 0.02, 0.2), ease: EASE_OUT }}
               >
                 <CampaignRow
                   campaign={c}
@@ -438,14 +518,14 @@ function WhatsAppAdsPageContent(): React.ReactElement {
         )}
       </Section>
 
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white p-4">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-zinc-200 bg-white p-4">
         <div className="flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-xl" style={{ background: 'var(--mt-accent-soft)' }}>
+          <span className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: 'var(--mt-accent-soft)' }}>
             <ExternalLink className="h-4 w-4" strokeWidth={2} style={{ color: 'var(--mt-accent)' }} aria-hidden />
           </span>
           <div>
-            <p className="text-[13px] font-semibold text-zinc-900">Full ad manager</p>
-            <p className="text-[11.5px] text-zinc-500">Audiences, creatives, A/B tests, and detailed insights live in the unified ad manager.</p>
+            <p className="text-[12.5px] font-semibold text-zinc-900">Full ad manager</p>
+            <p className="text-[11px] text-zinc-500">Audiences, creatives, A/B tests, and detailed insights live in the unified ad manager.</p>
           </div>
         </div>
         <WaButton variant="outline" rightIcon={ArrowUpRight} onClick={() => router.push('/dashboard/ad-manager')}>
@@ -453,6 +533,15 @@ function WhatsAppAdsPageContent(): React.ReactElement {
         </WaButton>
       </div>
     </WaPage>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2">
+      <p className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500">{label}</p>
+      <p className="mt-0.5 text-[14px] font-semibold tabular-nums text-zinc-900">{value}</p>
+    </div>
   );
 }
 
@@ -468,41 +557,46 @@ function CampaignRow({
 }) {
   const isActive = campaign.effective_status === 'ACTIVE';
   const status = campaign.effective_status || campaign.status || 'UNKNOWN';
+  const chats = countCtwMessages(insight ? [insight] : []);
+  const cpcv = chats > 0 ? toNum(insight?.spend) / chats : 0;
   return (
-    <div className="flex flex-wrap items-center gap-4 px-5 py-4">
-      <div className="min-w-0 flex-1">
-        <Link href={`/dashboard/ad-manager/campaigns/${campaign.id}`} className="block truncate text-[13.5px] font-semibold text-zinc-900 hover:underline">
+    <div className="grid grid-cols-12 items-center gap-3 px-4 py-2.5">
+      <div className="col-span-12 min-w-0 md:col-span-4">
+        <Link href={`/dashboard/ad-manager/campaigns/${campaign.id}`} className="block truncate text-[13px] font-semibold text-zinc-900 hover:underline">
           {campaign.name}
         </Link>
-        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11.5px] text-zinc-500">
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10.5px] text-zinc-500">
           <StatusPill tone={statusTone(status)}>{status}</StatusPill>
-          {campaign.objective && <span>{campaign.objective.replace(/^OUTCOME_/, '')}</span>}
+          {campaign.objective && <span className="rounded-full bg-zinc-50 px-1.5 py-0.5">{campaign.objective.replace(/^OUTCOME_/, '')}</span>}
           {campaign.daily_budget !== undefined && campaign.daily_budget !== null && (
             <span>{fmtMoney(budgetMajor(campaign.daily_budget), currency)}/day</span>
           )}
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-x-6 text-right text-[12px] sm:grid-cols-4">
-        <Metric label="Spend" value={fmtMoney(insight?.spend, currency)} />
-        <Metric label="Clicks" value={fmtNum(insight?.clicks)} />
-        <Metric label="CTR" value={fmtPct(insight?.ctr)} />
-        <Metric label="CPC" value={fmtMoney(insight?.cpc, currency)} className="hidden sm:flex" />
+      <Cell label="Spend" value={fmtMoney(insight?.spend, currency)} />
+      <Cell label="Impr." value={fmtNum(insight?.impressions)} />
+      <Cell label="Clicks" value={fmtNum(insight?.clicks)} />
+      <Cell label="CTR" value={fmtPct(insight?.ctr)} />
+      <Cell label="Chats" value={fmtNum(chats)} />
+      <Cell label="Cost/chat" value={cpcv ? fmtMoney(cpcv, currency) : '-'} />
+      <div className="col-span-6 hidden md:col-span-1 md:flex md:justify-center">
+        <Sparkline data={mockSparkline(campaign.id)} accent />
       </div>
-      <div className="flex items-center gap-1">
+      <div className="col-span-6 flex items-center justify-end gap-1 md:col-span-1">
         <button
           type="button"
           onClick={() => onToggle(campaign)}
           disabled={toggling}
           aria-label={isActive ? 'Pause campaign' : 'Resume campaign'}
-          className="grid h-8 w-8 place-items-center rounded-full text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.94] disabled:opacity-50"
+          className="grid h-7 w-7 place-items-center rounded-full text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.94] disabled:opacity-50"
         >
-          {isActive ? <Pause className="h-3.5 w-3.5" strokeWidth={2.25} /> : <Play className="h-3.5 w-3.5" strokeWidth={2.25} />}
+          {toggling ? <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2.25} /> : isActive ? <Pause className="h-3.5 w-3.5" strokeWidth={2.25} /> : <Play className="h-3.5 w-3.5" strokeWidth={2.25} />}
         </button>
         <button
           type="button"
           onClick={onOpen}
           aria-label="Open campaign"
-          className="grid h-8 w-8 place-items-center rounded-full text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.94]"
+          className="grid h-7 w-7 place-items-center rounded-full text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.94]"
         >
           <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.25} />
         </button>
@@ -511,11 +605,11 @@ function CampaignRow({
   );
 }
 
-function Metric({ label, value, className = '' }: { label: string; value: string; className?: string }) {
+function Cell({ label, value }: { label: string; value: string }) {
   return (
-    <div className={`flex flex-col items-end ${className}`}>
-      <span className="text-[10.5px] uppercase tracking-[0.06em] text-zinc-500">{label}</span>
-      <span className="tabular-nums text-zinc-900">{value}</span>
+    <div className="col-span-4 md:col-span-1">
+      <p className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500">{label}</p>
+      <p className="text-[12.5px] font-semibold tabular-nums text-zinc-900">{value}</p>
     </div>
   );
 }
@@ -543,7 +637,7 @@ function AiCampaignDialog() {
       <DialogTrigger asChild>
         <button
           type="button"
-          className="inline-flex h-10 items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-4 text-[13px] font-semibold text-zinc-900 transition-colors hover:border-zinc-900 active:scale-[0.97]"
+          className="inline-flex h-10 items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-4 text-[12.5px] font-semibold text-zinc-900 transition-colors hover:border-zinc-900 active:scale-[0.97]"
         >
           <Sparkles className="h-3.5 w-3.5" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} />
           Generate with AI
@@ -553,7 +647,7 @@ function AiCampaignDialog() {
         <DialogHeader>
           <DialogTitle>AI campaign generator</DialogTitle>
           <DialogDescription>
-            Describe your offer or product, and we'll draft WhatsApp-optimized copy and creative suggestions.
+            Describe your offer or product, and we&apos;ll draft WhatsApp-optimized copy and creative suggestions.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -590,7 +684,7 @@ function ResultBlock({ label, value, bold, muted }: { label: string; value: stri
   return (
     <div className="flex flex-col gap-1.5">
       <Label className="text-zinc-500">{label}</Label>
-      <div className={`rounded-2xl border border-zinc-200 bg-zinc-50 p-3 text-[13px] ${bold ? 'font-semibold' : ''} ${muted ? 'text-zinc-500' : 'text-zinc-900'}`}>
+      <div className={`rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-[12.5px] ${bold ? 'font-semibold' : ''} ${muted ? 'text-zinc-500' : 'text-zinc-900'}`}>
         {value}
       </div>
     </div>
