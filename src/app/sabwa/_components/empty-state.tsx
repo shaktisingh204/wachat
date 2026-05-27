@@ -1,7 +1,7 @@
 /**
  * EmptyState — centred "nothing here yet" pattern used by SabWa lists.
  *
- * Distinct from `@/components/ui/empty-state` which depends on
+ * Distinct from `@/components/zoruui` EmptyState which depends on
  * `motion/react`. This is a lighter, dependency-free variant designed
  * for use inside SabWa panes (inbox empty pane, chat with no
  * messages, etc.).
@@ -75,15 +75,15 @@ export function EmptyState({
       {iconNode ? (
         <div
           aria-hidden
-          className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground"
+          className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-zoru-surface text-zoru-ink-muted"
         >
           {iconNode}
         </div>
       ) : null}
       <div className="space-y-1">
-        <h3 className="text-base font-semibold tracking-tight">{title}</h3>
+        <h3 className="text-base font-semibold tracking-tight text-zoru-ink">{title}</h3>
         {description ? (
-          <p className="mx-auto max-w-sm text-sm text-muted-foreground">
+          <p className="mx-auto max-w-sm text-sm text-zoru-ink-muted">
             {description}
           </p>
         ) : null}

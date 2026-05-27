@@ -12,7 +12,7 @@ import { getProjectById } from '@/app/actions/index.ts';
 /**
  * SubscribeProjectButton (wachat-local, ZoruUI).
  *
- * Replaces @/components/wabasimplify/subscribe-project-button. Same
+ * Replaces the legacy subscribe-project-button. Same
  * server actions (handleSubscribeProjectWebhook, getProjectById), same
  * handler signature.
  */

@@ -1,9 +1,8 @@
 'use client';
 
-import { Button, Input, Card, ZoruCardContent, Badge } from '@/components/zoruui';
+import { Button, Input, Card, ZoruCardContent, Badge, Tabs, ZoruZoruTabsList, ZoruZoruTabsTrigger, ZoruZoruTabsContent } from '@/components/zoruui';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Copy, Loader2, Check } from 'lucide-react';
 
 interface LsiKeyword {
@@ -80,7 +79,7 @@ export default function LsiKeywordsPage() {
   };
 
   const renderBadgeList = (words: LsiKeyword[]) => {
-    if (words.length === 0) return <div className="text-sm text-muted-foreground py-4 text-center">No results found for this category.</div>;
+    if (words.length === 0) return <div className="text-sm text-zoru-ink-muted py-4 text-center">No results found for this category.</div>;
     return (
       <div className="flex flex-wrap gap-2 mt-4">
         {words.map((r) => (
@@ -116,7 +115,7 @@ export default function LsiKeywordsPage() {
       </div>
       
       {error && (
-        <div className="text-red-500 text-sm mt-4 p-3 bg-red-50 rounded-md border border-red-200">
+        <div className="text-zoru-danger-ink text-sm mt-4 p-3 bg-zoru-danger rounded-md border border-zoru-line">
           {error}
         </div>
       )}
@@ -125,17 +124,17 @@ export default function LsiKeywordsPage() {
         <Card className="mt-8 border-border shadow-sm overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b bg-muted/20 px-4 py-3 gap-3">
-              <TabsList className="bg-transparent h-auto p-0 gap-2">
-                <TabsTrigger value="all" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
+              <ZoruTabsList className="bg-transparent h-auto p-0 gap-2">
+                <ZoruTabsTrigger value="all" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
                   All LSI ({allKeywords.length})
-                </TabsTrigger>
-                <TabsTrigger value="triggers" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
+                </ZoruTabsTrigger>
+                <ZoruTabsTrigger value="triggers" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
                   Co-occurring ({triggers.length})
-                </TabsTrigger>
-                <TabsTrigger value="related" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
+                </ZoruTabsTrigger>
+                <ZoruTabsTrigger value="related" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
                   Semantics ({related.length})
-                </TabsTrigger>
-              </TabsList>
+                </ZoruTabsTrigger>
+              </ZoruTabsList>
               
               <Button 
                 variant="outline" 
@@ -143,24 +142,24 @@ export default function LsiKeywordsPage() {
                 onClick={copyToClipboard}
                 className="h-9 whitespace-nowrap shrink-0"
               >
-                {copied ? <Check className="w-4 h-4 mr-2 text-green-500" /> : <Copy className="w-4 h-4 mr-2" />}
+                {copied ? <Check className="w-4 h-4 mr-2 text-zoru-success-ink" /> : <Copy className="w-4 h-4 mr-2" />}
                 {copied ? 'Copied to Clipboard' : 'Copy List'}
               </Button>
             </div>
 
             <ZoruCardContent className="p-5">
-              <TabsContent value="all" className="mt-0 outline-none">
-                <div className="text-sm text-muted-foreground mb-4">A complete deduplicated list of all LSI and semantically related keywords, sorted by relevance.</div>
+              <ZoruTabsContent value="all" className="mt-0 outline-none">
+                <div className="text-sm text-zoru-ink-muted mb-4">A complete deduplicated list of all LSI and semantically related keywords, sorted by relevance.</div>
                 {renderBadgeList(allKeywords)}
-              </TabsContent>
-              <TabsContent value="triggers" className="mt-0 outline-none">
-                <div className="text-sm text-muted-foreground mb-4">Words that statistically co-occur and are frequently triggered by your seed keyword in the same piece of text (True LSI).</div>
+              </ZoruTabsContent>
+              <ZoruTabsContent value="triggers" className="mt-0 outline-none">
+                <div className="text-sm text-zoru-ink-muted mb-4">Words that statistically co-occur and are frequently triggered by your seed keyword in the same piece of text (True LSI).</div>
                 {renderBadgeList(triggers)}
-              </TabsContent>
-              <TabsContent value="related" className="mt-0 outline-none">
-                <div className="text-sm text-muted-foreground mb-4">Words with related meanings, synonyms, and strongly connected semantic concepts.</div>
+              </ZoruTabsContent>
+              <ZoruTabsContent value="related" className="mt-0 outline-none">
+                <div className="text-sm text-zoru-ink-muted mb-4">Words with related meanings, synonyms, and strongly connected semantic concepts.</div>
                 {renderBadgeList(related)}
-              </TabsContent>
+              </ZoruTabsContent>
             </ZoruCardContent>
           </Tabs>
         </Card>

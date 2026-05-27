@@ -64,7 +64,7 @@ import {
 import { useAdManager } from '@/context/ad-manager-context';
 import { useProject } from '@/context/project-context';
 import { canView } from '@/lib/rbac';
-import { WhatsAppIcon, MetaIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { WhatsAppIcon, MetaIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 
 /* ─── App metadata ───────────────────────────────────────────────────────────── */
 

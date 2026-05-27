@@ -10,7 +10,7 @@ import { bulkApproveLibraryTemplates, reorderLibraryTemplates } from './actions'
 import { useToast } from '@/hooks/use-toast';
 import type { LibraryTemplate as BaseLibraryTemplate } from '@/lib/definitions';
 export type LibraryTemplate = BaseLibraryTemplate & { order?: number };
-import { AdminTemplateCategoryManager } from '@/components/wabasimplify/admin-template-category-manager';
+import { AdminTemplateCategoryManager } from '@/components/zoruui-domain/admin-template-category-manager';
 import { PlusCircle, BookCopy, Lock, LoaderCircle } from 'lucide-react';
 import { TemplateTable } from './template-table';
 

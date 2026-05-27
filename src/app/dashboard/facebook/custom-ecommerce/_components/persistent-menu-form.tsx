@@ -30,7 +30,7 @@ import type { EcommShop } from "@/lib/definitions";
 import type { WithId } from "mongodb";
 
 /**
- * Zoru-only replacement for `@/components/wabasimplify/persistent-menu-form`.
+ * Zoru-only replacement for `@/components/zoruui-domain/persistent-menu-form`.
  * Same external props (`shop`) and same `savePersistentMenu` server action.
  */
 

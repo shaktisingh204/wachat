@@ -39,7 +39,7 @@ import type {
 import type { WithId } from "mongodb";
 
 /**
- * Zoru-only replacement for `@/components/wabasimplify/ecomm-settings-form`.
+ * Zoru-only replacement for `@/components/zoruui-domain/ecomm-settings-form`.
  *
  * Same `updateEcommShopSettings` server action, same data shape — just new
  * visuals. Mounts inside the per-shop settings page.

@@ -1,17 +1,7 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import { Button, Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Input, Label } from '@/components/zoruui';
 import * as React from "react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { saveCrmUnit } from "@/app/actions/crm-inventory-settings.actions";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
@@ -71,17 +61,17 @@ export function AddUnitDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle className="text-foreground">Add Unit</DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
+            <ZoruDialogContent className="sm:max-w-[425px]">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle className="text-zoru-ink">Add Unit</ZoruDialogTitle>
+                    <ZoruDialogDescription className="text-zoru-ink-muted">
                         Create a new unit of measure (e.g. Kilogram, Piece).
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="name" className="text-right text-foreground">
+                            <Label htmlFor="name" className="text-right text-zoru-ink">
                                 Name
                             </Label>
                             <Input
@@ -94,7 +84,7 @@ export function AddUnitDialog({
                             />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="symbol" className="text-right text-foreground">
+                            <Label htmlFor="symbol" className="text-right text-zoru-ink">
                                 Symbol
                             </Label>
                             <Input
@@ -107,7 +97,7 @@ export function AddUnitDialog({
                             />
                         </div>
                     </div>
-                    <DialogFooter>
+                    <ZoruDialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Cancel
                         </Button>
@@ -119,9 +109,9 @@ export function AddUnitDialog({
                         >
                             Save
                         </Button>
-                    </DialogFooter>
+                    </ZoruDialogFooter>
                 </form>
-            </DialogContent>
+            </ZoruDialogContent>
         </Dialog>
     );
 }

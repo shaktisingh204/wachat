@@ -1,13 +1,21 @@
 "use client";
 
-import { Button, Input, Label, Select } from '@/components/zoruui';
+import {
+  Button,
+  Input,
+  Label,
+  Select,
+  Tabs,
+  ZoruTabsList as TabsList,
+  ZoruTabsTrigger as TabsTrigger,
+  ZoruTabsContent as TabsContent,
+} from '@/components/zoruui';
 import {
   useEditor } from '@/components/builder/editor-provider';
 import { WIDGET_REGISTRY } from '@/components/builder/registry';
 import { DraggableSidebarItem } from './draggable-item';
 import { StylePanel } from './style-panel';
 import { ThemePanel } from './theme-panel';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; // Assuming these exist usually
 
 import React from 'react';
 

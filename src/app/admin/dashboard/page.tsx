@@ -67,11 +67,11 @@ import type { Project } from "@/lib/definitions";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { ProjectSearch } from "@/components/wabasimplify/project-search";
-import { AdminDeleteProjectButton } from "@/components/wabasimplify/admin-delete-project-button";
-import { AdminUpdateCreditsButton } from "@/components/wabasimplify/admin-update-credits-button";
-import { AdminUpdateMpsButton } from "@/components/wabasimplify/admin-update-mps-button";
-import { AdminAssignPlanDialog } from "@/components/wabasimplify/admin-assign-plan-dialog";
+import { ProjectSearch } from "@/components/zoruui-domain/project-search";
+import { AdminDeleteProjectButton } from "@/components/zoruui-domain/admin-delete-project-button";
+import { AdminUpdateCreditsButton } from "@/components/zoruui-domain/admin-update-credits-button";
+import { AdminUpdateMpsButton } from "@/components/zoruui-domain/admin-update-mps-button";
+import { AdminAssignPlanDialog } from "@/components/zoruui-domain/admin-assign-plan-dialog";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Admin Dashboard | SabNode" };

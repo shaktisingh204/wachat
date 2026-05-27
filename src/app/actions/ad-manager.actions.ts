@@ -21,7 +21,7 @@ import { revalidatePath } from 'next/cache';
 import type { WithId } from 'mongodb';
 
 import type { ActionResult } from '@/lib/ad-manager/validators';
-import { AD_PREVIEW_FORMATS } from '@/components/wabasimplify/ad-manager/constants';
+import { AD_PREVIEW_FORMATS } from '@/components/zoruui-domain/ad-manager/constants';
 import { getSession } from '@/app/actions/user.actions';
 import { rustClient, RustApiError } from '@/lib/rust-client';
 import NodeCache from 'node-cache';

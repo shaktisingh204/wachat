@@ -1,7 +1,7 @@
 import { Card, Button } from '@/components/zoruui';
 import { BarChart2, Calendar, Clock, ExternalLink, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { SharePermissionsModal } from '@/components/wabasimplify/share-permissions-modal';
+import { SharePermissionsModal } from '@/components/zoruui-domain/share-permissions-modal';
 import { QrCodeModal } from './qr-code-modal';
 import type { ShortUrl } from '@/lib/definitions';
 import type { WithId } from 'mongodb';

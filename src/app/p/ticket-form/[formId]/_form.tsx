@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ClayButton, ClayCard, ClayInput, ClaySelect } from '@/components/clay';
+import { ClayButton, ClayCard, ClayInput, ClaySelect } from '@/components/zoruui-domain';
 import { LoaderCircle, Send, UploadCloud, X, CheckCircle2, MessageCircle, AlertCircle } from 'lucide-react';
 import { submitPublicTicket } from '@/app/actions/worksuite/public.actions';
 

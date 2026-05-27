@@ -31,7 +31,7 @@ import type { WithId,
  *
  * Same `getSession` flow. Visual layer fully Zoru — delegates to local
  * `ZoruSabChatWidgetGenerator` to avoid pulling visual primitives from
- * `@/components/wabasimplify`.
+ * `@/components/zoruui-domain`.
  */
 
 function WidgetSkeleton() {

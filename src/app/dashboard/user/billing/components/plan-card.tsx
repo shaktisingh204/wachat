@@ -10,7 +10,7 @@ import {
 } from '@/components/zoruui';
 import { Check, X, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { PlanPurchaseButton } from '@/components/wabasimplify/plan-purchase-button';
+import { PlanPurchaseButton } from '@/components/zoruui-domain/plan-purchase-button';
 import { motion } from 'framer-motion';
 import type { Plan, WithId } from '@/lib/definitions';
 

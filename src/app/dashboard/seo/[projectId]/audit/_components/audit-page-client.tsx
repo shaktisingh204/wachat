@@ -16,8 +16,8 @@ import { useEffect, useState, use } from 'react';
 import { AlertCircle, Play, RefreshCw, Loader2, Download, Printer, Calendar, ArrowRight } from 'lucide-react';
 import { startAudit, getAuditStatus } from '@/app/actions/seo-audit.actions';
 import { getLatestAudit, getAuditHistory, updateSeoProjectSettings } from '@/app/actions/seo.actions';
-import { AuditTable } from '@/components/wabasimplify/seo/audit-table';
-import { AuditDiffViewer } from '@/components/wabasimplify/seo/audit-diff-viewer';
+import { AuditTable } from '@/components/zoruui-domain/seo/audit-table';
+import { AuditDiffViewer } from '@/components/zoruui-domain/seo/audit-diff-viewer';
 import { SeoAudit, SeoPageAudit } from '@/lib/seo/definitions';
 
 type ClientSeoAudit = Omit<SeoAudit, '_id' | 'projectId'> & { _id: string; projectId: string };

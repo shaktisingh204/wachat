@@ -1,8 +1,7 @@
 'use client';
 
-import { Button, Input, Label, Textarea, Switch, Separator } from '@/components/zoruui';
+import { Button, Input, Label, Textarea, Switch, Separator, Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger, Card } from '@/components/zoruui';
 import { useActionState, useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
@@ -10,7 +9,6 @@ import { LoaderCircle, Save, Building, FileText, Package, Users, Bell, Layers, C
 import { saveCrmSettings } from '@/app/actions/crm-settings.actions';
 import { useToast } from '@/hooks/use-toast';
 import { CrmSettings, WithId } from '@/lib/definitions';
-import { ClayCard } from '@/components/clay';
 
 const initialState: { message?: string; error?: string } = { message: undefined, error: undefined };
 
@@ -59,18 +57,18 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
     return (
         <form action={formAction}>
             <Tabs defaultValue="general" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 h-auto">
-                    <TabsTrigger value="general" className="py-2"><Building className="w-4 h-4 mr-2" /> General</TabsTrigger>
-                    <TabsTrigger value="sales" className="py-2"><FileText className="w-4 h-4 mr-2" /> Sales</TabsTrigger>
-                    <TabsTrigger value="inventory" className="py-2"><Package className="w-4 h-4 mr-2" /> Inventory</TabsTrigger>
-                    <TabsTrigger value="hr" className="py-2"><Users className="w-4 h-4 mr-2" /> HR</TabsTrigger>
-                    <TabsTrigger value="modules" className="py-2"><Layers className="w-4 h-4 mr-2" /> Modules</TabsTrigger>
-                    {/* <TabsTrigger value="notifications" className="py-2"><Bell className="w-4 h-4 mr-2" /> Alerts</TabsTrigger> */}
-                </TabsList>
+                <ZoruTabsList className="grid w-full grid-cols-2 lg:grid-cols-6 h-auto">
+                    <ZoruTabsTrigger value="general" className="py-2"><Building className="w-4 h-4 mr-2" /> General</ZoruTabsTrigger>
+                    <ZoruTabsTrigger value="sales" className="py-2"><FileText className="w-4 h-4 mr-2" /> Sales</ZoruTabsTrigger>
+                    <ZoruTabsTrigger value="inventory" className="py-2"><Package className="w-4 h-4 mr-2" /> Inventory</ZoruTabsTrigger>
+                    <ZoruTabsTrigger value="hr" className="py-2"><Users className="w-4 h-4 mr-2" /> HR</ZoruTabsTrigger>
+                    <ZoruTabsTrigger value="modules" className="py-2"><Layers className="w-4 h-4 mr-2" /> Modules</ZoruTabsTrigger>
+                    {/* <ZoruTabsTrigger value="notifications" className="py-2"><Bell className="w-4 h-4 mr-2" /> Alerts</ZoruTabsTrigger> */}
+                </ZoruTabsList>
 
                 {/* --- GENERAL SETTINGS --- */}
-                <TabsContent value="general" className="mt-6 space-y-6">
-                    <ClayCard padded={false}>
+                <ZoruTabsContent value="general" className="mt-6 space-y-6">
+                    <Card className="p-0">
                         <div className="p-5 border-b border-border">
                             <h3 className="text-foreground font-semibold">Organization Profile</h3>
                             <p className="text-sm text-muted-foreground">Details that will appear on your documents (Invoices, POs).</p>
@@ -99,9 +97,9 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 </div>
                             </div>
                         </div>
-                    </ClayCard>
+                    </Card>
 
-                    <ClayCard padded={false}>
+                    <Card className="p-0">
                         <div className="p-5 border-b border-border">
                             <h3 className="text-foreground font-semibold">Regional Settings</h3>
                             <p className="text-sm text-muted-foreground">Localization settings for your CRM.</p>
@@ -147,12 +145,12 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 />
                             </div>
                         </div>
-                    </ClayCard>
-                </TabsContent>
+                    </Card>
+                </ZoruTabsContent>
 
                 {/* --- SALES SETTINGS --- */}
-                <TabsContent value="sales" className="mt-6 space-y-6">
-                    <ClayCard padded={false}>
+                <ZoruTabsContent value="sales" className="mt-6 space-y-6">
+                    <Card className="p-0">
                         <div className="p-5 border-b border-border">
                             <h3 className="text-foreground font-semibold">Document Prefixes & Defaults</h3>
                             <p className="text-sm text-muted-foreground">Automate your sales document generation.</p>
@@ -182,8 +180,8 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 <Textarea id="defaultQuotationTerms" name="defaultQuotationTerms" defaultValue={settings.defaultQuotationTerms} rows={3} />
                             </div>
                         </div>
-                    </ClayCard>
-                    <ClayCard padded={false}>
+                    </Card>
+                    <Card className="p-0">
                         <div className="p-5 border-b border-border">
                             <h3 className="text-foreground font-semibold">Sales Validation</h3>
                         </div>
@@ -199,12 +197,12 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 </div>
                             </div>
                         </div>
-                    </ClayCard>
-                </TabsContent>
+                    </Card>
+                </ZoruTabsContent>
 
                 {/* --- INVENTORY SETTINGS --- */}
-                <TabsContent value="inventory" className="mt-6 space-y-6">
-                    <ClayCard padded={false}>
+                <ZoruTabsContent value="inventory" className="mt-6 space-y-6">
+                    <Card className="p-0">
                         <div className="p-5 border-b border-border">
                             <h3 className="text-foreground font-semibold">Stock Management</h3>
                             <p className="text-sm text-muted-foreground">Configure alerts and inventory behavior.</p>
@@ -226,12 +224,12 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 </div>
                             )}
                         </div>
-                    </ClayCard>
-                </TabsContent>
+                    </Card>
+                </ZoruTabsContent>
 
                 {/* --- HR SETTINGS --- */}
-                <TabsContent value="hr" className="mt-6 space-y-6">
-                    <ClayCard padded={false}>
+                <ZoruTabsContent value="hr" className="mt-6 space-y-6">
+                    <Card className="p-0">
                         <div className="p-5 border-b border-border">
                             <h3 className="text-foreground font-semibold">Work & Payroll Defaults</h3>
                             <p className="text-sm text-muted-foreground">Define standard working parameters for employees.</p>
@@ -246,12 +244,12 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 <Input id="dailyWorkingHours" name="dailyWorkingHours" type="number" defaultValue={settings.dailyWorkingHours} max={24} min={1} />
                             </div>
                         </div>
-                    </ClayCard>
-                </TabsContent>
+                    </Card>
+                </ZoruTabsContent>
 
                 {/* --- MODULES --- */}
-                <TabsContent value="modules" className="mt-6 space-y-6">
-                    <ClayCard padded={false}>
+                <ZoruTabsContent value="modules" className="mt-6 space-y-6">
+                    <Card className="p-0">
                         <div className="p-5 border-b border-border">
                             <h3 className="text-foreground font-semibold">Feature Management</h3>
                             <p className="text-sm text-muted-foreground">Enable or disable specific CRM modules.</p>
@@ -277,8 +275,8 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 </div>
                             ))}
                         </div>
-                    </ClayCard>
-                </TabsContent>
+                    </Card>
+                </ZoruTabsContent>
 
                 <div className="mt-6 flex justify-end">
                     <SubmitButton />

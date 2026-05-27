@@ -46,6 +46,42 @@ export {
   TabsContent as ZoruTabsContent,
 } from "@/components/ui/tabs";
 export { Slider } from "@/components/ui/slider";
+// Form / Chart / Sidebar — re-exports from legacy `@/components/ui` while
+// the ZoruUI-native primitives are still in design. Consumers should
+// import from `@/components/zoruui` so the migration path stays one-way.
+export {
+  useFormField,
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+  FormField,
+} from "@/components/ui/form";
+export {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  ChartStyle,
+  type ChartConfig,
+} from "@/components/ui/chart";
+export {
+  useSidebar,
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarFooter,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+export { SabNodeSidebar } from "@/components/ui/sidebar-component";
+export { SabnodeWaterLoader } from "@/components/ui/sabnode-water-loader";
 export {
   Select,
   ZoruSelectGroup,

@@ -41,7 +41,7 @@ import { timezones } from '@/lib/timezones';
 /**
  * AutoReplyForm (wachat-local, ZoruUI).
  *
- * Replaces @/components/wabasimplify/auto-reply-form. Same server
+ * Replaces the legacy auto-reply-form. Same server
  * action (handleUpdateAutoReplySettings), same hidden form fields,
  * same per-type behavior (welcome / general / inactiveHours / aiAssistant).
  */

@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation';
 import { getPublicEcommProducts } from '@/app/actions/custom-ecommerce.actions';
-import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
+import { Canvas } from '@/components/zoruui-domain/website-builder/canvas';
 import { connectToDatabase } from '@/lib/mongodb';
 import { EcommPage } from '@/lib/definitions';
 import { ObjectId } from 'mongodb';
-import { CartOverlay } from '@/components/wabasimplify/website-builder/cart-overlay';
+import { CartOverlay } from '@/components/zoruui-domain/website-builder/cart-overlay';
 import { Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';

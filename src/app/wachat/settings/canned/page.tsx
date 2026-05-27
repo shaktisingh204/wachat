@@ -30,7 +30,7 @@ import { useRouter } from 'next/navigation';
 import { CircleAlert, TriangleAlert } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { CannedMessagesSettingsTab } from '@/components/wabasimplify/canned-messages-settings-tab';
+import { CannedMessagesSettingsTab } from '@/components/zoruui-domain/canned-messages-settings-tab';
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';

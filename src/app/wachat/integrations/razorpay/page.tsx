@@ -31,7 +31,7 @@ import { getProjectById } from '@/app/actions/project.actions';
 import { getRazorpayLogs } from '@/app/actions/integrations.actions';
 import type { Project } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
-import { RazorpaySettingsForm } from '@/components/wabasimplify/razorpay-settings-form';
+import { RazorpaySettingsForm } from '@/components/zoruui-domain/razorpay-settings-form';
 import { FolderX, LinkIcon, Receipt, AlertCircle } from 'lucide-react';
 
 function RazorpayLogs({ projectId }: { projectId: string }) {

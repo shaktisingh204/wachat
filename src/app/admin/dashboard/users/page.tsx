@@ -9,15 +9,15 @@ import Link from 'next/link';
 
 import type { Metadata } from 'next';
 
-import { AdminUserSearch } from '@/components/wabasimplify/admin-user-search';
-import { ApproveUserButton } from '@/components/wabasimplify/approve-user-button';
-import { AdminAssignUserPlanDialog } from '@/components/wabasimplify/admin-assign-user-plan-dialog';
-import { ImpersonateUserButton } from '@/components/wabasimplify/impersonate-user-button';
-import { AdminUserPermissionsDialog } from '@/components/wabasimplify/admin-user-permissions-dialog';
-import { AdminUserActionsMenu } from '@/components/wabasimplify/admin-user-actions-menu';
+import { AdminUserSearch } from '@/components/zoruui-domain/admin-user-search';
+import { ApproveUserButton } from '@/components/zoruui-domain/approve-user-button';
+import { AdminAssignUserPlanDialog } from '@/components/zoruui-domain/admin-assign-user-plan-dialog';
+import { ImpersonateUserButton } from '@/components/zoruui-domain/impersonate-user-button';
+import { AdminUserPermissionsDialog } from '@/components/zoruui-domain/admin-user-permissions-dialog';
+import { AdminUserActionsMenu } from '@/components/zoruui-domain/admin-user-actions-menu';
 import { Users, CheckCircle, Clock, Ban } from 'lucide-react';
 
-import { AdminUsersTableView } from '@/components/wabasimplify/admin-users-table-view';
+import { AdminUsersTableView } from '@/components/zoruui-domain/admin-users-table-view';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'User Management | SabNode Admin' };

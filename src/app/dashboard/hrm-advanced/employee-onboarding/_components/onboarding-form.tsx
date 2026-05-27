@@ -7,7 +7,7 @@ import { OnboardingTask, OnboardingTaskSchema } from '@/lib/hrm-advanced-types';
 import { Button } from '@/components/zoruui';
 import { Input } from '@/components/zoruui';
 import { Checkbox } from '@/components/zoruui';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/zoruui';
 
 interface OnboardingFormProps {
   initialData?: Partial<OnboardingTask>;

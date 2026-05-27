@@ -1,18 +1,7 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import { Button, Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Input, Label, Textarea } from '@/components/zoruui';
 import * as React from "react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { saveCrmBrand } from "@/app/actions/crm-inventory-settings.actions";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
@@ -72,17 +61,17 @@ export function AddBrandDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle className="text-foreground">Add Brand</DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
+            <ZoruDialogContent className="sm:max-w-[425px]">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle className="text-zoru-ink">Add Brand</ZoruDialogTitle>
+                    <ZoruDialogDescription className="text-zoru-ink-muted">
                         Create a new product brand.
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="name" className="text-right text-foreground">
+                            <Label htmlFor="name" className="text-right text-zoru-ink">
                                 Name
                             </Label>
                             <Input
@@ -94,7 +83,7 @@ export function AddBrandDialog({
                             />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="description" className="text-right text-foreground">
+                            <Label htmlFor="description" className="text-right text-zoru-ink">
                                 Description
                             </Label>
                             <Textarea
@@ -105,7 +94,7 @@ export function AddBrandDialog({
                             />
                         </div>
                     </div>
-                    <DialogFooter>
+                    <ZoruDialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Cancel
                         </Button>
@@ -117,9 +106,9 @@ export function AddBrandDialog({
                         >
                             Save
                         </Button>
-                    </DialogFooter>
+                    </ZoruDialogFooter>
                 </form>
-            </DialogContent>
+            </ZoruDialogContent>
         </Dialog>
     );
 }

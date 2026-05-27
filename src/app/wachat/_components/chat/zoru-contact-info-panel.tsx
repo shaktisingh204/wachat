@@ -23,6 +23,10 @@ import {
   Badge,
   Avatar,
   ZoruAvatarFallback,
+  Tabs,
+  ZoruTabsList,
+  ZoruTabsTrigger,
+  ZoruTabsContent,
 } from '@/components/zoruui';
 import {
   useState,
@@ -50,7 +54,6 @@ import { LoaderCircle,
 import { ChevronsUpDown, Check, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ProjectTagsManagerDialog } from './project-tags-manager-dialog';
 import { useProject } from '@/context/project-context';
 
@@ -355,11 +358,11 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                     <Separator />
 
                     <Tabs defaultValue="attributes" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 h-9">
-                            <TabsTrigger value="attributes">Attributes</TabsTrigger>
-                            <TabsTrigger value="files">Files</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="attributes" className="mt-4 space-y-4">
+                        <ZoruTabsList className="grid w-full grid-cols-2 h-9">
+                            <ZoruTabsTrigger value="attributes">Attributes</ZoruTabsTrigger>
+                            <ZoruTabsTrigger value="files">Files</ZoruTabsTrigger>
+                        </ZoruTabsList>
+                        <ZoruTabsContent value="attributes" className="mt-4 space-y-4">
                             {userAttributes.length > 0 ? (
                                 <div className="space-y-3">
                                     {userAttributes.map(attr => (
@@ -384,12 +387,12 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                                     No custom attributes found
                                 </div>
                             )}
-                        </TabsContent>
-                        <TabsContent value="files" className="mt-4">
+                        </ZoruTabsContent>
+                        <ZoruTabsContent value="files" className="mt-4">
                             <div className="text-center text-sm text-muted-foreground py-8 bg-muted/30 rounded-lg border border-dashed">
                                 No shared files
                             </div>
-                        </TabsContent>
+                        </ZoruTabsContent>
                     </Tabs>
                 </div>
             </ScrollArea>

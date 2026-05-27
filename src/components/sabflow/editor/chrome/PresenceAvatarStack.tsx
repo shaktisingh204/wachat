@@ -39,15 +39,13 @@ import * as React from 'react';
 
 import {
 	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/components/ui/tooltip';
-import {
+	ZoruTooltipContent,
+	ZoruTooltipProvider,
+	ZoruTooltipTrigger,
 	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover';
+	ZoruPopoverContent,
+	ZoruPopoverTrigger,
+} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import {
 	colorForUserId,
@@ -216,7 +214,7 @@ const AvatarTile = React.memo(function AvatarTile({
 	// focused tile forward via `:hover { z-index: 100 }` (handled in CSS).
 	return (
 		<Tooltip>
-			<TooltipTrigger asChild>
+			<ZoruTooltipTrigger asChild>
 				{onPeerClick ? (
 					<button
 						type="button"
@@ -238,8 +236,8 @@ const AvatarTile = React.memo(function AvatarTile({
 						{inner}
 					</span>
 				)}
-			</TooltipTrigger>
-			<TooltipContent side="bottom">{tooltipBody}</TooltipContent>
+			</ZoruTooltipTrigger>
+			<ZoruTooltipContent side="bottom">{tooltipBody}</ZoruTooltipContent>
 		</Tooltip>
 	);
 });
@@ -262,7 +260,7 @@ const OverflowPill = React.memo(function OverflowPill({
 
 	return (
 		<Popover>
-			<PopoverTrigger asChild>
+			<ZoruPopoverTrigger asChild>
 				<button
 					type="button"
 					aria-label={`${count} more ${count === 1 ? 'collaborator' : 'collaborators'}`}
@@ -277,8 +275,8 @@ const OverflowPill = React.memo(function OverflowPill({
 				>
 					+{count}
 				</button>
-			</PopoverTrigger>
-			<PopoverContent
+			</ZoruPopoverTrigger>
+			<ZoruPopoverContent
 				align="end"
 				className="w-64 p-2"
 				// Avoid Radix's default "return focus to trigger" because the
@@ -350,7 +348,7 @@ const OverflowPill = React.memo(function OverflowPill({
 						);
 					})}
 				</ul>
-			</PopoverContent>
+			</ZoruPopoverContent>
 		</Popover>
 	);
 });
@@ -397,7 +395,7 @@ export function PresenceAvatarStack({
 	const reversed = shown.slice().reverse();
 
 	return (
-		<TooltipProvider delayDuration={150} skipDelayDuration={300}>
+		<ZoruTooltipProvider delayDuration={150} skipDelayDuration={300}>
 			<div
 				className={cn(
 					'flex flex-row-reverse items-center -space-x-2 space-x-reverse',
@@ -421,7 +419,7 @@ export function PresenceAvatarStack({
 					/>
 				))}
 			</div>
-		</TooltipProvider>
+		</ZoruTooltipProvider>
 	);
 }
 

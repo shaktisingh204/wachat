@@ -27,7 +27,7 @@ import { getInsights,
   listCampaigns } from '@/app/actions/ad-manager.actions';
 import { formatMoney,
   formatNumber,
-  formatPercent } from '@/components/wabasimplify/ad-manager/constants';
+  formatPercent } from '@/components/zoruui-domain/ad-manager/constants';
 
 /**
  * /dashboard/ad-manager — Meta Suite overview built on ZoruUI primitives.
@@ -91,7 +91,7 @@ function NoAccountState() {
       </div>
       <div>
         <h2 className="text-[20px] font-semibold text-foreground">Welcome to Meta Ads Manager</h2>
-        <p className="mt-1.5 max-w-md text-[13px] text-muted-foreground leading-relaxed">
+        <p className="mt-1.5 max-w-md text-[13px] text-zoru-ink-muted leading-relaxed">
           Connect your Meta ad account to start creating, managing, and measuring
           your Facebook & Instagram ad campaigns.
         </p>
@@ -116,7 +116,7 @@ function StatusDot({ status }: { status: string }) {
         'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
         isActive && 'bg-emerald-50 text-emerald-700',
         isPaused && 'bg-amber-50 text-amber-700',
-        !isActive && !isPaused && 'bg-muted text-muted-foreground',
+        !isActive && !isPaused && 'bg-zoru-surface-2 text-zoru-ink-muted',
       )}
     >
       {isActive && <Play className="h-2.5 w-2.5" />}
@@ -257,7 +257,7 @@ export default function AdManagerOverviewPage() {
                       <Icon className={cn('h-4 w-4', kpi.color)} strokeWidth={2} />
                     </div>
                     <div className="mt-2">
-                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                      <p className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                         {kpi.label}
                       </p>
                       <p className="mt-0.5 text-[22px] font-semibold tabular-nums text-foreground leading-tight">
@@ -293,8 +293,8 @@ export default function AdManagerOverviewPage() {
           ) : topCampaigns.length === 0 ? (
             <Card>
               <ZoruCardContent className="flex flex-col items-center gap-3 py-12 text-center">
-                <Megaphone className="h-6 w-6 text-muted-foreground/40" strokeWidth={1.5} />
-                <p className="text-[13px] text-muted-foreground">
+                <Megaphone className="h-6 w-6 text-zoru-ink-subtle" strokeWidth={1.5} />
+                <p className="text-[13px] text-zoru-ink-muted">
                   No campaigns yet. Create your first campaign to see results here.
                 </p>
               </ZoruCardContent>
@@ -312,9 +312,9 @@ export default function AdManagerOverviewPage() {
                       <p className="truncate text-[13px] font-semibold text-foreground">
                         {c.name}
                       </p>
-                      <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
+                      <div className="mt-0.5 flex items-center gap-2 text-[11px] text-zoru-ink-muted">
                         <span>{c.objective?.replace(/_/g, ' ')}</span>
-                        <span className="text-muted-foreground/30">·</span>
+                        <span className="text-zoru-ink-subtle">·</span>
                         <StatusDot status={c.effective_status || c.status} />
                       </div>
                     </div>
@@ -322,7 +322,7 @@ export default function AdManagerOverviewPage() {
                       <p className="text-[13px] font-semibold tabular-nums text-foreground">
                         {formatMoney((c.daily_budget || c.lifetime_budget || 0) / 100)}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[10px] text-zoru-ink-muted">
                         {c.daily_budget ? 'Daily' : 'Lifetime'}
                       </p>
                     </div>
@@ -367,7 +367,7 @@ export default function AdManagerOverviewPage() {
                   })();
                 }}
               >
-                <RefreshCw className={cn('h-3.5 w-3.5 text-muted-foreground', loading && 'animate-spin')} strokeWidth={2} />
+                <RefreshCw className={cn('h-3.5 w-3.5 text-zoru-ink-muted', loading && 'animate-spin')} strokeWidth={2} />
               </Button>
               <Button
                 variant="ghost"
@@ -384,7 +384,7 @@ export default function AdManagerOverviewPage() {
                   URL.revokeObjectURL(url);
                 }}
               >
-                <Download className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
+                <Download className="h-3.5 w-3.5 text-zoru-ink-muted" strokeWidth={2} />
               </Button>
             </div>
           </div>
@@ -422,13 +422,13 @@ export default function AdManagerOverviewPage() {
           {/* Account info */}
           <Card>
             <ZoruCardContent className="p-4">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <p className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                 Active account
               </p>
               <p className="mt-1 text-[13px] font-semibold text-foreground truncate">
                 {activeAccount.name}
               </p>
-              <p className="text-[11px] text-muted-foreground font-mono">
+              <p className="text-[11px] text-zoru-ink-muted font-mono">
                 {activeAccount.account_id}
               </p>
             </ZoruCardContent>
@@ -458,9 +458,9 @@ function QuickAction({
     >
       <div className="min-w-0">
         <p className="text-[12px] font-semibold text-foreground">{label}</p>
-        <p className="text-[11px] text-muted-foreground">{description}</p>
+        <p className="text-[11px] text-zoru-ink-muted">{description}</p>
       </div>
-      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/40 transition group-hover:translate-x-0.5 group-hover:text-foreground" />
+      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-zoru-ink-subtle transition group-hover:translate-x-0.5 group-hover:text-foreground" />
     </button>
   );
 }

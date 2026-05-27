@@ -2,7 +2,7 @@
 
 import React, { Suspense } from 'react';
 import { cn } from '@/lib/utils';
-import { CampaignsHub } from '@/components/wabasimplify/ad-manager/campaigns-hub';
+import { CampaignsHub } from '@/components/zoruui-domain/ad-manager/campaigns-hub';
 
 export default function AdSetsListPage() {
   return (

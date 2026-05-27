@@ -14,7 +14,7 @@ import {
   ZoruBadge,
   ZoruSeparator,
 } from '@/components/zoruui';
-import { CodeBlock } from '@/components/wabasimplify/code-block';
+import { CodeBlock } from '@/components/zoruui-domain/code-block';
 import { ArrowLeft,
   BookOpen } from 'lucide-react';
 

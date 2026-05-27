@@ -1,7 +1,7 @@
 'use client';
 
 import { useProject } from '@/context/project-context';
-import { FeatureLock, FeatureLockOverlay } from '@/components/wabasimplify/feature-lock';
+import { FeatureLock, FeatureLockOverlay } from '@/components/zoruui-domain/feature-lock';
 import { ErrorBoundary } from './error-boundary';
 
 export default function InventoryLayout({ children }: { children: React.ReactNode }) {

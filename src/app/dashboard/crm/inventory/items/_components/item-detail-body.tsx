@@ -1,4 +1,4 @@
-import { Button, Card } from '@/components/zoruui';
+import { Button, Card, Tabs, ZoruTabsContent as TabsContent, ZoruTabsList as TabsList, ZoruTabsTrigger as TabsTrigger } from '@/components/zoruui';
 import { Package, Pencil } from 'lucide-react';
 import type { WithId } from 'mongodb';
 
@@ -23,7 +23,6 @@ import type { WithId } from 'mongodb';
 import Link from 'next/link';
 import { fmtINR } from '@/lib/utils';
 import { ItemDetailTabs } from './item-detail-tabs';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';

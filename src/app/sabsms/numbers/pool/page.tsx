@@ -1,48 +1,48 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { 
-  Search, 
-  Filter, 
-  MoreHorizontal, 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Badge,
+  Progress,
+  Button,
+  Input,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  StatCard,
+  Switch,
+  Label,
+} from "@/components/zoruui";
+import {
+  Search,
+  Filter,
+  MoreHorizontal,
   Hash,
   Activity,
   CheckCircle2,
   AlertTriangle,
   Settings,
-  Plus
+  Plus,
 } from "lucide-react";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
-import { StatCard } from "@/components/ui/stat-card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 
 const INITIAL_NUMBERS = [
   { id: "1", number: "+1 (555) 123-4567", country: "US", type: "Local", status: "Active", reputation: "High", throughputLimit: 100, currentThroughput: 85, messagesSent: 12450, errorRate: 0.2, provider: "Twilio" },
@@ -186,33 +186,30 @@ export default function NumberPoolPage() {
           label="Total Numbers"
           value={numbers.length}
           delta={numbers.length - INITIAL_NUMBERS.length}
-          deltaLabel="auto-scaled"
-          icon={Hash}
-          tone="indigo"
+          period="auto-scaled"
+          icon={<Hash />}
         />
         <StatCard
           label="Active Routing"
           value={numbers.filter(n => n.status === "Active").length}
           delta={0}
-          deltaLabel="vs last month"
-          icon={CheckCircle2}
-          tone="emerald"
+          period="vs last month"
+          icon={<CheckCircle2 />}
         />
         <StatCard
           label="Pool Throughput"
           value={`${Math.round(currentTotalThroughput)} / ${totalCapacity} MPS`}
           delta={currentTotalThroughput > 0 ? Number((currentTotalThroughput / totalCapacity * 100).toFixed(1)) : 0}
-          deltaLabel="% utilization"
-          icon={Activity}
-          tone="cyan"
+          period="% utilization"
+          icon={<Activity />}
         />
         <StatCard
           label="At Risk (Reputation)"
           value={numbers.filter(n => n.reputation === "Low" || n.reputation === "Poor").length}
           delta={0}
-          deltaLabel="needs attention"
-          icon={AlertTriangle}
-          tone="coral"
+          period="needs attention"
+          icon={<AlertTriangle />}
+          invertDelta
         />
       </div>
 
@@ -346,7 +343,7 @@ export default function NumberPoolPage() {
                     const isOverloaded = throughputPercent >= throughputThreshold && isAutoScalingEnabled;
                     
                     return (
-                      <TableRow key={num.id} className={isOverloaded ? "bg-red-500/10" : ""}>
+                      <TableRow key={num.id} className={isOverloaded ? "bg-zoru-danger/10" : ""}>
                         <TableCell className="font-medium">
                           <div className="flex flex-col">
                             <span>{num.number}</span>
@@ -357,7 +354,7 @@ export default function NumberPoolPage() {
                         </TableCell>
                         <TableCell>
                           {num.provider === "Auto-Scale" ? (
-                            <Badge variant="outline" className="text-indigo-500 border-indigo-500">Auto-Scaled</Badge>
+                            <Badge variant="outline" className="text-zoru-primary border-zoru-primary">Auto-Scaled</Badge>
                           ) : num.provider}
                         </TableCell>
                         <TableCell>

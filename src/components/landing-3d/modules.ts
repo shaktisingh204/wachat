@@ -8,7 +8,7 @@ import {
   MessageCircle, Search, Puzzle, ServerCog,
   type LucideIcon,
 } from 'lucide-react';
-import { WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { WhatsAppIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 
 export type ModuleDef = {
   id: string;

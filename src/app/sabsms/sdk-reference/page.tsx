@@ -3,23 +3,25 @@
 import React, { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
+  Button,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+  Badge,
+  useZoruToast,
+} from "@/components/zoruui";
 import {
   BookOpen,
   Github,
@@ -33,7 +35,6 @@ import {
   Code,
   Search,
 } from "lucide-react";
-import { useZoruToast } from "@/components/zoruui/use-zoru-toast";
 import { buildOpenApiSpec } from "@/lib/api-platform/openapi";
 import "swagger-ui-react/swagger-ui.css";
 

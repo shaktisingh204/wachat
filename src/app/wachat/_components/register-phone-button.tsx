@@ -11,7 +11,7 @@ import { registerPhoneNumber } from '@/app/actions/whatsapp.actions';
 /**
  * RegisterPhoneButton (wachat-local, ZoruUI).
  *
- * Replaces @/components/wabasimplify/register-phone-button. Same server
+ * Replaces the legacy register-phone-button. Same server
  * action (registerPhoneNumber), same handler signature.
  */
 

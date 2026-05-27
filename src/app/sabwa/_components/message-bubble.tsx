@@ -28,15 +28,15 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { Card } from "@/components/ui/card";
 import {
+  Card,
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+  ZoruZoruDropdownMenuContent,
+  ZoruZoruDropdownMenuItem,
+  ZoruZoruDropdownMenuSeparator,
+  ZoruZoruDropdownMenuTrigger,
+  cn,
+} from "@/components/zoruui";
 import { formatJid, type JidResolver } from "@/lib/sabwa/format-jid";
 import type { SabwaMessage, SabwaMessageStatus } from "@/lib/sabwa/types";
 
@@ -132,7 +132,7 @@ function formatWAText(s: string): React.ReactNode {
   transform(RE_CODE, (inner, key) => (
     <code
       key={key}
-      className="rounded bg-black/10 px-1 py-0.5 font-mono text-[0.85em] dark:bg-white/10"
+      className="rounded bg-zoru-surface px-1 py-0.5 font-mono text-[0.85em]"
     >
       {inner}
     </code>
@@ -172,11 +172,11 @@ function StatusTicks({ status }: { status: SabwaMessageStatus }) {
     );
   }
   if (status === "sent") {
-    return <Check aria-label="Sent" className="h-3 w-3 text-zinc-500" />;
+    return <Check aria-label="Sent" className="h-3 w-3 text-zoru-ink-muted" />;
   }
   if (status === "delivered") {
     return (
-      <CheckCheck aria-label="Delivered" className="h-3 w-3 text-zinc-500" />
+      <CheckCheck aria-label="Delivered" className="h-3 w-3 text-zoru-ink-muted" />
     );
   }
   if (status === "read") {
@@ -200,18 +200,18 @@ function QuotedPreview({
       ? resolveJid(quoted.fromJid)
       : formatJid(quoted.fromJid);
   return (
-    <div className="mb-1 flex items-stretch gap-2 rounded-md border-l-2 border-green-500 bg-black/5 p-1.5 dark:bg-white/5">
+    <div className="mb-1 flex items-stretch gap-2 rounded-[var(--zoru-radius)] border-l-2 border-green-500 bg-zoru-surface p-1.5">
       {showAvatar ? (
         <div
           aria-hidden
-          className="h-6 w-6 shrink-0 rounded-full bg-zinc-300 dark:bg-zinc-700"
+          className="h-6 w-6 shrink-0 rounded-full bg-zoru-line"
         />
       ) : null}
       <div className="min-w-0 flex-1">
         <p className="truncate text-[11px] font-medium text-green-700 dark:text-green-300">
           {authorLabel}
         </p>
-        <p className="line-clamp-1 text-[11px] text-muted-foreground">
+        <p className="line-clamp-1 text-[11px] text-zoru-ink-muted">
           {quoted.body ?? quoted.caption ?? `[${quoted.type}]`}
         </p>
       </div>
@@ -265,13 +265,13 @@ function MediaContent({ message }: { message: SabwaMessage }) {
       <Card className="flex w-72 max-w-full items-center gap-3 p-2">
         <div
           aria-hidden
-          className="flex h-10 w-10 items-center justify-center rounded-md bg-muted text-muted-foreground"
+          className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface text-zoru-ink-muted"
         >
           <FileIcon className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium">{name}</p>
-          <p className="truncate text-xs text-muted-foreground">
+          <p className="truncate text-sm font-medium text-zoru-ink">{name}</p>
+          <p className="truncate text-xs text-zoru-ink-muted">
             {mediaMime ?? ""}
             {mediaSize ? ` · ${formatSize(mediaSize)}` : ""}
           </p>
@@ -281,7 +281,7 @@ function MediaContent({ message }: { message: SabwaMessage }) {
           download
           target="_blank"
           rel="noreferrer"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius)] hover:bg-zoru-surface"
           aria-label="Download"
         >
           <Download className="h-4 w-4" />
@@ -305,7 +305,7 @@ function ReactionsRow({ message }: { message: SabwaMessage }) {
       {Array.from(counts.entries()).map(([emoji, count]) => (
         <span
           key={emoji}
-          className="inline-flex items-center gap-1 rounded-full border bg-background px-1.5 py-0.5 text-[11px]"
+          className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-bg px-1.5 py-0.5 text-[11px]"
         >
           <span>{emoji}</span>
           {count > 1 ? <span className="tabular-nums">{count}</span> : null}
@@ -366,7 +366,7 @@ export function MessageBubble({
       )}
     >
       <DropdownMenu open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger asChild>
+        <ZoruDropdownMenuTrigger asChild>
           <div
             role="button"
             tabIndex={0}
@@ -376,11 +376,11 @@ export function MessageBubble({
             onPointerLeave={cancelPress}
             onPointerCancel={cancelPress}
             className={cn(
-              "relative max-w-[min(80%,32rem)] rounded-lg px-3 py-2 text-sm shadow-sm",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "relative max-w-[min(80%,32rem)] rounded-[var(--zoru-radius)] px-3 py-2 text-sm shadow-sm",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink",
               fromMe
                 ? "bg-green-100 dark:bg-green-900/30"
-                : "border bg-card",
+                : "border border-zoru-line bg-zoru-bg",
             )}
           >
             {quoted ? (
@@ -401,7 +401,7 @@ export function MessageBubble({
 
             <ReactionsRow message={message} />
 
-            <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-muted-foreground">
+            <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-zoru-ink-muted">
               {message.starred ? (
                 <Star
                   className="h-3 w-3 text-amber-500"
@@ -416,40 +416,40 @@ export function MessageBubble({
               {fromMe ? <StatusTicks status={message.status} /> : null}
             </div>
           </div>
-        </DropdownMenuTrigger>
+        </ZoruDropdownMenuTrigger>
 
-        <DropdownMenuContent align={fromMe ? "end" : "start"}>
-          <DropdownMenuItem onSelect={() => fire("reply")}>
+        <ZoruDropdownMenuContent align={fromMe ? "end" : "start"}>
+          <ZoruDropdownMenuItem onSelect={() => fire("reply")}>
             <CornerUpLeft className="mr-2 h-4 w-4" /> Reply
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => fire("react")}>
+          </ZoruDropdownMenuItem>
+          <ZoruDropdownMenuItem onSelect={() => fire("react")}>
             <SmilePlus className="mr-2 h-4 w-4" /> React
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => fire("star")}>
+          </ZoruDropdownMenuItem>
+          <ZoruDropdownMenuItem onSelect={() => fire("star")}>
             <Star className="mr-2 h-4 w-4" /> Star
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => fire("copy")}>
+          </ZoruDropdownMenuItem>
+          <ZoruDropdownMenuItem onSelect={() => fire("copy")}>
             <Copy className="mr-2 h-4 w-4" /> Copy
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => fire("forward")}>
+          </ZoruDropdownMenuItem>
+          <ZoruDropdownMenuItem onSelect={() => fire("forward")}>
             <Forward className="mr-2 h-4 w-4" /> Forward
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
+          </ZoruDropdownMenuItem>
+          <ZoruDropdownMenuSeparator />
           {fromMe ? (
-            <DropdownMenuItem onSelect={() => fire("delete_me")}>
+            <ZoruDropdownMenuItem onSelect={() => fire("delete_me")}>
               <Trash2 className="mr-2 h-4 w-4" /> Delete for me
-            </DropdownMenuItem>
+            </ZoruDropdownMenuItem>
           ) : null}
           {canDeleteForEveryone ? (
-            <DropdownMenuItem
+            <ZoruDropdownMenuItem
               onSelect={() => fire("delete_all")}
-              className="text-destructive"
+              className="text-zoru-danger"
             >
               <Trash2 className="mr-2 h-4 w-4" /> Delete for everyone
-            </DropdownMenuItem>
+            </ZoruDropdownMenuItem>
           ) : null}
           {fromMe && message.editedAt ? null : null}
-        </DropdownMenuContent>
+        </ZoruDropdownMenuContent>
       </DropdownMenu>
     </div>
   );

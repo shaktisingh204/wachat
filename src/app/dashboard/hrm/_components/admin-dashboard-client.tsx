@@ -411,72 +411,54 @@ export function HrmAdminDashboardClient({
         {/* Right Column: Quick Links, Holidays, Operations */}
         <div className="space-y-6">
           
-          {/* Quick Actions Shortcuts */}
-          <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-5 rounded-2xl flex flex-col">
-            <h3 className="text-[15px] font-extrabold tracking-tight text-zoru-ink pb-3 border-b border-zoru-line flex items-center gap-2 mb-4">
-              <Target className="w-4 h-4 text-zoru-brand" /> Operation Shortcuts
+          {/* Employee Lifecycle Workflow */}
+          <Card className="bg-gradient-to-b from-zoru-surface/80 to-zoru-surface-2/40 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-5 rounded-2xl flex flex-col relative overflow-hidden">
+            <div className="absolute -top-4 -right-4 p-4 opacity-[0.03] pointer-events-none">
+               <Briefcase className="w-32 h-32" />
+            </div>
+            <h3 className="text-[15px] font-extrabold tracking-tight text-zoru-ink pb-3 border-b border-zoru-line flex items-center gap-2 mb-5 relative z-10">
+              <Target className="w-4 h-4 text-zoru-brand" /> Lifecycle Workflow
             </h3>
             
-            <div className="grid grid-cols-1 gap-2.5">
-              <Link href="/dashboard/hrm/payroll/employees" className="group">
-                <div className="p-3 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:bg-zoru-brand/5 hover:border-zoru-brand/40 flex items-center justify-between transition-all duration-300 group-hover:scale-[1.01]">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-zoru-surface-2 text-zoru-ink group-hover:bg-zoru-brand/10 group-hover:text-zoru-brand transition-colors duration-300">
-                      <Users className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="text-[13px] font-bold text-zoru-ink group-hover:text-zoru-brand transition-colors">Employee Directory</span>
-                      <p className="text-[10px] text-zoru-ink-muted mt-0.5 font-medium">Manage cards, personal details</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-zoru-ink-muted group-hover:text-zoru-brand transition-all duration-300 group-hover:translate-x-0.5" />
-                </div>
-              </Link>
+            <div className="flex flex-col relative z-10 pl-2">
+              {/* Step 1 */}
+              <div className="relative pl-6 pb-5">
+                <div className="absolute left-1.5 top-2 bottom-0 w-px bg-zoru-line"></div>
+                <div className="absolute left-0 top-1 w-3 h-3 rounded-full border-2 border-zoru-line-strong bg-white"></div>
+                <Link href="/dashboard/hrm/hr/jobs" className="group block -mt-1">
+                  <span className="text-[13px] font-bold text-zoru-ink group-hover:text-zoru-brand transition-colors block leading-tight">1. Post a Job</span>
+                  <span className="text-[11px] text-zoru-ink-muted mt-1 block">Create openings for new roles</span>
+                </Link>
+              </div>
+              
+              {/* Step 2 */}
+              <div className="relative pl-6 pb-5">
+                <div className="absolute left-1.5 top-2 bottom-0 w-px bg-zoru-line"></div>
+                <div className="absolute left-0 top-1 w-3 h-3 rounded-full border-2 border-zoru-line-strong bg-white"></div>
+                <Link href="/dashboard/hrm/hr/candidates" className="group block -mt-1">
+                  <span className="text-[13px] font-bold text-zoru-ink group-hover:text-zoru-brand transition-colors block leading-tight">2. Review Candidates</span>
+                  <span className="text-[11px] text-zoru-ink-muted mt-1 block">Interview and send offers</span>
+                </Link>
+              </div>
 
-              <Link href="/dashboard/hrm/payroll" className="group">
-                <div className="p-3 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:bg-zoru-surface-20/5 hover:border-zoru-line flex items-center justify-between transition-all duration-300 group-hover:scale-[1.01]">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-zoru-surface-2 text-zoru-ink group-hover:bg-zoru-surface-2 group-hover:text-zoru-ink-muted transition-colors duration-300">
-                      <Activity className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="text-[13px] font-bold text-zoru-ink group-hover:text-zoru-ink transition-colors">Payroll Controls</span>
-                      <p className="text-[10px] text-zoru-ink-muted mt-0.5 font-medium">Run payroll, dispatch payslips</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-zoru-ink-muted group-hover:text-zoru-ink transition-all duration-300 group-hover:translate-x-0.5" />
-                </div>
-              </Link>
+              {/* Step 3 */}
+              <div className="relative pl-6 pb-5">
+                <div className="absolute left-1.5 top-2 bottom-0 w-px bg-zoru-line"></div>
+                <div className="absolute left-0 top-1 w-3 h-3 rounded-full border-2 border-zoru-brand bg-white shadow-[0_0_8px_rgba(0,0,0,0.05)]"></div>
+                <Link href="/dashboard/hrm/hr/onboarding" className="group block -mt-1">
+                  <span className="text-[13px] font-bold text-zoru-brand group-hover:text-zoru-brand-dark transition-colors block leading-tight">3. Onboard Employee</span>
+                  <span className="text-[11px] text-zoru-ink-muted mt-1 block">Add details and assign assets</span>
+                </Link>
+              </div>
 
-              <Link href="/dashboard/hrm/hr/okrs" className="group">
-                <div className="p-3 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:bg-zoru-surface-20/5 hover:border-zoru-line flex items-center justify-between transition-all duration-300 group-hover:scale-[1.01]">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-zoru-surface-2 text-zoru-ink group-hover:bg-zoru-surface-2 group-hover:text-zoru-ink-muted transition-colors duration-300">
-                      <Target className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="text-[13px] font-bold text-zoru-ink group-hover:text-zoru-ink transition-colors">OKRs & Performance</span>
-                      <p className="text-[10px] text-zoru-ink-muted mt-0.5 font-medium">Configure team targets, reviews</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-zoru-ink-muted group-hover:text-zoru-ink transition-all duration-300 group-hover:translate-x-0.5" />
-                </div>
-              </Link>
-
-              <Link href="/dashboard/hrm/hr/jobs" className="group">
-                <div className="p-3 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:bg-zoru-surface-20/5 hover:border-zoru-line flex items-center justify-between transition-all duration-300 group-hover:scale-[1.01]">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-zoru-surface-20/10 text-zoru-ink group-hover:bg-zoru-surface-20/10 group-hover:text-zoru-ink-muted transition-colors duration-300">
-                      <Briefcase className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="text-[13px] font-bold text-zoru-ink group-hover:text-zoru-ink transition-colors">Recruitment Pipeline</span>
-                      <p className="text-[10px] text-zoru-ink-muted mt-0.5 font-medium">Job postings, candidate interviews</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-zoru-ink-muted group-hover:text-zoru-ink transition-all duration-300 group-hover:translate-x-0.5" />
-                </div>
-              </Link>
+              {/* Step 4 */}
+              <div className="relative pl-6">
+                <div className="absolute left-0 top-1 w-3 h-3 rounded-full border-2 border-zoru-line-strong bg-white"></div>
+                <Link href="/dashboard/hrm/payroll/settings" className="group block -mt-1">
+                  <span className="text-[13px] font-bold text-zoru-ink group-hover:text-zoru-brand transition-colors block leading-tight">4. Setup Payroll</span>
+                  <span className="text-[11px] text-zoru-ink-muted mt-1 block">Configure salary and taxes</span>
+                </Link>
+              </div>
             </div>
           </Card>
 

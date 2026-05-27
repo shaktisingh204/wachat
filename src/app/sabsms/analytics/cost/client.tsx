@@ -8,19 +8,29 @@ import {
   SabsmsSavedViews,
   SabsmsRefreshButton,
 } from "@/components/sabsms/page-toolkit";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { StatCard } from "@/components/ui/stat-card";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+  Badge,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  StatCard,
+} from "@/components/zoruui";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
-  type ChartConfig
-} from "@/components/ui/chart";
+  type ChartConfig,
+} from '@/components/zoruui';
 
 import {
   LineChart,

@@ -38,7 +38,7 @@ import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/a
 import { useToast } from '@/hooks/use-toast';
 import { useAdManager } from '@/context/ad-manager-context';
 import { getAdAccountDetails, getAdAccountTransactions } from '@/app/actions/ad-manager.actions';
-import { formatMoney } from '@/components/wabasimplify/ad-manager/constants';
+import { formatMoney } from '@/components/zoruui-domain/ad-manager/constants';
 import Link from 'next/link';
 
 export default function BillingPage() {

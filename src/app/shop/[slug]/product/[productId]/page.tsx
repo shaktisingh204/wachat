@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getPublicEcommProductById, getPublicEcommShopById } from '@/app/actions/custom-ecommerce.actions';
-import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
+import { Canvas } from '@/components/zoruui-domain/website-builder/canvas';
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 

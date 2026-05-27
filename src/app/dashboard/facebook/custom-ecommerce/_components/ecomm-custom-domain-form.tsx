@@ -41,7 +41,7 @@ import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 /**
  * Zoru-only replacement for
- * `@/components/wabasimplify/ecomm-custom-domain-form`. Same server actions,
+ * `@/components/zoruui-domain/ecomm-custom-domain-form`. Same server actions,
  * same data flow — only the visual layer changes.
  */
 

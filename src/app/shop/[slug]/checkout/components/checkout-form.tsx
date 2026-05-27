@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useCart } from '@/context/cart-context';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
 import { createEcommOrder } from '@/app/actions/custom-ecommerce.actions';
 import { useTransition } from 'react';

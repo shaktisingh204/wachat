@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/components/zoruui';
 import { useProject } from '@/context/project-context';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 import { AppSidebar } from '@/components/admin-panel/sidebar/app-sidebar';

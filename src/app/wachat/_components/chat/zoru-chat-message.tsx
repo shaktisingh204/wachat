@@ -41,10 +41,10 @@ import { useToast } from '@/hooks/use-toast';
 import React, { useState, useTransition } from 'react';
 
 import { getPaymentRequestStatus } from '@/app/actions/whatsapp.actions';
-import { TemplateMessageContent } from '@/components/wabasimplify/messages/template-message-content';
-import { ProductMessageContent } from '@/components/wabasimplify/messages/product-message-content';
-import { OrderMessageContent } from '@/components/wabasimplify/messages/order-message-content';
-import { ContactMessageContent } from '@/components/wabasimplify/messages/contact-message-content';
+import { TemplateMessageContent } from '@/components/zoruui-domain/messages/template-message-content';
+import { ProductMessageContent } from '@/components/zoruui-domain/messages/product-message-content';
+import { OrderMessageContent } from '@/components/zoruui-domain/messages/order-message-content';
+import { ContactMessageContent } from '@/components/zoruui-domain/messages/contact-message-content';
 
 interface ChatMessageProps {
     message: AnyMessage;

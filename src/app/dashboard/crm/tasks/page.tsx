@@ -54,7 +54,7 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { AssignedToMeToggle } from '@/components/crm/assigned-to-me-toggle';
-import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
+import { CreateTaskDialog } from '@/components/zoruui-domain/crm-create-task-dialog';
 import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 import { useT } from '@/lib/i18n/client';
 
@@ -551,7 +551,7 @@ export default function TasksPage() {
                                                 <ZoruTableCell
                                                     className={
                                                         overdue
-                                                            ? 'text-[13px] font-medium text-red-600'
+                                                            ? 'text-[13px] font-medium text-zoru-danger-ink'
                                                             : 'text-[13px] text-zoru-ink'
                                                     }
                                                 >

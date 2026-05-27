@@ -1,11 +1,9 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import { Button, Badge, useZoruToast } from '@/components/zoruui';
 import * as React from 'react';
 import { AtSign, Check } from 'lucide-react';
 
-import { ClayBadge } from '@/components/clay';
-import { useToast } from '@/hooks/use-toast';
 import { markMentionRead } from '@/app/actions/worksuite/chat.actions';
 import type { WsMentionUser } from '@/lib/worksuite/chat-types';
 
@@ -26,7 +24,7 @@ function formatStamp(value?: string | Date | null): string {
 }
 
 export function MentionRow({ mention }: MentionRowProps) {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [read, setRead] = React.useState(Boolean(mention.read_at));
   const [busy, setBusy] = React.useState(false);
 
@@ -41,26 +39,26 @@ export function MentionRow({ mention }: MentionRowProps) {
 
   return (
     <li className="flex items-start gap-3 px-4 py-3">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent">
-        <AtSign className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2">
+        <AtSign className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[13px] font-medium text-foreground">
+          <span className="text-[13px] font-medium text-zoru-ink">
             {mention.mentioner_user_id}
           </span>
-          <span className="text-[12px] text-muted-foreground">
+          <span className="text-[12px] text-zoru-ink-muted">
             mentioned you in
           </span>
-          <ClayBadge tone="neutral">{mention.resource_type}</ClayBadge>
-          {!read ? <ClayBadge tone="rose">Unread</ClayBadge> : null}
+          <Badge variant="ghost">{mention.resource_type}</Badge>
+          {!read ? <Badge variant="danger">Unread</Badge> : null}
         </div>
         {mention.body ? (
-          <p className="mt-1 whitespace-pre-wrap text-[13px] text-foreground">
+          <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
             {mention.body}
           </p>
         ) : null}
-        <p className="mt-1 text-[11.5px] text-muted-foreground">
+        <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
           {formatStamp(mention.createdAt)}
         </p>
       </div>

@@ -37,9 +37,9 @@ import * as React from 'react';
 import { createPortal } from 'react-dom';
 import {
   Popover,
-  PopoverContent,
-  PopoverAnchor,
-} from '@/components/ui/popover';
+  ZoruPopoverContent,
+  ZoruPopoverAnchor,
+} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 /* ─── Public API ─────────────────────────────────────────────────────── */
@@ -301,10 +301,10 @@ export function PlaybackOnboardingTour({
       <div style={spotlightStyle} aria-hidden />
 
       <Popover open modal={false}>
-        <PopoverAnchor asChild>
+        <ZoruPopoverAnchor asChild>
           <div style={anchorStyle} aria-hidden />
-        </PopoverAnchor>
-        <PopoverContent
+        </ZoruPopoverAnchor>
+        <ZoruPopoverContent
           side={step.side ?? 'bottom'}
           align={step.align ?? 'center'}
           sideOffset={12}
@@ -348,7 +348,7 @@ export function PlaybackOnboardingTour({
               advanceFrom(stepIdx + 1);
             }}
           />
-        </PopoverContent>
+        </ZoruPopoverContent>
       </Popover>
     </div>,
     portalTarget,

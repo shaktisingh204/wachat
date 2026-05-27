@@ -47,7 +47,7 @@ import { timezones } from '@/lib/timezones';
 /**
  * CallingSettingsForm (wachat-local, ZoruUI).
  *
- * Replaces @/components/wabasimplify/calling-settings-form. Same server
+ * Replaces the legacy calling-settings-form. Same server
  * actions (getPhoneNumberCallingSettings, savePhoneNumberCallingSettings),
  * same hidden form fields, same recordApiCall side-effects.
  */

@@ -1,11 +1,9 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import { Button, Card, Badge, useZoruToast } from '@/components/zoruui';
 import * as React from 'react';
 import { Bell, CheckCheck, Check } from 'lucide-react';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
-import { useToast } from '@/hooks/use-toast';
 import {
   markNotificationRead,
   markAllNotificationsRead,
@@ -32,7 +30,7 @@ function formatStamp(value?: string | Date | null): string {
 }
 
 export function NotificationsInbox({ initialNotifications }: NotificationsInboxProps) {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [rows, setRows] = React.useState<Row[]>(initialNotifications);
   const [busyAll, setBusyAll] = React.useState(false);
 
@@ -71,10 +69,10 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ClayBadge tone={unread > 0 ? 'rose' : 'neutral'}>
+          <Badge variant={unread > 0 ? 'danger' : 'ghost'}>
             {unread} unread
-          </ClayBadge>
-          <ClayBadge tone="neutral">{rows.length} total</ClayBadge>
+          </Badge>
+          <Badge variant="ghost">{rows.length} total</Badge>
         </div>
         <Button
           variant="pill"
@@ -88,12 +86,12 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
       </div>
 
       {rows.length === 0 ? (
-        <ClayCard className="flex items-center justify-center py-12">
-          <p className="text-[13px] text-muted-foreground">Your inbox is empty.</p>
-        </ClayCard>
+        <Card className="flex items-center justify-center py-12">
+          <p className="text-[13px] text-zoru-ink-muted">Your inbox is empty.</p>
+        </Card>
       ) : (
-        <ClayCard padded={false}>
-          <ul className="divide-y divide-border">
+        <Card className="p-0">
+          <ul className="divide-y divide-zoru-line">
             {rows.map((n) => {
               const read = Boolean(n.read_at);
               return (
@@ -101,25 +99,25 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
                   key={n._id}
                   className={
                     'flex items-start gap-3 px-4 py-3 ' +
-                    (read ? '' : 'bg-accent/40')
+                    (read ? '' : 'bg-zoru-surface-2/40')
                   }
                 >
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
-                    <Bell className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2">
+                    <Bell className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[13px] font-medium text-foreground">
+                      <span className="text-[13px] font-medium text-zoru-ink">
                         {n.title}
                       </span>
-                      <ClayBadge tone="neutral">{n.type}</ClayBadge>
-                      {!read ? <ClayBadge tone="rose">New</ClayBadge> : null}
-                      <span className="ml-auto text-[11.5px] text-muted-foreground">
+                      <Badge variant="ghost">{n.type}</Badge>
+                      {!read ? <Badge variant="danger">New</Badge> : null}
+                      <span className="ml-auto text-[11.5px] text-zoru-ink-muted">
                         {formatStamp(n.createdAt)}
                       </span>
                     </div>
                     {n.body ? (
-                      <p className="mt-1 whitespace-pre-wrap text-[13px] text-foreground">
+                      <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
                         {n.body}
                       </p>
                     ) : null}
@@ -138,7 +136,7 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
               );
             })}
           </ul>
-        </ClayCard>
+        </Card>
       )}
     </div>
   );

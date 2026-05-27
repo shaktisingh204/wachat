@@ -27,7 +27,7 @@ import type { Project,
 /**
  * OptInOutForm (wachat-local, ZoruUI).
  *
- * Replaces @/components/wabasimplify/opt-in-out-form. Same server
+ * Replaces the legacy opt-in-out-form. Same server
  * action (handleUpdateOptInOutSettings), same form fields and switch.
  */
 

@@ -1,250 +1,157 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Terminal, Code, ChevronRight, FileJson, ArrowRight, Download } from 'lucide-react';
+import { m } from 'motion/react';
+import Link from 'next/link';
+import { ArrowRight, ArrowUpRight, Quote, TrendingUp } from 'lucide-react';
+import { MarketingShell, PageHero, SectionWrap } from '@/components/landing-v2/marketing-shell';
 
-export function CustomersClient() {
-  const [activeSection, setActiveSection] = useState('fintech-corp');
-  const sectionsRef = useRef<HTMLElement[]>([]);
+interface CustomerProps {
+    session?: { user?: unknown } | null;
+}
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: '-10% 0px -40% 0px' }
-    );
-
-    const elements = document.querySelectorAll('article[data-section]');
-    elements.forEach((el) => observer.observe(el));
-
-    return () => observer.disconnect();
-  }, []);
-
-  const handleDownload = (company: string) => {
-    // Basic download handler simulation
-    const link = document.createElement('a');
-    link.href = `/case-studies/${company.toLowerCase()}.pdf`;
-    link.download = `${company}_CaseStudy.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  return (
-    <div className="min-h-screen bg-black text-white font-mono selection:bg-white selection:text-black flex flex-col md:flex-row">
-      {/* Left Sidebar - Navigation */}
-      <aside className="w-full md:w-64 border-r border-zinc-800 bg-black p-6 flex flex-col h-auto md:h-screen sticky top-0 overflow-y-auto">
-        <div className="mb-8">
-          <h1 className="text-xl font-bold tracking-tighter uppercase border-b border-zinc-800 pb-4">
-            Case Studies
-          </h1>
-        </div>
-        <nav className="space-y-6 flex-1">
-          <div>
-            <h2 className="text-xs font-semibold text-zinc-500 uppercase mb-3 tracking-widest">Enterprise</h2>
-            <ul className="space-y-2">
-              <li>
-                <a href="#fintech-corp" className={`text-sm flex items-center gap-2 p-2 rounded transition-colors group ${activeSection === 'fintech-corp' ? 'bg-zinc-900 text-white' : 'text-zinc-400 hover:bg-zinc-900'}`}>
-                  <ChevronRight className={`w-4 h-4 ${activeSection === 'fintech-corp' ? 'text-white' : 'text-zinc-600 group-hover:text-white'}`} />
-                  FintechCorp
-                </a>
-              </li>
-              <li>
-                <a href="#healthsync" className={`text-sm flex items-center gap-2 p-2 rounded transition-colors group ${activeSection === 'healthsync' ? 'bg-zinc-900 text-white' : 'text-zinc-400 hover:bg-zinc-900'}`}>
-                  <ChevronRight className={`w-4 h-4 ${activeSection === 'healthsync' ? 'text-white' : 'text-zinc-600 group-hover:text-white'}`} />
-                  HealthSync
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h2 className="text-xs font-semibold text-zinc-500 uppercase mb-3 tracking-widest">Startups</h2>
-            <ul className="space-y-2">
-              <li>
-                <a href="#aero-logistics" className={`text-sm flex items-center gap-2 p-2 rounded transition-colors group ${activeSection === 'aero-logistics' ? 'bg-zinc-900 text-white' : 'text-zinc-400 hover:bg-zinc-900'}`}>
-                  <ChevronRight className={`w-4 h-4 ${activeSection === 'aero-logistics' ? 'text-white' : 'text-zinc-600 group-hover:text-white'}`} />
-                  Aero Logistics
-                </a>
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </aside>
-
-      {/* Main Content Area - Center (Whitepaper) & Right (Code/Tech) */}
-      <main className="flex-1 flex flex-col lg:flex-row min-w-0">
-        
-        {/* Center - Whitepaper Content */}
-        <div className="flex-1 p-8 lg:p-12 max-w-3xl lg:border-r border-zinc-800">
-          <article id="fintech-corp" data-section className="scroll-mt-24 mb-32">
-            <header className="mb-12 flex flex-col md:flex-row md:items-start justify-between gap-4">
-              <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 border border-zinc-800 rounded-full text-xs uppercase tracking-widest mb-6">
-                  <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-                  Live Deployment
-                  </div>
-                  <h2 className="text-4xl font-bold tracking-tight mb-4">FintechCorp Implementation</h2>
-                  <p className="text-zinc-400 text-lg leading-relaxed">
-                  High-frequency trading infrastructure scaling to 50k requests per second with SabNode distributed edge network.
-                  </p>
-              </div>
-              <Button onClick={() => handleDownload('FintechCorp')} variant="outline" className="shrink-0 flex items-center gap-2">
-                  <Download className="w-4 h-4" /> Download PDF
-              </Button>
-            </header>
-
-            <section className="space-y-8 text-zinc-300 leading-relaxed">
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-4 border-b border-zinc-800 pb-2">1. Abstract</h3>
-              <p>
-                FintechCorp required a highly resilient, low-latency infrastructure to handle peak trading volumes. 
-                Legacy monolithic systems introduced unacceptable latency (avg. 240ms) during market open hours. 
-                By migrating to SabNode&apos;s distributed architecture, latency was reduced by 85%.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-4 border-b border-zinc-800 pb-2">2. Architectural Overhaul</h3>
-              <p className="mb-4">
-                The migration involved decoupling the order-matching engine from the user-facing websocket gateways.
-                SabNode&apos;s global CDN and edge compute nodes were utilized to validate and route payloads before they hit the core database.
-              </p>
-              <ul className="list-disc pl-5 space-y-2 text-zinc-400">
-                <li><strong className="text-white">Edge Validation:</strong> JWT authentication moved to the edge.</li>
-                <li><strong className="text-white">Data Layer:</strong> Multi-region Active-Active SabNode database clusters.</li>
-                <li><strong className="text-white">Event Stream:</strong> Kafka integration via SabNode Streams.</li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-4 border-b border-zinc-800 pb-2">3. Performance Metrics</h3>
-              <div className="grid grid-cols-2 gap-4 my-6">
-                <div className="border border-zinc-800 p-4">
-                  <div className="text-xs text-zinc-500 uppercase mb-1">P99 Latency</div>
-                  <div className="text-3xl font-bold text-white">35ms</div>
-                </div>
-                <div className="border border-zinc-800 p-4">
-                  <div className="text-xs text-zinc-500 uppercase mb-1">Throughput</div>
-                  <div className="text-3xl font-bold text-white">50k req/s</div>
-                </div>
-                <div className="border border-zinc-800 p-4">
-                  <div className="text-xs text-zinc-500 uppercase mb-1">Uptime</div>
-                  <div className="text-3xl font-bold text-white">99.999%</div>
-                </div>
-                <div className="border border-zinc-800 p-4">
-                  <div className="text-xs text-zinc-500 uppercase mb-1">Cost Reduction</div>
-                  <div className="text-3xl font-bold text-white">42%</div>
-                </div>
-              </div>
-            </div>
-            </section>
-          </article>
-
-          {/* Placeholder for other sections to demonstrate intersection observer */}
-          <article id="healthsync" data-section className="scroll-mt-24 mb-32 pt-12 border-t border-zinc-800">
-             <header className="mb-12 flex flex-col md:flex-row md:items-start justify-between gap-4">
-               <div>
-                 <h2 className="text-4xl font-bold tracking-tight text-white mb-4">HealthSync Implementation</h2>
-                 <p className="text-zinc-400 text-lg leading-relaxed">
-                  Secure, HIPAA-compliant patient data routing and telemedicine infrastructure.
-                 </p>
-               </div>
-               <Button onClick={() => handleDownload('HealthSync')} variant="outline" className="shrink-0 flex items-center gap-2">
-                  <Download className="w-4 h-4" /> Download PDF
-               </Button>
-             </header>
-          </article>
-
-          <article id="aero-logistics" data-section className="scroll-mt-24 mb-64 pt-12 border-t border-zinc-800">
-             <header className="mb-12 flex flex-col md:flex-row md:items-start justify-between gap-4">
-               <div>
-                 <h2 className="text-4xl font-bold tracking-tight text-white mb-4">Aero Logistics Implementation</h2>
-                 <p className="text-zinc-400 text-lg leading-relaxed">
-                  Real-time fleet tracking and dynamic route optimization using SabNode Edge compute.
-                 </p>
-               </div>
-               <Button onClick={() => handleDownload('AeroLogistics')} variant="outline" className="shrink-0 flex items-center gap-2">
-                  <Download className="w-4 h-4" /> Download PDF
-               </Button>
-             </header>
-          </article>
-        </div>
-
-        {/* Right - Technical Specs / Code */}
-        <div className="w-full lg:w-[450px] bg-[#0a0a0a] p-6 lg:p-8 flex flex-col gap-6 sticky top-0 h-auto lg:h-screen overflow-y-auto">
-          
-          <div className="flex items-center justify-between text-xs text-zinc-500 uppercase tracking-widest border-b border-zinc-800 pb-4">
-            <span>System Configuration</span>
-            <FileJson className="w-4 h-4" />
-          </div>
-
-          <div className="bg-black border border-zinc-800 rounded-md overflow-hidden">
-            <div className="bg-zinc-900 border-b border-zinc-800 px-4 py-2 text-xs text-zinc-400 flex items-center gap-2">
-              <Terminal className="w-3 h-3" /> sabnode.config.ts
-            </div>
-            <pre className="p-4 text-xs overflow-x-auto text-zinc-300">
-              <code>
-{`export default defineConfig({
-  cluster: {
-    regions: ['us-east-1', 'eu-west-1', 'ap-northeast-1'],
-    strategy: 'active-active',
-  },
-  edge: {
-    auth: {
-      provider: 'jwt',
-      validateAtEdge: true,
+const STORIES = [
+    {
+        name: 'Sole Co.',
+        industry: 'D2C footwear · ₹140Cr ARR',
+        accent: 'from-emerald-400 to-teal-500',
+        kpi: [
+            { v: '+184%', l: 'WhatsApp conv' },
+            { v: '−68%', l: 'Support time' },
+            { v: '3', l: 'Tools replaced' },
+        ],
+        quote: 'We swapped HubSpot, Zoho and Loyalzoo for SabNode. Migration took 3 days. Customers never noticed.',
+        who: 'Aanya Mehra · Head of Growth',
     },
-    caching: {
-      staleWhileRevalidate: 30,
-      maxAge: 60,
-    }
-  },
-  database: {
-    consistency: 'eventual',
-    replicationFactor: 3
-  }
-});`}
-              </code>
-            </pre>
-          </div>
+    {
+        name: 'Stark Industries',
+        industry: 'SaaS · Series B',
+        accent: 'from-violet-400 to-fuchsia-500',
+        kpi: [
+            { v: '−72%', l: 'CAC' },
+            { v: '4.8/5', l: 'CSAT' },
+            { v: '∞', l: 'Seats added' },
+        ],
+        quote: 'Per-seat pricing was killing us. SabNode lets us add agents without flinching at the bill.',
+        who: 'Rohan Gupta · Founder',
+    },
+    {
+        name: 'Globex Corp.',
+        industry: 'B2B · Manufacturing',
+        accent: 'from-sky-400 to-indigo-500',
+        kpi: [
+            { v: '12d', l: 'Time to launch' },
+            { v: '₹3.2L', l: 'Saved / mo' },
+            { v: '24/7', l: 'AI cover' },
+        ],
+        quote: 'Our sales team is in 8 cities. SabNode is the only thing they all check before the morning meeting.',
+        who: 'Priya Krishnan · VP Sales',
+    },
+];
 
-          <div className="bg-black border border-zinc-800 rounded-md overflow-hidden">
-            <div className="bg-zinc-900 border-b border-zinc-800 px-4 py-2 text-xs text-zinc-400 flex items-center gap-2">
-              <Code className="w-3 h-3" /> Topology Output
-            </div>
-            <pre className="p-4 text-xs overflow-x-auto text-zinc-300">
-              <code>
-{`> sabnode topology inspect
+const ALL = [
+    { name: 'Wayne Co.', tag: 'Manufacturing', metric: '+92% replies' },
+    { name: 'Initech', tag: 'B2B SaaS', metric: '4.9 CSAT' },
+    { name: 'Daily Planet', tag: 'Media', metric: '12M msgs/mo' },
+    { name: 'Soylent Inc.', tag: 'D2C food', metric: '−45% CAC' },
+    { name: 'Acme', tag: 'Logistics', metric: '99.9% SLA' },
+    { name: 'Tyrell', tag: 'AI startup', metric: '3× faster' },
+    { name: 'Cyberdyne', tag: 'Robotics', metric: '8 modules' },
+    { name: 'Pied Piper', tag: 'Dev tools', metric: '0 outages' },
+];
 
-[OK] Gateway (us-east-1)
-  │
-  ├─ Edge Worker [JWT Auth]
-  │  └─ Latency: 4ms
-  │
-  ├─ SabNode Stream [Kafka]
-  │  └─ Partitions: 64
-  │
-  └─ Database Replica
-     └─ Sync Lag: 12ms
-`}
-              </code>
-            </pre>
-          </div>
+export function CustomersClient({ session }: CustomerProps) {
+    return (
+        <MarketingShell session={session}>
+            <PageHero
+                kicker="Customers · 12,000+ teams"
+                title={<>Teams that swapped their stack for <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 bg-clip-text text-transparent">one bill.</span></>}
+                subtitle="From D2C unicorns to series-A SaaS to legacy manufacturers — see how teams across India ship faster with SabNode."
+            />
 
-          <div className="mt-auto pt-8">
-            <button className="w-full py-3 bg-white text-black font-semibold text-sm uppercase tracking-widest hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2">
-              View Full Documentation <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+            {/* FEATURED STORIES */}
+            <SectionWrap>
+                <div className="space-y-16">
+                    {STORIES.map((s, i) => (
+                        <m.div
+                            key={s.name}
+                            initial={{ opacity: 0, y: 12 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: i * 0.05 }}
+                            className="grid items-start gap-10 rounded-3xl border border-zinc-200 bg-white p-8 md:p-12 lg:grid-cols-[1fr_1.3fr]"
+                        >
+                            <div>
+                                <div className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${s.accent} text-xl font-black text-white shadow-md`}>
+                                    {s.name[0]}
+                                </div>
+                                <h3 className="mt-5 text-3xl font-semibold tracking-tight text-zinc-950">{s.name}</h3>
+                                <p className="mt-1 text-[13px] text-zinc-500">{s.industry}</p>
+                                <div className="mt-6 grid grid-cols-3 gap-3">
+                                    {s.kpi.map((k) => (
+                                        <div key={k.l}>
+                                            <p className="text-2xl font-semibold text-zinc-950">{k.v}</p>
+                                            <p className="mt-1 text-[10px] uppercase tracking-wider text-zinc-500">{k.l}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <Quote className="h-7 w-7 text-amber-500" />
+                                <p className="mt-5 text-pretty text-2xl font-medium leading-snug text-zinc-900">
+                                    &ldquo;{s.quote}&rdquo;
+                                </p>
+                                <p className="mt-5 text-sm font-semibold text-zinc-700">{s.who}</p>
+                                <Link href="/contact" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-amber-700">
+                                    Read the full story <ArrowUpRight className="h-3.5 w-3.5" />
+                                </Link>
+                            </div>
+                        </m.div>
+                    ))}
+                </div>
+            </SectionWrap>
 
-        </div>
-      </main>
-    </div>
-  );
+            {/* ALL LOGOS GRID */}
+            <SectionWrap bg="white">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">More teams</p>
+                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
+                    Joining 12,000+ companies in 14 countries.
+                </h2>
+                <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4">
+                    {ALL.map((a, i) => (
+                        <m.div
+                            key={a.name}
+                            initial={{ opacity: 0, y: 6 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: i * 0.03 }}
+                            className="rounded-2xl border border-zinc-200 bg-[#fafaf7] p-5"
+                        >
+                            <p className="text-lg font-semibold text-zinc-950">{a.name}</p>
+                            <p className="text-[12px] text-zinc-500">{a.tag}</p>
+                            <p className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-amber-700">
+                                <TrendingUp className="h-3 w-3" /> {a.metric}
+                            </p>
+                        </m.div>
+                    ))}
+                </div>
+            </SectionWrap>
+
+            {/* CTA */}
+            <SectionWrap>
+                <m.div initial={{ opacity: 0, scale: 0.96 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+                    className="relative overflow-hidden rounded-3xl bg-zinc-950 px-8 py-16 text-white md:px-16">
+                    <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl" style={{ background: 'rgba(251,146,60,0.45)' }} />
+                    <h2 className="relative text-balance text-4xl font-semibold tracking-tight md:text-5xl">
+                        Your story is next.
+                    </h2>
+                    <p className="relative mt-4 max-w-2xl text-base text-white/70">
+                        Talk to our team — we&apos;ll show you exactly how teams in your industry use SabNode.
+                    </p>
+                    <Link href="/contact" className="relative mt-8 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg">
+                        Book a call <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                </m.div>
+            </SectionWrap>
+        </MarketingShell>
+    );
 }

@@ -17,7 +17,7 @@ import type { WithId, CustomDomain, User, Tag } from '@/lib/definitions';
 import { DomainStepper } from './_components/domain-stepper';
 import { DomainList } from './_components/domain-list';
 import { DeveloperOptions } from './_components/developer-options';
-import { TagsSettingsTab } from '@/components/wabasimplify/tags-settings-tab';
+import { TagsSettingsTab } from '@/components/zoruui-domain/tags-settings-tab';
 
 type SessionUser = Omit<User, 'password'> & { _id: string; tags?: Tag[] };
 

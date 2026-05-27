@@ -4,9 +4,9 @@
 import * as React from "react"
 
 import type {
-  ToastActionElement,
-  ToastProps,
-} from "@/components/ui/toast"
+  ZoruToastActionElement as ToastActionElement,
+  ZoruToastProps as ToastProps,
+} from '@/components/zoruui'
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 5000

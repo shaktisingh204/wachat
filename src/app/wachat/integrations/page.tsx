@@ -20,6 +20,10 @@ import {
   ZoruTableRow,
   ZoruTableHead,
   ZoruTableCell,
+  Tabs,
+  ZoruTabsList,
+  ZoruTabsTrigger,
+  ZoruTabsContent,
 } from '@/components/zoruui';
 import {
   ArrowRight,
@@ -40,7 +44,6 @@ import {
 } from 'lucide-react';
 
 import Link from 'next/link';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 type Integration = {
   title: string;
@@ -190,13 +193,13 @@ export default function IntegrationsPage() {
       </PageHeader>
 
       <Tabs defaultValue="integrations" className="mt-6 w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="integrations">App Integrations</TabsTrigger>
-          <TabsTrigger value="oauth">OAuth Connections</TabsTrigger>
-          <TabsTrigger value="webhooks">Webhooks & API Keys</TabsTrigger>
-        </TabsList>
+        <ZoruTabsList className="mb-4">
+          <ZoruTabsTrigger value="integrations">App Integrations</ZoruTabsTrigger>
+          <ZoruTabsTrigger value="oauth">OAuth Connections</ZoruTabsTrigger>
+          <ZoruTabsTrigger value="webhooks">Webhooks & API Keys</ZoruTabsTrigger>
+        </ZoruTabsList>
 
-        <TabsContent value="integrations" className="mt-0 outline-none">
+        <ZoruTabsContent value="integrations" className="mt-0 outline-none">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {integrations.map((integration) => (
               <Card key={integration.title} className="flex flex-col gap-4 p-5">
@@ -245,9 +248,9 @@ export default function IntegrationsPage() {
               </p>
             </div>
           </Card>
-        </TabsContent>
+        </ZoruTabsContent>
 
-        <TabsContent value="oauth" className="mt-0 outline-none">
+        <ZoruTabsContent value="oauth" className="mt-0 outline-none">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {oauthConnections.map((app) => (
               <Card key={app.name} className="flex items-center justify-between p-5">
@@ -276,9 +279,9 @@ export default function IntegrationsPage() {
               </Card>
             ))}
           </div>
-        </TabsContent>
+        </ZoruTabsContent>
 
-        <TabsContent value="webhooks" className="mt-0 outline-none">
+        <ZoruTabsContent value="webhooks" className="mt-0 outline-none">
           <div className="space-y-8">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -323,7 +326,7 @@ export default function IntegrationsPage() {
                       <ZoruTableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Button size="icon" variant="ghost" className="h-8 w-8"><Edit2 className="h-4 w-4" /></Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"><Trash2 className="h-4 w-4" /></Button>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 text-zoru-danger-ink hover:text-zoru-danger-ink hover:bg-zoru-danger/10"><Trash2 className="h-4 w-4" /></Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
@@ -363,7 +366,7 @@ export default function IntegrationsPage() {
                       <ZoruTableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Button size="icon" variant="ghost" className="h-8 w-8"><Copy className="h-4 w-4" /></Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"><Trash2 className="h-4 w-4" /></Button>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 text-zoru-danger-ink hover:text-zoru-danger-ink hover:bg-zoru-danger/10"><Trash2 className="h-4 w-4" /></Button>
                         </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
@@ -372,7 +375,7 @@ export default function IntegrationsPage() {
               </ZoruTable>
             </div>
           </div>
-        </TabsContent>
+        </ZoruTabsContent>
       </Tabs>
     </div>
   );

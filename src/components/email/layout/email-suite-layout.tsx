@@ -27,7 +27,7 @@ import {
   Badge,
   Skeleton,
 } from '@/components/zoruui';
-import { ModuleLayout } from '@/components/wabasimplify/module-layout';
+import { ModuleLayout } from '@/components/zoruui-domain/module-layout';
 import type { WithId, EmailSettings } from '@/lib/definitions';
 import { getEmailSettings } from '@/app/actions/email.actions';
 import { EmailSidebar, type EmailSidebarItem } from './email-sidebar';

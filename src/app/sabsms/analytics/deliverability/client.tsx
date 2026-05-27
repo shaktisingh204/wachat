@@ -21,9 +21,13 @@ import {
   useSabsmsUrlState,
 } from "@/components/sabsms/page-toolkit";
 import { Badge, Button } from "@/components/zoruui";
-import { 
-  ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent 
-} from "@/components/ui/chart";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from '@/components/zoruui';
 
 
 const chartConfig = {

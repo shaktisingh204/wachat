@@ -3,10 +3,9 @@
 import Link from 'next/link';
 import { UserCircle2, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { Button, Input, Dialog, ZoruDialogContent } from '@/components/zoruui';
+import { Button, Input, Dialog, ZoruDialogContent, Card, Badge } from '@/components/zoruui';
 import { useRouter } from 'next/navigation';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
 import { cn } from '@/lib/utils';
 import type { WsConversationSummary } from '@/lib/worksuite/chat-types';
 
@@ -77,14 +76,14 @@ export function ConversationsPane({ conversations, activePeerId }: Conversations
         </div>
       </Modal>
 
-    <ClayCard padded={false} className="overflow-hidden">
-      <div className="border-b border-border px-4 py-3 flex justify-between items-center">
-        <p className="text-[12.5px] font-medium text-muted-foreground flex items-center gap-2">
+    <Card className="overflow-hidden p-0">
+      <div className="border-b border-zoru-line px-4 py-3 flex justify-between items-center">
+        <p className="text-[12.5px] font-medium text-zoru-ink-muted flex items-center gap-2">
           Conversations
           {totalUnread > 0 && (
-            <ClayBadge tone="rose" className="h-4 px-1.5 text-[10px] leading-none">
+            <Badge variant="danger" className="h-4 px-1.5 text-[10px] leading-none">
               {totalUnread}
-            </ClayBadge>
+            </Badge>
           )}
         </p>
         <Button size="sm" variant="ghost" onClick={() => setIsModalOpen(true)} className="h-6 px-2 text-xs">
@@ -92,11 +91,11 @@ export function ConversationsPane({ conversations, activePeerId }: Conversations
         </Button>
       </div>
       {conversations.length === 0 ? (
-        <div className="flex h-40 items-center justify-center px-4 text-center text-[12.5px] text-muted-foreground">
+        <div className="flex h-40 items-center justify-center px-4 text-center text-[12.5px] text-zoru-ink-muted">
           No conversations yet.
         </div>
       ) : (
-        <ul className="divide-y divide-border">
+        <ul className="divide-y divide-zoru-line">
           {conversations.map((c) => {
             const active = c.peer_user_id === activePeerId;
             return (
@@ -105,29 +104,29 @@ export function ConversationsPane({ conversations, activePeerId }: Conversations
                   href={`/dashboard/crm/messages/${c.peer_user_id}`}
                   className={cn(
                     'flex items-start gap-3 px-4 py-3 transition',
-                    active ? 'bg-accent' : 'hover:bg-secondary',
+                    active ? 'bg-zoru-surface-2' : 'hover:bg-zoru-surface-2',
                   )}
                 >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary">
-                    <UserCircle2 className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2">
+                    <UserCircle2 className="h-5 w-5 text-zoru-ink-muted" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-[13px] font-medium text-foreground">
+                      <span className="truncate text-[13px] font-medium text-zoru-ink">
                         {c.peer_user_id}
                       </span>
-                      <span className="shrink-0 text-[11px] text-muted-foreground">
+                      <span className="shrink-0 text-[11px] text-zoru-ink-muted">
                         {formatTime(c.last_message_at)}
                       </span>
                     </div>
-                    <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
+                    <p className="mt-0.5 truncate text-[12px] text-zoru-ink-muted">
                       {truncate(c.last_message || '(attachment)')}
                     </p>
                   </div>
                   {c.unread_count > 0 ? (
-                    <ClayBadge tone="rose" className="self-center">
+                    <Badge variant="danger" className="self-center">
                       {c.unread_count}
-                    </ClayBadge>
+                    </Badge>
                   ) : null}
                 </Link>
               </li>
@@ -135,7 +134,7 @@ export function ConversationsPane({ conversations, activePeerId }: Conversations
           })}
         </ul>
       )}
-    </ClayCard>
+    </Card>
     </>
   );
 }

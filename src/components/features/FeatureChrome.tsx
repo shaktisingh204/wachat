@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronRight } from 'lucide-react';
-import { SabNodeLogo } from '@/components/wabasimplify/logo';
+import { SabNodeLogo } from '@/components/zoruui-domain/logo';
 import { FEATURE_CATEGORIES } from '@/lib/features/types';
 import { LandingHeader } from '@/components/landing/landing-header';
 

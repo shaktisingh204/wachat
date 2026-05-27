@@ -3,8 +3,8 @@
 import { Button } from '@/components/zoruui';
 import {
   getWhatsAppProjectsForAdmin } from '@/app/actions/user.actions';
-import { AdminUserSearch } from '@/components/wabasimplify/admin-user-search';
-import { AdminUserFilter } from '@/components/wabasimplify/admin-user-filter';
+import { AdminUserSearch } from '@/components/zoruui-domain/admin-user-search';
+import { AdminUserFilter } from '@/components/zoruui-domain/admin-user-filter';
 import { useEffect,
   useState,
   useTransition,
@@ -21,7 +21,7 @@ import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
 
 import { MessageSquare, LoaderCircle, Archive } from 'lucide-react';
-import { AdminArchiveProjectButton } from '@/components/wabasimplify/admin-archive-project-button';
+import { AdminArchiveProjectButton } from '@/components/zoruui-domain/admin-archive-project-button';
 
 const PROJECTS_PER_PAGE = 20;
 

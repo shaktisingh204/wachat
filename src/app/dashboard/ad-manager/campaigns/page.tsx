@@ -32,7 +32,7 @@ import {
   updateCampaign,
   getInsights
 } from '@/app/actions/ad-manager.actions';
-import { formatMoney, formatNumber } from '@/components/wabasimplify/ad-manager/constants';
+import { formatMoney, formatNumber } from '@/components/zoruui-domain/ad-manager/constants';
 import { QueryClient, QueryClientProvider, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const queryClient = new QueryClient({
@@ -117,11 +117,11 @@ function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-        <Megaphone className="h-6 w-6 text-muted-foreground" strokeWidth={1.75} />
+        <Megaphone className="h-6 w-6 text-zoru-ink-muted" strokeWidth={1.75} />
       </div>
       <div>
         <p className="text-[15px] font-semibold text-foreground">No campaigns yet</p>
-        <p className="mt-1 max-w-sm text-[13px] text-muted-foreground leading-relaxed">
+        <p className="mt-1 max-w-sm text-[13px] text-zoru-ink-muted leading-relaxed">
           Create your first campaign to start reaching customers on Facebook and Instagram.
         </p>
       </div>
@@ -143,11 +143,11 @@ function NoAccountState() {
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-        <Filter className="h-6 w-6 text-muted-foreground" strokeWidth={1.75} />
+        <Filter className="h-6 w-6 text-zoru-ink-muted" strokeWidth={1.75} />
       </div>
       <div>
         <p className="text-[15px] font-semibold text-foreground">No ad account selected</p>
-        <p className="mt-1 max-w-sm text-[13px] text-muted-foreground leading-relaxed">
+        <p className="mt-1 max-w-sm text-[13px] text-zoru-ink-muted leading-relaxed">
           Connect or select a Meta ad account to view your campaigns.
         </p>
       </div>
@@ -171,7 +171,7 @@ function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) 
       </div>
       <div>
         <p className="text-[15px] font-semibold text-foreground">Failed to load campaigns</p>
-        <p className="mt-1 max-w-sm text-[13px] text-muted-foreground leading-relaxed">
+        <p className="mt-1 max-w-sm text-[13px] text-zoru-ink-muted leading-relaxed">
           {error}
         </p>
       </div>
@@ -215,7 +215,7 @@ function RowActions({
       <Button
         variant="ghost"
         size="icon-sm"
-        className="h-7 w-7 text-muted-foreground"
+        className="h-7 w-7 text-zoru-ink-muted"
         onClick={(e) => {
           e.stopPropagation();
           setOpen((v) => !v);
@@ -251,7 +251,7 @@ function RowActions({
               onDuplicate();
             }}
           >
-            <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+            <Copy className="h-3.5 w-3.5 text-zoru-ink-muted" />
             Duplicate
           </button>
           <div className="my-1 h-px bg-border" />
@@ -454,7 +454,7 @@ function CampaignsContent() {
             Campaigns
           </h1>
           {!loading && (
-            <span className="text-[11px] font-medium text-muted-foreground tabular-nums bg-muted px-2 py-0.5 rounded-full">
+            <span className="text-[11px] font-medium text-zoru-ink-muted tabular-nums bg-zoru-surface-2 px-2 py-0.5 rounded-full">
               {filtered.length}
             </span>
           )}
@@ -536,7 +536,7 @@ function CampaignsContent() {
           }}
         >
           <RefreshCw
-            className={cn('h-3.5 w-3.5 text-muted-foreground', (loading || insightsLoading) && 'animate-spin')}
+            className={cn('h-3.5 w-3.5 text-zoru-ink-muted', (loading || insightsLoading) && 'animate-spin')}
             strokeWidth={2}
           />
         </Button>
@@ -554,22 +554,22 @@ function CampaignsContent() {
           <div className="overflow-x-auto">
             {/* Table header */}
             <div className="flex items-center gap-4 px-5 py-3 border-b border-border bg-muted/30">
-              <span className="flex-1 min-w-[200px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <span className="flex-1 min-w-[200px] text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                 Name
               </span>
-              <span className="w-[90px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <span className="w-[90px] text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                 Status
               </span>
-              <span className="w-[140px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <span className="w-[140px] text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                 Objective
               </span>
-              <span className="w-[120px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <span className="w-[120px] text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                 Budget
               </span>
-              <span className="w-[70px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide text-right">
+              <span className="w-[70px] text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide text-right">
                 CPA
               </span>
-              <span className="w-[70px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide text-right">
+              <span className="w-[70px] text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide text-right">
                 ROAS
               </span>
               <span className="w-[44px]" />
@@ -589,7 +589,7 @@ function CampaignsContent() {
                   {/* Name */}
                   <div className="flex-1 min-w-[200px] flex items-center gap-2.5">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-muted">
-                      <Megaphone className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
+                      <Megaphone className="h-3.5 w-3.5 text-zoru-ink-muted" strokeWidth={2} />
                     </div>
                     <span className="text-[13px] font-medium text-foreground truncate">
                       {c.name}
@@ -604,7 +604,7 @@ function CampaignsContent() {
                   </div>
 
                   {/* Objective */}
-                  <span className="w-[140px] text-[13px] text-muted-foreground truncate">
+                  <span className="w-[140px] text-[13px] text-zoru-ink-muted truncate">
                     {objectiveLabel(c.objective)}
                   </span>
 
@@ -625,7 +625,7 @@ function CampaignsContent() {
                         <div className="flex items-center gap-2 group/budget">
                             <span>{budgetDisplay(c)}</span>
                             {c.daily_budget && (
-                                <button className="opacity-0 group-hover/budget:opacity-100 text-muted-foreground hover:text-foreground transition-opacity" onClick={() => { setEditingBudgetId(c.id); setEditingBudgetValue((Number(c.daily_budget)/100).toString()); }}>
+                                <button className="opacity-0 group-hover/budget:opacity-100 text-zoru-ink-muted hover:text-foreground transition-opacity" onClick={() => { setEditingBudgetId(c.id); setEditingBudgetValue((Number(c.daily_budget)/100).toString()); }}>
                                     <Edit2 className="h-3 w-3" />
                                 </button>
                             )}

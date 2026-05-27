@@ -23,7 +23,7 @@ import { AlertCircle, ArrowLeft, ThumbsUp, MessageSquare, ExternalLink } from 'l
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { InstagramViewCommentsDialog } from '@/components/wabasimplify/instagram-view-comments-dialog';
+import { InstagramViewCommentsDialog } from '@/components/zoruui-domain/instagram-view-comments-dialog';
 
 function PageSkeleton() {
   return (

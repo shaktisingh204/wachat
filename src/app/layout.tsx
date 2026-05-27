@@ -1,6 +1,6 @@
 import { ZoruTooltipProvider } from '@/components/zoruui';
 import {
-  Toaster } from "@/components/ui/toaster"
+  ZoruToaster as Toaster } from '@/components/zoruui'
 import { Plus_Jakarta_Sans,
   Geist,
   Geist_Mono,
@@ -11,7 +11,7 @@ import "@/react-shim";
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
-import SessionProvider from '@/components/wabasimplify/session-provider';
+import SessionProvider from '@/components/zoruui-domain/session-provider';
 import { MotionProvider } from '@/components/motion';
 
 export const metadata: Metadata = {

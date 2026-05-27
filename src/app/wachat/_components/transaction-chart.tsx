@@ -13,7 +13,7 @@ import { DateRange } from 'react-day-picker';
 /**
  * TransactionChart (wachat-local, ZoruUI).
  *
- * Replaces @/components/wabasimplify/whatsapp-pay/transaction-chart.
+ * Replaces the legacy whatsapp-pay/transaction-chart.
  * Same data shape (transactions + dateRange), same memoised grouping.
  * Visual swap: Recharts via ZoruChart family with greyscale palette.
  */

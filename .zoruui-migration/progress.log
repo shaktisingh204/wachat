@@ -1,0 +1,313 @@
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/crm/month-picker.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/crm/quick-create-dialog.tsx
+DONE src/components/wabasimplify/delete-button.tsx
+DONE src/app/dashboard/seo/tools/keyword-density/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/crm/settings/crm-settings-form.tsx
+DONE src/components/wabasimplify/admin-user-permissions-dialog.tsx
+LOG src/components/wabasimplify/analytics-chart.tsx (logged unreplaceable)
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/crm/purchases/add-vendor-type-dialog.tsx
+DONE src/app/dashboard/seo/tools/lsi-keywords/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/crm/accounting/add-account-group-dialog.tsx
+DONE src/app/dashboard/hrm/payroll/tds/new/page-client.tsx
+DONE src/components/wabasimplify/admin-dashboard-client-layout.tsx
+DONE src/components/wabasimplify/chat-attachment-menu.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/crm/inventory/add-warehouse-dialog.tsx
+DONE src/app/dashboard/sabbi/reports/late-report/page.tsx
+DONE src/components/wabasimplify/ad-manager/ad-manager-shell.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/[tenantSlug]/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/[tenantSlug]/login/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/[tenantSlug]/login/success/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/client/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/client/tickets/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/client/tickets/[id]/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/client/invoices/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/client/invoices/[id]/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/client/contracts/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/client/projects/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/client/projects/[id]/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/client/profile/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/client/knowledge-base/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/portal/client/knowledge-base/[id]/error.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/crm/inventory/add-category-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/flow-builder/docs/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/_components/permission-error-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/_components/manual-setup-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/_components/commerce-shell.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/_components/create-randomizer-post-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/_components/facebook-webhook-logs.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/_components/update-post-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/_components/feature-lock.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/_components/delete-post-button.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/_components/icons.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/webhooks/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/pages/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/auto-reply/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/custom-ecommerce/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/custom-ecommerce/_components/sync-custom-products-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/custom-ecommerce/_components/ecomm-product-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/custom-ecommerce/_components/persistent-menu-form.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/custom-ecommerce/_components/ecomm-custom-domain-form.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/custom-ecommerce/_components/ecomm-product-card.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/custom-ecommerce/_components/ecomm-settings-form.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/website-builder/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/flow-builder/docs/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/layout.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/audiences/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/ads/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/insights/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/ad-sets/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/campaigns/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/create/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/billing/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/instagram/connections/ConnectionsClient.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/instagram/feed/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/instagram/media/[mediaId]/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/qr-code-maker/layout.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/qr-code-maker/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/qr-code-maker/settings/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/website-builder/layout.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/website-builder/page.client.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/website-builder/manage/[portfolioId]/builder/page.tsx
+DONE src/components/wabasimplify/contact-info-panel.tsx
+DONE src/app/dashboard/marketing/landing-page-builder/_landing-page-builder-client.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/crm/inventory/add-brand-dialog.tsx
+DONE src/components/wabasimplify/crm-deal-card.tsx
+DONE src/app/sabsms/ab-tests/error.tsx
+DONE src/app/sabsms/[...slug]/error.tsx
+DONE src/app/sabsms/api-keys/error.tsx
+DONE src/app/sabsms/compliance/audit/error.tsx
+DONE src/app/sabsms/compliance/10dlc/error.tsx
+DONE src/app/sabsms/templates/loading.tsx
+DONE src/app/sabsms/settings/team/loading.tsx
+DONE src/app/sabsms/settings/notifications/loading.tsx
+DONE src/app/sabsms/settings/billing/loading.tsx
+DONE src/app/sabsms/suppressions/loading.tsx
+DONE src/app/sabsms/campaigns/error.tsx
+DONE src/app/sabsms/campaigns/new/error.tsx
+DONE src/app/sabsms/campaigns/[id]/error.tsx
+DONE src/app/sabsms/campaigns/create/error.tsx
+DONE src/app/sabsms/api-docs/error.tsx
+DONE src/app/sabsms/analytics/error.tsx
+DONE src/app/sabsms/analytics/numbers/error.tsx
+DONE src/app/sabsms/analytics/deliverability/error.tsx
+DONE src/app/sabsms/analytics/cost/error.tsx
+DONE src/app/sabsms/analytics/cohorts/error.tsx
+DONE src/app/sabsms/analytics/funnel/error.tsx
+DONE src/app/sabsms/templates/approvals/loading.tsx
+DONE src/app/sabsms/templates/[id]/loading.tsx
+DONE src/app/sabsms/templates/create/loading.tsx
+DONE src/app/sabsms/templates/create/error.tsx
+DONE src/app/sabsms/webhooks/loading.tsx
+DONE src/app/sabsms/webhooks/log/loading.tsx
+DONE src/app/sabsms/settings/notifications/notifications-client.tsx
+DONE src/app/sabsms/settings/billing/billing-client.tsx
+DONE src/app/sabsms/sdk-reference/page.tsx
+DONE src/app/sabsms/numbers/pool/page.tsx
+DONE src/app/sabsms/numbers/buy/page.tsx
+DONE src/app/sabsms/health/page.tsx
+DONE src/app/sabsms/compliance/audit/page.tsx
+DONE src/app/sabsms/templates/create/client.tsx
+DONE src/app/sabsms/campaigns/create/page.tsx
+DONE src/app/sabsms/analytics/deliverability/client.tsx (chart imports unreplaceable - logged)
+DONE src/app/sabsms/analytics/cost/client.tsx (chart imports unreplaceable - logged)
+DONE src/app/sabsms/analytics/cohorts/cohorts-dashboard.tsx
+DONE src/app/sabsms/layout.tsx (RBACGuard unreplaceable - logged)
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/crm/inventory/quick-add-product-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/integrations/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/integrations/layout.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/chat/zoru-contact-info-panel.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/subscribe-project-button.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/opt-in-out-form.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/import-contacts-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/add-contact-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/webhook-info.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/webhook-logs.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/transaction-chart.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/sync-projects-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/edit-phone-number-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/register-phone-button.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/calling-settings-form.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/auto-reply-form.tsx
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/layout.tsx (RBACGuard unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/settings/general/page.tsx (ProjectSettingsForm unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/settings/canned/page.tsx (CannedMessagesSettingsTab unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/settings/attributes/page.tsx (UserAttributesSettingsTab unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/catalog/page.tsx (SyncCatalogsButton, EmbeddedSignup unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/catalog/new/page.tsx (ProductForm unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/catalog/[catalogId]/page.tsx (CreateCollectionDialog, DeleteCollectionButton unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/catalog/[catalogId]/[productId]/edit/page.tsx (ProductForm unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/flow-builder/[flowId]/page.tsx (PropertiesPanel unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/setup/page.client.tsx (EmbeddedSignup unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/integrations/whatsapp-link-generator/page.tsx (WhatsappLinkGenerator unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/integrations/whatsapp-widget-generator/page.tsx (WhatsAppWidgetGenerator unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/integrations/razorpay/page.tsx (RazorpaySettingsForm unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/chat/chat-attachment-menu.tsx (WaPayIcon unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/chat/request-whatsapp-payment-dialog.tsx (WaPayIcon unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/_components/chat/zoru-chat-message.tsx (Message body renderers unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/flows/page.tsx (flowCategories, SyncMetaFlowsButton unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/wachat/flows/create/page.tsx (MetaFlowBuilderLayout, flowCategories unreplaceable)
+DONE src/components/wabasimplify/crm-form-builder.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/crm/inventory/add-industry-dialog.tsx
+DONE src/components/wabasimplify/crm-notes.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/crm/inventory/add-unit-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/crm/analytics/analytics-dashboard.tsx
+DONE src/components/wabasimplify/crm-product-card.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/team/layout.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/settings/custom-fields/new/new-field-form.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/tasks/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/inventory/stock-transfers/_components/stock-transfer-detail-tabs.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/inventory/grn/_components/grn-tabs-client.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/inventory/items/_components/item-detail-tabs.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/inventory/items/_components/item-detail-body.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/activity/_components/activity-page-client.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/automations/docs/_components/automations-docs-client.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/activity/_components/activity-browser.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/mentions/_components/mention-row.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/messages/_components/chat-thread.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/messages/_components/conversations-pane.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/notifications/_components/notifications-inbox.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/sales/proposals/templates/_components/template-editor.tsx
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/layout.tsx (FeatureLock unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/accounting/layout.tsx (FeatureLock unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/purchases/layout.tsx (FeatureLock unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/banking/layout.tsx (FeatureLock unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/inventory/layout.tsx (FeatureLock unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/sales/layout.tsx (FeatureLock unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/sales-crm/layout.tsx (FeatureLock unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/purchases/vendors/new/page.tsx (CrmAddBankAccountDialog unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/products/page.tsx (CrmProductCard unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/contacts/page.tsx (CreateDealDialog unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/automations/page.tsx (CrmAutomationBlockEditor unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/tax/eway-bills/[id]/page.tsx (QrCodeRenderer unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/accounts/[accountId]/page.tsx (CrmNotes unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/accounts/_components/accounts-detail-interactions.tsx (ComposeEmailDialog unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/sales/clients/_components/clients-list-client.tsx (CrmAddClientDialog, ClientReportButton unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/sales-crm/forms/[formId]/edit/page.tsx (CrmFormBuilder, CodeBlock unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/sales-crm/forms/new/new-form-wizard.tsx (CrmFormBuilder unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/sales-crm/contacts/[contactId]/page.tsx (ComposeEmailDialog unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/sales-crm/all-pipelines/page.tsx (EditPipelinesDialog unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/sales-crm/deals/[id]/page.tsx (CrmNotes unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/crm/sales-crm/all-leads/[id]/page.tsx (ComposeEmailDialog, CrmNotes unreplaceable)
+DONE src/components/wabasimplify/crm-smtp-form.tsx
+DONE src/components/wabasimplify/crm-tab-layout.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/admin-panel/sidebar/app-rail.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/admin-panel/sidebar/app-sidebar.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/admin-panel/header/admin-header.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/admin-panel/layout/admin-layout.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/clay/dashboard-chrome-dispatcher.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/clay/sabnode-dashboard-shell.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/clay/index.ts
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/clay/clay-dashboard-layout.tsx
+DONE src/components/wabasimplify/messages/template-message-content.tsx
+DONE src/components/wabasimplify/meta-flow-editor/layout/meta-flow-canvas.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/sabflow/editor/chrome/PresenceSidebar.tsx
+DONE src/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout.tsx
+DONE src/components/wabasimplify/meta-flow-editor/layout/meta-flow-navigator.tsx
+DONE src/components/wabasimplify/meta-flow-editor/layout/meta-flow-properties.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/sabflow/editor/chrome/PresenceAvatarStack.tsx
+DONE src/components/wabasimplify/meta-flow-preview.tsx
+DONE src/components/wabasimplify/new-chat-dialog.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/sabflow/playback/PlaybackOnboardingTour.tsx
+DONE src/components/wabasimplify/product-form.tsx
+DONE src/components/wabasimplify/seo/audit-diff-viewer.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/notifications/notification-popover.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/sabwa/_components/sabwa-sub-rail.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/sabwa/_components/coming-soon.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/sabwa/_components/empty-state.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/sabwa/_components/message-bubble.tsx
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/sabwa/layout.tsx (RBACGuard unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/sabwa/bulk/page.tsx (Slider unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/admin/dashboard/layout.tsx (admin compounds unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/admin/dashboard/page.tsx (admin compounds unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/admin/dashboard/template-library/page.tsx (admin compounds unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/admin/dashboard/whatsapp-projects/page.tsx (admin compounds unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/admin/dashboard/template-library/create/page.tsx (CreateTemplateForm unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/admin/dashboard/plans/_components/SortablePlansGrid.tsx (admin compounds unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/admin/dashboard/plans/_components/PlanEditor.tsx (admin compounds unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/admin/dashboard/plans/[planId]/plan-editor.tsx (admin compounds unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/admin/dashboard/system/page.tsx (admin compounds unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/admin/dashboard/users/page.tsx (admin compounds unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/onboarding/layout.tsx (SabNodeLogo unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/onboarding/page.tsx (OnboardingWizard unreplaceable)
+LOG /Users/harshkhandelwal/Downloads/sabnode/src/app/login/page.client.tsx (SabNodeLogo, LoginForm unreplaceable)
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/app/setup/page.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/worksuite/share-public-link-button.tsx
+DONE src/components/wabasimplify/seo/audit-table.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/email/layout/email-suite-layout.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/email/overview/account-list.tsx
+DONE src/components/wabasimplify/seo/create-project-dialog.tsx
+DONE src/components/wabasimplify/seo/rankings-table.tsx
+DONE /Users/harshkhandelwal/Downloads/sabnode/src/components/n8n/WorkflowEditor.tsx
+DONE src/components/wabasimplify/webhook-logs.tsx
+DONE src/components/builder/sidebar/sidebar.tsx
+LOG src/components/admin-panel/layout/admin-layout.tsx
+LOG src/components/admin-panel/sidebar/app-rail.tsx
+LOG src/components/admin-panel/sidebar/app-sidebar.tsx
+LOG src/components/admin-panel/header/admin-header.tsx
+LOG src/components/email/layout/email-suite-layout.tsx
+LOG src/components/email/overview/account-list.tsx
+LOG src/components/notifications/notification-popover.tsx
+LOG src/components/features/FeatureChrome.tsx
+LOG src/components/clay/index.ts
+LOG src/components/clay/clay-dashboard-layout.tsx
+LOG src/components/clay/dashboard-chrome-dispatcher.tsx
+LOG src/components/clay/sabnode-dashboard-shell.tsx
+DONE src/components/wabasimplify/website-builder/tabs-block-renderer.tsx
+DONE src/components/wabasimplify/website-builder/tabs-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/style-settings-panel.tsx
+DONE src/components/wabasimplify/website-builder/accordion-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/spacer-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/heading-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/button-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/form-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/rich-text-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/image-carousel-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/section-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/video-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/image-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/social-share-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/icon-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/columns-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/column-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/map-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/countdown-block-editor.tsx
+DONE src/components/wabasimplify/website-builder/crm-form-builder.tsx
+DONE src/components/wabasimplify/whatsapp-pay/date-range-picker.tsx
+DONE src/components/wabasimplify/whatsapp-pay/transaction-chart.tsx
+DONE src/components/wabasimplify/whatsapp-pay/transaction-table.tsx
+DONE src/app/sabwa/bulk/page.tsx
+DONE src/app/dashboard/hrm-advanced/employee-onboarding/_components/onboarding-form.tsx
+DONE src/app/dashboard/facebook/pages/page.tsx
+DONE src/components/wabasimplify/website-builder/checkout-form.tsx
+DONE src/components/wabasimplify/seo/create-project-dialog.tsx
+DONE src/app/sabsms/analytics/deliverability/client.tsx
+DONE src/app/sabsms/analytics/cost/client.tsx
+DONE src/components/wabasimplify/analytics-chart.tsx
+DONE src/components/wabasimplify/admin-dashboard-client-layout.tsx
+DONE src/components/wabasimplify/crm-tab-layout.tsx
+DONE src/components/admin-panel/layout/admin-layout.tsx
+DONE src/components/admin-panel/header/admin-header.tsx
+DONE src/app/bio/[slug]/page.tsx
+DONE src/app/bio/[slug]/error.tsx
+DONE src/app/r/[shortCode]/error.tsx
+DONE src/app/s/[shortCode]/error.tsx
+DONE src/app/[shortCode]/error.tsx
+DONE src/app/portfolio/[slug]/error.tsx
+DONE src/app/portfolio/[slug]/[pageSlug]/error.tsx
+DONE src/app/portfolio/[slug]/page.tsx
+DONE src/app/dl/[shortCode]/components/PasswordForm.tsx
+DONE src/app/dl/[shortCode]/loading.tsx
+DONE src/app/builder/error.tsx
+DONE src/app/p/gdpr/[leadEmail]/loading.tsx
+DONE src/app/p/proposal/[token]/error.tsx
+DONE src/app/p/thanks/error.tsx
+DONE src/app/p/thanks/countdown-redirect.tsx
+DONE src/app/p/ticket-form/[formId]/error.tsx
+DONE src/components/header.tsx
+DONE src/app/layout.tsx
+DONE src/app/builder/page.tsx
+DONE src/app/shop/[slug]/checkout/components/checkout-form.tsx
+DONE src/app/builder/loading.tsx
+DONE src/components/zoruui-domain/sabnode-dashboard-shell.tsx
+DONE src/hooks/use-toast.ts

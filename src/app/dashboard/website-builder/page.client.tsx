@@ -30,7 +30,7 @@ import { getSites } from '@/app/actions/portfolio.actions';
 import type { WithId, Website } from '@/lib/definitions';
 
 import { ArrowRight, Globe, Search, ExternalLink, AlertCircle, RefreshCw } from 'lucide-react';
-import { CreatePortfolioDialog } from '@/components/wabasimplify/create-portfolio-dialog';
+import { CreatePortfolioDialog } from '@/components/zoruui-domain/create-portfolio-dialog';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 
@@ -81,16 +81,16 @@ function SiteCard({ site }: { site: WithId<Website> }) {
                         </ZoruCardDescription>
                     </div>
                     <Button variant="ghost" size="icon" onClick={handleViewLive} title="View Live Site">
-                        <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                        <ExternalLink className="h-4 w-4 text-zoru-ink-muted" />
                     </Button>
                 </div>
             </ZoruCardHeader>
             <ZoruCardContent className="flex-grow">
                 <div className="flex flex-col gap-2">
-                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <p className="text-sm text-zoru-ink-muted flex items-center gap-2">
                         Created: <time dateTime={new Date(site.createdAt).toISOString()} suppressHydrationWarning>{format(new Date(site.createdAt), 'MMM dd, yyyy')}</time>
                     </p>
-                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <p className="text-sm text-zoru-ink-muted flex items-center gap-2">
                         Last Updated: <time dateTime={new Date(site.updatedAt).toISOString()} suppressHydrationWarning>{format(new Date(site.updatedAt), 'MMM dd, yyyy')}</time>
                     </p>
                 </div>
@@ -184,7 +184,7 @@ export default function WebsiteBuilderDashboard() {
                         <Globe className="h-8 w-8 text-primary" />
                         Website Builder
                     </h1>
-                    <p className="text-muted-foreground mt-2">
+                    <p className="text-zoru-ink-muted mt-2">
                         Create, manage, and publish your public-facing websites.
                     </p>
                 </div>
@@ -207,7 +207,7 @@ export default function WebsiteBuilderDashboard() {
             {(sites.length > 0 || searchQuery) && (
                 <div className="flex flex-col sm:flex-row gap-4 items-center bg-card p-4 rounded-lg border shadow-sm">
                     <div className="relative flex-grow w-full sm:w-auto">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
                         <Input
                             placeholder="Search by name or slug..."
                             value={searchQuery}
@@ -232,8 +232,8 @@ export default function WebsiteBuilderDashboard() {
             )}
 
             {!isFetching && sites.length === 0 && !error ? (
-                <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg bg-card/50">
-                    <Globe className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                <div className="text-center py-16 text-zoru-ink-muted border-2 border-dashed rounded-lg bg-card/50">
+                    <Globe className="mx-auto h-12 w-12 text-zoru-ink-subtle" />
                     <h3 className="mt-4 text-lg font-semibold text-foreground">No Websites Created</h3>
                     <p className="mt-2 text-sm max-w-sm mx-auto">You haven't built any websites yet. Click "Create New Site" to start building your online presence.</p>
                     <div className="mt-6">
@@ -247,8 +247,8 @@ export default function WebsiteBuilderDashboard() {
                     ))}
                 </div>
             ) : (sites.length > 0 && filteredAndSortedSites.length === 0) ? (
-                 <div className="text-center py-12 text-muted-foreground bg-card rounded-lg border">
-                    <Search className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                 <div className="text-center py-12 text-zoru-ink-muted bg-card rounded-lg border">
+                    <Search className="mx-auto h-12 w-12 text-zoru-ink-subtle" />
                     <h3 className="mt-4 text-lg font-medium text-foreground">No results found</h3>
                     <p className="mt-1 text-sm">No websites match your current search.</p>
                     <Button variant="link" onClick={() => setSearchQuery('')} className="mt-4">

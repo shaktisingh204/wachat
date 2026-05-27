@@ -1,10 +1,7 @@
 'use client';
 
-import { Card, ZoruCardContent, Textarea } from '@/components/zoruui';
+import { Card, ZoruCardContent, Textarea, Tabs, ZoruTabsList, ZoruTabsTrigger, ZoruTabsContent, Switch, Label } from '@/components/zoruui';
 import { useMemo, useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/zoruui';
-import { Label } from '@/components/zoruui';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { countWords, ngramDensity } from '@/lib/seo-tools/text-utils';
@@ -23,7 +20,7 @@ export default function KeywordDensityPage() {
       <ZoruCardContent className="p-4">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-xs text-muted-foreground">
+            <tr className="text-left text-xs text-zoru-ink-muted">
               <th className="py-2">#</th>
               <th>Keyword</th>
               <th className="text-right">Count</th>
@@ -33,7 +30,7 @@ export default function KeywordDensityPage() {
           <tbody>
             {density.map((row, i) => (
               <tr key={row.word} className="border-t">
-                <td className="py-2 text-muted-foreground">{i + 1}</td>
+                <td className="py-2 text-zoru-ink-muted">{i + 1}</td>
                 <td className="font-mono">{row.word}</td>
                 <td className="text-right">{row.count}</td>
                 <td className="text-right">{row.density.toFixed(2)}%</td>
@@ -41,7 +38,7 @@ export default function KeywordDensityPage() {
             ))}
             {density.length === 0 && (
               <tr>
-                <td colSpan={4} className="text-center text-muted-foreground py-6">
+                <td colSpan={4} className="text-center text-zoru-ink-muted py-6">
                   Start typing to see keyword density.
                 </td>
               </tr>
@@ -62,7 +59,7 @@ export default function KeywordDensityPage() {
       />
       
       <div className="flex items-center justify-between mb-4">
-        <div className="text-sm text-muted-foreground">Total words: {total}</div>
+        <div className="text-sm text-zoru-ink-muted">Total words: {total}</div>
         <div className="flex items-center space-x-2">
           <Switch 
             id="stopword-filter" 
@@ -76,20 +73,20 @@ export default function KeywordDensityPage() {
       </div>
       
       <Tabs defaultValue="2-word">
-        <TabsList className="mb-4">
-          <TabsTrigger value="1-word">1-Word (Unigrams)</TabsTrigger>
-          <TabsTrigger value="2-word">2-Word (Bigrams)</TabsTrigger>
-          <TabsTrigger value="3-word">3-Word (Trigrams)</TabsTrigger>
-        </TabsList>
-        <TabsContent value="1-word">
+        <ZoruTabsList className="mb-4">
+          <ZoruTabsTrigger value="1-word">1-Word (Unigrams)</ZoruTabsTrigger>
+          <ZoruTabsTrigger value="2-word">2-Word (Bigrams)</ZoruTabsTrigger>
+          <ZoruTabsTrigger value="3-word">3-Word (Trigrams)</ZoruTabsTrigger>
+        </ZoruTabsList>
+        <ZoruTabsContent value="1-word">
           {renderTable(density1)}
-        </TabsContent>
-        <TabsContent value="2-word">
+        </ZoruTabsContent>
+        <ZoruTabsContent value="2-word">
           {renderTable(density2)}
-        </TabsContent>
-        <TabsContent value="3-word">
+        </ZoruTabsContent>
+        <ZoruTabsContent value="3-word">
           {renderTable(density3)}
-        </TabsContent>
+        </ZoruTabsContent>
       </Tabs>
     </ToolShell>
   );

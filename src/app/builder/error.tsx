@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/zoruui';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/zoruui';
 
 export default function BuilderError({
     error,

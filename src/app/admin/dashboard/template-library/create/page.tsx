@@ -26,7 +26,7 @@ const LoadingZoruSkeleton = () => (
 );
 
 const CreateTemplateForm = dynamic(
-  () => import('@/components/wabasimplify/create-template-form').then(mod => mod.CreateTemplateForm),
+  () => import('@/components/zoruui-domain/create-template-form').then(mod => mod.CreateTemplateForm),
   { loading: () => <LoadingZoruSkeleton /> }
 );
 

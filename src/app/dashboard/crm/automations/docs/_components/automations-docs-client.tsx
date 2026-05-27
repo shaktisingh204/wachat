@@ -29,9 +29,12 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
+  Tabs,
+  ZoruTabsContent as TabsContent,
+  ZoruTabsList as TabsList,
+  ZoruTabsTrigger as TabsTrigger,
 } from '@/components/zoruui';
 import { Download, Loader2, Play, Pause, Plus, Trash2, X } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import {
   listCrmAutomations,

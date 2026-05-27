@@ -19,7 +19,7 @@ import {
   ZoruPageTitle,
 } from '@/components/zoruui';
 import type { WithId, EmailSettings } from '@/lib/definitions';
-import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { GoogleIcon, OutlookIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 
 interface EmailAccountListProps {
   accounts: WithId<EmailSettings>[];

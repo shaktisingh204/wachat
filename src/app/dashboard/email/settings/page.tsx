@@ -30,7 +30,7 @@ import {
   useState } from 'react';
 import { useSearchParams,
   useRouter } from "next/navigation";
-import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
+import { CrmSmtpForm } from '@/components/zoruui-domain/crm-smtp-form';
 // Link imported below
 import { AlertCircle,
   Mail,
@@ -53,11 +53,11 @@ import type { EmailSettings as CrmEmailSettings,
   User,
   WithId } from '@/lib/definitions';
 import { GoogleIcon,
-  OutlookIcon } from '@/components/wabasimplify/custom-sidebar-components';
+  OutlookIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 import Link from "next/link";
-import { ModuleLayout } from '@/components/wabasimplify/module-layout';
-import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';
-import { CodeBlock } from '@/components/wabasimplify/code-block';
+import { ModuleLayout } from '@/components/zoruui-domain/module-layout';
+import { ModuleSidebar } from '@/components/zoruui-domain/module-sidebar';
+import { CodeBlock } from '@/components/zoruui-domain/code-block';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { EmailSuiteLayout } from '@/components/email/layout';

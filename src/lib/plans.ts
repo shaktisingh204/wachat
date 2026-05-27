@@ -7,9 +7,12 @@ import type { PlanFeaturePermissions } from '@/lib/definitions';
 import {
     LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, FileText, Phone, Webhook,
     Briefcase, CreditCard, Megaphone, ServerCog, ShoppingBag, Link as LinkIcon, QrCode, BarChart,
-    Newspaper, Clapperboard, Video, Bot, ShieldCheck, Mail, Database, Brush, TrendingUp, Handshake, Building, Zap
+    Newspaper, Clapperboard, Video, Bot, ShieldCheck, Mail, Database, Brush, TrendingUp, Handshake, Building, Zap,
+    Mic, PenSquare, PieChart, ClipboardList, Network, KeyRound, Sheet, Presentation, Table2, Kanban,
+    Bug, Calculator, FlaskConical, Eye, Wand2, Cloud, Wrench, Activity,
+    Camera, MapPin, ShoppingCart, Headphones, Sparkles, Award, Building2
 } from 'lucide-react';
-import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 
 export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string, icon: React.ElementType }[] = [
     // Wachat
@@ -69,6 +72,39 @@ export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string, i
     { id: 'settingsAgentsRoles', name: 'Agents & Roles', icon: Users },
     { id: 'settingsCompliance', name: 'Compliance Settings', icon: ShieldCheck },
     { id: 'settingsUserAttributes', name: 'User Attributes', icon: Users },
+
+    // §17 Sab-* applications — one row per app on the dock rail.
+    { id: 'sabmail', name: 'SabMail — Hosted Email', icon: Mail },
+    { id: 'sabmeet', name: 'SabMeet — Video Rooms', icon: Video },
+    { id: 'sabvoice', name: 'SabVoice — Cloud PBX', icon: Mic },
+    { id: 'sabsign', name: 'SabSign — E-Signatures', icon: PenSquare },
+    { id: 'sabwebinar', name: 'SabWebinar — Live + Registration', icon: Video },
+    { id: 'sabconnect', name: 'SabConnect — Intranet', icon: Network },
+    { id: 'sabvault', name: 'SabVault — Password Manager', icon: KeyRound },
+    { id: 'sabsheet', name: 'SabSheet — Spreadsheets', icon: Sheet },
+    { id: 'sabshow', name: 'SabShow — Presentations', icon: Presentation },
+    { id: 'sabtables', name: 'SabTables — Airtable-style DB', icon: Table2 },
+    { id: 'sabsprints', name: 'SabSprints — Scrum', icon: Kanban },
+    { id: 'sabbugs', name: 'SabBugs — Bug Tracker', icon: Bug },
+    { id: 'sabrequests', name: 'SabRequests — Approvals', icon: ClipboardList },
+    { id: 'sabworkerly', name: 'SabWorkerly — Staffing', icon: Briefcase },
+    { id: 'sabpractice', name: 'SabPractice — Accountants', icon: Calculator },
+    { id: 'sabbi', name: 'SabBI — Analytics', icon: PieChart },
+    { id: 'sabprep', name: 'SabPrep — DataPrep', icon: FlaskConical },
+    { id: 'sabsense', name: 'SabSense — CRO + Recordings', icon: Eye },
+    { id: 'sabcreator', name: 'SabCreator — Low-Code Builder', icon: Wand2 },
+    { id: 'sabcatalyst', name: 'SabCatalyst — Serverless BaaS', icon: Cloud },
+    { id: 'sabops', name: 'SabOps — IT Operations', icon: Wrench },
+    { id: 'sabmonitor', name: 'SabMonitor — Synthetic + APM', icon: Activity },
+    { id: 'sablens', name: 'SabLens — AR Remote Support', icon: Camera },
+    { id: 'sabpublish', name: 'SabPublish — Local Listings', icon: MapPin },
+    { id: 'sabbigin', name: 'SabBigin — Lite CRM', icon: Building2 },
+    { id: 'sabshop', name: 'SabShop — Storefront', icon: ShoppingCart },
+    { id: 'sabcheckout', name: 'SabCheckout — Payment Pages', icon: CreditCard },
+    { id: 'sabdesk', name: 'SabDesk — Helpdesk', icon: Headphones },
+    { id: 'sabcampaigns', name: 'SabCampaigns — Email Mktg', icon: Megaphone },
+    { id: 'sabthrive', name: 'SabThrive — Rewards Storefront', icon: Sparkles },
+    { id: 'sabrewards', name: 'SabRewards — Loyalty + Coupons', icon: Award },
 ];
 
 export const planFeaturesDefaults: PlanFeaturePermissions = {
@@ -121,4 +157,37 @@ export const planFeaturesDefaults: PlanFeaturePermissions = {
     crmSettings: true,
     teamChat: true,
     teamTasks: true,
+
+    // §17 Sab-* application gates — default ON for all plans.
+    sabmail: true,
+    sabmeet: true,
+    sabvoice: true,
+    sabsign: true,
+    sabwebinar: true,
+    sabconnect: true,
+    sabvault: true,
+    sabsheet: true,
+    sabshow: true,
+    sabtables: true,
+    sabsprints: true,
+    sabbugs: true,
+    sabrequests: true,
+    sabworkerly: true,
+    sabpractice: true,
+    sabbi: true,
+    sabprep: true,
+    sabsense: true,
+    sabcreator: true,
+    sabcatalyst: true,
+    sabops: true,
+    sabmonitor: true,
+    sablens: true,
+    sabpublish: true,
+    sabbigin: true,
+    sabshop: true,
+    sabcheckout: true,
+    sabdesk: true,
+    sabcampaigns: true,
+    sabthrive: true,
+    sabrewards: true,
 };

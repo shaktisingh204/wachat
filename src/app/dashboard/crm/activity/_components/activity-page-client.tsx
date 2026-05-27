@@ -39,6 +39,10 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
+  Tabs,
+  ZoruTabsContent as TabsContent,
+  ZoruTabsList as TabsList,
+  ZoruTabsTrigger as TabsTrigger,
 } from '@/components/zoruui';
 import {
   CalendarDays,
@@ -57,7 +61,6 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ActivityRow } from './activity-row';

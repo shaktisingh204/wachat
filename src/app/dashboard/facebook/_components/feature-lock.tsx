@@ -4,7 +4,7 @@ import { Button } from '@/components/zoruui';
 import { Lock } from "lucide-react";
 
 /**
- * Local zoru replacement for `@/components/wabasimplify/feature-lock`.
+ * Local zoru replacement for `@/components/zoruui-domain/feature-lock`.
  *
  * Same FeatureLock + FeatureLockOverlay API, but renders zoru atoms only.
  */

@@ -27,7 +27,7 @@ import { handleManualFacebookPageSetup } from "@/app/actions/facebook.actions";
 /**
  * ManualSetupDialog (Meta Suite local, zoru-only).
  *
- * Visual swap of `@/components/wabasimplify/manual-facebook-setup-dialog`.
+ * Visual swap of `@/components/zoruui-domain/manual-facebook-setup-dialog`.
  * Same `handleManualFacebookPageSetup` server action, same form fields,
  * same toast outcomes — only the visual layer is rewritten on Zoru* atoms.
  */

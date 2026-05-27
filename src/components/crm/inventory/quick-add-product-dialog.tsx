@@ -1,17 +1,7 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import { Button, Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Input, Label } from '@/components/zoruui';
 import { useState, useRef, useEffect, useActionState } from 'react';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { saveCrmProduct } from '@/app/actions/crm-products.actions';
 import { EntityPicker } from '@/components/crm/entity-picker';
@@ -70,32 +60,32 @@ export function QuickAddProductDialog({ open, onOpenChange, onProductAdded, defa
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader>
-                    <DialogTitle className="text-foreground">Add New Product</DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
+            <ZoruDialogContent className="sm:max-w-[500px]">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle className="text-zoru-ink">Add New Product</ZoruDialogTitle>
+                    <ZoruDialogDescription className="text-zoru-ink-muted">
                         Quickly add a new product. Edit full details later.
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <input type="hidden" name="quickAdd" value="true" /> {/* Optional flag if needed on server */}
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-foreground">Product Name *</Label>
+                        <Label htmlFor="name" className="text-zoru-ink">Product Name *</Label>
                         <Input id="name" name="name" required defaultValue={defaultName} placeholder="e.g. Wireless Mouse" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="sku" className="text-foreground">SKU *</Label>
+                            <Label htmlFor="sku" className="text-zoru-ink">SKU *</Label>
                             <Input id="sku" name="sku" required placeholder="e.g. WM-001" />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="sellingPrice" className="text-foreground">Selling Price *</Label>
+                            <Label htmlFor="sellingPrice" className="text-zoru-ink">Selling Price *</Label>
                             <Input type="number" step="0.01" id="sellingPrice" name="sellingPrice" required />
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label className="text-foreground">Category</Label>
+                            <Label className="text-zoru-ink">Category</Label>
                             <input type="hidden" name="categoryId" value={categoryId} />
                             <EntityPicker
                                 entity="category"
@@ -104,7 +94,7 @@ export function QuickAddProductDialog({ open, onOpenChange, onProductAdded, defa
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label className="text-foreground">Unit</Label>
+                            <Label className="text-zoru-ink">Unit</Label>
                             <input type="hidden" name="unitId" value={unitId} />
                             <EntityPicker
                                 entity="unit"
@@ -113,12 +103,12 @@ export function QuickAddProductDialog({ open, onOpenChange, onProductAdded, defa
                             />
                         </div>
                     </div>
-                    <DialogFooter>
+                    <ZoruDialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
-                    </DialogFooter>
+                    </ZoruDialogFooter>
                 </form>
-            </DialogContent>
+            </ZoruDialogContent>
         </Dialog>
     );
 }

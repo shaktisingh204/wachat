@@ -1,7 +1,7 @@
 'use client';
 
 import { Skeleton } from '@/components/zoruui';
-import { EmbeddedForm } from '@/components/wabasimplify/embedded-form';
+import { EmbeddedForm } from '@/components/zoruui-domain/embedded-form';
 import { getCrmFormById } from '@/app/actions/crm-forms.actions';
 import { useEffect, useState, use, useCallback } from 'react';
 import type { WithId, CrmForm } from '@/lib/definitions';

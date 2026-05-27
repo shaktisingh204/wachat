@@ -1,9 +1,8 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import { Button, Card, Input } from '@/components/zoruui';
 import { useState } from 'react';
 import { Copy, Link2, LoaderCircle, X } from 'lucide-react';
-import { ClayCard, ClayInput } from '@/components/clay';
 import { generatePublicToken } from '@/app/actions/worksuite/public.actions';
 import type { WsPublicResourceType } from '@/lib/worksuite/public-types';
 
@@ -79,7 +78,7 @@ export function SharePublicLinkButton({
           aria-modal="true"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
         >
-          <ClayCard className="w-full max-w-md" variant="floating">
+          <Card className="w-full max-w-md p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h3 className="text-[15px] font-semibold text-foreground">
@@ -109,7 +108,7 @@ export function SharePublicLinkButton({
                 <p className="text-[12.5px] text-accent-foreground">{error}</p>
               ) : url ? (
                 <div className="flex flex-col gap-2">
-                  <ClayInput value={url} readOnly />
+                  <Input value={url} readOnly />
                   <div className="flex items-center justify-between">
                     <span className="text-[11.5px] text-muted-foreground">
                       {copied ? 'Copied!' : 'Copy and share with your client.'}
@@ -126,7 +125,7 @@ export function SharePublicLinkButton({
                 </div>
               ) : null}
             </div>
-          </ClayCard>
+          </Card>
         </div>
       ) : null}
     </>

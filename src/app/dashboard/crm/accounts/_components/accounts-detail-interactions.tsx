@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
+import { ComposeEmailDialog } from '@/components/zoruui-domain/crm-compose-email-dialog';
 import {
     archiveCrmAccount,
     unarchiveCrmAccount,

@@ -28,7 +28,7 @@ import type { Project,
 
 /**
  * Local zoru replacement for
- * `@/components/wabasimplify/create-randomizer-post-dialog`.
+ * `@/components/zoruui-domain/create-randomizer-post-dialog`.
  *
  * Same server action (`addRandomizerPost`); zoru atoms only.
  */

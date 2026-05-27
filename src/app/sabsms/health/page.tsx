@@ -5,8 +5,11 @@ import {
   Activity, AlertTriangle, CheckCircle2, Globe, List, Power, 
   Server, ShieldAlert, Webhook, Monitor, Zap, Plus, FileText, Settings 
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   Card,
   ZoruCardHeader,
   ZoruCardTitle,
@@ -24,6 +27,8 @@ import {
   Progress,
   Switch,
   Label,
+  Input,
+  Checkbox,
 } from "@/components/zoruui";
 import { SabsmsPageShell, SabsmsRefreshButton } from "@/components/sabsms/page-toolkit";
 import {
@@ -37,8 +42,6 @@ import {
   LineChart,
   Line
 } from "recharts";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 
 const MOCK_THROUGHPUT = Array.from({ length: 24 }).map((_, i) => ({
   time: `${i}:00`,

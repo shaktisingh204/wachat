@@ -3,7 +3,7 @@ import {
   ArrowLeft } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 
-import { EmployeeForm } from '@/components/wabasimplify/crm-employee-form';
+import { EmployeeForm } from '@/components/zoruui-domain/crm-employee-form';
 import { getEmployeeDetailByEmployeeId } from '@/app/actions/worksuite/hr-ext.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 

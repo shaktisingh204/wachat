@@ -24,12 +24,12 @@ import {
 } from 'lucide-react';
 import type { ShortUrl } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import { AnalyticsSummaryCards } from '@/components/wabasimplify/analytics-summary-cards';
-import { ClickTimelineChart } from '@/components/wabasimplify/click-timeline-chart';
-import { GeoHeatmap } from '@/components/wabasimplify/geo-heatmap';
-import { DeviceBreakdownChart } from '@/components/wabasimplify/device-breakdown-chart';
-import { ReferrerTable } from '@/components/wabasimplify/referrer-table';
-import { AnalyticsTabsShell } from '@/components/wabasimplify/analytics-tabs-shell';
+import { AnalyticsSummaryCards } from '@/components/zoruui-domain/analytics-summary-cards';
+import { ClickTimelineChart } from '@/components/zoruui-domain/click-timeline-chart';
+import { GeoHeatmap } from '@/components/zoruui-domain/geo-heatmap';
+import { DeviceBreakdownChart } from '@/components/zoruui-domain/device-breakdown-chart';
+import { ReferrerTable } from '@/components/zoruui-domain/referrer-table';
+import { AnalyticsTabsShell } from '@/components/zoruui-domain/analytics-tabs-shell';
 import { ShortUrlHeader } from './components/short-url-header';
 import { ShortUrlSettings } from './components/short-url-settings';
 import { GeoAnalyticsTable } from './components/geo-analytics-table';

@@ -23,7 +23,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import type { WithId } from 'mongodb';
 
-import { ProductForm } from '@/components/wabasimplify/product-form';
+import { ProductForm } from '@/components/zoruui-domain/product-form';
 import { useProject } from '@/context/project-context';
 import { getProductsForCatalog } from '@/app/actions/catalog.actions';
 import type { Product } from '@/lib/definitions';

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Label, Card, ZoruCardHeader as CardHeader, ZoruCardTitle as CardTitle, ZoruCardContent as CardContent } from '@/components/zoruui';
-import { CrmFormBuilder } from '@/components/wabasimplify/crm-form-builder';
+import { CrmFormBuilder } from '@/components/zoruui-domain/crm-form-builder';
 import { FileText, UserPlus, FileSignature, ArrowRight } from 'lucide-react';
 
 const TEMPLATES = [

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ClayButton, ClayCard } from '@/components/clay';
+import { ClayButton, ClayCard } from '@/components/zoruui-domain';
 import { Check, LoaderCircle, Search } from 'lucide-react';
 import { grantPublicConsent } from '@/app/actions/worksuite/public.actions';
 

@@ -41,7 +41,7 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
-} from "@/components/ui/tabs";
+} from "@/components/zoruui";
 import {
   CreditCard,
   Download,

@@ -125,6 +125,119 @@ pub fn build(state: AppState) -> Router {
     let sabops_alerts_r = sabops_alerts::router::<AppState>();
     let sabops_agent_tokens_r = sabops_agent_tokens::router::<AppState>();
 
+
+    // ─── §17 newly wired sab-* module routers ───────────────────────
+    let sabassist_access_tokens_r = sabassist_access_tokens::router::<AppState>();
+    let sabassist_actions_log_r = sabassist_actions_log::router::<AppState>();
+    let sabassist_devices_r = sabassist_devices::router::<AppState>();
+    let sabassist_sessions_r = sabassist_sessions::router::<AppState>();
+    let sabbackstage_orders_r = sabbackstage_orders::router::<AppState>();
+    let sabbackstage_public_pages_r = sabbackstage_public_pages::router::<AppState>();
+    let sabbackstage_sponsors_r = sabbackstage_sponsors::router::<AppState>();
+    let sabbackstage_ticket_types_r = sabbackstage_ticket_types::router::<AppState>();
+    let sabbackstage_tickets_r = sabbackstage_tickets::router::<AppState>();
+    let sabcatalyst_api_keys_r = sabcatalyst_api_keys::router::<AppState>();
+    let sabcatalyst_auth_sessions_r = sabcatalyst_auth_sessions::router::<AppState>();
+    let sabcatalyst_file_store_r = sabcatalyst_file_store::router::<AppState>();
+    let sabcatalyst_records_r = sabcatalyst_records::router::<AppState>();
+    let sabcatalyst_usage_r = sabcatalyst_usage::router::<AppState>();
+    let sabcheckout_customers_r = sabcheckout_customers::router::<AppState>();
+    let sabcheckout_invoices_r = sabcheckout_invoices::router::<AppState>();
+    let sabcheckout_pages_r = sabcheckout_pages::router::<AppState>();
+    let sabcheckout_plans_r = sabcheckout_plans::router::<AppState>();
+    let sabcheckout_sessions_r = sabcheckout_sessions::router::<AppState>();
+    let sabcheckout_subscriptions_r = sabcheckout_subscriptions::router::<AppState>();
+    let sabcliq_workspaces_r = sabcliq_workspaces::router::<AppState>();
+    let sabcreator_apps_r = sabcreator_apps::router::<AppState>();
+    let sabcreator_forms_r = sabcreator_forms::router::<AppState>();
+    let sabcreator_pages_r = sabcreator_pages::router::<AppState>();
+    let sabcreator_publishing_r = sabcreator_publishing::router::<AppState>();
+    let sabcreator_role_assignments_r = sabcreator_role_assignments::router::<AppState>();
+    let sabcreator_roles_r = sabcreator_roles::router::<AppState>();
+    let sabcreator_workflows_r = sabcreator_workflows::router::<AppState>();
+    let sablens_actions_log_r = sablens_actions_log::router::<AppState>();
+    let sablens_annotations_r = sablens_annotations::router::<AppState>();
+    let sablens_chat_r = sablens_chat::router::<AppState>();
+    let sablens_devices_r = sablens_devices::router::<AppState>();
+    let sablens_frames_r = sablens_frames::router::<AppState>();
+    let sablens_sessions_r = sablens_sessions::router::<AppState>();
+    let sabmail_accounts_r = sabmail_accounts::router::<AppState>();
+    let sabmail_aliases_r = sabmail_aliases::router::<AppState>();
+    let sabmail_domains_r = sabmail_domains::router::<AppState>();
+    let sabmail_folders_r = sabmail_folders::router::<AppState>();
+    let sabmail_messages_r = sabmail_messages::router::<AppState>();
+    let sabmail_rules_r = sabmail_rules::router::<AppState>();
+    let sabmonitor_alert_policies_r = sabmonitor_alert_policies::router::<AppState>();
+    let sabmonitor_api_transactions_r = sabmonitor_api_transactions::router::<AppState>();
+    let sabmonitor_check_runs_r = sabmonitor_check_runs::router::<AppState>();
+    let sabmonitor_checks_r = sabmonitor_checks::router::<AppState>();
+    let sabmonitor_incidents_r = sabmonitor_incidents::router::<AppState>();
+    let sabmonitor_probes_r = sabmonitor_probes::router::<AppState>();
+    let sabmonitor_status_page_incidents_r = sabmonitor_status_page_incidents::router::<AppState>();
+    let sabmonitor_status_pages_r = sabmonitor_status_pages::router::<AppState>();
+    let sabmonitor_synthetic_scripts_r = sabmonitor_synthetic_scripts::router::<AppState>();
+    let sabmonitor_trace_spans_r = sabmonitor_trace_spans::router::<AppState>();
+    let sabmonitor_traces_r = sabmonitor_traces::router::<AppState>();
+    let sabnotebook_attachments_r = sabnotebook_attachments::router::<AppState>();
+    let sabnotebook_notebooks_r = sabnotebook_notebooks::router::<AppState>();
+    let sabnotebook_notes_r = sabnotebook_notes::router::<AppState>();
+    let sabnotebook_sections_r = sabnotebook_sections::router::<AppState>();
+    let sabpractice_advisory_notes_r = sabpractice_advisory_notes::router::<AppState>();
+    let sabpractice_clients_r = sabpractice_clients::router::<AppState>();
+    let sabpractice_deadlines_r = sabpractice_deadlines::router::<AppState>();
+    let sabpractice_document_requests_r = sabpractice_document_requests::router::<AppState>();
+    let sabpractice_engagements_r = sabpractice_engagements::router::<AppState>();
+    let sabpractice_firms_r = sabpractice_firms::router::<AppState>();
+    let sabpractice_tasks_r = sabpractice_tasks::router::<AppState>();
+    let sabpractice_time_logs_r = sabpractice_time_logs::router::<AppState>();
+    let sabpublish_citations_r = sabpublish_citations::router::<AppState>();
+    let sabpublish_locations_r = sabpublish_locations::router::<AppState>();
+    let sabpublish_posts_r = sabpublish_posts::router::<AppState>();
+    let sabpublish_profile_fields_r = sabpublish_profile_fields::router::<AppState>();
+    let sabpublish_providers_r = sabpublish_providers::router::<AppState>();
+    let sabpublish_reviews_r = sabpublish_reviews::router::<AppState>();
+    let sabpublish_sync_jobs_r = sabpublish_sync_jobs::router::<AppState>();
+    let sabsheet_cells_r = sabsheet_cells::router::<AppState>();
+    let sabsheet_comments_r = sabsheet_comments::router::<AppState>();
+    let sabsheet_named_ranges_r = sabsheet_named_ranges::router::<AppState>();
+    let sabsheet_pivot_tables_r = sabsheet_pivot_tables::router::<AppState>();
+    let sabsheet_presence_r = sabsheet_presence::router::<AppState>();
+    let sabsheet_sheets_r = sabsheet_sheets::router::<AppState>();
+    let sabsheet_versions_r = sabsheet_versions::router::<AppState>();
+    let sabsheet_workbooks_r = sabsheet_workbooks::router::<AppState>();
+    let sabtables_automations_r = sabtables_automations::router::<AppState>();
+    let sabtables_bases_r = sabtables_bases::router::<AppState>();
+    let sabtables_comments_r = sabtables_comments::router::<AppState>();
+    let sabtables_records_r = sabtables_records::router::<AppState>();
+    let sabtables_tables_r = sabtables_tables::router::<AppState>();
+    let sabtables_views_r = sabtables_views::router::<AppState>();
+    let sabtables_workspaces_r = sabtables_workspaces::router::<AppState>();
+    let sabvault_audit_r = sabvault_audit::router::<AppState>();
+    let sabvault_breach_alerts_r = sabvault_breach_alerts::router::<AppState>();
+    let sabvault_folders_r = sabvault_folders::router::<AppState>();
+    let sabvault_secrets_r = sabvault_secrets::router::<AppState>();
+    let sabvault_shares_r = sabvault_shares::router::<AppState>();
+    let sabwebinar_analytics_r = sabwebinar_analytics::router::<AppState>();
+    let sabwebinar_chat_r = sabwebinar_chat::router::<AppState>();
+    let sabwebinar_polls_r = sabwebinar_polls::router::<AppState>();
+    let sabwebinar_qna_r = sabwebinar_qna::router::<AppState>();
+    let sabwebinar_registrations_r = sabwebinar_registrations::router::<AppState>();
+    let sabwebinar_sessions_r = sabwebinar_sessions::router::<AppState>();
+    let sabwebinar_webinars_r = sabwebinar_webinars::router::<AppState>();
+    let sabworkerly_clients_r = sabworkerly_clients::router::<AppState>();
+    let sabworkerly_invoices_r = sabworkerly_invoices::router::<AppState>();
+    let sabworkerly_jobs_r = sabworkerly_jobs::router::<AppState>();
+    let sabworkerly_payroll_runs_r = sabworkerly_payroll_runs::router::<AppState>();
+    let sabworkerly_placements_r = sabworkerly_placements::router::<AppState>();
+    let sabworkerly_timesheets_r = sabworkerly_timesheets::router::<AppState>();
+    let sabworkerly_workers_r = sabworkerly_workers::router::<AppState>();
+    let sabwriter_comments_r = sabwriter_comments::router::<AppState>();
+    let sabwriter_documents_r = sabwriter_documents::router::<AppState>();
+    let sabwriter_presence_r = sabwriter_presence::router::<AppState>();
+    let sabwriter_suggestions_r = sabwriter_suggestions::router::<AppState>();
+    let sabwriter_templates_r = sabwriter_templates::router::<AppState>();
+    let sabwriter_versions_r = sabwriter_versions::router::<AppState>();
+
     Router::new().nest("/admin", wachat_webhook_config::router::<AppState>());
     let wachat_templates = wachat_templates_router::router::<AppState>();
     let wachat_templates_actions = wachat_templates_actions::router::<AppState>();
@@ -709,6 +822,118 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabops/ad/groups", sabops_ad_groups_r)
         .nest("/v1/sabops/alerts", sabops_alerts_r)
         .nest("/v1/sabops/agent-tokens", sabops_agent_tokens_r)
+
+        // ─── §17 newly wired sab-* module routers ───────────────────────
+        .nest("/v1/sabassist/access-tokens", sabassist_access_tokens_r)
+        .nest("/v1/sabassist/actions-log", sabassist_actions_log_r)
+        .nest("/v1/sabassist/devices", sabassist_devices_r)
+        .nest("/v1/sabassist/sessions", sabassist_sessions_r)
+        .nest("/v1/sabbackstage/orders", sabbackstage_orders_r)
+        .nest("/v1/sabbackstage/public-pages", sabbackstage_public_pages_r)
+        .nest("/v1/sabbackstage/sponsors", sabbackstage_sponsors_r)
+        .nest("/v1/sabbackstage/ticket-types", sabbackstage_ticket_types_r)
+        .nest("/v1/sabbackstage/tickets", sabbackstage_tickets_r)
+        .nest("/v1/sabcatalyst/api-keys", sabcatalyst_api_keys_r)
+        .nest("/v1/sabcatalyst/auth-sessions", sabcatalyst_auth_sessions_r)
+        .nest("/v1/sabcatalyst/file-store", sabcatalyst_file_store_r)
+        .nest("/v1/sabcatalyst/records", sabcatalyst_records_r)
+        .nest("/v1/sabcatalyst/usage", sabcatalyst_usage_r)
+        .nest("/v1/sabcheckout/customers", sabcheckout_customers_r)
+        .nest("/v1/sabcheckout/invoices", sabcheckout_invoices_r)
+        .nest("/v1/sabcheckout/pages", sabcheckout_pages_r)
+        .nest("/v1/sabcheckout/plans", sabcheckout_plans_r)
+        .nest("/v1/sabcheckout/sessions", sabcheckout_sessions_r)
+        .nest("/v1/sabcheckout/subscriptions", sabcheckout_subscriptions_r)
+        .nest("/v1/sabcliq/workspaces", sabcliq_workspaces_r)
+        .nest("/v1/sabcreator/apps", sabcreator_apps_r)
+        .nest("/v1/sabcreator/forms", sabcreator_forms_r)
+        .nest("/v1/sabcreator/pages", sabcreator_pages_r)
+        .nest("/v1/sabcreator/publishing", sabcreator_publishing_r)
+        .nest("/v1/sabcreator/role-assignments", sabcreator_role_assignments_r)
+        .nest("/v1/sabcreator/roles", sabcreator_roles_r)
+        .nest("/v1/sabcreator/workflows", sabcreator_workflows_r)
+        .nest("/v1/sablens/actions-log", sablens_actions_log_r)
+        .nest("/v1/sablens/annotations", sablens_annotations_r)
+        .nest("/v1/sablens/chat", sablens_chat_r)
+        .nest("/v1/sablens/devices", sablens_devices_r)
+        .nest("/v1/sablens/frames", sablens_frames_r)
+        .nest("/v1/sablens/sessions", sablens_sessions_r)
+        .nest("/v1/sabmail/accounts", sabmail_accounts_r)
+        .nest("/v1/sabmail/aliases", sabmail_aliases_r)
+        .nest("/v1/sabmail/domains", sabmail_domains_r)
+        .nest("/v1/sabmail/folders", sabmail_folders_r)
+        .nest("/v1/sabmail/messages", sabmail_messages_r)
+        .nest("/v1/sabmail/rules", sabmail_rules_r)
+        .nest("/v1/sabmonitor/alert-policies", sabmonitor_alert_policies_r)
+        .nest("/v1/sabmonitor/api-transactions", sabmonitor_api_transactions_r)
+        .nest("/v1/sabmonitor/check-runs", sabmonitor_check_runs_r)
+        .nest("/v1/sabmonitor/checks", sabmonitor_checks_r)
+        .nest("/v1/sabmonitor/incidents", sabmonitor_incidents_r)
+        .nest("/v1/sabmonitor/probes", sabmonitor_probes_r)
+        .nest("/v1/sabmonitor/status-page-incidents", sabmonitor_status_page_incidents_r)
+        .nest("/v1/sabmonitor/status-pages", sabmonitor_status_pages_r)
+        .nest("/v1/sabmonitor/synthetic-scripts", sabmonitor_synthetic_scripts_r)
+        .nest("/v1/sabmonitor/trace-spans", sabmonitor_trace_spans_r)
+        .nest("/v1/sabmonitor/traces", sabmonitor_traces_r)
+        .nest("/v1/sabnotebook/attachments", sabnotebook_attachments_r)
+        .nest("/v1/sabnotebook/notebooks", sabnotebook_notebooks_r)
+        .nest("/v1/sabnotebook/notes", sabnotebook_notes_r)
+        .nest("/v1/sabnotebook/sections", sabnotebook_sections_r)
+        .nest("/v1/sabpractice/advisory-notes", sabpractice_advisory_notes_r)
+        .nest("/v1/sabpractice/clients", sabpractice_clients_r)
+        .nest("/v1/sabpractice/deadlines", sabpractice_deadlines_r)
+        .nest("/v1/sabpractice/document-requests", sabpractice_document_requests_r)
+        .nest("/v1/sabpractice/engagements", sabpractice_engagements_r)
+        .nest("/v1/sabpractice/firms", sabpractice_firms_r)
+        .nest("/v1/sabpractice/tasks", sabpractice_tasks_r)
+        .nest("/v1/sabpractice/time-logs", sabpractice_time_logs_r)
+        .nest("/v1/sabpublish/citations", sabpublish_citations_r)
+        .nest("/v1/sabpublish/locations", sabpublish_locations_r)
+        .nest("/v1/sabpublish/posts", sabpublish_posts_r)
+        .nest("/v1/sabpublish/profile-fields", sabpublish_profile_fields_r)
+        .nest("/v1/sabpublish/providers", sabpublish_providers_r)
+        .nest("/v1/sabpublish/reviews", sabpublish_reviews_r)
+        .nest("/v1/sabpublish/sync-jobs", sabpublish_sync_jobs_r)
+        .nest("/v1/sabsheet/cells", sabsheet_cells_r)
+        .nest("/v1/sabsheet/comments", sabsheet_comments_r)
+        .nest("/v1/sabsheet/named-ranges", sabsheet_named_ranges_r)
+        .nest("/v1/sabsheet/pivot-tables", sabsheet_pivot_tables_r)
+        .nest("/v1/sabsheet/presence", sabsheet_presence_r)
+        .nest("/v1/sabsheet/sheets", sabsheet_sheets_r)
+        .nest("/v1/sabsheet/versions", sabsheet_versions_r)
+        .nest("/v1/sabsheet/workbooks", sabsheet_workbooks_r)
+        .nest("/v1/sabtables/automations", sabtables_automations_r)
+        .nest("/v1/sabtables/bases", sabtables_bases_r)
+        .nest("/v1/sabtables/comments", sabtables_comments_r)
+        .nest("/v1/sabtables/records", sabtables_records_r)
+        .nest("/v1/sabtables/tables", sabtables_tables_r)
+        .nest("/v1/sabtables/views", sabtables_views_r)
+        .nest("/v1/sabtables/workspaces", sabtables_workspaces_r)
+        .nest("/v1/sabvault/audit", sabvault_audit_r)
+        .nest("/v1/sabvault/breach-alerts", sabvault_breach_alerts_r)
+        .nest("/v1/sabvault/folders", sabvault_folders_r)
+        .nest("/v1/sabvault/secrets", sabvault_secrets_r)
+        .nest("/v1/sabvault/shares", sabvault_shares_r)
+        .nest("/v1/sabwebinar/analytics", sabwebinar_analytics_r)
+        .nest("/v1/sabwebinar/chat", sabwebinar_chat_r)
+        .nest("/v1/sabwebinar/polls", sabwebinar_polls_r)
+        .nest("/v1/sabwebinar/qna", sabwebinar_qna_r)
+        .nest("/v1/sabwebinar/registrations", sabwebinar_registrations_r)
+        .nest("/v1/sabwebinar/sessions", sabwebinar_sessions_r)
+        .nest("/v1/sabwebinar/webinars", sabwebinar_webinars_r)
+        .nest("/v1/sabworkerly/clients", sabworkerly_clients_r)
+        .nest("/v1/sabworkerly/invoices", sabworkerly_invoices_r)
+        .nest("/v1/sabworkerly/jobs", sabworkerly_jobs_r)
+        .nest("/v1/sabworkerly/payroll-runs", sabworkerly_payroll_runs_r)
+        .nest("/v1/sabworkerly/placements", sabworkerly_placements_r)
+        .nest("/v1/sabworkerly/timesheets", sabworkerly_timesheets_r)
+        .nest("/v1/sabworkerly/workers", sabworkerly_workers_r)
+        .nest("/v1/sabwriter/comments", sabwriter_comments_r)
+        .nest("/v1/sabwriter/documents", sabwriter_documents_r)
+        .nest("/v1/sabwriter/presence", sabwriter_presence_r)
+        .nest("/v1/sabwriter/suggestions", sabwriter_suggestions_r)
+        .nest("/v1/sabwriter/templates", sabwriter_templates_r)
+        .nest("/v1/sabwriter/versions", sabwriter_versions_r)
         .nest("/v1/admin", admin_router)
         .nest("/v1", v1)
         .with_state(state)

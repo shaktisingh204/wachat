@@ -33,7 +33,7 @@ import type { WithId } from "mongodb";
 
 /**
  * Zoru-only replacement for
- * `@/components/wabasimplify/sync-custom-products-dialog`. Same external
+ * `@/components/zoruui-domain/sync-custom-products-dialog`. Same external
  * props (`projectId`, `shopId`) and the same `syncProductsToMetaCatalog`
  * server action — only visuals change.
  */

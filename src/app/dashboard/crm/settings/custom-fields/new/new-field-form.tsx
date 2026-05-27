@@ -11,6 +11,8 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   Checkbox,
+  Card,
+  useZoruToast,
 } from '@/components/zoruui';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useActionState,
@@ -18,11 +20,8 @@ import { useActionState,
   useState } from 'react';
 import { LoaderCircle } from 'lucide-react';
 
-import { ClayCard } from '@/components/clay';
-
 import * as React from 'react';
 
-import { useToast } from '@/hooks/use-toast';
 import {
   getCustomFieldGroups,
   getCustomFieldById,
@@ -92,7 +91,7 @@ type FieldRow = WsCustomField & { _id: string };
 export function NewCustomFieldForm() {
   const sp = useSearchParams();
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const groupParam = sp.get('group') || '';
   const idParam = sp.get('id') || '';
@@ -143,7 +142,7 @@ export function NewCustomFieldForm() {
 
   if (!loaded) {
     return (
-      <div className="text-[13px] text-muted-foreground">Loading…</div>
+      <div className="text-[13px] text-zoru-ink-muted">Loading…</div>
     );
   }
 
@@ -152,20 +151,20 @@ export function NewCustomFieldForm() {
     : groupParam;
 
   return (
-    <ClayCard>
+    <Card className="p-6">
       <form action={formAction} className="space-y-4">
         {existing?._id ? (
           <input type="hidden" name="_id" value={existing._id} />
         ) : null}
 
         <div>
-          <Label htmlFor="group_id" className="text-foreground">
-            Group <span className="text-destructive">*</span>
+          <Label htmlFor="group_id" className="text-zoru-ink">
+            Group <span className="text-zoru-danger-ink">*</span>
           </Label>
           <Select name="group_id" defaultValue={defaultGroup} required>
             <ZoruSelectTrigger
               id="group_id"
-              className="h-10 rounded-lg border-border bg-card text-[13px]"
+              className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
             >
               <ZoruSelectValue placeholder="Select a group" />
             </ZoruSelectTrigger>
@@ -181,19 +180,19 @@ export function NewCustomFieldForm() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="label" className="text-foreground">
-              Label <span className="text-destructive">*</span>
+            <Label htmlFor="label" className="text-zoru-ink">
+              Label <span className="text-zoru-danger-ink">*</span>
             </Label>
             <Input
               id="label"
               name="label"
               required
               defaultValue={existing?.label || ''}
-              className="h-10 rounded-lg border-border bg-card text-[13px]"
+              className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
             />
           </div>
           <div>
-            <Label htmlFor="name" className="text-foreground">
+            <Label htmlFor="name" className="text-zoru-ink">
               Slug (optional)
             </Label>
             <Input
@@ -201,14 +200,14 @@ export function NewCustomFieldForm() {
               name="name"
               defaultValue={existing?.name || ''}
               placeholder="auto-generated from label"
-              className="h-10 rounded-lg border-border bg-card text-[13px]"
+              className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
             />
           </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="type" className="text-foreground">
+            <Label htmlFor="type" className="text-zoru-ink">
               Type
             </Label>
             {/* TODO §1E: type needs enumName="customFieldType" — pending label/value alignment
@@ -216,7 +215,7 @@ export function NewCustomFieldForm() {
             <Select name="type" value={type} onValueChange={setType}>
               <ZoruSelectTrigger
                 id="type"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               >
                 <ZoruSelectValue />
               </ZoruSelectTrigger>
@@ -235,7 +234,7 @@ export function NewCustomFieldForm() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="position" className="text-foreground">
+            <Label htmlFor="position" className="text-zoru-ink">
               Position
             </Label>
             <Input
@@ -243,13 +242,13 @@ export function NewCustomFieldForm() {
               name="position"
               type="number"
               defaultValue={String(existing?.position ?? 0)}
-              className="h-10 rounded-lg border-border bg-card text-[13px]"
+              className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
             />
           </div>
         </div>
 
         <div>
-          <Label htmlFor="values" className="text-foreground">
+          <Label htmlFor="values" className="text-zoru-ink">
             Options (comma or newline separated)
           </Label>
           <Textarea
@@ -258,15 +257,15 @@ export function NewCustomFieldForm() {
             rows={3}
             defaultValue={(existing?.values || []).join('\n')}
             placeholder="Used for select / radio / checkbox types"
-            className="rounded-lg border-border bg-card text-[13px]"
+            className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
           />
         </div>
 
         {type === 'entity_ref' ? (
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="targetEntity" className="text-foreground">
-                Linked entity <span className="text-destructive">*</span>
+              <Label htmlFor="targetEntity" className="text-zoru-ink">
+                Linked entity <span className="text-zoru-danger-ink">*</span>
               </Label>
               <Select
                 name="targetEntity"
@@ -276,7 +275,7 @@ export function NewCustomFieldForm() {
               >
                 <ZoruSelectTrigger
                   id="targetEntity"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 >
                   <ZoruSelectValue placeholder="Pick an entity to link" />
                 </ZoruSelectTrigger>
@@ -288,12 +287,12 @@ export function NewCustomFieldForm() {
                   ))}
                 </ZoruSelectContent>
               </Select>
-              <p className="mt-1 text-[11px] text-muted-foreground">
+              <p className="mt-1 text-[11px] text-zoru-ink-muted">
                 Renders as a searchable picker for the chosen entity.
               </p>
             </div>
             <div>
-              <Label htmlFor="multi" className="text-foreground">
+              <Label htmlFor="multi" className="text-zoru-ink">
                 Multiple values
               </Label>
               <Select
@@ -303,7 +302,7 @@ export function NewCustomFieldForm() {
               >
                 <ZoruSelectTrigger
                   id="multi"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 >
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -318,7 +317,7 @@ export function NewCustomFieldForm() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="is_required" className="text-foreground">
+            <Label htmlFor="is_required" className="text-zoru-ink">
               Required
             </Label>
             <Select
@@ -327,7 +326,7 @@ export function NewCustomFieldForm() {
             >
               <ZoruSelectTrigger
                 id="is_required"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               >
                 <ZoruSelectValue />
               </ZoruSelectTrigger>
@@ -338,7 +337,7 @@ export function NewCustomFieldForm() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="display_in_table" className="text-foreground">
+            <Label htmlFor="display_in_table" className="text-zoru-ink">
               Show in tables
             </Label>
             <Select
@@ -347,7 +346,7 @@ export function NewCustomFieldForm() {
             >
               <ZoruSelectTrigger
                 id="display_in_table"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               >
                 <ZoruSelectValue />
               </ZoruSelectTrigger>
@@ -386,6 +385,6 @@ export function NewCustomFieldForm() {
           </Button>
         </div>
       </form>
-    </ClayCard>
+    </Card>
   );
 }

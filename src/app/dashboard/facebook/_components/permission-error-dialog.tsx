@@ -21,7 +21,7 @@ import type { Project,
 /**
  * PermissionErrorDialog (Meta Suite local, zoru-only).
  *
- * Visual swap of `@/components/wabasimplify/permission-error-dialog`.
+ * Visual swap of `@/components/zoruui-domain/permission-error-dialog`.
  * Same trigger surface — surfaces a Meta permission error and lets the
  * operator re-authorize. Pure zoru tokens, neutral palette.
  */

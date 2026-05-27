@@ -1,18 +1,7 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import { Button, Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Input, Label, Textarea } from '@/components/zoruui';
 import { useState, useRef, useEffect, useActionState } from 'react';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { saveCrmIndustry } from '@/app/actions/crm-inventory-settings.actions';
 import { Loader2 } from 'lucide-react';
@@ -62,28 +51,28 @@ export function AddIndustryDialog({ open, onOpenChange, onIndustryAdded, default
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle className="text-foreground">Add Industry</DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
+            <ZoruDialogContent className="sm:max-w-[425px]">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle className="text-zoru-ink">Add Industry</ZoruDialogTitle>
+                    <ZoruDialogDescription className="text-zoru-ink-muted">
                         Details about the industry.
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-foreground">Name</Label>
+                        <Label htmlFor="name" className="text-zoru-ink">Name</Label>
                         <Input id="name" name="name" required defaultValue={defaultName} />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="description" className="text-foreground">Description (Optional)</Label>
+                        <Label htmlFor="description" className="text-zoru-ink">Description (Optional)</Label>
                         <Textarea id="description" name="description" />
                     </div>
-                    <DialogFooter>
+                    <ZoruDialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
-                    </DialogFooter>
+                    </ZoruDialogFooter>
                 </form>
-            </DialogContent>
+            </ZoruDialogContent>
         </Dialog>
     );
 }

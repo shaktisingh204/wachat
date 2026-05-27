@@ -17,7 +17,7 @@ import {
   ArrowLeft } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
-import { ProductForm } from '@/components/wabasimplify/product-form';
+import { ProductForm } from '@/components/zoruui-domain/product-form';
 
 import Link from 'next/link';
 

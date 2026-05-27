@@ -23,6 +23,8 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
+  Card,
+  useZoruToast,
 } from '@/components/zoruui';
 import { useState, useEffect, useRef, useActionState, useTransition } from 'react';
 import { Plus,
@@ -36,9 +38,7 @@ import {
   handleRemoveAgent,
   getInvitedUsers,
   } from '@/app/actions/team.actions';
-import { useToast } from '@/hooks/use-toast';
 
-import { ClayCard } from '@/components/clay';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const removeAgentInitialState: any = { message: null, error: null };
@@ -52,7 +52,7 @@ function RemoveAgentButton({
   onAgentRemoved: () => void;
 }) {
   const [state, formAction] = useActionState(handleRemoveAgent, removeAgentInitialState);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -105,7 +105,7 @@ function RemoveAgentButton({
 function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
   const [state, formAction] = useActionState(handleInviteAgent, inviteAgentInitialState);
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const formRef = useRef<HTMLFormElement>(null);
 
   const handleFormSubmit = (formData: FormData) => {
@@ -126,10 +126,10 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
   }, [state, toast, onAgentInvited]);
 
   return (
-    <ClayCard variant="outline" className="border-dashed">
+    <Card className="border-dashed p-6">
       <div className="mb-4">
-        <h2 className="text-[16px] font-semibold text-foreground">Invite a New Team Member</h2>
-        <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+        <h2 className="text-[16px] font-semibold text-zoru-ink">Invite a New Team Member</h2>
+        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
           Assign a role to the new user. They must have an existing SabNode account. This will
           grant them access to all your current and future projects with the selected role.
         </p>
@@ -184,7 +184,7 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
           Invite Agent
         </Button>
       </form>
-    </ClayCard>
+    </Card>
   );
 }
 
@@ -212,12 +212,12 @@ export default function ManageUsersPage() {
     >
 
       <InviteAgentForm onAgentInvited={fetchData} />
-      <Separator className="bg-border" />
+      <Separator className="bg-zoru-line" />
 
-      <ClayCard>
+      <Card className="p-6">
         <div className="mb-4">
-          <h2 className="text-[16px] font-semibold text-foreground">Team Members</h2>
-          <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+          <h2 className="text-[16px] font-semibold text-zoru-ink">Team Members</h2>
+          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
             A list of all users in your team.
           </p>
         </div>
@@ -264,12 +264,12 @@ export default function ManageUsersPage() {
               </div>
             ))
           ) : (
-            <p className="py-8 text-center text-[13px] text-muted-foreground">
+            <p className="py-8 text-center text-[13px] text-zoru-ink-muted">
               No team members have been invited yet.
             </p>
           )}
         </div>
-      </ClayCard>
+      </Card>
     </EntityListShell>
   );
 }

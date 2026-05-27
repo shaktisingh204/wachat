@@ -22,10 +22,10 @@ import {
   useMemo
 } from 'react';
 
-import { SeoProjectCard } from '@/components/wabasimplify/seo-project-card';
+import { SeoProjectCard } from '@/components/zoruui-domain/seo-project-card';
 import { BarChart, Search, Activity, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getSeoProjects } from '@/app/actions/seo.actions';
-import { CreateSeoProjectDialog } from '@/components/wabasimplify/seo/create-project-dialog';
+import { CreateSeoProjectDialog } from '@/components/zoruui-domain/seo/create-project-dialog';
 import type { SeoProject } from '@/lib/seo/definitions';
 import { deleteSeoProject } from '@/app/actions/seo.actions';
 

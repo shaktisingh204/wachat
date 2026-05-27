@@ -20,7 +20,7 @@ import {
 import { CircleAlert } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { ProjectSettingsForm } from '@/components/wabasimplify/project-settings-form';
+import { ProjectSettingsForm } from '@/components/zoruui-domain/project-settings-form';
 
 import * as React from 'react';
 

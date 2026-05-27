@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from '@/components/zoruui';
 import { useState, useEffect, useMemo } from 'react';
-import EmbeddedSignup from '@/components/wabasimplify/embedded-signup';
+import EmbeddedSignup from '@/components/zoruui-domain/embedded-signup';
 import {
   AlertCircle,
   ArrowRight,

@@ -46,7 +46,7 @@ import {
 import * as React from 'react';
 
 import { Calendar } from '@/components/zoruui';
-import { DATE_PRESETS } from '@/components/wabasimplify/ad-manager/constants';
+import { DATE_PRESETS } from '@/components/zoruui-domain/ad-manager/constants';
 
 /* ── Feature lock overlay ──────────────────────────────────────── */
 
@@ -56,13 +56,13 @@ function MetaFeatureLock() {
     <Card className="mt-6">
       <ZoruCardContent className="flex flex-col items-center justify-center gap-5 py-24 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
-          <Lock className="h-7 w-7 text-muted-foreground" strokeWidth={1.75} />
+          <Lock className="h-7 w-7 text-zoru-ink-muted" strokeWidth={1.75} />
         </div>
         <div>
           <h2 className="text-[20px] font-semibold text-foreground">
             Meta Ads Manager is locked
           </h2>
-          <p className="mt-1.5 max-w-md text-[13px] text-muted-foreground leading-relaxed">
+          <p className="mt-1.5 max-w-md text-[13px] text-zoru-ink-muted leading-relaxed">
             Upgrade your plan to access Facebook & Instagram ad campaigns,
             audiences, creative library, and performance insights.
           </p>
@@ -116,7 +116,7 @@ function DateRangeBar({
                     'text-left text-sm px-2 py-1.5 rounded transition',
                     preset === p.id
                       ? 'bg-primary/10 text-primary font-medium'
-                      : 'hover:bg-muted text-muted-foreground',
+                      : 'hover:bg-zoru-surface-2 text-zoru-ink-muted',
                   )}
                 >
                   {p.label}
@@ -201,7 +201,7 @@ export default function AdManagerLayout({ children }: { children: React.ReactNod
 
           {/* Search */}
           <div className="relative hidden sm:block">
-            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50 z-10" />
+            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle z-10" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}

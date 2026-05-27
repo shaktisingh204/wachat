@@ -2,7 +2,7 @@ import { Button } from '@/components/zoruui';
 import {
   ArrowLeft } from 'lucide-react';
 
-import { EmployeeForm } from '@/components/wabasimplify/crm-employee-form';
+import { EmployeeForm } from '@/components/zoruui-domain/crm-employee-form';
 
 import Link from 'next/link';
 

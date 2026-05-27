@@ -2391,6 +2391,41 @@ export type PlanFeaturePermissions = {
     // Team Features
     teamChat: boolean;
     teamTasks: boolean;
+
+    // §17 Sab-* application gates — one feature key per app surfaced
+    // in the dock rail. Default ON in `planFeaturesDefaults`; admins
+    // can flip per-plan in /dashboard/admin/plans.
+    sabmail: boolean;
+    sabmeet: boolean;
+    sabvoice: boolean;
+    sabsign: boolean;
+    sabwebinar: boolean;
+    sabconnect: boolean;
+    sabvault: boolean;
+    sabsheet: boolean;
+    sabshow: boolean;
+    sabtables: boolean;
+    sabsprints: boolean;
+    sabbugs: boolean;
+    sabrequests: boolean;
+    sabworkerly: boolean;
+    sabpractice: boolean;
+    sabbi: boolean;
+    sabprep: boolean;
+    sabsense: boolean;
+    sabcreator: boolean;
+    sabcatalyst: boolean;
+    sabops: boolean;
+    sabmonitor: boolean;
+    sablens: boolean;
+    sabpublish: boolean;
+    sabbigin: boolean;
+    sabshop: boolean;
+    sabcheckout: boolean;
+    sabdesk: boolean;
+    sabcampaigns: boolean;
+    sabthrive: boolean;
+    sabrewards: boolean;
 };
 
 export type PlanMessageCosts = {

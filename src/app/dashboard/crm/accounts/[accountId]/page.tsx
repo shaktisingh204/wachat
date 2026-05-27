@@ -39,7 +39,7 @@ import Link from 'next/link';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { StatusPill } from '@/components/crm/status-pill';
-import { CrmNotes } from '@/components/wabasimplify/crm-notes';
+import { CrmNotes } from '@/components/zoruui-domain/crm-notes';
 
 import {
     getAccountRelatedCounts,

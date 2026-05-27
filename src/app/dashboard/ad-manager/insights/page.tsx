@@ -36,7 +36,7 @@ import { cn } from '@/lib/utils';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useAdManagerShell } from '@/context/ad-manager-shell-context';
 import { getInsights } from '@/app/actions/ad-manager.actions';
-import { formatMoney, formatNumber, formatPercent } from '@/components/wabasimplify/ad-manager/constants';
+import { formatMoney, formatNumber, formatPercent } from '@/components/zoruui-domain/ad-manager/constants';
 import {
     AmBreadcrumb,
     AmHeader,
@@ -228,8 +228,8 @@ export default function InsightsPage() {
                     : kpis.map((k) => (
                           <Card key={k.label}>
                               <ZoruCardContent className="p-4">
-                                  <k.icon className="h-4 w-4 text-muted-foreground" />
-                                  <div className="mt-2 text-xs text-muted-foreground">{k.label}</div>
+                                  <k.icon className="h-4 w-4 text-zoru-ink-muted" />
+                                  <div className="mt-2 text-xs text-zoru-ink-muted">{k.label}</div>
                                   <div className="text-2xl font-bold tabular-nums">{k.value}</div>
                               </ZoruCardContent>
                           </Card>
@@ -244,7 +244,7 @@ export default function InsightsPage() {
                         type="button"
                         size="sm"
                         variant={activeTab === t.value ? 'default' : 'ghost'}
-                        className={cn('h-8', activeTab === t.value ? '' : 'text-muted-foreground')}
+                        className={cn('h-8', activeTab === t.value ? '' : 'text-zoru-ink-muted')}
                         onClick={() => setActiveTab(t.value)}
                     >
                         {t.label}
@@ -343,7 +343,7 @@ function BreakdownTable({
         <Card className="mt-3">
             <div className="p-3 border-b flex items-center justify-between gap-4">
                 <div className="relative w-64 max-w-sm">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
                     <Input
                         type="search"
                         placeholder="Search breakdown..."
@@ -377,7 +377,7 @@ function BreakdownTable({
                     <ZoruTableBody>
                         {sortedRows.length === 0 ? (
                             <ZoruTableRow>
-                                <ZoruTableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
+                                <ZoruTableCell colSpan={columns.length} className="h-24 text-center text-zoru-ink-muted">
                                     No data for this breakdown.
                                 </ZoruTableCell>
                             </ZoruTableRow>

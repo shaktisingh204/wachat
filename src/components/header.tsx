@@ -6,8 +6,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+} from '@/components/zoruui';
+import { Button } from '@/components/zoruui';
 import { SidebarTrigger } from "./ui/sidebar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 

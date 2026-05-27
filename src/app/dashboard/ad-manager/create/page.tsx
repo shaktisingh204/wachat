@@ -91,12 +91,12 @@ import {
     OBJECTIVES, BID_STRATEGIES, COUNTRIES, CALL_TO_ACTIONS,
     SPECIAL_AD_CATEGORIES, FACEBOOK_POSITIONS, INSTAGRAM_POSITIONS,
     formatMoney, formatNumber,
-} from '@/components/wabasimplify/ad-manager/constants';
+} from '@/components/zoruui-domain/ad-manager/constants';
 import {
     initialFormState, validateStep1, validateStep2, validateStep3,
     type CreateFormState, type ValidationIssue,
-} from '@/components/wabasimplify/ad-manager/create-wizard/form-state';
-import { AdPreviewSwitcher } from '@/components/wabasimplify/ad-manager/create-wizard/ad-previews';
+} from '@/components/zoruui-domain/ad-manager/create-wizard/form-state';
+import { AdPreviewSwitcher } from '@/components/zoruui-domain/ad-manager/create-wizard/ad-previews';
 
 type Step = 1 | 2 | 3;
 
@@ -122,7 +122,7 @@ export default function CreateAdPage() {
         <React.Suspense
             fallback={
                 <div className="flex items-center justify-center min-h-[400px]">
-                    <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                    <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
                 </div>
             }
         >
@@ -447,7 +447,7 @@ function CreateAdForm() {
     if (accountLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
             </div>
         );
     }
@@ -487,7 +487,7 @@ function CreateAdForm() {
                         </Button>
                         <div className="flex-1 min-w-0">
                             <div className="text-sm font-medium truncate">Create new campaign</div>
-                            <div className="text-xs text-muted-foreground truncate">
+                            <div className="text-xs text-zoru-ink-muted truncate">
                                 {state.buyingType} • {activeAccount.name}
                             </div>
                         </div>
@@ -543,7 +543,7 @@ function CreateAdForm() {
                             Previous
                         </Button>
                         <div className="flex items-center gap-2 order-last sm:order-none w-full sm:w-auto justify-center">
-                            <span className="text-xs text-muted-foreground">Step {step} of 3</span>
+                            <span className="text-xs text-zoru-ink-muted">Step {step} of 3</span>
                             <Sheet>
                                 <ZoruSheetTrigger asChild>
                                     <Button
@@ -565,14 +565,14 @@ function CreateAdForm() {
                                         {reach && (
                                             <Card>
                                                 <ZoruCardContent className="p-4 space-y-2">
-                                                    <div className="text-xs text-muted-foreground">Estimated audience</div>
+                                                    <div className="text-xs text-zoru-ink-muted">Estimated audience</div>
                                                     <div className="text-lg font-semibold tabular-nums">
                                                         {formatNumber(reach.lower)} – {formatNumber(reach.upper)}
                                                     </div>
                                                     <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                                                         <div className="h-full w-3/5 bg-gradient-to-r from-amber-400 to-green-500" />
                                                     </div>
-                                                    <div className="flex justify-between text-[10px] text-muted-foreground">
+                                                    <div className="flex justify-between text-[10px] text-zoru-ink-muted">
                                                         <span>Specific</span><span>Broad</span>
                                                     </div>
                                                 </ZoruCardContent>
@@ -610,14 +610,14 @@ function CreateAdForm() {
                         {reach && (
                             <Card>
                                 <ZoruCardContent className="p-3 space-y-1.5">
-                                    <div className="text-[10px] text-muted-foreground">Estimated audience</div>
+                                    <div className="text-[10px] text-zoru-ink-muted">Estimated audience</div>
                                     <div className="text-base font-semibold tabular-nums">
                                         {formatNumber(reach.lower)} – {formatNumber(reach.upper)}
                                     </div>
                                     <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                                         <div className="h-full w-3/5 bg-gradient-to-r from-amber-400 to-green-500" />
                                     </div>
-                                    <div className="flex justify-between text-[9px] text-muted-foreground">
+                                    <div className="flex justify-between text-[9px] text-zoru-ink-muted">
                                         <span>Specific</span><span>Broad</span>
                                     </div>
                                 </ZoruCardContent>
@@ -651,7 +651,7 @@ function StepHeader({ current, setCurrent, max }: { current: Step; setCurrent: (
                                 'flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors',
                                 active && 'bg-[#1877F2] text-white font-medium',
                                 !active && done && 'bg-muted hover:bg-muted/80',
-                                !active && !done && 'text-muted-foreground hover:bg-muted/60',
+                                !active && !done && 'text-zoru-ink-muted hover:bg-muted/60',
                                 s.id > max && 'opacity-50 cursor-not-allowed',
                             )}
                         >
@@ -659,7 +659,7 @@ function StepHeader({ current, setCurrent, max }: { current: Step; setCurrent: (
                                 variant="secondary"
                                 className={cn(
                                     'h-5 w-5 p-0 rounded-full flex items-center justify-center text-[11px] font-semibold',
-                                    active && 'bg-white/20 text-white border-transparent',
+                                    active && 'bg-zoru-bg/20 text-white border-transparent',
                                     !active && done && 'bg-green-500 text-white border-transparent',
                                     !active && !done && 'bg-muted-foreground/20 border-transparent',
                                 )}
@@ -697,7 +697,7 @@ function Section({
                     <Icon className="h-4 w-4 text-[#1877F2]" />
                     <div className="flex-1">
                         <div className="text-sm font-semibold">{title}</div>
-                        {description && <div className="text-xs text-muted-foreground mt-0.5">{description}</div>}
+                        {description && <div className="text-xs text-zoru-ink-muted mt-0.5">{description}</div>}
                     </div>
                 </ZoruCollapsibleTrigger>
                 <ZoruCollapsibleContent>
@@ -733,7 +733,7 @@ function Step1Campaign({
         <>
             <div>
                 <h2 className="text-xl font-semibold">Choose a campaign objective</h2>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-zoru-ink-muted mt-1">
                     Tell Meta what result you want so it can optimize delivery for you.
                 </p>
             </div>
@@ -756,7 +756,7 @@ function Step1Campaign({
                             <span className="font-medium">{obj.label}</span>
                             {state.objective === obj.id && <Check className="ml-auto h-4 w-4 text-[#1877F2]" />}
                         </div>
-                        <p className="text-xs text-muted-foreground">{obj.description}</p>
+                        <p className="text-xs text-zoru-ink-muted">{obj.description}</p>
                     </button>
                 ))}
             </div>
@@ -800,7 +800,7 @@ function Step1Campaign({
                 <div className="flex items-center gap-4">
                     <div className="flex-1">
                         <div className="text-sm font-medium">Advantage+ campaign budget</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-zoru-ink-muted">
                             Distribute your budget across ad sets for best results.
                         </div>
                     </div>
@@ -1092,7 +1092,7 @@ function Step2AdSet({
                 <div className="flex items-center gap-4">
                     <div className="flex-1">
                         <div className="text-sm font-medium">Advantage+ audience</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-zoru-ink-muted">
                             Let Meta find your audience automatically. Recommended for most campaigns.
                         </div>
                     </div>
@@ -1191,7 +1191,7 @@ function Step2AdSet({
                                 })}
                             </div>
                             <FieldError issue={err('countries')} />
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
+                            <div className="flex items-center gap-2 text-xs text-zoru-ink-muted mt-2">
                                 Include:
                                 {['home', 'recent', 'travel_in'].map((lt) => (
                                     <label key={lt} className="flex items-center gap-1">
@@ -1222,7 +1222,7 @@ function Step2AdSet({
                                         onChange={(e) => setField('minAge', Number(e.target.value))}
                                         className="w-20"
                                     />
-                                    <span className="text-muted-foreground">to</span>
+                                    <span className="text-zoru-ink-muted">to</span>
                                     <Input
                                         type="number"
                                         value={state.maxAge}
@@ -1294,7 +1294,7 @@ function Step2AdSet({
                 <div className="flex items-center gap-4">
                     <div className="flex-1">
                         <div className="text-sm font-medium">Advantage+ placements</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-zoru-ink-muted">
                             Show your ads where they're likely to perform best. Recommended.
                         </div>
                     </div>
@@ -1486,7 +1486,7 @@ function DetailedTargetingPicker({
             <Label>{label}</Label>
             <Popover open={open} onOpenChange={setOpen}>
                 <ZoruPopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-muted-foreground font-normal">
+                    <Button variant="outline" className="w-full justify-start text-zoru-ink-muted font-normal">
                         Search interests, behaviors, demographics…
                     </Button>
                 </ZoruPopoverTrigger>
@@ -1511,7 +1511,7 @@ function DetailedTargetingPicker({
                                         >
                                             <Check className={cn('h-4 w-4 mr-2', sel ? 'opacity-100' : 'opacity-0')} />
                                             <span className="flex-1">{r.name}</span>
-                                            <span className="text-[10px] text-muted-foreground ml-2">
+                                            <span className="text-[10px] text-zoru-ink-muted ml-2">
                                                 {r.audience_size_lower_bound ? formatNumber(r.audience_size_lower_bound) : ''}
                                             </span>
                                         </ZoruCommandItem>
@@ -1614,7 +1614,7 @@ function Step3Ad({
                 <div className="flex items-center gap-4">
                     <div className="flex-1">
                         <div className="text-sm font-medium">Use an existing post</div>
-                        <div className="text-xs text-muted-foreground">Promote a post you already published.</div>
+                        <div className="text-xs text-zoru-ink-muted">Promote a post you already published.</div>
                     </div>
                     <Switch
                         checked={state.useExistingPost}
@@ -1705,9 +1705,9 @@ function Step3Ad({
                                                 </div>
                                             ) : (
                                                 <div className="relative">
-                                                    <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+                                                    <Upload className="h-10 w-10 mx-auto text-zoru-ink-muted mb-2" />
                                                     <p className="text-sm font-medium">Drag & drop or click to upload</p>
-                                                    <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 30MB</p>
+                                                    <p className="text-xs text-zoru-ink-muted mt-1">PNG, JPG up to 30MB</p>
                                                     <input
                                                         type="file"
                                                         accept="image/*"

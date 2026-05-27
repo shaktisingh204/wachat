@@ -1,15 +1,13 @@
 'use client';
 
-import { Button, Input, Label, Switch } from '@/components/zoruui';
+import { Button, Input, Label, Switch, Card, useZoruToast } from '@/components/zoruui';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   LoaderCircle,
   Save } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { useToast } from '@/hooks/use-toast';
 import { saveProposalTemplate } from '@/app/actions/worksuite/proposals.actions';
 import {
   ProposalComposer,
@@ -35,7 +33,7 @@ export interface TemplateEditorInitial {
 
 export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial }) {
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const [name, setName] = useState(initial?.name || '');
   const [title, setTitle] = useState(initial?.title || '');
@@ -103,7 +101,7 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
       subtitle="Reusable proposal template. Skip the client picker — apply it later."
     >
 
-      <ClayCard>
+      <Card className="p-6">
         <div className="grid gap-4 md:grid-cols-3">
           <div>
             <Label className="text-foreground">Template Name</Label>
@@ -146,9 +144,9 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
             Require e-signature on acceptance
           </Label>
         </div>
-      </ClayCard>
+      </Card>
 
-      <ClayCard>
+      <Card className="p-6">
         <ProposalComposer
           lines={lines}
           onLinesChange={setLines}
@@ -160,7 +158,7 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
           onTermsChange={setTerms}
           currency={currency}
         />
-      </ClayCard>
+      </Card>
 
       <div className="flex flex-wrap justify-end gap-2">
         <Button

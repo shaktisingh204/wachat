@@ -2,8 +2,8 @@ import "@/styles/zoruui.css";
 import React from 'react';
 import { redirect } from 'next/navigation';
 import { getAdminSession } from '@/lib/admin-session';
-import { AdminSidebarNav } from '@/components/wabasimplify/admin-sidebar-nav';
-import { AdminTopBar } from '@/components/wabasimplify/admin-top-bar';
+import { AdminSidebarNav } from '@/components/zoruui-domain/admin-sidebar-nav';
+import { AdminTopBar } from '@/components/zoruui-domain/admin-top-bar';
 
 export const dynamic = 'force-dynamic';
 

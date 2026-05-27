@@ -1,7 +1,7 @@
 /**
  * Local Meta Suite icons (zoru-only).
  *
- * Replaces visual imports from `@/components/wabasimplify/custom-sidebar-components`.
+ * Replaces visual imports from `@/components/zoruui-domain/custom-sidebar-components`.
  * All icons render with `currentColor` so they inherit the zoru ink token.
  */
 

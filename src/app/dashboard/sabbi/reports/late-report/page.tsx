@@ -27,7 +27,7 @@ import {
 } from '@/app/actions/crm-reports.actions';
 import { getOverdueTasksDeep } from '@/app/actions/worksuite/reports.actions';
 import { OverdueTasksClient } from '../overdue-tasks/_components/overdue-tasks-client';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger } from '@/components/zoruui';
 
 interface PageProps {
   searchParams: Promise<{
@@ -139,11 +139,11 @@ export default async function LateReportPage(props: PageProps) {
       }
     >
       <Tabs defaultValue={sp.view === 'tasks' ? 'tasks' : 'all'} className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="all">All Late Items</TabsTrigger>
-          <TabsTrigger value="tasks">Overdue Tasks Details</TabsTrigger>
-        </TabsList>
-        <TabsContent value="all" className="space-y-4">
+        <ZoruTabsList className="mb-4">
+          <ZoruTabsTrigger value="all">All Late Items</ZoruTabsTrigger>
+          <ZoruTabsTrigger value="tasks">Overdue Tasks Details</ZoruTabsTrigger>
+        </ZoruTabsList>
+        <ZoruTabsContent value="all" className="space-y-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
               label="Total late items"
@@ -267,8 +267,8 @@ export default async function LateReportPage(props: PageProps) {
               </Table>
             </div>
           </Card>
-        </TabsContent>
-        <TabsContent value="tasks" className="space-y-4">
+        </ZoruTabsContent>
+        <ZoruTabsContent value="tasks" className="space-y-4">
           <OverdueTasksClient
             data={overdueTasksData}
             filters={{
@@ -277,7 +277,7 @@ export default async function LateReportPage(props: PageProps) {
               maxDays: sp.maxDays,
             }}
           />
-        </TabsContent>
+        </ZoruTabsContent>
       </Tabs>
     </EntityListShell>
   );

@@ -3,11 +3,10 @@
 import Link from 'next/link';
 import { m, useScroll, useTransform } from 'motion/react';
 import { useEffect, useState } from 'react';
-import { ArrowRight, Menu, X } from 'lucide-react';
+import { ArrowRight, ChevronDown, Menu, X } from 'lucide-react';
+import { MegaMenu } from './mega-menu';
 
 const links = [
-    { label: 'Products', href: '#modules' },
-    { label: 'SabChat', href: '#sabchat' },
     { label: 'How it works', href: '#how' },
     { label: 'Pricing', href: '#pricing' },
     { label: 'Customers', href: '#proof' },
@@ -18,14 +17,15 @@ export function LandingNav({ session }: { session?: { user?: unknown } | null })
     const bg = useTransform(scrollY, [0, 80], ['rgba(255,255,255,0)', 'rgba(255,255,255,0.78)']);
     const blur = useTransform(scrollY, [0, 80], ['blur(0px)', 'blur(18px)']);
     const border = useTransform(scrollY, [0, 80], ['rgba(24,24,27,0)', 'rgba(24,24,27,0.08)']);
-    const [open, setOpen] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [megaOpen, setMegaOpen] = useState(false);
 
     useEffect(() => {
-        document.body.style.overflow = open ? 'hidden' : '';
+        document.body.style.overflow = mobileOpen ? 'hidden' : '';
         return () => {
             document.body.style.overflow = '';
         };
-    }, [open]);
+    }, [mobileOpen]);
 
     return (
         <>
@@ -47,6 +47,19 @@ export function LandingNav({ session }: { session?: { user?: unknown } | null })
                     </Link>
 
                     <div className="hidden items-center gap-1 md:flex">
+                        <button
+                            type="button"
+                            onMouseEnter={() => setMegaOpen(true)}
+                            onClick={() => setMegaOpen((v) => !v)}
+                            aria-expanded={megaOpen}
+                            aria-haspopup="true"
+                            className="relative inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-sm font-medium text-zinc-600 transition hover:text-zinc-900"
+                        >
+                            <span>Products</span>
+                            <ChevronDown
+                                className={`h-3.5 w-3.5 transition ${megaOpen ? 'rotate-180' : 'rotate-0'}`}
+                            />
+                        </button>
                         {links.map((l) => (
                             <Link
                                 key={l.href}
@@ -86,35 +99,44 @@ export function LandingNav({ session }: { session?: { user?: unknown } | null })
                     <button
                         type="button"
                         aria-label="Open menu"
-                        onClick={() => setOpen((v) => !v)}
+                        onClick={() => setMobileOpen((v) => !v)}
                         className="grid h-9 w-9 place-items-center rounded-full text-zinc-700 transition hover:bg-zinc-900/5 md:hidden"
                     >
-                        {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                        {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                     </button>
                 </nav>
             </m.header>
 
+            {/* desktop mega menu */}
+            <MegaMenu open={megaOpen} onClose={() => setMegaOpen(false)} />
+
+            {/* mobile menu */}
             <m.div
                 initial={false}
-                animate={open ? { opacity: 1, pointerEvents: 'auto' } : { opacity: 0, pointerEvents: 'none' }}
+                animate={mobileOpen ? { opacity: 1, pointerEvents: 'auto' } : { opacity: 0, pointerEvents: 'none' }}
                 transition={{ duration: 0.2 }}
-                className="fixed inset-0 z-40 bg-white/90 backdrop-blur-xl md:hidden"
+                className="fixed inset-0 z-40 bg-white/95 backdrop-blur-xl md:hidden"
             >
                 <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center gap-6 px-6">
-                    {links.map((l, i) => (
-                        <m.div
+                    <Link
+                        onClick={() => setMobileOpen(false)}
+                        href="#modules"
+                        className="text-2xl font-semibold text-zinc-900"
+                    >
+                        Products
+                    </Link>
+                    {links.map((l) => (
+                        <Link
                             key={l.href}
-                            initial={{ opacity: 0, y: 12 }}
-                            animate={open ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-                            transition={{ delay: i * 0.05 }}
+                            onClick={() => setMobileOpen(false)}
+                            href={l.href}
+                            className="text-2xl font-semibold text-zinc-900"
                         >
-                            <Link onClick={() => setOpen(false)} href={l.href} className="text-2xl font-semibold text-zinc-900">
-                                {l.label}
-                            </Link>
-                        </m.div>
+                            {l.label}
+                        </Link>
                     ))}
                     <Link
-                        onClick={() => setOpen(false)}
+                        onClick={() => setMobileOpen(false)}
                         href={session?.user ? '/dashboard' : '/login?signup=1'}
                         className="mt-6 rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-orange-500/30"
                     >

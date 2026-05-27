@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import { CampaignsHub } from '@/components/wabasimplify/ad-manager/campaigns-hub';
+import { CampaignsHub } from '@/components/zoruui-domain/ad-manager/campaigns-hub';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { Alert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { AmBreadcrumb } from '@/app/dashboard/ad-manager/_components/am-page-shell';
@@ -43,7 +43,7 @@ export default function AdsListPage() {
         <Suspense 
           fallback={
             <div className="flex h-[200px] items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
             </div>
           }
         >

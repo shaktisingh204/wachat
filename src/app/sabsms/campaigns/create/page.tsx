@@ -26,19 +26,35 @@ import {
   ExternalLink
 } from "lucide-react"
 
-import { PageHeader } from "@/components/ui/page-header"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Link from "next/link"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
+import {
+  PageHeader,
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  Accordion,
+  ZoruAccordionItem as AccordionItem,
+  ZoruAccordionTrigger as AccordionTrigger,
+  ZoruAccordionContent as AccordionContent,
+  Button,
+  Input,
+  Label,
+  Textarea,
+  Switch,
+  Badge,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  cn,
+} from "@/components/zoruui"
 
 const MOCK_SEGMENTS = [
   { id: 'seg-1', name: 'High Value Customers', count: 12450, lastSync: '2 hours ago', type: 'Dynamic', engagement: 'High' },

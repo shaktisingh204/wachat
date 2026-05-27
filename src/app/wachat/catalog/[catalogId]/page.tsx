@@ -61,8 +61,8 @@ import {
   } from '@/app/actions/catalog.actions';
 import type { ProductSet } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
-import { CreateCollectionDialog } from '@/components/wabasimplify/create-collection-dialog';
-import { DeleteCollectionButton } from '@/components/wabasimplify/delete-collection-button';
+import { CreateCollectionDialog } from '@/components/zoruui-domain/create-collection-dialog';
+import { DeleteCollectionButton } from '@/components/zoruui-domain/delete-collection-button';
 
 const ProductsTable = ({
   products,

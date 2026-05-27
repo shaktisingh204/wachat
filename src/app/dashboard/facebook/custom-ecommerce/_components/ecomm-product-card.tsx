@@ -29,7 +29,7 @@ import type { EcommProduct,
 import type { WithId } from "mongodb";
 
 /**
- * Zoru-only replacement for `@/components/wabasimplify/ecomm-product-card`.
+ * Zoru-only replacement for `@/components/zoruui-domain/ecomm-product-card`.
  *
  * Same data shape and same `deleteEcommProduct` server action — visuals are
  * rebuilt with Card, Badge, Button, and ZoruAlertDialog.

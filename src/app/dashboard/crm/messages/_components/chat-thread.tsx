@@ -1,14 +1,11 @@
 'use client';
 
-import { Button, Textarea, Input } from '@/components/zoruui';
+import { Button, Textarea, Input, Card, useZoruToast } from '@/components/zoruui';
 import { Paperclip, Send, LoaderCircle, Download, Check, CheckCheck } from 'lucide-react';
-
-import { ClayCard } from '@/components/clay';
 
 import * as React from 'react';
 
 import { SabFileUrlInput } from '@/components/sabfiles';
-import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
   sendMessage,
@@ -47,7 +44,7 @@ interface PendingFile {
 }
 
 export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatThreadProps) {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [messages, setMessages] = React.useState<ThreadMessage[]>(initialMessages);
   const [draft, setDraft] = React.useState('');
   const [fileUrl, setFileUrl] = React.useState('');
@@ -177,13 +174,13 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
   };
 
   return (
-    <ClayCard padded={false} className="flex min-h-[480px] flex-col">
-      <div className="border-b border-border px-5 py-3 flex justify-between items-center">
+    <Card className="flex min-h-[480px] flex-col p-0">
+      <div className="border-b border-zoru-line px-5 py-3 flex justify-between items-center">
         <div>
-          <p className="text-[12.5px] text-muted-foreground">Conversation with</p>
-          <p className="truncate text-[14px] font-medium text-foreground flex items-center gap-2">
+          <p className="text-[12.5px] text-zoru-ink-muted">Conversation with</p>
+          <p className="truncate text-[14px] font-medium text-zoru-ink flex items-center gap-2">
             {peerUserId}
-            <span className="w-2 h-2 rounded-full bg-green-500 inline-block" title="Online status indicator"></span>
+            <span className="w-2 h-2 rounded-full bg-zoru-success inline-block" title="Online status indicator"></span>
           </p>
         </div>
       </div>
@@ -197,7 +194,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
           </div>
         )}
         {messages.length === 0 ? (
-          <p className="py-10 text-center text-[12.5px] text-muted-foreground">
+          <p className="py-10 text-center text-[12.5px] text-zoru-ink-muted">
             No messages yet. Say hi.
           </p>
         ) : (
@@ -212,8 +209,8 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
                   className={cn(
                     'max-w-[80%] rounded-lg px-3 py-2 text-[13px] leading-snug',
                     own
-                      ? 'bg-accent text-accent-foreground'
-                      : 'bg-secondary text-foreground',
+                      ? 'bg-zoru-ink text-white'
+                      : 'bg-zoru-surface-2 text-zoru-ink',
                   )}
                 >
                   {m.message ? (
@@ -238,11 +235,11 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
                   ) : null}
                 </div>
                 <div className="mt-1 px-1 flex items-center gap-1">
-                  <span className="text-[10.5px] text-muted-foreground">
+                  <span className="text-[10.5px] text-zoru-ink-muted">
                     {formatStamp(m.createdAt)}
                   </span>
                   {own && !m.isOptimistic && (
-                    m.is_read ? <CheckCheck className="h-3 w-3 text-blue-500" /> : <Check className="h-3 w-3 text-muted-foreground" />
+                    m.is_read ? <CheckCheck className="h-3 w-3 text-zoru-ink" /> : <Check className="h-3 w-3 text-zoru-ink-muted" />
                   )}
                 </div>
               </div>
@@ -251,7 +248,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
         )}
         {typing && (
           <div className="flex flex-col items-start">
-            <div className="bg-secondary text-foreground max-w-[80%] rounded-lg px-3 py-2 text-[13px] leading-snug">
+            <div className="bg-zoru-surface-2 text-zoru-ink max-w-[80%] rounded-lg px-3 py-2 text-[13px] leading-snug">
               <span className="animate-pulse">Typing...</span>
             </div>
           </div>
@@ -268,14 +265,14 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
             {pending.map((p, i) => (
               <li
                 key={i}
-                className="flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-2 py-1 text-[11.5px] text-foreground"
+                className="flex items-center gap-1.5 rounded-lg border border-zoru-line bg-zoru-surface-2 px-2 py-1 text-[11.5px] text-zoru-ink"
               >
                 <Paperclip className="h-3 w-3" />
                 <span className="max-w-[160px] truncate">{p.filename}</span>
                 <button
                   type="button"
                   onClick={() => removePending(i)}
-                  className="text-destructive"
+                  className="text-zoru-danger-ink"
                   aria-label="Remove attachment"
                 >
                   ×
@@ -290,14 +287,14 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
           onChange={handleTyping}
           placeholder="Write a message…"
           rows={2}
-          className="rounded-lg border-border bg-card text-[13px]"
+          className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
         />
         <div className="flex flex-wrap items-center gap-2">
           <Input
             value={fileName}
             onChange={(e) => setFileName(e.target.value)}
             placeholder="File name (optional)"
-            className="h-8 w-44 rounded-lg border-border bg-card text-[12px]"
+            className="h-8 w-44 rounded-lg border-zoru-line bg-zoru-bg text-[12px]"
           />
           <SabFileUrlInput
             value={fileUrl}
@@ -337,6 +334,6 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
           </Button>
         </div>
       </form>
-    </ClayCard>
+    </Card>
   );
 }

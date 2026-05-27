@@ -45,7 +45,7 @@ import type {
 import type { WithId } from "mongodb";
 
 /**
- * Zoru-only replacement for `@/components/wabasimplify/ecomm-product-dialog`.
+ * Zoru-only replacement for `@/components/zoruui-domain/ecomm-product-dialog`.
  *
  * Same external props (`isOpen`, `onOpenChange`, `shop`, `product`,
  * `onSuccess`) and the same `saveEcommProduct` server action — only the

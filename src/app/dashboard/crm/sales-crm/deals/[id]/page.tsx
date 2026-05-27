@@ -27,7 +27,7 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { LineageRail } from '@/components/crm/lineage-rail';
-import { CrmNotes } from '@/components/wabasimplify/crm-notes';
+import { CrmNotes } from '@/components/zoruui-domain/crm-notes';
 import { getCrmDealById, getCrmDealRelatedCounts } from '@/app/actions/crm-deals.actions';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';

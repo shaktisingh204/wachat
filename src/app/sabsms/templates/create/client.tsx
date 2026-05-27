@@ -1,30 +1,32 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
-  CardContent, 
-  CardFooter 
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  Input,
+  Textarea,
+  Button,
+  Label,
+  Badge,
+  ScrollArea,
+  Alert,
+  AlertDescription,
+  AlertTitle,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+  ZoruResizablePanelGroup as ResizablePanelGroup,
+  ZoruResizablePanel as ResizablePanel,
+  ZoruResizableHandle as ResizableHandle,
+} from "@/components/zoruui";
 import { 
   MessageSquare, 
   Save, 

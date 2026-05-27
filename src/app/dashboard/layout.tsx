@@ -6,7 +6,7 @@ import {
 
 import { getCachedSession,
   getCachedProjects } from "@/lib/server-cache";
-import { RBACGuard } from "@/components/wabasimplify/rbac-guard";
+import { RBACGuard } from "@/components/zoruui-domain/rbac-guard";
 
 /**
  * /dashboard layout — the SabNode account dashboard, on ZoruUI.

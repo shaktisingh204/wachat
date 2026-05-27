@@ -60,6 +60,8 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { Dock, DockIcon, type DockAccent } from "@/components/ui/dock";
 import { useTabsOptional } from "@/components/tabs";
 import { cn } from "@/lib/utils";
+import { ZoruCollapsible, ZoruCollapsibleContent, ZoruCollapsibleTrigger } from "@/components/zoruui";
+import { ChevronRight } from "lucide-react";
 
 const COLLAPSED_KEY = "sabnode:two-line-sidebar:collapsed";
 
@@ -525,36 +527,46 @@ function MenuRow({
   collapsed,
   isActive,
   hue,
+  pathname,
 }: {
   item: ConfigMenuItem;
   collapsed: boolean;
   isActive: boolean;
   hue: ModuleHue;
+  pathname?: string | null;
 }) {
   const Icon = item.icon as React.FC<{ className?: string; size?: number }> | undefined;
+  
+  const isSubItemOpen = !!(item.subItems && item.subItems.some(s => pathname && (s.exact ? pathname === s.href : pathname.startsWith(s.href))));
+  const [open, setOpen] = React.useState(isActive || isSubItemOpen);
+  
+  React.useEffect(() => {
+    if (isActive || isSubItemOpen) setOpen(true);
+  }, [isActive, isSubItemOpen]);
+
   const inner = (
     <div
       className={cn(
-        "rounded-lg flex items-center transition-all duration-150 group/row",
-        isActive
+        "rounded-lg flex items-center transition-all duration-150 group/row relative",
+        isActive && !item.subItems
           ? cn(
               "text-white shadow-md ring-1 ring-white/20",
               "bg-gradient-to-r", hue.gradient,
             )
           : cn("text-zinc-700 hover:text-zinc-900", hue.hoverSoft),
-        collapsed ? "w-9 min-w-9 h-9 justify-center p-0" : "w-full h-9 px-2.5",
+        collapsed ? "w-9 min-w-9 h-9 justify-center p-0" : "w-full min-h-9 px-2.5 py-1",
       )}
       title={collapsed ? item.label : undefined}
     >
       <span className="flex items-center justify-center shrink-0 w-4 h-4">
         {Icon ? (
-          <Icon className={cn("h-4 w-4", isActive ? "text-white" : hue.titleInk)} size={16} />
+          <Icon className={cn("h-4 w-4", (isActive && !item.subItems) ? "text-white" : hue.titleInk)} size={16} />
         ) : (
           <span
             aria-hidden="true"
             className={cn(
               "block h-1.5 w-1.5 rounded-full",
-              isActive ? "bg-white/80" : cn("bg-gradient-to-br", hue.gradient, "opacity-70"),
+              (isActive && !item.subItems) ? "bg-white/80" : cn("bg-gradient-to-br", hue.gradient, "opacity-70"),
             )}
           />
         )}
@@ -565,13 +577,13 @@ function MenuRow({
           collapsed ? "opacity-0 w-0" : "opacity-100 ml-2.5",
         )}
       >
-        <span className="text-[12.5px] leading-[18px] truncate flex items-center gap-1.5 font-medium">
-          <span className="truncate">{item.label}</span>
+        <span className="text-[12.5px] leading-[18px] flex items-center gap-1.5 font-medium">
+          <span className="truncate flex-1 text-left">{item.label}</span>
           {item.beta && (
             <span
               className={cn(
                 "rounded-full text-[9px] px-1.5 py-0.5 uppercase tracking-wide font-bold",
-                isActive ? "bg-white/25 text-white" : "bg-zinc-200/80 text-zinc-700",
+                (isActive && !item.subItems) ? "bg-white/25 text-white" : "bg-zinc-200/80 text-zinc-700",
               )}
             >
               beta
@@ -581,7 +593,7 @@ function MenuRow({
             <span
               className={cn(
                 "rounded-full text-[9px] px-1.5 py-0.5 uppercase tracking-wide font-bold",
-                isActive
+                (isActive && !item.subItems)
                   ? "bg-white/25 text-white"
                   : "bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-sm",
               )}
@@ -591,8 +603,39 @@ function MenuRow({
           )}
         </span>
       </span>
+      {item.subItems && !collapsed && (
+        <ChevronRight className={cn("w-3.5 h-3.5 ml-1 transition-transform", open ? "rotate-90" : "", (isActive && !item.subItems) ? "text-white" : "text-zinc-400")} />
+      )}
     </div>
   );
+
+  if (item.subItems) {
+    return (
+      <ZoruCollapsible open={open} onOpenChange={setOpen} className="w-full">
+        <ZoruCollapsibleTrigger asChild>
+          <button className="block w-full outline-none">{inner}</button>
+        </ZoruCollapsibleTrigger>
+        <ZoruCollapsibleContent className="data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden">
+          <div className="flex flex-col gap-0.5 w-full pl-6 pt-1">
+            {item.subItems.map(sub => {
+              const isSubActive = !!(sub.href && pathname && (sub.exact ? pathname === sub.href : pathname.startsWith(sub.href)));
+              return (
+                <MenuRow
+                  key={`${item.label}-${sub.label}`}
+                  item={sub}
+                  collapsed={collapsed}
+                  isActive={isSubActive}
+                  hue={hue}
+                  pathname={pathname}
+                />
+              );
+            })}
+          </div>
+        </ZoruCollapsibleContent>
+      </ZoruCollapsible>
+    );
+  }
+
   if (item.href) {
     return (
       <Link href={item.href} className="block w-full" aria-current={isActive ? "page" : undefined}>
@@ -642,6 +685,7 @@ function SectionBlock({
             item={item}
             collapsed={collapsed}
             hue={hue}
+            pathname={pathname}
             isActive={
               !!(item.href && pathname &&
                 (item.exact ? pathname === item.href : pathname.startsWith(item.href)))

@@ -25,8 +25,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Eye, MousePointer2, Users } from 'lucide-react';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage, Button } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 const STORAGE_KEY = 'sabflow:presence-sidebar:open';

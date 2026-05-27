@@ -1,5 +1,5 @@
-import { ClayCard } from '@/components/clay';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ClayCard } from '@/components/zoruui-domain';
+import { Skeleton } from '@/components/zoruui';
 
 export default function Loading() {
   return (

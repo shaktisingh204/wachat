@@ -14,7 +14,7 @@ import {
 } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getEWayBill } from '@/app/actions/crm-india-eway.actions';
-import { QrCodeRenderer } from '@/components/wabasimplify/qr-code-renderer';
+import { QrCodeRenderer } from '@/components/zoruui-domain/qr-code-renderer';
 
 import { EWayBillRowActions } from '../_components/row-actions';
 import { ValidityCountdown } from '../_components/validity-countdown';

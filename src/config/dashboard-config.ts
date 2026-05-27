@@ -9,7 +9,7 @@ import {
     Cable, Activity, UserCheck, Building2, DollarSign, ClipboardList, UserCog,
     Workflow, MessageSquareText, UsersRound, Target, LayoutTemplate, BriefcaseBusiness,
 } from 'lucide-react';
-import { MetaIcon, WhatsAppIcon, SeoIcon, InstagramIcon, SabChatIcon, TelegramIcon, CrmIcon, SabWaIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { MetaIcon, WhatsAppIcon, SeoIcon, InstagramIcon, SabChatIcon, TelegramIcon, CrmIcon, SabWaIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 import React from 'react';
 
 export interface MenuItem {
@@ -247,6 +247,31 @@ export const hrmMenuGroups: MenuGroup[] = [
         ]
     },
     {
+        title: "Core HR & People",
+        items: [
+            {
+                href: "/dashboard/hrm/payroll/employees", label: "Employee Directory", icon: UsersIcon, permissionKey: 'crm_employees',
+                subItems: [
+                    { href: "/dashboard/hrm/hr/directory", label: "Public Directory", permissionKey: 'crm_employees' },
+                    { href: "/dashboard/hrm/hr/org-chart", label: "Org Chart", permissionKey: 'crm_employees' }
+                ]
+            },
+            {
+                href: "/dashboard/hrm/hr/onboarding", label: "Onboarding & Exits", icon: UserCheck, permissionKey: 'crm_employees',
+                subItems: [
+                    { href: "/dashboard/hrm/hr/probation", label: "Probation", permissionKey: 'crm_employees' },
+                    { href: "/dashboard/hrm/hr/exits", label: "Exit Management", permissionKey: 'crm_employees' }
+                ]
+            },
+            {
+                href: "/dashboard/hrm/payroll/departments", label: "Organization", icon: Building2, permissionKey: 'crm_employees',
+                subItems: [
+                    { href: "/dashboard/hrm/payroll/designations", label: "Designations", permissionKey: 'crm_employees' }
+                ]
+            }
+        ]
+    },
+    {
         title: "Recruitment",
         items: [
             { href: "/dashboard/hrm/hr/jobs", label: "Job Postings", icon: Briefcase, permissionKey: 'crm_employees' },
@@ -257,83 +282,77 @@ export const hrmMenuGroups: MenuGroup[] = [
         ]
     },
     {
-        title: "People",
+        title: "Payroll & Attendance",
         items: [
-            { href: "/dashboard/hrm/payroll/employees", label: "Employee Directory", icon: UsersIcon, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/hr/onboarding", label: "Onboarding", icon: UserCheck, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/hr/probation", label: "Probation", icon: ShieldCheck, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/hr/directory", label: "Directory", icon: Users, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/hr/org-chart", label: "Org Chart", icon: Building2, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/payroll/departments", label: "Departments", icon: Building2, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/payroll/designations", label: "Designations", icon: UserCog, permissionKey: 'crm_employees' },
+            {
+                href: "/dashboard/hrm/payroll/payroll", label: "Payroll", icon: DollarSign, permissionKey: 'crm_payroll',
+                subItems: [
+                    { href: "/dashboard/hrm/payroll/payslips", label: "Payslips", permissionKey: 'crm_payroll' },
+                    { href: "/dashboard/hrm/payroll/salary-structure", label: "Salary Structure", permissionKey: 'crm_payroll' },
+                    { href: "/dashboard/hrm/payroll/reports", label: "Payroll Reports", permissionKey: 'crm_payroll' }
+                ]
+            },
+            {
+                href: "/dashboard/hrm/payroll/attendance", label: "Attendance", icon: Calendar, permissionKey: 'crm_attendance',
+                subItems: [
+                    { href: "/dashboard/hrm/payroll/leave", label: "Leaves", permissionKey: 'crm_attendance' },
+                    { href: "/dashboard/hrm/payroll/holidays", label: "Holidays", permissionKey: 'crm_attendance' }
+                ]
+            },
+            {
+                href: "/dashboard/hrm/payroll/shifts", label: "Shifts", icon: Repeat, permissionKey: 'crm_attendance',
+                subItems: [
+                    { href: "/dashboard/hrm/payroll/shift-rotations", label: "Shift Rotations", permissionKey: 'crm_attendance' },
+                    { href: "/dashboard/hrm/payroll/shift-change-requests", label: "Shift Changes", permissionKey: 'crm_attendance' }
+                ]
+            },
+            {
+                href: "/dashboard/hrm/payroll/pf-esi", label: "Compliance & Taxes", icon: ShieldCheck, permissionKey: 'crm_payroll',
+                subItems: [
+                    { href: "/dashboard/hrm/payroll/tds", label: "TDS", permissionKey: 'crm_payroll' },
+                    { href: "/dashboard/hrm/payroll/professional-tax", label: "Professional Tax", permissionKey: 'crm_payroll' },
+                    { href: "/dashboard/hrm/payroll/form-16", label: "Form 16", permissionKey: 'crm_payroll' }
+                ]
+            }
         ]
     },
     {
-        title: "Payroll & Compliance",
+        title: "Performance & Assets",
         items: [
-            { href: "/dashboard/hrm/payroll/payroll", label: "Payroll", icon: DollarSign, permissionKey: 'crm_payroll' },
-            { href: "/dashboard/hrm/payroll/payslips", label: "Payslips", icon: FileText, permissionKey: 'crm_payroll' },
-            { href: "/dashboard/hrm/payroll/salary-structure", label: "Salary Structure", icon: ClipboardList, permissionKey: 'crm_payroll' },
-            { href: "/dashboard/hrm/payroll/pf-esi", label: "PF & ESI", icon: ShieldCheck, permissionKey: 'crm_payroll' },
-            { href: "/dashboard/hrm/payroll/tds", label: "TDS", icon: FileText, permissionKey: 'crm_payroll' },
-            { href: "/dashboard/hrm/payroll/professional-tax", label: "Professional Tax", icon: FileText, permissionKey: 'crm_payroll' },
-            { href: "/dashboard/hrm/payroll/form-16", label: "Form 16", icon: FileText, permissionKey: 'crm_payroll' },
+            {
+                href: "/dashboard/hrm/payroll/goal-setting", label: "Performance", icon: BarChart2, permissionKey: 'crm_employees',
+                subItems: [
+                    { href: "/dashboard/hrm/hr/feedback-360", label: "360 Feedback", permissionKey: 'crm_employees' },
+                    { href: "/dashboard/hrm/payroll/appraisal-reviews", label: "Appraisals", permissionKey: 'crm_employees' },
+                    { href: "/dashboard/hrm/payroll/kpi-tracking", label: "KPI Tracking", permissionKey: 'crm_employees' }
+                ]
+            },
+            {
+                href: "/dashboard/hrm/hr/training", label: "Learning", icon: BookCopy, permissionKey: 'crm_employees',
+                subItems: [
+                    { href: "/dashboard/hrm/hr/certifications", label: "Certifications", permissionKey: 'crm_employees' },
+                    { href: "/dashboard/hrm/hr/learning-paths", label: "Learning Paths", permissionKey: 'crm_employees' }
+                ]
+            },
+            {
+                href: "/dashboard/hrm/hr/documents", label: "Documents & Assets", icon: FileText, permissionKey: 'crm_employees',
+                subItems: [
+                    { href: "/dashboard/hrm/hr/document-templates", label: "Templates", permissionKey: 'crm_employees' },
+                    { href: "/dashboard/hrm/hr/assets", label: "Assets", permissionKey: 'crm_employees' },
+                    { href: "/dashboard/hrm/hr/asset-assignments", label: "Asset Assignments", permissionKey: 'crm_employees' }
+                ]
+            },
+            {
+                href: "/dashboard/hrm/hr/recognition", label: "Engagement", icon: Users, permissionKey: 'crm_employees',
+                subItems: [
+                    { href: "/dashboard/hrm/hr/surveys", label: "Surveys", permissionKey: 'crm_employees' },
+                    { href: "/dashboard/hrm/hr/announcements", label: "Announcements", permissionKey: 'crm_employees' },
+                    { href: "/dashboard/hrm/hr/one-on-ones", label: "One-on-Ones", permissionKey: 'crm_employees' }
+                ]
+            },
+            { href: "/dashboard/hrm/payroll/settings", label: "Settings", icon: Settings, permissionKey: 'crm_employees' }
         ]
-    },
-    {
-        title: "Attendance & Leave",
-        items: [
-            { href: "/dashboard/hrm/payroll/attendance", label: "Attendance", icon: Calendar, permissionKey: 'crm_attendance' },
-            { href: "/dashboard/hrm/payroll/leave", label: "Leave", icon: Calendar, permissionKey: 'crm_attendance' },
-            { href: "/dashboard/hrm/payroll/holidays", label: "Holidays", icon: Calendar, permissionKey: 'crm_attendance' },
-            { href: "/dashboard/hrm/payroll/shifts", label: "Shifts", icon: Repeat, permissionKey: 'crm_attendance' },
-            { href: "/dashboard/hrm/payroll/shift-rotations", label: "Shift Rotations", icon: Repeat, permissionKey: 'crm_attendance' },
-            { href: "/dashboard/hrm/payroll/shift-change-requests", label: "Shift Changes", icon: Repeat, permissionKey: 'crm_attendance' },
-        ]
-    },
-    {
-        title: "Performance",
-        items: [
-            { href: "/dashboard/hrm/hr/feedback-360", label: "360 Feedback", icon: Users, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/payroll/appraisal-reviews", label: "Appraisals", icon: BarChart2, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/payroll/kpi-tracking", label: "KPI Tracking", icon: BarChart2, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/payroll/goal-setting", label: "Goal Setting", icon: BarChart2, permissionKey: 'crm_employees' },
-        ]
-    },
-    {
-        title: "Learning",
-        items: [
-            { href: "/dashboard/hrm/hr/training", label: "Training", icon: BookCopy, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/hr/certifications", label: "Certifications", icon: ShieldCheck, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/hr/learning-paths", label: "Learning Paths", icon: BookCopy, permissionKey: 'crm_employees' },
-        ]
-    },
-    {
-        title: "Documents & Assets",
-        items: [
-            { href: "/dashboard/hrm/hr/documents", label: "Documents", icon: FileText, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/hr/document-templates", label: "Templates", icon: FileText, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/hr/assets", label: "Assets", icon: Briefcase, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/hr/asset-assignments", label: "Asset Assignments", icon: Briefcase, permissionKey: 'crm_employees' },
-        ]
-    },
-    {
-        title: "Engagement",
-        items: [
-            { href: "/dashboard/hrm/hr/recognition", label: "Recognition", icon: Users, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/hr/surveys", label: "Surveys", icon: ClipboardList, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/hr/announcements", label: "Announcements", icon: Megaphone, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/hr/one-on-ones", label: "One-on-Ones", icon: Users, permissionKey: 'crm_employees' },
-        ]
-    },
-    {
-        title: "Reports & Settings",
-        items: [
-            { href: "/dashboard/hrm/payroll/reports", label: "Payroll Reports", icon: BarChart2, permissionKey: 'crm_payroll' },
-            { href: "/dashboard/hrm/hr/exits", label: "Exit Management", icon: Users, permissionKey: 'crm_employees' },
-            { href: "/dashboard/hrm/payroll/settings", label: "Settings", icon: Settings, permissionKey: 'crm_employees' },
-        ]
-    },
+    }
 ];
 
 export const teamMenuItems: MenuItem[] = [

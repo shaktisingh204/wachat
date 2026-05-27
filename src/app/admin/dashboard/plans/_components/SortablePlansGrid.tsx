@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { Button } from '@/components/zoruui';
 import { useZoruToast } from '@/components/zoruui';
 import { Edit, CreditCard, PlusCircle, GripHorizontal } from 'lucide-react';
-import { AdminDeletePlanButton } from '@/components/wabasimplify/admin-delete-plan-button';
-import { AdminPlanPermissionsDialog } from '@/components/wabasimplify/admin-plan-permissions-dialog';
-import { AdminDuplicatePlanButton } from '@/components/wabasimplify/admin-duplicate-plan-button';
+import { AdminDeletePlanButton } from '@/components/zoruui-domain/admin-delete-plan-button';
+import { AdminPlanPermissionsDialog } from '@/components/zoruui-domain/admin-plan-permissions-dialog';
+import { AdminDuplicatePlanButton } from '@/components/zoruui-domain/admin-duplicate-plan-button';
 import { updatePlanOrder } from '@/app/actions/plan.actions';
 
 import {

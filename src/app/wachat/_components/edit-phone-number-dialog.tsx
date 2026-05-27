@@ -38,7 +38,7 @@ import type { PhoneNumber,
 /**
  * EditPhoneNumberDialog (wachat-local, ZoruUI).
  *
- * Replaces @/components/wabasimplify/edit-phone-number-dialog. Same
+ * Replaces the legacy edit-phone-number-dialog. Same
  * server action (handleUpdatePhoneNumberProfile), same form fields and
  * file-upload behaviour. Visual-only swap to neutral zoru tokens.
  */

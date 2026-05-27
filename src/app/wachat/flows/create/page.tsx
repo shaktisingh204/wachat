@@ -45,8 +45,8 @@ import {
 import type { WithId } from 'mongodb';
 
 import { useProject } from '@/context/project-context';
-import { MetaFlowBuilderLayout } from '@/components/wabasimplify/meta-flow-editor/layout/meta-flow-layout';
-import { flowCategories } from '@/components/wabasimplify/meta-flow-templates';
+import { MetaFlowBuilderLayout } from '@/components/zoruui-domain/meta-flow-editor/layout/meta-flow-layout';
+import { flowCategories } from '@/components/zoruui-domain/meta-flow-templates';
 import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
 import { cleanMetaFlowData } from '@/lib/meta-flow-utils';
 import { getProjectById } from '@/app/actions/project.actions';

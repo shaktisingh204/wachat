@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getSiteBySlug } from '@/app/actions/portfolio.actions';
-import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
+import { Canvas } from '@/components/zoruui-domain/website-builder/canvas';
 import { LayoutGrid, AlertCircle } from 'lucide-react';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { WebsitePage } from '@/lib/definitions';

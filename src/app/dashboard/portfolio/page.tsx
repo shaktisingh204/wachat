@@ -37,7 +37,7 @@ import { ArrowRight,
 import { getSites, updateSiteDomain } from '@/app/actions/portfolio.actions';
 import type { WithId,
   Website } from '@/lib/definitions';
-import { CreatePortfolioDialog } from '@/components/wabasimplify/create-portfolio-dialog';
+import { CreatePortfolioDialog } from '@/components/zoruui-domain/create-portfolio-dialog';
 import { toast } from 'sonner';
 
 function PageSkeleton() {

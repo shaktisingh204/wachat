@@ -21,7 +21,7 @@ import type { WithId,
 
 import { getProjectById } from '@/app/actions/project.actions';
 import { useProject } from '@/context/project-context';
-import { WhatsappLinkGenerator } from '@/components/wabasimplify/whatsapp-link-generator';
+import { WhatsappLinkGenerator } from '@/components/zoruui-domain/whatsapp-link-generator';
 
 export default function WhatsappLinkGeneratorPage() {
   const { activeProject } = useProject();

@@ -58,7 +58,7 @@ import { getSession } from '@/app/actions/user.actions';
 import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
 import { useT } from '@/lib/i18n/client';
 import type { CrmContact, CrmAccount, CrmPipeline } from '@/lib/definitions';
-import { CreateDealDialog } from '@/components/wabasimplify/crm-create-deal-dialog';
+import { CreateDealDialog } from '@/components/zoruui-domain/crm-create-deal-dialog';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';

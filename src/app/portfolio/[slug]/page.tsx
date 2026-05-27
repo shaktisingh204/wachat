@@ -2,12 +2,12 @@ import React from "react";
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { getSiteBySlug } from '@/app/actions/portfolio.actions';
-import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
+import { Canvas } from '@/components/zoruui-domain/website-builder/canvas';
 import { LayoutGrid, Star } from 'lucide-react';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { WebsitePage } from '@/lib/definitions';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/zoruui';
+import { Card, CardContent } from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 

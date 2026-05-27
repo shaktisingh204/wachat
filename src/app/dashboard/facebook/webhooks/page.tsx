@@ -26,7 +26,7 @@ import { Cog,
 /**
  * /dashboard/facebook/webhooks — Webhook endpoints (ZoruUI).
  *
- * Replaces the legacy WebhookLogs from @/components/wabasimplify with
+ * Replaces the legacy WebhookLogs from @/components/zoruui-domain with
  * the local FacebookWebhookLogs (which already wraps create / test /
  * delete dialogs and renders inside ZoruDataTable-like Zoru chrome).
  *

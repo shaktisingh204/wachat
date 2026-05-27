@@ -32,7 +32,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import type { Plan, WithId } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
-import { WalletCard } from '@/components/wabasimplify/wallet-card';
+import { WalletCard } from '@/components/zoruui-domain/wallet-card';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { PlanCategorySection } from './components/plan-category-section';

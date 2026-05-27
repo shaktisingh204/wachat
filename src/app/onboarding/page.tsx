@@ -6,7 +6,7 @@ import {
     getOnboardingPlans,
     getOnboardingState,
 } from '@/app/actions/onboarding-flow.actions';
-import { OnboardingWizard } from '@/components/wabasimplify/onboarding/onboarding-wizard';
+import { OnboardingWizard } from '@/components/zoruui-domain/onboarding/onboarding-wizard';
 
 export const dynamic = 'force-dynamic';
 

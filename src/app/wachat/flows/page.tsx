@@ -57,13 +57,13 @@ import {
   Filter,
   } from 'lucide-react';
 
-import { flowCategories } from '@/components/wabasimplify/meta-flow-templates';
+import { flowCategories } from '@/components/zoruui-domain/meta-flow-templates';
 
 import { deleteMetaFlow,
   getMetaFlows } from '@/app/actions/meta-flow.actions';
 import type { MetaFlow } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
-import { SyncMetaFlowsButton } from '@/components/wabasimplify/sync-meta-flows-button';
+import { SyncMetaFlowsButton } from '@/components/zoruui-domain/sync-meta-flows-button';
 
 /**
  * Wachat Meta Flows — flow list, search & status.

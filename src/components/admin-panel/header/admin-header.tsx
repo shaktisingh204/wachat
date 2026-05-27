@@ -3,7 +3,7 @@
 import { Button, Avatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import {
   useProject } from '@/context/project-context';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarTrigger } from '@/components/zoruui';
 
 import * as React from 'react';
 

@@ -39,9 +39,9 @@ import {
   Settings as SettingsIcon,
 } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
-import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
-import { CommentsNotesPanel } from '@/components/wabasimplify/comments-notes-panel';
-import { UrlShortenerSidebar } from '@/components/wabasimplify/url-shortener-sidebar';
+import { QrCodeDialog } from '@/components/zoruui-domain/qr-code-dialog';
+import { CommentsNotesPanel } from '@/components/zoruui-domain/comments-notes-panel';
+import { UrlShortenerSidebar } from '@/components/zoruui-domain/url-shortener-sidebar';
 import Link from 'next/link';
 
 // Extracted Components

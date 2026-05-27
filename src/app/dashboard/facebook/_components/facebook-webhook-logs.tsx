@@ -60,7 +60,7 @@ import type { WebhookLogListItem } from '@/lib/definitions';
 /**
  * FacebookWebhookLogs (local, ZoruUI).
  *
- * Local replacement for @/components/wabasimplify/webhook-logs scoped to
+ * Local replacement for @/components/zoruui-domain/webhook-logs scoped to
  * the Meta Suite. Same server actions (getWebhookLogs,
  * handleClearProcessedLogs, handleReprocessWebhook,
  * getWebhookLogPayload), same pagination + reprocess + view-payload

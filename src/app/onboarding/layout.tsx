@@ -1,6 +1,6 @@
 import "@/styles/zoruui.css";
 import Link from 'next/link';
-import { SabNodeLogo } from '@/components/wabasimplify/logo';
+import { SabNodeLogo } from '@/components/zoruui-domain/logo';
 
 export default function OnboardingLayout({
     children,

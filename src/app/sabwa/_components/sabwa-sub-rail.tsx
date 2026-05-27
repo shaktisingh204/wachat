@@ -57,16 +57,16 @@ import {
   Zap,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
+  Button,
+  ScrollArea,
   Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  ZoruSheetContent,
+  ZoruSheetHeader,
+  ZoruSheetTitle,
+  ZoruSheetTrigger,
+  cn,
+} from "@/components/zoruui";
 
 type NavItem = {
   href: string;
@@ -215,11 +215,11 @@ function NavBody({ pathname, collapsed = false, onNavigate }: NavBodyProps) {
         {NAV_SECTIONS.map((section) => (
           <div key={section.id} className="flex flex-col gap-1">
             {!collapsed ? (
-              <p className="px-2 pt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80">
+              <p className="px-2 pt-1 text-[10px] font-semibold uppercase tracking-wider text-zoru-ink-muted/80">
                 {section.label}
               </p>
             ) : (
-              <div className="mx-2 my-1 h-px bg-border/60" aria-hidden />
+              <div className="mx-2 my-1 h-px bg-zoru-line/60" aria-hidden />
             )}
             <ul className="flex flex-col gap-0.5">
               {section.items.map((item) => {
@@ -233,18 +233,18 @@ function NavBody({ pathname, collapsed = false, onNavigate }: NavBodyProps) {
                       aria-current={active ? "page" : undefined}
                       title={collapsed ? item.label : undefined}
                       className={cn(
-                        "group flex items-center gap-3 rounded-md px-2 py-1.5 text-sm font-medium outline-none transition-colors",
-                        "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                        "group flex items-center gap-3 rounded-[var(--zoru-radius)] px-2 py-1.5 text-sm font-medium outline-none transition-colors",
+                        "text-zoru-ink-muted hover:bg-zoru-surface hover:text-zoru-ink",
+                        "focus-visible:ring-2 focus-visible:ring-zoru-ink focus-visible:ring-offset-2",
                         active &&
-                          "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary",
+                          "bg-zoru-ink/10 text-zoru-ink hover:bg-zoru-ink/15 hover:text-zoru-ink",
                         collapsed && "justify-center px-0 py-2",
                       )}
                     >
                       <Icon
                         className={cn(
                           "h-4 w-4 shrink-0",
-                          active && "text-primary",
+                          active && "text-zoru-ink",
                         )}
                       />
                       {!collapsed && <span className="truncate">{item.label}</span>}
@@ -264,17 +264,17 @@ function RailBrand({ collapsed }: { collapsed: boolean }) {
   return (
     <div
       className={cn(
-        "flex h-14 items-center gap-2 border-b px-3",
+        "flex h-14 items-center gap-2 border-b border-zoru-line px-3",
         collapsed && "justify-center px-0",
       )}
     >
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600/10 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-ink/10 text-zoru-ink">
         <MessageCircle className="h-4 w-4" />
       </div>
       {!collapsed && (
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold leading-tight">SabWa</p>
-          <p className="truncate text-[11px] text-muted-foreground">
+          <p className="truncate text-sm font-semibold leading-tight text-zoru-ink">SabWa</p>
+          <p className="truncate text-[11px] text-zoru-ink-muted">
             Personal WhatsApp
           </p>
         </div>
@@ -293,7 +293,7 @@ export function SabWaSubRail() {
       {/* Mobile: hamburger trigger fixed in the top-left, opens a Sheet */}
       <div className="fixed left-2 top-2 z-40 md:hidden">
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetTrigger asChild>
+          <ZoruSheetTrigger asChild>
             <Button
               variant="outline"
               size="icon"
@@ -302,14 +302,14 @@ export function SabWaSubRail() {
             >
               <Menu className="h-4 w-4" />
             </Button>
-          </SheetTrigger>
-          <SheetContent
+          </ZoruSheetTrigger>
+          <ZoruSheetContent
             side="left"
             className="w-[88vw] max-w-[18rem] p-0 sm:max-w-[20rem]"
           >
-            <SheetHeader className="sr-only">
-              <SheetTitle>SabWa navigation</SheetTitle>
-            </SheetHeader>
+            <ZoruSheetHeader className="sr-only">
+              <ZoruSheetTitle>SabWa navigation</ZoruSheetTitle>
+            </ZoruSheetHeader>
             <div className="flex h-full flex-col">
               <RailBrand collapsed={false} />
               <NavBody
@@ -318,7 +318,7 @@ export function SabWaSubRail() {
                 onNavigate={() => setMobileOpen(false)}
               />
             </div>
-          </SheetContent>
+          </ZoruSheetContent>
         </Sheet>
       </div>
 
@@ -327,14 +327,14 @@ export function SabWaSubRail() {
         aria-label="SabWa sub navigation"
         data-collapsed={collapsed || undefined}
         className={cn(
-          "sticky top-0 hidden h-screen shrink-0 flex-col border-r bg-card/40 md:flex",
+          "sticky top-0 hidden h-screen shrink-0 flex-col border-r border-zoru-line bg-zoru-surface/40 md:flex",
           "transition-[width] duration-200 ease-out",
           collapsed ? "w-14" : "w-60",
         )}
       >
         <RailBrand collapsed={collapsed} />
         <NavBody pathname={pathname} collapsed={collapsed} />
-        <div className="border-t p-2">
+        <div className="border-t border-zoru-line p-2">
           <Button
             type="button"
             variant="ghost"
@@ -343,7 +343,7 @@ export function SabWaSubRail() {
             aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
             aria-expanded={!collapsed}
             className={cn(
-              "w-full justify-start gap-2 text-muted-foreground",
+              "w-full justify-start gap-2 text-zoru-ink-muted",
               collapsed && "justify-center",
             )}
           >

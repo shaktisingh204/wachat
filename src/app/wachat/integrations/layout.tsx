@@ -2,7 +2,7 @@
 
 import { ArrowLeft, Zap } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/zoruui";
 import { usePathname } from "next/navigation";
 
 export default function IntegrationsLayout({ children }: { children: React.ReactNode }) {
@@ -20,11 +20,11 @@ export default function IntegrationsLayout({ children }: { children: React.React
                         </Link>
                     </Button>
                 )}
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
+                <h1 className="text-3xl font-bold font-headline flex items-center gap-3 text-zoru-ink">
                     <Zap className="h-8 w-8" />
                     Integrations &amp; Tools
                 </h1>
-                <p className="text-muted-foreground mt-2">
+                <p className="text-zoru-ink-muted mt-2">
                     Connect SabNode with your favorite tools and services.
                 </p>
             </div>

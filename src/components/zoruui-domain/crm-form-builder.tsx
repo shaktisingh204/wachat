@@ -1,0 +1,268 @@
+'use client';
+
+import {
+  Button,
+  Input,
+  Label,
+  Switch,
+  Textarea,
+  Select,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  Accordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ScrollArea,
+  Separator,
+  Dialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  Card,
+  Tabs,
+  ZoruTabsContent as TabsContent,
+  ZoruTabsList as TabsList,
+  ZoruTabsTrigger as TabsTrigger,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  DndContext,
+  DragEndEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCenter } from '@dnd-kit/core';
+import { SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { Plus, Trash2, ArrowLeft, Save, LoaderCircle, Eye, Code2 } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
+import { CrmFormFieldEditor } from '@/components/zoruui-domain/crm-form-field-editor';
+import { saveCrmForm } from '@/app/actions/crm-forms.actions';
+import { CrmFormPreview } from '@/components/zoruui-domain/crm-form-preview';
+import type { WithId,
+  CrmForm,
+  FormField } from '@/lib/definitions';
+import { useRouter } from 'next/navigation';
+import { StyleSettingsPanel } from '@/components/zoruui-domain/website-builder/style-settings-panel';
+import Image from 'next/image';
+import { CodeBlock } from './code-block';
+
+import React, { useState, useEffect, useCallback, useTransition } from 'react';
+
+const defaultFields: FormField[] = [
+    { id: uuidv4(), type: 'text', label: 'Name', required: true, columnWidth: '50%', fieldId: 'name' },
+    { id: uuidv4(), type: 'email', label: 'Email', required: true, columnWidth: '50%', fieldId: 'email' },
+    { id: uuidv4(), type: 'textarea', label: 'Message', required: false, columnWidth: '100%', fieldId: 'message' },
+];
+
+function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
+    return (
+        <Dialog>
+            <ZoruDialogTrigger asChild>
+                <Button variant="outline"><Code2 className="mr-2 h-4 w-4"/> Embed Code</Button>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="sm:max-w-2xl overflow-hidden">
+                 <ZoruDialogHeader>
+                    <ZoruDialogTitle>Embed Form on Your Website</ZoruDialogTitle>
+                    <ZoruDialogDescription>
+                        Copy and paste this code snippet where you want the form to appear on your website.
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
+                 <div className="py-4">
+                    <CodeBlock code={embedScript} language="html" />
+                </div>
+            </ZoruDialogContent>
+        </Dialog>
+    );
+}
+
+function SortableFieldItem({ field, isSelected, onClick }: { field: FormField; isSelected: boolean; onClick: () => void }) {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: field.id });
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return (
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={onClick}>
+            <Card className={`p-3 cursor-pointer hover:bg-zoru-surface-2 ${isSelected ? 'ring-2 ring-zoru-ink' : ''}`}>
+                <p className="font-semibold text-sm text-zoru-ink">{field.label || 'Untitled Field'}</p>
+                <p className="text-xs text-zoru-ink-muted">{field.type} {field.required && '*'}</p>
+            </Card>
+        </div>
+    );
+}
+
+export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> }) {
+    const router = useRouter();
+    const { toast } = useZoruToast();
+    const [isSaving, startSaving] = useTransition();
+
+    const [formName, setFormName] = useState(initialForm?.name || 'New Form');
+    const [fields, setFields] = useState<FormField[]>(initialForm?.settings.fields || defaultFields);
+    const [settings, setSettings] = useState(initialForm?.settings || { title: 'Contact Us', submitButtonText: 'Send Message' });
+    const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+    );
+
+    const onDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+        const oldIndex = fields.findIndex(f => f.id === active.id);
+        const newIndex = fields.findIndex(f => f.id === over.id);
+        setFields(arrayMove(fields, oldIndex, newIndex));
+    };
+
+    const addField = (type: FormField['type']) => {
+        const newField: FormField = {
+            id: uuidv4(),
+            type,
+            label: `New ${type} field`,
+            required: false,
+            columnWidth: '100%',
+        };
+        setFields([...fields, newField]);
+    };
+
+    const removeField = (id: string) => {
+        setFields(fields.filter(f => f.id !== id));
+        if (selectedFieldId === id) setSelectedFieldId(null);
+    };
+
+    const updateField = (id: string, updatedField: Partial<FormField>) => {
+        setFields(fields.map(f => (f.id === id ? { ...f, ...updatedField } : f)));
+    };
+
+    const handleSave = () => {
+        startSaving(async () => {
+            const result = await saveCrmForm({
+                formId: initialForm?._id.toString(),
+                name: formName,
+                settings: { ...settings, fields }
+            });
+            if (result.error) {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            } else {
+                toast({ title: 'Success', description: 'Form saved successfully!' });
+                if (result.formId) {
+                    router.push(`/dashboard/crm/sales-crm/forms/${result.formId}/edit`);
+                } else {
+                     router.push('/dashboard/crm/sales-crm/forms');
+                }
+            }
+        });
+    };
+
+    const selectedField = fields.find(f => f.id === selectedFieldId);
+
+    const embedScript = `<div data-sabnode-form-id="${initialForm?._id.toString()}"></div>\n<script src="${process.env.NEXT_PUBLIC_APP_URL}/api/crm/forms/embed/${initialForm?._id.toString()}.js" async defer></script>`;
+
+    return (
+        <div className="h-full flex flex-col">
+            <header className="flex-shrink-0 flex items-center justify-between p-3 border-b border-zoru-line bg-card">
+                <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                        <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                    <Input value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold text-foreground border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
+                </div>
+                <div className="flex items-center gap-2">
+                    {initialForm?._id && (
+                        <>
+                            <Button variant="outline" asChild>
+                                <a href={`/embed/crm-form/${initialForm._id.toString()}`} target="_blank" rel="noopener noreferrer"><Eye className="mr-2 h-4 w-4"/> Preview</a>
+                            </Button>
+                            <CodeEmbedDialog embedScript={embedScript} />
+                        </>
+                    )}
+                    <Button
+                        variant="obsidian"
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        leading={isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    >
+                        Save Form
+                    </Button>
+                </div>
+            </header>
+            <div className="flex-1 grid grid-cols-12 min-h-0">
+                 <div className="col-span-3 border-r border-zoru-line p-4 overflow-y-auto">
+                    <div className="space-y-4">
+                        <h2 className="text-lg font-semibold text-foreground">Form Fields</h2>
+                        <Button variant="outline" size="sm" onClick={() => addField('text')} leading={<Plus className="h-4 w-4"/>}>Add Field</Button>
+                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+                            <SortableContext items={fields.map(f => f.id)} strategy={verticalListSortingStrategy}>
+                                <div className="space-y-2">
+                                    {fields.map((field) => (
+                                        <SortableFieldItem
+                                            key={field.id}
+                                            field={field}
+                                            isSelected={selectedFieldId === field.id}
+                                            onClick={() => setSelectedFieldId(field.id)}
+                                        />
+                                    ))}
+                                </div>
+                            </SortableContext>
+                        </DndContext>
+                    </div>
+                </div>
+                <main className="col-span-6 bg-secondary overflow-y-auto p-4 md:p-8">
+                     <CrmFormPreview settings={{...settings, fields}} />
+                </main>
+                 <aside className="col-span-3 border-l border-zoru-line p-4 overflow-y-auto">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold text-foreground">Properties</h2>
+                         {selectedFieldId && (
+                            <Button variant="ghost" size="sm" onClick={() => setSelectedFieldId(null)}>
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Form Settings
+                            </Button>
+                        )}
+                    </div>
+                    {selectedField ? (
+                        <CrmFormFieldEditor
+                            field={selectedField}
+                            onUpdate={(updatedField) => updateField(selectedFieldId!, updatedField)}
+                            onRemove={() => removeField(selectedFieldId!)}
+                        />
+                    ) : (
+                         <Tabs defaultValue="general">
+                            <TabsList className="grid w-full grid-cols-2">
+                                <TabsTrigger value="general">General</TabsTrigger>
+                                <TabsTrigger value="style">Style</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="general" className="mt-4">
+                                <Accordion type="multiple" className="w-full" defaultValue={['general_settings']}>
+                                    <ZoruAccordionItem value="general_settings">
+                                        <ZoruAccordionTrigger>General Settings</ZoruAccordionTrigger>
+                                        <ZoruAccordionContent className="space-y-4 pt-2">
+                                            <div className="space-y-2"><Label>Form Title</Label><Input value={settings.title || 'Contact Us'} onChange={(e) => setSettings({...settings, title: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Form Description</Label><Textarea value={settings.description || ''} onChange={(e) => setSettings({...settings, description: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Submit Button Text</Label><Input value={settings.submitButtonText || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Success Message</Label><Textarea value={settings.successMessage || 'Thank you! Your submission has been received.'} onChange={(e) => setSettings({...settings, successMessage: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Logo URL</Label><Input value={settings.logoUrl || ''} onChange={(e) => setSettings({...settings, logoUrl: e.target.value})} /></div>
+                                            <div className="space-y-2"><Label>Footer Text (HTML allowed)</Label><Textarea value={settings.footerText || ''} onChange={(e) => setSettings({...settings, footerText: e.target.value})} /></div>
+                                        </ZoruAccordionContent>
+                                    </ZoruAccordionItem>
+                                </Accordion>
+                            </TabsContent>
+                            <TabsContent value="style" className="mt-4">
+                                 <StyleSettingsPanel settings={settings} onUpdate={setSettings} />
+                            </TabsContent>
+                        </Tabs>
+                    )}
+                </aside>
+            </div>
+        </div>
+    );
+}

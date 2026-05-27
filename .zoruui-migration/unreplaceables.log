@@ -1,0 +1,138 @@
+src/app/dashboard/url-shortener/layout.tsx — FeatureLock/FeatureLockOverlay (wabasimplify) — feature-gating wrapper, no ZoruUI equivalent
+src/app/dashboard/crm/layout.tsx :: FeatureLock,FeatureLockOverlay :: feature-gating wrapper, not a UI primitive
+src/app/dashboard/crm/purchases/layout.tsx :: FeatureLock,FeatureLockOverlay :: feature-gating wrapper, not a UI primitive
+src/app/dashboard/crm/sales/layout.tsx :: FeatureLock,FeatureLockOverlay :: feature-gating wrapper, not a UI primitive
+src/app/dashboard/crm/banking/layout.tsx :: FeatureLock,FeatureLockOverlay :: feature-gating wrapper, not a UI primitive
+src/app/dashboard/crm/inventory/layout.tsx :: FeatureLock,FeatureLockOverlay :: feature-gating wrapper, not a UI primitive
+src/app/dashboard/crm/sales-crm/layout.tsx :: FeatureLock,FeatureLockOverlay :: feature-gating wrapper, not a UI primitive
+src/app/dashboard/crm/accounting/layout.tsx :: FeatureLock,FeatureLockOverlay :: feature-gating wrapper, not a UI primitive
+src/app/dashboard/crm/team/layout.tsx :: FeatureLock,FeatureLockOverlay :: feature-gating wrapper, not a UI primitive
+src/app/dashboard/url-shortener/page.client.tsx — QrCodeDialog/CommentsNotesPanel/UrlShortenerSidebar (wabasimplify) — domain-specific composed widgets, no ZoruUI primitive equivalent
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/pages/page.tsx :: Form,FormControl,FormField,FormItem,FormLabel,FormMessage from @/components/ui/form :: react-hook-form integration; ZoruUI has no Form primitive
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/website-builder/page.tsx :: WebsiteBuilder from @/components/wabasimplify/website-builder/website-builder :: domain-specific compound component (full website builder app), not a primitive
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/layout.tsx :: DATE_PRESETS from @/components/wabasimplify/ad-manager/constants :: shared non-UI constants module (no UI to swap)
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/page.tsx :: formatPercent et al from @/components/wabasimplify/ad-manager/constants :: shared non-UI helpers/constants
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/audiences/page.tsx :: COUNTRIES, formatNumber from @/components/wabasimplify/ad-manager/constants :: shared non-UI constants/helpers
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/ads/page.tsx :: CampaignsHub from @/components/wabasimplify/ad-manager/campaigns-hub :: domain-specific compound component, not a primitive
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/insights/page.tsx :: formatMoney/formatNumber/formatPercent from @/components/wabasimplify/ad-manager/constants :: shared non-UI helpers
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/ad-sets/page.tsx :: CampaignsHub from @/components/wabasimplify/ad-manager/campaigns-hub :: domain-specific compound component
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/campaigns/page.tsx :: formatMoney, formatNumber from @/components/wabasimplify/ad-manager/constants :: shared non-UI helpers
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/create/page.tsx :: ad-manager constants + create-wizard/form-state + AdPreviewSwitcher :: domain-specific compound wizard pieces
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/ad-manager/billing/page.tsx :: formatMoney from @/components/wabasimplify/ad-manager/constants :: shared non-UI helper
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/instagram/connections/ConnectionsClient.tsx :: InstagramIcon from @/components/wabasimplify/custom-sidebar-components :: custom branded icon, not a ZoruUI primitive
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/instagram/feed/page.tsx :: InstagramViewCommentsDialog from @/components/wabasimplify/instagram-view-comments-dialog :: domain-specific compound dialog
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/instagram/media/[mediaId]/page.tsx :: InstagramViewCommentsDialog from @/components/wabasimplify/instagram-view-comments-dialog :: domain-specific compound dialog
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/qr-code-maker/layout.tsx :: FeatureLock, FeatureLockOverlay from @/components/wabasimplify/feature-lock :: plan-gating compound (auth/RBAC wrapped UI), not a primitive
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/qr-code-maker/page.tsx :: QrCodeSidebar/Generator/Dialog, CommentsNotesPanel, EditQrDialog, SharePermissionsModal, QrScanStatsModal, BulkQrImportDialog :: all domain-specific QR module compounds
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/qr-code-maker/settings/page.tsx :: TagsSettingsTab from @/components/wabasimplify/tags-settings-tab :: domain-specific compound module
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/website-builder/layout.tsx :: FeatureLock, FeatureLockOverlay from @/components/wabasimplify/feature-lock :: plan-gating compound
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/website-builder/page.client.tsx :: CreatePortfolioDialog from @/components/wabasimplify/create-portfolio-dialog :: domain-specific compound dialog
+/Users/harshkhandelwal/Downloads/sabnode/src/app/dashboard/website-builder/manage/[portfolioId]/builder/page.tsx :: WebsiteBuilder from @/components/wabasimplify/website-builder/website-builder :: domain-specific compound (full builder app)
+src/components/wabasimplify/analytics-chart.tsx::ChartTooltipContent,ChartConfig::no ZoruUI equivalent for ChartTooltipContent type-safe wrapper or ChartConfig satisfies-typed object
+src/components/wabasimplify/admin-dashboard-client-layout.tsx::Sidebar,SidebarContent,SidebarHeader,SidebarMenu,SidebarMenuItem,SidebarMenuButton,SidebarFooter,SidebarTrigger,SidebarProvider::no direct ZoruUI replacement for full collapsible sidebar shell (ZoruShell/ZoruAppSidebar uses different API)
+src/app/sabwa/layout.tsx::RBACGuard from @/components/wabasimplify/rbac-guard::auth/runtime guard, not a UI primitive
+src/app/sabwa/bulk/page.tsx::Slider from @/components/ui/slider::no ZoruUI Slider primitive yet (per project memory only Slider remains across SabWa migration)
+src/app/dashboard/hrm-advanced/employee-onboarding/_components/onboarding-form.tsx — Form/FormControl/FormField/FormItem/FormLabel/FormMessage (@/components/ui/form) — react-hook-form wrapper primitives not yet exported from ZoruUI
+src/app/dashboard/url-shortener/settings/page.client.tsx — TagsSettingsTab (wabasimplify) — domain widget
+src/app/dashboard/url-shortener/components/UrlShortenerForm.tsx — BulkImportDialog/TagPicker (wabasimplify) — domain widgets
+src/app/dashboard/url-shortener/[id]/page.tsx — AnalyticsSummaryCards/ClickTimelineChart/GeoHeatmap/DeviceBreakdownChart/ReferrerTable/AnalyticsTabsShell (wabasimplify) — domain analytics widgets
+src/app/dashboard/url-shortener/[id]/components/short-url-header.tsx — SharePermissionsModal (wabasimplify) — domain widget
+src/app/dashboard/url-shortener/[id]/components/short-url-settings.tsx — EditLinkDrawer/LinkHistoryDrawer (wabasimplify) — domain widgets
+src/app/dashboard/seo/layout.tsx — FeatureLock/FeatureLockOverlay (wabasimplify) — feature-gating wrapper
+src/app/dashboard/seo/[projectId]/rankings/_components/rankings-client.tsx — RankingsTable/AddKeywordDialog (wabasimplify) — domain widgets
+src/app/dashboard/seo/[projectId]/audit/_components/audit-page-client.tsx — AuditTable/AuditDiffViewer (wabasimplify) — domain widgets
+src/app/dashboard/seo/_components/seo-projects-client.tsx — SeoProjectCard/CreateSeoProjectDialog (wabasimplify) — domain widgets
+src/app/dashboard/hrm/layout.tsx — FeatureLock/FeatureLockOverlay (wabasimplify) — feature-gating wrapper
+src/app/dashboard/hrm/payroll/layout.tsx — FeatureLock/FeatureLockOverlay (wabasimplify) — feature-gating wrapper
+src/app/dashboard/hrm/payroll/employees/[employeeId]/edit/page.tsx — EmployeeForm (wabasimplify) — domain form widget
+src/app/dashboard/hrm/payroll/employees/new/page.tsx — EmployeeForm (wabasimplify) — domain form widget
+src/app/dashboard/portfolio/page.tsx — CreatePortfolioDialog (wabasimplify) — domain widget
+src/app/dashboard/portfolio/manage/[portfolioId]/builder/page.tsx — WebsiteBuilder (wabasimplify) — domain builder
+src/app/dashboard/sabbigin/layout.tsx — FeatureLock/FeatureLockOverlay (wabasimplify) — feature-gating wrapper
+src/app/dashboard/sabbigin/pipelines/_components/pipelines-client.tsx — EditPipelinesDialog (wabasimplify) — domain widget
+src/app/dashboard/user/billing/page.client.tsx — WalletCard (wabasimplify) — domain widget
+src/app/dashboard/user/billing/components/plan-card.tsx — PlanPurchaseButton (wabasimplify) — domain widget
+src/app/dashboard/api/docs/page.tsx — CodeBlock (wabasimplify) — domain widget
+src/app/dashboard/email/settings/page.tsx — CrmSmtpForm/custom-sidebar-components/ModuleLayout/ModuleSidebar/CodeBlock (wabasimplify) — domain widgets
+src/app/sabsms/layout.tsx::RBACGuard::Security/permission guard from @/components/wabasimplify/rbac-guard — server-side RBAC primitive, not a UI component. No ZoruUI equivalent.
+src/app/sabsms/analytics/deliverability/client.tsx::ChartContainer,ChartTooltip,ChartTooltipContent,ChartLegend,ChartLegendContent::Recharts wrappers from @/components/ui/chart. zoruui exports ZoruChart/ZoruChartContainer/ZoruChartTooltip but NOT ChartLegend, ChartLegendContent, or ChartTooltipContent. No drop-in replacement.
+src/app/sabsms/analytics/cost/client.tsx::ChartContainer,ChartTooltip,ChartTooltipContent,ChartLegend,ChartLegendContent,ChartConfig::Same as above — zoruui chart barrel lacks ChartLegend/ChartLegendContent/ChartTooltipContent/ChartConfig type.
+src/app/sabsms/numbers/pool/page.tsx::StatCard(legacy tone API)::Legacy StatCard from @/components/ui/stat-card accepted tone="indigo|cyan|emerald|coral", deltaLabel, and icon as ComponentType. Zoru StatCard has no tone and takes icon as ReactNode. Call sites adapted (icon wrapped in JSX, deltaLabel→period), tone tiles removed.
+src/app/sabsms/health/page.tsx::StatCard(legacy title/trend API)::Pre-existing call sites use title/trend props that match neither legacy nor Zoru signatures. Imports already migrated; call sites left as-is per "no runtime change" rule.
+src/app/sabsms/sdk-reference/page.tsx::SwaggerUI::Third-party swagger-ui-react component. Not a SabNode UI primitive.
+src/app/wachat/layout.tsx :: RBACGuard from @/components/wabasimplify/rbac-guard :: RBAC permission-guard wrapper, not a UI primitive
+src/app/wachat/settings/general/page.tsx :: ProjectSettingsForm from @/components/wabasimplify/project-settings-form :: domain-specific compound form (project settings), not a primitive
+src/app/wachat/settings/canned/page.tsx :: CannedMessagesSettingsTab from @/components/wabasimplify/canned-messages-settings-tab :: domain-specific compound settings tab, not a primitive
+src/app/wachat/settings/attributes/page.tsx :: UserAttributesSettingsTab from @/components/wabasimplify/user-attributes-settings-tab :: domain-specific compound settings tab, not a primitive
+src/app/wachat/catalog/page.tsx :: SyncCatalogsButton, EmbeddedSignup from @/components/wabasimplify :: server-action-wired domain widgets (Meta sync + Facebook embedded signup), no ZoruUI primitive equivalent
+src/app/wachat/catalog/new/page.tsx :: ProductForm from @/components/wabasimplify/product-form :: domain-specific compound form, not a primitive
+src/app/wachat/catalog/[catalogId]/page.tsx :: CreateCollectionDialog, DeleteCollectionButton from @/components/wabasimplify :: server-action-wired domain dialogs, not primitives
+src/app/wachat/catalog/[catalogId]/[productId]/edit/page.tsx :: ProductForm from @/components/wabasimplify/product-form :: domain-specific compound form, not a primitive
+src/app/wachat/flow-builder/[flowId]/page.tsx :: PropertiesPanel from @/components/wabasimplify/properties-panel :: domain-specific compound (per-node properties editor for ReactFlow), not a primitive
+src/app/wachat/setup/page.client.tsx :: EmbeddedSignup from @/components/wabasimplify/embedded-signup :: Facebook embedded signup OAuth widget, no ZoruUI primitive equivalent
+src/app/wachat/integrations/whatsapp-link-generator/page.tsx :: WhatsappLinkGenerator from @/components/wabasimplify/whatsapp-link-generator :: domain-specific compound tool, not a primitive
+src/app/wachat/integrations/whatsapp-widget-generator/page.tsx :: WhatsAppWidgetGenerator from @/components/wabasimplify/whatsapp-widget-generator :: domain-specific compound tool, not a primitive
+src/app/wachat/integrations/razorpay/page.tsx :: RazorpaySettingsForm from @/components/wabasimplify/razorpay-settings-form :: domain-specific compound form (Razorpay integration), not a primitive
+src/app/wachat/_components/chat/chat-attachment-menu.tsx :: WaPayIcon from @/components/wabasimplify/custom-sidebar-components :: custom branded WhatsApp Pay icon, not a ZoruUI primitive
+src/app/wachat/_components/chat/request-whatsapp-payment-dialog.tsx :: WaPayIcon from @/components/wabasimplify/custom-sidebar-components :: custom branded WhatsApp Pay icon, not a ZoruUI primitive
+src/app/wachat/_components/chat/zoru-chat-message.tsx :: TemplateMessageContent/ProductMessageContent/OrderMessageContent/ContactMessageContent from @/components/wabasimplify/messages :: domain-specific message-body renderers, not primitives
+src/app/wachat/flows/page.tsx :: flowCategories (data), SyncMetaFlowsButton from @/components/wabasimplify :: data module + server-action-wired domain button, not primitives
+src/app/wachat/flows/create/page.tsx :: MetaFlowBuilderLayout, flowCategories from @/components/wabasimplify :: full Meta-flow builder compound + data module, not primitives
+src/app/dashboard/crm/tasks/page.tsx :: CreateTaskDialog (wabasimplify/crm-create-task-dialog) :: domain-specific composed widget
+src/app/dashboard/crm/products/page.tsx :: CrmProductCard (wabasimplify/crm-product-card) :: domain-specific composed widget
+src/app/dashboard/crm/purchases/vendors/new/page.tsx :: CrmAddBankAccountDialog (wabasimplify) :: domain-specific composed dialog
+src/app/dashboard/crm/contacts/page.tsx :: CreateDealDialog (wabasimplify/crm-create-deal-dialog) :: domain-specific composed widget
+src/app/dashboard/crm/automations/page.tsx :: CrmAutomationBlockEditor (wabasimplify) :: domain-specific composed editor
+src/app/dashboard/crm/tax/eway-bills/[id]/page.tsx :: QrCodeRenderer (wabasimplify) :: vendor wrapper / specialized renderer
+src/app/dashboard/crm/accounts/[accountId]/page.tsx :: CrmNotes (wabasimplify) :: domain-specific composed widget
+src/app/dashboard/crm/accounts/_components/accounts-detail-interactions.tsx :: ComposeEmailDialog (wabasimplify) :: domain-specific composed dialog
+src/app/dashboard/crm/sales/clients/_components/clients-list-client.tsx :: CrmAddClientDialog, ClientReportButton (wabasimplify) :: domain-specific composed widgets
+src/app/dashboard/crm/sales-crm/forms/[formId]/edit/page.tsx :: CrmFormBuilder, CodeBlock (wabasimplify) :: domain-specific composed widgets
+src/app/dashboard/crm/sales-crm/forms/new/new-form-wizard.tsx :: CrmFormBuilder (wabasimplify) :: domain-specific composed widget
+src/app/dashboard/crm/sales-crm/contacts/[contactId]/page.tsx :: ComposeEmailDialog (wabasimplify) :: domain-specific composed dialog
+src/app/dashboard/crm/sales-crm/all-pipelines/page.tsx :: EditPipelinesDialog (wabasimplify) :: domain-specific composed dialog
+src/app/dashboard/crm/sales-crm/deals/[id]/page.tsx :: CrmNotes (wabasimplify) :: domain-specific composed widget
+src/app/dashboard/crm/sales-crm/all-leads/[id]/page.tsx :: ComposeEmailDialog, CrmNotes (wabasimplify) :: domain-specific composed widgets
+/Users/harshkhandelwal/Downloads/sabnode/src/components/clay/index.ts::barrel-comment-only::Only matches a JSDoc comment example; no real imports to swap
+/Users/harshkhandelwal/Downloads/sabnode/src/components/clay/clay-dashboard-layout.tsx::intra-clay-import::This file IS part of the clay design system; imports from clay barrel are internal. Migrating to zoru would require deleting/rewriting the entire clay primitive set.
+/Users/harshkhandelwal/Downloads/sabnode/src/components/clay/dashboard-chrome-dispatcher.tsx::DashboardClientLayout::Imports legacy chrome from wabasimplify (handled by another agent); ClayDashboardLayout is intra-clay
+/Users/harshkhandelwal/Downloads/sabnode/src/components/clay/sabnode-dashboard-shell.tsx::SabNodeSidebar::Bespoke SabNode sidebar at @/components/ui/sidebar-component is project-specific, not a zoruui-equivalent primitive
+src/app/admin/dashboard/layout.tsx::AdminSidebarNav,AdminTopBar from @/components/wabasimplify::admin-specific compound shells (intentional dark zinc/amber palette kept per project memory)
+/Users/harshkhandelwal/Downloads/sabnode/src/components/admin-panel/sidebar/app-rail.tsx::SabNodeLogo+custom-sidebar-components::Wabasimplify imports (handled by other agent); not in zoruui barrel
+/Users/harshkhandelwal/Downloads/sabnode/src/components/admin-panel/sidebar/app-sidebar.tsx::WhatsAppIcon+MetaIcon::Wabasimplify icon imports (handled by other agent)
+/Users/harshkhandelwal/Downloads/sabnode/src/components/admin-panel/header/admin-header.tsx::SidebarTrigger::@/components/ui/sidebar is a bespoke Sidebar primitive not in zoruui barrel; leave alone per guide
+/Users/harshkhandelwal/Downloads/sabnode/src/components/admin-panel/layout/admin-layout.tsx::SidebarProvider::@/components/ui/sidebar is a bespoke Sidebar primitive not in zoruui barrel
+src/components/wabasimplify/crm-tab-layout.tsx::Sidebar,SidebarContent,SidebarHeader,SidebarMenu,SidebarMenuItem,SidebarMenuButton,SidebarFooter,SidebarTrigger,SidebarProvider::no direct ZoruUI replacement for full collapsible sidebar shell
+src/app/admin/dashboard/page.tsx::ProjectSearch,AdminDeleteProjectButton,AdminUpdateCreditsButton,AdminUpdateMpsButton,AdminAssignPlanDialog (wabasimplify)::admin-specific compound widgets
+src/app/admin/dashboard/template-library/page.tsx::AdminTemplateCategoryManager (wabasimplify)::admin domain-specific compound widget
+src/app/admin/dashboard/whatsapp-projects/page.tsx::AdminUserSearch,AdminUserFilter,AdminArchiveProjectButton (wabasimplify)::admin domain-specific compound widgets
+src/app/admin/dashboard/template-library/create/page.tsx::CreateTemplateForm (wabasimplify)::domain-specific compound form
+src/app/admin/dashboard/plans/_components/SortablePlansGrid.tsx::AdminDeletePlanButton,AdminPlanPermissionsDialog,AdminDuplicatePlanButton (wabasimplify)::admin domain-specific compound widgets
+src/app/admin/dashboard/plans/_components/PlanEditor.tsx::PlanPermissionSelector,PlanFeaturesSelector (wabasimplify)::admin domain-specific compound widgets
+src/app/admin/dashboard/plans/[planId]/plan-editor.tsx::PlanPermissionSelector,PlanFeaturesSelector (wabasimplify)::admin domain-specific compound widgets
+src/app/admin/dashboard/system/page.tsx::SubscribeAllButton,RunCronJobsButton,SyncLocalTemplatesButton,WebhookProcessingToggle,DiwaliThemeToggle,AppLogoForm,SystemBackupButton,MaintenanceModeToggle (wabasimplify)::admin domain-specific compound widgets
+src/app/admin/dashboard/users/page.tsx::AdminUserSearch,ApproveUserButton,AdminAssignUserPlanDialog,ImpersonateUserButton,AdminUserPermissionsDialog,AdminUserActionsMenu,AdminUsersTableView (wabasimplify)::admin domain-specific compound widgets
+src/app/onboarding/layout.tsx::SabNodeLogo (wabasimplify/logo)::branded SVG logo, not a primitive
+src/app/onboarding/page.tsx::OnboardingWizard (wabasimplify/onboarding/onboarding-wizard)::domain-specific compound wizard
+src/app/login/page.client.tsx::SabNodeLogo,LoginForm (wabasimplify)::branded logo + domain auth form, not primitives
+src/app/setup/page.tsx::EmbeddedSignup (wabasimplify/embedded-signup)::Facebook embedded signup OAuth widget, no ZoruUI primitive equivalent
+/Users/harshkhandelwal/Downloads/sabnode/src/components/email/layout/email-suite-layout.tsx::ModuleLayout::Wabasimplify module-layout (handled by other agent)
+/Users/harshkhandelwal/Downloads/sabnode/src/components/email/overview/account-list.tsx::GoogleIcon+OutlookIcon::Wabasimplify icon imports (handled by other agent)
+src/components/wabasimplify/seo/create-project-dialog.tsx::Form,FormControl,FormDescription,FormField,FormItem,FormLabel,FormMessage::no ZoruUI react-hook-form wrapper equivalent
+src/components/admin-panel/layout/admin-layout.tsx :: SidebarProvider from @/components/ui/sidebar :: shadcn sidebar primitive system; no ZoruUI equivalent yet
+src/components/admin-panel/sidebar/app-rail.tsx :: SabNodeLogo + custom-sidebar-components :: branded SVG logo + custom WhatsAppIcon/MetaIcon/etc; no ZoruUI primitives
+src/components/admin-panel/sidebar/app-sidebar.tsx :: WhatsAppIcon, MetaIcon :: branded channel icons; no ZoruUI primitives
+src/components/admin-panel/header/admin-header.tsx :: SidebarTrigger from @/components/ui/sidebar :: shadcn sidebar primitive system; no ZoruUI equivalent yet
+src/components/email/layout/email-suite-layout.tsx :: ModuleLayout from wabasimplify :: domain compound (module-level chrome); no ZoruUI primitive
+src/components/email/overview/account-list.tsx :: GoogleIcon, OutlookIcon :: branded channel icons
+src/components/notifications/notification-popover.tsx :: WhatsAppIcon, MetaIcon, CrmIcon, SabChatIcon :: branded channel icons
+src/components/features/FeatureChrome.tsx :: SabNodeLogo :: branded SVG logo
+src/components/clay/index.ts :: Clay design system barrel :: legacy design system to be wholly replaced by ZoruUI; intra-package references only
+src/components/clay/clay-dashboard-layout.tsx :: ./clay/* siblings :: intra-package legacy references
+src/components/clay/dashboard-chrome-dispatcher.tsx :: DashboardClientLayout from wabasimplify + ./clay :: legacy chrome dispatcher
+src/components/clay/sabnode-dashboard-shell.tsx :: SabNodeSidebar from @/components/ui/sidebar-component + ./crm/command-palette :: legacy shell using shadcn sidebar; full replacement needed
+src/components/wabasimplify/analytics-chart.tsx :: ChartTooltipContent, ChartContainer, ChartConfig from @/components/ui/chart :: ZoruUI barrel re-exports only ZoruChartContainer/ZoruChartTooltip — missing Content/Config/Legend wrappers
+src/components/wabasimplify/admin-dashboard-client-layout.tsx :: SidebarProvider + sidebar primitives :: shadcn sidebar primitive system; no ZoruUI equivalent yet
+src/components/wabasimplify/crm-tab-layout.tsx :: sidebar primitives from @/components/ui/sidebar :: shadcn sidebar primitive system; no ZoruUI equivalent yet
+src/components/wabasimplify/website-builder/checkout-form.tsx :: Form, FormField, FormItem, FormLabel, FormControl, FormMessage :: react-hook-form wrappers; no ZoruUI Form primitive
+src/components/wabasimplify/seo/create-project-dialog.tsx :: Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription :: react-hook-form wrappers; no ZoruUI Form primitive

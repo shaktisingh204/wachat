@@ -32,14 +32,24 @@ import {
   MoreHorizontal,
   BellRing,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import {
+  Button,
+  Badge,
+  Input,
+  Label,
+  Switch,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  ScrollArea,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/zoruui";
 import { toast } from "sonner";
 
 import {
@@ -52,16 +62,16 @@ import {
   type SabsmsFacet,
 } from "@/components/sabsms/page-toolkit";
 
-import { 
-  DataTable, 
-  ZoruActionSearchBar, 
-  ZoruActionSearchAction,
+import {
+  DataTable,
+  ZoruActionSearchBar,
+  type ZoruActionSearchAction,
   ZoruStatisticsCard1,
-  ZoruStatisticsCard1Item,
+  type ZoruStatisticsCard1Item,
   DropdownMenu,
   ZoruDropdownMenuTrigger,
   ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem
+  ZoruDropdownMenuItem,
 } from "@/components/zoruui";
 
 // Mock Data Types

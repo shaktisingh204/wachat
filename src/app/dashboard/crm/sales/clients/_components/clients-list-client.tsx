@@ -59,8 +59,8 @@ import {
   type CrmAccountKpis,
 } from '@/app/actions/crm-accounts.actions';
 import type { CrmAccount } from '@/lib/definitions';
-import { CrmAddClientDialog } from '@/components/wabasimplify/crm-add-client-dialog';
-import { ClientReportButton } from '@/components/wabasimplify/client-report-button';
+import { CrmAddClientDialog } from '@/components/zoruui-domain/crm-add-client-dialog';
+import { ClientReportButton } from '@/components/zoruui-domain/client-report-button';
 import { dateStamp, downloadCsv, downloadXlsx } from '@/lib/crm-list-export';
 import { ClientsMapView } from '../map-view';
 import { fmtINR, fmtDate } from '@/lib/utils';

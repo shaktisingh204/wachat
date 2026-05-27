@@ -68,7 +68,7 @@ import {
 import { getSession } from '@/app/actions/user.actions';
 import type { CrmPipeline } from '@/lib/definitions';
 
-import { EditPipelinesDialog } from '@/components/wabasimplify/edit-pipelines-dialog';
+import { EditPipelinesDialog } from '@/components/zoruui-domain/edit-pipelines-dialog';
 
 const PIPELINES_PER_PAGE = 10;
 

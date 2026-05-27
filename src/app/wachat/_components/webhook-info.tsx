@@ -19,7 +19,7 @@ import { getProjectById } from '@/app/actions/index.ts';
 /**
  * WebhookInfo (wachat-local, ZoruUI).
  *
- * Replaces @/components/wabasimplify/webhook-info. Renders the callback
+ * Replaces the legacy webhook-info. Renders the callback
  * URL + verify token (read-only, copyable) and a live status card that
  * polls Meta. Server actions and copy-to-clipboard behaviour preserved.
  */

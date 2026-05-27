@@ -1071,3 +1071,32 @@ impl FromRef<AppState> for SabChatCommerceState { fn from_ref(s: &AppState) -> S
 impl FromRef<AppState> for SabChatReportsState { fn from_ref(s: &AppState) -> Self { s.sabchat_reports.clone() } }
 // (SabChatTeamsState FromRef impl already defined at line ~792 — second
 // declaration removed to avoid E0119 conflicting-impl.)
+
+// ─── §17: derive-from-mongo FromRef impls for sabcatalyst-* states ─────
+// These crates' State structs are thin wrappers around MongoHandle, so we
+// can construct them on demand without adding fields to AppState.
+impl FromRef<AppState> for sabcatalyst_records::state::SabcatalystRecordsState {
+    fn from_ref(s: &AppState) -> Self {
+        sabcatalyst_records::state::SabcatalystRecordsState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for sabcatalyst_usage::state::SabcatalystUsageState {
+    fn from_ref(s: &AppState) -> Self {
+        sabcatalyst_usage::state::SabcatalystUsageState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for sabcatalyst_api_keys::state::SabcatalystApiKeysState {
+    fn from_ref(s: &AppState) -> Self {
+        sabcatalyst_api_keys::state::SabcatalystApiKeysState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for sabcatalyst_auth_sessions::state::SabcatalystAuthSessionsState {
+    fn from_ref(s: &AppState) -> Self {
+        sabcatalyst_auth_sessions::state::SabcatalystAuthSessionsState::new(s.mongo.clone())
+    }
+}
+impl FromRef<AppState> for sabcatalyst_file_store::state::SabcatalystFileStoreState {
+    fn from_ref(s: &AppState) -> Self {
+        sabcatalyst_file_store::state::SabcatalystFileStoreState::new(s.mongo.clone())
+    }
+}

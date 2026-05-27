@@ -1,19 +1,7 @@
 'use client';
 
-import { Button } from '@/components/zoruui';
+import { Button, Dialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, Input, Label, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import { useState, useRef, useEffect, useActionState } from 'react';
-import { Button } from "@/components/ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { useToast } from "@/hooks/use-toast";
 import { saveCrmAccountGroup } from '@/app/actions/crm-accounting.actions';
@@ -78,20 +66,20 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle className="text-foreground">Add Account Group</DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
+            <ZoruDialogContent className="sm:max-w-[425px]">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle className="text-zoru-ink">Add Account Group</ZoruDialogTitle>
+                    <ZoruDialogDescription className="text-zoru-ink-muted">
                         Create a new group for your Chart of Accounts.
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-foreground">Group Name</Label>
+                        <Label htmlFor="name" className="text-zoru-ink">Group Name</Label>
                         <Input id="name" name="name" required defaultValue={defaultName} />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="type" className="text-foreground">Type</Label>
+                        <Label htmlFor="type" className="text-zoru-ink">Type</Label>
                         <EnumFormField
                             name="type"
                             enumName="accountNature"
@@ -101,22 +89,22 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
                         />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="category" className="text-foreground">Category</Label>
+                        <Label htmlFor="category" className="text-zoru-ink">Category</Label>
                         <Select name="category" required>
-                            <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
-                            <SelectContent>
+                            <ZoruSelectTrigger><ZoruSelectValue placeholder="Select Category" /></ZoruSelectTrigger>
+                            <ZoruSelectContent>
                                 {categoriesByType[selectedType]?.map(cat => (
-                                    <SelectItem key={cat} value={cat}>{cat.replace(/_/g, ' ')}</SelectItem>
+                                    <ZoruSelectItem key={cat} value={cat}>{cat.replace(/_/g, ' ')}</ZoruSelectItem>
                                 ))}
-                            </SelectContent>
+                            </ZoruSelectContent>
                         </Select>
                     </div>
-                    <DialogFooter>
+                    <ZoruDialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
-                    </DialogFooter>
+                    </ZoruDialogFooter>
                 </form>
-            </DialogContent>
+            </ZoruDialogContent>
         </Dialog>
     );
 }

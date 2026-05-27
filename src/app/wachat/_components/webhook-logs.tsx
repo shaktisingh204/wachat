@@ -49,7 +49,7 @@ import type { WebhookLogListItem } from '@/lib/definitions';
 /**
  * WebhookLogs (wachat-local, ZoruUI).
  *
- * Replaces @/components/wabasimplify/webhook-logs. Same server actions
+ * Replaces the legacy webhook-logs. Same server actions
  * (getWebhookLogs, handleClearProcessedLogs, handleReprocessWebhook,
  * getWebhookLogPayload), same pagination + reprocess + payload-view
  * behaviour.

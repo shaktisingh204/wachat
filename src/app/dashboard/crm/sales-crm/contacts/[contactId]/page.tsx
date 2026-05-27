@@ -25,7 +25,7 @@ import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { statusToTone } from '@/components/crm/status-pill';
-import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
+import { ComposeEmailDialog } from '@/components/zoruui-domain/crm-compose-email-dialog';
 import { ContactDetailActions } from '../_components/contacts-detail-actions';
 import { ContactDetailBody } from '../_components/contacts-detail-body';
 

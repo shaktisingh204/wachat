@@ -22,7 +22,7 @@ import {
 } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
-import { SabNodeLogo } from '@/components/wabasimplify/logo';
+import { SabNodeLogo } from '@/components/zoruui-domain/logo';
 
 import { AlertCircle, CheckCircle, LoaderCircle } from 'lucide-react';
 import { handleForgotPassword } from '@/app/actions/user.actions';

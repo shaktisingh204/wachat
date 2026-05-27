@@ -2,21 +2,9 @@
 
 import { useState, useEffect, useTransition, useRef } from 'react';
 import * as React from 'react';
-import { Button } from "@/components/ui/button";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "@/components/ui/tabs";
+import { Button, Popover, ZoruPopoverContent, ZoruPopoverTrigger, Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger, ScrollArea } from "@/components/zoruui";
 import { Bell, Check, Loader2, Info, Target, ChevronLeft, ChevronRight } from "lucide-react";
-import { WhatsAppIcon, MetaIcon, CrmIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { WhatsAppIcon, MetaIcon, CrmIcon, SabChatIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 import { cn } from "@/lib/utils";
 import { getAllNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '@/app/actions/notification.actions';
 import type { NotificationWithProject } from '@/lib/definitions';
@@ -126,15 +114,15 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
+            <ZoruPopoverTrigger asChild>
                 <Button variant="ghost" size="icon" className={cn("relative h-10 w-10 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground", className)}>
                     <Bell className="h-5 w-5" />
                     {unreadCount > 0 && (
                         <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-600 ring-2 ring-background" />
                     )}
                 </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[380px] p-0" align="start" side="right" sideOffset={20}>
+            </ZoruPopoverTrigger>
+            <ZoruPopoverContent className="w-[380px] p-0" align="start" side="right" sideOffset={20}>
                 <div className="flex items-center justify-between p-4 border-b">
                     <h4 className="font-semibold">Notifications</h4>
                     {unreadCount > 0 && (
@@ -161,18 +149,18 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
                             className="flex overflow-x-auto no-scrollbar scroll-smooth px-8 w-full"
                             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                         >
-                            <TabsList className="w-auto inline-flex justify-start rounded-none h-12 bg-transparent p-0">
+                            <ZoruTabsList className="w-auto inline-flex justify-start rounded-none h-12 bg-transparent p-0">
                                 {categories.map(cat => (
-                                    <TabsTrigger
+                                    <ZoruTabsTrigger
                                         key={cat.id}
                                         value={cat.id}
                                         className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-3 pb-2 pt-3 text-xs whitespace-nowrap flex-shrink-0"
                                     >
                                         <cat.icon className="h-3.5 w-3.5 mr-1.5 opacity-70" />
                                         {cat.label}
-                                    </TabsTrigger>
+                                    </ZoruTabsTrigger>
                                 ))}
-                            </TabsList>
+                            </ZoruTabsList>
                         </div>
 
                         <Button
@@ -185,7 +173,7 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
                         </Button>
                     </div>
 
-                    <TabsContent value={activeTab} className="m-0 focus-visible:ring-0 focus-visible:outline-none">
+                    <ZoruTabsContent value={activeTab} className="m-0 focus-visible:ring-0 focus-visible:outline-none">
                         <ScrollArea className="h-[400px]">
                             {loading ? (
                                 <div className="flex flex-col items-center justify-center h-48 text-muted-foreground gap-2">
@@ -259,9 +247,9 @@ export function NotificationPopover({ className }: NotificationPopoverProps) {
                                 View full history
                             </Link>
                         </div>
-                    </TabsContent>
+                    </ZoruTabsContent>
                 </Tabs>
-            </PopoverContent>
+            </ZoruPopoverContent>
         </Popover>
     );
 }

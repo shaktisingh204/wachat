@@ -282,6 +282,356 @@ export function SabFilesIcon(props: IconProps) {
   );
 }
 
+// Envelope.
+export function SabMailIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3" y="5.5" width="18" height="13" rx="2" />
+      <path d="m3.5 7 8.5 6 8.5-6" />
+    </svg>
+  );
+}
+
+// Video tile with lens cutout.
+export function SabMeetIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3" y="6" width="13" height="12" rx="2" />
+      <path d="m16 10 5-2.5v9L16 14Z" />
+    </svg>
+  );
+}
+
+// Phone receiver with sound waves.
+export function SabVoiceIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M5 4.75A1.75 1.75 0 0 1 6.75 3h2l2 4.5-2 1.25a11 11 0 0 0 5 5l1.25-2 4.5 2v2A1.75 1.75 0 0 1 17.75 17.5 13.5 13.5 0 0 1 5 4.75Z" />
+    </svg>
+  );
+}
+
+// Sheet with signature swoosh.
+export function SabSignIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M5 3.5h9l5 5v12a1.5 1.5 0 0 1-1.5 1.5h-12.5A1.5 1.5 0 0 1 3.5 20.5V5A1.5 1.5 0 0 1 5 3.5Z" />
+      <path d="M14 3.5V9h5" />
+      <path d="M7 16c1.5-2.5 3-2.5 4 0s2.5 2.5 4 0" />
+    </svg>
+  );
+}
+
+// Three-bar chart.
+export function SabBiIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4.5 20V11" />
+      <path d="M12 20V4" />
+      <path d="M19.5 20v-6" />
+      <path d="M3 20.5h18" />
+    </svg>
+  );
+}
+
+// Funnel + droplet.
+export function SabPrepIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M3.5 5h17l-6.5 7v8l-4-2v-6Z" />
+    </svg>
+  );
+}
+
+// Checklist clipboard.
+export function SabRequestsIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="5" y="4.5" width="14" height="16" rx="2" />
+      <path d="M9 3.5h6v3H9z" />
+      <path d="m8.5 12 1.5 1.5L13 11" />
+      <path d="M8.5 17h7" />
+    </svg>
+  );
+}
+
+// Two people connected.
+export function SabConnectIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="8" cy="8.5" r="3" />
+      <circle cx="16" cy="8.5" r="3" />
+      <path d="M3.5 19c.5-3 2.5-4.5 4.5-4.5s4 1.5 4.5 4.5" />
+      <path d="M11.5 19c.5-3 2.5-4.5 4.5-4.5s4 1.5 4.5 4.5" />
+    </svg>
+  );
+}
+
+// Eye with heatmap dot.
+export function SabSenseIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12Z" />
+      <circle cx="12" cy="12" r="2.75" />
+      <circle cx="12" cy="12" r="0.75" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+// Compact CRM — small contact card.
+export function SabBiginIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <circle cx="9" cy="11" r="2" />
+      <path d="M6.5 16c.5-1.5 1.5-2 2.5-2s2 .5 2.5 2" />
+      <path d="M14 10h4" />
+      <path d="M14 13h4" />
+    </svg>
+  );
+}
+
+// Shopping bag with handles.
+export function SabShopIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4.5 8h15l-1 12.5h-13Z" />
+      <path d="M8.5 8V6a3.5 3.5 0 0 1 7 0v2" />
+    </svg>
+  );
+}
+
+// Kanban columns.
+export function SabSprintsIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3.5" y="4.5" width="4.5" height="12" rx="1" />
+      <rect x="10" y="4.5" width="4.5" height="15" rx="1" />
+      <rect x="16.5" y="4.5" width="4.5" height="8" rx="1" />
+    </svg>
+  );
+}
+
+// Bug — oval body, antennae, legs.
+export function SabBugsIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <ellipse cx="12" cy="13" rx="5" ry="6" />
+      <path d="M12 7V4" />
+      <path d="M9.5 5 8 3.5" />
+      <path d="m14.5 5 1.5-1.5" />
+      <path d="M7 11H3.5" />
+      <path d="M17 11h3.5" />
+      <path d="M7 17H3.5" />
+      <path d="M17 17h3.5" />
+    </svg>
+  );
+}
+
+// Star award.
+export function SabRewardsIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="m12 3 2.5 5.5L20 9.5l-4 4 1 5.5-5-2.75-5 2.75 1-5.5-4-4 5.5-1Z" />
+    </svg>
+  );
+}
+
+// Webinar — screen with play + audience dots.
+export function SabWebinarIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3" y="4" width="18" height="11" rx="2" />
+      <path d="m10.5 7 4 2.5-4 2.5Z" fill="currentColor" stroke="none" />
+      <circle cx="7" cy="19" r="1.25" />
+      <circle cx="12" cy="19.5" r="1.25" />
+      <circle cx="17" cy="19" r="1.25" />
+    </svg>
+  );
+}
+
+// Workers — briefcase + person.
+export function SabWorkerlyIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3" y="8" width="18" height="12" rx="2" />
+      <path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+      <path d="M3 13.5h18" />
+    </svg>
+  );
+}
+
+// Practice — calculator / ledger.
+export function SabPracticeIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="5" y="3.5" width="14" height="17" rx="2" />
+      <path d="M8.5 7h7" />
+      <circle cx="8.5" cy="11.5" r="0.75" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="11.5" r="0.75" fill="currentColor" stroke="none" />
+      <circle cx="15.5" cy="11.5" r="0.75" fill="currentColor" stroke="none" />
+      <circle cx="8.5" cy="15" r="0.75" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="15" r="0.75" fill="currentColor" stroke="none" />
+      <circle cx="15.5" cy="15" r="0.75" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+// Map pin with broadcast lines.
+export function SabPublishIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M12 3.5c-3.5 0-6 2.5-6 5.75 0 4 6 11.25 6 11.25s6-7.25 6-11.25c0-3.25-2.5-5.75-6-5.75Z" />
+      <circle cx="12" cy="9.5" r="2" />
+    </svg>
+  );
+}
+
+// Palette + brush.
+export function SabCreatorIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M12 3.5a8.5 8.5 0 1 0 0 17c1 0 1.5-.75 1.5-1.5s-.5-1.5-.5-2.5c0-1.25 1-2 2-2H17a3.5 3.5 0 0 0 3.5-3.5C20.5 6.75 16.75 3.5 12 3.5Z" />
+      <circle cx="7.5" cy="10" r="1" fill="currentColor" stroke="none" />
+      <circle cx="11" cy="7" r="1" fill="currentColor" stroke="none" />
+      <circle cx="16" cy="9" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+// Server stack + lightning bolt.
+export function SabCatalystIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3.5" y="4.5" width="17" height="6" rx="1.5" />
+      <rect x="3.5" y="13.5" width="17" height="6" rx="1.5" />
+      <path d="m11 6.5-1.5 2.5h2L10 11.5" fill="currentColor" stroke="none" />
+      <path d="M7 7.5h.5" />
+      <path d="M7 16.5h.5" />
+    </svg>
+  );
+}
+
+// Spreadsheet grid.
+export function SabSheetIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="1.5" />
+      <path d="M3.5 9h17" />
+      <path d="M3.5 14.5h17" />
+      <path d="M9 3.5v17" />
+      <path d="M14.5 3.5v17" />
+    </svg>
+  );
+}
+
+// Slide deck.
+export function SabShowIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3" y="4.5" width="18" height="12" rx="1.5" />
+      <path d="M8 20.5h8" />
+      <path d="M12 16.5v4" />
+      <path d="M7 10h6" />
+      <path d="M7 13h4" />
+    </svg>
+  );
+}
+
+// Camera lens / AR target.
+export function SabLensIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+// Wrench over server.
+export function SabOpsIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3.5" y="4" width="17" height="5.5" rx="1.5" />
+      <rect x="3.5" y="11.5" width="17" height="5.5" rx="1.5" />
+      <path d="m13 17.5 4 4" />
+      <circle cx="11" cy="15.5" r="2" />
+    </svg>
+  );
+}
+
+// Heartbeat line.
+export function SabMonitorIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="2.5" y="6" width="19" height="12" rx="1.5" />
+      <path d="M6 12h2l1.5-3 2.5 6 1.5-3 1.5 2H18" />
+    </svg>
+  );
+}
+
+// Safe / vault with dial.
+export function SabVaultIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3.5" y="4" width="17" height="14" rx="2" />
+      <circle cx="12" cy="11" r="3.5" />
+      <path d="M12 11v-1.5" />
+      <path d="M17 18v2" />
+      <path d="M7 18v2" />
+    </svg>
+  );
+}
+
+// Database tables / records.
+export function SabTablesIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <ellipse cx="12" cy="5.5" rx="7.5" ry="2.25" />
+      <path d="M4.5 5.5v6c0 1.25 3.5 2.25 7.5 2.25s7.5-1 7.5-2.25v-6" />
+      <path d="M4.5 11.5v6c0 1.25 3.5 2.25 7.5 2.25s7.5-1 7.5-2.25v-6" />
+    </svg>
+  );
+}
+
+// Headset.
+export function SabDeskIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4.5 14v-2A7.5 7.5 0 0 1 12 4.5a7.5 7.5 0 0 1 7.5 7.5v2" />
+      <rect x="3.5" y="13.5" width="4" height="6" rx="1.25" />
+      <rect x="16.5" y="13.5" width="4" height="6" rx="1.25" />
+    </svg>
+  );
+}
+
+// Megaphone.
+export function SabCampaignsIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M3.5 10v4l13 5V5Z" />
+      <path d="M16.5 9a3 3 0 0 1 0 6" />
+    </svg>
+  );
+}
+
+// Sparkle / thrive.
+export function SabThriveIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M12 3v5" />
+      <path d="M12 16v5" />
+      <path d="M3 12h5" />
+      <path d="M16 12h5" />
+      <path d="m6 6 3.5 3.5" />
+      <path d="m14.5 14.5 3.5 3.5" />
+      <path d="m6 18 3.5-3.5" />
+      <path d="m14.5 9.5 3.5-3.5" />
+    </svg>
+  );
+}
+
 // Cogwheel silhouette with inner hub.
 export function SettingsIcon(props: IconProps) {
   return (

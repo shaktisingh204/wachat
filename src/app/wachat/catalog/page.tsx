@@ -37,8 +37,8 @@ import {
 import { getCatalogs } from '@/app/actions/catalog.actions';
 import { getProjectById } from '@/app/actions/project.actions';
 import type { Catalog } from '@/lib/definitions';
-import { SyncCatalogsButton } from '@/components/wabasimplify/sync-catalogs-button';
-import EmbeddedSignup from '@/components/wabasimplify/embedded-signup';
+import { SyncCatalogsButton } from '@/components/zoruui-domain/sync-catalogs-button';
+import EmbeddedSignup from '@/components/zoruui-domain/embedded-signup';
 import { useProject } from '@/context/project-context';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 

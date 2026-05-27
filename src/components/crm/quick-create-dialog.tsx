@@ -1,10 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Dialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogDescription, Button, Input, Label } from '@/components/zoruui';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { quickCreateEntity } from '@/app/actions/crm-quick-create.actions';
@@ -55,13 +52,13 @@ export function QuickCreateDialog({ open, onOpenChange, entity, onCreated }: Qui
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Create New {getEntityTitle()}</DialogTitle>
-                    <DialogDescription>
+            <ZoruDialogContent className="sm:max-w-[425px]">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>Create New {getEntityTitle()}</ZoruDialogTitle>
+                    <ZoruDialogDescription>
                         Quickly add a new {getEntityTitle().toLowerCase()} record.
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Render fields conditionally based on entity */}
                     
@@ -213,7 +210,7 @@ export function QuickCreateDialog({ open, onOpenChange, entity, onCreated }: Qui
                         </Button>
                     </div>
                 </form>
-            </DialogContent>
+            </ZoruDialogContent>
         </Dialog>
     );
 }

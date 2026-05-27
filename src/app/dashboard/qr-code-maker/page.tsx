@@ -47,20 +47,20 @@ import {
   Trash2,
   Upload,
   } from 'lucide-react';
-import { QrCodeSidebar } from '@/components/wabasimplify/qr-code-sidebar';
+import { QrCodeSidebar } from '@/components/zoruui-domain/qr-code-sidebar';
 import Link from 'next/link';
 import { getSession } from '@/app/actions/index';
 import { deleteManyQrCodes,
   deleteQrCode,
   getQrCodes } from '@/app/actions/qr-code.actions';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
-import { QrCodeGenerator } from '@/components/wabasimplify/qr-code-generator';
-import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
-import { CommentsNotesPanel } from '@/components/wabasimplify/comments-notes-panel';
-import { EditQrDialog } from '@/components/wabasimplify/edit-qr-dialog';
-import { SharePermissionsModal } from '@/components/wabasimplify/share-permissions-modal';
-import { QrScanStatsModal } from '@/components/wabasimplify/qr-scan-stats-modal';
-import { BulkQrImportDialog } from '@/components/wabasimplify/bulk-qr-import-dialog';
+import { QrCodeGenerator } from '@/components/zoruui-domain/qr-code-generator';
+import { QrCodeDialog } from '@/components/zoruui-domain/qr-code-dialog';
+import { CommentsNotesPanel } from '@/components/zoruui-domain/comments-notes-panel';
+import { EditQrDialog } from '@/components/zoruui-domain/edit-qr-dialog';
+import { SharePermissionsModal } from '@/components/zoruui-domain/share-permissions-modal';
+import { QrScanStatsModal } from '@/components/zoruui-domain/qr-scan-stats-modal';
+import { BulkQrImportDialog } from '@/components/zoruui-domain/bulk-qr-import-dialog';
 import { normalizeQrWebsiteUrl } from '@/lib/qr-utils';
 
 type SortKey = 'newest' | 'oldest' | 'name-asc' | 'name-desc';

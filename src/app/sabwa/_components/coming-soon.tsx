@@ -23,14 +23,14 @@
 import * as React from "react";
 import type { LucideIcon } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import {
+  Badge,
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+} from "@/components/zoruui";
 
 export interface ComingSoonProps {
   /** Page title (e.g. "Inbox", "Bulk sender"). */
@@ -60,34 +60,34 @@ export function ComingSoon({
       <header className="flex items-start gap-3">
         <div
           aria-hidden
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-zoru-surface text-zoru-ink"
         >
           <Icon className="h-6 w-6" />
         </div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-zoru-ink">{title}</h1>
             <Badge variant="secondary">Coming soon</Badge>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          <p className="mt-1 text-sm text-zoru-ink-muted">{description}</p>
         </div>
       </header>
 
       {features && features.length > 0 ? (
         <Card>
-          <CardHeader>
-            <CardTitle>{featuresTitle}</CardTitle>
+          <ZoruCardHeader>
+            <ZoruCardTitle>{featuresTitle}</ZoruCardTitle>
             {featuresDescription ? (
-              <CardDescription>{featuresDescription}</CardDescription>
+              <ZoruCardDescription>{featuresDescription}</ZoruCardDescription>
             ) : null}
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc space-y-2 pl-5 text-sm">
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <ul className="list-disc space-y-2 pl-5 text-sm text-zoru-ink">
               {features.map((feature, i) => (
                 <li key={i}>{feature}</li>
               ))}
             </ul>
-          </CardContent>
+          </ZoruCardContent>
         </Card>
       ) : null}
     </div>

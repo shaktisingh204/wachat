@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
-import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
-import { CartView } from '@/components/wabasimplify/website-builder/cart-view';
+import { Canvas } from '@/components/zoruui-domain/website-builder/canvas';
+import { CartView } from '@/components/zoruui-domain/website-builder/cart-view';
 import { CartProvider } from '@/context/cart-context';
 import { Suspense } from 'react';
 

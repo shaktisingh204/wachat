@@ -36,7 +36,7 @@ import type { Project } from '@/lib/definitions';
 /**
  * ImportContactsDialog (wachat-local, ZoruUI).
  *
- * Replaces @/components/wabasimplify/import-contacts-dialog. Same server
+ * Replaces the legacy import-contacts-dialog. Same server
  * action (handleImportContacts), same form fields and CSV download
  * handler.
  */

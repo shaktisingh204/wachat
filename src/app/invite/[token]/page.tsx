@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { LuArrowRight, LuMailX } from 'react-icons/lu';
 
 import { Badge, Button, Card } from '@/components/zoruui';
-import { SabNodeLogo } from '@/components/wabasimplify/logo';
+import { SabNodeLogo } from '@/components/zoruui-domain/logo';
 import { getInvitationByToken, rememberPendingInviteToken } from '@/app/actions/team.actions';
 import { getSession } from '@/app/actions/user.actions';
 

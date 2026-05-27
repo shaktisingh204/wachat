@@ -23,14 +23,14 @@ import { getCrmFormById,
   saveCrmForm } from '@/app/actions/crm-forms.actions';
 import { notFound,
   useParams } from 'next/navigation';
-import { CrmFormBuilder } from '@/components/wabasimplify/website-builder/crm-form-builder';
+import { CrmFormBuilder } from '@/components/zoruui-domain/website-builder/crm-form-builder';
 import type { WithId,
   CrmForm } from '@/lib/definitions';
 import { ArrowLeft, Code2, Eye, LoaderCircle, Save } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { CodeBlock } from '@/components/wabasimplify/code-block';
+import { CodeBlock } from '@/components/zoruui-domain/code-block';
 
 void _zoruCn;
 

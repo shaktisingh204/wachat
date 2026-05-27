@@ -48,7 +48,7 @@ import {
   createLookalikeAudience,
   deleteCustomAudience,
 } from '@/app/actions/ad-manager.actions';
-import { COUNTRIES, formatNumber } from '@/components/wabasimplify/ad-manager/constants';
+import { COUNTRIES, formatNumber } from '@/components/zoruui-domain/ad-manager/constants';
 import { AmBreadcrumb } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import type { CustomAudience } from '@/lib/definitions';
 
@@ -77,15 +77,15 @@ function EmptyState({ type }: { type: 'custom' | 'lookalike' }) {
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary mb-4">
         {type === 'custom' ? (
-          <Users className="h-5 w-5 text-muted-foreground" />
+          <Users className="h-5 w-5 text-zoru-ink-muted" />
         ) : (
-          <Copy className="h-5 w-5 text-muted-foreground" />
+          <Copy className="h-5 w-5 text-zoru-ink-muted" />
         )}
       </div>
       <p className="text-[13px] font-medium text-foreground mb-1">
         No {type === 'custom' ? 'custom' : 'lookalike'} audiences
       </p>
-      <p className="text-[11px] text-muted-foreground max-w-[240px]">
+      <p className="text-[11px] text-zoru-ink-muted max-w-[240px]">
         {type === 'custom'
           ? 'Create a custom audience from your website visitors, customer lists, or engagement data.'
           : 'Build lookalike audiences from your existing custom audiences to reach similar people.'}
@@ -101,10 +101,10 @@ function NoAccountState() {
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary mb-5">
-        <Users className="h-6 w-6 text-muted-foreground" />
+        <Users className="h-6 w-6 text-zoru-ink-muted" />
       </div>
       <p className="text-[15px] font-medium text-foreground mb-1">No ad account selected</p>
-      <p className="text-[13px] text-muted-foreground mb-5 max-w-xs">
+      <p className="text-[13px] text-zoru-ink-muted mb-5 max-w-xs">
         Pick an ad account to view and manage your audiences.
       </p>
       <Link href="/dashboard/ad-manager/ad-accounts">
@@ -148,11 +148,11 @@ function AudienceRow({
         {/* icon */}
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary">
           {subtype === 'LOOKALIKE' ? (
-            <Copy className="h-4 w-4 text-muted-foreground" />
+            <Copy className="h-4 w-4 text-zoru-ink-muted" />
           ) : subtype === 'WEBSITE' ? (
-            <Globe className="h-4 w-4 text-muted-foreground" />
+            <Globe className="h-4 w-4 text-zoru-ink-muted" />
           ) : (
-            <Target className="h-4 w-4 text-muted-foreground" />
+            <Target className="h-4 w-4 text-zoru-ink-muted" />
           )}
         </div>
 
@@ -160,12 +160,12 @@ function AudienceRow({
         <div className="flex-1 min-w-0">
           <p className="text-[13px] font-medium text-foreground truncate">{audience.name}</p>
           {audience.description && (
-            <p className="text-[11px] text-muted-foreground truncate mt-0.5">{audience.description}</p>
+            <p className="text-[11px] text-zoru-ink-muted truncate mt-0.5">{audience.description}</p>
           )}
           {isPopulating && (
             <div className="mt-2.5 flex items-center gap-2 max-w-[200px]">
               <Progress value={65} className="h-1.5 flex-1" indicatorClassName="bg-warning animate-pulse" />
-              <span className="text-[10px] text-muted-foreground font-medium">Populating...</span>
+              <span className="text-[10px] text-zoru-ink-muted font-medium">Populating...</span>
             </div>
           )}
         </div>
@@ -192,7 +192,7 @@ function AudienceRow({
         <Button
           variant="ghost"
           size="icon"
-          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+          className="opacity-0 group-hover:opacity-100 text-zoru-ink-muted hover:text-destructive"
           onClick={() => setConfirmOpen(true)}
         >
           <Trash2 className="h-4 w-4" />
@@ -204,7 +204,7 @@ function AudienceRow({
         <ZoruDialogContent className="max-w-sm">
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-[15px]">Delete audience</ZoruDialogTitle>
-            <ZoruDialogDescription className="text-[13px] text-muted-foreground">
+            <ZoruDialogDescription className="text-[13px] text-zoru-ink-muted">
               Are you sure you want to delete <strong>{audience.name}</strong>? This action cannot be undone.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
@@ -249,7 +249,7 @@ function TabPill({
         'h-8 px-4 rounded-full text-[12.5px] font-medium transition-all duration-150',
         active
           ? 'bg-foreground text-white shadow-sm'
-          : 'bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80',
+          : 'bg-secondary text-zoru-ink-muted hover:text-foreground hover:bg-secondary/80',
       )}
     >
       {children}
@@ -339,7 +339,7 @@ function CreateAudienceSheet({
       <ZoruSheetContent side="right" className="w-full sm:max-w-md bg-background overflow-y-auto">
         <ZoruSheetHeader className="mb-6">
           <ZoruSheetTitle className="text-[18px] font-semibold text-foreground">Create audience</ZoruSheetTitle>
-          <ZoruSheetDescription className="text-[13px] text-muted-foreground">
+          <ZoruSheetDescription className="text-[13px] text-zoru-ink-muted">
             Build a custom or lookalike audience for targeting.
           </ZoruSheetDescription>
         </ZoruSheetHeader>
@@ -357,7 +357,7 @@ function CreateAudienceSheet({
         {type === 'custom' ? (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                 Name
               </Label>
               <Input
@@ -368,7 +368,7 @@ function CreateAudienceSheet({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                 Description
               </Label>
               <Input
@@ -379,7 +379,7 @@ function CreateAudienceSheet({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                 Source type
               </Label>
               <Select value={customSubtype} onValueChange={(v) => setCustomSubtype(v as typeof customSubtype)}>
@@ -397,7 +397,7 @@ function CreateAudienceSheet({
         ) : (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                 Source audience
               </Label>
               <Select value={lookOrigin} onValueChange={setLookOrigin}>
@@ -415,7 +415,7 @@ function CreateAudienceSheet({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                 Country
               </Label>
               <Select value={lookCountry} onValueChange={setLookCountry}>
@@ -434,7 +434,7 @@ function CreateAudienceSheet({
 
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
                   Similarity ratio
                 </Label>
                 <span className="text-[13px] font-semibold text-foreground tabular-nums">{lookRatio}%</span>
@@ -448,7 +448,7 @@ function CreateAudienceSheet({
                 onChange={(e) => setLookRatio(Number(e.target.value))}
                 className="w-full accent-foreground h-1.5 rounded-full appearance-none bg-secondary cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-muted-foreground">
+              <div className="flex justify-between text-[10px] text-zoru-ink-muted">
                 <span>1% most similar</span>
                 <span>10% broadest</span>
               </div>
@@ -530,7 +530,7 @@ function SyncCrmDialog({
 
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+            <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
               Audience Name
             </Label>
             <Input
@@ -541,7 +541,7 @@ function SyncCrmDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+            <Label className="text-[11px] font-medium text-zoru-ink-muted uppercase tracking-wide">
               CRM Segment
             </Label>
             <Select value={segment} onValueChange={setSegment}>
@@ -683,7 +683,7 @@ export default function AudiencesPage() {
       {/* audience list */}
       <Card className="p-0 overflow-hidden">
         {/* column header */}
-        <div className="flex items-center gap-4 px-5 py-2.5 border-b border-border text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="flex items-center gap-4 px-5 py-2.5 border-b border-border text-[10px] font-medium text-zoru-ink-muted uppercase tracking-wider">
           <div className="w-9 shrink-0" />
           <div className="flex-1">Name</div>
           <div className="w-20 text-center">Type</div>

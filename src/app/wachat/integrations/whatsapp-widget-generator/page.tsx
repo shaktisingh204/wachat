@@ -28,7 +28,7 @@ import type { WithId,
 
 import { getProjectById } from '@/app/actions/project.actions';
 import { useProject } from '@/context/project-context';
-import { WhatsAppWidgetGenerator } from '@/components/wabasimplify/whatsapp-widget-generator';
+import { WhatsAppWidgetGenerator } from '@/components/zoruui-domain/whatsapp-widget-generator';
 import React from 'react';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error?: Error }> {

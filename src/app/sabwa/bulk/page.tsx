@@ -78,7 +78,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Slider } from '@/components/ui/slider';
+import { Slider } from '@/components/zoruui';
 import {
   SabFilePickerButton,
   type SabFilePick,
@@ -933,7 +933,6 @@ function Step3Review({
             ))}
           </div>
           <div className="flex items-center gap-3">
-            {/* Slider has no ZoruUI equivalent yet — keep shadcn primitive. */}
             <Slider
               min={1}
               max={30}

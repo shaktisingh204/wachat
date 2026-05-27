@@ -9,11 +9,11 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Linkedin } from 'lucide-react';
-import { SabNodeLogo } from '@/components/wabasimplify/logo';
+import { SabNodeLogo } from '@/components/zoruui-domain/logo';
 import {
   FacebookIcon as FacebookAppIcon,
   InstagramIcon,
-} from '@/components/wabasimplify/custom-sidebar-components';
+} from '@/components/zoruui-domain/custom-sidebar-components';
 
 export function Footer() {
   return (

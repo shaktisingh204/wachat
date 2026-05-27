@@ -7,35 +7,36 @@ import {
   ShoppingCart, Info, CheckCircle2, ChevronDown, 
   SlidersHorizontal, MapPin
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import {
+  Button,
+  Input,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+  Badge,
+  Checkbox,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/zoruui";
 import { toast } from "sonner";
 import { searchNumbers, getRecommendedNumbers, checkoutNumbers, PhoneNumber } from "./actions";
 
@@ -157,11 +158,11 @@ export default function BuyNumbersPage() {
   }, 0);
 
   return (
-    <div className="flex flex-col gap-6 p-6 min-h-screen bg-neutral-50/50 dark:bg-neutral-950">
+    <div className="flex flex-col gap-6 p-6 min-h-screen bg-zoru-bg">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Buy Numbers</h1>
-          <p className="text-neutral-500 dark:text-neutral-400 mt-1">
+          <h1 className="text-3xl font-bold tracking-tight text-zoru-ink">Buy Numbers</h1>
+          <p className="text-zoru-ink-muted mt-1">
             Search and provision phone numbers from over 100 countries.
           </p>
         </div>

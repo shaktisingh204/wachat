@@ -1,7 +1,7 @@
 import { Card } from '@/components/zoruui';
 import { Settings } from 'lucide-react';
-import { EditLinkDrawer } from '@/components/wabasimplify/edit-link-drawer';
-import { LinkHistoryDrawer } from '@/components/wabasimplify/link-history-drawer';
+import { EditLinkDrawer } from '@/components/zoruui-domain/edit-link-drawer';
+import { LinkHistoryDrawer } from '@/components/zoruui-domain/link-history-drawer';
 import type { ShortUrl } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 

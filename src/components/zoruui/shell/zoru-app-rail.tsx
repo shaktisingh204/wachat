@@ -51,13 +51,17 @@ export function ZoruAppRail({
         )}
       >
         {brand && <div className="mb-2 flex h-8 w-8 items-center justify-center">{brand}</div>}
-        <nav className="flex flex-col items-center gap-1">
+        <nav
+          // Long app lists scroll independently of the rest of the rail so
+          // the footer (settings/profile) stays pinned at the bottom.
+          className="flex min-h-0 flex-1 flex-col items-center gap-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           {items.map((item) => (
             <RailButton key={item.id} item={item} />
           ))}
         </nav>
         {footer && footer.length > 0 && (
-          <nav className="mt-auto flex flex-col items-center gap-1 pt-2">
+          <nav className="flex flex-col items-center gap-1 border-t border-zoru-line/60 pt-2">
             {footer.map((item) => (
               <RailButton key={item.id} item={item} />
             ))}

@@ -37,7 +37,7 @@ import type { Project,
 /**
  * AddContactDialog (wachat-local, ZoruUI).
  *
- * Replaces @/components/wabasimplify/add-contact-dialog. Same server
+ * Replaces the legacy add-contact-dialog. Same server
  * action (handleAddNewContact), same hidden form fields, same project
  * + tag selection behaviour.
  */

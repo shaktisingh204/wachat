@@ -44,8 +44,8 @@ import {
     Boxes,
     Crown,
 } from 'lucide-react';
-import { PlanPermissionSelector } from '@/components/wabasimplify/plan-permission-selector';
-import { PlanFeaturesSelector } from '@/components/wabasimplify/plan-features-selector';
+import { PlanPermissionSelector } from '@/components/zoruui-domain/plan-permission-selector';
+import { PlanFeaturesSelector } from '@/components/zoruui-domain/plan-features-selector';
 
 
 const initialState = { message: null, error: null };

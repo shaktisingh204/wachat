@@ -5,8 +5,7 @@ import {
     ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
     CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell 
 } from 'recharts';
-import { ClayCard } from '@/components/clay';
-import { Button } from '@/components/zoruui';
+import { Button, Card } from '@/components/zoruui';
 import { Download, FileText, Image as ImageIcon, LayoutDashboard, Settings2, GripVertical } from 'lucide-react';
 import {
     DndContext,
@@ -171,7 +170,7 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
 
     const widgets: Record<string, React.ReactNode> = {
         'financial': (
-            <ClayCard className="col-span-1 h-full" padded={false}>
+            <Card className="col-span-1 h-full p-0">
                 <div className="p-5 border-b border-border flex justify-between items-center">
                     <h3 className="text-foreground font-semibold">Financial Performance</h3>
                 </div>
@@ -188,10 +187,10 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
-            </ClayCard>
+            </Card>
         ),
         'funnel': (
-            <ClayCard className="col-span-1 h-full" padded={false}>
+            <Card className="col-span-1 h-full p-0">
                 <div className="p-5 border-b border-border flex justify-between items-center">
                     <h3 className="text-foreground font-semibold">Lead Funnel</h3>
                 </div>
@@ -222,7 +221,7 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
                         </div>
                     )}
                 </div>
-            </ClayCard>
+            </Card>
         )
     };
 
@@ -267,23 +266,23 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
             <div ref={dashboardRef} className="space-y-6 p-1">
                 {/* KPIs */}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <ClayCard>
+                    <Card>
                         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <h3 className="text-sm font-medium text-muted-foreground">Total Revenue</h3>
                         </div>
                         <div>
                             <div className="text-2xl font-bold text-foreground">₹{kpis.totalRevenue.toLocaleString()}</div>
                         </div>
-                    </ClayCard>
-                    <ClayCard>
+                    </Card>
+                    <Card>
                         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <h3 className="text-sm font-medium text-muted-foreground">Total Expenses</h3>
                         </div>
                         <div>
                             <div className="text-2xl font-bold text-foreground">₹{kpis.totalExpense.toLocaleString()}</div>
                         </div>
-                    </ClayCard>
-                    <ClayCard>
+                    </Card>
+                    <Card>
                         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <h3 className="text-sm font-medium text-muted-foreground">Net Profit</h3>
                         </div>
@@ -292,15 +291,15 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
                                 ₹{kpis.netProfit.toLocaleString()}
                             </div>
                         </div>
-                    </ClayCard>
-                    <ClayCard>
+                    </Card>
+                    <Card>
                         <div className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <h3 className="text-sm font-medium text-muted-foreground">Total Leads</h3>
                         </div>
                         <div>
                             <div className="text-2xl font-bold text-foreground">{kpis.totalLeads}</div>
                         </div>
-                    </ClayCard>
+                    </Card>
                 </div>
 
                 {/* Charts */}

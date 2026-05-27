@@ -2,10 +2,10 @@ import { getSession } from '@/app/actions/user.actions';
 import { redirect } from 'next/navigation';
 import { connectToDatabase } from '@/lib/mongodb';
 import { nanoid } from 'nanoid';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { PageHeader } from '@/components/ui/page-header';
-import { EmptyState } from '@/components/ui/empty-state';
+import { Button } from '@/components/zoruui';
+import { Card, CardContent } from '@/components/zoruui';
+import { PageHeader } from '@/components/zoruui';
+import { EmptyState } from '@/components/zoruui';
 import { LayoutDashboard, Plus } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

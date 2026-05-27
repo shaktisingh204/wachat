@@ -26,7 +26,7 @@ import { handleSyncWabas } from '@/app/actions/index.ts';
 /**
  * SyncProjectsDialog (wachat-local, ZoruUI).
  *
- * Replaces @/components/wabasimplify/sync-projects-dialog. Same server
+ * Replaces the legacy sync-projects-dialog. Same server
  * action (handleSyncWabas), same form fields, same callback signature.
  */
 

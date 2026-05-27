@@ -2,7 +2,7 @@ import React from 'react';
 import { getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
 import { notFound } from 'next/navigation';
 import { CartProvider } from '@/context/cart-context';
-import { BlockRenderer } from '@/components/wabasimplify/website-builder/block-renderer';
+import { BlockRenderer } from '@/components/zoruui-domain/website-builder/block-renderer';
 import { getPublicEcommProducts } from '@/app/actions/custom-ecommerce.actions';
 
 export default async function ShopLayout(

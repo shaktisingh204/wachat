@@ -22,7 +22,7 @@ import {
 import { CircleAlert } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { UserAttributesSettingsTab } from '@/components/wabasimplify/user-attributes-settings-tab';
+import { UserAttributesSettingsTab } from '@/components/zoruui-domain/user-attributes-settings-tab';
 
 import * as React from 'react';
 

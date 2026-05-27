@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { verifyLinkPassword } from '@/app/actions/url-shortener.actions';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/zoruui';
+import { Input } from '@/components/zoruui';
 import { Lock, Loader2 } from 'lucide-react';
 import RedirectScript from './RedirectScript';
 

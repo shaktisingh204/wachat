@@ -28,7 +28,7 @@ import { Label } from '@/components/zoruui';
 import { Badge } from '@/components/zoruui';
 import { useZoruToast } from '@/components/zoruui';
 import { createLandingPage, updateLandingPage, deleteLandingPage } from '@/app/actions/marketing/landing-page-builder.actions';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, ZoruTabsContent, ZoruTabsList, ZoruTabsTrigger } from '@/components/zoruui';
 import { ZoruChartContainer, ZoruChartTooltip, ZoruChart, ZORU_CHART_PALETTE } from '@/components/zoruui/chart';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/zoruui/card';
 
@@ -132,12 +132,12 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
   return (
     <div className="flex flex-col gap-6 w-full">
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="dashboard">Global Campaign Dashboard</TabsTrigger>
-          <TabsTrigger value="landing-pages">Landing Pages</TabsTrigger>
-        </TabsList>
+        <ZoruTabsList className="mb-4">
+          <ZoruTabsTrigger value="dashboard">Global Campaign Dashboard</ZoruTabsTrigger>
+          <ZoruTabsTrigger value="landing-pages">Landing Pages</ZoruTabsTrigger>
+        </ZoruTabsList>
 
-        <TabsContent value="dashboard" className="space-y-6">
+        <ZoruTabsContent value="dashboard" className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatCard
               label="Total Cross-Channel Spend"
@@ -205,9 +205,9 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
+        </ZoruTabsContent>
 
-        <TabsContent value="landing-pages" className="space-y-6">
+        <ZoruTabsContent value="landing-pages" className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Total Landing Pages"
@@ -348,7 +348,7 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
           </div>
         )}
       </EntityListShell>
-        </TabsContent>
+        </ZoruTabsContent>
       </Tabs>
     </div>
   );

@@ -1,12 +1,9 @@
 'use client';
 
-import { Button, Input, Label } from '@/components/zoruui';
+import { Button, Input, Label, Card, Badge } from '@/components/zoruui';
 import { useRouter, usePathname } from 'next/navigation';
 import { Search,
   XCircle } from 'lucide-react';
-
-import { ClayCard,
-  ClayBadge } from '@/components/clay';
 
 import * as React from 'react';
 
@@ -62,57 +59,57 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
 
   return (
     <div className="flex flex-col gap-4">
-      <ClayCard>
+      <Card className="p-6">
         <form
           onSubmit={applyFilters}
           className="grid gap-3 md:grid-cols-5"
           aria-label="Filter activity"
         >
           <div>
-            <Label className="text-[11.5px] text-muted-foreground">Actor</Label>
+            <Label className="text-[11.5px] text-zoru-ink-muted">Actor</Label>
             <Input
               value={filters.actor}
               onChange={(e) => setFilters((f) => ({ ...f, actor: e.target.value }))}
               placeholder="User id"
-              className="mt-1 h-9 rounded-lg border-border bg-card text-[12.5px]"
+              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[12.5px]"
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-muted-foreground">Action</Label>
+            <Label className="text-[11.5px] text-zoru-ink-muted">Action</Label>
             <Input
               value={filters.action}
               onChange={(e) => setFilters((f) => ({ ...f, action: e.target.value }))}
               placeholder="e.g. created"
-              className="mt-1 h-9 rounded-lg border-border bg-card text-[12.5px]"
+              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[12.5px]"
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-muted-foreground">Resource type</Label>
+            <Label className="text-[11.5px] text-zoru-ink-muted">Resource type</Label>
             <Input
               value={filters.resourceType}
               onChange={(e) =>
                 setFilters((f) => ({ ...f, resourceType: e.target.value }))
               }
               placeholder="task / lead / deal"
-              className="mt-1 h-9 rounded-lg border-border bg-card text-[12.5px]"
+              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[12.5px]"
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-muted-foreground">From</Label>
+            <Label className="text-[11.5px] text-zoru-ink-muted">From</Label>
             <Input
               type="date"
               value={filters.from}
               onChange={(e) => setFilters((f) => ({ ...f, from: e.target.value }))}
-              className="mt-1 h-9 rounded-lg border-border bg-card text-[12.5px]"
+              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[12.5px]"
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-muted-foreground">To</Label>
+            <Label className="text-[11.5px] text-zoru-ink-muted">To</Label>
             <Input
               type="date"
               value={filters.to}
               onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))}
-              className="mt-1 h-9 rounded-lg border-border bg-card text-[12.5px]"
+              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[12.5px]"
             />
           </div>
           <div className="flex items-end gap-2 md:col-span-5">
@@ -137,41 +134,41 @@ export function ActivityBrowser({ activities, initialFilters }: ActivityBrowserP
             ) : null}
           </div>
         </form>
-      </ClayCard>
+      </Card>
 
       {activities.length === 0 ? (
-        <ClayCard className="flex items-center justify-center py-12">
-          <p className="text-[13px] text-muted-foreground">No activity in this window.</p>
-        </ClayCard>
+        <Card className="flex items-center justify-center py-12">
+          <p className="text-[13px] text-zoru-ink-muted">No activity in this window.</p>
+        </Card>
       ) : (
-        <ClayCard padded={false}>
-          <ul className="divide-y divide-border">
+        <Card className="p-0">
+          <ul className="divide-y divide-zoru-line">
             {activities.map((a) => (
               <li key={a._id} className="px-4 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[13px] font-medium text-foreground">
+                  <span className="text-[13px] font-medium text-zoru-ink">
                     {a.actor_user_id}
                   </span>
-                  <ClayBadge tone="neutral">{a.action}</ClayBadge>
+                  <Badge variant="ghost">{a.action}</Badge>
                   {a.resource_type ? (
-                    <ClayBadge tone="rose-soft">{a.resource_type}</ClayBadge>
+                    <Badge variant="danger">{a.resource_type}</Badge>
                   ) : null}
-                  <span className="ml-auto text-[11.5px] text-muted-foreground">
+                  <span className="ml-auto text-[11.5px] text-zoru-ink-muted">
                     {formatStamp(a.occurred_at)}
                   </span>
                 </div>
                 {a.description ? (
-                  <p className="mt-1 text-[13px] text-foreground">{a.description}</p>
+                  <p className="mt-1 text-[13px] text-zoru-ink">{a.description}</p>
                 ) : null}
                 {a.ip_address ? (
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  <p className="mt-0.5 text-[11px] text-zoru-ink-muted">
                     IP {a.ip_address}
                   </p>
                 ) : null}
               </li>
             ))}
           </ul>
-        </ClayCard>
+        </Card>
       )}
     </div>
   );
