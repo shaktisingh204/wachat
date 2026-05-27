@@ -43,7 +43,7 @@ interface WaPageProps {
 export function WaPage({ children, fullBleed = false }: WaPageProps) {
     return (
         <ModuleTheme slug="wachat">
-            <div className={fullBleed ? 'min-h-full' : 'mx-auto w-full max-w-[1280px] px-6 pb-20 pt-8'}>
+            <div className={fullBleed ? 'min-h-full' : 'mx-auto w-full max-w-[1440px] px-5 pb-10 pt-5'}>
                 {children}
             </div>
         </ModuleTheme>
@@ -66,7 +66,7 @@ export function PageHeader({ title, description, kicker = 'Wachat', backHref, ac
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: EASE_OUT }}
-            className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+            className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
         >
             <div className="min-w-0">
                 <div className="flex items-center gap-2">
@@ -88,11 +88,11 @@ export function PageHeader({ title, description, kicker = 'Wachat', backHref, ac
                         {kicker}
                     </span>
                 </div>
-                <h1 className="mt-1 text-balance text-3xl font-semibold tracking-tight text-zinc-950 md:text-4xl">
+                <h1 className="mt-0.5 text-balance text-[22px] font-semibold tracking-tight text-zinc-950 md:text-[26px]">
                     {title}
                 </h1>
                 {description && (
-                    <p className="mt-1.5 max-w-2xl text-[14.5px] leading-relaxed text-zinc-600">{description}</p>
+                    <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-zinc-600">{description}</p>
                 )}
             </div>
             {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
@@ -118,7 +118,7 @@ interface TabsProps {
 
 export function Tabs({ items, active, onChange, layoutId = 'wa-tabs' }: TabsProps) {
     return (
-        <div className="mb-6 flex flex-wrap gap-1 rounded-full border border-zinc-200 bg-white p-1">
+        <div className="mb-4 flex flex-wrap gap-1 rounded-full border border-zinc-200 bg-white p-0.5">
             {items.map((t) => {
                 const isActive = t.id === active;
                 const inner = (
@@ -131,7 +131,7 @@ export function Tabs({ items, active, onChange, layoutId = 'wa-tabs' }: TabsProp
                         )}
                     </span>
                 );
-                const cls = 'relative rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-colors duration-150';
+                const cls = 'relative rounded-full px-3 py-1 text-[11.5px] font-semibold transition-colors duration-150';
                 return (
                     <div key={t.id} className="relative">
                         {isActive && (
@@ -177,26 +177,26 @@ export function MetricTile({ label, value, delta, icon: Icon, href, delay = 0 }:
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay, ease: EASE_OUT }}
-            className="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px]"
+            className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-3.5 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px]"
             style={{ boxShadow: '0 0 0 1px transparent' }}
-            onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 18px 40px -22px var(--mt-accent-glow)'; }}
+            onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 12px 28px -18px var(--mt-accent-glow)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 0 0 1px transparent'; }}
         >
             <div className="flex items-center justify-between">
-                <span className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-zinc-500">{label}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-zinc-500">{label}</span>
                 {Icon && (
                     <span
-                        className="grid h-7 w-7 place-items-center rounded-lg text-white"
-                        style={{ backgroundImage: 'linear-gradient(135deg, #34d399, #14b8a6)' }}
+                        className="grid h-6 w-6 place-items-center rounded-md text-white"
+                        style={{ backgroundColor: '#25D366' }}
                     >
-                        <Icon className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
+                        <Icon className="h-3 w-3" strokeWidth={2.25} aria-hidden />
                     </span>
                 )}
             </div>
-            <div className="mt-3 flex items-baseline gap-2">
-                <span className="text-[28px] font-semibold tracking-tight text-zinc-950 tabular-nums">{value}</span>
+            <div className="mt-2 flex items-baseline gap-1.5">
+                <span className="text-[22px] font-semibold tracking-tight text-zinc-950 tabular-nums leading-none">{value}</span>
                 {delta && (
-                    <span className={`text-[11.5px] font-semibold tabular-nums ${delta.positive ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    <span className={`text-[11px] font-semibold tabular-nums ${delta.positive ? 'text-emerald-600' : 'text-rose-600'}`}>
                         {delta.positive ? '+' : ''}{delta.value}
                     </span>
                 )}
@@ -351,7 +351,7 @@ export function ProjectTile({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay, ease: EASE_OUT }}
             onClick={onSelect}
-            className="group relative w-full overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 text-left transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            className="group relative w-full overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 text-left transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             style={{
                 boxShadow: '0 0 0 1px transparent',
                 ['--tw-ring-color' as any]: 'var(--mt-ring)',
@@ -364,13 +364,13 @@ export function ProjectTile({
             <span
                 aria-hidden
                 className="pointer-events-none absolute inset-x-0 top-0 h-[2px] opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-                style={{ backgroundImage: 'linear-gradient(90deg, #34d399, #14b8a6)' }}
+                style={{ backgroundColor: '#25D366' }}
             />
 
             <div className="flex items-start justify-between gap-3">
                 <span
-                    className="grid h-11 w-11 place-items-center rounded-xl text-[13px] font-bold text-white shadow-[0_10px_22px_-10px_var(--mt-accent-glow)]"
-                    style={{ backgroundImage: 'linear-gradient(135deg, #34d399, #14b8a6)' }}
+                    className="grid h-9 w-9 place-items-center rounded-lg text-[12px] font-bold text-white shadow-[0_8px_16px_-8px_var(--mt-accent-glow)]"
+                    style={{ backgroundColor: '#25D366' }}
                 >
                     {initials}
                 </span>
@@ -384,24 +384,24 @@ export function ProjectTile({
                 )}
             </div>
 
-            <h3 className="mt-4 truncate text-[15px] font-semibold tracking-tight text-zinc-950">{name}</h3>
+            <h3 className="mt-3 truncate text-[14px] font-semibold tracking-tight text-zinc-950">{name}</h3>
 
-            <dl className="mt-2 space-y-1">
+            <dl className="mt-1.5 space-y-0.5">
                 {phone && (
-                    <div className="flex items-center gap-1.5 text-[12px] text-zinc-600">
+                    <div className="flex items-center gap-1.5 text-[11.5px] text-zinc-600">
                         <dt className="sr-only">Phone</dt>
                         <dd className="truncate font-mono tabular-nums">{phone}</dd>
                     </div>
                 )}
                 {waba && (
-                    <div className="flex items-center gap-1.5 text-[11.5px] text-zinc-500">
+                    <div className="flex items-center gap-1.5 text-[11px] text-zinc-500">
                         <dt className="sr-only">WABA</dt>
                         <dd className="truncate font-mono">WABA · {waba.slice(-8)}</dd>
                     </div>
                 )}
             </dl>
 
-            <div className="mt-5 flex items-center justify-between border-t border-zinc-100 pt-3">
+            <div className="mt-3.5 flex items-center justify-between border-t border-zinc-100 pt-2.5">
                 <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10.5px] font-semibold ${h.bg} ${h.text}`}>
                     <span className={`h-1.5 w-1.5 rounded-full ${h.dot}`} aria-hidden />
                     {h.label}
@@ -452,17 +452,17 @@ export function EmptyState({ icon: Icon = Sparkles, title, description, action }
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: EASE_OUT }}
-            className="rounded-3xl border border-zinc-200 bg-white px-6 py-16 text-center"
+            className="rounded-2xl border border-zinc-200 bg-white px-5 py-10 text-center"
         >
             <span
-                className="mx-auto grid h-12 w-12 place-items-center rounded-xl"
+                className="mx-auto grid h-10 w-10 place-items-center rounded-lg"
                 style={{ background: 'var(--mt-accent-soft)' }}
             >
-                <Icon className="h-5 w-5" strokeWidth={2} style={{ color: 'var(--mt-accent)' }} aria-hidden />
+                <Icon className="h-4 w-4" strokeWidth={2} style={{ color: 'var(--mt-accent)' }} aria-hidden />
             </span>
-            <p className="mt-5 text-base font-semibold text-zinc-950">{title}</p>
-            {description && <p className="mx-auto mt-1.5 max-w-md text-[13px] leading-relaxed text-zinc-600">{description}</p>}
-            {action && <div className="mt-6 inline-flex items-center justify-center">{action}</div>}
+            <p className="mt-3.5 text-[14px] font-semibold text-zinc-950">{title}</p>
+            {description && <p className="mx-auto mt-1 max-w-md text-[12.5px] leading-relaxed text-zinc-600">{description}</p>}
+            {action && <div className="mt-4 inline-flex items-center justify-center">{action}</div>}
         </m.div>
     );
 }
@@ -494,7 +494,7 @@ export function WaButton({
     type = 'button',
     className = '',
 }: WaButtonProps) {
-    const sizes = { sm: 'h-8 px-3 text-[12px]', md: 'h-10 px-4 text-[13px]' };
+    const sizes = { sm: 'h-7 px-2.5 text-[11.5px]', md: 'h-9 px-3.5 text-[12.5px]' };
     const base = 'inline-flex items-center justify-center gap-1.5 rounded-full font-semibold transition-[transform,box-shadow,background-color,color] duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
     const style: CSSProperties = {
         ['--tw-ring-color' as any]: 'var(--mt-ring)',
@@ -502,7 +502,7 @@ export function WaButton({
     };
     if (variant === 'solid') {
         style.color = '#ffffff';
-        style.backgroundImage = 'linear-gradient(135deg, #34d399, #14b8a6)';
+        style.backgroundColor = '#25D366';
         style.boxShadow = '0 12px 28px -12px var(--mt-accent-glow)';
     } else if (variant === 'outline') {
         style.backgroundColor = '#ffffff';
@@ -546,18 +546,18 @@ export function Section({ title, description, action, children, padded = true, c
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-10%' }}
             transition={{ duration: 0.4, ease: EASE_OUT }}
-            className={`rounded-2xl border border-zinc-200 bg-white ${className}`}
+            className={`rounded-xl border border-zinc-200 bg-white ${className}`}
         >
             {(title || description || action) && (
-                <header className="flex items-center justify-between gap-3 border-b border-zinc-100 px-5 py-3">
+                <header className="flex items-center justify-between gap-3 border-b border-zinc-100 px-4 py-2.5">
                     <div className="min-w-0">
-                        {title && <h2 className="truncate text-sm font-semibold tracking-tight text-zinc-900">{title}</h2>}
-                        {description && <p className="mt-0.5 text-[11.5px] text-zinc-500">{description}</p>}
+                        {title && <h2 className="truncate text-[13px] font-semibold tracking-tight text-zinc-900">{title}</h2>}
+                        {description && <p className="mt-0.5 text-[11px] text-zinc-500">{description}</p>}
                     </div>
                     {action}
                 </header>
             )}
-            <div className={padded ? 'p-5' : ''}>{children}</div>
+            <div className={padded ? 'p-4' : ''}>{children}</div>
         </m.section>
     );
 }
@@ -578,13 +578,13 @@ export function DataRow({ leading, title, subtitle, trailing, href, delay = 0 }:
         <>
             {leading && <div className="shrink-0">{leading}</div>}
             <div className="min-w-0 flex-1">
-                <div className="truncate text-[13.5px] font-medium text-zinc-900">{title}</div>
-                {subtitle && <div className="truncate text-[11.5px] text-zinc-500">{subtitle}</div>}
+                <div className="truncate text-[12.5px] font-medium text-zinc-900">{title}</div>
+                {subtitle && <div className="truncate text-[11px] text-zinc-500">{subtitle}</div>}
             </div>
             {trailing && <div className="shrink-0">{trailing}</div>}
         </>
     );
-    const cls = 'group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-150 hover:bg-zinc-50';
+    const cls = 'group flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-colors duration-150 hover:bg-zinc-50';
     return (
         <m.div
             initial={{ opacity: 0, x: -4 }}
