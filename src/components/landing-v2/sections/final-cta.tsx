@@ -23,9 +23,9 @@ export function FinalCta({ session }: { session?: { user?: unknown } | null }) {
                     initial={{ opacity: 0, y: 8 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="inline-flex items-center gap-2 rounded-full border border-zoru-line/10 bg-white/80 px-3 py-1 text-xs font-medium text-zoru-ink backdrop-blur"
+                    className="inline-flex items-center gap-2 rounded-full border border-zinc-900/10 bg-white/80 px-3 py-1 text-xs font-medium text-zinc-800 backdrop-blur"
                 >
-                    <Sparkles className="h-3.5 w-3.5 text-zoru-ink" />
+                    <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                     14-day trial · no card needed
                 </m.span>
                 <m.h2
@@ -33,7 +33,7 @@ export function FinalCta({ session }: { session?: { user?: unknown } | null }) {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.08 }}
-                    className="mt-6 text-balance text-5xl font-semibold tracking-tight text-zoru-ink sm:text-6xl"
+                    className="mt-6 text-balance text-5xl font-semibold tracking-tight text-zinc-950 sm:text-6xl"
                 >
                     The last tool you&apos;ll ever onboard your team to.
                 </m.h2>
@@ -42,7 +42,7 @@ export function FinalCta({ session }: { session?: { user?: unknown } | null }) {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.15 }}
-                    className="mx-auto mt-5 max-w-xl text-pretty text-zoru-ink"
+                    className="mx-auto mt-5 max-w-xl text-pretty text-zinc-700"
                 >
                     Cancel ten subscriptions. Replace ten dashboards. Run the entire business from SabNode.
                 </m.p>
@@ -56,7 +56,7 @@ export function FinalCta({ session }: { session?: { user?: unknown } | null }) {
                 >
                     <Link
                         href={session?.user ? '/dashboard' : '/login?signup=1'}
-                        className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-zoru-ink px-7 py-3 text-sm font-semibold text-white shadow-2xl shadow-zoru-line/20 transition hover:scale-[1.04]"
+                        className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-zinc-900 px-7 py-3 text-sm font-semibold text-white shadow-2xl shadow-zinc-900/20 transition hover:scale-[1.04]"
                     >
                         <span className="relative z-10">
                             {session?.user ? 'Open your dashboard' : 'Start free →'}
@@ -64,7 +64,7 @@ export function FinalCta({ session }: { session?: { user?: unknown } | null }) {
                     </Link>
                     <Link
                         href="/contact"
-                        className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line/15 bg-white px-7 py-3 text-sm font-semibold text-zoru-ink transition hover:bg-zoru-surface-2"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-zinc-900/15 bg-white px-7 py-3 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-50"
                     >
                         Book a 20-min demo
                         <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />

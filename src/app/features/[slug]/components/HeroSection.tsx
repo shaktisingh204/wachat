@@ -31,7 +31,7 @@ export function HeroSection({ feature, categoryMeta }: HeroSectionProps) {
       <div className="container mx-auto px-4 md:px-6 pt-12 md:pt-16 pb-10 md:pb-16 relative">
         <div className="grid grid-cols-12 gap-6 md:gap-10 items-end">
           <div className="col-span-12 md:col-span-8">
-            <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-zoru-ink">
+            <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#4A4A6B]">
               <span
                 className="h-7 w-7 rounded-md inline-flex items-center justify-center text-white"
                 style={{
@@ -44,16 +44,16 @@ export function HeroSection({ feature, categoryMeta }: HeroSectionProps) {
               {feature.hero.eyebrow}
             </div>
 
-            <h1 className="mt-5 font-display tracking-[-0.03em] text-[40px] md:text-[64px] lg:text-[76px] leading-[1.02] text-zoru-ink">
+            <h1 className="mt-5 font-display tracking-[-0.03em] text-[40px] md:text-[64px] lg:text-[76px] leading-[1.02] text-[#121126]">
               {feature.hero.headline}
             </h1>
-            <p className="mt-6 text-[16px] md:text-[18px] leading-[1.55] text-zoru-ink max-w-2xl">
+            <p className="mt-6 text-[16px] md:text-[18px] leading-[1.55] text-[#4A4A6B] max-w-2xl">
               {feature.hero.subhead}
             </p>
 
             <ul className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-2xl">
               {feature.hero.bullets.map(b => (
-                <li key={b} className="inline-flex items-start gap-2 text-[13.5px] text-zoru-ink">
+                <li key={b} className="inline-flex items-start gap-2 text-[13.5px] text-[#121126]">
                   <span
                     className="mt-0.5 h-4 w-4 rounded-full inline-flex items-center justify-center flex-shrink-0"
                     style={{ background: `${feature.color}1a`, color: feature.color }}
@@ -75,13 +75,13 @@ export function HeroSection({ feature, categoryMeta }: HeroSectionProps) {
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex h-11 items-center gap-1.5 rounded-full px-5 text-[13.5px] font-semibold text-zoru-ink border sn-hair hover:bg-black/[0.03]"
+                className="inline-flex h-11 items-center gap-1.5 rounded-full px-5 text-[13.5px] font-semibold text-[#121126] border sn-hair hover:bg-black/[0.03]"
               >
                 Talk to sales
               </Link>
               <Link
                 href="/features"
-                className="inline-flex h-11 items-center gap-1.5 px-2 text-[13px] font-medium text-zoru-ink hover:text-zoru-ink"
+                className="inline-flex h-11 items-center gap-1.5 px-2 text-[13px] font-medium text-[#4A4A6B] hover:text-[#121126]"
               >
                 Browse all features <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
@@ -99,7 +99,7 @@ export function HeroSection({ feature, categoryMeta }: HeroSectionProps) {
                 className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full opacity-30"
                 style={{ background: `radial-gradient(circle, ${feature.color}, transparent 70%)` }}
               />
-              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-zoru-ink">
+              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#7878A1]">
                 Feature signature
               </div>
               <div className="mt-3 flex items-center gap-3">
@@ -113,15 +113,15 @@ export function HeroSection({ feature, categoryMeta }: HeroSectionProps) {
                   <Icon className="h-5.5 w-5.5" strokeWidth={2.2} />
                 </span>
                 <div className="min-w-0">
-                  <div className="text-[10.5px] uppercase tracking-[0.14em] text-zoru-ink font-bold leading-none">
+                  <div className="text-[10.5px] uppercase tracking-[0.14em] text-[#7878A1] font-bold leading-none">
                     SabNode · {feature.brand ?? categoryMeta?.label}
                   </div>
-                  <div className="mt-1 font-display text-[20px] leading-tight text-zoru-ink">
+                  <div className="mt-1 font-display text-[20px] leading-tight text-[#121126]">
                     {feature.name}
                   </div>
                 </div>
               </div>
-              <p className="mt-4 text-[13px] leading-relaxed text-zoru-ink">
+              <p className="mt-4 text-[13px] leading-relaxed text-[#4A4A6B]">
                 {feature.tagline}
               </p>
 
@@ -133,15 +133,15 @@ export function HeroSection({ feature, categoryMeta }: HeroSectionProps) {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: feature.color }}></span>
                       <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: feature.color }}></span>
                     </span>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-zoru-ink">Live</span>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-[#7878A1]">Live</span>
                   </div>
 
                   {feature.metrics.slice(0, 3).map(m => (
                     <div key={m.label}>
-                      <div className="font-display text-[22px] leading-none text-zoru-ink" style={{ color: feature.color }}>
+                      <div className="font-display text-[22px] leading-none text-[#121126]" style={{ color: feature.color }}>
                         {m.value}
                       </div>
-                      <div className="mt-1 text-[10.5px] text-zoru-ink leading-snug">
+                      <div className="mt-1 text-[10.5px] text-[#7878A1] leading-snug">
                         {m.label}
                       </div>
                     </div>

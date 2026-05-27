@@ -136,7 +136,7 @@ export default function PartnersPage() {
                     { title: "Priority Support", desc: "Direct Slack channel with our engineering team." },
                     { title: "Co-Marketing", desc: "Featured case studies and joint webinars." }
                   ].map((item, i) => (
-                    <div key={i} className="p-5 border border-white/10 rounded-lg bg-zoru-ink hover:bg-white/5 transition-colors group">
+                    <div key={i} className="p-5 border border-white/10 rounded-lg bg-[#050505] hover:bg-white/5 transition-colors group">
                       <h4 className="font-bold text-sm flex items-center gap-2 mb-2">
                         <CheckCircle2 className="w-4 h-4 text-white/40 group-hover:text-white transition-colors" /> 
                         {item.title}
@@ -163,7 +163,7 @@ export default function PartnersPage() {
                   </p>
                 </div>
                 
-                <div className="bg-zoru-ink border border-white/10 rounded-lg p-6">
+                <div className="bg-[#050505] border border-white/10 rounded-lg p-6">
                   <ul className="space-y-5">
                     {[
                       "OAuth 2.0 application registration and management.",
@@ -208,7 +208,7 @@ export default function PartnersPage() {
           </div>
 
           {/* Right Column - Code / Examples */}
-          <div className="w-full xl:w-[480px] 2xl:w-[540px] p-6 lg:p-8 bg-zoru-ink xl:sticky xl:top-[73px] xl:h-[calc(100vh-73px)] xl:overflow-y-auto">
+          <div className="w-full xl:w-[480px] 2xl:w-[540px] p-6 lg:p-8 bg-[#050505] xl:sticky xl:top-[73px] xl:h-[calc(100vh-73px)] xl:overflow-y-auto">
             <div className="space-y-8">
               
               {/* Terminal Mockup */}
@@ -269,7 +269,7 @@ export default function PartnersPage() {
                 <p className="text-sm opacity-80 mb-5 font-sans leading-relaxed">
                   Get your partner API keys instantly. No credit card required for sandbox environments.
                 </p>
-                <button className="w-full py-2.5 bg-black text-white rounded font-semibold text-sm hover:bg-zoru-ink transition-colors flex items-center justify-center gap-2">
+                <button className="w-full py-2.5 bg-black text-white rounded font-semibold text-sm hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2">
                   Generate API Key <ArrowRight className="w-4 h-4"/>
                 </button>
               </div>

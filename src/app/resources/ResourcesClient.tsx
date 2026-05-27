@@ -114,25 +114,25 @@ export default function ResourcesClient() {
   }, { scope: containerRef, dependencies: [currentResources, currentPage] });
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-zoru-surface-2 text-black font-mono">
+    <div ref={containerRef} className="min-h-screen bg-zinc-50 text-black font-mono">
       {/* Hero Section */}
       <section className="bg-black text-white py-20 px-6 border-b-8 border-white">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="header-elem text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6">
             Resource Hub
           </h1>
-          <p className="header-elem text-zoru-ink-muted text-lg md:text-xl max-w-2xl mx-auto mb-10">
+          <p className="header-elem text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto mb-10">
             Explore our collection of blogs, whitepapers, guides, and videos to help you scale your CRM data and architecture.
           </p>
           
           <div className="header-elem max-w-xl mx-auto relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zoru-ink-muted group-focus-within:text-white transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-focus-within:text-white transition-colors" />
             <input 
               type="text" 
               placeholder="Search resources..." 
               value={searchQuery}
               onChange={handleSearch}
-              className="w-full bg-zoru-ink border-2 border-zoru-line text-white px-12 py-4 focus:outline-none focus:border-white transition-colors rounded-none placeholder:text-zoru-ink font-bold"
+              className="w-full bg-zinc-900 border-2 border-zinc-700 text-white px-12 py-4 focus:outline-none focus:border-white transition-colors rounded-none placeholder:text-zinc-500 font-bold"
             />
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function ResourcesClient() {
         <div className="max-w-6xl mx-auto">
           {/* Filters */}
           <div className="flex flex-wrap items-center gap-3 mb-12 header-elem">
-            <span className="font-bold uppercase text-sm tracking-widest mr-4 text-zoru-ink">Filters:</span>
+            <span className="font-bold uppercase text-sm tracking-widest mr-4 text-zinc-500">Filters:</span>
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
@@ -167,7 +167,7 @@ export default function ResourcesClient() {
                   key={resource.id} 
                   className="resource-card group bg-white border-2 border-black hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 flex flex-col h-full overflow-hidden"
                 >
-                  <div className="relative h-48 w-full border-b-2 border-black overflow-hidden bg-zoru-surface-2">
+                  <div className="relative h-48 w-full border-b-2 border-black overflow-hidden bg-zinc-200">
                     <Image
                       src={resource.image}
                       alt={resource.title}
@@ -183,15 +183,15 @@ export default function ResourcesClient() {
                   </div>
                   
                   <div className="p-6 flex flex-col flex-1">
-                    <div className="flex items-center gap-4 text-xs font-bold text-zoru-ink uppercase tracking-wider mb-3">
+                    <div className="flex items-center gap-4 text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3">
                       <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {resource.date}</span>
                       <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {resource.readTime}</span>
                     </div>
-                    <h3 className="text-xl font-black uppercase leading-tight mb-4 group-hover:text-zoru-ink transition-colors line-clamp-2">
+                    <h3 className="text-xl font-black uppercase leading-tight mb-4 group-hover:text-blue-600 transition-colors line-clamp-2">
                       {resource.title}
                     </h3>
                     
-                    <div className="mt-auto pt-4 flex items-center justify-between border-t-2 border-dashed border-zoru-line">
+                    <div className="mt-auto pt-4 flex items-center justify-between border-t-2 border-dashed border-zinc-200">
                       <Link href="#" className="text-sm font-bold uppercase hover:underline flex items-center gap-2">
                         Read More <ArrowRight className="w-4 h-4" />
                       </Link>
@@ -201,9 +201,9 @@ export default function ResourcesClient() {
               ))}
             </div>
           ) : (
-            <div className="py-20 text-center border-2 border-dashed border-zoru-line bg-white">
-              <p className="text-xl font-bold uppercase text-zoru-ink mb-2">No resources found</p>
-              <p className="text-zoru-ink-muted">Try adjusting your search or category filters.</p>
+            <div className="py-20 text-center border-2 border-dashed border-zinc-300 bg-white">
+              <p className="text-xl font-bold uppercase text-zinc-500 mb-2">No resources found</p>
+              <p className="text-zinc-400">Try adjusting your search or category filters.</p>
               <button 
                 onClick={() => { setSearchQuery(''); setActiveCategory('All'); }}
                 className="mt-6 px-6 py-2 bg-black text-white font-bold uppercase text-sm"
@@ -232,7 +232,7 @@ export default function ResourcesClient() {
                     className={`w-10 h-10 flex items-center justify-center font-bold border-2 transition-all ${
                       currentPage === i + 1
                         ? 'bg-black text-white border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'
-                        : 'bg-white text-black border-black hover:bg-zoru-surface-2'
+                        : 'bg-white text-black border-black hover:bg-zinc-100'
                     }`}
                   >
                     {i + 1}
@@ -259,7 +259,7 @@ export default function ResourcesClient() {
             <h2 className="text-4xl font-black uppercase tracking-tight mb-4 flex items-center justify-center md:justify-start gap-3">
               <Mail className="w-10 h-10" /> Stay Updated
             </h2>
-            <p className="text-zoru-ink-muted text-lg">
+            <p className="text-zinc-400 text-lg">
               Get the latest SabNode architectural updates, whitepapers, and guides delivered straight to your inbox.
             </p>
           </div>
@@ -269,11 +269,11 @@ export default function ResourcesClient() {
                 type="email" 
                 placeholder="developer@company.com" 
                 required
-                className="w-full bg-zoru-ink border-2 border-zoru-line text-white px-6 py-4 focus:outline-none focus:border-white transition-colors rounded-none placeholder:text-zoru-ink font-bold"
+                className="w-full bg-zinc-900 border-2 border-zinc-700 text-white px-6 py-4 focus:outline-none focus:border-white transition-colors rounded-none placeholder:text-zinc-500 font-bold"
               />
               <button 
                 type="submit"
-                className="w-full bg-white text-black font-black uppercase tracking-widest px-6 py-4 hover:bg-zoru-surface-2 transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-white text-black font-black uppercase tracking-widest px-6 py-4 hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2"
               >
                 Subscribe <ArrowRight className="w-5 h-5" />
               </button>

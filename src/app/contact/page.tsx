@@ -58,7 +58,7 @@ export default function ContactPage() {
         </div>
       </div>
 
-      <div className="w-full lg:w-[400px] xl:w-[500px] bg-zoru-ink border-l border-white/20 p-6 flex flex-col md:h-screen md:overflow-y-auto">
+      <div className="w-full lg:w-[400px] xl:w-[500px] bg-zinc-950 border-l border-white/20 p-6 flex flex-col md:h-screen md:overflow-y-auto">
         <div className="mb-8">
           <h3 className="text-sm font-bold uppercase tracking-widest text-white/50 mb-3">Example Request</h3>
           <div className="bg-black border border-white/20 rounded-md p-4 text-xs font-mono text-white/80 overflow-x-auto">

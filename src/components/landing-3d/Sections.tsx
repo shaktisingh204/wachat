@@ -76,13 +76,13 @@ function useChildStagger(
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="inline-flex items-center gap-2 rounded-full border border-zoru-line bg-white/80 px-3.5 py-1.5 text-[11px] font-semibold text-zoru-ink"
+      className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3.5 py-1.5 text-[11px] font-semibold text-emerald-800"
       style={{
         backdropFilter: 'blur(12px) saturate(1.5)',
         WebkitBackdropFilter: 'blur(12px) saturate(1.5)',
       }}
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-zoru-surface-2 to-zoru-ink" />
+      <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500" />
       <span className="uppercase tracking-[0.08em]">{children}</span>
     </div>
   );
@@ -145,12 +145,12 @@ export function WhySection() {
           <SectionLabel>Why SabNode</SectionLabel>
           <h2
             ref={titleRef}
-            className="mt-5 text-3xl md:text-4xl lg:text-[44px] font-semibold leading-[1.08] tracking-[-0.02em] text-zoru-ink"
+            className="mt-5 text-3xl md:text-4xl lg:text-[44px] font-semibold leading-[1.08] tracking-[-0.02em] text-emerald-950"
             style={{ perspective: '1000px' }}
           >
             Stop gluing tools together.
           </h2>
-          <p className="mt-5 text-base md:text-lg text-zoru-ink/70 leading-relaxed max-w-md">
+          <p className="mt-5 text-base md:text-lg text-emerald-900/70 leading-relaxed max-w-md">
             Most teams lose hours a day switching between CRMs, inboxes,
             automation tools and spreadsheets. SabNode replaces that stack
             with a single connected system that runs on autopilot.
@@ -158,14 +158,14 @@ export function WhySection() {
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
               href="/signup"
-              className="group inline-flex h-11 items-center justify-center gap-2 rounded-full bg-zoru-ink px-6 text-sm font-semibold text-white shadow-[0_12px_30px_-8px_rgba(5,150,105,0.55)] transition-transform hover:scale-[1.03]"
+              className="group inline-flex h-11 items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 text-sm font-semibold text-white shadow-[0_12px_30px_-8px_rgba(5,150,105,0.55)] transition-transform hover:scale-[1.03]"
             >
               Try it free
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="#use-cases"
-              className="inline-flex h-11 items-center text-sm font-semibold text-zoru-ink hover:text-zoru-ink transition-colors gap-1"
+              className="inline-flex h-11 items-center text-sm font-semibold text-emerald-800 hover:text-emerald-950 transition-colors gap-1"
             >
               See use cases <ArrowUpRight className="h-4 w-4" />
             </Link>
@@ -179,13 +179,13 @@ export function WhySection() {
               className="group relative rounded-2xl p-6 h-full overflow-hidden transition-transform hover:-translate-y-1"
               style={glassStyle}
             >
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-zoru-ink to-zoru-ink text-white mb-5 shadow-lg transition-transform group-hover:scale-110">
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white mb-5 shadow-lg transition-transform group-hover:scale-110">
                 <b.icon className="h-5 w-5" strokeWidth={2} />
               </div>
-              <div className="text-base font-semibold text-zoru-ink mb-1.5">
+              <div className="text-base font-semibold text-emerald-950 mb-1.5">
                 {b.title}
               </div>
-              <div className="text-[13.5px] text-zoru-ink/70 leading-relaxed">
+              <div className="text-[13.5px] text-emerald-900/70 leading-relaxed">
                 {b.desc}
               </div>
             </div>
@@ -219,12 +219,12 @@ export function UseCasesSection() {
         <SectionLabel>Use cases</SectionLabel>
         <h2
           ref={titleRef}
-          className="mt-5 text-3xl md:text-4xl lg:text-[44px] font-semibold leading-[1.08] tracking-[-0.02em] text-zoru-ink"
+          className="mt-5 text-3xl md:text-4xl lg:text-[44px] font-semibold leading-[1.08] tracking-[-0.02em] text-emerald-950"
           style={{ perspective: '1000px' }}
         >
           Built for real challenges
         </h2>
-        <p className="mt-5 text-base md:text-lg text-zoru-ink/70">
+        <p className="mt-5 text-base md:text-lg text-emerald-900/70">
           From sales to support to ops — real problems, quietly solved.
         </p>
       </div>
@@ -237,23 +237,23 @@ export function UseCasesSection() {
             style={glassStyle}
           >
             <div className="flex items-start justify-between mb-6">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-zoru-ink to-zoru-ink text-white shadow-lg transition-transform group-hover:scale-110">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg transition-transform group-hover:scale-110">
                 <u.icon className="h-6 w-6" strokeWidth={2} />
               </div>
               <div className="text-right">
-                <div className="text-2xl font-semibold bg-gradient-to-br from-zoru-ink to-zoru-ink bg-clip-text text-transparent tabular-nums">
+                <div className="text-2xl font-semibold bg-gradient-to-br from-emerald-600 to-teal-700 bg-clip-text text-transparent tabular-nums">
                   {u.metric}
                 </div>
-                <div className="text-[10px] uppercase tracking-[0.12em] text-zoru-ink/70 mt-0.5">
+                <div className="text-[10px] uppercase tracking-[0.12em] text-emerald-700/70 mt-0.5">
                   {u.metricLabel}
                 </div>
               </div>
             </div>
-            <h3 className="text-xl md:text-[22px] font-semibold text-zoru-ink mb-2.5 tracking-[-0.01em]">
+            <h3 className="text-xl md:text-[22px] font-semibold text-emerald-950 mb-2.5 tracking-[-0.01em]">
               {u.title}
             </h3>
-            <p className="text-zoru-ink/75 leading-relaxed text-[14.5px]">{u.desc}</p>
-            <div className="mt-6 flex items-center gap-1.5 text-sm font-semibold text-zoru-ink group-hover:text-zoru-ink transition-colors">
+            <p className="text-emerald-900/75 leading-relaxed text-[14.5px]">{u.desc}</p>
+            <div className="mt-6 flex items-center gap-1.5 text-sm font-semibold text-emerald-800 group-hover:text-emerald-950 transition-colors">
               Learn more
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </div>
@@ -281,23 +281,23 @@ export function PhilosophySection() {
         >
           <div
             aria-hidden
-            className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-zoru-ink via-zoru-ink to-zoru-ink"
+            className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-lime-500"
           />
-          <Quote className="absolute top-6 left-6 h-9 w-9 text-white" strokeWidth={1.5} />
-          <Quote className="absolute bottom-6 right-6 h-9 w-9 text-white rotate-180" strokeWidth={1.5} />
+          <Quote className="absolute top-6 left-6 h-9 w-9 text-emerald-200" strokeWidth={1.5} />
+          <Quote className="absolute bottom-6 right-6 h-9 w-9 text-emerald-200 rotate-180" strokeWidth={1.5} />
 
           <SectionLabel>Our philosophy</SectionLabel>
           <blockquote
             ref={quoteRef}
-            className="relative mt-6 text-2xl md:text-[32px] font-medium leading-[1.28] tracking-[-0.015em] text-zoru-ink max-w-2xl mx-auto"
+            className="relative mt-6 text-2xl md:text-[32px] font-medium leading-[1.28] tracking-[-0.015em] text-emerald-950 max-w-2xl mx-auto"
             style={{ perspective: '1000px' }}
           >
             Modern businesses don't fail for lack of ideas. They fail because manual execution can't keep up with growth.
           </blockquote>
-          <div className="mt-8 inline-flex items-center gap-3 text-[11px] text-zoru-ink/70 uppercase tracking-[0.15em]">
-            <span className="h-px w-10 bg-zoru-surface-2" />
+          <div className="mt-8 inline-flex items-center gap-3 text-[11px] text-emerald-700/70 uppercase tracking-[0.15em]">
+            <span className="h-px w-10 bg-emerald-300" />
             Proof &gt; Promise
-            <span className="h-px w-10 bg-zoru-surface-2" />
+            <span className="h-px w-10 bg-emerald-300" />
           </div>
         </div>
       </div>
@@ -330,7 +330,7 @@ export function AudienceSection() {
         <SectionLabel>Who it's for</SectionLabel>
         <h2
           ref={titleRef}
-          className="mt-5 text-3xl md:text-4xl lg:text-[44px] font-semibold leading-[1.08] tracking-[-0.02em] text-zoru-ink"
+          className="mt-5 text-3xl md:text-4xl lg:text-[44px] font-semibold leading-[1.08] tracking-[-0.02em] text-emerald-950"
           style={{ perspective: '1000px' }}
         >
           Built for operators, not theorists
@@ -344,12 +344,12 @@ export function AudienceSection() {
             className="group relative flex items-start gap-4 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-0.5"
             style={glassStyle}
           >
-            <div className="flex-shrink-0 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-zoru-ink to-zoru-ink text-white shadow-md transition-transform group-hover:scale-110 group-hover:-rotate-3">
+            <div className="flex-shrink-0 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md transition-transform group-hover:scale-110 group-hover:-rotate-3">
               <a.icon className="h-5 w-5" strokeWidth={2} />
             </div>
             <div>
-              <div className="text-[15px] font-semibold text-zoru-ink">{a.title}</div>
-              <div className="text-[13px] text-zoru-ink/65 mt-1 leading-relaxed">{a.desc}</div>
+              <div className="text-[15px] font-semibold text-emerald-950">{a.title}</div>
+              <div className="text-[13px] text-emerald-900/65 mt-1 leading-relaxed">{a.desc}</div>
             </div>
           </div>
         ))}
@@ -399,12 +399,12 @@ export function CTASection() {
           />
           <div
             aria-hidden
-            className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zoru-surface-2 to-transparent"
+            className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"
           />
 
           <div className="relative">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium text-white mb-7">
-              <Sparkles className="h-3.5 w-3.5 text-zoru-ink-muted" />
+              <Sparkles className="h-3.5 w-3.5 text-emerald-300" />
               Join the SabNode beta
             </div>
 
@@ -415,7 +415,7 @@ export function CTASection() {
             >
               Launch your stack. Watch it run.
             </h2>
-            <p className="mt-6 text-base md:text-lg text-white/80 max-w-xl mx-auto leading-relaxed">
+            <p className="mt-6 text-base md:text-lg text-emerald-100/80 max-w-xl mx-auto leading-relaxed">
               Build automation workflows that save time, cut costs and scale
               your business — in an afternoon, not a quarter.
             </p>
@@ -423,7 +423,7 @@ export function CTASection() {
             <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href="/signup"
-                className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-8 text-sm font-semibold text-zoru-ink transition-all hover:scale-[1.03] hover:shadow-[0_20px_40px_-10px_rgba(255,255,255,0.4)]"
+                className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-8 text-sm font-semibold text-emerald-900 transition-all hover:scale-[1.03] hover:shadow-[0_20px_40px_-10px_rgba(255,255,255,0.4)]"
               >
                 Request beta access
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -436,10 +436,10 @@ export function CTASection() {
               </Link>
             </div>
 
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs text-white/60">
-              <div className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-zoru-ink-muted" />No credit card</div>
-              <div className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-zoru-ink-muted" />10-minute setup</div>
-              <div className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-zoru-ink-muted" />Cancel anytime</div>
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs text-emerald-100/60">
+              <div className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-300" />No credit card</div>
+              <div className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-300" />10-minute setup</div>
+              <div className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-300" />Cancel anytime</div>
             </div>
           </div>
         </div>

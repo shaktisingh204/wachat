@@ -103,7 +103,7 @@ export default async function FeatureDetailPage({
   };
 
   return (
-    <div className="sn-root relative min-h-screen overflow-x-clip antialiased bg-white text-zoru-ink">
+    <div className="sn-root relative min-h-screen overflow-x-clip antialiased bg-white text-[#121126]">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
@@ -113,18 +113,18 @@ export default async function FeatureDetailPage({
 
       {/* breadcrumbs */}
       <nav aria-label="Breadcrumb" className="container mx-auto px-4 md:px-6 pt-6">
-        <ol className="flex items-center gap-1.5 text-[12px] text-zoru-ink">
-          <li><Link href="/" className="hover:text-zoru-ink">Home</Link></li>
+        <ol className="flex items-center gap-1.5 text-[12px] text-[#7878A1]">
+          <li><Link href="/" className="hover:text-[#121126]">Home</Link></li>
           <li><ChevronRight className="h-3 w-3" /></li>
-          <li><Link href="/features" className="hover:text-zoru-ink">Features</Link></li>
+          <li><Link href="/features" className="hover:text-[#121126]">Features</Link></li>
           <li><ChevronRight className="h-3 w-3" /></li>
           <li>
-            <Link href={`/features#${feature.category}`} className="hover:text-zoru-ink">
+            <Link href={`/features#${feature.category}`} className="hover:text-[#121126]">
               {categoryMeta?.label}
             </Link>
           </li>
           <li><ChevronRight className="h-3 w-3" /></li>
-          <li className="text-zoru-ink font-semibold truncate max-w-[12rem]">{feature.name}</li>
+          <li className="text-[#121126] font-semibold truncate max-w-[12rem]">{feature.name}</li>
         </ol>
       </nav>
 
@@ -136,15 +136,15 @@ export default async function FeatureDetailPage({
         <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
           <div className="grid grid-cols-12 gap-6 md:gap-10">
             <div className="col-span-12 md:col-span-4">
-              <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-zoru-ink">
+              <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7878A1]">
                 The problem
               </div>
-              <h2 className="mt-3 font-display tracking-[-0.02em] text-[28px] md:text-[40px] leading-[1.05] text-zoru-ink">
+              <h2 className="mt-3 font-display tracking-[-0.02em] text-[28px] md:text-[40px] leading-[1.05] text-[#121126]">
                 {feature.problem.title}
               </h2>
             </div>
             <div className="col-span-12 md:col-span-8">
-              <div className="text-[16px] md:text-[17px] leading-[1.7] text-zoru-ink space-y-5 max-w-2xl">
+              <div className="text-[16px] md:text-[17px] leading-[1.7] text-[#4A4A6B] space-y-5 max-w-2xl">
                 {feature.problem.body.split('\n\n').map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
@@ -155,16 +155,16 @@ export default async function FeatureDetailPage({
       </section>
 
       {/* ───────────── Overview (editorial) ───────────── */}
-      <section className="border-t sn-hair bg-zoru-surface">
+      <section className="border-t sn-hair bg-[#FAF9F4]">
         <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
-          <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-zoru-ink">
+          <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7878A1]">
             What it is
           </div>
-          <h2 className="mt-3 font-display tracking-[-0.02em] text-[28px] md:text-[40px] leading-[1.05] text-zoru-ink max-w-3xl">
+          <h2 className="mt-3 font-display tracking-[-0.02em] text-[28px] md:text-[40px] leading-[1.05] text-[#121126] max-w-3xl">
             {feature.name}, in depth.
           </h2>
 
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-5 text-[16px] leading-[1.75] text-zoru-ink">
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-5 text-[16px] leading-[1.75] text-[#3a3a55]">
             {feature.overview.map((p, i) => (
               <p key={i} className={i === 0 ? 'first-letter:font-display first-letter:text-[44px] first-letter:font-bold first-letter:leading-[0.9] first-letter:float-left first-letter:mr-2 first-letter:mt-1' : ''} style={i === 0 ? { color: '#121126' } : undefined}>
                 {p}
@@ -194,20 +194,20 @@ export default async function FeatureDetailPage({
 
       {/* ───────────── Related features ───────────── */}
       {related.length > 0 && (
-        <section className="border-t sn-hair bg-zoru-surface">
+        <section className="border-t sn-hair bg-[#FAF9F4]">
           <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
             <div className="flex items-end justify-between mb-8 gap-6 flex-wrap">
               <div>
-                <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-zoru-ink">
+                <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7878A1]">
                   Related features
                 </div>
-                <h2 className="mt-3 font-display tracking-[-0.02em] text-[28px] md:text-[40px] leading-[1.05] text-zoru-ink">
+                <h2 className="mt-3 font-display tracking-[-0.02em] text-[28px] md:text-[40px] leading-[1.05] text-[#121126]">
                   Stronger when stacked.
                 </h2>
               </div>
               <Link
                 href="/features"
-                className="inline-flex items-center gap-1 text-[12.5px] font-bold uppercase tracking-[0.14em] text-zoru-ink hover:text-zoru-ink"
+                className="inline-flex items-center gap-1 text-[12.5px] font-bold uppercase tracking-[0.14em] text-[#4F46E5] hover:text-[#4338CA]"
               >
                 Browse every feature <ChevronRight className="h-3.5 w-3.5" />
               </Link>
@@ -231,13 +231,13 @@ export default async function FeatureDetailPage({
                     >
                       <RIcon className="h-4 w-4" strokeWidth={2.2} />
                     </span>
-                    <div className="mt-4 font-display text-[16px] leading-tight text-zoru-ink">
+                    <div className="mt-4 font-display text-[16px] leading-tight text-[#121126]">
                       {r.name}
                     </div>
-                    <div className="mt-2 text-[12.5px] text-zoru-ink leading-snug line-clamp-3">
+                    <div className="mt-2 text-[12.5px] text-[#4A4A6B] leading-snug line-clamp-3">
                       {r.tagline}
                     </div>
-                    <div className="mt-4 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.14em] text-zoru-ink group-hover:text-zoru-ink">
+                    <div className="mt-4 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#4F46E5] group-hover:text-[#4338CA]">
                       Read more <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                     </div>
                   </Link>
@@ -249,7 +249,7 @@ export default async function FeatureDetailPage({
       )}
 
       {/* ───────────── Final CTA band ───────────── */}
-      <section className="relative overflow-hidden bg-zoru-ink text-white">
+      <section className="relative overflow-hidden bg-[#0b0a1f] text-white">
         <div
           aria-hidden
           className="absolute inset-0 -z-0 opacity-70"
@@ -274,7 +274,7 @@ export default async function FeatureDetailPage({
             <div className="mt-8 flex flex-wrap items-center gap-2.5">
               <Link
                 href="/signup"
-                className="inline-flex h-12 items-center gap-1.5 rounded-full bg-white text-zoru-ink px-6 text-[14px] font-bold transition-transform hover:translate-y-[-1px]"
+                className="inline-flex h-12 items-center gap-1.5 rounded-full bg-white text-[#121126] px-6 text-[14px] font-bold transition-transform hover:translate-y-[-1px]"
               >
                 Start free <ArrowRight className="h-4 w-4" />
               </Link>

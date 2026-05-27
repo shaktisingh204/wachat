@@ -51,14 +51,14 @@ interface SectionProps {
 // ──────────── CONVERSATION — Channel matrix + unified inbox ────────────
 export function ConversationBespoke({ mod }: SectionProps) {
     const channels = [
-        { name: 'WhatsApp', icon: MessageSquare, color: 'bg-zoru-ink', count: 1284, last: 'Asha · 1m ago' },
-        { name: 'Instagram', icon: Instagram, color: 'bg-zoru-ink', count: 412, last: 'Rohan · 4m ago' },
-        { name: 'Email', icon: Mail, color: 'bg-zoru-ink', count: 938, last: 'priya@acme · 6m' },
-        { name: 'Telegram', icon: Send, color: 'bg-zoru-ink', count: 218, last: 'Karan · 12m' },
-        { name: 'SMS', icon: Phone, color: 'bg-zoru-ink', count: 1822, last: 'OTP queue' },
-        { name: 'Voice', icon: Mic, color: 'bg-zoru-ink', count: 84, last: 'IVR · live' },
-        { name: 'Web chat', icon: MessageCircle, color: 'bg-zoru-ink', count: 309, last: 'Guest · now' },
-        { name: 'Facebook', icon: MessageSquare, color: 'bg-zoru-ink', count: 156, last: 'Page · 22m' },
+        { name: 'WhatsApp', icon: MessageSquare, color: 'bg-emerald-500', count: 1284, last: 'Asha · 1m ago' },
+        { name: 'Instagram', icon: Instagram, color: 'bg-pink-500', count: 412, last: 'Rohan · 4m ago' },
+        { name: 'Email', icon: Mail, color: 'bg-sky-500', count: 938, last: 'priya@acme · 6m' },
+        { name: 'Telegram', icon: Send, color: 'bg-cyan-500', count: 218, last: 'Karan · 12m' },
+        { name: 'SMS', icon: Phone, color: 'bg-amber-500', count: 1822, last: 'OTP queue' },
+        { name: 'Voice', icon: Mic, color: 'bg-violet-500', count: 84, last: 'IVR · live' },
+        { name: 'Web chat', icon: MessageCircle, color: 'bg-orange-500', count: 309, last: 'Guest · now' },
+        { name: 'Facebook', icon: MessageSquare, color: 'bg-blue-500', count: 156, last: 'Page · 22m' },
     ];
     return (
         <Section mod={mod} kicker="Every channel, one queue" title={`${mod.name} unifies 8 channels into one workstream.`}>
@@ -73,14 +73,14 @@ export function ConversationBespoke({ mod }: SectionProps) {
                                 whileInView={{ opacity: 1, scale: 1 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.04 }}
-                                className="rounded-2xl border border-zoru-line bg-white p-3 transition hover:-translate-y-0.5 hover:border-zoru-line"
+                                className="rounded-2xl border border-zinc-200 bg-white p-3 transition hover:-translate-y-0.5 hover:border-zinc-900"
                             >
                                 <div className={`grid h-9 w-9 place-items-center rounded-lg text-white ${c.color}`}>
                                     <CIcon className="h-4 w-4" />
                                 </div>
-                                <p className="mt-3 text-sm font-semibold text-zoru-ink">{c.name}</p>
-                                <p className="text-[11px] text-zoru-ink">{c.count.toLocaleString()} open</p>
-                                <p className="mt-1 truncate text-[10px] text-zoru-ink-muted">{c.last}</p>
+                                <p className="mt-3 text-sm font-semibold text-zinc-900">{c.name}</p>
+                                <p className="text-[11px] text-zinc-500">{c.count.toLocaleString()} open</p>
+                                <p className="mt-1 truncate text-[10px] text-zinc-400">{c.last}</p>
                             </m.div>
                         );
                     })}
@@ -92,17 +92,17 @@ export function ConversationBespoke({ mod }: SectionProps) {
                     className="relative overflow-hidden rounded-2xl border bg-white p-5 shadow-lg"
                     style={{ borderColor: `${mod.accentDeep}33` }}
                 >
-                    <div className="flex items-center gap-2 border-b border-zoru-line pb-3">
+                    <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
                         <Inbox className="h-4 w-4" style={{ color: mod.accentDeep }} />
-                        <span className="text-sm font-semibold text-zoru-ink">Unified inbox</span>
-                        <span className="ml-auto text-[11px] text-zoru-ink">5,233 active</span>
+                        <span className="text-sm font-semibold text-zinc-900">Unified inbox</span>
+                        <span className="ml-auto text-[11px] text-zinc-500">5,233 active</span>
                     </div>
                     <div className="mt-3 space-y-2">
                         {[
-                            { who: 'Priya · WhatsApp', msg: 'Can you ship today?', time: 'just now', ch: 'bg-zoru-ink' },
-                            { who: 'Karan · Instagram', msg: 'Bulk price for 50?', time: '4m', ch: 'bg-zoru-ink' },
-                            { who: 'guest@acme.com', msg: 'Need invoice resent', time: '6m', ch: 'bg-zoru-ink' },
-                            { who: 'Rohan · Web chat', msg: 'Where is my order?', time: '12m', ch: 'bg-zoru-ink' },
+                            { who: 'Priya · WhatsApp', msg: 'Can you ship today?', time: 'just now', ch: 'bg-emerald-500' },
+                            { who: 'Karan · Instagram', msg: 'Bulk price for 50?', time: '4m', ch: 'bg-pink-500' },
+                            { who: 'guest@acme.com', msg: 'Need invoice resent', time: '6m', ch: 'bg-sky-500' },
+                            { who: 'Rohan · Web chat', msg: 'Where is my order?', time: '12m', ch: 'bg-orange-500' },
                         ].map((row, i) => (
                             <m.div
                                 key={i}
@@ -110,14 +110,14 @@ export function ConversationBespoke({ mod }: SectionProps) {
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: 0.1 + i * 0.06 }}
-                                className="flex items-center gap-2 rounded-lg border border-zoru-line px-3 py-2"
+                                className="flex items-center gap-2 rounded-lg border border-zinc-100 px-3 py-2"
                             >
                                 <span className={`h-2 w-2 rounded-full ${row.ch}`} />
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-[12px] font-semibold text-zoru-ink">{row.who}</p>
-                                    <p className="truncate text-[11px] text-zoru-ink">{row.msg}</p>
+                                    <p className="text-[12px] font-semibold text-zinc-900">{row.who}</p>
+                                    <p className="truncate text-[11px] text-zinc-600">{row.msg}</p>
                                 </div>
-                                <span className="text-[10px] text-zoru-ink-muted">{row.time}</span>
+                                <span className="text-[10px] text-zinc-400">{row.time}</span>
                             </m.div>
                         ))}
                     </div>
@@ -142,12 +142,12 @@ export function MarketingBespoke({ mod }: SectionProps) {
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="rounded-2xl border border-zoru-line bg-white p-5"
+                    className="rounded-2xl border border-zinc-200 bg-white p-5"
                 >
-                    <div className="flex items-center gap-2 border-b border-zoru-line pb-3">
+                    <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
                         <Filter className="h-4 w-4" style={{ color: mod.accentDeep }} />
-                        <span className="text-sm font-semibold text-zoru-ink">Audience · &quot;Diwali repeaters&quot;</span>
-                        <span className="ml-auto rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[10px] font-semibold text-zoru-ink">
+                        <span className="text-sm font-semibold text-zinc-900">Audience · &quot;Diwali repeaters&quot;</span>
+                        <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
                             Live · 12,840
                         </span>
                     </div>
@@ -159,26 +159,26 @@ export function MarketingBespoke({ mod }: SectionProps) {
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.05 }}
-                                className="flex items-center gap-2 rounded-xl border border-zoru-line bg-zoru-surface-2/60 px-3 py-2"
+                                className="flex items-center gap-2 rounded-xl border border-zinc-100 bg-zinc-50/60 px-3 py-2"
                             >
-                                <span className="rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-zoru-ink">
+                                <span className="rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-zinc-700">
                                     {r.field}
                                 </span>
                                 <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: mod.accentDeep }}>
                                     {r.op}
                                 </span>
-                                <span className="rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-zoru-ink">
+                                <span className="rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-zinc-900">
                                     {r.val}
                                 </span>
                                 {i < rules.length - 1 && (
-                                    <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider text-zoru-ink-muted">
+                                    <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
                                         AND
                                     </span>
                                 )}
                             </m.div>
                         ))}
                     </div>
-                    <div className="mt-4 flex items-center justify-between rounded-xl bg-zoru-ink px-4 py-3">
+                    <div className="mt-4 flex items-center justify-between rounded-xl bg-zinc-900 px-4 py-3">
                         <span className="text-[11px] uppercase tracking-wider text-white/60">Estimated reach</span>
                         <span className="text-lg font-semibold text-white">12,840 people</span>
                     </div>
@@ -197,12 +197,12 @@ export function MarketingBespoke({ mod }: SectionProps) {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.06 }}
-                            className="flex items-start gap-3 rounded-xl border border-zoru-line bg-white p-4"
+                            className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-white p-4"
                         >
                             <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" style={{ color: mod.accentDeep }} />
                             <div>
-                                <p className="text-base font-semibold text-zoru-ink">{p.t}</p>
-                                <p className="mt-1 text-[13px] text-zoru-ink">{p.d}</p>
+                                <p className="text-base font-semibold text-zinc-950">{p.t}</p>
+                                <p className="mt-1 text-[13px] text-zinc-600">{p.d}</p>
                             </div>
                         </m.li>
                     ))}
@@ -250,16 +250,16 @@ export function CommerceBespoke({ mod }: SectionProps) {
                                         <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: mod.accentDeep }}>
                                             {s.time}
                                         </span>
-                                        <p className="mt-1 text-base font-semibold text-zoru-ink">{s.label}</p>
-                                        <p className="mt-1 text-[13px] text-zoru-ink">{s.desc}</p>
+                                        <p className="mt-1 text-base font-semibold text-zinc-950">{s.label}</p>
+                                        <p className="mt-1 text-[13px] text-zinc-600">{s.desc}</p>
                                     </div>
                                 </div>
                                 <div className={`absolute left-3 top-3 md:left-1/2 md:-translate-x-1/2 ${isRight ? '' : ''}`}>
                                     <div
-                                        className={`grid h-10 w-10 place-items-center rounded-full border-4 border-zoru-line shadow-md ${
+                                        className={`grid h-10 w-10 place-items-center rounded-full border-4 border-[#fafaf7] shadow-md ${
                                             s.done
                                                 ? `bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo} text-white`
-                                                : 'bg-white text-zoru-ink-muted'
+                                                : 'bg-white text-zinc-400'
                                         }`}
                                     >
                                         <SIcon className="h-4 w-4" />
@@ -295,18 +295,18 @@ export function SuccessBespoke({ mod }: SectionProps) {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.06 }}
-                            className="relative rounded-2xl border border-zoru-line bg-white p-5"
+                            className="relative rounded-2xl border border-zinc-200 bg-white p-5"
                         >
                             <div className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo} shadow-md`}>
                                 <LIcon className="h-5 w-5 text-white" />
                             </div>
-                            <p className="mt-4 text-lg font-semibold text-zoru-ink">{l.who}</p>
+                            <p className="mt-4 text-lg font-semibold text-zinc-950">{l.who}</p>
                             <p className="mt-1 text-[12px] font-semibold uppercase tracking-wider" style={{ color: mod.accentDeep }}>
                                 {l.wait}
                             </p>
-                            <p className="mt-2 text-[13px] text-zoru-ink">{l.desc}</p>
+                            <p className="mt-2 text-[13px] text-zinc-600">{l.desc}</p>
                             {i < levels.length - 1 && (
-                                <ArrowRight className="absolute -right-3 top-1/2 hidden h-5 w-5 -translate-y-1/2 rounded-full bg-zoru-surface p-1 text-zoru-ink-muted md:block" />
+                                <ArrowRight className="absolute -right-3 top-1/2 hidden h-5 w-5 -translate-y-1/2 rounded-full bg-[#fafaf7] p-1 text-zinc-400 md:block" />
                             )}
                         </m.div>
                     );
@@ -316,7 +316,7 @@ export function SuccessBespoke({ mod }: SectionProps) {
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="mt-8 rounded-2xl border border-zoru-line bg-white p-6"
+                className="mt-8 rounded-2xl border border-zinc-200 bg-white p-6"
             >
                 <div className="grid items-center gap-6 md:grid-cols-3">
                     {[
@@ -325,11 +325,11 @@ export function SuccessBespoke({ mod }: SectionProps) {
                         { k: 'SLA breach', v: '0.4%', sub: 'last 90 days' },
                     ].map((s) => (
                         <div key={s.k}>
-                            <p className="text-3xl font-semibold text-zoru-ink">{s.v}</p>
+                            <p className="text-3xl font-semibold text-zinc-950">{s.v}</p>
                             <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider" style={{ color: mod.accentDeep }}>
                                 {s.k}
                             </p>
-                            <p className="text-[12px] text-zoru-ink">{s.sub}</p>
+                            <p className="text-[12px] text-zinc-500">{s.sub}</p>
                         </div>
                     ))}
                 </div>
@@ -356,16 +356,16 @@ export function PeopleBespoke({ mod }: SectionProps) {
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="rounded-2xl border border-zoru-line bg-white p-6"
+                    className="rounded-2xl border border-zinc-200 bg-white p-6"
                 >
-                    <div className="flex items-center gap-2 border-b border-zoru-line pb-3">
+                    <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
                         <Wallet className="h-4 w-4" style={{ color: mod.accentDeep }} />
-                        <span className="text-sm font-semibold text-zoru-ink">Payslip · Asha · May 2026</span>
-                        <span className="ml-auto rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[10px] font-semibold text-zoru-ink">
+                        <span className="text-sm font-semibold text-zinc-900">Payslip · Asha · May 2026</span>
+                        <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
                             Signed
                         </span>
                     </div>
-                    <ul className="mt-3 divide-y divide-zoru-line">
+                    <ul className="mt-3 divide-y divide-zinc-100">
                         {lines.map((l, i) => (
                             <m.li
                                 key={l.label}
@@ -375,14 +375,14 @@ export function PeopleBespoke({ mod }: SectionProps) {
                                 transition={{ delay: i * 0.04 }}
                                 className="flex items-center justify-between py-2.5"
                             >
-                                <span className="text-[13px] text-zoru-ink">{l.label}</span>
-                                <span className={`text-[13px] font-semibold ${l.neg ? 'text-zoru-ink' : 'text-zoru-ink'}`}>
+                                <span className="text-[13px] text-zinc-700">{l.label}</span>
+                                <span className={`text-[13px] font-semibold ${l.neg ? 'text-rose-600' : 'text-zinc-900'}`}>
                                     {l.neg ? '−' : ''}₹{Math.abs(l.value).toLocaleString('en-IN')}
                                 </span>
                             </m.li>
                         ))}
                     </ul>
-                    <div className="mt-4 flex items-center justify-between rounded-xl bg-zoru-ink px-4 py-3">
+                    <div className="mt-4 flex items-center justify-between rounded-xl bg-zinc-900 px-4 py-3">
                         <span className="text-[11px] uppercase tracking-wider text-white/60">Net in-hand</span>
                         <span className="text-xl font-semibold text-white">
                             ₹{total.toLocaleString('en-IN')}
@@ -403,10 +403,10 @@ export function PeopleBespoke({ mod }: SectionProps) {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
-                            className="rounded-2xl border border-zoru-line bg-white p-4"
+                            className="rounded-2xl border border-zinc-200 bg-white p-4"
                         >
-                            <p className="text-base font-semibold text-zoru-ink">{p.t}</p>
-                            <p className="mt-1 text-[13px] text-zoru-ink">{p.d}</p>
+                            <p className="text-base font-semibold text-zinc-950">{p.t}</p>
+                            <p className="mt-1 text-[13px] text-zinc-600">{p.d}</p>
                         </m.div>
                     ))}
                 </div>
@@ -424,10 +424,10 @@ export function ProductivityBespoke({ mod }: SectionProps) {
         { time: '11:30', dur: '20m', title: 'Roadmap quick-fire', tag: 'Decision', tone: 'amber' },
     ];
     const toneBg: Record<string, string> = {
-        sky: 'border-zoru-line bg-zoru-surface-2',
-        violet: 'border-zoru-line bg-zoru-surface-2',
-        emerald: 'border-zoru-line bg-zoru-surface-2',
-        amber: 'border-zoru-line bg-zoru-surface-2',
+        sky: 'border-sky-200 bg-sky-50',
+        violet: 'border-violet-200 bg-violet-50',
+        emerald: 'border-emerald-200 bg-emerald-50',
+        amber: 'border-amber-200 bg-amber-50',
     };
     return (
         <Section mod={mod} kicker="Meetings that ship outcomes" title="Every session has an agenda, a timer, and an artifact.">
@@ -448,13 +448,13 @@ export function ProductivityBespoke({ mod }: SectionProps) {
                             className={`flex items-center gap-4 rounded-2xl border p-3 ${toneBg[b.tone]}`}
                         >
                             <div className="w-12 text-right">
-                                <p className="text-[13px] font-semibold text-zoru-ink">{b.time}</p>
-                                <p className="text-[10px] uppercase tracking-wider text-zoru-ink">{b.dur}</p>
+                                <p className="text-[13px] font-semibold text-zinc-900">{b.time}</p>
+                                <p className="text-[10px] uppercase tracking-wider text-zinc-500">{b.dur}</p>
                             </div>
-                            <div className="h-8 w-px bg-zoru-surface-2/60" />
+                            <div className="h-8 w-px bg-zinc-300/60" />
                             <div className="flex-1">
-                                <p className="text-[14px] font-semibold text-zoru-ink">{b.title}</p>
-                                <p className="text-[11px] text-zoru-ink">{b.tag}</p>
+                                <p className="text-[14px] font-semibold text-zinc-900">{b.title}</p>
+                                <p className="text-[11px] text-zinc-600">{b.tag}</p>
                             </div>
                             <Play className="h-4 w-4" style={{ color: mod.accentDeep }} />
                         </m.div>
@@ -466,12 +466,12 @@ export function ProductivityBespoke({ mod }: SectionProps) {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.1 }}
-                    className="rounded-2xl border border-zoru-line bg-white p-5"
+                    className="rounded-2xl border border-zinc-200 bg-white p-5"
                 >
-                    <div className="flex items-center gap-2 border-b border-zoru-line pb-3">
+                    <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
                         <Video className="h-4 w-4" style={{ color: mod.accentDeep }} />
-                        <span className="text-sm font-semibold text-zoru-ink">Live · Stand-up</span>
-                        <span className="ml-auto text-[11px] text-zoru-ink">
+                        <span className="text-sm font-semibold text-zinc-900">Live · Stand-up</span>
+                        <span className="ml-auto text-[11px] text-zinc-500">
                             <Clock className="mr-1 inline h-3 w-3" /> 04:22 / 15:00
                         </span>
                     </div>
@@ -492,13 +492,13 @@ export function ProductivityBespoke({ mod }: SectionProps) {
                         ))}
                     </div>
                     <ul className="mt-3 space-y-1">
-                        <li className="flex items-center gap-2 text-[12px] text-zoru-ink">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-zoru-ink" /> Shipped: roadmap v2
+                        <li className="flex items-center gap-2 text-[12px] text-zinc-700">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Shipped: roadmap v2
                         </li>
-                        <li className="flex items-center gap-2 text-[12px] text-zoru-ink">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-zoru-ink" /> Decided: drop Q3 stretch
+                        <li className="flex items-center gap-2 text-[12px] text-zinc-700">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> Decided: drop Q3 stretch
                         </li>
-                        <li className="flex items-center gap-2 text-[12px] text-zoru-ink">
+                        <li className="flex items-center gap-2 text-[12px] text-zinc-500">
                             <Clock className="h-3.5 w-3.5" /> Open: review wiremocks
                         </li>
                     </ul>
@@ -511,14 +511,14 @@ export function ProductivityBespoke({ mod }: SectionProps) {
 // ──────────── ENGINEERING — Live log stream ────────────
 export function EngineeringBespoke({ mod }: SectionProps) {
     const lines = [
-        { t: '12:18:42.014', lvl: 'INFO', msg: 'flow:order-completed · trigger received', tone: 'text-zoru-ink' },
-        { t: '12:18:42.018', lvl: 'INFO', msg: '→ webhook validated · signature ok', tone: 'text-zoru-ink' },
-        { t: '12:18:42.024', lvl: 'INFO', msg: '→ filter passed · total ≥ ₹1,000', tone: 'text-zoru-ink' },
-        { t: '12:18:42.041', lvl: 'AI', msg: '→ agent.next-best-action · "send loyalty offer"', tone: 'text-zoru-ink' },
-        { t: '12:18:42.073', lvl: 'INFO', msg: '→ postgres.insert ok · row 819214', tone: 'text-zoru-ink' },
-        { t: '12:18:42.092', lvl: 'WARN', msg: '→ rate-limit · throttled to 4 rps', tone: 'text-zoru-ink' },
-        { t: '12:18:42.118', lvl: 'INFO', msg: '→ email.send ok · msgId 7e1c', tone: 'text-zoru-ink' },
-        { t: '12:18:42.121', lvl: 'OK', msg: 'flow completed in 107ms', tone: 'text-zoru-ink' },
+        { t: '12:18:42.014', lvl: 'INFO', msg: 'flow:order-completed · trigger received', tone: 'text-zinc-700' },
+        { t: '12:18:42.018', lvl: 'INFO', msg: '→ webhook validated · signature ok', tone: 'text-zinc-700' },
+        { t: '12:18:42.024', lvl: 'INFO', msg: '→ filter passed · total ≥ ₹1,000', tone: 'text-zinc-700' },
+        { t: '12:18:42.041', lvl: 'AI', msg: '→ agent.next-best-action · "send loyalty offer"', tone: 'text-violet-700' },
+        { t: '12:18:42.073', lvl: 'INFO', msg: '→ postgres.insert ok · row 819214', tone: 'text-zinc-700' },
+        { t: '12:18:42.092', lvl: 'WARN', msg: '→ rate-limit · throttled to 4 rps', tone: 'text-amber-700' },
+        { t: '12:18:42.118', lvl: 'INFO', msg: '→ email.send ok · msgId 7e1c', tone: 'text-zinc-700' },
+        { t: '12:18:42.121', lvl: 'OK', msg: 'flow completed in 107ms', tone: 'text-emerald-700' },
     ];
     return (
         <Section mod={mod} kicker="Observability built in" title="Every run is replayable. Every span has a story.">
@@ -527,12 +527,12 @@ export function EngineeringBespoke({ mod }: SectionProps) {
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="overflow-hidden rounded-2xl border border-zoru-line bg-zoru-ink font-mono"
+                    className="overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-950 font-mono"
                 >
                     <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2 text-[11px] text-white/60">
-                        <span className="h-2.5 w-2.5 rounded-full bg-zoru-ink" />
-                        <span className="h-2.5 w-2.5 rounded-full bg-zoru-ink" />
-                        <span className="h-2.5 w-2.5 rounded-full bg-zoru-ink" />
+                        <span className="h-2.5 w-2.5 rounded-full bg-rose-500" />
+                        <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                        <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                         <span className="ml-3">logs · flow:order-completed · live</span>
                     </div>
                     <div className="p-4 text-[11.5px] leading-relaxed">
@@ -549,11 +549,11 @@ export function EngineeringBespoke({ mod }: SectionProps) {
                                 <span
                                     className={`rounded px-1.5 text-[10px] font-bold ${
                                         l.lvl === 'WARN'
-                                            ? 'bg-zoru-ink/20 text-zoru-ink-muted'
+                                            ? 'bg-amber-500/20 text-amber-300'
                                             : l.lvl === 'OK'
-                                              ? 'bg-zoru-ink/20 text-zoru-ink-muted'
+                                              ? 'bg-emerald-500/20 text-emerald-300'
                                               : l.lvl === 'AI'
-                                                ? 'bg-zoru-ink/20 text-zoru-ink-muted'
+                                                ? 'bg-violet-500/20 text-violet-300'
                                                 : 'bg-white/10 text-white/70'
                                     }`}
                                 >
@@ -580,12 +580,12 @@ export function EngineeringBespoke({ mod }: SectionProps) {
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.05 }}
-                                className="flex items-start gap-3 rounded-2xl border border-zoru-line bg-white p-4"
+                                className="flex items-start gap-3 rounded-2xl border border-zinc-200 bg-white p-4"
                             >
                                 <PIcon className="mt-0.5 h-5 w-5 shrink-0" style={{ color: mod.accentDeep }} />
                                 <div>
-                                    <p className="text-base font-semibold text-zoru-ink">{p.t}</p>
-                                    <p className="mt-1 text-[13px] text-zoru-ink">{p.d}</p>
+                                    <p className="text-base font-semibold text-zinc-950">{p.t}</p>
+                                    <p className="mt-1 text-[13px] text-zinc-600">{p.d}</p>
                                 </div>
                             </m.div>
                         );
@@ -612,13 +612,13 @@ export function AnalyticsBespoke({ mod }: SectionProps) {
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="rounded-3xl border border-zoru-line bg-white p-6"
+                className="rounded-3xl border border-zinc-200 bg-white p-6"
             >
-                <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line pb-4">
+                <div className="flex flex-wrap items-center gap-3 border-b border-zinc-100 pb-4">
                     <FileSpreadsheet className="h-4 w-4" style={{ color: mod.accentDeep }} />
-                    <span className="text-sm font-semibold text-zoru-ink">Dashboard · Ops · Today</span>
-                    <span className="ml-auto flex items-center gap-1 text-[11px] text-zoru-ink">
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-zoru-ink" /> Live
+                    <span className="text-sm font-semibold text-zinc-900">Dashboard · Ops · Today</span>
+                    <span className="ml-auto flex items-center gap-1 text-[11px] text-zinc-500">
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" /> Live
                     </span>
                 </div>
                 <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -629,10 +629,10 @@ export function AnalyticsBespoke({ mod }: SectionProps) {
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.04 }}
-                            className={`rounded-2xl border border-zoru-line bg-zoru-surface-2/50 p-4 ${t.wide ? 'md:col-span-2' : ''}`}
+                            className={`rounded-2xl border border-zinc-200 bg-zinc-50/50 p-4 ${t.wide ? 'md:col-span-2' : ''}`}
                         >
-                            <p className="text-[11px] uppercase tracking-wider text-zoru-ink">{t.title}</p>
-                            <p className="mt-2 text-2xl font-semibold text-zoru-ink">{t.value}</p>
+                            <p className="text-[11px] uppercase tracking-wider text-zinc-500">{t.title}</p>
+                            <p className="mt-2 text-2xl font-semibold text-zinc-950">{t.value}</p>
                             <p className="mt-1 text-[12px] font-semibold" style={{ color: mod.accentDeep }}>
                                 {t.delta}
                             </p>
@@ -640,7 +640,7 @@ export function AnalyticsBespoke({ mod }: SectionProps) {
                     ))}
                 </div>
             </m.div>
-            <p className="mt-6 max-w-3xl text-[15px] text-zoru-ink">
+            <p className="mt-6 max-w-3xl text-[15px] text-zinc-700">
                 Every dashboard tile is composable from any module — revenue from Commerce, replies from
                 SabChat, payroll from HRM. No more screenshot decks.
             </p>
@@ -663,12 +663,12 @@ export function FilesBespoke({ mod }: SectionProps) {
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="rounded-2xl border border-zoru-line bg-white p-5"
+                    className="rounded-2xl border border-zinc-200 bg-white p-5"
                 >
-                    <div className="flex items-center gap-2 border-b border-zoru-line pb-3">
+                    <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
                         <PenTool className="h-4 w-4" style={{ color: mod.accentDeep }} />
-                        <span className="text-sm font-semibold text-zoru-ink">brand-kit / Logo.sketch</span>
-                        <span className="ml-auto text-[11px] text-zoru-ink">8 versions</span>
+                        <span className="text-sm font-semibold text-zinc-900">brand-kit / Logo.sketch</span>
+                        <span className="ml-auto text-[11px] text-zinc-500">8 versions</span>
                     </div>
                     <ul className="mt-3 space-y-2">
                         {versions.map((v, i) => (
@@ -679,7 +679,7 @@ export function FilesBespoke({ mod }: SectionProps) {
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.05 }}
                                 className={`flex items-center gap-3 rounded-xl border px-3 py-2 ${
-                                    i === 0 ? 'border-zoru-line bg-zoru-surface-2' : 'border-zoru-line'
+                                    i === 0 ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-100'
                                 }`}
                             >
                                 <span
@@ -689,10 +689,10 @@ export function FilesBespoke({ mod }: SectionProps) {
                                     {v.v}
                                 </span>
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-[12px] font-semibold text-zoru-ink">{v.who}</p>
-                                    <p className="truncate text-[11px] text-zoru-ink">{v.note}</p>
+                                    <p className="text-[12px] font-semibold text-zinc-900">{v.who}</p>
+                                    <p className="truncate text-[11px] text-zinc-500">{v.note}</p>
                                 </div>
-                                <span className="text-[10px] text-zoru-ink-muted">{v.when}</span>
+                                <span className="text-[10px] text-zinc-400">{v.when}</span>
                             </m.li>
                         ))}
                     </ul>
@@ -711,10 +711,10 @@ export function FilesBespoke({ mod }: SectionProps) {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
-                            className="rounded-2xl border border-zoru-line bg-white p-4"
+                            className="rounded-2xl border border-zinc-200 bg-white p-4"
                         >
-                            <p className="text-base font-semibold text-zoru-ink">{p.t}</p>
-                            <p className="mt-1 text-[13px] text-zoru-ink">{p.d}</p>
+                            <p className="text-base font-semibold text-zinc-950">{p.t}</p>
+                            <p className="mt-1 text-[13px] text-zinc-600">{p.d}</p>
                         </m.li>
                     ))}
                 </ul>
@@ -739,12 +739,12 @@ export function AcquisitionBespoke({ mod }: SectionProps) {
                     initial={{ opacity: 0, x: -8 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="rounded-2xl border border-zoru-line bg-white p-5"
+                    className="rounded-2xl border border-zinc-200 bg-white p-5"
                 >
-                    <div className="flex items-center gap-2 border-b border-zoru-line pb-3">
+                    <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
                         <Layers className="h-4 w-4" style={{ color: mod.accentDeep }} />
-                        <span className="text-sm font-semibold text-zoru-ink">Page · /launch</span>
-                        <span className="ml-auto text-[11px] text-zoru-ink">5 blocks · published</span>
+                        <span className="text-sm font-semibold text-zinc-900">Page · /launch</span>
+                        <span className="ml-auto text-[11px] text-zinc-500">5 blocks · published</span>
                     </div>
                     <div className="mt-4 space-y-2">
                         {blocks.map((b, i) => (
@@ -754,7 +754,7 @@ export function AcquisitionBespoke({ mod }: SectionProps) {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.04 }}
-                                className="flex items-center gap-3 rounded-xl border border-zoru-line bg-zoru-surface-2/60 px-3 py-2.5"
+                                className="flex items-center gap-3 rounded-xl border border-zinc-100 bg-zinc-50/60 px-3 py-2.5"
                             >
                                 <span
                                     className="grid h-7 w-7 place-items-center rounded-md text-[10px] font-bold text-white"
@@ -762,8 +762,8 @@ export function AcquisitionBespoke({ mod }: SectionProps) {
                                 >
                                     {i + 1}
                                 </span>
-                                <span className="text-[13px] font-semibold text-zoru-ink">{b}</span>
-                                <span className="ml-auto rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[10px] font-semibold text-zoru-ink">
+                                <span className="text-[13px] font-semibold text-zinc-900">{b}</span>
+                                <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
                                     A/B
                                 </span>
                             </m.div>
@@ -775,14 +775,14 @@ export function AcquisitionBespoke({ mod }: SectionProps) {
                     initial={{ opacity: 0, x: 8 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="rounded-2xl border border-zoru-line bg-white p-5"
+                    className="rounded-2xl border border-zinc-200 bg-white p-5"
                 >
-                    <div className="flex items-center gap-2 border-b border-zoru-line pb-3">
+                    <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
                         <Globe className="h-4 w-4" style={{ color: mod.accentDeep }} />
-                        <span className="text-sm font-semibold text-zoru-ink">Sitemap · auto-generated</span>
-                        <span className="ml-auto text-[11px] text-zoru-ink">verified</span>
+                        <span className="text-sm font-semibold text-zinc-900">Sitemap · auto-generated</span>
+                        <span className="ml-auto text-[11px] text-zinc-500">verified</span>
                     </div>
-                    <ul className="mt-3 divide-y divide-zoru-line">
+                    <ul className="mt-3 divide-y divide-zinc-100">
                         {pages.map((p, i) => (
                             <m.li
                                 key={p.name}
@@ -792,9 +792,9 @@ export function AcquisitionBespoke({ mod }: SectionProps) {
                                 transition={{ delay: i * 0.04 }}
                                 className="flex items-center justify-between py-2.5"
                             >
-                                <span className="font-mono text-[13px] text-zoru-ink">{p.name}</span>
+                                <span className="font-mono text-[13px] text-zinc-700">{p.name}</span>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[11px] text-zoru-ink">Lighthouse</span>
+                                    <span className="text-[11px] text-zinc-500">Lighthouse</span>
                                     <span
                                         className="rounded-md px-2 py-0.5 text-[11px] font-bold text-white"
                                         style={{ background: mod.accentDeep }}
@@ -805,7 +805,7 @@ export function AcquisitionBespoke({ mod }: SectionProps) {
                             </m.li>
                         ))}
                     </ul>
-                    <div className="mt-3 flex items-center gap-2 text-[12px] text-zoru-ink">
+                    <div className="mt-3 flex items-center gap-2 text-[12px] text-zinc-600">
                         <Tag className="h-3.5 w-3.5" /> Schema injected automatically · validated by GSC
                     </div>
                 </m.div>
@@ -843,7 +843,7 @@ function Section({
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.05 }}
-                    className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl"
+                    className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl"
                 >
                     {title}
                 </m.h2>

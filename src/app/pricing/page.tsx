@@ -18,7 +18,7 @@ async function Inner() {
 
 export default function PricingRoute() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-zoru-surface" />}>
+        <Suspense fallback={<div className="min-h-screen bg-[#fafaf7]" />}>
             <Inner />
         </Suspense>
     );

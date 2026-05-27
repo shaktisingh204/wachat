@@ -67,12 +67,12 @@ function Bubble({ who, text, t, mod }: { who: 'us' | 'them'; text: string; t: st
             <div
                 className={`max-w-[80%] rounded-2xl px-3 py-2 text-[12px] leading-snug ${
                     isUs
-                        ? `rounded-br-sm text-white shadow-sm bg-gradient-to-br ${mod?.accentFrom ?? 'from-zoru-ink'} ${mod?.accentTo ?? 'to-zoru-ink'}`
-                        : 'rounded-bl-sm bg-zoru-surface-2 text-zoru-ink'
+                        ? `rounded-br-sm text-white shadow-sm bg-gradient-to-br ${mod?.accentFrom ?? 'from-zinc-700'} ${mod?.accentTo ?? 'to-zinc-900'}`
+                        : 'rounded-bl-sm bg-zinc-100 text-zinc-800'
                 }`}
             >
                 {text}
-                <div className={`mt-0.5 text-right text-[9px] ${isUs ? 'text-white/80' : 'text-zoru-ink'}`}>
+                <div className={`mt-0.5 text-right text-[9px] ${isUs ? 'text-white/80' : 'text-zinc-500'}`}>
                     {t} {isUs && <CheckCheck className="inline h-3 w-3 ml-0.5" />}
                 </div>
             </div>
@@ -90,15 +90,15 @@ export function MarketingMockup({ mod }: MockupProps) {
     ];
     return (
         <Card mod={mod} title={`Campaign · Diwali launch`} badge="Live">
-            <div className="rounded-xl border border-zoru-line bg-zoru-surface-2/60 p-3">
+            <div className="rounded-xl border border-zinc-100 bg-zinc-50/60 p-3">
                 <div className="flex items-center gap-2">
                     <Sparkles className="h-3.5 w-3.5" style={{ color: mod.accentDeep }} />
-                    <span className="text-[12px] font-semibold text-zoru-ink">Variant A · winning</span>
-                    <span className="ml-auto rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[10px] font-semibold text-zoru-ink">
+                    <span className="text-[12px] font-semibold text-zinc-900">Variant A · winning</span>
+                    <span className="ml-auto rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
                         +22% lift
                     </span>
                 </div>
-                <p className="mt-2 text-[12px] text-zoru-ink">
+                <p className="mt-2 text-[12px] text-zinc-600">
                     “Light up your home with 40% off — only for the next 12 hours.”
                 </p>
             </div>
@@ -110,16 +110,16 @@ export function MarketingMockup({ mod }: MockupProps) {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: i * 0.05 }}
-                        className="rounded-lg border border-zoru-line bg-white p-2"
+                        className="rounded-lg border border-zinc-100 bg-white p-2"
                     >
-                        <div className="text-sm font-semibold text-zoru-ink">{m2.value}</div>
-                        <div className="mt-0.5 text-[9px] uppercase tracking-wider text-zoru-ink">
+                        <div className="text-sm font-semibold text-zinc-950">{m2.value}</div>
+                        <div className="mt-0.5 text-[9px] uppercase tracking-wider text-zinc-500">
                             {m2.label}
                         </div>
                     </m.div>
                 ))}
             </div>
-            <div className="mt-3 h-8 overflow-hidden rounded-lg bg-zoru-surface-2">
+            <div className="mt-3 h-8 overflow-hidden rounded-lg bg-zinc-100">
                 <m.div
                     initial={{ width: 0 }}
                     whileInView={{ width: '68%' }}
@@ -140,9 +140,9 @@ export function CommerceMockup({ mod }: MockupProps) {
         { stage: 'Won', deals: [{ name: 'Wayne', value: '₹2.8L', heat: 'hot' }] },
     ];
     const heat: Record<string, string> = {
-        cold: 'bg-zoru-surface-2 text-zoru-ink',
-        warm: 'bg-zoru-surface-2 text-zoru-ink',
-        hot: 'bg-zoru-surface-2 text-zoru-ink',
+        cold: 'bg-sky-50 text-sky-700',
+        warm: 'bg-amber-50 text-amber-700',
+        hot: 'bg-rose-50 text-rose-700',
     };
     return (
         <Card mod={mod} title="Pipeline · Q3" badge="₹14.5L">
@@ -156,7 +156,7 @@ export function CommerceMockup({ mod }: MockupProps) {
                             >
                                 {c.stage}
                             </span>
-                            <span className="text-[10px] text-zoru-ink-muted">{c.deals.length}</span>
+                            <span className="text-[10px] text-zinc-400">{c.deals.length}</span>
                         </div>
                         {c.deals.map((d, di) => (
                             <m.div
@@ -165,11 +165,11 @@ export function CommerceMockup({ mod }: MockupProps) {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: ci * 0.05 + di * 0.04 }}
-                                className="rounded-lg border border-zoru-line bg-white p-2"
+                                className="rounded-lg border border-zinc-200 bg-white p-2"
                             >
-                                <div className="text-[11px] font-semibold text-zoru-ink">{d.name}</div>
+                                <div className="text-[11px] font-semibold text-zinc-900">{d.name}</div>
                                 <div className="mt-1 flex items-center justify-between">
-                                    <span className="text-[10px] text-zoru-ink">{d.value}</span>
+                                    <span className="text-[10px] text-zinc-600">{d.value}</span>
                                     <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-semibold ${heat[d.heat]}`}>
                                         {d.heat}
                                     </span>
@@ -192,13 +192,13 @@ export function SuccessMockup({ mod }: MockupProps) {
         { id: '#4818', subject: 'Invoice missing GSTIN', sla: '< 1h', tone: 'amber' },
     ];
     const toneMap: Record<string, string> = {
-        rose: 'bg-zoru-surface-2 text-zoru-ink',
-        amber: 'bg-zoru-surface-2 text-zoru-ink',
-        emerald: 'bg-zoru-surface-2 text-zoru-ink',
+        rose: 'bg-rose-100 text-rose-700',
+        amber: 'bg-amber-100 text-amber-700',
+        emerald: 'bg-emerald-100 text-emerald-700',
     };
     return (
         <Card mod={mod} title="Open tickets" badge={`${tickets.length} active`}>
-            <div className="divide-y divide-zoru-line">
+            <div className="divide-y divide-zinc-100">
                 {tickets.map((t, i) => (
                     <m.div
                         key={t.id}
@@ -213,8 +213,8 @@ export function SuccessMockup({ mod }: MockupProps) {
                         </div>
                         <div className="min-w-0 flex-1">
                             <div className="flex items-baseline gap-2">
-                                <span className="text-[10px] font-semibold text-zoru-ink">{t.id}</span>
-                                <span className="truncate text-[12px] font-medium text-zoru-ink">
+                                <span className="text-[10px] font-semibold text-zinc-500">{t.id}</span>
+                                <span className="truncate text-[12px] font-medium text-zinc-900">
                                     {t.subject}
                                 </span>
                             </div>
@@ -240,7 +240,7 @@ export function PeopleMockup({ mod }: MockupProps) {
         { name: 'V', who: 'Vir', role: 'Finance', status: 'in', tone: 'emerald' },
     ];
     const labels: Record<string, string> = { in: 'Punched in', late: '12m late', leave: 'On leave' };
-    const dots: Record<string, string> = { emerald: 'bg-zoru-ink', amber: 'bg-zoru-ink', rose: 'bg-zoru-ink' };
+    const dots: Record<string, string> = { emerald: 'bg-emerald-500', amber: 'bg-amber-500', rose: 'bg-rose-500' };
     return (
         <Card mod={mod} title="Today · Roster" badge="6 people">
             <div className="grid grid-cols-3 gap-2">
@@ -251,16 +251,16 @@ export function PeopleMockup({ mod }: MockupProps) {
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
                         transition={{ delay: i * 0.04 }}
-                        className="rounded-lg border border-zoru-line bg-white p-2"
+                        className="rounded-lg border border-zinc-200 bg-white p-2"
                     >
                         <div className={`grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo} text-[11px] font-semibold text-white`}>
                             {p.name}
                         </div>
-                        <p className="mt-1.5 text-[11px] font-semibold text-zoru-ink">{p.who}</p>
-                        <p className="text-[10px] text-zoru-ink">{p.role}</p>
+                        <p className="mt-1.5 text-[11px] font-semibold text-zinc-900">{p.who}</p>
+                        <p className="text-[10px] text-zinc-500">{p.role}</p>
                         <div className="mt-1.5 flex items-center gap-1">
                             <span className={`h-1.5 w-1.5 rounded-full ${dots[p.tone]}`} />
-                            <span className="text-[9px] font-semibold uppercase tracking-wider text-zoru-ink">
+                            <span className="text-[9px] font-semibold uppercase tracking-wider text-zinc-600">
                                 {labels[p.status]}
                             </span>
                         </div>
@@ -293,10 +293,10 @@ export function ProductivityMockup({ mod }: MockupProps) {
                     </m.div>
                 ))}
             </div>
-            <div className="mt-3 flex items-center gap-2 rounded-lg bg-zoru-surface-2 px-2 py-1.5">
-                <Video className="h-3.5 w-3.5 text-zoru-ink" />
-                <span className="text-[11px] font-semibold text-zoru-ink">Live · 32 viewers</span>
-                <span className="ml-auto flex items-center gap-1 text-[11px] text-zoru-ink">
+            <div className="mt-3 flex items-center gap-2 rounded-lg bg-zinc-50 px-2 py-1.5">
+                <Video className="h-3.5 w-3.5 text-zinc-500" />
+                <span className="text-[11px] font-semibold text-zinc-700">Live · 32 viewers</span>
+                <span className="ml-auto flex items-center gap-1 text-[11px] text-zinc-500">
                     <Clock className="h-3 w-3" /> 12:34
                 </span>
             </div>
@@ -324,20 +324,20 @@ export function EngineeringMockup({ mod }: MockupProps) {
                         >
                             {i + 1}
                         </div>
-                        <div className="flex-1 rounded-lg border border-zoru-line bg-white px-2 py-1.5">
+                        <div className="flex-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5">
                             <div className="flex items-center justify-between">
-                                <span className="text-[12px] font-semibold text-zoru-ink">{n}</span>
-                                <span className="text-[10px] text-zoru-ink">✓ 42ms</span>
+                                <span className="text-[12px] font-semibold text-zinc-900">{n}</span>
+                                <span className="text-[10px] text-emerald-600">✓ 42ms</span>
                             </div>
                         </div>
                     </m.div>
                 ))}
             </div>
-            <div className="mt-2 flex items-center justify-between rounded-lg bg-zoru-surface-2 px-2 py-1.5">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-zoru-ink">
+            <div className="mt-2 flex items-center justify-between rounded-lg bg-zinc-50 px-2 py-1.5">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
                     Last run
                 </span>
-                <span className="text-[11px] font-semibold text-zoru-ink">186ms · ok</span>
+                <span className="text-[11px] font-semibold text-zinc-900">186ms · ok</span>
             </div>
         </Card>
     );
@@ -373,10 +373,10 @@ export function AnalyticsMockup({ mod }: MockupProps) {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.3 + i * 0.05 }}
-                        className="rounded-lg border border-zoru-line bg-zoru-surface-2 px-2 py-1.5"
+                        className="rounded-lg border border-zinc-100 bg-zinc-50 px-2 py-1.5"
                     >
-                        <div className="text-[11px] font-semibold text-zoru-ink">{s.v}</div>
-                        <div className="text-[9px] uppercase tracking-wider text-zoru-ink">{s.l}</div>
+                        <div className="text-[11px] font-semibold text-zinc-900">{s.v}</div>
+                        <div className="text-[9px] uppercase tracking-wider text-zinc-500">{s.l}</div>
                     </m.div>
                 ))}
             </div>
@@ -408,13 +408,13 @@ export function FilesMockup({ mod }: MockupProps) {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.04 }}
-                            className="rounded-lg border border-zoru-line bg-white p-2.5"
+                            className="rounded-lg border border-zinc-200 bg-white p-2.5"
                         >
                             <div className={`grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo}`}>
                                 <FIcon className="h-4 w-4 text-white" />
                             </div>
-                            <p className="mt-2 truncate text-[11px] font-semibold text-zoru-ink">{f.name}</p>
-                            <p className="truncate text-[10px] text-zoru-ink">{f.meta}</p>
+                            <p className="mt-2 truncate text-[11px] font-semibold text-zinc-900">{f.name}</p>
+                            <p className="truncate text-[10px] text-zinc-500">{f.meta}</p>
                         </m.div>
                     );
                 })}
@@ -456,15 +456,15 @@ export function AcquisitionMockup({ mod }: MockupProps) {
                                     transition={{ delay: i * 0.08, duration: 0.8 }}
                                 />
                             </svg>
-                            <p className="-mt-9 text-[12px] font-semibold text-zoru-ink">{g.v}</p>
-                            <p className="mt-5 text-[9px] uppercase tracking-wider text-zoru-ink">{g.l}</p>
+                            <p className="-mt-9 text-[12px] font-semibold text-zinc-900">{g.v}</p>
+                            <p className="mt-5 text-[9px] uppercase tracking-wider text-zinc-500">{g.l}</p>
                         </div>
                     );
                 })}
             </div>
-            <div className="mt-3 rounded-lg border border-zoru-line bg-zoru-surface-2 p-2">
+            <div className="mt-3 rounded-lg border border-zinc-100 bg-zinc-50 p-2">
                 <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase tracking-wider text-zoru-ink">Organic / week</span>
+                    <span className="text-[10px] uppercase tracking-wider text-zinc-500">Organic / week</span>
                     <span className="text-[11px] font-semibold" style={{ color: mod.accentDeep }}>
                         +184%
                     </span>
@@ -509,13 +509,13 @@ function Card({
                 className="relative overflow-hidden rounded-2xl border bg-white p-4 shadow-[0_18px_60px_-24px_rgba(0,0,0,0.18)]"
                 style={{ borderColor: `${mod.accentDeep}33` }}
             >
-                <div className="mb-3 flex items-center justify-between border-b border-zoru-line pb-2">
+                <div className="mb-3 flex items-center justify-between border-b border-zinc-100 pb-2">
                     <div className="flex items-center gap-2">
                         <span
                             className="h-2 w-2 rounded-full"
                             style={{ background: mod.accentDeep, boxShadow: `0 0 8px ${mod.glow}` }}
                         />
-                        <span className="text-[11px] font-semibold text-zoru-ink">{title}</span>
+                        <span className="text-[11px] font-semibold text-zinc-900">{title}</span>
                     </div>
                     {badge && (
                         <span
@@ -571,7 +571,7 @@ export function SettingsMockup({ mod }: MockupProps) {
     ];
     return (
         <Card mod={mod} title={`${mod.name} · Settings`} badge="Saved">
-            <div className="divide-y divide-zoru-line">
+            <div className="divide-y divide-zinc-100">
                 {rows.map((r, i) => (
                     <m.div
                         key={r.label}
@@ -581,12 +581,12 @@ export function SettingsMockup({ mod }: MockupProps) {
                         transition={{ delay: i * 0.04 }}
                         className="flex items-center justify-between py-2.5"
                     >
-                        <span className="text-[12px] font-medium text-zoru-ink">{r.label}</span>
+                        <span className="text-[12px] font-medium text-zinc-800">{r.label}</span>
                         <div className="flex items-center gap-2">
-                            <span className="text-[11px] text-zoru-ink">{r.value}</span>
+                            <span className="text-[11px] text-zinc-500">{r.value}</span>
                             <span
                                 className={`relative h-4 w-7 rounded-full transition ${
-                                    r.on ? '' : 'bg-zoru-surface-2'
+                                    r.on ? '' : 'bg-zinc-300'
                                 }`}
                                 style={r.on ? { background: mod.accentDeep } : undefined}
                             >
@@ -621,17 +621,17 @@ export function AutomationMockup({ mod }: MockupProps) {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
-                            className="rounded-xl border border-zoru-line bg-zoru-surface-2/50 p-2.5"
+                            className="rounded-xl border border-zinc-100 bg-zinc-50/50 p-2.5"
                         >
                             <div className="flex items-center gap-2">
                                 <RIcon className="h-3.5 w-3.5" style={{ color: mod.accentDeep }} />
-                                <span className="text-[11px] font-semibold text-zoru-ink">When</span>
-                                <span className="truncate text-[11px] text-zoru-ink">{r.when}</span>
+                                <span className="text-[11px] font-semibold text-zinc-900">When</span>
+                                <span className="truncate text-[11px] text-zinc-700">{r.when}</span>
                             </div>
                             <div className="mt-1 flex items-center gap-2">
-                                <GitBranch className="h-3.5 w-3.5 text-zoru-ink-muted" />
-                                <span className="text-[11px] font-semibold text-zoru-ink">Then</span>
-                                <span className="truncate text-[11px] text-zoru-ink">{r.then}</span>
+                                <GitBranch className="h-3.5 w-3.5 text-zinc-400" />
+                                <span className="text-[11px] font-semibold text-zinc-900">Then</span>
+                                <span className="truncate text-[11px] text-zinc-700">{r.then}</span>
                             </div>
                         </m.div>
                     );
@@ -658,17 +658,17 @@ export function AuditMockup({ mod }: MockupProps) {
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: i * 0.04 }}
-                        className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-zoru-surface-2"
+                        className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-zinc-50"
                     >
                         <div className={`grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br ${mod.accentFrom} ${mod.accentTo} text-[9px] font-bold text-white`}>
                             {e.who[0]}
                         </div>
                         <div className="min-w-0 flex-1 text-[11px]">
-                            <span className="font-semibold text-zoru-ink">{e.who}</span>{' '}
-                            <span className="text-zoru-ink">{e.act}</span>{' '}
-                            <span className="font-mono text-zoru-ink">{e.what}</span>
+                            <span className="font-semibold text-zinc-900">{e.who}</span>{' '}
+                            <span className="text-zinc-500">{e.act}</span>{' '}
+                            <span className="font-mono text-zinc-700">{e.what}</span>
                         </div>
-                        <span className="text-[10px] text-zoru-ink-muted">{e.t}</span>
+                        <span className="text-[10px] text-zinc-400">{e.t}</span>
                     </m.div>
                 ))}
             </div>

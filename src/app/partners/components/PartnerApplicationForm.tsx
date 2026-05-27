@@ -24,7 +24,7 @@ export function PartnerApplicationForm() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="text-sm px-5 py-2 bg-white text-black hover:bg-zoru-surface-2 transition-colors rounded font-semibold flex items-center gap-2">
+        <button className="text-sm px-5 py-2 bg-white text-black hover:bg-neutral-200 transition-colors rounded font-semibold flex items-center gap-2">
           Apply Now <ArrowRight className="w-4 h-4" />
         </button>
       </DialogTrigger>
@@ -65,7 +65,7 @@ export function PartnerApplicationForm() {
             <button
               onClick={handleNext}
               disabled={!partnerType}
-              className="w-full py-2.5 bg-white text-black rounded font-semibold text-sm hover:bg-zoru-surface-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-2.5 bg-white text-black rounded font-semibold text-sm hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continue
             </button>
@@ -96,7 +96,7 @@ export function PartnerApplicationForm() {
               </button>
               <button
                 type="submit"
-                className="flex-1 py-2.5 bg-white text-black rounded font-semibold text-sm hover:bg-zoru-surface-2 transition-colors"
+                className="flex-1 py-2.5 bg-white text-black rounded font-semibold text-sm hover:bg-neutral-200 transition-colors"
               >
                 Submit Application
               </button>
@@ -106,8 +106,8 @@ export function PartnerApplicationForm() {
 
         {step === 3 && (
           <div className="py-12 flex flex-col items-center justify-center text-center space-y-4 animate-in fade-in zoom-in duration-300">
-            <div className="w-12 h-12 rounded-full bg-zoru-ink/20 flex items-center justify-center mb-2">
-              <CheckCircle2 className="w-6 h-6 text-zoru-ink-muted" />
+            <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mb-2">
+              <CheckCircle2 className="w-6 h-6 text-green-400" />
             </div>
             <h3 className="text-xl font-bold">Application Received!</h3>
             <p className="text-sm text-white/50 max-w-[250px]">

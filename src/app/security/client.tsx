@@ -53,10 +53,10 @@ export function SecurityClient({ session }: { session?: { user?: unknown } | nul
         <MarketingShell session={session}>
             <PageHero
                 kicker="Security · trust · compliance"
-                title={<>Built to be <span className="bg-gradient-to-r from-zoru-ink via-zoru-ink to-zoru-ink bg-clip-text text-transparent">audited.</span></>}
+                title={<>Built to be <span className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 bg-clip-text text-transparent">audited.</span></>}
                 subtitle="SabNode runs sensitive payroll, customer data, financial records — and treats that responsibility seriously. Here's exactly what we do."
                 extra={
-                    <Link href="/contact" className="inline-flex items-center gap-2 rounded-full bg-zoru-ink px-5 py-2.5 text-sm font-semibold text-white hover:bg-zoru-ink">
+                    <Link href="/contact" className="inline-flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800">
                         Request security report <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                 }
@@ -64,8 +64,8 @@ export function SecurityClient({ session }: { session?: { user?: unknown } | nul
 
             {/* CERTS */}
             <SectionWrap>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">Certifications</p>
-                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">Certifications</p>
+                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
                     Audited, signed, available on request.
                 </h2>
                 <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -76,13 +76,13 @@ export function SecurityClient({ session }: { session?: { user?: unknown } | nul
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.04 }}
-                            className="rounded-2xl border border-zoru-line bg-white p-5"
+                            className="rounded-2xl border border-zinc-200 bg-white p-5"
                         >
-                            <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-zoru-surface-2 to-zoru-ink shadow-md">
+                            <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-md">
                                 <Shield className="h-5 w-5 text-white" />
                             </div>
-                            <h3 className="mt-4 text-lg font-semibold text-zoru-ink">{c.name}</h3>
-                            <p className="mt-1 text-[13px] leading-relaxed text-zoru-ink">{c.desc}</p>
+                            <h3 className="mt-4 text-lg font-semibold text-zinc-950">{c.name}</h3>
+                            <p className="mt-1 text-[13px] leading-relaxed text-zinc-600">{c.desc}</p>
                         </m.div>
                     ))}
                 </div>
@@ -90,8 +90,8 @@ export function SecurityClient({ session }: { session?: { user?: unknown } | nul
 
             {/* PILLARS */}
             <SectionWrap bg="white">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">9 pillars</p>
-                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">9 pillars</p>
+                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
                     The security posture, in plain English.
                 </h2>
                 <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -104,11 +104,11 @@ export function SecurityClient({ session }: { session?: { user?: unknown } | nul
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.04 }}
-                                className="rounded-2xl border border-zoru-line bg-zoru-surface p-5"
+                                className="rounded-2xl border border-zinc-200 bg-[#fafaf7] p-5"
                             >
-                                <Icon className="h-5 w-5 text-zoru-ink" />
-                                <h3 className="mt-3 text-base font-semibold text-zoru-ink">{p.t}</h3>
-                                <p className="mt-1 text-[13px] leading-relaxed text-zoru-ink">{p.d}</p>
+                                <Icon className="h-5 w-5 text-emerald-700" />
+                                <h3 className="mt-3 text-base font-semibold text-zinc-950">{p.t}</h3>
+                                <p className="mt-1 text-[13px] leading-relaxed text-zinc-600">{p.d}</p>
                             </m.div>
                         );
                     })}
@@ -119,8 +119,8 @@ export function SecurityClient({ session }: { session?: { user?: unknown } | nul
             <SectionWrap>
                 <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.4fr]">
                     <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">Operational</p>
-                        <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight text-zoru-ink">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">Operational</p>
+                        <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight text-zinc-950">
                             The boring stuff we don&apos;t cut corners on.
                         </h2>
                     </div>
@@ -132,10 +132,10 @@ export function SecurityClient({ session }: { session?: { user?: unknown } | nul
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.04 }}
-                                className="flex items-start gap-3 rounded-xl border border-zoru-line bg-white p-4"
+                                className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-white p-4"
                             >
-                                <span className="mt-1.5 inline-block h-2 w-2 rounded-full bg-zoru-ink" />
-                                <span className="text-[15px] text-zoru-ink">{p}</span>
+                                <span className="mt-1.5 inline-block h-2 w-2 rounded-full bg-emerald-500" />
+                                <span className="text-[15px] text-zinc-800">{p}</span>
                             </m.li>
                         ))}
                     </ul>
@@ -148,7 +148,7 @@ export function SecurityClient({ session }: { session?: { user?: unknown } | nul
                     initial={{ opacity: 0, scale: 0.96 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="relative overflow-hidden rounded-3xl bg-zoru-ink px-8 py-16 text-white md:px-16"
+                    className="relative overflow-hidden rounded-3xl bg-zinc-950 px-8 py-16 text-white md:px-16"
                 >
                     <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl" style={{ background: 'rgba(16,185,129,0.45)' }} />
                     <h2 className="relative text-balance text-4xl font-semibold tracking-tight md:text-5xl">
@@ -157,7 +157,7 @@ export function SecurityClient({ session }: { session?: { user?: unknown } | nul
                     <p className="relative mt-4 max-w-2xl text-base text-white/70">
                         We&apos;ll send you our SOC 2 report, pentest summary, and DPA — under NDA, same day.
                     </p>
-                    <Link href="/contact" className="relative mt-8 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-zoru-surface-2 to-zoru-ink px-5 py-2.5 text-sm font-semibold text-white shadow-lg">
+                    <Link href="/contact" className="relative mt-8 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg">
                         Request reports <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                 </m.div>

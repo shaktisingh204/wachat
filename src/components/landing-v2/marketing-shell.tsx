@@ -12,7 +12,7 @@ interface MarketingShellProps {
 
 export function MarketingShell({ session, children }: MarketingShellProps) {
     return (
-        <div className="relative min-h-screen overflow-x-clip bg-zoru-surface text-zoru-ink antialiased">
+        <div className="relative min-h-screen overflow-x-clip bg-[#fafaf7] text-zinc-900 antialiased">
             <div
                 aria-hidden
                 className="pointer-events-none fixed inset-0 z-0"
@@ -46,7 +46,7 @@ export function PageHero({
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="inline-flex items-center gap-2 rounded-full border border-zoru-line bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-zoru-ink backdrop-blur"
+                    className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-600 backdrop-blur"
                 >
                     {kicker}
                 </m.div>
@@ -54,7 +54,7 @@ export function PageHero({
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.05 }}
-                    className="mt-6 text-balance text-5xl font-semibold tracking-tight text-zoru-ink md:text-7xl"
+                    className="mt-6 text-balance text-5xl font-semibold tracking-tight text-zinc-950 md:text-7xl"
                 >
                     {title}
                 </m.h1>
@@ -62,7 +62,7 @@ export function PageHero({
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-zoru-ink"
+                    className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-zinc-600"
                 >
                     {subtitle}
                 </m.p>

@@ -26,17 +26,17 @@ export function SeoDemo() {
     const areaD = `${pathD} L 100 100 L 0 100 Z`;
 
     return (
-        <section className="relative overflow-hidden bg-gradient-to-b from-zoru-surface-2/30 via-white to-white py-32">
+        <section className="relative overflow-hidden bg-gradient-to-b from-rose-50/30 via-white to-white py-32">
             <div className="mx-auto max-w-7xl px-6">
                 <div className="grid items-center gap-14 lg:grid-cols-2">
                     <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zoru-ink">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-rose-700">
                             SEO · growth surface
                         </p>
-                        <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zoru-ink sm:text-5xl">
+                        <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl">
                             Pages, schema, links — all measured live.
                         </h2>
-                        <p className="mt-5 text-pretty text-lg leading-relaxed text-zoru-ink">
+                        <p className="mt-5 text-pretty text-lg leading-relaxed text-zinc-600">
                             Landing-page builder, sitemap + schema generator, short-link tracker, A/B tests,
                             keyword board, and traffic dashboards. Build the funnel and watch it convert.
                         </p>
@@ -54,9 +54,9 @@ export function SeoDemo() {
                                     viewport={{ once: true }}
                                     transition={{ delay: i * 0.06 }}
                                 >
-                                    <div className="text-[10px] font-semibold uppercase tracking-wider text-zoru-ink">{s.k}</div>
-                                    <div className="mt-1 text-2xl font-semibold text-zoru-ink">{s.v}</div>
-                                    <div className="text-[11px] font-medium text-zoru-ink">{s.up}</div>
+                                    <div className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">{s.k}</div>
+                                    <div className="mt-1 text-2xl font-semibold text-zinc-900">{s.v}</div>
+                                    <div className="text-[11px] font-medium text-emerald-600">{s.up}</div>
                                 </m.div>
                             ))}
                         </div>
@@ -67,35 +67,35 @@ export function SeoDemo() {
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
-                        className="overflow-hidden rounded-2xl border border-zoru-line/10 bg-white shadow-2xl shadow-zoru-line/10 ring-1 ring-zoru-line/5"
+                        className="overflow-hidden rounded-2xl border border-zinc-900/10 bg-white shadow-2xl shadow-zinc-900/10 ring-1 ring-zinc-900/5"
                     >
-                        <div className="flex items-center justify-between border-b border-zoru-line/70 bg-zoru-surface-2/80 px-4 py-2.5">
+                        <div className="flex items-center justify-between border-b border-zinc-200/70 bg-zinc-50/80 px-4 py-2.5">
                             <div className="flex items-center gap-3">
                                 <div className="flex gap-1.5">
-                                    <span className="h-3 w-3 rounded-full bg-zoru-surface-2 ring-1 ring-zoru-line/20" />
-                                    <span className="h-3 w-3 rounded-full bg-zoru-surface-2 ring-1 ring-zoru-line/20" />
-                                    <span className="h-3 w-3 rounded-full bg-zoru-surface-2 ring-1 ring-zoru-line/20" />
+                                    <span className="h-3 w-3 rounded-full bg-rose-400 ring-1 ring-rose-600/20" />
+                                    <span className="h-3 w-3 rounded-full bg-amber-400 ring-1 ring-amber-600/20" />
+                                    <span className="h-3 w-3 rounded-full bg-emerald-400 ring-1 ring-emerald-600/20" />
                                 </div>
-                                <span className="text-[11px] font-medium text-zoru-ink">Organic Traffic · 30d</span>
+                                <span className="text-[11px] font-medium text-zinc-700">Organic Traffic · 30d</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <button className="rounded-md bg-zoru-surface-2 px-2 py-0.5 text-[10px] font-medium text-zoru-ink">30d</button>
-                                <button className="rounded-md px-2 py-0.5 text-[10px] font-medium text-zoru-ink">90d</button>
-                                <button className="rounded-md px-2 py-0.5 text-[10px] font-medium text-zoru-ink">1y</button>
-                                <MoreHorizontal className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                <button className="rounded-md bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-700">30d</button>
+                                <button className="rounded-md px-2 py-0.5 text-[10px] font-medium text-zinc-500">90d</button>
+                                <button className="rounded-md px-2 py-0.5 text-[10px] font-medium text-zinc-500">1y</button>
+                                <MoreHorizontal className="h-3.5 w-3.5 text-zinc-400" />
                             </div>
                         </div>
 
                         <div className="p-5">
                             <div className="flex items-end justify-between">
                                 <div>
-                                    <div className="text-xs font-medium text-zoru-ink">Organic visitors</div>
+                                    <div className="text-xs font-medium text-zinc-500">Organic visitors</div>
                                     <div className="mt-1 flex items-baseline gap-2">
-                                        <span className="text-3xl font-semibold text-zoru-ink">12,840</span>
-                                        <span className="rounded-md bg-zoru-surface-2 px-1.5 py-0.5 text-[10px] font-semibold text-zoru-ink">▲ 38.2%</span>
+                                        <span className="text-3xl font-semibold text-zinc-900">12,840</span>
+                                        <span className="rounded-md bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">▲ 38.2%</span>
                                     </div>
                                 </div>
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-100 text-rose-700">
                                     <TrendingUp className="h-4 w-4" />
                                 </div>
                             </div>
@@ -138,10 +138,10 @@ export function SeoDemo() {
                                 </svg>
                             </div>
 
-                            <div className="mt-2 flex items-center justify-between text-[10px] text-zoru-ink">
+                            <div className="mt-2 flex items-center justify-between text-[10px] text-zinc-500">
                                 <span className="flex items-center gap-3">
-                                    <span className="flex items-center gap-1"><span className="h-0.5 w-3 bg-zoru-ink" /> This period</span>
-                                    <span className="flex items-center gap-1"><span className="h-0.5 w-3 bg-zoru-surface-2" style={{ backgroundImage: 'repeating-linear-gradient(90deg, #a1a1aa 0 2px, transparent 2px 4px)' }} /> Previous</span>
+                                    <span className="flex items-center gap-1"><span className="h-0.5 w-3 bg-rose-500" /> This period</span>
+                                    <span className="flex items-center gap-1"><span className="h-0.5 w-3 bg-zinc-400" style={{ backgroundImage: 'repeating-linear-gradient(90deg, #a1a1aa 0 2px, transparent 2px 4px)' }} /> Previous</span>
                                 </span>
                                 <span>Day 30 →</span>
                             </div>
@@ -158,16 +158,16 @@ export function SeoDemo() {
                                         whileInView={{ opacity: 1, x: 0 }}
                                         viewport={{ once: true }}
                                         transition={{ delay: 0.8 + i * 0.1 }}
-                                        className="flex items-center justify-between rounded-lg bg-zoru-surface-2/60 px-3 py-2"
+                                        className="flex items-center justify-between rounded-lg bg-zinc-50/60 px-3 py-2"
                                     >
                                         <div className="flex items-center gap-2 text-[11px]">
-                                            <MousePointer2 className="h-3 w-3 text-zoru-ink-muted" />
-                                            <span className="font-medium text-zoru-ink">{k.kw}</span>
+                                            <MousePointer2 className="h-3 w-3 text-zinc-400" />
+                                            <span className="font-medium text-zinc-800">{k.kw}</span>
                                         </div>
                                         <div className="flex items-center gap-3 text-[11px] tabular-nums">
-                                            <span className="rounded-full bg-zoru-surface-2 px-1.5 py-0.5 text-[9px] font-semibold text-zoru-ink">#{k.pos}</span>
-                                            <span className="text-zoru-ink">{k.vol}/mo</span>
-                                            <span className="text-zoru-ink font-medium">{k.delta}</span>
+                                            <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-700">#{k.pos}</span>
+                                            <span className="text-zinc-500">{k.vol}/mo</span>
+                                            <span className="text-emerald-600 font-medium">{k.delta}</span>
                                         </div>
                                     </m.div>
                                 ))}

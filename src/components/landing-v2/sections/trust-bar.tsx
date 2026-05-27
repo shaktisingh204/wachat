@@ -34,14 +34,14 @@ function Counter({ to, suffix, decimals = 0 }: { to: number; suffix: string; dec
 
 export function TrustBar() {
     return (
-        <section className="relative border-y border-zoru-line/70 bg-white/60 py-14 backdrop-blur">
+        <section className="relative border-y border-zinc-200/70 bg-white/60 py-14 backdrop-blur">
             <div className="mx-auto max-w-7xl px-6">
                 <m.p
                     initial={{ opacity: 0, y: 8 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5 }}
-                    className="mb-8 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink"
+                    className="mb-8 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500"
                 >
                     Trusted by ambitious teams in 60+ countries
                 </m.p>
@@ -54,7 +54,7 @@ export function TrustBar() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.05 }}
-                            className="text-center text-sm font-bold tracking-widest text-zoru-ink-muted"
+                            className="text-center text-sm font-bold tracking-widest text-zinc-400"
                         >
                             {l}
                         </m.div>
@@ -69,12 +69,12 @@ export function TrustBar() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.08 }}
-                            className="rounded-2xl border border-zoru-line/70 bg-white p-5 shadow-sm"
+                            className="rounded-2xl border border-zinc-200/70 bg-white p-5 shadow-sm"
                         >
-                            <div className="text-3xl font-semibold tracking-tight text-zoru-ink sm:text-4xl">
+                            <div className="text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
                                 <Counter to={s.value} suffix={s.suffix} decimals={s.decimals ?? 0} />
                             </div>
-                            <div className="mt-1.5 text-xs text-zoru-ink">{s.label}</div>
+                            <div className="mt-1.5 text-xs text-zinc-500">{s.label}</div>
                         </m.div>
                     ))}
                 </div>

@@ -99,11 +99,11 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
         <MarketingShell session={session}>
             <PageHero
                 kicker="900+ integrations · 0 setup fees"
-                title={<>Connect SabNode to <span className="bg-gradient-to-r from-zoru-ink via-zoru-ink to-zoru-ink bg-clip-text text-transparent">everything else.</span></>}
+                title={<>Connect SabNode to <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 bg-clip-text text-transparent">everything else.</span></>}
                 subtitle="Native connectors for the apps your team already uses. Webhooks and a clean REST API for everything else."
                 extra={
-                    <div className="mx-auto flex max-w-md items-center gap-2 rounded-full border border-zoru-line bg-white px-4 py-2 shadow-sm">
-                        <Search className="h-4 w-4 text-zoru-ink-muted" />
+                    <div className="mx-auto flex max-w-md items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 shadow-sm">
+                        <Search className="h-4 w-4 text-zinc-400" />
                         <input
                             value={q}
                             onChange={(e) => setQ(e.target.value)}
@@ -126,13 +126,13 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
                             {tab === c && (
                                 <m.span
                                     layoutId="int-tab"
-                                    className="absolute inset-0 rounded-full bg-zoru-ink"
+                                    className="absolute inset-0 rounded-full bg-zinc-900"
                                     transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                                 />
                             )}
-                            <span className={`relative z-10 ${tab === c ? 'text-white' : 'text-zoru-ink hover:text-zoru-ink'}`}>
+                            <span className={`relative z-10 ${tab === c ? 'text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>
                                 {c}
-                                <span className={`ml-1.5 text-[10px] ${tab === c ? 'text-white/60' : 'text-zoru-ink-muted'}`}>
+                                <span className={`ml-1.5 text-[10px] ${tab === c ? 'text-white/60' : 'text-zinc-400'}`}>
                                     {c === 'All' ? INTEGRATIONS.length : INTEGRATIONS.filter((i) => i.cat === c).length}
                                 </span>
                             </span>
@@ -148,23 +148,23 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: Math.min(i * 0.02, 0.3) }}
-                            className="group rounded-2xl border border-zoru-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-zoru-line"
+                            className="group rounded-2xl border border-zinc-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-zinc-900"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-zoru-surface-2 to-zoru-surface-2 text-sm font-bold text-zoru-ink">
+                                <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-200 text-sm font-bold text-zinc-900">
                                     {it.name[0]}
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-1.5">
-                                        <span className="truncate text-sm font-semibold text-zoru-ink">{it.name}</span>
-                                        <Check className="h-3.5 w-3.5 shrink-0 text-zoru-ink" />
+                                        <span className="truncate text-sm font-semibold text-zinc-950">{it.name}</span>
+                                        <Check className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
                                     </div>
-                                    <span className="rounded-full bg-zoru-surface-2 px-1.5 py-0.5 text-[10px] font-semibold text-zoru-ink">
+                                    <span className="rounded-full bg-zinc-100 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-600">
                                         {it.cat}
                                     </span>
                                 </div>
                             </div>
-                            <p className="mt-3 text-[13px] leading-relaxed text-zoru-ink">{it.blurb}</p>
+                            <p className="mt-3 text-[13px] leading-relaxed text-zinc-600">{it.blurb}</p>
                         </m.div>
                     ))}
                 </div>
@@ -174,11 +174,11 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
             <SectionWrap bg="white">
                 <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
                     <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zoru-ink">Build your own</p>
-                        <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight text-zoru-ink md:text-5xl">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">Build your own</p>
+                        <h2 className="mt-3 text-balance text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl">
                             Don&apos;t see your tool? Build it in 20 minutes.
                         </h2>
-                        <p className="mt-4 text-lg text-zoru-ink">
+                        <p className="mt-4 text-lg text-zinc-600">
                             Every action is exposed as a clean REST + webhook API. Use SabFlow&apos;s HTTP node, drop
                             in your auth, and your custom integration is live.
                         </p>
@@ -190,18 +190,18 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
                             ].map((p) => {
                                 const Icon = p.icon;
                                 return (
-                                    <div key={p.t} className="flex items-center gap-2 text-[14px] text-zoru-ink">
-                                        <Icon className="h-4 w-4 text-zoru-ink" />
+                                    <div key={p.t} className="flex items-center gap-2 text-[14px] text-zinc-700">
+                                        <Icon className="h-4 w-4 text-amber-600" />
                                         {p.t}
                                     </div>
                                 );
                             })}
                         </div>
-                        <Link href="/api-docs" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-zoru-ink">
+                        <Link href="/api-docs" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-amber-700">
                             Read the API reference <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
                     </div>
-                    <div className="overflow-hidden rounded-3xl border border-zoru-line bg-zoru-ink font-mono text-[12px] leading-relaxed text-white">
+                    <div className="overflow-hidden rounded-3xl border border-zinc-200 bg-zinc-950 font-mono text-[12px] leading-relaxed text-zinc-100">
                         <div className="border-b border-white/10 px-4 py-2 text-[11px] text-white/60">POST /v1/integrations/run</div>
                         <pre className="p-4">{`curl https://api.sabnode.in/v1/integrations/run \\
   -H "Authorization: Bearer $SAB_KEY" \\

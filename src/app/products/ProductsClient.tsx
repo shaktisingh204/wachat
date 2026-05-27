@@ -176,39 +176,39 @@ function ProductDemo({ product }: { product: any }) {
       case 'conversations':
         return (
           <div className="flex flex-col space-y-2 p-4 h-full justify-center w-full">
-            <div className="demo-element msg-1 self-start bg-zoru-ink text-white px-3 py-2 rounded-lg max-w-[80%] text-xs opacity-0 translate-y-4">Hi, I need support.</div>
-            <div className="demo-element msg-2 self-end bg-zoru-ink text-white px-3 py-2 rounded-lg max-w-[80%] text-xs opacity-0 translate-y-4">Sure, what seems to be the issue?</div>
-            <div className="demo-element msg-3 self-start bg-zoru-ink text-white px-3 py-2 rounded-lg max-w-[80%] text-xs opacity-0 translate-y-4">My order hasn't arrived yet.</div>
+            <div className="demo-element msg-1 self-start bg-gray-800 text-white px-3 py-2 rounded-lg max-w-[80%] text-xs opacity-0 translate-y-4">Hi, I need support.</div>
+            <div className="demo-element msg-2 self-end bg-blue-600 text-white px-3 py-2 rounded-lg max-w-[80%] text-xs opacity-0 translate-y-4">Sure, what seems to be the issue?</div>
+            <div className="demo-element msg-3 self-start bg-gray-800 text-white px-3 py-2 rounded-lg max-w-[80%] text-xs opacity-0 translate-y-4">My order hasn't arrived yet.</div>
           </div>
         );
       case 'automation':
         return (
           <div className="flex items-center justify-center h-full space-x-2 p-4 w-full">
-            <div className="demo-element node-1 w-12 h-12 rounded-full bg-zoru-ink flex items-center justify-center text-xs font-bold opacity-0 scale-50 z-10">Trigger</div>
-            <div className="demo-element line-1 w-8 h-1 bg-zoru-ink opacity-0 origin-left -ml-3 -mr-3"></div>
-            <div className="demo-element node-2 w-12 h-12 rounded bg-zoru-ink flex items-center justify-center text-xs font-bold opacity-0 scale-50 z-10">Action</div>
-            <div className="demo-element line-2 w-8 h-1 bg-zoru-ink opacity-0 origin-left -ml-3 -mr-3"></div>
-            <div className="demo-element node-3 w-12 h-12 rounded-full bg-zoru-ink flex items-center justify-center text-xs font-bold opacity-0 scale-50 z-10">End</div>
+            <div className="demo-element node-1 w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold opacity-0 scale-50 z-10">Trigger</div>
+            <div className="demo-element line-1 w-8 h-1 bg-gray-600 opacity-0 origin-left -ml-3 -mr-3"></div>
+            <div className="demo-element node-2 w-12 h-12 rounded bg-green-600 flex items-center justify-center text-xs font-bold opacity-0 scale-50 z-10">Action</div>
+            <div className="demo-element line-2 w-8 h-1 bg-gray-600 opacity-0 origin-left -ml-3 -mr-3"></div>
+            <div className="demo-element node-3 w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-xs font-bold opacity-0 scale-50 z-10">End</div>
           </div>
         );
       case 'crm':
         return (
           <div className="flex flex-col p-4 h-full justify-center space-y-4 w-full max-w-sm mx-auto">
             <div className="demo-element crm-header flex items-center space-x-3 opacity-0 -translate-x-5">
-               <div className="w-12 h-12 rounded-full bg-zoru-ink border-2 border-white flex items-center justify-center font-bold text-lg">JD</div>
+               <div className="w-12 h-12 rounded-full bg-indigo-600 border-2 border-white flex items-center justify-center font-bold text-lg">JD</div>
                <div>
                  <div className="text-sm font-bold text-white mb-1">Jane Doe</div>
-                 <div className="text-xs text-zoru-ink-muted">jane@example.com</div>
+                 <div className="text-xs text-gray-400">jane@example.com</div>
                </div>
             </div>
-            <div className="space-y-3 bg-zoru-ink p-3 rounded border border-zoru-line">
+            <div className="space-y-3 bg-gray-900 p-3 rounded border border-gray-700">
               <div className="demo-element crm-field flex justify-between opacity-0">
-                 <span className="text-xs text-zoru-ink-muted">Lifecycle</span>
-                 <span className="text-xs text-zoru-ink-muted font-bold bg-zoru-ink px-2 py-0.5 rounded">Lead</span>
+                 <span className="text-xs text-gray-400">Lifecycle</span>
+                 <span className="text-xs text-green-400 font-bold bg-green-900 px-2 py-0.5 rounded">Lead</span>
               </div>
               <div className="demo-element crm-field flex justify-between opacity-0">
-                 <span className="text-xs text-zoru-ink-muted">Tags</span>
-                 <span className="text-xs text-zoru-ink-muted bg-zoru-ink px-2 py-0.5 rounded">Enterprise</span>
+                 <span className="text-xs text-gray-400">Tags</span>
+                 <span className="text-xs text-blue-400 bg-blue-900 px-2 py-0.5 rounded">Enterprise</span>
               </div>
             </div>
           </div>
@@ -216,17 +216,17 @@ function ProductDemo({ product }: { product: any }) {
       case 'campaigns':
         return (
           <div className="flex flex-col p-4 h-full justify-center space-y-4 w-full max-w-sm mx-auto">
-            <div className="demo-element camp-card bg-zoru-ink p-4 rounded border border-zoru-line opacity-0 scale-95">
+            <div className="demo-element camp-card bg-gray-900 p-4 rounded border border-gray-700 opacity-0 scale-95">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-sm font-bold">Black Friday Promo</span>
-                  <span className="text-xs bg-zoru-ink px-2 py-1 rounded">Sending</span>
+                  <span className="text-xs bg-blue-600 px-2 py-1 rounded">Sending</span>
                 </div>
-                <div className="flex justify-between text-xs text-zoru-ink-muted mb-2">
+                <div className="flex justify-between text-xs text-gray-400 mb-2">
                   <span>12,450 / 15,000 sent</span>
                   <span>83%</span>
                 </div>
-                <div className="w-full h-2 bg-zoru-ink rounded-full overflow-hidden">
-                  <div className="demo-element camp-bar h-full bg-zoru-ink w-0"></div>
+                <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                  <div className="demo-element camp-bar h-full bg-blue-500 w-0"></div>
                 </div>
             </div>
           </div>
@@ -245,7 +245,7 @@ function ProductDemo({ product }: { product: any }) {
                 <div className="demo-element cart-total flex justify-between text-sm font-bold opacity-0 pt-2 border-t mt-2">
                   <span>TOTAL PAID</span><span>$109.00</span>
                 </div>
-                <div className="demo-element cart-stamp absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 text-zoru-ink font-black text-2xl tracking-widest border-4 border-zoru-line py-1 px-3 rotate-[-15deg] pointer-events-none bg-white/80">
+                <div className="demo-element cart-stamp absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 text-green-600 font-black text-2xl tracking-widest border-4 border-green-600 py-1 px-3 rotate-[-15deg] pointer-events-none bg-white/80">
                   PAID
                 </div>
             </div>
@@ -254,18 +254,18 @@ function ProductDemo({ product }: { product: any }) {
       case 'analytics':
         return (
           <div className="flex flex-col items-center justify-end p-4 h-full w-full max-w-sm mx-auto">
-             <div className="flex items-end justify-between w-full h-32 border-b-2 border-l-2 border-zoru-line p-2 space-x-2">
-                <div className="demo-element chart-bar w-full bg-zoru-ink opacity-0 h-0" data-h="40%"></div>
-                <div className="demo-element chart-bar w-full bg-zoru-ink opacity-0 h-0" data-h="75%"></div>
-                <div className="demo-element chart-bar w-full bg-zoru-ink opacity-0 h-0" data-h="55%"></div>
-                <div className="demo-element chart-bar w-full bg-zoru-ink opacity-0 h-0" data-h="90%"></div>
-                <div className="demo-element chart-bar w-full bg-zoru-ink opacity-0 h-0" data-h="65%"></div>
+             <div className="flex items-end justify-between w-full h-32 border-b-2 border-l-2 border-gray-500 p-2 space-x-2">
+                <div className="demo-element chart-bar w-full bg-blue-500 opacity-0 h-0" data-h="40%"></div>
+                <div className="demo-element chart-bar w-full bg-indigo-500 opacity-0 h-0" data-h="75%"></div>
+                <div className="demo-element chart-bar w-full bg-purple-500 opacity-0 h-0" data-h="55%"></div>
+                <div className="demo-element chart-bar w-full bg-pink-500 opacity-0 h-0" data-h="90%"></div>
+                <div className="demo-element chart-bar w-full bg-red-500 opacity-0 h-0" data-h="65%"></div>
              </div>
           </div>
         );
       default:
         return (
-           <div className="text-zoru-ink">Interactive demo not available.</div>
+           <div className="text-gray-500">Interactive demo not available.</div>
         );
     }
   };
@@ -338,7 +338,7 @@ export default function ProductsClient() {
             className="w-full border-2 border-black p-2 mb-6 text-sm font-bold outline-none focus:bg-black focus:text-white transition-colors"
           />
 
-          <h3 className="text-xs font-bold uppercase mb-3 text-zoru-ink tracking-widest">Categories</h3>
+          <h3 className="text-xs font-bold uppercase mb-3 text-gray-500 tracking-widest">Categories</h3>
           <div className="space-y-2">
             {categories.map(category => (
               <button
@@ -361,7 +361,7 @@ export default function ProductsClient() {
             </a>
           ))}
           {filteredProducts.length === 0 && (
-            <div className="text-sm text-zoru-ink py-2">No endpoints found.</div>
+            <div className="text-sm text-gray-500 py-2">No endpoints found.</div>
           )}
         </nav>
       </aside>
@@ -372,7 +372,7 @@ export default function ProductsClient() {
           <div className="p-12 text-center flex flex-col items-center justify-center h-full min-h-[500px]">
              <Box className="w-16 h-16 mb-4 opacity-20" />
              <h2 className="text-2xl font-bold uppercase tracking-widest">No Products Found</h2>
-             <p className="mt-2 text-zoru-ink">Try adjusting your filters or search query.</p>
+             <p className="mt-2 text-gray-500">Try adjusting your filters or search query.</p>
              <button 
                onClick={() => { setActiveCategory('All'); setSearchQuery(''); }}
                className="mt-6 border-2 border-black px-6 py-2 font-bold uppercase hover:bg-black hover:text-white transition-colors"
@@ -393,7 +393,7 @@ export default function ProductsClient() {
                   <h2 className="text-3xl font-bold tracking-tight uppercase">{product.name}</h2>
                 </div>
                 
-                <div className="mb-4 inline-block bg-zoru-surface-2 px-3 py-1 text-xs font-bold uppercase tracking-widest border border-black self-start">
+                <div className="mb-4 inline-block bg-gray-100 px-3 py-1 text-xs font-bold uppercase tracking-widest border border-black self-start">
                   Category: {product.category}
                 </div>
 

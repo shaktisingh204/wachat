@@ -51,17 +51,17 @@ const cols = [
 
 export function LandingFooter() {
     return (
-        <footer className="relative border-t border-zoru-line/70 bg-white">
+        <footer className="relative border-t border-zinc-200/70 bg-white">
             <div className="mx-auto max-w-7xl px-6 py-16">
                 <div className="grid gap-12 md:grid-cols-12">
                     <div className="md:col-span-4">
                         <Link href="/" className="flex items-center gap-2">
-                            <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-zoru-surface-2 via-zoru-ink to-zoru-ink shadow-lg shadow-zoru-line/30">
+                            <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 shadow-lg shadow-orange-500/30">
                                 <span className="text-sm font-black text-white">S</span>
                             </div>
-                            <span className="text-lg font-semibold tracking-tight text-zoru-ink">SabNode</span>
+                            <span className="text-lg font-semibold tracking-tight text-zinc-900">SabNode</span>
                         </Link>
-                        <p className="mt-5 max-w-xs text-sm leading-relaxed text-zoru-ink">
+                        <p className="mt-5 max-w-xs text-sm leading-relaxed text-zinc-600">
                             The operating system for your customer-facing business. Six products, one tenant, one bill.
                         </p>
                         <div className="mt-6 flex items-center gap-2">
@@ -78,7 +78,7 @@ export function LandingFooter() {
                                         aria-label={s.label}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="grid h-9 w-9 place-items-center rounded-full border border-zoru-line bg-white text-zoru-ink transition hover:border-zoru-line hover:text-zoru-ink"
+                                        className="grid h-9 w-9 place-items-center rounded-full border border-zinc-200 bg-white text-zinc-500 transition hover:border-zinc-300 hover:text-zinc-900"
                                     >
                                         <Icon className="h-4 w-4" />
                                     </a>
@@ -96,11 +96,11 @@ export function LandingFooter() {
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.05 }}
                             >
-                                <h4 className="text-xs font-semibold uppercase tracking-widest text-zoru-ink">{col.title}</h4>
+                                <h4 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">{col.title}</h4>
                                 <ul className="mt-4 space-y-2.5">
                                     {col.links.map((l) => (
                                         <li key={l.href}>
-                                            <Link href={l.href} className="text-sm text-zoru-ink transition hover:text-zoru-ink">
+                                            <Link href={l.href} className="text-sm text-zinc-600 transition hover:text-zinc-900">
                                                 {l.label}
                                             </Link>
                                         </li>
@@ -111,12 +111,12 @@ export function LandingFooter() {
                     </div>
                 </div>
 
-                <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-zoru-line/70 pt-6 text-xs text-zoru-ink md:flex-row">
+                <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-zinc-200/70 pt-6 text-xs text-zinc-500 md:flex-row">
                     <div>© {new Date().getFullYear()} SabNode. All rights reserved.</div>
                     <div className="flex items-center gap-2">
                         <span className="relative inline-flex h-2 w-2">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-zoru-surface-2 opacity-75" />
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-zoru-ink" />
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
                         </span>
                         <span>All systems operational</span>
                     </div>

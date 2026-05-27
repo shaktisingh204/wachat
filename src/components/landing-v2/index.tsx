@@ -28,7 +28,7 @@ interface LandingV2Props {
 
 export function LandingV2({ initialSession }: LandingV2Props) {
     return (
-        <div className="relative min-h-screen overflow-x-clip bg-zoru-surface text-zoru-ink antialiased">
+        <div className="relative min-h-screen overflow-x-clip bg-[#fafaf7] text-zinc-900 antialiased">
             {/* page-wide ambient backdrop */}
             <div
                 aria-hidden

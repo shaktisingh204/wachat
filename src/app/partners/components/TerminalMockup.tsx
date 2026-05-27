@@ -27,7 +27,7 @@ export function TerminalMockup() {
 
   return (
     <div className="rounded border border-white/10 bg-black overflow-hidden relative group">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-zoru-ink">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-[#0a0a0a]">
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-white/20 group-hover:bg-white/40 transition-colors"></div>
           <div className="w-2.5 h-2.5 rounded-full bg-white/20 group-hover:bg-white/40 transition-colors"></div>

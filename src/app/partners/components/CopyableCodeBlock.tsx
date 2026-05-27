@@ -21,7 +21,7 @@ export function CopyableCodeBlock({ method, endpoint, code, isWebhook = false }:
 
   return (
     <div className="rounded border border-white/10 bg-black overflow-hidden relative group">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-zoru-ink">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-[#0a0a0a]">
         <div className="flex items-center gap-3">
           <div className={`px-2 py-0.5 text-[10px] font-bold tracking-widest rounded-sm uppercase ${isWebhook ? 'border border-white/20 text-white' : 'bg-white text-black'}`}>
             {method}

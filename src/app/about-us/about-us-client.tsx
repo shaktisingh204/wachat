@@ -110,7 +110,7 @@ export function AboutUsClient() {
               <h1 className="text-4xl lg:text-5xl font-bold tracking-tight mb-2 uppercase">SabNode Specification</h1>
               <div className="text-white/60 text-sm flex gap-4 uppercase tracking-wider">
                 <Badge variant="outline" className="text-white border-white/20 rounded-none bg-transparent">Version: 1.0.0</Badge>
-                <Badge variant="outline" className="text-zoru-ink-muted border-white/20 rounded-none bg-transparent">Status: Active</Badge>
+                <Badge variant="outline" className="text-emerald-400 border-white/20 rounded-none bg-transparent">Status: Active</Badge>
                 <Badge variant="outline" className="text-white border-white/20 rounded-none bg-transparent">Classification: Public</Badge>
               </div>
             </header>

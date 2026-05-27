@@ -166,7 +166,7 @@ export function Hero() {
         <div className="max-w-3xl mx-auto text-center pt-20 md:pt-24">
           <div
             ref={chipRef}
-            className="inline-flex items-center gap-2 rounded-full border border-zoru-line/80 bg-white/85 px-4 py-1.5 text-xs font-medium text-zoru-ink"
+            className="inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-white/85 px-4 py-1.5 text-xs font-medium text-emerald-900"
             style={{
               backdropFilter: 'blur(12px) saturate(1.6)',
               WebkitBackdropFilter: 'blur(12px) saturate(1.6)',
@@ -175,28 +175,28 @@ export function Hero() {
             }}
           >
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-zoru-ink opacity-60 animate-ping" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-zoru-ink" />
+              <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60 animate-ping" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
             <span>One platform. 12 modules. Grows with you.</span>
           </div>
 
           <h1
             ref={headlineRef}
-            className="mt-7 text-4xl md:text-5xl lg:text-[56px] font-semibold leading-[1.05] tracking-[-0.025em] text-zoru-ink"
+            className="mt-7 text-4xl md:text-5xl lg:text-[56px] font-semibold leading-[1.05] tracking-[-0.025em] text-emerald-950"
             style={{ perspective: '1000px' }}
           >
             <span className="hero-word inline-block">One</span>{' '}
             <span className="hero-word inline-block">platform</span>{' '}
             <span className="hero-word inline-block">that</span>{' '}
-            <span className="hero-word inline-block bg-gradient-to-r from-zoru-ink via-zoru-ink to-zoru-ink bg-clip-text text-transparent">
+            <span className="hero-word inline-block bg-gradient-to-r from-emerald-600 via-teal-600 to-lime-600 bg-clip-text text-transparent">
               runs your business.
             </span>
           </h1>
 
           <p
             ref={subRef}
-            className="mt-6 max-w-xl mx-auto text-base md:text-lg text-zoru-ink leading-relaxed"
+            className="mt-6 max-w-xl mx-auto text-base md:text-lg text-emerald-900 leading-relaxed"
           >
             Twelve modules — Inbox, WhatsApp, Chatbot, CRM, Flows and more —
             all connected inside one system, working together from day one.
@@ -208,24 +208,24 @@ export function Hero() {
           >
             <Link
               href="/signup"
-              className="group relative inline-flex h-12 items-center justify-center gap-2 rounded-full bg-zoru-ink px-7 text-sm font-semibold text-white overflow-hidden shadow-[0_14px_30px_-8px_rgba(5,150,105,0.6)] transition-transform hover:scale-[1.03]"
+              className="group relative inline-flex h-12 items-center justify-center gap-2 rounded-full bg-emerald-600 px-7 text-sm font-semibold text-white overflow-hidden shadow-[0_14px_30px_-8px_rgba(5,150,105,0.6)] transition-transform hover:scale-[1.03]"
             >
               <span
                 aria-hidden
-                className="absolute inset-0 bg-gradient-to-r from-zoru-ink via-zoru-ink to-zoru-ink opacity-0 transition-opacity group-hover:opacity-100"
+                className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-teal-500 to-lime-500 opacity-0 transition-opacity group-hover:opacity-100"
               />
               <span className="relative">Start free beta</span>
               <ArrowRight className="relative h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="#features"
-              className="group inline-flex h-12 items-center justify-center gap-2 rounded-full border border-zoru-line bg-white/80 px-7 text-sm font-semibold text-zoru-ink transition-all hover:bg-white hover:border-zoru-line"
+              className="group inline-flex h-12 items-center justify-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-7 text-sm font-semibold text-emerald-900 transition-all hover:bg-white hover:border-emerald-300"
               style={{
                 backdropFilter: 'blur(10px) saturate(1.6)',
                 WebkitBackdropFilter: 'blur(10px) saturate(1.6)',
               }}
             >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink transition-colors group-hover:bg-zoru-ink group-hover:text-white">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 transition-colors group-hover:bg-emerald-600 group-hover:text-white">
                 <Play className="h-3 w-3 fill-current" />
               </span>
               Explore features
@@ -234,16 +234,16 @@ export function Hero() {
 
           <div
             ref={proofRef}
-            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-5 text-xs text-zoru-ink"
+            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-5 text-xs text-emerald-800"
           >
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2">
                 {[
-                  'from-zoru-surface-2 to-zoru-ink',
-                  'from-zoru-surface-2 to-zoru-ink',
-                  'from-zoru-surface-2 to-zoru-ink',
-                  'from-zoru-surface-2 to-zoru-ink',
-                  'from-zoru-ink to-zoru-ink',
+                  'from-emerald-400 to-teal-500',
+                  'from-green-400 to-emerald-500',
+                  'from-teal-400 to-cyan-500',
+                  'from-lime-400 to-green-500',
+                  'from-emerald-500 to-green-600',
                 ].map((g, i) => (
                   <div
                     key={i}
@@ -252,11 +252,11 @@ export function Hero() {
                 ))}
               </div>
               <span>
-                <span className="font-semibold text-zoru-ink">500+</span>{' '}
+                <span className="font-semibold text-emerald-900">500+</span>{' '}
                 teams growing with us
               </span>
             </div>
-            <span className="hidden sm:block h-3 w-px bg-zoru-surface-2" />
+            <span className="hidden sm:block h-3 w-px bg-emerald-300" />
             <div>No credit card · Setup in 10 minutes</div>
           </div>
         </div>

@@ -64,14 +64,14 @@ export function PricingTeaser() {
                     viewport={{ once: true }}
                     className="mx-auto max-w-2xl text-center"
                 >
-                    <h2 className="text-balance text-4xl font-semibold tracking-tight text-zoru-ink sm:text-5xl">
+                    <h2 className="text-balance text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl">
                         One bill. Six products. No surprises.
                     </h2>
-                    <p className="mt-4 text-zoru-ink">
+                    <p className="mt-4 text-zinc-600">
                         Pay for the team, not the tools. Annual billing saves you 20%.
                     </p>
 
-                    <div className="mt-7 inline-flex rounded-full border border-zoru-line bg-white p-1 shadow-sm">
+                    <div className="mt-7 inline-flex rounded-full border border-zinc-200 bg-white p-1 shadow-sm">
                         {[
                             { id: 'monthly', label: 'Monthly' },
                             { id: 'annual', label: 'Annual · -20%' },
@@ -86,11 +86,11 @@ export function PricingTeaser() {
                                     {active && (
                                         <m.div
                                             layoutId="pricing-toggle"
-                                            className="absolute inset-0 rounded-full bg-zoru-ink"
+                                            className="absolute inset-0 rounded-full bg-zinc-900"
                                             transition={{ type: 'spring', bounce: 0.2 }}
                                         />
                                     )}
-                                    <span className={`relative z-10 ${active ? 'text-white' : 'text-zoru-ink'}`}>
+                                    <span className={`relative z-10 ${active ? 'text-white' : 'text-zinc-600'}`}>
                                         {opt.label}
                                     </span>
                                 </button>
@@ -109,35 +109,35 @@ export function PricingTeaser() {
                             transition={{ delay: i * 0.08 }}
                             className={`relative overflow-hidden rounded-2xl border p-6 shadow-sm ${
                                 t.highlight
-                                    ? 'border-zoru-line bg-gradient-to-b from-zoru-surface-2 to-zoru-surface-2'
-                                    : 'border-zoru-line/70 bg-white'
+                                    ? 'border-amber-300 bg-gradient-to-b from-amber-50 to-rose-50'
+                                    : 'border-zinc-200/70 bg-white'
                             }`}
                         >
                             {t.highlight && (
-                                <span className="absolute right-6 top-6 rounded-full bg-zoru-ink px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                                <span className="absolute right-6 top-6 rounded-full bg-zinc-900 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
                                     Popular
                                 </span>
                             )}
-                            <div className="text-sm font-medium text-zoru-ink">{t.name}</div>
-                            <div className="mt-1 text-xs text-zoru-ink">{t.tag}</div>
+                            <div className="text-sm font-medium text-zinc-900">{t.name}</div>
+                            <div className="mt-1 text-xs text-zinc-500">{t.tag}</div>
 
                             <div className="mt-5 flex items-baseline gap-1">
                                 {t.priceM === null ? (
-                                    <span className="text-3xl font-semibold text-zoru-ink">Custom</span>
+                                    <span className="text-3xl font-semibold text-zinc-900">Custom</span>
                                 ) : (
                                     <>
-                                        <span className="text-5xl font-semibold tracking-tight text-zoru-ink">
+                                        <span className="text-5xl font-semibold tracking-tight text-zinc-900">
                                             ${annual ? t.priceY : t.priceM}
                                         </span>
-                                        <span className="text-sm text-zoru-ink">/ mo</span>
+                                        <span className="text-sm text-zinc-500">/ mo</span>
                                     </>
                                 )}
                             </div>
 
                             <ul className="mt-6 space-y-2.5">
                                 {t.features.map((f) => (
-                                    <li key={f} className="flex items-start gap-2 text-sm text-zoru-ink">
-                                        <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-zoru-ink" />
+                                    <li key={f} className="flex items-start gap-2 text-sm text-zinc-700">
+                                        <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600" />
                                         <span>{f}</span>
                                     </li>
                                 ))}
@@ -147,8 +147,8 @@ export function PricingTeaser() {
                                 href={t.name === 'Enterprise' ? '/contact' : '/login?signup=1'}
                                 className={`group mt-7 inline-flex w-full items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-semibold transition ${
                                     t.highlight
-                                        ? 'bg-gradient-to-r from-zoru-surface-2 via-zoru-ink to-zoru-ink text-white shadow-lg shadow-zoru-line/30 hover:scale-[1.02]'
-                                        : 'border border-zoru-line bg-white text-zoru-ink hover:bg-zoru-surface-2'
+                                        ? 'bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 text-white shadow-lg shadow-orange-500/30 hover:scale-[1.02]'
+                                        : 'border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50'
                                 }`}
                             >
                                 {t.cta}
@@ -158,9 +158,9 @@ export function PricingTeaser() {
                     ))}
                 </div>
 
-                <p className="mt-8 text-center text-xs text-zoru-ink">
+                <p className="mt-8 text-center text-xs text-zinc-500">
                     Want the breakdown?{' '}
-                    <Link href="/pricing" className="text-zoru-ink underline-offset-4 hover:underline">
+                    <Link href="/pricing" className="text-zinc-900 underline-offset-4 hover:underline">
                         See full pricing →
                     </Link>
                 </p>

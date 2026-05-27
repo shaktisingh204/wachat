@@ -4,37 +4,37 @@ import { m } from 'motion/react';
 import { Calendar, CheckCircle2, Clock, Users, Wallet } from 'lucide-react';
 
 const team = [
-    { name: 'Asha', role: 'Designer', status: 'in', color: 'from-zoru-surface-2 to-zoru-ink' },
-    { name: 'Rohan', role: 'Engineer', status: 'in', color: 'from-zoru-surface-2 to-zoru-ink' },
-    { name: 'Priya', role: 'Ops', status: 'leave', color: 'from-zoru-surface-2 to-zoru-ink' },
-    { name: 'Karan', role: 'Sales', status: 'in', color: 'from-zoru-surface-2 to-zoru-ink' },
-    { name: 'Maya', role: 'Support', status: 'late', color: 'from-zoru-surface-2 to-zoru-ink' },
-    { name: 'Vir', role: 'Finance', status: 'in', color: 'from-zoru-surface-2 to-zoru-ink' },
+    { name: 'Asha', role: 'Designer', status: 'in', color: 'from-cyan-400 to-sky-500' },
+    { name: 'Rohan', role: 'Engineer', status: 'in', color: 'from-blue-400 to-indigo-500' },
+    { name: 'Priya', role: 'Ops', status: 'leave', color: 'from-pink-400 to-rose-500' },
+    { name: 'Karan', role: 'Sales', status: 'in', color: 'from-amber-400 to-orange-500' },
+    { name: 'Maya', role: 'Support', status: 'late', color: 'from-violet-400 to-fuchsia-500' },
+    { name: 'Vir', role: 'Finance', status: 'in', color: 'from-emerald-400 to-teal-500' },
 ];
 
 const statusMap = {
-    in: { label: 'Punched in', color: 'text-zoru-ink-muted', dot: 'bg-zoru-surface-2' },
-    late: { label: '12m late', color: 'text-zoru-ink-muted', dot: 'bg-zoru-surface-2' },
-    leave: { label: 'On leave', color: 'text-zoru-ink-muted', dot: 'bg-zoru-surface-2' },
+    in: { label: 'Punched in', color: 'text-emerald-300', dot: 'bg-emerald-400' },
+    late: { label: '12m late', color: 'text-amber-300', dot: 'bg-amber-400' },
+    leave: { label: 'On leave', color: 'text-rose-300', dot: 'bg-rose-400' },
 };
 
 export function HrmHero() {
     return (
         <div className="relative h-full w-full">
-            <div aria-hidden className="absolute inset-0 rounded-3xl bg-zoru-ink/15 blur-3xl" />
+            <div aria-hidden className="absolute inset-0 rounded-3xl bg-cyan-500/15 blur-3xl" />
 
             <m.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="relative h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-zoru-ink/80 p-5 shadow-[0_30px_80px_-20px_rgba(34,211,238,0.5)] backdrop-blur"
+                className="relative h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-[#031624]/80 p-5 shadow-[0_30px_80px_-20px_rgba(34,211,238,0.5)] backdrop-blur"
             >
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-zoru-ink-muted" />
+                        <Users className="h-4 w-4 text-cyan-300" />
                         <p className="text-[12px] font-semibold text-white">Today · Mon 27 May</p>
                     </div>
-                    <p className="text-[10px] uppercase tracking-wider text-white/60">Geo + Face attendance</p>
+                    <p className="text-[10px] uppercase tracking-wider text-cyan-200/60">Geo + Face attendance</p>
                 </div>
 
                 {/* roster grid */}
@@ -54,7 +54,7 @@ export function HrmHero() {
                                     {p.name[0]}
                                 </div>
                                 <p className="mt-2 text-[11px] font-semibold text-white">{p.name}</p>
-                                <p className="text-[10px] text-white/60">{p.role}</p>
+                                <p className="text-[10px] text-cyan-100/60">{p.role}</p>
                                 <div className="mt-2 flex items-center gap-1.5">
                                     <m.span
                                         animate={{ scale: [1, 1.4, 1] }}
@@ -73,20 +73,20 @@ export function HrmHero() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.7 }}
-                    className="mt-5 flex items-center justify-between rounded-2xl border border-zoru-line/30 bg-gradient-to-r from-zoru-ink/15 to-zoru-ink/15 p-4"
+                    className="mt-5 flex items-center justify-between rounded-2xl border border-cyan-300/30 bg-gradient-to-r from-cyan-500/15 to-blue-500/15 p-4"
                 >
                     <div className="flex items-center gap-3">
-                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-zoru-surface-2 to-zoru-ink shadow-md">
+                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 shadow-md">
                             <Wallet className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                            <p className="text-[10px] uppercase tracking-wider text-white/60">May payroll</p>
+                            <p className="text-[10px] uppercase tracking-wider text-cyan-100/60">May payroll</p>
                             <p className="text-base font-semibold text-white">
                                 <CountUp to={482350} />
                             </p>
                         </div>
                     </div>
-                    <button className="rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-zoru-ink shadow-md transition hover:scale-[1.04]">
+                    <button className="rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-cyan-900 shadow-md transition hover:scale-[1.04]">
                         Run payroll
                     </button>
                 </m.div>
@@ -107,7 +107,7 @@ export function HrmHero() {
                                 transition={{ delay: 0.9 + i * 0.06 }}
                                 className="rounded-xl border border-white/5 bg-black/30 p-2.5"
                             >
-                                <SIcon className="h-3 w-3 text-zoru-ink-muted" />
+                                <SIcon className="h-3 w-3 text-cyan-300" />
                                 <p className="mt-1 text-[11px] font-semibold text-white">{s.value}</p>
                                 <p className="text-[9px] uppercase tracking-wider text-white/40">{s.label}</p>
                             </m.div>

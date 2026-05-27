@@ -51,7 +51,7 @@ export function InteractiveConsole({ activeCategory, activeQuery, isError, isLoa
           <span className="uppercase tracking-widest text-xs font-bold">Interactive Output</span>
         </div>
         <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 animate-pulse text-zoru-ink-muted" />
+          <Activity className="w-4 h-4 animate-pulse text-green-400" />
           <span className="text-xs font-mono">SYS_UP: {uptime}s</span>
         </div>
       </div>
@@ -74,7 +74,7 @@ export function InteractiveConsole({ activeCategory, activeQuery, isError, isLoa
 
         <div className="font-mono text-sm mt-8">
           <div className="text-white/40 mb-2">// SYSTEM.LOG -- tail -f</div>
-          <pre className="bg-white/5 p-4 border border-white/20 h-48 overflow-y-hidden text-xs text-zoru-ink-muted/80">
+          <pre className="bg-white/5 p-4 border border-white/20 h-48 overflow-y-hidden text-xs text-green-400/80">
             <code>
               {logs.length === 0 ? 'Waiting for events...\n' : logs.join('\n')}
             </code>

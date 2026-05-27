@@ -30,19 +30,19 @@ export function Security() {
                     viewport={{ once: true }}
                     className="mx-auto max-w-3xl text-center"
                 >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zoru-ink">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700">
                         Enterprise-ready
                     </p>
-                    <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zoru-ink sm:text-5xl md:text-6xl">
+                    <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl md:text-6xl">
                         Built for teams that take trust seriously.
                     </h2>
-                    <p className="mt-5 text-pretty text-lg text-zoru-ink">
+                    <p className="mt-5 text-pretty text-lg text-zinc-600">
                         Single sign-on, automated provisioning, regional data residency, full audit log,
                         one-click data export — the controls IT actually asks for.
                     </p>
                 </m.div>
 
-                <div className="mx-auto mt-16 max-w-5xl divide-y divide-zoru-line/70">
+                <div className="mx-auto mt-16 max-w-5xl divide-y divide-zinc-200/70">
                     {badges.map((b, i) => {
                         const Icon = b.icon;
                         return (
@@ -54,14 +54,14 @@ export function Security() {
                                 transition={{ delay: i * 0.05 }}
                                 className="group flex items-center gap-5 py-5"
                             >
-                                <span className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-2xl bg-zoru-surface-2 ring-1 ring-zoru-line/70 transition group-hover:ring-zoru-line">
-                                    <Icon className="h-5 w-5 text-zoru-ink" />
+                                <span className="grid h-12 w-12 flex-shrink-0 place-items-center rounded-2xl bg-emerald-50 ring-1 ring-emerald-200/70 transition group-hover:ring-emerald-300">
+                                    <Icon className="h-5 w-5 text-emerald-700" />
                                 </span>
                                 <div className="flex-1">
-                                    <div className="text-base font-medium text-zoru-ink">{b.label}</div>
-                                    <div className="text-sm text-zoru-ink">{b.sub}</div>
+                                    <div className="text-base font-medium text-zinc-900">{b.label}</div>
+                                    <div className="text-sm text-zinc-500">{b.sub}</div>
                                 </div>
-                                <span className="hidden text-xs font-medium uppercase tracking-wider text-zoru-ink sm:inline">
+                                <span className="hidden text-xs font-medium uppercase tracking-wider text-emerald-600 sm:inline">
                                     Available
                                 </span>
                             </m.div>

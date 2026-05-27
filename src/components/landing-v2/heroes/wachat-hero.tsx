@@ -17,26 +17,26 @@ export function WachatHero() {
             {/* glow */}
             <div
                 aria-hidden
-                className="absolute inset-0 rounded-[3rem] bg-zoru-ink/20 blur-3xl"
+                className="absolute inset-0 rounded-[3rem] bg-emerald-500/20 blur-3xl"
             />
             {/* phone frame */}
             <m.div
                 initial={{ rotate: -2 }}
                 animate={{ rotate: [-2, 1, -2] }}
                 transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative mx-auto h-full max-h-[560px] w-[280px] overflow-hidden rounded-[2.4rem] border border-white/10 bg-zoru-ink shadow-[0_30px_80px_-20px_rgba(16,185,129,0.6)]"
+                className="relative mx-auto h-full max-h-[560px] w-[280px] overflow-hidden rounded-[2.4rem] border border-white/10 bg-[#04130d] shadow-[0_30px_80px_-20px_rgba(16,185,129,0.6)]"
             >
-                <div className="flex items-center justify-between border-b border-white/5 bg-zoru-ink/40 px-4 py-3">
+                <div className="flex items-center justify-between border-b border-white/5 bg-emerald-900/40 px-4 py-3">
                     <div className="flex items-center gap-2">
-                        <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-zoru-surface-2 to-zoru-ink">
+                        <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500">
                             <MessageSquare className="h-4 w-4 text-white" />
                         </div>
                         <div>
                             <p className="text-[12px] font-semibold text-white">Sole Co.</p>
-                            <p className="text-[10px] text-white">online · WABA verified</p>
+                            <p className="text-[10px] text-emerald-200">online · WABA verified</p>
                         </div>
                     </div>
-                    <Phone className="h-4 w-4 text-white/70" />
+                    <Phone className="h-4 w-4 text-emerald-200/70" />
                 </div>
                 <div className="flex flex-col gap-2 p-3">
                     {messages.map((m, i) => (
@@ -46,7 +46,7 @@ export function WachatHero() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 2.6 }}
-                        className="mt-1 flex gap-1 rounded-2xl rounded-bl-sm bg-white/5 px-3 py-2 text-[11px] text-white/70"
+                        className="mt-1 flex gap-1 rounded-2xl rounded-bl-sm bg-white/5 px-3 py-2 text-[11px] text-emerald-100/70"
                     >
                         <Dots />
                     </m.div>
@@ -74,9 +74,9 @@ function MessageBubble({ from, text, kind, delay = 0 }: { from: 'us' | 'them'; t
                 className={`max-w-[80%] rounded-2xl px-3 py-2 text-[12px] leading-snug ${
                     isUs
                         ? kind === 'pay'
-                            ? 'rounded-br-sm bg-gradient-to-r from-zoru-surface-2 to-zoru-ink font-semibold text-white shadow-lg'
-                            : 'rounded-br-sm bg-zoru-ink/90 text-white'
-                        : 'rounded-bl-sm bg-white/10 text-white'
+                            ? 'rounded-br-sm bg-gradient-to-r from-emerald-400 to-teal-500 font-semibold text-white shadow-lg'
+                            : 'rounded-br-sm bg-emerald-500/90 text-white'
+                        : 'rounded-bl-sm bg-white/10 text-emerald-50'
                 }`}
             >
                 {text}
@@ -103,7 +103,7 @@ function Dots() {
                     key={i}
                     animate={{ opacity: [0.3, 1, 0.3] }}
                     transition={{ duration: 1.2, delay: i * 0.15, repeat: Infinity }}
-                    className="h-1.5 w-1.5 rounded-full bg-zoru-surface-2"
+                    className="h-1.5 w-1.5 rounded-full bg-emerald-300"
                 />
             ))}
         </>
@@ -116,7 +116,7 @@ function FloatingChip({ delay, className, label }: { delay: number; className: s
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: [0, -6, 0] }}
             transition={{ opacity: { delay }, y: { duration: 4, delay, repeat: Infinity, ease: 'easeInOut' } }}
-            className={`absolute z-10 rounded-full border border-zoru-line/30 bg-zoru-ink/70 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-md ${className}`}
+            className={`absolute z-10 rounded-full border border-emerald-300/30 bg-emerald-950/70 px-3 py-1 text-[11px] font-semibold text-emerald-100 backdrop-blur-md ${className}`}
             style={{ boxShadow: '0 8px 30px -8px rgba(16,185,129,0.5)' }}
         >
             {label}

@@ -25,7 +25,7 @@ function MarqueeRow({ items, direction = 1 }: { items: string[]; direction?: 1 |
                 {doubled.map((name, i) => (
                     <div
                         key={`${name}-${i}`}
-                        className="flex-shrink-0 text-2xl font-semibold tracking-tight text-zoru-ink-muted hover:text-zoru-ink"
+                        className="flex-shrink-0 text-2xl font-semibold tracking-tight text-zinc-400 hover:text-zinc-700"
                     >
                         {name}
                     </div>
@@ -43,7 +43,7 @@ export function Integrations() {
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-balance text-4xl font-semibold tracking-tight text-zoru-ink sm:text-5xl md:text-6xl"
+                    className="text-balance text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl md:text-6xl"
                 >
                     Connects to everything you already use.
                 </m.h2>
@@ -52,7 +52,7 @@ export function Integrations() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.08 }}
-                    className="mt-5 text-lg text-zoru-ink"
+                    className="mt-5 text-lg text-zinc-600"
                 >
                     900+ integrations. Native or one-click. No code, no zaps, no glue jobs.
                 </m.p>

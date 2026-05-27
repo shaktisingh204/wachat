@@ -15,10 +15,10 @@ interface FilterBarProps {
 
 export function FilterBar({ query, setQuery, category, setCategory, sort, setSort }: FilterBarProps) {
   return (
-    <div className="flex flex-col gap-4 p-4 border border-black bg-zoru-surface-2">
+    <div className="flex flex-col gap-4 p-4 border border-black bg-gray-50">
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zoru-ink-muted" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
             placeholder="Search features (try 'error' to simulate failure)..."

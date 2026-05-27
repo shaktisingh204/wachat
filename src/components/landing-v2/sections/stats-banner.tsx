@@ -36,12 +36,12 @@ export function StatsBanner() {
                             transition={{ delay: i * 0.08 }}
                             className="text-center"
                         >
-                            <div className="bg-gradient-to-br from-zoru-ink via-zoru-ink to-zoru-ink bg-clip-text text-6xl font-semibold tracking-tight text-transparent sm:text-7xl"
+                            <div className="bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 bg-clip-text text-6xl font-semibold tracking-tight text-transparent sm:text-7xl"
                                 style={{ WebkitTextFillColor: 'transparent' }}
                             >
                                 {p.big}
                             </div>
-                            <div className="mt-2 text-sm text-zoru-ink">{p.small}</div>
+                            <div className="mt-2 text-sm text-zinc-600">{p.small}</div>
                         </m.div>
                     ))}
                 </m.div>
