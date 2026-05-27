@@ -8,7 +8,7 @@ import {
     getDatasetPreview,
 } from '@/app/actions/sabprep.actions';
 import { RecipeCanvasClient } from '../../_components/recipe-canvas-client';
-import type { Row } from '@/lib/rust-client/dataprep-steps';
+import type { Row } from '@/lib/rust-client/sabprep-steps';
 
 export const metadata = { title: 'Recipe · DataPrep · SabNode' };
 

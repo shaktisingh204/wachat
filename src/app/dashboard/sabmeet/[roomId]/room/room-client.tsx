@@ -23,7 +23,7 @@ import {
   HelpCircle,
   Send,
 } from 'lucide-react';
-import type { MeetRoom } from '@/app/actions/sabmeet.actions.types';
+import type { MeetRoom, MeetPoll, MeetQna } from '@/app/actions/sabmeet.actions.types';
 import {
   leaveMeetRoom,
   listMeetPolls,
@@ -32,8 +32,6 @@ import {
   voteMeetPoll,
   askMeetQuestion,
   answerMeetQuestion,
-  type MeetPoll,
-  type MeetQna,
 } from '@/app/actions/sabmeet.actions';
 import {
   MockTransport,

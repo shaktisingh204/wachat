@@ -385,8 +385,6 @@ export async function setTelegramBotCommands(
 // pass-throughs that translate the Rust envelope into the
 // `ActionResult` / row shape callers already expect.
 
-    from '@/lib/rust-client/telegram-chats';
-
 import type {
     ChatRow as TelegramChatListRowType,
     MessageRow as TelegramMessageRowType,

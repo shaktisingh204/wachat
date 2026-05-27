@@ -11,7 +11,7 @@ import { LeadForm } from '../_components/lead-form';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
 import { PageHeader } from '@/components/zoruui';
 import { UserPlus } from 'lucide-react';
-import { SabnodeWaterLoader } from '@/components/zoruui';
+import { ZoruWaterLoader } from '@/components/zoruui';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -39,7 +39,7 @@ export default async function NewLeadPage() {
             <main className="min-w-0 flex-1 space-y-6">
                 <React.Suspense fallback={
                     <div className="flex justify-center p-12">
-                        <SabnodeWaterLoader />
+                        <ZoruWaterLoader />
                     </div>
                 }>
                     <LeadForm customFields={customFields} />

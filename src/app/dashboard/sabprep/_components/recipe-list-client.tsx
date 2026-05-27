@@ -24,7 +24,7 @@ import {
 import type {
     DataprepRecipeDoc,
     DataprepRecipeListResult,
-} from '@/lib/rust-client/dataprep-recipes';
+} from '@/lib/rust-client/sabprep-recipes';
 
 interface Props {
     initial: DataprepRecipeListResult;

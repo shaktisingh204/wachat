@@ -34,6 +34,18 @@ export {
   type ZoruTagPickerProps,
   type ZoruTagPickerTag,
 } from "./tag-picker";
+// Tabs + Slider — Re-export from the legacy `@/components/ui` Radix wrappers
+// while the ZoruUI-native primitives are still in design. Mid-migration
+// callers (sabchat/*, etc.) import {Tabs, ZoruTabsList, ZoruTabsTrigger,
+// ZoruTabsContent, Slider} from "@/components/zoruui" — wire those names
+// here so nothing has to change at the call site.
+export {
+  Tabs,
+  TabsList as ZoruTabsList,
+  TabsTrigger as ZoruTabsTrigger,
+  TabsContent as ZoruTabsContent,
+} from "@/components/ui/tabs";
+export { Slider } from "@/components/ui/slider";
 export {
   Select,
   ZoruSelectGroup,

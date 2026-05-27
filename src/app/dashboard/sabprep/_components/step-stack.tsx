@@ -12,7 +12,7 @@ import {
     Badge,
     EmptyState,
 } from '@/components/zoruui';
-import { STEP_CATALOG, type Step, type StepKind, type StepRunSummary } from '@/lib/rust-client/dataprep-steps';
+import { STEP_CATALOG, type Step, type StepKind, type StepRunSummary } from '@/lib/rust-client/sabprep-steps';
 import { StepEditor } from './step-editor';
 
 interface Props {

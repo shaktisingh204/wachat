@@ -4,7 +4,7 @@ import * as React from 'react';
 import { FileUp } from 'lucide-react';
 
 import { SabFileToFileButton } from '@/components/sabfiles';
-import type { Row } from '@/lib/rust-client/dataprep-steps';
+import type { Row } from '@/lib/rust-client/sabprep-steps';
 
 interface Props {
     onParsed: (parsed: { name: string; rows: Row[] }) => void;

@@ -46,6 +46,19 @@ export async function markExitNoc(
   });
 }
 
+export async function confirmExitKt(
+  id: string,
+  ktStatus: 'completed' | 'in_progress' | 'pending' = 'completed',
+): Promise<HrActionResult> {
+  return mutate({
+    pillar: 'exit',
+    id,
+    patch: { ktStatus, ktConfirmedAt: new Date() },
+    action: 'status_change',
+    reason: `KT ${ktStatus}`,
+  });
+}
+
 /* ─── Succession ────────────────────────────────────────────────────── */
 
 export async function markSuccessionReviewed(id: string): Promise<HrActionResult> {

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Card, ZoruCardHeader, ZoruCardTitle, ZoruCardContent } from '@/components/zoruui';
-import type { Row } from '@/lib/rust-client/dataprep-steps';
+import type { Row } from '@/lib/rust-client/sabprep-steps';
 
 const ROW_LIMIT = 50;
 

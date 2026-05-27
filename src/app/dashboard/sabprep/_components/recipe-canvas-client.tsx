@@ -21,13 +21,13 @@ import {
     persistDataset,
     getDatasetPreview,
 } from '@/app/actions/sabprep.actions';
-import type { DataprepRecipeDoc } from '@/lib/rust-client/dataprep-recipes';
+import type { DataprepRecipeDoc } from '@/lib/rust-client/sabprep-recipes';
 import type {
     Row,
     Step,
     StepRunSummary,
-} from '@/lib/rust-client/dataprep-steps';
-import type { ColumnProfile } from '@/lib/rust-client/dataprep-profiles';
+} from '@/lib/rust-client/sabprep-steps';
+import type { ColumnProfile } from '@/lib/rust-client/sabprep-profiles';
 
 import { SourcePreviewPanel } from './source-preview-panel';
 import { StepStack } from './step-stack';

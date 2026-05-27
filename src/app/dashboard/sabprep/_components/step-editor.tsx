@@ -9,7 +9,7 @@ import type {
     JoinKey,
     JoinType,
     Step,
-} from '@/lib/rust-client/dataprep-steps';
+} from '@/lib/rust-client/sabprep-steps';
 
 interface Props {
     step: Step;

@@ -39,6 +39,28 @@ export interface MeetRoom {
   updatedAt?: string;
 }
 
+export interface MeetPoll {
+  _id: string;
+  roomId: string;
+  question: string;
+  options: Array<{ id: string; label: string; voteCount: number }>;
+  closed?: boolean;
+  createdAt?: string;
+  createdBy?: string;
+}
+
+export interface MeetQna {
+  _id: string;
+  roomId: string;
+  question: string;
+  askerName?: string;
+  answer?: string;
+  answered?: boolean;
+  answeredBy?: string;
+  createdAt?: string;
+  answeredAt?: string;
+}
+
 export interface MeetRecording {
   _id: string;
   roomId: string;

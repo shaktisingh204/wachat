@@ -680,3 +680,31 @@ export async function listSabmeetDialIns(): Promise<{ success: boolean; data: Sa
     .toArray();
   return { success: true, data: docs.map(serializeDoc) as unknown as SabmeetDialIn[] };
 }
+
+// ---------------------------------------------------------------------------
+// Backward-compat aliases for the previous `Meet*` export names. UI callers
+// were not updated when the actions were renamed to `Sabmeet*`. Keep these
+// shims until every caller is migrated to the canonical Sab* names.
+// ---------------------------------------------------------------------------
+export {
+    listSabmeetRooms as listMeetRooms,
+    getSabmeetRoom as getMeetRoom,
+    getSabmeetRoomByJoinCode as getMeetRoomByJoinCode,
+    createSabmeetRoom as createMeetRoom,
+    updateSabmeetRoom as updateMeetRoom,
+    cancelSabmeetRoom as cancelMeetRoom,
+    listSabmeetParticipants as listMeetParticipants,
+    joinSabmeetRoom as joinMeetRoom,
+    leaveSabmeetRoom as leaveMeetRoom,
+    listSabmeetRecordings as listMeetRecordings,
+    startSabmeetRecording as startMeetRecording,
+    completeSabmeetRecording as completeMeetRecording,
+    listSabmeetPolls as listMeetPolls,
+    createSabmeetPoll as createMeetPoll,
+    voteSabmeetPoll as voteMeetPoll,
+    listSabmeetQna as listMeetQna,
+    askSabmeetQuestion as askMeetQuestion,
+    answerSabmeetQuestion as answerMeetQuestion,
+    getSabmeetRoomAnalytics as getMeetRoomAnalytics,
+    listSabmeetDialIns as listMeetDialIns,
+};

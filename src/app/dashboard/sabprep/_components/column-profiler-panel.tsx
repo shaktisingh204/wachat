@@ -10,7 +10,7 @@ import {
     Button,
     Progress,
 } from '@/components/zoruui';
-import type { ColumnProfile } from '@/lib/rust-client/dataprep-profiles';
+import type { ColumnProfile } from '@/lib/rust-client/sabprep-profiles';
 
 interface Props {
     profiles: ColumnProfile[];
