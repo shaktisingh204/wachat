@@ -23,7 +23,7 @@ export default async function EditStatusPagePage({
                 <h2 className="text-sm font-semibold text-zoru-ink">{page.title}</h2>
                 <Link
                     className="text-[12px] text-zoru-brand hover:underline"
-                    href={`/status/${page.slug}`}
+                    href={`/uptime/${page.slug}`}
                     target="_blank"
                     rel="noreferrer"
                 >

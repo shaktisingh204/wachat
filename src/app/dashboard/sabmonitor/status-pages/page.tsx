@@ -40,9 +40,9 @@ export default async function StatusPagesIndex(): Promise<React.JSX.Element> {
                                             Public URL:{' '}
                                             <Link
                                                 className="text-zoru-brand hover:underline"
-                                                href={`/status/${p.slug}`}
+                                                href={`/uptime/${p.slug}`}
                                             >
-                                                /status/{p.slug}
+                                                /uptime/{p.slug}
                                             </Link>
                                         </span>
                                     </div>
